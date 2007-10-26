@@ -83,7 +83,6 @@ class MyApp : public wxApp
     hoxWWWPlayer*       m_wwwLocalPlayer;
     hoxMyPlayer*        m_myPlayer;
 
-    void OnServerEvent(wxSocketEvent& event);
     void OnServerSocketEvent(wxSocketEvent& event);
     void OnServerResponse(wxCommandEvent& event);
 

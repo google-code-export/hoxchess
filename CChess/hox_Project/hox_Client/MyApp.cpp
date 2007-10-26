@@ -23,13 +23,9 @@
 // not wxApp)
 IMPLEMENT_APP(MyApp)
 
-// user code intercepting the event
-//IMPLEMENT_DYNAMIC_CLASS( MyApp, wxApp )
-
 DEFINE_EVENT_TYPE(hoxEVT_SERVER_RESPONSE)
 
 BEGIN_EVENT_TABLE(MyApp, wxApp)
-  EVT_SOCKET(SERVER_ID,         MyApp::OnServerEvent)
   EVT_SOCKET(SERVER_SOCKET_ID,  MyApp::OnServerSocketEvent)
   EVT_COMMAND(wxID_ANY, hoxEVT_SERVER_RESPONSE, MyApp::OnServerResponse)
 END_EVENT_TABLE()
@@ -77,8 +73,8 @@ hoxLog::DoLogString(const wxChar *msg, time_t timestamp)
 bool 
 MyApp::OnInit()
 {
-    // call the base class initialization method, currently it only parses a
-    // few common command-line options but it could be do more in the future
+    // Call the base class initialization method, currently it only parses a
+    // few common command-line options but it could be do more in the future.
     if ( !wxApp::OnInit() )
         return false;
 
@@ -103,8 +99,8 @@ MyApp::OnInit()
     m_frame = new MyFrame( NULL, 
                            wxID_ANY, 
                            _T("HOX Client"),
-                           displayPosition, //wxDefaultPosition, 
-                           displaySize, //wxSize(650, 800),
+                           displayPosition,
+                           displaySize,
                            wxDEFAULT_FRAME_STYLE | wxHSCROLL | wxVSCROLL );
 
     m_frame->SetupMenu();
@@ -122,7 +118,7 @@ MyApp::OnInit()
     // Create a "host" player representing this machine.
     m_pPlayer = hoxPlayerMgr::GetInstance()->CreateHostPlayer( "This_HOST" );
 
-    // Initialize socket.
+    // Initialize socket so that secondary threads can use network-related API.
     if ( ! wxSocketBase::Initialize() )
     {
         wxLogError("Failed to initialize socket.");
@@ -162,7 +158,7 @@ MyApp::OpenServer()
 
     if ( m_server->Create() != wxTHREAD_NO_ERROR )
     {
-        wxLogError(wxString::Format("%s: Failed to create Server.", FNAME));
+        wxLogError("%s: Failed to create Server thread.", FNAME);
         return;
     }
     wxASSERT_MSG( !m_server->GetThread()->IsDetached(), "The Server thread must be joinable.");
@@ -178,7 +174,7 @@ MyApp::OpenServer()
 
     if ( m_socketServer->Create() != wxTHREAD_NO_ERROR )
     {
-        wxLogError(wxString::Format("%s: Failed to create Server.", FNAME));
+        wxLogError("%s: Failed to create socker-server thread.", FNAME);
         return;
     }
     wxASSERT_MSG( !m_socketServer->GetThread()->IsDetached(), "The socket-server thread must be joinable.");
@@ -189,7 +185,6 @@ MyApp::OpenServer()
 void MyApp::CloseServer()
 {
     const char* FNAME = "MyApp::CloseServer";
-
 
     if ( m_socketServer != NULL )
     {
@@ -214,56 +209,20 @@ void MyApp::CloseServer()
 }
 
 void 
-MyApp::OnServerEvent(wxSocketEvent& event) 
-{
-    const char* FNAME = "MyApp::OnServerEvent";  // function's name
-    wxLogDebug("[%d (%d)] %s: ENTER.", wxThread::GetCurrentId, wxThread::IsMain(), FNAME);
-    wxString s;
-    s.Printf("%s: ", FNAME);
-
-    switch(event.GetSocketEvent())
-    {
-        case wxSOCKET_CONNECTION : s.Append("wxSOCKET_CONNECTION"); break;
-        default                  : s.Append("Unexpected event !"); break;
-    }
-
-    wxLogDebug(s);
-
-    wxASSERT( m_server != NULL );
-    {
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_ACCEPT, this );
-        request->content = "";
-        m_server->AddRequest( request );
-    }
-}
-
-void 
 MyApp::OnServerSocketEvent(wxSocketEvent& event)
 {
     const char* FNAME = "MyApp::OnServerSocketEvent";  // function's name
-    wxLogDebug("[%d (%d)] %s: ENTER.", wxThread::GetCurrentId, wxThread::IsMain(), FNAME);
-    wxString s;
-    s.Printf(_("%s: "), FNAME);
 
-    wxSocketBase* sock = event.GetSocket();
+    wxLogDebug("%s: ENTER.", FNAME);
 
-    //wxASSERT_MSG( sock == m_pendingSock, _T("Sockets should match!") );
-
-    // First, print a message
-    switch(event.GetSocketEvent())
-    {
-        case wxSOCKET_INPUT : s.Append("wxSOCKET_INPUT"); break;
-        case wxSOCKET_LOST  : s.Append("wxSOCKET_LOST"); break;
-        default             : s.Append("Unexpected event !"); break;
-    }
-
-    wxLogDebug(s);
+    wxLogDebug("%s: Received new socket-event = [%s].", 
+        FNAME, hoxUtility::SocketEventToString(event.GetSocketEvent()) );
 
     wxASSERT( m_server != NULL );
     {
         hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_DATA, this );
-        request->content = "";
-        request->socket = sock;
+        request->content     = "";
+        request->socket      = event.GetSocket();
         request->socketEvent = event.GetSocketEvent();
         m_server->AddRequest( request );
     }
@@ -273,7 +232,7 @@ void
 MyApp::OnServerResponse(wxCommandEvent& event)
 {
     const char* FNAME = "MyApp::OnServerResponse";  // function's name
-    wxLogDebug("[%d (%d)] %s: ENTER.", wxThread::GetCurrentId, wxThread::IsMain(), FNAME);
+    wxLogDebug("%s: ENTER.", FNAME);
 
     hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
     const std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!

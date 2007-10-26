@@ -43,6 +43,21 @@ namespace hoxUtility
      */
     wxString GenerateRandomString();
 
+    /**
+     * Convert a given socket-event to a (human-readable) string.
+     */
+    const wxString SocketEventToString( const wxSocketNotify socketEvent );
+
+    /**
+     * Convert a given socket-error to a (human-readable) string.
+     */
+    const wxString SocketErrorToString( const wxSocketError socketError );
+
+    /**
+     * Convert a given request-type to a (human-readable) string.
+     */
+    const wxString RequestTypeToString( const hoxRequestType requestType );
+
 }
 
 #endif /* __INCLUDED_HOX_UTILITY_H_ */

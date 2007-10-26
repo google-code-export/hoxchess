@@ -65,8 +65,6 @@ private:
     wxSocketClient*       m_pSClient;
                 /* The socket to handle network connections */
 
-    hoxMyPlayer*          m_player;
-
     wxSemaphore           m_semRequests;
     wxMutex               m_mutexRequests;
     hoxRequestList        m_requests;

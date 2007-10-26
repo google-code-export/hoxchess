@@ -141,12 +141,12 @@ typedef std::list<hoxNetworkEvent*> hoxNetworkEventList;
 class hoxRequest : public wxObject
 {
 public:
-    int           type;
-    wxString      content;
-    int           flags;
-    wxEvtHandler* sender;
-    wxSocketBase* socket;  // TODO Put it here temporarily
-    wxSocketNotify socketEvent;
+    hoxRequestType  type;
+    wxString        content;
+    int             flags;
+    wxEvtHandler*   sender;
+    wxSocketBase*   socket;  // TODO Put it here temporarily
+    wxSocketNotify  socketEvent;
 
     hoxRequest() : type( hoxREQUEST_TYPE_UNKNOWN ), 
                    flags( hoxREQUEST_FLAG_NONE ), 
@@ -154,7 +154,7 @@ public:
                    socket( NULL ),
                    socketEvent( wxSOCKET_INPUT ) {}
 
-    hoxRequest(int t, wxEvtHandler* s) : type( t ), 
+    hoxRequest(hoxRequestType t, wxEvtHandler* s) : type( t ), 
                                          flags( hoxREQUEST_FLAG_NONE ), 
                                          sender( s ),
                                          socket( NULL ),
