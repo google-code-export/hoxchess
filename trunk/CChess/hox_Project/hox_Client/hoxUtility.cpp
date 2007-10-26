@@ -234,4 +234,69 @@ hoxUtility::GenerateRandomString()
     return wxString("SomeString") << someNumber;
 }
 
+const wxString 
+hoxUtility::SocketEventToString( const wxSocketNotify socketEvent )
+{
+    switch( socketEvent )
+    {
+        case wxSOCKET_INPUT:       return "wxSOCKET_INPUT";
+        case wxSOCKET_OUTPUT:      return "wxSOCKET_OUTPUT";
+        case wxSOCKET_CONNECTION:  return "wxSOCKET_CONNECTION";
+        case wxSOCKET_LOST:        return "wxSOCKET_LOST";
+
+        default:                   return "Unexpected event!";
+    }
+}
+
+/**
+ * Convert a given socket-error to a (human-readable) string.
+ */
+const wxString 
+hoxUtility::SocketErrorToString( const wxSocketError socketError )
+{
+    switch( socketError )
+    {
+        case wxSOCKET_NOERROR:    return "wxSOCKET_NOERROR"; //No error happened
+        case wxSOCKET_INVOP:      return "wxSOCKET_INVOP";   // invalid operation
+        case wxSOCKET_IOERR:      return "wxSOCKET_IOERR";   // Input/Output error
+        case wxSOCKET_INVADDR:    return "wxSOCKET_INVADDR"; // Invalid address passed to wxSocket
+        case wxSOCKET_INVSOCK:    return "wxSOCKET_INVSOCK"; // Invalid socket (uninitialized).
+        case wxSOCKET_NOHOST:     return "wxSOCKET_NOHOST";  // No corresponding host
+        case wxSOCKET_INVPORT:    return "wxSOCKET_INVPORT"; // Invalid port
+        case wxSOCKET_WOULDBLOCK: return "wxSOCKET_WOULDBLOCK"; // The socket is non-blocking and the operation would block
+        case wxSOCKET_TIMEDOUT:   return "wxSOCKET_TIMEDOUT"; // The timeout for this operation expired
+        case wxSOCKET_MEMERR:     return "wxSOCKET_MEMERR";   // Memory exhausted
+
+        default:                  return "Unexpected error!";
+    }
+}
+
+/**
+ * Convert a given request-type to a (human-readable) string.
+ */
+const wxString 
+hoxUtility::RequestTypeToString( const hoxRequestType requestType )
+{
+    switch( requestType )
+    {
+        case hoxREQUEST_TYPE_UNKNOWN:     return "hoxREQUEST_TYPE_UNKNOWN";
+
+        case hoxREQUEST_TYPE_ACCEPT:      return "hoxREQUEST_TYPE_ACCEPT";
+        case hoxREQUEST_TYPE_DATA:        return "hoxREQUEST_TYPE_DATA";
+        case hoxREQUEST_TYPE_CONNECT:     return "hoxREQUEST_TYPE_CONNECT";
+        case hoxREQUEST_TYPE_DISCONNECT:  return "hoxREQUEST_TYPE_DISCONNECT";
+        case hoxREQUEST_TYPE_SHUTDOWN:    return "hoxREQUEST_TYPE_SHUTDOWN";
+        case hoxREQUEST_TYPE_POLL:        return "hoxREQUEST_TYPE_POLL";
+        case hoxREQUEST_TYPE_MOVE:        return "hoxREQUEST_TYPE_MOVE";
+        case hoxREQUEST_TYPE_LIST:        return "hoxREQUEST_TYPE_LIST";
+        case hoxREQUEST_TYPE_NEW:         return "hoxREQUEST_TYPE_NEW";
+        case hoxREQUEST_TYPE_JOIN:        return "hoxREQUEST_TYPE_JOIN";
+        case hoxREQUEST_TYPE_LEAVE:       return "hoxREQUEST_TYPE_LEAVE";
+        case hoxREQUEST_TYPE_LISTEN:      return "hoxREQUEST_TYPE_LISTEN";
+        case hoxREQUEST_TYPE_TABLE_MOVE:  return "hoxREQUEST_TYPE_TABLE_MOVE";
+
+        default:                          return "Unexpected request-type!";
+    }
+}
+
 /************************* END OF FILE ***************************************/

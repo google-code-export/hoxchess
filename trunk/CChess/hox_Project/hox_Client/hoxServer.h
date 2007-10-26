@@ -47,8 +47,10 @@ public:
 
     void HandleCommand_Connect( wxSocketBase* sock );
     void HandleCommand_List( wxSocketBase* sock );
-    void HandleCommand_Join( wxSocketBase*      sock, 
-                             hoxCommand&  command );
+    void HandleCommand_Join( wxSocketBase*  sock, 
+                             hoxCommand&    command );
+    void HandleCommand_New( wxSocketBase* sock, 
+                            hoxCommand&   command );
     //void HandleCommand_Leave( wxSocketBase*      sock, 
     //                          hoxCommand&  command );
 

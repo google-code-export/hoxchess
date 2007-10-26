@@ -88,6 +88,7 @@ public:
     void OnWWWResponse(wxCommandEvent& event);
     void OnMYResponse(wxCommandEvent& event);
     void DoJoinExistingMYTable(const hoxNetworkTableInfo& tableInfo);
+    void DoJoinNewMYTable(const wxString& tableId);
     void OnFrameLogMsgEvent( wxCommandEvent &event );
 
     void OnClientSocketEvent( wxSocketEvent& event );
@@ -102,6 +103,7 @@ private:
     void _OnMYResponse_Connect( const wxString& responseStr );
     void _OnMYResponse_List( const wxString& responseStr );
     void _OnMYResponse_Join( const wxString& responseStr );
+    void _OnMYResponse_New( const wxString& responseStr );
 
     hoxTable* _CreateNewTable( const wxString& tableId );
 

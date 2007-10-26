@@ -147,6 +147,28 @@ enum hoxTimeContant
 };
 
 //
+// Socket related constants
+//
+enum hoxSocketContant
+{
+  /*
+   * !!! Do not change the values the following !!!
+   */
+
+  hoxSOCKET_CLIENT_SOCKET_TIMEOUT = 10,   // 10 seconds
+                /* Timeout applied to client -> server connection */
+
+  hoxSOCKET_SERVER_ACCEPT_TIMEOUT = 5     // 5 seconds
+                /* Timeout applied to server-socket which is waiting  
+                 * by wxSocketServer::Accept() for new incoming client 
+                 * connections. This timeout is needed so that the server
+                 * can process the SHUTDOWN request.
+                 */
+
+
+};
+
+//
 // Network event-types
 //
 enum hoxNetworkEvenType
@@ -202,7 +224,6 @@ enum hoxRequestFlag
 enum
 {
     // id for sockets
-    SERVER_ID,
     SERVER_SOCKET_ID,
 
     // id for sockets

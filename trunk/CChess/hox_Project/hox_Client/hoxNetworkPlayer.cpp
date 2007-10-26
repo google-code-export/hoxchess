@@ -12,6 +12,7 @@
 #include "hoxTableMgr.h"
 #include "hoxServer.h"
 #include "hoxWWWThread.h"
+#include "hoxUtility.h"
 #include <algorithm>
 
 // user code intercepting the event
@@ -56,17 +57,9 @@ void
 hoxNetworkPlayer::OnClientSocketEvent(wxSocketEvent& event)
 {
     const char* FNAME = "hoxNetworkPlayer::OnClientSocketEvent";  // function's name
-    wxString msg;
-    msg.Printf("%s: ", FNAME);
 
-    switch(event.GetSocketEvent())
-    {
-        case wxSOCKET_INPUT      : msg.Append("wxSOCKET_INPUT"); break;
-        case wxSOCKET_LOST       : msg.Append("wxSOCKET_LOST"); break;
-        case wxSOCKET_CONNECTION : msg.Append("wxSOCKET_CONNECTION"); break;
-        default                  : msg.Append(_("Unexpected event !")); break;
-    }
-    wxLogDebug(msg);
+    wxLogDebug(wxString::Format("%s: %s", FNAME, 
+                    hoxUtility::SocketEventToString(event.GetSocketEvent()) ));
 
     wxSocketBase* sock = event.GetSocket();
   

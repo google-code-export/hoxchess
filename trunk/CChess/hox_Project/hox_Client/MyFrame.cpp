@@ -189,7 +189,7 @@ void MyFrame::OnConnectServer(wxCommandEvent& WXUNUSED(event) )
     m_dlgProgress->SetSize( wxSize(500, 150) );
     m_dlgProgress->Pulse();
 
-    wxLogDebug(_("Create a WWW LOCAL player to connect to a remote server..."));
+    wxLogDebug(_("Create MY player to connect to a remote server..."));
     if ( wxGetApp().m_myPlayer != NULL )
     {
         wxLogDebug("Delete the existing MY player.");
@@ -580,6 +580,39 @@ void MyFrame::DoJoinExistingMYTable(const hoxNetworkTableInfo& tableInfo)
     wxGetApp().m_myPlayer->StartListenForMoves( this );
 }
 
+void MyFrame::DoJoinNewMYTable(const wxString& tableId)
+{
+    const char* FNAME = "MyFrame::DoJoinNewMYTable";
+    hoxResult result;
+
+    wxASSERT( wxGetApp().m_myPlayer != NULL );
+
+    /***********************/
+    /* Create a new table. */
+    /***********************/
+
+    wxLogDebug("%s: Create a new table connecting to the server...", FNAME);
+    hoxTable* table = _CreateNewTable( tableId );
+
+    /***********************/
+    /* Setup players       */
+    /***********************/
+
+    /* Since we open this NEW table, we will play RED.
+     */
+
+    hoxPlayer* red_player = wxGetApp().m_myPlayer;
+
+    result = red_player->JoinTable( table );
+    wxASSERT( result == hoxRESULT_OK  );
+    wxASSERT_MSG( red_player->HasRole( hoxRole(table->GetId(), 
+                                               hoxPIECE_COLOR_RED) ),
+                  _("Player must play RED"));
+
+    /* NOTE: The other player is <EMPTY> 
+     */
+}
+
 void MyFrame::OnDisconnectServer(wxCommandEvent& WXUNUSED(event) )
 {
     hoxResult result;
@@ -744,7 +777,7 @@ MyFrame::OnMYResponse(wxCommandEvent& event)
             break;
 
         case hoxREQUEST_TYPE_NEW:
-            _OnWWWResponse_New( response->content );
+            _OnMYResponse_New( response->content );
             break;
 
         case hoxREQUEST_TYPE_JOIN:
@@ -884,30 +917,30 @@ MyFrame::_OnMYResponse_List( const wxString& responseStr )
     {
         case hoxTablesDialog::COMMAND_ID_JOIN:
         {
-            wxLogDebug(wxString::Format("%s: Ask the server to allow me to JOIN table = [%s]", FNAME, selectedId));
+            wxLogDebug("%s: Ask the server to allow me to JOIN table = [%s]", FNAME, selectedId);
             hoxNetworkTableInfo tableInfo;
             result = wxGetApp().m_myPlayer->JoinNetworkTable( selectedId, this );
             if ( result != hoxRESULT_OK )
             {
-                wxLogError(wxString::Format("%s: Failed to JOIN a network table [%s].", FNAME, selectedId));
+                wxLogError("%s: Failed to JOIN a network table [%s].", FNAME, selectedId);
             }
             break;
         }
 
         case hoxTablesDialog::COMMAND_ID_NEW:
         {
-            wxLogDebug("Ask the WWW server to open a new table.");
+            wxLogDebug("%s: Ask the server to open a new table.", FNAME);
             wxString newTableId;
-            result = wxGetApp().m_wwwLocalPlayer->OpenNewNetworkTable( this );
+            result = wxGetApp().m_myPlayer->OpenNewNetworkTable( this );
             if ( result != hoxRESULT_OK )
             {
-                wxLogError("Failed to open NEW network table.");
+                wxLogError("%s: Failed to open a NEW network table.", FNAME);
             }
             break;
         }
 
         default:
-            wxLogDebug(wxString::Format("%s: No command is selected. Fine.", FNAME));
+            wxLogDebug("%s: No command is selected. Fine.", FNAME);
             break;
     }
 
@@ -934,6 +967,26 @@ MyFrame::_OnMYResponse_Join( const wxString& responseStr )
         wxLogDebug(wxString::Format("Successfully joined the network table [%s].", tableInfo.id));
         this->DoJoinExistingMYTable( tableInfo );
     }
+}
+
+void 
+MyFrame::_OnMYResponse_New( const wxString& responseStr )
+{
+    const char* FNAME = "MyFrame::_OnMYResponse_New";
+    wxLogDebug("%s: Parsing SEND-NEW's response...", FNAME);
+    wxString newTableId;
+    hoxResult result;
+
+    result = hoxWWWThread::parse_string_for_new_network_table( responseStr,
+                                                               newTableId );
+    if ( result != hoxRESULT_OK )
+    {
+        wxLogError("%s: Failed to parse for SEND-NEW's response.", FNAME);
+        return;
+    }
+
+    wxLogDebug("The server created a new table with ID = [%s].", newTableId);
+    this->DoJoinNewMYTable( newTableId );
 }
 
 void 

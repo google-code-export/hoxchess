@@ -39,6 +39,9 @@ public:
     void RequestShutdown() { m_shutdownRequested = true; }
 
 private:
+    void _DestroySocketServer();
+
+private:
     int               m_nPort;       // The main server's port.
     wxSocketServer*   m_pSServer;    // The main server's socket
 

@@ -50,6 +50,7 @@ class hoxMyPlayer :  public hoxPlayer
     hoxResult QueryForNetworkTables( wxEvtHandler* sender );
     hoxResult JoinNetworkTable( const wxString& tableId,
                                 wxEvtHandler*   sender );
+    hoxResult OpenNewNetworkTable( wxEvtHandler*   sender );
     hoxResult LeaveNetworkTable( const wxString& tableId,
                                  wxEvtHandler*   sender );
 

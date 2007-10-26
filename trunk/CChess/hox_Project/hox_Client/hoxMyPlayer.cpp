@@ -104,6 +104,19 @@ hoxMyPlayer::JoinNetworkTable( const wxString& tableId,
 
     return hoxRESULT_OK;
 }
+hoxResult 
+hoxMyPlayer::OpenNewNetworkTable( wxEvtHandler*   sender )
+{
+    wxASSERT( m_connection != NULL );
+    {
+        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_NEW, sender );
+        request->content = 
+            wxString::Format("op=NEW&pid=%s\r\n", this->GetName());
+        m_connection->AddRequest( request );
+    }
+
+    return hoxRESULT_OK;
+}
 
 hoxResult 
 hoxMyPlayer::LeaveNetworkTable( const wxString& tableId,
@@ -159,7 +172,7 @@ hoxMyPlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
     wxString moveStr = wxString::Format("%d%d%d%d", 
                             moveFromPos.x, moveFromPos.y, moveToPos.x, moveToPos.y);
 
-    wxLogDebug(wxString::Format("%s: ENTER. move = [%s].", FNAME, moveStr));
+    wxLogDebug("%s: ENTER. move = [%s].", FNAME, moveStr);
 
     wxASSERT( m_connection != NULL );
     {
