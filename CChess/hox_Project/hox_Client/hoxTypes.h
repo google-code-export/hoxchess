@@ -148,17 +148,18 @@ public:
     wxSocketBase*   socket;  // TODO Put it here temporarily
     wxSocketNotify  socketEvent;
 
-    hoxRequest() : type( hoxREQUEST_TYPE_UNKNOWN ), 
-                   flags( hoxREQUEST_FLAG_NONE ), 
-                   sender( NULL ),
-                   socket( NULL ),
-                   socketEvent( wxSOCKET_INPUT ) {}
+    hoxRequest() : type( hoxREQUEST_TYPE_UNKNOWN )
+                 , flags( hoxREQUEST_FLAG_NONE )
+                 , sender( NULL )
+                 , socket( NULL )
+                 , socketEvent( wxSOCKET_INPUT ) {}
 
-    hoxRequest(hoxRequestType t, wxEvtHandler* s) : type( t ), 
-                                         flags( hoxREQUEST_FLAG_NONE ), 
-                                         sender( s ),
-                                         socket( NULL ),
-                                         socketEvent( wxSOCKET_INPUT )  {}
+    hoxRequest(hoxRequestType t, wxEvtHandler* s = NULL) 
+                    : type( t )
+                    , flags( hoxREQUEST_FLAG_NONE )
+                    , sender( s )
+                    , socket( NULL )
+                    , socketEvent( wxSOCKET_INPUT )  {}
 };
 typedef std::list<hoxRequest*> hoxRequestList;
 
@@ -168,8 +169,8 @@ public:
     int       type;
     wxString  content;
 
-    hoxResponse(int t) : type( t ) {}
     hoxResponse() : type( hoxREQUEST_TYPE_UNKNOWN ) {}
+    hoxResponse(int t) : type( t ) {}
 };
 
 class hoxCommand : public wxObject

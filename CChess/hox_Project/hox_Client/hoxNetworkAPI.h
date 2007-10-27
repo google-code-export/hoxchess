@@ -16,6 +16,20 @@
 
 namespace hoxNetworkAPI
 {
+    /**
+     * Providing exlusive access to the socket input by disabling 
+     * wxSOCKET_INPUT event and re-enabling it upon destruction.
+     */
+    class SocketInputLock
+    {
+    public:
+        SocketInputLock( wxSocketBase* sock );
+        ~SocketInputLock();
+    private:
+        wxSocketBase* m_sock;
+    };
+
+
     hoxResult SendMove( wxSocketBase*   sock, 
                         const wxString& commandInput );
 
@@ -31,6 +45,16 @@ namespace hoxNetworkAPI
     hoxResult ParseSimpleResponse( const wxString& responseStr,
                                    int&            returnCode,
                                    wxString&       returnMsg );
+
+    /**
+     * Convert a given socket-event to a (human-readable) string.
+     */
+    const wxString SocketEventToString( const wxSocketNotify socketEvent );
+
+    /**
+     * Convert a given socket-error to a (human-readable) string.
+     */
+    const wxString SocketErrorToString( const wxSocketError socketError );
 
 
 } /* namespace hoxNetwork */

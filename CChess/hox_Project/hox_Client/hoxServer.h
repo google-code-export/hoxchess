@@ -56,9 +56,14 @@ private:
 private:
     hoxRequest* _GetRequest();         
     void        _HandleRequest( hoxRequest* request );
+    hoxResult   _CheckAndHandleSocketLostEvent( const hoxRequest* request, 
+                                                wxString&         response );
     hoxResult   _HandleRequest_Accept( hoxRequest* request );
     hoxResult   _HandleCommand_TableMove( hoxRequest* request );
-    hoxResult   _SendRequest_Data( const hoxRequest* request, wxString& response );
+    hoxResult   _HandleRequest_PlayerData( const hoxRequest* request, 
+                                           wxString&         response );
+    hoxResult   _SendRequest_Data( const hoxRequest* request, 
+                                   wxString&          response );
 
     void        _Disconnect();
     void        _DestroyAllActiveSockets();

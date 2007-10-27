@@ -97,10 +97,9 @@ hoxSocketServer::Entry()
         newSock->Notify( true );
 
         // *** Save the connection so that later we can cleanup before closing.
-        wxLogDebug("%s: Save the new active client connection.", FNAME);
-        request = new hoxRequest( hoxREQUEST_TYPE_ACCEPT, NULL );
+        wxLogDebug("%s: Posting ACCEPT request to save the new client connection.", FNAME);
+        request = new hoxRequest( hoxREQUEST_TYPE_ACCEPT );
         request->socket = newSock;
-        request->content = "";
         m_server->AddRequest( request );
     }
 

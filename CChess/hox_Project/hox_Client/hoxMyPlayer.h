@@ -59,7 +59,7 @@ class hoxMyPlayer :  public hoxPlayer
      * Socket-event handlers
      *******************************/
 
-    void HandleIncomingData( wxSocketEvent& event );
+    void OnIncomingNetworkData( wxSocketEvent& event );
 
 private:
     void _StartConnection();

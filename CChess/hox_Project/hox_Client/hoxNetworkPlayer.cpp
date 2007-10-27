@@ -8,19 +8,13 @@
 
 #include "hoxNetworkPlayer.h"
 #include "hoxEnums.h"
-#include "hoxTable.h"
-#include "hoxTableMgr.h"
 #include "hoxServer.h"
-#include "hoxWWWThread.h"
-#include "hoxUtility.h"
-#include <algorithm>
 
 // user code intercepting the event
 IMPLEMENT_DYNAMIC_CLASS( hoxNetworkPlayer, hoxPlayer )
 
 BEGIN_EVENT_TABLE(hoxNetworkPlayer, hoxPlayer)
-    // Socket-event handler
-    EVT_SOCKET(CLIENT_SOCKET_ID,  hoxNetworkPlayer::HandleIncomingData)
+    EVT_SOCKET(CLIENT_SOCKET_ID,  hoxNetworkPlayer::OnIncomingNetworkData)
 END_EVENT_TABLE()
 
 
@@ -53,16 +47,15 @@ hoxNetworkPlayer::~hoxNetworkPlayer()
 }
 
 void
-hoxNetworkPlayer::HandleIncomingData( wxSocketEvent& event )
+hoxNetworkPlayer::OnIncomingNetworkData( wxSocketEvent& event )
 {
-    const char* FNAME = "hoxNetworkPlayer::HandleIncomingData";
+    const char* FNAME = "hoxNetworkPlayer::OnIncomingNetworkData";
     wxLogDebug("%s: ENTER.", FNAME);
 
     wxASSERT( m_server != NULL );
     {
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_DATA, NULL /* sender */ );
-        request->content = "";
-        request->socket = event.GetSocket();
+        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_PLAYER_DATA );
+        request->socket      = event.GetSocket();
         request->socketEvent = event.GetSocketEvent();
         m_server->AddRequest( request );
     }
@@ -99,12 +92,11 @@ hoxNetworkPlayer::SetCBSocket( wxSocketBase* socket )
 
     if ( m_pCBSock != NULL )
     {
-        wxLogError( "%s: Callback socket already exists.", FNAME );
+        wxLogError("%s: Callback socket already exists.", FNAME);
         return hoxRESULT_ERR;
     }
 
-    wxLogDebug(wxString::Format("%s: Assign callback socket to this user [%s]", 
-                    FNAME, GetName()));
+    wxLogDebug("%s: Assign callback socket to this user [%s]", FNAME, GetName());
     m_pCBSock = socket;
     return hoxRESULT_OK;
 }

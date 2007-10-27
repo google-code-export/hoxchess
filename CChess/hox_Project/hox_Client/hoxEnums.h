@@ -19,6 +19,7 @@ enum hoxResult
     hoxRESULT_OK = 0,
     hoxRESULT_ERR,   // A generic error.
 
+    hoxRESULT_HANDLED,   // something (request, event,...) has been handled.
     hoxRESULT_NOT_SUPPORTED
 };
 
@@ -194,6 +195,9 @@ enum hoxRequestType
 
     hoxREQUEST_TYPE_ACCEPT,
     hoxREQUEST_TYPE_DATA,
+
+    hoxREQUEST_TYPE_PLAYER_DATA,
+        /* Network data incoming from a remote player */
 
     hoxREQUEST_TYPE_CONNECT,
     hoxREQUEST_TYPE_DISCONNECT,
