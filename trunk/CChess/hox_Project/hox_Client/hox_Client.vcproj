@@ -197,6 +197,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hoxNetworkAPI.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\hoxNetworkPlayer.cpp"
 				>
 			</File>
@@ -308,6 +312,10 @@
 			</File>
 			<File
 				RelativePath=".\hoxNaiveReferee.h"
+				>
+			</File>
+			<File
+				RelativePath=".\hoxNetworkAPI.h"
 				>
 			</File>
 			<File

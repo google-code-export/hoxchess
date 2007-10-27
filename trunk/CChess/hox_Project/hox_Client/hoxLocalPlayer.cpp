@@ -55,8 +55,14 @@ hoxLocalPlayer::DisconnectFromNetwork()
 void 
 hoxLocalPlayer::HandleSocketLostEvent(wxSocketBase *sock)
 {
+    const char* FNAME = "hoxLocalPlayer::HandleSocketLostEvent";
+    wxLogDebug(wxString::Format("%s: ENTER", FNAME));
+
+    wxASSERT( m_pSClient != NULL );
+    wxASSERT_MSG( m_pSClient == sock, "The socket should be the same." );
+
+    m_pSClient->Destroy();
     m_pSClient = NULL;
-    return hoxNetworkPlayer::HandleSocketLostEvent( sock );
 }
 
 hoxResult 

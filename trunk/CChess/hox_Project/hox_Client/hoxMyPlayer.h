@@ -25,7 +25,7 @@ class hoxConnection;
 class hoxMyPlayer :  public hoxPlayer
 {
   public:
-    hoxMyPlayer(); // Default constructor required for event handler.
+    hoxMyPlayer(); // DUMMY default constructor required for event handler.
     hoxMyPlayer( const wxString& name,
                  hoxPlayerType   type,
                  int             score = 1500);
@@ -36,11 +36,10 @@ class hoxMyPlayer :  public hoxPlayer
      * Override the parent's event-handler API
      *******************************************/
 
-    //virtual hoxResult DisconnectFromNetwork();
-    //virtual void      HandleSocketLostEvent( wxSocketBase* sock );
+    virtual void OnNewMove_FromTable( hoxPlayerEvent&  event );
 
     /*******************************
-     * LOCAL-specific Network API
+     * MY-specific Network API
      *******************************/
 
     hoxResult ConnectToNetworkServer( const wxString& sHostname, 
@@ -54,15 +53,13 @@ class hoxMyPlayer :  public hoxPlayer
     hoxResult LeaveNetworkTable( const wxString& tableId,
                                  wxEvtHandler*   sender );
 
-    hoxResult StartListenForMoves( wxEvtHandler* sender );
+    hoxResult StartListenForMoves();
 
-    hoxResult ProcessIncomingData( wxSocketEvent& event );
+    /*******************************
+     * Socket-event handlers
+     *******************************/
 
-    virtual void OnNewMove_FromTable( hoxPlayerEvent&  event );
-
-    //hoxResult ConnectToNetworkServer( const wxString& sHostname, int nPort );
-    //hoxResult QueryForNetworkTables( hoxNetworkTableInfoList& tableList );
-    //hoxResult JoinNetworkTable( const wxString& tableId );
+    void HandleIncomingData( wxSocketEvent& event );
 
 private:
     void _StartConnection();

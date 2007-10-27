@@ -14,6 +14,7 @@
 #include "hoxNetworkPlayer.h"
 #include "hoxPlayerMgr.h"
 #include "hoxUtility.h"
+#include "hoxNetworkAPI.h"
 
 #include <wx/sstream.h>
 #include <wx/protocol/http.h>
@@ -31,12 +32,13 @@ hoxServer::hoxServer( int nPort )
         , m_shutdownRequested( false )
         , m_pSServer( NULL )
 {
+    const char* FNAME = "hoxServer::hoxServer";
+    wxLogDebug("%s: ENTER.", FNAME);
 }
 
 hoxServer::~hoxServer()
 {
     const char* FNAME = "hoxServer::~hoxServer";
-
     wxLogDebug("%s: ENTER.", FNAME);
 
     _DestroyAllActiveSockets();
@@ -47,10 +49,10 @@ void
 hoxServer::_DestroyAllActiveSockets()
 {
     const char* FNAME = "hoxServer::_DestroyAllActiveSockets";
-
     wxLogDebug("%s: ENTER.", FNAME);
 
-    for ( SocketList::iterator it = m_activeSockets.begin(); it != m_activeSockets.end(); ++it )
+    for ( SocketList::iterator it = m_activeSockets.begin(); 
+                               it != m_activeSockets.end(); ++it )
     {
         (*it)->Destroy();
     }
@@ -60,7 +62,6 @@ void
 hoxServer::_DestroyActiveSocket( wxSocketBase *sock )
 {
     const char* FNAME = "hoxServer::_DestroyActiveSocket";
-
     wxLogDebug("%s: ENTER.", FNAME);
 
     if ( _DetachActiveSocket( sock ) )
@@ -73,11 +74,11 @@ bool
 hoxServer::_DetachActiveSocket( wxSocketBase *sock )
 {
     const char* FNAME = "hoxServer::_DetachActiveSocket";
-
     wxLogDebug("%s: ENTER.", FNAME);
 
-    SocketList::iterator found = std::find( m_activeSockets.begin(), m_activeSockets.end(), sock );
-
+    SocketList::iterator found = std::find( m_activeSockets.begin(), 
+                                            m_activeSockets.end(), 
+                                            sock );
     if ( found != m_activeSockets.end() )
     {
         m_activeSockets.erase( found );
@@ -151,25 +152,16 @@ hoxServer::_HandleRequest( hoxRequest* request )
             result = _HandleRequest_Accept( request );
             break;
 
-        //case hoxREQUEST_TYPE_LIST:     /* fall through */
-        //case hoxREQUEST_TYPE_JOIN:     /* fall through */
+        case hoxREQUEST_TYPE_TABLE_MOVE:
+            result = _HandleCommand_TableMove( request ); 
+            break;
+
         case hoxREQUEST_TYPE_DATA:
             result = _SendRequest_Data( request, response->content );
             break;
 
-        //case hoxREQUEST_TYPE_CONNECT:
-        //    result = _SendRequest_Connect( request->content, response->content );
-        //    break;
-
-        //case hoxREQUEST_TYPE_POLL:     /* fall through */
-        //case hoxREQUEST_TYPE_MOVE:     /* fall through */
-        //case hoxREQUEST_TYPE_NEW:      /* fall through */
-        //case hoxREQUEST_TYPE_LEAVE:
-        //    result = _SendRequest( request->content, response->content );
-        //    break;
-
         default:
-            wxLogError("%s: Unsupported request Type [%s].", 
+            wxLogError("%s: Unsupported Request-Type [%s].", 
                 FNAME, hoxUtility::RequestTypeToString(request->type));
             result = hoxRESULT_NOT_SUPPORTED;
             response->content = "";
@@ -182,12 +174,6 @@ hoxServer::_HandleRequest( hoxRequest* request )
         wxLogError("%s: Error occurred while handling request [%s].", 
             FNAME, hoxUtility::RequestTypeToString(request->type));
         response->content = "!Error_Result!";
-    }
-
-    /* Keep-alive if requested. */
-    if ( (request->flags & hoxREQUEST_FLAG_KEEP_ALIVE) != 0 )
-    {
-        _Disconnect();
     }
 
     /* NOTE: If there was error, just return it to the caller. */
@@ -207,7 +193,6 @@ hoxServer::_HandleRequest_Accept( hoxRequest* request )
     const char* FNAME = "hoxServer::_HandleRequest_Accept";  // function's name
     wxLogDebug("%s: ENTER.", FNAME);
 
-    // *** Save the connection so that later we can cleanup before closing.
     wxLogDebug("%s: Save an active (socket) connection.", FNAME);
     m_activeSockets.push_back( request->socket );
 
@@ -215,10 +200,23 @@ hoxServer::_HandleRequest_Accept( hoxRequest* request )
 }
 
 hoxResult 
+hoxServer::_HandleCommand_TableMove( hoxRequest* request ) 
+{
+    const char* FNAME = "hoxServer::_HandleCommand_TableMove";  // function's name
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    // TODO: Check to make sure that the socket is in our list.
+
+    return hoxNetworkAPI::SendMove( request->socket, request->content );
+}
+
+hoxResult 
 hoxServer::_SendRequest_Data( const hoxRequest* request, 
                               wxString&         response )
 {
     const char* FNAME = "hoxServer::_SendRequest_Data";  // function's name
+    hoxResult result = hoxRESULT_OK;
+
     wxLogDebug("%s: ENTER.", FNAME);
 
     wxSocketBase *sock = request->socket;
@@ -229,13 +227,11 @@ hoxServer::_SendRequest_Data( const hoxRequest* request,
     {
         case wxSOCKET_INPUT:
         {
-            // We disable input events, so that the test doesn't trigger
-            // wxSocketEvent again.
-            //sock->SetNotify(wxSOCKET_LOST_FLAG); // remove the wxSOCKET_INPUT_FLAG!!!
+            // We disable input events until we are done processing the current command.
+            sock->SetNotify(wxSOCKET_LOST_FLAG); // remove the wxSOCKET_INPUT_FLAG!!!
 
             wxString     commandStr;
             hoxCommand   command;
-            hoxResult    result = hoxRESULT_ERR;  // Default = "error"
 
             wxLogDebug("%s: Reading incoming command from the network...", FNAME);
             result = hoxServer::read_line( sock, commandStr );
@@ -256,36 +252,40 @@ hoxServer::_SendRequest_Data( const hoxRequest* request,
             switch ( command.type )
             {
                 case hoxREQUEST_TYPE_CONNECT:
-                    HandleCommand_Connect(sock); 
+                    _HandleCommand_Connect(sock); 
                     break;
 
                 case hoxREQUEST_TYPE_LIST:
-                    HandleCommand_List(sock); 
+                    _HandleCommand_List(sock); 
                     break;
 
                 case hoxREQUEST_TYPE_JOIN:
-                    HandleCommand_Join(sock, command); 
+                    _HandleCommand_Join(sock, command); 
                     break;
 
                 case hoxREQUEST_TYPE_NEW:
-                    HandleCommand_New(sock, command); 
+                    _HandleCommand_New(sock, command); 
                     break;
 
-                //case hoxREQUEST_TYPE_LEAVE:
-                //    HandleCommand_Leave(sock, command); 
-                //    break;
+                case hoxREQUEST_TYPE_MOVE:
+                    result = hoxNetworkAPI::HandleMove( sock, command );
+                    break;
+
+                case hoxREQUEST_TYPE_LEAVE:
+                    result = hoxNetworkAPI::HandleLeave( sock, command );
+                    break;
 
                 default:
                     break;
             }
 
-            // Enable input events again.
-            //sock->SetNotify(wxSOCKET_LOST_FLAG | wxSOCKET_INPUT_FLAG);
+            // Enable the input flag again.
+            sock->SetNotify(wxSOCKET_LOST_FLAG | wxSOCKET_INPUT_FLAG);
             break;
         }
         case wxSOCKET_LOST:
         {
-            wxLogDebug("%s: Deleting pending socket.", FNAME);
+            wxLogDebug("%s: Received socket-lost event. Deleting client socket.", FNAME);
             _DestroyActiveSocket( sock );
             break;
         }
@@ -295,22 +295,13 @@ hoxServer::_SendRequest_Data( const hoxRequest* request,
             break;
     }
 
-    return hoxRESULT_OK;
+    return result;
 }
 
-//hoxResult        
-//hoxServer::_SendRequest_Connect( const wxString& request, 
-//                                     wxString&       response )
-//{
-//    const char* FNAME = "hoxServer::_SendRequest_Connect";
-//    wxLogError("%s: Are we using this function.", FNAME );
-//    return hoxRESULT_OK;
-//}
-
 void 
-hoxServer::HandleCommand_Connect( wxSocketBase* sock )
+hoxServer::_HandleCommand_Connect( wxSocketBase* sock )
 {
-    const char* FNAME = "hoxServer::HandleCommand_Connect";
+    const char* FNAME = "hoxServer::_HandleCommand_Connect";
 
     /* NOTE: Accummulate the entire response and send it at once
      *       with the first number indicating the size of the message.
@@ -328,22 +319,23 @@ hoxServer::HandleCommand_Connect( wxSocketBase* sock )
     sock->WriteMsg( response, nWrite );
     if ( sock->LastCount() != nWrite )
     {
-        wxLogWarning(wxString::Format("%s: Writing to  socket failed.", FNAME));
+        wxLogError("%s: Writing to socket failed. Error = [%s]", 
+            FNAME, hoxUtility::SocketErrorToString(sock->LastError()));
         return;
     }
 }
 
 void 
-hoxServer::HandleCommand_List( wxSocketBase *sock )
+hoxServer::_HandleCommand_List( wxSocketBase *sock )
 {
-    const char* FNAME = "hoxServer::HandleCommand_List";
+    const char* FNAME = "hoxServer::_HandleCommand_List";
 
     // Get the list of hosted tables.
     const hoxTableList& tables = hoxTableMgr::GetInstance()->GetTables();
     wxUint32 tableCount = (wxUint32) tables.size();
 
     // Write it back
-    wxLogDebug(wxString::Format("%s: ... We have [%d] tables.", FNAME, tableCount));
+    wxLogDebug("%s: ... We have [%d] tables.", FNAME, tableCount);
 
     wxUint32 nWrite;
     wxString response;
@@ -370,16 +362,17 @@ hoxServer::HandleCommand_List( wxSocketBase *sock )
     sock->WriteMsg( response, nWrite );
     if ( sock->LastCount() != nWrite )
     {
-        wxLogError(wxString::Format("%s: Writing to  socket failed.", FNAME));
+        wxLogError("%s: Writing to socket failed. Error = [%s]", 
+            FNAME, hoxUtility::SocketErrorToString(sock->LastError()));
         return;
     }
 }
 
 void 
-hoxServer::HandleCommand_Join( wxSocketBase*      sock,
+hoxServer::_HandleCommand_Join( wxSocketBase*      sock,
                                hoxCommand&  command )
 {
-    const char* FNAME = "hoxServer::HandleCommand_Join";
+    const char* FNAME = "hoxServer::_HandleCommand_Join";
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -408,11 +401,6 @@ hoxServer::HandleCommand_Join( wxSocketBase*      sock,
                  << "Table " << tableId << " not found.\r\n";
         goto exit_label;
     }
-
-    //bool     bTableOpen = true;
-    //if (!pTable || pTable->GetStatus() != hoxTABLE_STATUS_OPEN) {
-    //    bTableOpen = false;
-    //}
 
     /* Get the ID of the existing player */
 
@@ -444,12 +432,17 @@ hoxServer::HandleCommand_Join( wxSocketBase*      sock,
                                                           nRequesterScore );
     black_player->AddRole( hoxRole( tableId, hoxPIECE_COLOR_BLACK ) );
 
+    // Setup the network-server which will handle all network communications.
+    wxLogDebug("%s: Let this server manage the communication for this Network player [%s].", 
+        FNAME, black_player->GetName());
+    black_player->SetServer( this );
+
     // Set the callback socket to communicate back to the 'real' network player.
     black_player->SetCBSocket(sock);
-    if ( ! _DetachActiveSocket( sock ) ) // Let the player take care of this socket!
-    {
-        wxFAIL_MSG("Active socket not found.");
-    }
+    //if ( ! _DetachActiveSocket( sock ) ) // Let the player take care of this socket!
+    //{
+    //    wxFAIL_MSG("Active socket not found.");
+    //}
 
     // Setup the event handler and let the player handles all socket events.
     wxLogDebug("%s: Let this Network player [%s] handle all socket events", FNAME, black_player->GetName());
@@ -480,14 +473,14 @@ exit_label:
 }
 
 void 
-hoxServer::HandleCommand_New( wxSocketBase*  sock,
+hoxServer::_HandleCommand_New( wxSocketBase*  sock,
                               hoxCommand&    command )
 {
-    const char* FNAME = "hoxServer::HandleCommand_New";
+    const char* FNAME = "hoxServer::_HandleCommand_New";
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    wxLogDebug("%s: **** NOT YET IMPLEMENTED **** ", FNAME);
+    wxLogWarning("%s: **** NOT YET IMPLEMENTED **** ", FNAME);
 }
 
 hoxRequest*

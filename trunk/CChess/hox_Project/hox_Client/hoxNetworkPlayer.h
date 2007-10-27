@@ -9,12 +9,14 @@
 #ifndef __INCLUDED_HOX_NETWORK_PLAYER_H_
 #define __INCLUDED_HOX_NETWORK_PLAYER_H_
 
-#include "wx/wx.h"
-#include "wx/socket.h"
+#include <wx/wx.h>
+#include <wx/socket.h>
 #include "hoxPlayer.h"
 #include "hoxEnums.h"
 #include "hoxTypes.h"
 
+/* Forward declarations */
+class hoxServer;
 
 /**
  * The NETWORK player.
@@ -23,7 +25,7 @@
 class hoxNetworkPlayer :  public hoxPlayer
 {
   public:
-    hoxNetworkPlayer(); // Default constructor required for event handler.
+    hoxNetworkPlayer(); // DUMMY default constructor required for event handler.
     hoxNetworkPlayer( const wxString& name,
                       hoxPlayerType   type,
                       int             score = 1500);
@@ -40,27 +42,21 @@ class hoxNetworkPlayer :  public hoxPlayer
      * Network API
      ***************************/
 
-    virtual void OnClientSocketEvent( wxSocketEvent& event );
-    virtual void HandleNewMove_FromNetwork( wxSocketBase* sock );
+    void HandleIncomingData( wxSocketEvent& event );
 
-    virtual void      HandleSocketLostEvent( wxSocketBase* sock );
     virtual hoxResult DisconnectFromNetwork();
 
     wxSocketBase* GetCBSocket() const { return m_pCBSock; }
     hoxResult     SetCBSocket( wxSocketBase* socket );
 
-    ////////////////////
-    void HandleCommand_Leave( wxSocketBase*      sock, 
-                              hoxCommand&  command );
-    void HandleCommand_Move( wxSocketBase*      sock, 
-                             hoxCommand&  command );
-    ////////////
+    void SetServer( hoxServer* server) { m_server = server; }
 
   private:
 
     wxSocketBase*     m_pCBSock; 
         /* Callback socket for only NETWORK player.  */
 
+    hoxServer*        m_server;
 
     DECLARE_CLASS(hoxNetworkPlayer)
     DECLARE_EVENT_TABLE()

@@ -86,6 +86,12 @@ hoxSocketServer::Entry()
          * Subscribe to 'input' and 'lost-connection' events
          *************************************************************/
 
+        newSock->SetFlags( wxSOCKET_WAITALL );
+
+        wxLogDebug("%s: Set a default time-out = [%d] seconds on new BLOCKING client-socket.", 
+            FNAME, hoxSOCKET_CLIENT_SOCKET_TIMEOUT);
+        newSock->SetTimeout( hoxSOCKET_CLIENT_SOCKET_TIMEOUT );
+
         newSock->SetEventHandler( wxGetApp(), SERVER_SOCKET_ID );
         newSock->SetNotify( wxSOCKET_INPUT_FLAG | wxSOCKET_LOST_FLAG );
         newSock->Notify( true );
