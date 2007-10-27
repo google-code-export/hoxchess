@@ -57,10 +57,10 @@ public:
 private:
     hoxRequest* _GetRequest();         
     void        _HandleRequest( hoxRequest* request );
-    hoxResult   _SendRequest( const wxString& request, wxString& response );
+    //hoxResult   _SendRequest( const wxString& request, wxString& response );
     hoxResult   _HandleRequest_Accept( hoxRequest* request );
     hoxResult   _SendRequest_Data( const hoxRequest* request, wxString& response );
-    hoxResult   _SendRequest_Connect( const wxString& request, wxString& response );
+    //hoxResult   _SendRequest_Connect( const wxString& request, wxString& response );
 
     void        _Disconnect();
     void        _DestroyAllActiveSockets();

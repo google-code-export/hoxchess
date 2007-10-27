@@ -58,93 +58,76 @@ hoxNetworkPlayer::OnClientSocketEvent(wxSocketEvent& event)
 {
     const char* FNAME = "hoxNetworkPlayer::OnClientSocketEvent";  // function's name
 
-    wxLogDebug(wxString::Format("%s: %s", FNAME, 
-                    hoxUtility::SocketEventToString(event.GetSocketEvent()) ));
+    wxLogDebug("%s: ENTER. socket-event = [%s].", FNAME, 
+        hoxUtility::SocketEventToString(event.GetSocketEvent()) );
 
     wxSocketBase* sock = event.GetSocket();
+    wxASSERT_MSG( sock != NULL, "Socket cannot be NULL." );
   
+    // We disable input events until we are done processing the current command.
+    sock->SetNotify(wxSOCKET_LOST_FLAG); // remove the wxSOCKET_INPUT_FLAG!!!
+
     // Now we process the event
     switch( event.GetSocketEvent() )
     {
         case wxSOCKET_INPUT:
         {
-            // Receive data from socket and send it back. We will first
-            // get a byte with the buffer size, so we can specify the
-            // exact size and use the wxSOCKET_WAITALL flag. Also, we
-            // disabled input events so we won't have unwanted reentrance.
-            // This way we can avoid the infamous wxSOCKET_BLOCK flag.
-
-
-            wxString commandStr;
-            hoxResult result = hoxServer::read_line( sock, commandStr );
-            
-            wxLogDebug(wxString::Format("%s: Received command-string [%s] received from client", 
-                            FNAME, commandStr));
-            
+            wxString     commandStr;
             hoxCommand   command;
+            hoxResult    result = hoxRESULT_ERR;  // Default = "error"
+
+            wxLogDebug("%s: Reading incoming command from the network...", FNAME);
+            result = hoxServer::read_line( sock, commandStr );
+            if ( result != hoxRESULT_OK )
+            {
+                wxLogError("%s: Failed to parse command [%s].", FNAME, commandStr);
+                goto exit_label;
+            }
+            wxLogDebug("%s: Received command [%s].", FNAME, commandStr);
+
             result = hoxServer::parse_command( commandStr, command );
             if ( result != hoxRESULT_OK )
             {
-                wxLogError(wxString::Format("%s: Failed to parse command-string [%s].", 
-                                FNAME, commandStr));
-            }
-            else
-            {
-                switch ( command.type )
-                {
-                    case hoxREQUEST_TYPE_LEAVE:
-                        HandleCommand_Leave(sock, command); 
-                        break;
-
-                    case hoxREQUEST_TYPE_MOVE:
-                        HandleCommand_Move(sock, command); 
-                        break;
-
-                    default:
-                        wxLogError(wxString::Format("%s: Unknown command [%d] received from client", FNAME, command));
-                        break;
-                }
+                wxLogError("%s: Failed to parse command-string [%s].", FNAME, commandStr);
+                goto exit_label;
             }
 
-#if 0
-            // Which command are we going to run?
-            unsigned char command;
-            sock->Read( &command, 1 );
-
-            switch( command )
+            switch ( command.type )
             {
-                case hoxNETWORK_CMD_NEW_MOVE: 
-                    HandleNewMove_FromNetwork( sock );
+                case hoxREQUEST_TYPE_LEAVE:
+                    HandleCommand_Leave(sock, command); 
+                    break;
+
+                case hoxREQUEST_TYPE_MOVE:
+                    HandleCommand_Move(sock, command); 
                     break;
 
                 default:
-                    wxLogWarning(_("%s: Unknown command [%d] received from client"), FNAME, command);
+                    wxLogError("%s: Unknown command [%s] received from the network.", 
+                        FNAME, hoxUtility::RequestTypeToString(command.type));
+                    break;
             }
-#endif
             break;
         }
 
         case wxSOCKET_LOST:
         {
-            // Destroy() should be used instead of delete wherever possible,
-            // due to the fact that wxSocket uses 'delayed events' (see the
-            // documentation for wxPostEvent) and we don't want an event to
-            // arrive to the event handler (the frame, here) after the socket
-            // has been deleted. Also, we might be doing some other thing with
-            // the socket at the same time; for example, we might be in the
-            // middle of a test or something. Destroy() takes care of all
-            // this for us.
-
-            wxLogDebug(wxString::Format("%s: Invoke socket-lost event handler...", FNAME));
+            wxLogDebug("%s: Invoke socket-lost event handler...", FNAME);
             HandleSocketLostEvent( sock );
             break;
         }
   
         default: 
+            wxLogError("%s: Unexpected socket-event event handler...", FNAME);
+                FNAME, hoxUtility::SocketEventToString(event.GetSocketEvent());
             break;
     } // switch
 
-    wxLogDebug(wxString::Format(_("%s: END"), FNAME));
+exit_label:
+    // Enable the input flag again.
+    sock->SetNotify(wxSOCKET_LOST_FLAG | wxSOCKET_INPUT_FLAG);
+
+    wxLogDebug("%s: END.", FNAME);
 }
 
 void 
@@ -357,22 +340,26 @@ void
 hoxNetworkPlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
 {
     const char* FNAME = "hoxNetworkPlayer::OnNewMove_FromTable";
-    static const char* CMD_STR = "New-Move";
-    hoxResult result = hoxRESULT_ERR;
-    wxUint32  nRead;
-    wxChar*   buf = NULL;
-    wxString  responseStr;
-    int       returnCode = -1;
-    wxString  returnMsg;
+    hoxResult    result = hoxRESULT_ERR;
+    wxUint32     nRead;
+    wxChar*      buf = NULL;
+    wxString     responseStr;
+    int          returnCode = -1;
+    wxString     returnMsg;
+    wxUint32     nWrite;
+    wxString     request;
+    wxString     tableId;
+    hoxPosition  moveFromPos;
+    hoxPosition  moveToPos;
+    wxString     moveStr;
 
-
-    wxLogDebug(wxString::Format("%s: Send a [%s] command to the server...", FNAME, CMD_STR));
+    wxLogDebug("%s: ENTER.", FNAME);
 
     wxSocketBase* pSock = m_pCBSock;
 
     if ( !pSock || !pSock->IsConnected()) 
     {
-        wxLogError(wxString::Format("%s: Connection is NOT yet opened!", FNAME));
+        wxLogError("%s: Connection is NOT yet opened.", FNAME);
         return;
     }
 
@@ -380,20 +367,18 @@ hoxNetworkPlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
     pSock->SetNotify(wxSOCKET_LOST_FLAG);
     //////////////
 
-    wxUint32 nWrite;
-    wxString request;
+    tableId     = event.GetTableId();
+    moveFromPos = event.GetOldPosition();
+    moveToPos   = event.GetPosition();
 
-    wxString     tableId     = event.GetTableId();
-    hoxPosition  moveFromPos = event.GetOldPosition();
-    hoxPosition  moveToPos   = event.GetPosition();
-
-    wxString moveStr = wxString::Format("%d%d%d%d", 
-                            moveFromPos.x, moveFromPos.y, moveToPos.x, moveToPos.y);
+    moveStr = wxString::Format("%d%d%d%d", 
+                    moveFromPos.x, moveFromPos.y, moveToPos.x, moveToPos.y);
 
     request = wxString::Format("op=MOVE&tid=%s&pid=%s&move=%s\r\n", 
                         tableId, this->GetName(), moveStr);
 
     // Send request.
+    wxLogDebug("%s: Sending request [%s] over the network...", FNAME, request);
     nWrite = (wxUint32) request.size();
     pSock->Write( request, nWrite );
     if ( pSock->LastCount() != nWrite )
@@ -403,11 +388,11 @@ hoxNetworkPlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
     }
 
     // Wait until data available (will also return if the connection is lost)
-    wxLogDebug(wxString::Format("%s: Waiting for an event (timeout = 2 sec)...", FNAME));
-    pSock->WaitForRead(2);
+    wxLogDebug("%s: Waiting for response from the network (timeout = 5 sec)...", FNAME);
+    pSock->WaitForRead(5);
 
     // Read back the response.
-
+    wxLogDebug("%s: Starting reading response...", FNAME);
     buf = new wxChar[hoxNETWORK_MAX_MSG_SIZE];
 
     pSock->ReadMsg( buf, hoxNETWORK_MAX_MSG_SIZE );
@@ -415,24 +400,26 @@ hoxNetworkPlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
 
     if ( nRead == 0 )
     {
-        wxLogError(wxString::Format("%s: Failed to read response.", FNAME));
+        wxLogError("%s: Failed to read response from the network.", FNAME);
         goto exit_label;
     }
 
     responseStr.assign( buf, nRead );
 
     /* Parse the response */
+    wxLogDebug("%s: Check (parse) the response...", FNAME);
     result = hoxWWWThread::parse_string_for_simple_response( responseStr,
                                                              returnCode,
                                                              returnMsg );
     if ( result != hoxRESULT_OK )
     {
-        wxLogError(wxString::Format("%s: Failed to parse for SEND-CONNECT's response.", FNAME));
+        wxLogError("%s: Failed to parse for SEND-CONNECT's response.", FNAME);
         goto exit_label;
     }
     else if ( returnCode != 0 )
     {
-        wxLogError(wxString::Format("%s: Send MOVE failed. [%s]", FNAME, returnMsg));
+        wxLogError("%s: Parsed response done: Return-code failed [%d] [%s].", 
+            FNAME, returnCode, returnMsg);
         goto exit_label;
     }
 
@@ -442,7 +429,7 @@ exit_label:
     pSock->SetNotify( wxSOCKET_LOST_FLAG | wxSOCKET_INPUT_FLAG );
     //////////////
 
-    wxLogDebug(wxString::Format("[%s]: END", FNAME));
+    wxLogDebug("[%s]: END.", FNAME);
     return;
 }
 
