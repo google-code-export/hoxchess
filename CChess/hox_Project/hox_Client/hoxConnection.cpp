@@ -271,7 +271,7 @@ hoxConnection::_HandleRequest_Listen( hoxRequest*  request )
     m_pSClient->SetNotify(wxSOCKET_INPUT_FLAG | wxSOCKET_LOST_FLAG);
     m_pSClient->Notify(true);
 
-    // Clear the sender since there is no need to send back a response.
+    // NOTE: Clear the sender since there is no need to send back a response.
     request->sender = NULL;
 
     return hoxRESULT_OK;

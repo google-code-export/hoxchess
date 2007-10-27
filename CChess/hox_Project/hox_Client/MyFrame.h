@@ -91,8 +91,6 @@ public:
     void DoJoinNewMYTable(const wxString& tableId);
     void OnFrameLogMsgEvent( wxCommandEvent &event );
 
-    void OnClientSocketEvent( wxSocketEvent& event );
-
 private:
     void _OnWWWResponse_Connect( const wxString& responseStr );
     void _OnWWWResponse_List( const wxString& responseStr );

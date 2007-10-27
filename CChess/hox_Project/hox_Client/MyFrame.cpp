@@ -63,8 +63,6 @@ BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
     EVT_COMMAND(wxID_ANY, hoxEVT_WWW_RESPONSE, MyFrame::OnMYResponse)
     EVT_COMMAND(wxID_ANY, hoxEVT_FRAME_LOG_MSG, MyFrame::OnFrameLogMsgEvent)
 
-    EVT_SOCKET(CLIENT_SOCKET_ID,  MyFrame::OnClientSocketEvent)
-
 END_EVENT_TABLE()
 
 // ---------------------------------------------------------------------------
@@ -508,7 +506,7 @@ void MyFrame::DoJoinExistingMYTable(const hoxNetworkTableInfo& tableInfo)
     }
     else
     {
-        wxLogError(wxString::Format("I should have secured a seat in table [%s].", FNAME, tableInfo.id));
+        wxLogError("I should have secured a seat in table [%s].", FNAME, tableInfo.id);
         return;
     }
 
@@ -516,7 +514,7 @@ void MyFrame::DoJoinExistingMYTable(const hoxNetworkTableInfo& tableInfo)
     /* Create a new table. */
     /***********************/
 
-    wxLogDebug(_("Create a new table JOINING an existing network table..."));
+    wxLogDebug("Create a new table JOINING an existing network table...");
     hoxTable* table = _CreateNewTable( tableInfo.id );
 
     /***********************/
@@ -577,7 +575,7 @@ void MyFrame::DoJoinExistingMYTable(const hoxNetworkTableInfo& tableInfo)
     }
 
     // Start listen for new Moves.
-    wxGetApp().m_myPlayer->StartListenForMoves( this );
+    wxGetApp().m_myPlayer->StartListenForMoves();
 }
 
 void MyFrame::DoJoinNewMYTable(const wxString& tableId)
@@ -795,27 +793,6 @@ MyFrame::OnMYResponse(wxCommandEvent& event)
 }
 
 void 
-MyFrame::OnClientSocketEvent(wxSocketEvent& event)
-{
-    const char* FNAME = "MyFrame::OnClientSocketEvent";
-    wxString msg;
-    msg.Printf("%s: ", FNAME);
-
-    switch(event.GetSocketEvent())
-    {
-        case wxSOCKET_INPUT      : msg.Append("wxSOCKET_INPUT"); break;
-        case wxSOCKET_LOST       : msg.Append("wxSOCKET_LOST"); break;
-        case wxSOCKET_CONNECTION : msg.Append("wxSOCKET_CONNECTION"); break;
-        default                  : msg.Append("Unexpected event !"); break;
-    }
-    wxLogDebug(msg);
-
-    //wxSocketBase* sock = event.GetSocket();
-
-    wxGetApp().m_myPlayer->ProcessIncomingData( event );
-}
-
-void 
 MyFrame::OnFrameLogMsgEvent( wxCommandEvent &event )
 {
     wxString msg = event.GetString();
@@ -951,7 +928,7 @@ void
 MyFrame::_OnMYResponse_Join( const wxString& responseStr )
 {
     const char* FNAME = "MyFrame::_OnMYResponse_Join";
-    wxLogDebug(wxString::Format("%s: Parsing SEND-JOIN's response...", FNAME));
+    wxLogDebug("%s: Parsing SEND-JOIN's response...", FNAME);
     hoxNetworkTableInfo tableInfo;
     hoxResult result;
 
@@ -959,12 +936,12 @@ MyFrame::_OnMYResponse_Join( const wxString& responseStr )
                                                                 tableInfo );
     if ( result != hoxRESULT_OK )
     {
-        wxLogError(wxString::Format("%s: Failed to parse for SEND-JOIN's response.", FNAME));
+        wxLogError("%s: Failed to parse for SEND-JOIN's response [%s].", FNAME, responseStr);
         return;
     }
     else
     {
-        wxLogDebug(wxString::Format("Successfully joined the network table [%s].", tableInfo.id));
+        wxLogDebug("Successfully joined the network table [%s].", tableInfo.id);
         this->DoJoinExistingMYTable( tableInfo );
     }
 }

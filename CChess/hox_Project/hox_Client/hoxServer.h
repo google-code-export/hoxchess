@@ -45,22 +45,20 @@ public:
     parse_command( const wxString& commandStr, hoxCommand& command );
     /////////////////////
 
-    void HandleCommand_Connect( wxSocketBase* sock );
-    void HandleCommand_List( wxSocketBase* sock );
-    void HandleCommand_Join( wxSocketBase*  sock, 
-                             hoxCommand&    command );
-    void HandleCommand_New( wxSocketBase* sock, 
-                            hoxCommand&   command );
-    //void HandleCommand_Leave( wxSocketBase*      sock, 
-    //                          hoxCommand&  command );
+private:
+    void _HandleCommand_Connect( wxSocketBase* sock );
+    void _HandleCommand_List( wxSocketBase* sock );
+    void _HandleCommand_Join( wxSocketBase*  sock, 
+                              hoxCommand&    command );
+    void _HandleCommand_New( wxSocketBase* sock, 
+                             hoxCommand&   command );
 
 private:
     hoxRequest* _GetRequest();         
     void        _HandleRequest( hoxRequest* request );
-    //hoxResult   _SendRequest( const wxString& request, wxString& response );
     hoxResult   _HandleRequest_Accept( hoxRequest* request );
+    hoxResult   _HandleCommand_TableMove( hoxRequest* request );
     hoxResult   _SendRequest_Data( const hoxRequest* request, wxString& response );
-    //hoxResult   _SendRequest_Connect( const wxString& request, wxString& response );
 
     void        _Disconnect();
     void        _DestroyAllActiveSockets();
