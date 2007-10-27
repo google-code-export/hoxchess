@@ -15,7 +15,7 @@
 IMPLEMENT_DYNAMIC_CLASS( hoxMyPlayer, hoxPlayer )
 
 BEGIN_EVENT_TABLE(hoxMyPlayer, hoxPlayer)
-    EVT_SOCKET(CLIENT_SOCKET_ID,  hoxMyPlayer::HandleIncomingData)
+    EVT_SOCKET(CLIENT_SOCKET_ID,  hoxMyPlayer::OnIncomingNetworkData)
 END_EVENT_TABLE()
 
 
@@ -149,16 +149,15 @@ hoxMyPlayer::StartListenForMoves()
 }
 
 void
-hoxMyPlayer::HandleIncomingData( wxSocketEvent& event )
+hoxMyPlayer::OnIncomingNetworkData( wxSocketEvent& event )
 {
-    const char* FNAME = "hoxMyPlayer::HandleIncomingData";
+    const char* FNAME = "hoxMyPlayer::OnIncomingNetworkData";
     wxLogDebug("%s: ENTER.", FNAME);
 
     wxASSERT( m_connection != NULL );
     {
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_DATA, NULL /* sender */ );
-        request->content = "";
-        request->socket = event.GetSocket();
+        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_PLAYER_DATA );
+        request->socket      = event.GetSocket();
         request->socketEvent = event.GetSocketEvent();
         m_connection->AddRequest( request );
     }

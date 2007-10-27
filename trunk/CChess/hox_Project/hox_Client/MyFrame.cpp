@@ -110,8 +110,7 @@ MyFrame::MyFrame(wxWindow *parent,
     // Progress dialog.
     m_dlgProgress = NULL;
 
-    wxLogDebug(wxString::Format(_("[%d (%d)] %s: HOX Client ready."), 
-                    wxThread::GetCurrentId, wxThread::IsMain(), FNAME));
+    wxLogDebug("%s: HOX Client ready.", FNAME);
 }
 
 MyFrame::~MyFrame()
@@ -161,7 +160,8 @@ void MyFrame::OnNewWindow(wxCommandEvent& WXUNUSED(event) )
 
 void MyFrame::OnOpenServer(wxCommandEvent& WXUNUSED(event) )
 {
-    wxLogDebug(_("Open a server..."));
+    const char* FNAME = "MyFrame::OnOpenServer";
+    wxLogDebug("%s: ENTER.", FNAME);
     wxGetApp().OpenServer();
 }
 
@@ -705,7 +705,7 @@ MyFrame::OnWWWResponse(wxCommandEvent& event)
 {
     const char* FNAME = "MyFrame::OnWWWResponse";
 
-    wxLogDebug("[%d (%d)] %s: ENTER.", wxThread::GetCurrentId, wxThread::IsMain(), FNAME);
+    wxLogDebug("%s: ENTER.", FNAME);
 
     hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
     const std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
@@ -751,7 +751,7 @@ MyFrame::OnMYResponse(wxCommandEvent& event)
 {
     const char* FNAME = "MyFrame::OnMYResponse";
 
-    wxLogDebug("[%d (%d)] %s: ENTER.", wxThread::GetCurrentId, wxThread::IsMain(), FNAME);
+    wxLogDebug("%s: ENTER.", FNAME);
 
     hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
     const std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!

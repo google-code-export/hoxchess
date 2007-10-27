@@ -13,6 +13,26 @@
 
 #include <wx/tokenzr.h>
 
+/* Import namespaces */
+using namespace hoxNetworkAPI;
+
+
+//-----------------------------------------------------------------------------
+// SocketInputLock
+//-----------------------------------------------------------------------------
+
+SocketInputLock::SocketInputLock( wxSocketBase* sock )
+            : m_sock( sock )
+{
+    m_sock->SetNotify(wxSOCKET_LOST_FLAG); // remove the wxSOCKET_INPUT_FLAG!!!
+}
+
+SocketInputLock::~SocketInputLock()
+{
+    // Enable the input flag again.
+    m_sock->SetNotify(wxSOCKET_LOST_FLAG | wxSOCKET_INPUT_FLAG);
+}
+
 //-----------------------------------------------------------------------------
 // hoxNetworkAPI namespace
 //-----------------------------------------------------------------------------
@@ -41,7 +61,7 @@ hoxNetworkAPI::SendMove( wxSocketBase*   sock,
     wxLogDebug("%s: ENTER.", FNAME);    
 
     // We disable input events until we are done processing the current command.
-    sock->SetNotify(wxSOCKET_LOST_FLAG); // remove the wxSOCKET_INPUT_FLAG!!!
+    hoxNetworkAPI::SocketInputLock socketLock( sock );
 
     // Remove new-line characters.
     commandStr = commandInput;
@@ -71,7 +91,7 @@ hoxNetworkAPI::SendMove( wxSocketBase*   sock,
     {
         wxLogError("%s: Failed to send request [%s] ( %d < %d ). Error = [%s].", 
             FNAME, request, nWrite, requestSize, 
-            hoxUtility::SocketErrorToString(sock->LastError()));
+            hoxNetworkAPI::SocketErrorToString(sock->LastError()));
         result = hoxRESULT_ERR;
         goto exit_label;
     }
@@ -91,7 +111,7 @@ hoxNetworkAPI::SendMove( wxSocketBase*   sock,
     if ( nRead == 0 )
     {
         wxLogError("%s: Failed to read response. Error = [%s].", 
-            FNAME, hoxUtility::SocketErrorToString(sock->LastError()));
+            FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()));
         result = hoxRESULT_ERR;
         goto exit_label;
     }
@@ -115,12 +135,11 @@ hoxNetworkAPI::SendMove( wxSocketBase*   sock,
         goto exit_label;
     }
 
+    // Finally, successful.
     result = hoxRESULT_OK;
 
 exit_label:
     delete[] buf;
-    // Enable the input flag again.
-    sock->SetNotify(wxSOCKET_LOST_FLAG | wxSOCKET_INPUT_FLAG);
 
     return result;
 }
@@ -191,7 +210,7 @@ exit_label:
     if ( sock->LastCount() != nWrite )
     {
         wxLogError("%s: Writing to socket failed. Error = [%s]", 
-            FNAME, hoxUtility::SocketErrorToString(sock->LastError()));
+            FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()));
         result = hoxRESULT_ERR;
     }
 
@@ -266,7 +285,7 @@ exit_label:
     if ( sock->LastCount() != nWrite )
     {
         wxLogError("%s: Writing to socket failed. Error = [%s]", 
-            FNAME, hoxUtility::SocketErrorToString(sock->LastError()));
+            FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()));
         result = hoxRESULT_ERR;
     }
 
@@ -375,6 +394,43 @@ hoxNetworkAPI::ParseSimpleResponse( const wxString& responseStr,
     }
 
     return hoxRESULT_OK;
+}
+
+const wxString 
+hoxNetworkAPI::SocketEventToString( const wxSocketNotify socketEvent )
+{
+    switch( socketEvent )
+    {
+        case wxSOCKET_INPUT:       return "wxSOCKET_INPUT";
+        case wxSOCKET_OUTPUT:      return "wxSOCKET_OUTPUT";
+        case wxSOCKET_CONNECTION:  return "wxSOCKET_CONNECTION";
+        case wxSOCKET_LOST:        return "wxSOCKET_LOST";
+
+        default:                   return "Unexpected event!";
+    }
+}
+
+/**
+ * Convert a given socket-error to a (human-readable) string.
+ */
+const wxString 
+hoxNetworkAPI::SocketErrorToString( const wxSocketError socketError )
+{
+    switch( socketError )
+    {
+        case wxSOCKET_NOERROR:    return "wxSOCKET_NOERROR"; //No error happened
+        case wxSOCKET_INVOP:      return "wxSOCKET_INVOP";   // invalid operation
+        case wxSOCKET_IOERR:      return "wxSOCKET_IOERR";   // Input/Output error
+        case wxSOCKET_INVADDR:    return "wxSOCKET_INVADDR"; // Invalid address passed to wxSocket
+        case wxSOCKET_INVSOCK:    return "wxSOCKET_INVSOCK"; // Invalid socket (uninitialized).
+        case wxSOCKET_NOHOST:     return "wxSOCKET_NOHOST";  // No corresponding host
+        case wxSOCKET_INVPORT:    return "wxSOCKET_INVPORT"; // Invalid port
+        case wxSOCKET_WOULDBLOCK: return "wxSOCKET_WOULDBLOCK"; // The socket is non-blocking and the operation would block
+        case wxSOCKET_TIMEDOUT:   return "wxSOCKET_TIMEDOUT"; // The timeout for this operation expired
+        case wxSOCKET_MEMERR:     return "wxSOCKET_MEMERR";   // Memory exhausted
+
+        default:                  return "Unexpected error!";
+    }
 }
 
 /************************* END OF FILE ***************************************/

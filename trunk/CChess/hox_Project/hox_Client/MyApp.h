@@ -84,7 +84,7 @@ class MyApp : public wxApp
     hoxMyPlayer*        m_myPlayer;
 
     void OnServerSocketEvent(wxSocketEvent& event);
-    void OnServerResponse(wxCommandEvent& event);
+    //void OnServerResponse(wxCommandEvent& event);
 
 
   private:

@@ -13,6 +13,7 @@
 #include "hoxTableMgr.h"
 #include "hoxWWWThread.h"
 #include "hoxUtility.h"
+#include "hoxNetworkAPI.h"
 
 //-----------------------------------------------------------------------------
 // hoxConnection
@@ -34,7 +35,7 @@ hoxConnection::~hoxConnection()
 {
     const char* FNAME = "hoxConnection::~hoxConnection";
 
-    wxLogDebug("[%d (%d)] %s: ENTER.", wxThread::GetCurrentId(), wxThread::IsMain(), FNAME);
+    wxLogDebug("%s: ENTER.", FNAME);
 
     _Disconnect();
 }
@@ -45,7 +46,7 @@ hoxConnection::Entry()
     const char* FNAME = "hoxConnection::Entry";
     hoxRequest* request = NULL;
 
-    wxLogDebug("[%d (%d)] %s: ENTER.", wxThread::GetCurrentId(), wxThread::IsMain(), FNAME);
+    wxLogDebug("%s: ENTER.", FNAME);
 
     while ( !m_shutdownRequested && m_semRequests.Wait() == wxSEMA_NO_ERROR )
     {
@@ -107,8 +108,8 @@ hoxConnection::_HandleRequest( hoxRequest* request )
             result = _HandleCommand_TableMove(request); 
             break;
 
-        case hoxREQUEST_TYPE_DATA:
-            result = _HandleRequest_Data( request );
+        case hoxREQUEST_TYPE_PLAYER_DATA: // incoming data from remote player.
+            result = _HandleRequest_PlayerData( request );
             break;
 
         //case hoxREQUEST_TYPE_POLL:     /* fall through */
@@ -186,7 +187,7 @@ hoxConnection::_SendRequest_Connect( const wxString& request,
     {
         wxLogError("%s: Failed to connect to the server [%s:%d]. Error = [%s].",
                    FNAME, m_sHostname, m_nPort,
-                   hoxUtility::SocketErrorToString(m_pSClient->LastError()));
+                   hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()));
         goto exit_label;
     }
 #endif
@@ -195,7 +196,7 @@ hoxConnection::_SendRequest_Connect( const wxString& request,
     {
         wxLogError("%s: Failed to connect to the server [%s:%d]. Error = [%s].",
             FNAME, m_sHostname, m_nPort, 
-            hoxUtility::SocketErrorToString(m_pSClient->LastError()));
+            hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()));
         goto exit_label;
     }
 
@@ -208,7 +209,7 @@ hoxConnection::_SendRequest_Connect( const wxString& request,
     if ( nWrite < request.size() )
     {
         wxLogError("%s: Failed to write request. [%d] < [%d]. Error = [%s].", 
-            FNAME, nWrite, request.size(), hoxUtility::SocketErrorToString(m_pSClient->LastError()));
+            FNAME, nWrite, request.size(), hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()));
         goto exit_label;
     }
 
@@ -235,7 +236,7 @@ hoxConnection::_SendRequest_Connect( const wxString& request,
     if ( nRead == 0 )
     {
         wxLogError("%s: Failed to read the response. Error = [%s].", 
-            FNAME, hoxUtility::SocketErrorToString(m_pSClient->LastError()));
+            FNAME, hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()));
         goto exit_label;
     }
 
@@ -278,9 +279,9 @@ hoxConnection::_HandleRequest_Listen( hoxRequest*  request )
 }
 
 hoxResult   
-hoxConnection::_HandleRequest_Data( hoxRequest*  request )
+hoxConnection::_HandleRequest_PlayerData( hoxRequest*  request )
 {
-    const char* FNAME = "hoxConnection::_HandleRequest_Data";
+    const char* FNAME = "hoxConnection::_HandleRequest_PlayerData";
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -288,7 +289,7 @@ hoxConnection::_HandleRequest_Data( hoxRequest*  request )
     wxSocketBase* sock = m_pSClient;
     
     // We disable input events until we are done processing the current command.
-    sock->SetNotify(wxSOCKET_LOST_FLAG); // remove the wxSOCKET_INPUT_FLAG!!!
+    hoxNetworkAPI::SocketInputLock socketLock( sock );
 
     // TODO: Only deal with wxSOCKET_INPUT for now.
 
@@ -328,9 +329,6 @@ hoxConnection::_HandleRequest_Data( hoxRequest*  request )
     result = hoxRESULT_OK;
 
 exit_label:
-    // Enable the input flag again.
-    sock->SetNotify(wxSOCKET_LOST_FLAG | wxSOCKET_INPUT_FLAG);
-
     return result;
 }
 
@@ -435,7 +433,7 @@ hoxConnection::_HandleCommand_TableMove( hoxRequest* requestCmd )
     sock = m_pSClient;
 
     // We disable input events until we are done processing the current command.
-    sock->SetNotify(wxSOCKET_LOST_FLAG); // remove the wxSOCKET_INPUT_FLAG!!!
+    hoxNetworkAPI::SocketInputLock socketLock( sock );
 
     // Remove new-line characters.
     commandStr = requestCmd->content;
@@ -465,7 +463,7 @@ hoxConnection::_HandleCommand_TableMove( hoxRequest* requestCmd )
     {
         wxLogError("%s: Failed to send request [%s] ( %d < %d ). Error = [%s].", 
             FNAME, request, nWrite, requestSize, 
-            hoxUtility::SocketErrorToString(sock->LastError()));
+            hoxNetworkAPI::SocketErrorToString(sock->LastError()));
         result = hoxRESULT_ERR;
         goto exit_label;
     }
@@ -485,7 +483,7 @@ hoxConnection::_HandleCommand_TableMove( hoxRequest* requestCmd )
     if ( nRead == 0 )
     {
         wxLogError("%s: Failed to read response. Error = [%s].", 
-            FNAME, hoxUtility::SocketErrorToString(sock->LastError()));
+            FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()));
         result = hoxRESULT_ERR;
         goto exit_label;
     }
@@ -513,8 +511,6 @@ hoxConnection::_HandleCommand_TableMove( hoxRequest* requestCmd )
 
 exit_label:
     delete[] buf;
-    // Enable the input flag again.
-    sock->SetNotify(wxSOCKET_LOST_FLAG | wxSOCKET_INPUT_FLAG);
 
     return result;
 }
@@ -572,7 +568,7 @@ hoxConnection::_SendRequest( const wxString& request,
     }
 
     // We disable input events until we are done processing the current command.
-    m_pSClient->SetNotify(wxSOCKET_LOST_FLAG); // remove the wxSOCKET_INPUT_FLAG!!!
+    hoxNetworkAPI::SocketInputLock socketLock( m_pSClient );
 
     // Send request.
     wxLogDebug("%s: Sending the request [%s] over the network...", FNAME, request);
@@ -586,7 +582,7 @@ hoxConnection::_SendRequest( const wxString& request,
     {
         wxLogError("%s: Failed to send request [%s] ( %d < %d ). Error = [%s].", 
             FNAME, request, nWrite, requestSize, 
-            hoxUtility::SocketErrorToString(m_pSClient->LastError()));
+            hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()));
         result = hoxRESULT_ERR;
         goto exit_label;
     }
@@ -616,7 +612,7 @@ hoxConnection::_SendRequest( const wxString& request,
     if ( nRead == 0 )
     {
         wxLogError("%s: Failed to read response. Error = [%s].", 
-            FNAME, hoxUtility::SocketErrorToString(m_pSClient->LastError()));
+            FNAME, hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()));
         result = hoxRESULT_ERR;
         goto exit_label;
     }
@@ -626,8 +622,6 @@ hoxConnection::_SendRequest( const wxString& request,
 
 exit_label:
     delete[] buf;
-    // Enable the input flag again.
-    m_pSClient->SetNotify(wxSOCKET_LOST_FLAG | wxSOCKET_INPUT_FLAG);
 
     return result;
 }

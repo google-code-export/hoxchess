@@ -42,7 +42,7 @@ class hoxNetworkPlayer :  public hoxPlayer
      * Network API
      ***************************/
 
-    void HandleIncomingData( wxSocketEvent& event );
+    void OnIncomingNetworkData( wxSocketEvent& event );
 
     virtual hoxResult DisconnectFromNetwork();
 

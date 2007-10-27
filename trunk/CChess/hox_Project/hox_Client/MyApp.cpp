@@ -13,6 +13,7 @@
 #include "hoxPlayerMgr.h"
 #include "hoxTableMgr.h"
 #include "hoxUtility.h"
+#include "hoxNetworkAPI.h"
 #include "hoxServer.h"
 #include <wx/filename.h>
 
@@ -27,7 +28,7 @@ DEFINE_EVENT_TYPE(hoxEVT_SERVER_RESPONSE)
 
 BEGIN_EVENT_TABLE(MyApp, wxApp)
   EVT_SOCKET(SERVER_SOCKET_ID,  MyApp::OnServerSocketEvent)
-  EVT_COMMAND(wxID_ANY, hoxEVT_SERVER_RESPONSE, MyApp::OnServerResponse)
+  //EVT_COMMAND(wxID_ANY, hoxEVT_SERVER_RESPONSE, MyApp::OnServerResponse)
 END_EVENT_TABLE()
 
 
@@ -150,6 +151,8 @@ void
 MyApp::OpenServer() 
 { 
     const char* FNAME = "MyApp::OpenServer";
+    wxLogDebug("%s: ENTER.", FNAME);
+
     wxASSERT_MSG( m_server == NULL, "The server should not have been created.");
 
     /* Start the socket-manager */
@@ -216,11 +219,11 @@ MyApp::OnServerSocketEvent(wxSocketEvent& event)
     wxLogDebug("%s: ENTER.", FNAME);
 
     wxLogDebug("%s: Received new socket-event = [%s].", 
-        FNAME, hoxUtility::SocketEventToString(event.GetSocketEvent()) );
+        FNAME, hoxNetworkAPI::SocketEventToString(event.GetSocketEvent()) );
 
     wxASSERT( m_server != NULL );
     {
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_DATA, this );
+        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_DATA, NULL /* sender */ );
         request->content     = "";
         request->socket      = event.GetSocket();
         request->socketEvent = event.GetSocketEvent();
@@ -228,14 +231,14 @@ MyApp::OnServerSocketEvent(wxSocketEvent& event)
     }
 }
 
-void 
-MyApp::OnServerResponse(wxCommandEvent& event)
-{
-    const char* FNAME = "MyApp::OnServerResponse";  // function's name
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
-    const std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
-}
+//void 
+//MyApp::OnServerResponse(wxCommandEvent& event)
+//{
+//    const char* FNAME = "MyApp::OnServerResponse";  // function's name
+//    wxLogDebug("%s: ENTER.", FNAME);
+//
+//    hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
+//    const std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
+//}
 
 /************************* END OF FILE ***************************************/

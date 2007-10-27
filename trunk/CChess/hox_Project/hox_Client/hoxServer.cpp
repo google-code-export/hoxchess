@@ -146,6 +146,27 @@ hoxServer::_HandleRequest( hoxRequest* request )
 
     response = new hoxResponse( request->type );
 
+    /* 
+     * SPECIAL CASE: 
+     *     Handle the "special" request: Socket-Lost event,
+     *     which is applicable to any request.
+     */
+    if (    request->type == hoxREQUEST_TYPE_PLAYER_DATA
+         || request->type == hoxREQUEST_TYPE_DATA 
+       )
+    {
+        result = _CheckAndHandleSocketLostEvent( request, response->content );
+        if ( result == hoxRESULT_HANDLED )
+        {
+            result = hoxRESULT_OK;  // Consider "success".
+            goto exit_label;
+        }
+    }
+
+    /*
+     * NORMAL CASE: 
+     *    Handle "normal" request.
+     */
     switch( request->type )
     {
         case hoxREQUEST_TYPE_ACCEPT:
@@ -156,6 +177,10 @@ hoxServer::_HandleRequest( hoxRequest* request )
             result = _HandleCommand_TableMove( request ); 
             break;
 
+        case hoxREQUEST_TYPE_PLAYER_DATA: // incoming data from remote player.
+            result = _HandleRequest_PlayerData( request, response->content );
+            break;
+
         case hoxREQUEST_TYPE_DATA:
             result = _SendRequest_Data( request, response->content );
             break;
@@ -164,10 +189,10 @@ hoxServer::_HandleRequest( hoxRequest* request )
             wxLogError("%s: Unsupported Request-Type [%s].", 
                 FNAME, hoxUtility::RequestTypeToString(request->type));
             result = hoxRESULT_NOT_SUPPORTED;
-            response->content = "";
             break;
     }
 
+exit_label:
     /* Log error */
     if ( result != hoxRESULT_OK )
     {
@@ -185,6 +210,33 @@ hoxServer::_HandleRequest( hoxRequest* request )
         event.SetEventObject( response );
         wxPostEvent( request->sender, event );
     }
+    else
+    {
+        delete response;
+    }
+}
+
+hoxResult 
+hoxServer::_CheckAndHandleSocketLostEvent( const hoxRequest* request, 
+                                           wxString&         response )
+{
+    const char* FNAME = "hoxServer::_CheckAndHandleSocketLostEvent";
+    hoxResult result = hoxRESULT_OK;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    wxSocketBase* sock = request->socket;
+    //wxASSERT_MSG( sock == m_pendingSock, _T("Sockets should match!") );
+    
+    if ( request->socketEvent == wxSOCKET_LOST )
+    {
+        wxLogDebug("%s: Received socket-lost event. Deleting client socket.", FNAME);
+        _DestroyActiveSocket( sock );
+        result = hoxRESULT_HANDLED;
+    }
+
+    wxLogDebug("%s: Not a socket-lost event. Fine - Do nothing. END.", FNAME);
+    return result;
 }
 
 hoxResult 
@@ -193,7 +245,7 @@ hoxServer::_HandleRequest_Accept( hoxRequest* request )
     const char* FNAME = "hoxServer::_HandleRequest_Accept";  // function's name
     wxLogDebug("%s: ENTER.", FNAME);
 
-    wxLogDebug("%s: Save an active (socket) connection.", FNAME);
+    wxLogDebug("%s: Saving an active (socket) connection.", FNAME);
     m_activeSockets.push_back( request->socket );
 
     return hoxRESULT_OK;
@@ -211,87 +263,131 @@ hoxServer::_HandleCommand_TableMove( hoxRequest* request )
 }
 
 hoxResult 
-hoxServer::_SendRequest_Data( const hoxRequest* request, 
-                              wxString&         response )
+hoxServer::_HandleRequest_PlayerData( const hoxRequest* request, 
+                                      wxString&         response )
 {
-    const char* FNAME = "hoxServer::_SendRequest_Data";  // function's name
-    hoxResult result = hoxRESULT_OK;
+    const char* FNAME = "hoxServer::_HandleRequest_PlayerData";
+    hoxResult      result = hoxRESULT_OK;
+    wxString       commandStr;
+    hoxCommand     command;
+    wxSocketBase*  sock = NULL;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    wxSocketBase *sock = request->socket;
+    sock = request->socket;
+    //wxASSERT_MSG( sock == m_pendingSock, _T("Sockets should match!") );
+
+    /* We can ONLY able to handle socket-input event. */
+    if ( request->socketEvent != wxSOCKET_INPUT )
+    {
+        wxLogError("%s: Unexpected socket-event [%s].", 
+            FNAME, hoxNetworkAPI::SocketEventToString(request->socketEvent));
+        return hoxRESULT_NOT_SUPPORTED;
+    }
+
+    // We disable input events until we are done processing the current command.
+    hoxNetworkAPI::SocketInputLock socketLock( sock );
+
+    wxLogDebug("%s: Reading incoming command from the network...", FNAME);
+    result = hoxServer::read_line( sock, commandStr );
+    if ( result != hoxRESULT_OK )
+    {
+        wxLogError("%s: Failed to read incoming command.", FNAME);
+        return hoxRESULT_ERR;
+    }
+    wxLogDebug("%s: Received command [%s].", FNAME, commandStr);
+
+    result = hoxServer::parse_command( commandStr, command );
+    if ( result != hoxRESULT_OK )
+    {
+        wxLogError("%s: Failed to parse command-string [%s].", FNAME, commandStr);
+        return hoxRESULT_ERR;
+    }
+
+    switch ( command.type )
+    {
+        case hoxREQUEST_TYPE_MOVE:
+            result = hoxNetworkAPI::HandleMove( sock, command );
+            break;
+
+        case hoxREQUEST_TYPE_LEAVE:
+            result = hoxNetworkAPI::HandleLeave( sock, command );
+            break;
+
+        default:
+            wxLogError("%s: Unsupported Request-Type [%s].", 
+                FNAME, hoxUtility::RequestTypeToString(request->type));
+            result = hoxRESULT_NOT_SUPPORTED;
+            break;
+    }
+
+    return result;
+}
+
+hoxResult 
+hoxServer::_SendRequest_Data( const hoxRequest* request, 
+                              wxString&         response )
+{
+    const char* FNAME = "hoxServer::_SendRequest_Data";
+    hoxResult      result = hoxRESULT_OK;
+    wxString       commandStr;
+    hoxCommand     command;
+    wxSocketBase*  sock = NULL;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    sock = request->socket;
     //wxASSERT_MSG( sock == m_pendingSock, _T("Sockets should match!") );
     
-    // Now we process the event
-    switch( request->socketEvent )
+    /* We can ONLY able to handle socket-input event. */
+    if ( request->socketEvent != wxSOCKET_INPUT )
     {
-        case wxSOCKET_INPUT:
-        {
-            // We disable input events until we are done processing the current command.
-            sock->SetNotify(wxSOCKET_LOST_FLAG); // remove the wxSOCKET_INPUT_FLAG!!!
+        wxLogError("%s: Unexpected socket-event [%s].", 
+            FNAME, hoxNetworkAPI::SocketEventToString(request->socketEvent));
+        return hoxRESULT_NOT_SUPPORTED;
+    }
 
-            wxString     commandStr;
-            hoxCommand   command;
+    // We disable input events until we are done processing the current command.
+    hoxNetworkAPI::SocketInputLock socketLock( sock );
 
-            wxLogDebug("%s: Reading incoming command from the network...", FNAME);
-            result = hoxServer::read_line( sock, commandStr );
-            if ( result != hoxRESULT_OK )
-            {
-                wxLogError("%s: Failed to read incoming command.", FNAME);
-                return hoxRESULT_ERR;
-            }
-            wxLogDebug("%s: Received command [%s].", FNAME, commandStr);
+    wxLogDebug("%s: Reading incoming command from the network...", FNAME);
+    result = hoxServer::read_line( sock, commandStr );
+    if ( result != hoxRESULT_OK )
+    {
+        wxLogError("%s: Failed to read incoming command.", FNAME);
+        return hoxRESULT_ERR;
+    }
+    wxLogDebug("%s: Received command [%s].", FNAME, commandStr);
 
-            result = hoxServer::parse_command( commandStr, command );
-            if ( result != hoxRESULT_OK )
-            {
-                wxLogError("%s: Failed to parse command-string [%s].", FNAME, commandStr);
-                return hoxRESULT_ERR;
-            }
+    result = hoxServer::parse_command( commandStr, command );
+    if ( result != hoxRESULT_OK )
+    {
+        wxLogError("%s: Failed to parse command-string [%s].", FNAME, commandStr);
+        return hoxRESULT_ERR;
+    }
 
-            switch ( command.type )
-            {
-                case hoxREQUEST_TYPE_CONNECT:
-                    _HandleCommand_Connect(sock); 
-                    break;
-
-                case hoxREQUEST_TYPE_LIST:
-                    _HandleCommand_List(sock); 
-                    break;
-
-                case hoxREQUEST_TYPE_JOIN:
-                    _HandleCommand_Join(sock, command); 
-                    break;
-
-                case hoxREQUEST_TYPE_NEW:
-                    _HandleCommand_New(sock, command); 
-                    break;
-
-                case hoxREQUEST_TYPE_MOVE:
-                    result = hoxNetworkAPI::HandleMove( sock, command );
-                    break;
-
-                case hoxREQUEST_TYPE_LEAVE:
-                    result = hoxNetworkAPI::HandleLeave( sock, command );
-                    break;
-
-                default:
-                    break;
-            }
-
-            // Enable the input flag again.
-            sock->SetNotify(wxSOCKET_LOST_FLAG | wxSOCKET_INPUT_FLAG);
+    switch ( command.type )
+    {
+        case hoxREQUEST_TYPE_CONNECT:
+            _HandleCommand_Connect(sock); 
             break;
-        }
-        case wxSOCKET_LOST:
-        {
-            wxLogDebug("%s: Received socket-lost event. Deleting client socket.", FNAME);
-            _DestroyActiveSocket( sock );
+
+        case hoxREQUEST_TYPE_LIST:
+            _HandleCommand_List(sock); 
             break;
-        }
-        default: 
-            wxLogError("%s: Unexpected socket-event [%s].", 
-                FNAME, hoxUtility::SocketEventToString(request->socketEvent));
+
+        case hoxREQUEST_TYPE_JOIN:
+            _HandleCommand_Join(sock, command); 
+            break;
+
+        case hoxREQUEST_TYPE_NEW:
+            _HandleCommand_New(sock, command); 
+            break;
+
+        default:
+            wxLogError("%s: Unsupported Request-Type [%s].", 
+                FNAME, hoxUtility::RequestTypeToString(request->type));
+            result = hoxRESULT_NOT_SUPPORTED;
             break;
     }
 
@@ -320,7 +416,7 @@ hoxServer::_HandleCommand_Connect( wxSocketBase* sock )
     if ( sock->LastCount() != nWrite )
     {
         wxLogError("%s: Writing to socket failed. Error = [%s]", 
-            FNAME, hoxUtility::SocketErrorToString(sock->LastError()));
+            FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()));
         return;
     }
 }
@@ -363,7 +459,7 @@ hoxServer::_HandleCommand_List( wxSocketBase *sock )
     if ( sock->LastCount() != nWrite )
     {
         wxLogError("%s: Writing to socket failed. Error = [%s]", 
-            FNAME, hoxUtility::SocketErrorToString(sock->LastError()));
+            FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()));
         return;
     }
 }
@@ -465,7 +561,7 @@ exit_label:
     if ( sock->LastCount() != nWrite )
     {
         wxLogError("%s: Failed to send back response over the network.", 
-            FNAME, hoxUtility::SocketErrorToString(sock->LastError()));
+            FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()));
         //return;
     }
 
@@ -572,7 +668,7 @@ hoxServer::read_line( wxSocketBase* sock,
         else if ( sock->Error() )
         {
             wxLogWarning("%s: Fail to read 1 byte from the network. Error = [%s].", 
-                FNAME, hoxUtility::SocketErrorToString(sock->LastError()));
+                FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()));
             wxLogWarning("%s: Result message accumulated so far = [%s].", FNAME, commandStr);
             break;
         }

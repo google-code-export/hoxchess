@@ -111,7 +111,7 @@ void
 hoxWWWPlayer::OnTimer( wxTimerEvent& WXUNUSED(event) )
 {
     const char* FNAME = "hoxWWWPlayer::OnTimer";
-    wxLogDebug("%s [%d (%d)]: ENTER.", FNAME, wxThread::GetCurrentId, wxThread::IsMain());
+    wxLogDebug("%s: ENTER.", FNAME);
 
     //hoxResult            result;
     //wxString             tableId;
@@ -251,7 +251,7 @@ hoxWWWPlayer::OnWWWResponse(wxCommandEvent& event)
     const char* FNAME = "hoxWWWPlayer::OnWWWResponse";
     hoxResult result;
 
-    wxLogDebug("[%d (%d)] %s: ENTER.", wxThread::GetCurrentId, wxThread::IsMain(), FNAME);
+    wxLogDebug("%s: ENTER.", FNAME);
 
     hoxResponse* response = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
     const std::auto_ptr<hoxResponse> safe_response( response ); // take care memory leak!

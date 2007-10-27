@@ -33,7 +33,7 @@ hoxWWWThread::~hoxWWWThread()
 {
     const char* FNAME = "hoxWWWThread::~hoxWWWThread";
 
-    wxLogDebug("[%d (%d)] %s: ENTER.", wxThread::GetCurrentId(), wxThread::IsMain(), FNAME);
+    wxLogDebug("%s: ENTER.", FNAME);
 }
 
 void*
@@ -42,7 +42,7 @@ hoxWWWThread::Entry()
     const char* FNAME = "hoxWWWThread::Entry";
     hoxRequest* request = NULL;
 
-    wxLogDebug("[%d (%d)] %s: ENTER.", wxThread::GetCurrentId(), wxThread::IsMain(), FNAME);
+    wxLogDebug("%s: ENTER.", FNAME);
 
     while ( !m_shutdownRequested && m_semRequests.Wait() == wxSEMA_NO_ERROR )
     {
