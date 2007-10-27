@@ -157,16 +157,16 @@ hoxServer::_HandleRequest( hoxRequest* request )
             result = _SendRequest_Data( request, response->content );
             break;
 
-        case hoxREQUEST_TYPE_CONNECT:
-            result = _SendRequest_Connect( request->content, response->content );
-            break;
+        //case hoxREQUEST_TYPE_CONNECT:
+        //    result = _SendRequest_Connect( request->content, response->content );
+        //    break;
 
-        case hoxREQUEST_TYPE_POLL:     /* fall through */
-        case hoxREQUEST_TYPE_MOVE:     /* fall through */
-        case hoxREQUEST_TYPE_NEW:      /* fall through */
-        case hoxREQUEST_TYPE_LEAVE:
-            result = _SendRequest( request->content, response->content );
-            break;
+        //case hoxREQUEST_TYPE_POLL:     /* fall through */
+        //case hoxREQUEST_TYPE_MOVE:     /* fall through */
+        //case hoxREQUEST_TYPE_NEW:      /* fall through */
+        //case hoxREQUEST_TYPE_LEAVE:
+        //    result = _SendRequest( request->content, response->content );
+        //    break;
 
         default:
             wxLogError("%s: Unsupported request Type [%s].", 
@@ -174,6 +174,14 @@ hoxServer::_HandleRequest( hoxRequest* request )
             result = hoxRESULT_NOT_SUPPORTED;
             response->content = "";
             break;
+    }
+
+    /* Log error */
+    if ( result != hoxRESULT_OK )
+    {
+        wxLogError("%s: Error occurred while handling request [%s].", 
+            FNAME, hoxUtility::RequestTypeToString(request->type));
+        response->content = "!Error_Result!";
     }
 
     /* Keep-alive if requested. */
@@ -229,11 +237,13 @@ hoxServer::_SendRequest_Data( const hoxRequest* request,
             hoxCommand   command;
             hoxResult    result = hoxRESULT_ERR;  // Default = "error"
 
-            // FIXME: The following "read_line" would block forever until a LINE is received.
-            //        That is BAD!!!
-
             wxLogDebug("%s: Reading incoming command from the network...", FNAME);
-            (void) hoxServer::read_line( sock, commandStr );
+            result = hoxServer::read_line( sock, commandStr );
+            if ( result != hoxRESULT_OK )
+            {
+                wxLogError("%s: Failed to read incoming command.", FNAME);
+                return hoxRESULT_ERR;
+            }
             wxLogDebug("%s: Received command [%s].", FNAME, commandStr);
 
             result = hoxServer::parse_command( commandStr, command );
@@ -288,12 +298,14 @@ hoxServer::_SendRequest_Data( const hoxRequest* request,
     return hoxRESULT_OK;
 }
 
-hoxResult        
-hoxServer::_SendRequest_Connect( const wxString& request, 
-                                     wxString&       response )
-{
-    return hoxRESULT_OK;
-}
+//hoxResult        
+//hoxServer::_SendRequest_Connect( const wxString& request, 
+//                                     wxString&       response )
+//{
+//    const char* FNAME = "hoxServer::_SendRequest_Connect";
+//    wxLogError("%s: Are we using this function.", FNAME );
+//    return hoxRESULT_OK;
+//}
 
 void 
 hoxServer::HandleCommand_Connect( wxSocketBase* sock )
@@ -380,8 +392,8 @@ hoxServer::HandleCommand_Join( wxSocketBase*      sock,
     sRequesterName = command.parameters["pid"];
     nRequesterScore = 1999;   // FIXME hard-coded player's score
 
-    wxLogDebug(wxString::Format("%s: The requester: name=[%s], score=[%d]", 
-                    FNAME, sRequesterName, nRequesterScore));
+    wxLogDebug("%s: The requester: name=[%s], score=[%d]", 
+        FNAME, sRequesterName, nRequesterScore);
 
     wxUint32 nWrite;
     wxString response;
@@ -391,7 +403,7 @@ hoxServer::HandleCommand_Join( wxSocketBase*      sock,
 
     if ( table == NULL )
     {
-        wxLogError(wxString::Format("%s: Table [%s] not found.", FNAME, tableId));
+        wxLogError("%s: Table [%s] not found.", FNAME, tableId);
         response << "1\r\n"  // code
                  << "Table " << tableId << " not found.\r\n";
         goto exit_label;
@@ -414,7 +426,7 @@ hoxServer::HandleCommand_Join( wxSocketBase*      sock,
     }
     else
     {
-        wxLogError(wxString::Format("%s: No one is at the table [%s] not found.", FNAME, tableId));
+        wxLogError("%s: No one is at the table [%s] not found.", FNAME, tableId);
         response << "2\r\n"  // code
                  << "Not one is at the table " << tableId << ".\r\n";
         goto exit_label;
@@ -426,7 +438,7 @@ hoxServer::HandleCommand_Join( wxSocketBase*      sock,
 
     hoxResult result;
 
-    wxLogDebug(wxString::Format("%s: Create a network player to the table...", FNAME));
+    wxLogDebug("%s: Create a network player to the table...", FNAME);
     hoxNetworkPlayer* black_player = 
         hoxPlayerMgr::GetInstance()->CreateNetworkPlayer( sRequesterName,
                                                           nRequesterScore );
@@ -440,7 +452,7 @@ hoxServer::HandleCommand_Join( wxSocketBase*      sock,
     }
 
     // Setup the event handler and let the player handles all socket events.
-    wxLogDebug(wxString::Format(_("%s: Let this Network player handle all socket events"), FNAME));
+    wxLogDebug("%s: Let this Network player [%s] handle all socket events", FNAME, black_player->GetName());
     sock->SetEventHandler(*black_player, CLIENT_SOCKET_ID);
     sock->SetNotify(wxSOCKET_INPUT_FLAG | wxSOCKET_LOST_FLAG);
     sock->Notify(true);
@@ -459,11 +471,12 @@ exit_label:
     sock->WriteMsg( response, nWrite );
     if ( sock->LastCount() != nWrite )
     {
-        wxLogError(wxString::Format("%s: Writing to  socket failed.", FNAME));
-        return;
+        wxLogError("%s: Failed to send back response over the network.", 
+            FNAME, hoxUtility::SocketErrorToString(sock->LastError()));
+        //return;
     }
 
-    wxLogDebug(_("%s: END"), FNAME);
+    wxLogDebug("%s: END.", FNAME);
 }
 
 void 
@@ -508,12 +521,12 @@ hoxServer::_GetRequest()
     return request;
 }
 
-hoxResult 
-hoxServer::_SendRequest( const wxString& request,
-                             wxString&       response )
-{
-    return hoxRESULT_OK;
-}
+//hoxResult 
+//hoxServer::_SendRequest( const wxString& request,
+//                             wxString&       response )
+//{
+//    return hoxRESULT_OK;
+//}
 
 void
 hoxServer::_Disconnect()
@@ -551,11 +564,27 @@ hoxServer::read_line( wxSocketBase* sock,
             else
             {
                 commandStr << c;
+
+                // Impose some limit.
+                if ( commandStr.size() >= hoxNETWORK_MAX_MSG_SIZE )
+                {
+                    wxLogError("%s: Maximum message's size [%d] reached. Likely to be an error.", 
+                        FNAME, hoxNETWORK_MAX_MSG_SIZE);
+                    wxLogError("%s: Partial read message (64 bytes) = [%s ...].", 
+                        FNAME, commandStr.substr(0, 64));
+                    break;
+                }
             }
+        }
+        else if ( sock->Error() )
+        {
+            wxLogWarning("%s: Fail to read 1 byte from the network. Error = [%s].", 
+                FNAME, hoxUtility::SocketErrorToString(sock->LastError()));
+            wxLogWarning("%s: Result message accumulated so far = [%s].", FNAME, commandStr);
+            break;
         }
     }
 
-    wxFAIL_MSG("We should never reach here.");
     return hoxRESULT_ERR;
 }
 

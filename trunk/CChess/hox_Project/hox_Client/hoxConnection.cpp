@@ -287,39 +287,51 @@ hoxConnection::_HandleRequest_Data( hoxRequest*  request )
     wxASSERT_MSG( request->socket == m_pSClient, "Sockets should match." );
     wxSocketBase* sock = m_pSClient;
     
+    // We disable input events until we are done processing the current command.
+    sock->SetNotify(wxSOCKET_LOST_FLAG); // remove the wxSOCKET_INPUT_FLAG!!!
+
     // TODO: Only deal with wxSOCKET_INPUT for now.
 
     wxString     commandStr;
     hoxCommand   command;
     hoxResult    result = hoxRESULT_ERR;  // Default = "error"
 
-    // FIXME: The following "read_line" would block forever until a LINE is received.
-    //        That is BAD!!!
-
     wxLogDebug("%s: Reading incoming command from the network...", FNAME);
-    (void) hoxServer::read_line( sock, commandStr );
+    result = hoxServer::read_line( sock, commandStr );
+    if ( result != hoxRESULT_OK )
+    {
+        wxLogError("%s: Failed to read incoming command.", FNAME);
+        goto exit_label;
+    }
     wxLogDebug("%s: Received command [%s].", FNAME, commandStr);
 
     result = hoxServer::parse_command( commandStr, command );
     if ( result != hoxRESULT_OK )
     {
         wxLogError("%s: Failed to parse command [%s].", FNAME, commandStr);
-        return hoxRESULT_ERR;
+        goto exit_label;
     }
 
     switch ( command.type )
     {
         case hoxREQUEST_TYPE_MOVE:
-            _HandleCommand_Move(request, command); 
+            result = _HandleCommand_Move( request, command ); 
             break;
 
         default:
             wxLogError("%s: Unexpected command-type [%s].", 
                 FNAME, hoxUtility::RequestTypeToString(command.type));
-            return hoxRESULT_ERR;
+            result = hoxRESULT_ERR;
+            goto exit_label;
     }
 
-    return hoxRESULT_OK;
+    result = hoxRESULT_OK;
+
+exit_label:
+    // Enable the input flag again.
+    sock->SetNotify(wxSOCKET_LOST_FLAG | wxSOCKET_INPUT_FLAG);
+
+    return result;
 }
 
 hoxResult   
@@ -327,9 +339,9 @@ hoxConnection::_HandleCommand_Move( hoxRequest*   request,
                                     hoxCommand&   command )
 {
     const char* FNAME = "hoxConnection::_HandleCommand_Move";
-
-    wxUint32 nWrite;
-    wxString response;
+    hoxResult       result = hoxRESULT_ERR;   // Assume: failure.
+    wxUint32        nWrite;
+    wxString        response;
     hoxNetworkEvent networkEvent;
 
     wxSocketBase* sock = m_pSClient;
@@ -339,12 +351,14 @@ hoxConnection::_HandleCommand_Move( hoxRequest*   request,
     wxString playerId = command.parameters["pid"];
     hoxPlayer* player = NULL;
 
+    wxLogDebug("%s: ENTER.", FNAME);
+
     // Find the table hosted on this system using the specified table-Id.
     hoxTable* table = hoxTableMgr::GetInstance()->FindTable( tableId );
 
     if ( table == NULL )
     {
-        wxLogError(wxString::Format("%s: Table [%s] not found.", FNAME, tableId));
+        wxLogError("%s: Table [%s] not found.", FNAME, tableId);
         response << "1\r\n"  // code
                  << "Table " << tableId << " not found.\r\n";
         goto exit_label;
@@ -362,8 +376,8 @@ hoxConnection::_HandleCommand_Move( hoxRequest*   request,
     }
     else
     {
-        wxLogError(wxString::Format("%s: Player [%s] not found at the table [%s].", 
-                        FNAME, playerId, tableId));
+        wxLogError("%s: Player [%s] not found at the table [%s].", 
+            FNAME, playerId, tableId);
         response << "2\r\n"  // code
                  << "Player " << playerId << " not found.\r\n";
         goto exit_label;
@@ -379,17 +393,20 @@ hoxConnection::_HandleCommand_Move( hoxRequest*   request,
     response << "0\r\n"       // error-code = SUCCESS
              << "INFO: (MOVE) Move at Table [" << tableId << "] OK\r\n";
 
+    result = hoxRESULT_OK;
+
 exit_label:
     // Send back response.
     nWrite = (wxUint32) response.size();
     sock->WriteMsg( response, nWrite );
     if ( sock->LastCount() != nWrite )
     {
-        wxLogError(wxString::Format("%s: Writing to  socket failed.", FNAME));
-        return hoxRESULT_ERR;
+        wxLogError("%s: Writing to socket failed.", FNAME);
+        result = hoxRESULT_ERR;
     }
 
-    return hoxRESULT_OK;
+    wxLogDebug("%s: END.", FNAME);
+    return result;
 }
 
 hoxResult   

@@ -73,11 +73,11 @@ hoxSocketServer::Entry()
 
         if ( newSock != NULL )
         {
-            wxLogDebug(wxString::Format("%s: New client connection accepted.", FNAME));
+            wxLogDebug("%s: New client connection accepted.", FNAME);
         }
         else
         {
-            //wxLogDebug(wxString::Format("%s: Timeout. No new connection.", FNAME));
+            //wxLogDebug("%s: Timeout. No new connection.", FNAME);
             continue;  // *** Ignore the error
         }
 
