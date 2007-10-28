@@ -1,0 +1,8 @@
+These images were downloaded from the following site:
+------------------------------------------------------
++ http://www.chessvariants.org/graphics.dir/ichina/index.html
+
+
+Conversion from GIF to PNG images:
+----------------------------------
++ http://www.coolutils.com/Online-Image-Converter.php
