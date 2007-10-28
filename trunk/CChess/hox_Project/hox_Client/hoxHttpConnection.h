@@ -1,40 +1,38 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:            hoxWWWThread.h
+// Name:            hoxHttpConnection.h
 // Program's Name:  Huy's Open Xiangqi
-// Created:         10/21/2007
+// Created:         10/28/2007
 //
-// Description:     The WWW Thread to help the WWW player.
+// Description:     The HTTP Connection to help the HTTP player.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_WWW_THREAD_H_
-#define __INCLUDED_HOX_WWW_THREAD_H_
+#ifndef __INCLUDED_HOX_HTTP_CONNECTION_H_
+#define __INCLUDED_HOX_HTTP_CONNECTION_H_
 
-#include "wx/wx.h"
+#include <wx/wx.h>
+#include "hoxConnection.h"
 #include "hoxEnums.h"
 #include "hoxTypes.h"
 
 // ----------------------------------------------------------------------------
-// WWW worker thread
+// hoxHttpConnection
 // ----------------------------------------------------------------------------
 
-/** !!!!!!!!!!!!!!!!!!!!!!!
- * NOTE: If deriving from wxThread, acquiring mutex (using lock) would fail.
- *       Thus, I have to derive from wxThreadHelper.
- * !!!!!!!!!!!!!!!!!!!!!!! */
-class hoxWWWThread : public wxThreadHelper
+class hoxHttpConnection : public hoxConnection
 {
 public:
-    hoxWWWThread( const wxString& sHostname,
+    hoxHttpConnection( const wxString& sHostname,
                   int             nPort );
-    ~hoxWWWThread();
+    ~hoxHttpConnection();
 
     // Thread execution starts here
     virtual void* Entry();
 
-public:
-    // **** My own public API ****
+    /*******************************************
+     * Override the parent's event-handler API
+     *******************************************/
 
-    void AddRequest( hoxRequest* request );
+    virtual void AddRequest( hoxRequest* request );
 
 private:
     hoxRequest* _GetRequest();         
@@ -42,9 +40,6 @@ private:
     hoxResult   _SendRequest( const wxString& request, wxString& response );
 
 private:
-    wxString              m_sHostname; 
-    int                   m_nPort;
-
     bool                  m_shutdownRequested;
                 /* Has a shutdown-request been received? */
 
@@ -54,4 +49,4 @@ private:
 };
 
 
-#endif /* __INCLUDED_HOX_WWW_THREAD_H_ */
+#endif /* __INCLUDED_HOX_HTTP_CONNECTION_H_ */

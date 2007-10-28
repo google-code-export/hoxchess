@@ -81,7 +81,7 @@ MyApp::OnInit()
 
     m_frame = NULL;    // To avoid "logging to early to Frame".
     m_nChildren = 0;
-    m_wwwLocalPlayer  = NULL;
+    m_httpPlayer  = NULL;
     m_myPlayer  = NULL;
 
     //m_log = new hoxLog();

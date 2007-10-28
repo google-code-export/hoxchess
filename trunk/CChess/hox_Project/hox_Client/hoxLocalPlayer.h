@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // Name:            hoxLocalPlayer.h
 // Program's Name:  Huy's Open Xiangqi
-// Created:         10/09/2007
+// Created:         10/28/2007
 //
 // Description:     The LOCAL Player.
 /////////////////////////////////////////////////////////////////////////////
@@ -9,52 +9,66 @@
 #ifndef __INCLUDED_HOX_LOCAL_PLAYER_H_
 #define __INCLUDED_HOX_LOCAL_PLAYER_H_
 
-#include "wx/wx.h"
-#include "wx/socket.h"
-#include "hoxNetworkPlayer.h"
+#include <wx/wx.h>
+#include "hoxPlayer.h"
 #include "hoxEnums.h"
 #include "hoxTypes.h"
+
+/* Forward declarations */
+class hoxConnection;
 
 /**
  * The LOCAL player.
  */
 
-class hoxLocalPlayer :  public hoxNetworkPlayer
+class hoxLocalPlayer :  public hoxPlayer
 {
-  public:
-    hoxLocalPlayer(); // Default constructor required for event handler.
+public:
     hoxLocalPlayer( const wxString& name,
                     hoxPlayerType   type,
                     int             score = 1500);
 
     virtual ~hoxLocalPlayer();
 
+public:
+
     /*******************************************
      * Override the parent's event-handler API
      *******************************************/
 
-    virtual hoxResult DisconnectFromNetwork();
-    virtual void      HandleSocketLostEvent( wxSocketBase* sock );
+    virtual void OnNewMove_FromTable( hoxPlayerEvent&  event );
 
     /*******************************
-     * LOCAL-specific Network API
+     * MY-specific Network API
      *******************************/
 
-    hoxResult ConnectToNetworkServer( const wxString& sHostname, int nPort );
-    hoxResult QueryForNetworkTables( hoxNetworkTableInfoList& tableList );
-    hoxResult JoinNetworkTable( const wxString& tableId );
+    virtual hoxResult ConnectToNetworkServer( const wxString& sHostname, 
+                                              int             nPort, 
+                                              wxEvtHandler*   sender );
 
-  private:
+    virtual hoxResult QueryForNetworkTables( wxEvtHandler* sender );
+    virtual hoxResult JoinNetworkTable( const wxString& tableId,
+                                        wxEvtHandler*   sender );
+    virtual hoxResult OpenNewNetworkTable( wxEvtHandler*   sender );
+    virtual hoxResult LeaveNetworkTable( const wxString& tableId,
+                                         wxEvtHandler*   sender );
 
-    wxSocketClient*   m_pSClient;
-        /* NULL if this player is not a part of any network server.
-         * Otherwise, this member variable establishes a connection with a network.
-         * The class is responsible for managing this connection.
-         */
+protected:
+    virtual const wxString BuildRequestContent( const wxString& commandStr )
+        { return commandStr; }
 
+    virtual hoxConnection* CreateNewConnection( const wxString& sHostname, 
+                                                int             nPort ) = 0;
 
-    DECLARE_CLASS(hoxLocalPlayer)
-    DECLARE_EVENT_TABLE()
+private:
+    void _StartConnection();
+
+private:
+    wxString         m_sHostname; 
+    int              m_nPort;
+
+protected:
+    hoxConnection*   m_connection;
 };
 
 

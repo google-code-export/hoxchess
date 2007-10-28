@@ -1,13 +1,13 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:            hoxWWWThread.cpp
+// Name:            hoxHttpConnection.cpp
 // Program's Name:  Huy's Open Xiangqi
-// Created:         10/21/2007
+// Created:         10/28/2007
 //
-// Description:     The WWW Thread to help the WWW player.
+// Description:     The HTTP Thread to help the HTTP player.
 /////////////////////////////////////////////////////////////////////////////
 
-#include "hoxWWWThread.h"
-#include "hoxWWWPlayer.h"
+#include "hoxHttpConnection.h"
+#include "hoxHttpPlayer.h"
 #include "hoxEnums.h"
 #include "hoxUtility.h"
 
@@ -17,30 +17,28 @@
 
 
 //-----------------------------------------------------------------------------
-// hoxWWWThread
+// hoxHttpConnection
 //-----------------------------------------------------------------------------
 
 
-hoxWWWThread::hoxWWWThread( const wxString&  sHostname,
-                            int              nPort )
-        : wxThreadHelper()
-        , m_sHostname( sHostname )
-        , m_nPort( nPort )
+hoxHttpConnection::hoxHttpConnection( const wxString&  sHostname,
+                                      int              nPort )
+        : hoxConnection( sHostname, nPort )
         , m_shutdownRequested( false )
 {
 }
 
-hoxWWWThread::~hoxWWWThread()
+hoxHttpConnection::~hoxHttpConnection()
 {
-    const char* FNAME = "hoxWWWThread::~hoxWWWThread";
+    const char* FNAME = "hoxHttpConnection::~hoxHttpConnection";
 
     wxLogDebug("%s: ENTER.", FNAME);
 }
 
 void*
-hoxWWWThread::Entry()
+hoxHttpConnection::Entry()
 {
-    const char* FNAME = "hoxWWWThread::Entry";
+    const char* FNAME = "hoxHttpConnection::Entry";
     hoxRequest* request = NULL;
 
     wxLogDebug("%s: ENTER.", FNAME);
@@ -64,9 +62,9 @@ hoxWWWThread::Entry()
 }
 
 void 
-hoxWWWThread::AddRequest( hoxRequest* request )
+hoxHttpConnection::AddRequest( hoxRequest* request )
 {
-    const char* FNAME = "hoxWWWThread::AddRequest";
+    const char* FNAME = "hoxHttpConnection::AddRequest";
     wxMutexLocker lock( m_mutexRequests );
 
     if ( m_shutdownRequested )
@@ -82,9 +80,9 @@ hoxWWWThread::AddRequest( hoxRequest* request )
 }
 
 void 
-hoxWWWThread::_HandleRequest( hoxRequest* request )
+hoxHttpConnection::_HandleRequest( hoxRequest* request )
 {
-    const char* FNAME = "hoxWWWThread::_HandleRequest";
+    const char* FNAME = "hoxHttpConnection::_HandleRequest";
     hoxResult    result = hoxRESULT_ERR;
     hoxResponse* response = new hoxResponse( request->type );
 
@@ -123,9 +121,9 @@ hoxWWWThread::_HandleRequest( hoxRequest* request )
 }
 
 hoxRequest*
-hoxWWWThread::_GetRequest()
+hoxHttpConnection::_GetRequest()
 {
-    const char* FNAME = "hoxWWWThread::_GetRequest";
+    const char* FNAME = "hoxHttpConnection::_GetRequest";
     wxMutexLocker lock( m_mutexRequests );
 
     hoxRequest* request = NULL;
@@ -154,10 +152,10 @@ hoxWWWThread::_GetRequest()
 }
 
 hoxResult 
-hoxWWWThread::_SendRequest( const wxString& request,
+hoxHttpConnection::_SendRequest( const wxString& request,
                             wxString&       response )
 {
-    const char* FNAME = "hoxWWWThread::_SendRequest";
+    const char* FNAME = "hoxHttpConnection::_SendRequest";
     hoxResult result = hoxRESULT_ERR;
 
     wxLogDebug("%s: ENTER.", FNAME);

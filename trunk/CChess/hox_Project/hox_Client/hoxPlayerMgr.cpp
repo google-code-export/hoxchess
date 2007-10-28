@@ -47,23 +47,12 @@ hoxPlayerMgr::CreateHostPlayer( const wxString& name,
     return player;
 }
 
-hoxLocalPlayer*
-hoxPlayerMgr::CreateLocalPlayer( const wxString& name,
-                                 int             score /* = 1500 */)
-{
-    hoxLocalPlayer* player 
-        = new hoxLocalPlayer( name, hoxPLAYER_TYPE_LOCAL, score );
-    m_players.push_back( player );
-
-    return player;
-}
-
-hoxWWWPlayer*
+hoxHttpPlayer*
 hoxPlayerMgr::CreateWWWLocalPlayer( const wxString& name,
                                     int             score /* = 1500 */)
 {
-    hoxWWWPlayer* player 
-        = new hoxWWWPlayer( name, hoxPLAYER_TYPE_LOCAL, score );
+    hoxHttpPlayer* player 
+        = new hoxHttpPlayer( name, hoxPLAYER_TYPE_LOCAL, score );
     m_players.push_back( player );
 
     return player;

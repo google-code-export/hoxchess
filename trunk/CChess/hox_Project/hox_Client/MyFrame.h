@@ -80,7 +80,6 @@ public:
     void OnQuit(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);
 
-    void DoJoinTable(const wxString& tableId);
     void DoJoinNewWWWTable(const wxString& tableId);
     void DoJoinExistingWWWTable(const hoxNetworkTableInfo& tableInfo);
 

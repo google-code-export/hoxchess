@@ -12,8 +12,6 @@
 #include "wx/wx.h"
 #include "hoxTypes.h"
 
-/* Forward declarations */
-class hoxWWWPlayer;
 
 // ----------------------------------------------------------------------------
 // The Tables-Dialog class
