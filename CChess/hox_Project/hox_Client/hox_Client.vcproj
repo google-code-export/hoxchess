@@ -185,6 +185,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hoxHttpConnection.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\hoxHttpPlayer.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\hoxLocalPlayer.cpp"
 				>
 			</File>
@@ -233,6 +241,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hoxSocketConnection.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\hoxSocketServer.cpp"
 				>
 			</File>
@@ -250,14 +262,6 @@
 			</File>
 			<File
 				RelativePath=".\hoxUtility.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\hoxWWWPlayer.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\hoxWWWThread.cpp"
 				>
 			</File>
 			<File
@@ -296,6 +300,14 @@
 			</File>
 			<File
 				RelativePath=".\hoxHostPlayer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\hoxHttpConnection.h"
+				>
+			</File>
+			<File
+				RelativePath=".\hoxHttpPlayer.h"
 				>
 			</File>
 			<File
@@ -351,6 +363,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hoxSocketConnection.h"
+				>
+			</File>
+			<File
 				RelativePath=".\hoxSocketServer.h"
 				>
 			</File>
@@ -372,14 +388,6 @@
 			</File>
 			<File
 				RelativePath=".\hoxUtility.h"
-				>
-			</File>
-			<File
-				RelativePath=".\hoxWWWPlayer.h"
-				>
-			</File>
-			<File
-				RelativePath=".\hoxWWWThread.h"
 				>
 			</File>
 			<File

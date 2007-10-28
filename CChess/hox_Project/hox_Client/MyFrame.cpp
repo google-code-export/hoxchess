@@ -25,13 +25,6 @@
 #include "bitmaps/help.xpm"
 
 
-/* A LOCAL player that represents this host to connect
- * with a single remote server.
- * TODO: Currently, this App can only connect 1 remote server!!!
- * FIXME: Who will cleanup me???
- */
-hoxLocalPlayer* gs_localPlayer  = NULL;
-
 /* Define my custom events */
 DEFINE_EVENT_TYPE(hoxEVT_FRAME_LOG_MSG)
 
@@ -239,19 +232,19 @@ void MyFrame::OnConnectWWWServer(wxCommandEvent& WXUNUSED(event) )
     /* Create a WWW network player */
 
     wxLogDebug("%s: Creating a WWW player to connect to a remote server.", FNAME);
-    if ( wxGetApp().m_wwwLocalPlayer != NULL )
+    if ( wxGetApp().m_httpPlayer != NULL )
     {
         wxLogDebug("%s: Delete the existing WWW player.", FNAME);
-        hoxPlayerMgr::GetInstance()->DeletePlayer( wxGetApp().m_wwwLocalPlayer );
-        wxGetApp().m_wwwLocalPlayer = NULL;
+        hoxPlayerMgr::GetInstance()->DeletePlayer( wxGetApp().m_httpPlayer );
+        wxGetApp().m_httpPlayer = NULL;
     }
 
     hoxNetworkTableInfoList tableList;
     wxString playerName = hoxUtility::GenerateRandomString();
-    wxGetApp().m_wwwLocalPlayer = 
+    wxGetApp().m_httpPlayer = 
         hoxPlayerMgr::GetInstance()->CreateWWWLocalPlayer( playerName );
 
-    result = wxGetApp().m_wwwLocalPlayer->ConnectToNetworkServer( 
+    result = wxGetApp().m_httpPlayer->ConnectToNetworkServer( 
                                 "www.playxiangqi.com", 
                                  80 /* port */,
                                  this );
@@ -264,69 +257,6 @@ void MyFrame::OnConnectWWWServer(wxCommandEvent& WXUNUSED(event) )
     m_dlgProgress->Pulse();
 }
 
-void MyFrame::DoJoinTable(const wxString& tableId)
-{
-    hoxResult result;
-
-    /***********************/
-    /* Send a JOIN request */
-    /***********************/
-
-    wxLogDebug(wxString::Format(_("About to join the table [%s]..."), tableId));
-    wxASSERT( gs_localPlayer != NULL );
-    result = gs_localPlayer->JoinNetworkTable( tableId );
-
-    if ( result != hoxRESULT_OK )
-    {
-        wxLogWarning(_("Failed to send Join-Table command."));
-        return;
-    }
-
-    /***********************/
-    /* Create a new table. */
-    /***********************/
-
-    wxLogDebug(_T("Create a new table to play with network player."));
-    hoxTable* table = _CreateNewTable( tableId );
-
-    /***********************/
-    /* Setup players       */
-    /***********************/
-
-    /* Right now, assume that the network ('remote') player is always RED
-     * because he owns the table.
-     */
-
-    /* Just create a 'proxy' player that represents the 
-     * remote network player.
-     */
-
-    // The remote player must joint first because the API JoinTable()
-    // below will try to fill the RED position first.
-    hoxPlayer* red_player = 
-            hoxPlayerMgr::GetInstance()->CreatePlayer("(Dummy) Red Player",
-                                                      hoxPLAYER_TYPE_DUMMY );
-    result = red_player->JoinTable( table );
-    wxASSERT( result == hoxRESULT_OK  );
-    wxASSERT_MSG( red_player->HasRole( hoxRole(table->GetId(), 
-                                               hoxPIECE_COLOR_RED) ),
-                  _("Player must play RED"));
-
-    // NOTE: The App's player will play BLACK.
-    //       It should be noticed that a HOST player is able
-    //       to play/view multiple tables at the same time.
-
-    hoxPlayer* black_player = gs_localPlayer;
-    result = black_player->JoinTable( table );
-    wxASSERT( result == hoxRESULT_OK  );
-    wxASSERT_MSG( black_player->HasRole( hoxRole(table->GetId(), 
-                                                 hoxPIECE_COLOR_BLACK) ),
-                  _("Player must play BLACK"));
-
-    // Change the view side in which BLACK is at the bottom of the screen.
-    table->ToggleViewSide();
-}
-
 void MyFrame::DoJoinNewWWWTable(const wxString& tableId)
 {
     const char* FNAME = "MyFrame::DoJoinNewWWWTable";
@@ -334,7 +264,7 @@ void MyFrame::DoJoinNewWWWTable(const wxString& tableId)
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    wxASSERT( wxGetApp().m_wwwLocalPlayer != NULL );
+    wxASSERT( wxGetApp().m_httpPlayer != NULL );
 
     /***********************/
     /* Create a new table. */
@@ -350,7 +280,7 @@ void MyFrame::DoJoinNewWWWTable(const wxString& tableId)
     /* Since we open this NEW table, we will play RED.
      */
 
-    hoxPlayer* red_player = wxGetApp().m_wwwLocalPlayer;
+    hoxPlayer* red_player = wxGetApp().m_httpPlayer;
 
     result = red_player->JoinTable( table );
     wxASSERT( result == hoxRESULT_OK  );
@@ -367,7 +297,7 @@ void MyFrame::DoJoinExistingWWWTable(const hoxNetworkTableInfo& tableInfo)
     const char* FNAME = "MyFrame::DoJoinExistingWWWTable";
     hoxResult result;
 
-    wxASSERT( wxGetApp().m_wwwLocalPlayer != NULL );
+    wxASSERT( wxGetApp().m_httpPlayer != NULL );
 
     /*******************************************************/
     /* Check to see which side (RED or BLACK) we will play
@@ -377,12 +307,12 @@ void MyFrame::DoJoinExistingWWWTable(const hoxNetworkTableInfo& tableInfo)
     bool     playRed = false;   // Do I play RED?
     wxString otherPlayerId;     // Who is the other player?
 
-    if ( tableInfo.redId == wxGetApp().m_wwwLocalPlayer->GetName() )
+    if ( tableInfo.redId == wxGetApp().m_httpPlayer->GetName() )
     {
         playRed = true;
         otherPlayerId = tableInfo.blackId;
     }
-    else if ( tableInfo.blackId == wxGetApp().m_wwwLocalPlayer->GetName() )
+    else if ( tableInfo.blackId == wxGetApp().m_httpPlayer->GetName() )
     {
         playRed = false;
         otherPlayerId = tableInfo.redId;
@@ -411,7 +341,7 @@ void MyFrame::DoJoinExistingWWWTable(const hoxNetworkTableInfo& tableInfo)
 
     if ( playRed )  // Do I play RED?
     {
-        red_player = wxGetApp().m_wwwLocalPlayer;
+        red_player = wxGetApp().m_httpPlayer;
         if ( ! otherPlayerId.empty() )
         {
             black_player = hoxPlayerMgr::GetInstance()->CreatePlayer( 
@@ -421,7 +351,7 @@ void MyFrame::DoJoinExistingWWWTable(const hoxNetworkTableInfo& tableInfo)
     }
     else
     {
-        black_player = wxGetApp().m_wwwLocalPlayer;
+        black_player = wxGetApp().m_httpPlayer;
         if ( ! otherPlayerId.empty() )
         {
             red_player = hoxPlayerMgr::GetInstance()->CreatePlayer( 
@@ -592,14 +522,8 @@ void MyFrame::DoJoinNewMYTable(const wxString& tableId)
 
 void MyFrame::OnDisconnectServer(wxCommandEvent& WXUNUSED(event) )
 {
-    hoxResult result;
-
-    wxLogDebug(_("About to disconnect from the remote server..."));
-    if ( gs_localPlayer != NULL )
-    {
-        result = gs_localPlayer->DisconnectFromNetwork();
-        wxLogDebug(_("Disconnected from the remote server."));
-    }
+    const char* FNAME = "MyFrame::OnDisconnectServer";
+    wxLogDebug("%s: ENTER. *** Do nothing. ***", FNAME);
 }
 
 void MyFrame::OnSize(wxSizeEvent& event)
@@ -803,7 +727,7 @@ MyFrame::_OnWWWResponse_Connect( const wxString& responseStr )
     }
 
     /* Get the list of tables from the WWW server */
-    result = wxGetApp().m_wwwLocalPlayer->QueryForNetworkTables( this );
+    result = wxGetApp().m_httpPlayer->QueryForNetworkTables( this );
     if ( result != hoxRESULT_OK )
     {
         wxLogError("%s: Failed to query for LIST of tables from WWW server.", FNAME);
@@ -978,7 +902,7 @@ MyFrame::_OnWWWResponse_List( const wxString& responseStr )
         {
             wxLogDebug("%s: Asking WWW server to allow me to JOIN table = [%s]...", FNAME, selectedId);
             hoxNetworkTableInfo tableInfo;
-            result = wxGetApp().m_wwwLocalPlayer->JoinNetworkTable( selectedId, this );
+            result = wxGetApp().m_httpPlayer->JoinNetworkTable( selectedId, this );
             if ( result != hoxRESULT_OK )
             {
                 wxLogError("%s: Failed to JOIN the network table [%s].", FNAME, selectedId);
@@ -990,7 +914,7 @@ MyFrame::_OnWWWResponse_List( const wxString& responseStr )
         {
             wxLogDebug("%s: Asking the WWW server to open a new table...", FNAME);
             wxString newTableId;
-            result = wxGetApp().m_wwwLocalPlayer->OpenNewNetworkTable( this );
+            result = wxGetApp().m_httpPlayer->OpenNewNetworkTable( this );
             if ( result != hoxRESULT_OK )
             {
                 wxLogError("%s: Failed to open NEW network table.", FNAME);

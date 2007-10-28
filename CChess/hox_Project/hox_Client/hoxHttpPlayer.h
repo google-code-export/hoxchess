@@ -1,13 +1,13 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:            hoxMyPlayer.h
+// Name:            hoxHttpPlayer.h
 // Program's Name:  Huy's Open Xiangqi
-// Created:         10/23/2007
+// Created:         10/28/2007
 //
-// Description:     The new "advanced" LOCAL Player.
+// Description:     The HTTP Player.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_MY_PLAYER_H_
-#define __INCLUDED_HOX_MY_PLAYER_H_
+#ifndef __INCLUDED_HOX_HTTP_PLAYER_H_
+#define __INCLUDED_HOX_HTTP_PLAYER_H_
 
 #include <wx/wx.h>
 #include "hoxLocalPlayer.h"
@@ -15,26 +15,26 @@
 #include "hoxTypes.h"
 
 /* Forward declarations */
-class hoxSocketConnection;
+class hoxHttpConnection;
 
 /** 
- * Connection event-type for responses.
+ * WWW (response) event-type for responses.
  */
-DECLARE_EVENT_TYPE(hoxEVT_CONNECTION_RESPONSE, wxID_ANY)
+DECLARE_EVENT_TYPE(hoxEVT_WWW_RESPONSE, wxID_ANY)
 
 /**
- * The MY player.
+ * The HTTP player.
  */
 
-class hoxMyPlayer :  public hoxLocalPlayer
+class hoxHttpPlayer :  public hoxLocalPlayer
 {
 public:
-    hoxMyPlayer(); // DUMMY default constructor required for event handler.
-    hoxMyPlayer( const wxString& name,
-                 hoxPlayerType   type,
-                 int             score );
+    hoxHttpPlayer(); // DUMMY default constructor required for event handler.
+    hoxHttpPlayer( const wxString& name,
+                   hoxPlayerType   type,
+                   int             score = 1500);
 
-    virtual ~hoxMyPlayer();
+    virtual ~hoxHttpPlayer();
 
     /*******************************************
      * Override the parent's API
@@ -51,31 +51,32 @@ protected:
      *******************************************/
 
 public:
+    virtual hoxResult JoinTable( hoxTable* table );
+    virtual hoxResult LeaveTable( hoxTable* table );
 
     /*******************************
-     * MY-specific Network API
+     * Income-data event handlers
      *******************************/
 
-    /*******************************
-     * Socket-event handlers
-     *******************************/
-
-    void OnIncomingNetworkData( wxSocketEvent& event );
+    void OnWWWResponse(wxCommandEvent& event);
 
     /*******************************
      * Other API
      *******************************/
 
-    hoxResult StartListenForMoves();
+    void OnTimer( wxTimerEvent& WXUNUSED(event) );
 
 private:
-    void _StartConnection();
+    void _StartWWWThread();
 
 private:
 
-    DECLARE_CLASS(hoxMyPlayer)
+    wxTimer        m_timer;    // to poll the WWW server to events.
+
+
+    DECLARE_CLASS(hoxHttpPlayer)
     DECLARE_EVENT_TABLE()
 };
 
 
-#endif /* __INCLUDED_HOX_MY_PLAYER_H_ */
+#endif /* __INCLUDED_HOX_HTTP_PLAYER_H_ */

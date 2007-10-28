@@ -19,7 +19,7 @@ class MyFrame;
 class hoxSocketServer;
 class hoxPlayer;
 class hoxTable;
-class hoxWWWPlayer;
+class hoxHttpPlayer;
 class hoxMyPlayer;
 class hoxServer;
 
@@ -80,7 +80,7 @@ class MyApp : public wxApp
     hoxTable* LookupTable( const hoxNetworkTableInfo& tableInfo ) const;
 
     int                 m_nChildren;   // The number of child-frames.
-    hoxWWWPlayer*       m_wwwLocalPlayer;
+    hoxHttpPlayer*      m_httpPlayer;
     hoxMyPlayer*        m_myPlayer;
 
     void OnServerSocketEvent(wxSocketEvent& event);
