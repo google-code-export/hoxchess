@@ -242,25 +242,51 @@ hoxUtility::RequestTypeToString( const hoxRequestType requestType )
 {
     switch( requestType )
     {
-        case hoxREQUEST_TYPE_UNKNOWN:     return "hoxREQUEST_TYPE_UNKNOWN";
+        case hoxREQUEST_TYPE_UNKNOWN:     return "UNKNOWN";
 
-        case hoxREQUEST_TYPE_ACCEPT:      return "hoxREQUEST_TYPE_ACCEPT";
-        case hoxREQUEST_TYPE_DATA:        return "hoxREQUEST_TYPE_DATA";
-        case hoxREQUEST_TYPE_PLAYER_DATA: return "hoxREQUEST_TYPE_PLAYER_DATA";
-        case hoxREQUEST_TYPE_CONNECT:     return "hoxREQUEST_TYPE_CONNECT";
-        case hoxREQUEST_TYPE_DISCONNECT:  return "hoxREQUEST_TYPE_DISCONNECT";
-        case hoxREQUEST_TYPE_SHUTDOWN:    return "hoxREQUEST_TYPE_SHUTDOWN";
-        case hoxREQUEST_TYPE_POLL:        return "hoxREQUEST_TYPE_POLL";
-        case hoxREQUEST_TYPE_MOVE:        return "hoxREQUEST_TYPE_MOVE";
-        case hoxREQUEST_TYPE_LIST:        return "hoxREQUEST_TYPE_LIST";
-        case hoxREQUEST_TYPE_NEW:         return "hoxREQUEST_TYPE_NEW";
-        case hoxREQUEST_TYPE_JOIN:        return "hoxREQUEST_TYPE_JOIN";
-        case hoxREQUEST_TYPE_LEAVE:       return "hoxREQUEST_TYPE_LEAVE";
-        case hoxREQUEST_TYPE_LISTEN:      return "hoxREQUEST_TYPE_LISTEN";
-        case hoxREQUEST_TYPE_TABLE_MOVE:  return "hoxREQUEST_TYPE_TABLE_MOVE";
+        case hoxREQUEST_TYPE_ACCEPT:      return "ACCEPT";
+        case hoxREQUEST_TYPE_DATA:        return "DATA";
+        case hoxREQUEST_TYPE_PLAYER_DATA: return "PLAYER_DATA";
+        case hoxREQUEST_TYPE_CONNECT:     return "CONNECT";
+        case hoxREQUEST_TYPE_DISCONNECT:  return "DISCONNECT";
+        case hoxREQUEST_TYPE_SHUTDOWN:    return "SHUTDOWN";
+        case hoxREQUEST_TYPE_POLL:        return "POLL";
+        case hoxREQUEST_TYPE_MOVE:        return "MOVE";
+        case hoxREQUEST_TYPE_LIST:        return "LIST";
+        case hoxREQUEST_TYPE_NEW:         return "NEW";
+        case hoxREQUEST_TYPE_JOIN:        return "JOIN";
+        case hoxREQUEST_TYPE_LEAVE:       return "LEAVE";
+        case hoxREQUEST_TYPE_LISTEN:      return "LISTEN";
+        case hoxREQUEST_TYPE_TABLE_MOVE:  return "TABLE_MOVE";
 
-        default:                          return "Unexpected request-type!";
+        default:                          return "UNKNOWN";
     }
+}
+
+/**
+ * Convert a given (human-readable) string to a request-type.
+ */
+hoxRequestType
+hoxUtility::StringToRequestType( const wxString& input )
+{
+    if ( input == "UNKNOWN" )     return hoxREQUEST_TYPE_UNKNOWN;
+
+    if ( input == "ACCEPT" )      return hoxREQUEST_TYPE_ACCEPT;
+    if ( input == "DATA" )        return hoxREQUEST_TYPE_DATA;
+    if ( input == "PLAYER_DATA" ) return hoxREQUEST_TYPE_PLAYER_DATA;
+    if ( input == "CONNECT" )     return hoxREQUEST_TYPE_CONNECT;
+    if ( input == "DISCONNECT" )  return hoxREQUEST_TYPE_DISCONNECT;
+    if ( input == "SHUTDOWN" )    return hoxREQUEST_TYPE_SHUTDOWN;
+    if ( input == "POLL" )        return hoxREQUEST_TYPE_POLL;
+    if ( input == "MOVE" )        return hoxREQUEST_TYPE_MOVE;
+    if ( input == "LIST" )        return hoxREQUEST_TYPE_LIST;
+    if ( input == "NEW" )         return hoxREQUEST_TYPE_NEW;
+    if ( input == "JOIN" )        return hoxREQUEST_TYPE_JOIN;
+    if ( input == "LEAVE" )       return hoxREQUEST_TYPE_LEAVE;
+    if ( input == "LISTEN" )      return hoxREQUEST_TYPE_LISTEN;
+    if ( input == "TABLE_MOVE" )  return hoxREQUEST_TYPE_TABLE_MOVE;
+
+    return hoxREQUEST_TYPE_UNKNOWN;
 }
 
 /************************* END OF FILE ***************************************/

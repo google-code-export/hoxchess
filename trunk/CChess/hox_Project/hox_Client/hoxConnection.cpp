@@ -13,6 +13,7 @@
 #include "hoxTableMgr.h"
 #include "hoxUtility.h"
 #include "hoxNetworkAPI.h"
+#include "MyApp.h"    // To access wxGetApp()
 
 //-----------------------------------------------------------------------------
 // hoxConnection
@@ -104,7 +105,7 @@ hoxConnection::_HandleRequest( hoxRequest* request )
             break;
 
         case hoxREQUEST_TYPE_TABLE_MOVE:
-            result = _HandleCommand_TableMove(request); 
+            result = _HandleCommand_TableMove( request ); 
             break;
 
         case hoxREQUEST_TYPE_PLAYER_DATA: // incoming data from remote player.
@@ -153,7 +154,7 @@ hoxConnection::_SendRequest_Connect( const wxString& request,
     const char* FNAME = "hoxConnection::_SendRequest_Connect";
     hoxResult result = hoxRESULT_ERR;  // Assume: failure.
     wxUint32 nWrite;
-    wxUint32 nRead;
+    wxUint32 nRead = 0;
     wxChar* buf = NULL;
 
     /* Delete the old connection, if any. */
@@ -227,13 +228,37 @@ hoxConnection::_SendRequest_Connect( const wxString& request,
     wxLogDebug("%s: Reading the response from the server...", FNAME);
     buf = new wxChar[hoxNETWORK_MAX_MSG_SIZE];
 
-    m_pSClient->ReadMsg( buf, hoxNETWORK_MAX_MSG_SIZE );
-    nRead = m_pSClient->LastCount();
-    if ( nRead == 0 )
+    /* NOTE: Do a ReadMsg operation within a loop because so far this is where
+     *       the error sometimes occurs.
+     */
     {
-        wxLogError("%s: Failed to read the response. Error = [%s].", 
-            FNAME, hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()));
-        goto exit_label;
+        const int MAX_TRIES = 5;   // The number of tries before giving up.
+        for ( int tries = 1; tries <= MAX_TRIES; ++tries )
+        {
+            m_pSClient->ReadMsg( buf, hoxNETWORK_MAX_MSG_SIZE );
+            nRead = m_pSClient->LastCount();
+            if ( nRead > 0 )
+            {
+                wxLogDebug("%s: Received some response data (tries = [%d]). nRead = [%d]. Done reading.", 
+                    FNAME, tries, nRead);
+                break;  // Done reading data.
+            }
+
+            if ( m_pSClient->Error() ) // Actual IO error occurred?
+            {
+                wxLogError("%s: Error occurred while reading the response data (tries = [%d]). Error = [%s].", 
+                    FNAME, tries, hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()));
+                goto exit_label;  // *** Stop trying. Return 'error' immediately.
+            }
+            wxLogDebug("%s: Receive no response data so far (tries = [%d]). Waiting...", FNAME, tries);
+            wxGetApp().Yield( false /* onlyIfNeeded = false */ );
+        } // for (...)
+
+        if ( nRead == 0 )
+        {
+            wxLogError("%s: Failed to read the response data after [%d] tries.", FNAME, MAX_TRIES);
+            goto exit_label;  // *** Stop trying. Return 'error' immediately.
+        }
     }
 
     response.assign( buf, nRead );
@@ -302,7 +327,7 @@ hoxConnection::_HandleRequest_PlayerData( hoxRequest*  request )
     }
     wxLogDebug("%s: Received command [%s].", FNAME, commandStr);
 
-    result = hoxServer::parse_command( commandStr, command );
+    result = hoxNetworkAPI::ParseCommand( commandStr, command );
     if ( result != hoxRESULT_OK )
     {
         wxLogError("%s: Failed to parse command [%s].", FNAME, commandStr);
@@ -407,109 +432,9 @@ hoxResult
 hoxConnection::_HandleCommand_TableMove( hoxRequest* requestCmd )
 {
     const char* FNAME = "hoxConnection::_HandleCommand_TableMove";
+    wxLogDebug("%s: ENTER.", FNAME);
 
-    hoxResult     result;
-    wxSocketBase* sock = NULL;
-    wxUint32      requestSize;
-    wxString      request;
-    wxUint32      nWrite;
-    wxUint32      nRead;
-    wxString      responseStr;
-    int           returnCode = -1;
-    wxString      returnMsg;
-    wxString      commandStr;
-    hoxCommand    command;
-    wxString      tableId;
-    wxString      playerId;
-    wxString      moveStr;
-    wxChar*       buf = NULL;
-
-    wxLogDebug("%s: ENTER.", FNAME);    
-
-    sock = m_pSClient;
-
-    // We disable input events until we are done processing the current command.
-    hoxNetworkAPI::SocketInputLock socketLock( sock );
-
-    // Remove new-line characters.
-    commandStr = requestCmd->content;
-    commandStr = commandStr.Trim();
-
-    result = hoxServer::parse_command( commandStr, command );
-    if ( result != hoxRESULT_OK )
-    {
-        wxLogError("%s: Failed to parse command-string [%s].", FNAME, commandStr);
-        result = hoxRESULT_ERR;
-        goto exit_label;
-    }
-
-    tableId  = command.parameters["tid"];
-    playerId = command.parameters["pid"];
-    moveStr  = command.parameters["move"];
-
-    request = wxString::Format("op=MOVE&tid=%s&pid=%s&move=%s\r\n", 
-                        tableId, playerId, moveStr);
-
-    // Send request.
-    wxLogDebug("%s: Sending the request [%s] over the network...", FNAME, request);
-    requestSize = (wxUint32) request.size();
-    sock->Write( request, requestSize );
-    nWrite = sock->LastCount();
-    if ( nWrite < requestSize )
-    {
-        wxLogError("%s: Failed to send request [%s] ( %d < %d ). Error = [%s].", 
-            FNAME, request, nWrite, requestSize, 
-            hoxNetworkAPI::SocketErrorToString(sock->LastError()));
-        result = hoxRESULT_ERR;
-        goto exit_label;
-    }
-
-#if 0
-    // Wait until data available (will also return if the connection is lost)
-    wxLogDebug(wxString::Format("%s: Waiting for response from the network (timeout = 2 sec)...", FNAME));
-    sock->WaitForRead( 2 /* seconds */ );
-#endif
-
-    // Read back the response.
-    wxLogDebug("%s: Reading back the response from the network...", FNAME);
-    buf = new wxChar[hoxNETWORK_MAX_MSG_SIZE];
-
-    sock->ReadMsg( buf, hoxNETWORK_MAX_MSG_SIZE );
-    nRead = sock->LastCount();
-    if ( nRead == 0 )
-    {
-        wxLogError("%s: Failed to read response. Error = [%s].", 
-            FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()));
-        result = hoxRESULT_ERR;
-        goto exit_label;
-    }
-
-    responseStr.assign( buf, nRead );
-
-    /* Parse the response */
-    result = hoxNetworkAPI::ParseSimpleResponse( responseStr,
-                                                 returnCode,
-                                                 returnMsg );
-    if ( result != hoxRESULT_OK )
-    {
-        wxLogError("%s: Failed to parse the SEND-MOVE's response.", FNAME);
-        result = hoxRESULT_ERR;
-        goto exit_label;
-    }
-    else if ( returnCode != 0 )
-    {
-        wxLogError("%s: Send MOVE failed. [%s]", FNAME, returnMsg);
-        result = hoxRESULT_ERR;
-        goto exit_label;
-    }
-
-    result = hoxRESULT_OK;
-
-exit_label:
-    delete[] buf;
-
-    wxLogDebug("%s: END.", FNAME);
-    return result;
+    return hoxNetworkAPI::SendMove( m_pSClient, requestCmd->content );
 }
 
 hoxRequest*

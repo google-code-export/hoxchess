@@ -76,9 +76,9 @@ hoxNetworkPlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
 
     wxASSERT( m_server != NULL );
     {
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_TABLE_MOVE, NULL /* this */ );
-        request->content = 
-                wxString::Format("op=TABLE_MOVE&tid=%s&pid=%s&move=%s\r\n", 
+        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_TABLE_MOVE );
+        request->content =     /* NOTE: Send "MOVE, not "TABLE_MOVE" string */
+                wxString::Format("op=MOVE&tid=%s&pid=%s&move=%s\r\n", 
                             tableId, this->GetName(), moveStr);
         request->socket = this->m_pCBSock;
         m_server->AddRequest( request );

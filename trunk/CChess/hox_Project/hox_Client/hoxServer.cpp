@@ -296,7 +296,7 @@ hoxServer::_HandleRequest_PlayerData( const hoxRequest* request,
     }
     wxLogDebug("%s: Received command [%s].", FNAME, commandStr);
 
-    result = hoxServer::parse_command( commandStr, command );
+    result = hoxNetworkAPI::ParseCommand( commandStr, command );
     if ( result != hoxRESULT_OK )
     {
         wxLogError("%s: Failed to parse command-string [%s].", FNAME, commandStr);
@@ -358,7 +358,7 @@ hoxServer::_SendRequest_Data( const hoxRequest* request,
     }
     wxLogDebug("%s: Received command [%s].", FNAME, commandStr);
 
-    result = hoxServer::parse_command( commandStr, command );
+    result = hoxNetworkAPI::ParseCommand( commandStr, command );
     if ( result != hoxRESULT_OK )
     {
         wxLogError("%s: Failed to parse command-string [%s].", FNAME, commandStr);
@@ -676,74 +676,5 @@ hoxServer::read_line( wxSocketBase* sock,
     return hoxRESULT_ERR;
 }
 
-/* static */
-hoxResult
-hoxServer::parse_command( const wxString& commandStr, 
-                          hoxCommand&     command )
-{
-    const char* FNAME = "hoxServer::parse_command";
-
-    wxStringTokenizer tkz( commandStr, "&" );
-
-    while ( tkz.HasMoreTokens() )
-    {
-        wxString token = tkz.GetNextToken();
-
-        size_t foundIndex = token.find( '=' );
-        
-        if ( foundIndex == wxNOT_FOUND )
-            continue;  // ignore this 'error'.
-
-        wxString paramName;
-        wxString paramValue;
-
-        paramName = token.substr( 0, foundIndex );
-        paramValue = token.substr( foundIndex+1 );
-
-        // Special case for "op" param-name.
-        if ( paramName == "op" )
-        {
-            if ( paramValue == "HELLO" )
-            {
-                command.type = hoxREQUEST_TYPE_CONNECT;
-            }
-            else if ( paramValue == "LIST" )
-            {
-                command.type = hoxREQUEST_TYPE_LIST;
-            }
-            else if ( paramValue == "JOIN" )
-            {
-                command.type = hoxREQUEST_TYPE_JOIN;
-            }
-            else if ( paramValue == "NEW" )
-            {
-                command.type = hoxREQUEST_TYPE_NEW;
-            }
-            else if ( paramValue == "LEAVE" )
-            {
-                command.type = hoxREQUEST_TYPE_LEAVE;
-            }
-            else if ( paramValue == "MOVE" )
-            {
-                command.type = hoxREQUEST_TYPE_MOVE;
-            }
-            else if ( paramValue == "TABLE_MOVE" )
-            {
-                command.type = hoxREQUEST_TYPE_TABLE_MOVE;
-            }
-            else
-            {
-                wxLogError("%s: Unsupported command-type = [%s].", FNAME, paramValue);
-                return hoxRESULT_NOT_SUPPORTED;
-            }
-        }
-        else
-        {
-            command.parameters[paramName] = paramValue;
-        }
-    }
-
-    return hoxRESULT_OK;
-}
 
 /************************* END OF FILE ***************************************/

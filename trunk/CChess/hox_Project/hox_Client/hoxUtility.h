@@ -48,6 +48,11 @@ namespace hoxUtility
      */
     const wxString RequestTypeToString( const hoxRequestType requestType );
 
+    /**
+     * Convert a given (human-readable) string to a request-type.
+     */
+    hoxRequestType StringToRequestType( const wxString& input );
+
 }
 
 #endif /* __INCLUDED_HOX_UTILITY_H_ */

@@ -141,6 +141,7 @@ hoxNetworkAPI::SendMove( wxSocketBase*   sock,
 exit_label:
     delete[] buf;
 
+    wxLogDebug("%s: END.", FNAME);
     return result;
 }
 
@@ -319,35 +320,9 @@ hoxNetworkAPI::ParseCommand( const wxString& commandStr,
         // Special case for "op" param-name.
         if ( paramName == "op" )
         {
-            if ( paramValue == "HELLO" )
-            {
-                command.type = hoxREQUEST_TYPE_CONNECT;
-            }
-            else if ( paramValue == "LIST" )
-            {
-                command.type = hoxREQUEST_TYPE_LIST;
-            }
-            else if ( paramValue == "JOIN" )
-            {
-                command.type = hoxREQUEST_TYPE_JOIN;
-            }
-            else if ( paramValue == "NEW" )
-            {
-                command.type = hoxREQUEST_TYPE_NEW;
-            }
-            else if ( paramValue == "LEAVE" )
-            {
-                command.type = hoxREQUEST_TYPE_LEAVE;
-            }
-            else if ( paramValue == "MOVE" )
-            {
-                command.type = hoxREQUEST_TYPE_MOVE;
-            }
-            else if ( paramValue == "TABLE_MOVE" )
-            {
-                command.type = hoxREQUEST_TYPE_TABLE_MOVE;
-            }
-            else
+            command.type = hoxUtility::StringToRequestType( paramValue );
+
+            if ( command.type == hoxREQUEST_TYPE_UNKNOWN )
             {
                 wxLogError("%s: Unsupported command-type = [%s].", FNAME, paramValue);
                 return hoxRESULT_NOT_SUPPORTED;

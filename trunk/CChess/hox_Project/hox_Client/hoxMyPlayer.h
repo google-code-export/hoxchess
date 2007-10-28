@@ -57,13 +57,17 @@ class hoxMyPlayer :  public hoxPlayer
     hoxResult LeaveNetworkTable( const wxString& tableId,
                                  wxEvtHandler*   sender );
 
-    hoxResult StartListenForMoves();
-
     /*******************************
      * Socket-event handlers
      *******************************/
 
     void OnIncomingNetworkData( wxSocketEvent& event );
+
+    /*******************************
+     * Other API
+     *******************************/
+
+    hoxResult StartListenForMoves();
 
 private:
     void _StartConnection();
