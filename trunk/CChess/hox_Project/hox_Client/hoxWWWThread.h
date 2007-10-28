@@ -41,35 +41,6 @@ private:
     void        _HandleRequest( hoxRequest* request );
     hoxResult   _SendRequest( const wxString& request, wxString& response );
 
-public:  /* Public static API */
-    static hoxResult 
-    parse_string_for_simple_response( const wxString& responseStr,
-                                      int&            returnCode,
-                                      wxString&       returnMsg );
-    static hoxResult 
-    parse_string_for_network_tables( const wxString& responseStr,
-                                     hoxNetworkTableInfoList& tableList );
-
-    static hoxResult 
-    parse_string_for_new_network_table( const wxString&  responseStr,
-                                        wxString&        newTableId );
-
-    static hoxResult 
-    parse_string_for_join_network_table( const wxString&      responseStr,
-                                         hoxNetworkTableInfo& tableInfo );
-    
-    static hoxResult 
-    parse_string_for_network_events( const wxString& tablesStr,
-                                     hoxNetworkEventList& networkEvents );
-
-private:  /* Private static API */
-    static hoxResult
-    _parse_network_table_info_string( const wxString&      tableInfoStr,
-                                      hoxNetworkTableInfo& tableInfo );
-    static hoxResult 
-    _parse_network_event_string( const wxString& eventStr,
-                                 hoxNetworkEvent& networkEvent );
-
 private:
     wxString              m_sHostname; 
     int                   m_nPort;

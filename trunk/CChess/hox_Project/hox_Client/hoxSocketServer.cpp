@@ -11,6 +11,7 @@
 #include "hoxTypes.h"
 #include "MyApp.h"    // To access wxGetApp()
 #include "hoxServer.h"
+#include "hoxNetworkAPI.h"
 
 //
 // hoxSocketServer
@@ -53,9 +54,10 @@ hoxSocketServer::Entry()
     // We use Ok() here to see if the server is really listening
     if ( ! m_pSServer->Ok() )
     {
-        wxLogError("%s: Failed to listen at the port [%d].", FNAME, m_nPort);
+        wxLogError("%s: Failed to listen at port [%d].", FNAME, m_nPort);
         m_pSServer->Destroy();
         m_pSServer = NULL;
+        return NULL;  // *** Terminate the thread.
     }
 
     m_pSServer->SetTimeout( hoxSOCKET_SERVER_ACCEPT_TIMEOUT );

@@ -7,11 +7,10 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxConnection.h"
-#include "hoxWWWPlayer.h"
+#include "hoxMYPlayer.h"
 #include "hoxEnums.h"
 #include "hoxServer.h"
 #include "hoxTableMgr.h"
-#include "hoxWWWThread.h"
 #include "hoxUtility.h"
 #include "hoxNetworkAPI.h"
 
@@ -91,7 +90,7 @@ void
 hoxConnection::_HandleRequest( hoxRequest* request )
 {
     const char* FNAME = "hoxConnection::_HandleRequest";
-    hoxResult  result = hoxRESULT_ERR;
+    hoxResult    result = hoxRESULT_ERR;
     hoxResponse* response = new hoxResponse( request->type );
 
     switch( request->type )
@@ -112,8 +111,6 @@ hoxConnection::_HandleRequest( hoxRequest* request )
             result = _HandleRequest_PlayerData( request );
             break;
 
-        //case hoxREQUEST_TYPE_POLL:     /* fall through */
-        //case hoxREQUEST_TYPE_MOVE:     /* fall through */
         case hoxREQUEST_TYPE_LIST:     /* fall through */
         case hoxREQUEST_TYPE_NEW:      /* fall through */
         case hoxREQUEST_TYPE_JOIN:     /* fall through */
@@ -125,7 +122,6 @@ hoxConnection::_HandleRequest( hoxRequest* request )
             wxLogError("%s: Unsupported request Type [%s].", 
                 FNAME, hoxUtility::RequestTypeToString(request->type));
             result = hoxRESULT_NOT_SUPPORTED;
-            response->content = "";
             break;
     }
 
@@ -139,7 +135,7 @@ hoxConnection::_HandleRequest( hoxRequest* request )
 
     if ( request->sender != NULL )
     {
-        wxCommandEvent event( hoxEVT_WWW_RESPONSE );
+        wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE );
         event.SetInt( result );
         event.SetEventObject( response );  // Caller will de-allocate.
         wxPostEvent( request->sender, event );
@@ -491,9 +487,9 @@ hoxConnection::_HandleCommand_TableMove( hoxRequest* requestCmd )
     responseStr.assign( buf, nRead );
 
     /* Parse the response */
-    result = hoxWWWThread::parse_string_for_simple_response( responseStr,
-                                                             returnCode,
-                                                             returnMsg );
+    result = hoxNetworkAPI::ParseSimpleResponse( responseStr,
+                                                 returnCode,
+                                                 returnMsg );
     if ( result != hoxRESULT_OK )
     {
         wxLogError("%s: Failed to parse the SEND-MOVE's response.", FNAME);
@@ -512,6 +508,7 @@ hoxConnection::_HandleCommand_TableMove( hoxRequest* requestCmd )
 exit_label:
     delete[] buf;
 
+    wxLogDebug("%s: END.", FNAME);
     return result;
 }
 
@@ -551,7 +548,7 @@ hoxConnection::_SendRequest( const wxString& request,
                              wxString&       response )
 {
     const char* FNAME = "hoxConnection::_SendRequest";
-    hoxResult result;
+    hoxResult result = hoxRESULT_ERR;
     wxUint32  requestSize;
     wxUint32  nRead;
     wxUint32  nWrite;

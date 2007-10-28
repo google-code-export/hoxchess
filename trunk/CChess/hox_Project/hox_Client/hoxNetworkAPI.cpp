@@ -371,7 +371,7 @@ hoxNetworkAPI::ParseSimpleResponse( const wxString& responseStr,
 
     returnCode = -1;
 
-    wxStringTokenizer tkz( responseStr, wxT("\r\n") );
+    wxStringTokenizer tkz( responseStr, "\r\n" );
     int i = 0;
 
     while ( tkz.HasMoreTokens() )
@@ -384,10 +384,272 @@ hoxNetworkAPI::ParseSimpleResponse( const wxString& responseStr,
                 break;
             case 1:    // The additional informative message.
                 returnMsg = token;
-                wxLogDebug(wxString::Format("%s: Server's message = [%s].", FNAME, returnMsg)) ; 
+                wxLogDebug("%s: Server's message = [%s].", FNAME, returnMsg); 
                 break;
             default:
-                wxLogError(wxString::Format("%s: Ignore the rest...", FNAME));
+                wxLogError("%s: Ignore the rest...", FNAME);
+                break;
+        }
+        ++i;
+    }
+
+    return hoxRESULT_OK;
+}
+
+hoxResult
+hoxNetworkAPI::ParseNetworkTables( const wxString&          responseStr,
+                                   hoxNetworkTableInfoList& tableList )
+{
+    const char* FNAME = "hoxNetworkAPI::ParseNetworkTables";
+    hoxResult  result = hoxRESULT_ERR;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    if ( responseStr.size() < 2 )
+        return hoxRESULT_ERR;
+
+    // Get the return-code.
+    int returnCode = ::atoi( responseStr.c_str() );
+
+    wxStringTokenizer tkz( responseStr.substr(2), " \r\n" );
+    int i = 0;
+    hoxNetworkTableInfo* tableInfo = NULL;
+
+    tableList.clear();
+   
+    while ( tkz.HasMoreTokens() )
+    {
+        wxString token = tkz.GetNextToken();
+        switch (i)
+        {
+            case 0: 
+                tableInfo = new hoxNetworkTableInfo();
+                tableInfo->id = token; 
+                tableList.push_back( tableInfo );
+                break;
+            case 1: 
+                tableInfo->status = ::atoi( token.c_str() ); 
+                break;
+            case 2: 
+                tableInfo->redId = token; 
+                break;
+            default:
+                tableInfo->blackId = token;
+                break;
+        }
+        if ( i == 3) i = 0;
+        else ++i;
+    }
+
+    return hoxRESULT_OK;
+}
+
+hoxResult 
+hoxNetworkAPI::ParseNewNetworkTable( const wxString&  responseStr,
+                                     wxString&        newTableId )
+{
+    const char* FNAME = "hoxNetworkAPI::ParseNewNetworkTable";
+    int returnCode = hoxRESULT_ERR;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    wxStringTokenizer tkz( responseStr, wxT("\n") );
+    int i = 0;
+
+    while ( tkz.HasMoreTokens() )
+    {
+        wxString token = tkz.GetNextToken();
+        switch (i)
+        {
+            case 0:   // Return-code.
+                returnCode = ::atoi( token.c_str() );
+                if ( returnCode != 0 ) // failed?
+                {
+                    return hoxRESULT_ERR;
+                }
+                break;
+            case 1:    // The ID of the new table.
+                newTableId = token; 
+                break;
+            case 2:    // The additional informative message.
+                wxLogDebug("%s: Server's message = [%s].", FNAME, token) ; 
+                break;
+            default:
+                wxLogError("%s: Ignore the rest...", FNAME);
+                break;
+        }
+        ++i;
+    }
+
+    return hoxRESULT_OK;
+}
+
+hoxResult 
+hoxNetworkAPI::ParseJoinNetworkTable( const wxString&      responseStr,
+                                      hoxNetworkTableInfo& tableInfo )
+{
+    const char* FNAME = "hoxNetworkAPI::ParseJoinNetworkTable";
+    hoxResult  result     = hoxRESULT_ERR;
+    int        returnCode = hoxRESULT_ERR;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    wxStringTokenizer tkz( responseStr, "\r\n" );
+    int i = 0;
+
+    while ( tkz.HasMoreTokens() )
+    {
+        wxString token = tkz.GetNextToken();
+        switch (i)
+        {
+            case 0:   // Return-code.
+                returnCode = ::atoi( token.c_str() );
+                if ( returnCode != 0 ) // failed?
+                {
+                    return hoxRESULT_ERR;
+                }
+                break;
+            case 1:    // The additional informative message.
+                wxLogDebug("%s: Server's message = [%s].", FNAME, token) ; 
+                break;
+            case 2:    // The returned info of the requested table.
+            {
+                wxString tableInfoStr = token;
+                if ( hoxRESULT_OK != _ParseNetworkTableInfoString( tableInfoStr, tableInfo ) )
+                {
+                    wxLogError("%s: Failed to parse the Table Info String [%s].", 
+                        FNAME, tableInfoStr); 
+                    return hoxRESULT_ERR;
+                }
+                break;
+            }
+            default:
+                wxLogError("%s: Ignore the rest...", FNAME);
+                break;
+        }
+        ++i;
+    }
+
+    return hoxRESULT_OK;
+}
+
+hoxResult 
+hoxNetworkAPI::ParseNetworkEvents( const wxString&      tablesStr,
+                                   hoxNetworkEventList& networkEvents )
+{
+    const char* FNAME = "hoxNetworkAPI::ParseNetworkEvents";
+    hoxResult result;
+    int returnCode = hoxRESULT_ERR;
+
+    wxStringTokenizer tkz( tablesStr, "\n" );
+    int i = 0;
+
+    while ( tkz.HasMoreTokens() )
+    {
+        wxString token = tkz.GetNextToken();
+        switch (i)
+        {
+            case 0:   // Return-code.
+                returnCode = ::atoi( token.c_str() );
+                if ( returnCode != 0 ) // failed?
+                {
+                    return hoxRESULT_ERR;
+                }
+                break;
+            case 1:    // The additional informative message.
+                wxLogDebug("%s: Server's message = [%s].", FNAME, token) ; 
+                break;
+            default:
+            {
+                wxLogDebug("%s: Parsing and then add new event to the list...", FNAME);
+                const wxString eventStr = token;
+                hoxNetworkEvent networkEvent;
+                result = _ParseNetworkEventString( eventStr, networkEvent );
+                if ( result != hoxRESULT_OK ) // failed?
+                {
+                    wxLogError("%s: Failed to parse network events [%s].", FNAME, eventStr);
+                    return result;
+                }
+                networkEvents.push_back( new hoxNetworkEvent( networkEvent ) );
+                break;
+            }
+        }
+        ++i;
+    }
+
+    return hoxRESULT_OK;
+}
+
+/* PRIVATE */
+hoxResult
+hoxNetworkAPI::_ParseNetworkTableInfoString( const wxString&      tableInfoStr,
+                                             hoxNetworkTableInfo& tableInfo )
+{
+    const char* FNAME = "hoxNetworkAPI::_ParseNetworkTableInfoString";
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    wxStringTokenizer tkz( tableInfoStr, wxT(" ") );
+    int i = 0;
+
+    while ( tkz.HasMoreTokens() )
+    {
+        wxString token = tkz.GetNextToken();
+        switch (i)
+        {
+            case 0:   // Table-Id
+                tableInfo.id = token;
+                break;
+            case 1:    // Table-Status
+                tableInfo.status = ::atoi( token.c_str() );
+                break;
+            case 2:    // RED-player's Id.
+                tableInfo.redId = token;
+                break;
+            case 3:    // BLACK-player's Id.
+                tableInfo.blackId = token;
+                break;
+            default:
+                wxLogError("%s: Ignore the rest...", FNAME);
+                break;
+        }
+        ++i;
+    }
+
+    return hoxRESULT_OK;
+}
+
+/* PRIVATE */
+hoxResult 
+hoxNetworkAPI::_ParseNetworkEventString( const wxString&  eventStr,
+                                         hoxNetworkEvent& networkEvent )
+{
+    const char* FNAME = "hoxNetworkAPI::_ParseNetworkEventString";
+    wxStringTokenizer tkz( eventStr, " " );
+    int i = 0;
+
+    while ( tkz.HasMoreTokens() )
+    {
+        wxString token = tkz.GetNextToken();
+        switch (i)
+        {
+            case 0:   // event-Id
+                networkEvent.id = token;
+                break;
+            case 1:    // Player-Id.
+                networkEvent.pid = token;
+                break;
+            case 2:    // Table-Id (if applicable).
+                networkEvent.tid = token;
+                break;
+            case 3:    // Event-type
+                networkEvent.type = ::atoi( token.c_str() );
+                break;
+            case 4:    // event-content.
+                networkEvent.content = token;
+                break;
+            default:
+                wxLogError("%s: Ignore the rest...", FNAME);
                 break;
         }
         ++i;

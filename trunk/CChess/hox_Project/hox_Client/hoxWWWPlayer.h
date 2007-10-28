@@ -9,7 +9,7 @@
 #ifndef __INCLUDED_HOX_WWW_PLAYER_H_
 #define __INCLUDED_HOX_WWW_PLAYER_H_
 
-#include "wx/wx.h"
+#include <wx/wx.h>
 #include "hoxPlayer.h"
 #include "hoxEnums.h"
 #include "hoxTypes.h"
@@ -29,7 +29,7 @@ DECLARE_EVENT_TYPE(hoxEVT_WWW_RESPONSE, wxID_ANY)
 class hoxWWWPlayer :  public hoxPlayer
 {
 public:
-    hoxWWWPlayer(); // Default constructor required for event handler.
+    hoxWWWPlayer(); // DUMMY default constructor required for event handler.
     hoxWWWPlayer( const wxString& name,
                   hoxPlayerType   type,
                   int             score = 1500);

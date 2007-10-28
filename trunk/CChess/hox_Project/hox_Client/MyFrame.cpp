@@ -13,7 +13,7 @@
 #include "hoxPlayerMgr.h"
 #include "hoxTablesDialog.h"
 #include "hoxUtility.h"
-#include "hoxWWWThread.h"
+#include "hoxNetworkAPI.h"
 
 #if !defined(__WXMSW__)
     #include "icons/sample.xpm"
@@ -48,7 +48,6 @@ BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
 
     EVT_MENU(MDI_OPEN_SERVER, MyFrame::OnOpenServer)
     EVT_MENU(MDI_CONNECT_SERVER, MyFrame::OnConnectServer)
-    //EVT_MENU(MDI_QUERY_TABLES, MyFrame::OnQueryTables)
     EVT_MENU(MDI_DISCONNECT_SERVER, MyFrame::OnDisconnectServer)
 
     EVT_MENU(MDI_CONNECT_WWW_SERVER, MyFrame::OnConnectWWWServer)
@@ -59,8 +58,8 @@ BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
     EVT_SIZE(MyFrame::OnSize)
     EVT_SASH_DRAGGED(ID_WINDOW_LOG, MyFrame::OnSashDrag)
 
-    //EVT_COMMAND(wxID_ANY, hoxEVT_WWW_RESPONSE, MyFrame::OnWWWResponse)
-    EVT_COMMAND(wxID_ANY, hoxEVT_WWW_RESPONSE, MyFrame::OnMYResponse)
+    EVT_COMMAND(wxID_ANY, hoxEVT_WWW_RESPONSE, MyFrame::OnWWWResponse)
+    EVT_COMMAND(wxID_ANY, hoxEVT_CONNECTION_RESPONSE, MyFrame::OnMYResponse)
     EVT_COMMAND(wxID_ANY, hoxEVT_FRAME_LOG_MSG, MyFrame::OnFrameLogMsgEvent)
 
 END_EVENT_TABLE()
@@ -216,8 +215,9 @@ void MyFrame::OnConnectServer(wxCommandEvent& WXUNUSED(event) )
 void MyFrame::OnConnectWWWServer(wxCommandEvent& WXUNUSED(event) )
 {
     const char* FNAME = "MyFrame::OnConnectWWWServer";
-    wxLogDebug(_("Connect to the WWW server..."));
     hoxResult result;
+
+    wxLogDebug("%s: ENTER.", FNAME);
 
     if ( m_dlgProgress != NULL ) 
     {
@@ -227,8 +227,8 @@ void MyFrame::OnConnectWWWServer(wxCommandEvent& WXUNUSED(event) )
 
     m_dlgProgress = new wxProgressDialog
                         (
-                         _T("Progress dialog"),
-                         _T("Wait until connnection is established or press [Cancel]"),
+                         "Progress dialog",
+                         "Wait until connnection is established or press [Cancel]",
                          100,
                          this,
                          wxPD_AUTO_HIDE | wxPD_CAN_ABORT
@@ -238,10 +238,10 @@ void MyFrame::OnConnectWWWServer(wxCommandEvent& WXUNUSED(event) )
 
     /* Create a WWW network player */
 
-    wxLogDebug(_("Create a WWW LOCAL player to connect to a remote server..."));
+    wxLogDebug("%s: Creating a WWW player to connect to a remote server.", FNAME);
     if ( wxGetApp().m_wwwLocalPlayer != NULL )
     {
-        wxLogDebug("Delete the existing local player.");
+        wxLogDebug("%s: Delete the existing WWW player.", FNAME);
         hoxPlayerMgr::GetInstance()->DeletePlayer( wxGetApp().m_wwwLocalPlayer );
         wxGetApp().m_wwwLocalPlayer = NULL;
     }
@@ -257,35 +257,11 @@ void MyFrame::OnConnectWWWServer(wxCommandEvent& WXUNUSED(event) )
                                  this );
     if ( result != hoxRESULT_OK )
     {
-        wxLogError("Failed to connect to WWW server.");
+        wxLogError("%: Failed to connect to WWW server.", FNAME);
         return;
     }
 
     m_dlgProgress->Pulse();
-}
-
-void MyFrame::OnQueryTables(wxCommandEvent& WXUNUSED(event) )
-{
-    hoxResult result;
-    hoxNetworkTableInfoList tableList;
-
-    wxLogDebug(_("About to query for the list of tables..."));
-    wxASSERT( gs_localPlayer != NULL );
-    result = gs_localPlayer->QueryForNetworkTables( tableList );
-
-    // Show tables.
-    hoxTablesDialog tablesDlg( this, wxID_ANY, "Tables", tableList);
-    tablesDlg.ShowModal();
-    wxString selectedId = tablesDlg.GetSelectedId();
-    wxLogDebug(wxString::Format(_("The selected ID = [%s]")), selectedId);
-
-    hoxUtility::FreeNetworkTableInfoList( tableList );
-
-    // Perform a "join table" action if a table is selected.
-    if ( ! selectedId.empty() )
-    {
-        this->DoJoinTable( selectedId );
-    }
 }
 
 void MyFrame::DoJoinTable(const wxString& tableId)
@@ -353,7 +329,10 @@ void MyFrame::DoJoinTable(const wxString& tableId)
 
 void MyFrame::DoJoinNewWWWTable(const wxString& tableId)
 {
+    const char* FNAME = "MyFrame::DoJoinNewWWWTable";
     hoxResult result;
+
+    wxLogDebug("%s: ENTER.", FNAME);
 
     wxASSERT( wxGetApp().m_wwwLocalPlayer != NULL );
 
@@ -361,7 +340,7 @@ void MyFrame::DoJoinNewWWWTable(const wxString& tableId)
     /* Create a new table. */
     /***********************/
 
-    wxLogDebug(_T("Create a new table connecting to WWW server..."));
+    wxLogDebug("%s: Creating a new table connecting to WWW server.", FNAME);
     hoxTable* table = _CreateNewTable( tableId );
 
     /***********************/
@@ -377,7 +356,7 @@ void MyFrame::DoJoinNewWWWTable(const wxString& tableId)
     wxASSERT( result == hoxRESULT_OK  );
     wxASSERT_MSG( red_player->HasRole( hoxRole(table->GetId(), 
                                                hoxPIECE_COLOR_RED) ),
-                  _("Player must play RED"));
+                  "Player must play RED");
 
     /* NOTE: The other player is <EMPTY> 
      */
@@ -807,19 +786,19 @@ MyFrame::_OnWWWResponse_Connect( const wxString& responseStr )
     wxString   returnMsg;
     hoxResult  result;
 
-    wxLogDebug(wxString::Format("%s: Parsing SEND-CONNECT's response...", FNAME));
+    wxLogDebug("%s: Parsing SEND-CONNECT's response...", FNAME);
 
-    result = hoxWWWThread::parse_string_for_simple_response( responseStr,
-                                                             returnCode,
-                                                             returnMsg );
+    result = hoxNetworkAPI::ParseSimpleResponse( responseStr,
+                                                 returnCode,
+                                                 returnMsg );
     if ( result != hoxRESULT_OK )
     {
-        wxLogError(wxString::Format("%s: Failed to parse for SEND-CONNECT's response.", FNAME));
+        wxLogError("%s: Failed to parse for SEND-CONNECT's response.", FNAME);
         return;
     }
     else if ( returnCode != 0 )
     {
-        wxLogError(wxString::Format("%s: Send CONNECT to server failed. [%s]", FNAME, returnMsg));
+        wxLogError("%s: Send CONNECT to server failed. [%s]", FNAME, returnMsg);
         return;
     }
 
@@ -840,19 +819,19 @@ MyFrame::_OnMYResponse_Connect( const wxString& responseStr )
     wxString   returnMsg;
     hoxResult  result;
 
-    wxLogDebug(wxString::Format("%s: Parsing SEND-CONNECT's response...", FNAME));
+    wxLogDebug("%s: Parsing SEND-CONNECT's response...", FNAME);
 
-    result = hoxWWWThread::parse_string_for_simple_response( responseStr,
-                                                             returnCode,
-                                                             returnMsg );
+    result = hoxNetworkAPI::ParseSimpleResponse( responseStr,
+                                                 returnCode,
+                                                 returnMsg );
     if ( result != hoxRESULT_OK )
     {
-        wxLogError(wxString::Format("%s: Failed to parse for SEND-CONNECT's response.", FNAME));
+        wxLogError("%s: Failed to parse for SEND-CONNECT's response.", FNAME);
         return;
     }
     else if ( returnCode != 0 )
     {
-        wxLogError(wxString::Format("%s: Send CONNECT to server failed. [%s]", FNAME, returnMsg));
+        wxLogError("%s: Send CONNECT to server failed. [%s]", FNAME, returnMsg);
         return;
     }
 
@@ -873,8 +852,8 @@ MyFrame::_OnMYResponse_List( const wxString& responseStr )
     hoxNetworkTableInfoList tableList;
     hoxResult result;
 
-    result = hoxWWWThread::parse_string_for_network_tables( responseStr,
-                                                            tableList );
+    result = hoxNetworkAPI::ParseNetworkTables( responseStr,
+                                                tableList );
     if ( result != hoxRESULT_OK )
     {
         wxLogError(wxString::Format("%s: Failed to parse for SEND-LIST's response.", FNAME));
@@ -932,8 +911,8 @@ MyFrame::_OnMYResponse_Join( const wxString& responseStr )
     hoxNetworkTableInfo tableInfo;
     hoxResult result;
 
-    result = hoxWWWThread::parse_string_for_join_network_table( responseStr,
-                                                                tableInfo );
+    result = hoxNetworkAPI::ParseJoinNetworkTable( responseStr,
+                                                   tableInfo );
     if ( result != hoxRESULT_OK )
     {
         wxLogError("%s: Failed to parse for SEND-JOIN's response [%s].", FNAME, responseStr);
@@ -950,12 +929,13 @@ void
 MyFrame::_OnMYResponse_New( const wxString& responseStr )
 {
     const char* FNAME = "MyFrame::_OnMYResponse_New";
-    wxLogDebug("%s: Parsing SEND-NEW's response...", FNAME);
     wxString newTableId;
     hoxResult result;
 
-    result = hoxWWWThread::parse_string_for_new_network_table( responseStr,
-                                                               newTableId );
+    wxLogDebug("%s: Parsing SEND-NEW's response...", FNAME);
+
+    result = hoxNetworkAPI::ParseNewNetworkTable( responseStr,
+                                                  newTableId );
     if ( result != hoxRESULT_OK )
     {
         wxLogError("%s: Failed to parse for SEND-NEW's response.", FNAME);
@@ -970,15 +950,16 @@ void
 MyFrame::_OnWWWResponse_List( const wxString& responseStr )
 {
     const char* FNAME = "MyFrame::_OnWWWResponse_List";
-    wxLogDebug(wxString::Format("%s: Parsing SEND-LIST's response...", FNAME));
     hoxNetworkTableInfoList tableList;
     hoxResult result;
 
-    result = hoxWWWThread::parse_string_for_network_tables( responseStr,
-                                                            tableList );
+    wxLogDebug("%s: Parsing SEND-LIST's response...", FNAME);
+
+    result = hoxNetworkAPI::ParseNetworkTables( responseStr,
+                                                tableList );
     if ( result != hoxRESULT_OK )
     {
-        wxLogError(wxString::Format("%s: Failed to parse for SEND-LIST's response.", FNAME));
+        wxLogError("%s: Failed to parse SEND-LIST's response.", FNAME);
         return;
     }
 
@@ -995,30 +976,30 @@ MyFrame::_OnWWWResponse_List( const wxString& responseStr )
     {
         case hoxTablesDialog::COMMAND_ID_JOIN:
         {
-            wxLogDebug(wxString::Format(_("Ask WWW server to allow me to JOIN table = [%s]")), selectedId);
+            wxLogDebug("%s: Asking WWW server to allow me to JOIN table = [%s]...", FNAME, selectedId);
             hoxNetworkTableInfo tableInfo;
             result = wxGetApp().m_wwwLocalPlayer->JoinNetworkTable( selectedId, this );
             if ( result != hoxRESULT_OK )
             {
-                wxLogError(wxString::Format("%s: Failed to JOIN a network table [%s].", FNAME, selectedId));
+                wxLogError("%s: Failed to JOIN the network table [%s].", FNAME, selectedId);
             }
             break;
         }
 
         case hoxTablesDialog::COMMAND_ID_NEW:
         {
-            wxLogDebug("Ask the WWW server to open a new table.");
+            wxLogDebug("%s: Asking the WWW server to open a new table...", FNAME);
             wxString newTableId;
             result = wxGetApp().m_wwwLocalPlayer->OpenNewNetworkTable( this );
             if ( result != hoxRESULT_OK )
             {
-                wxLogError("Failed to open NEW network table.");
+                wxLogError("%s: Failed to open NEW network table.", FNAME);
             }
             break;
         }
 
         default:
-            wxLogDebug("No command is selected. Fine.");
+            wxLogDebug("%s: No command is selected. Fine.", FNAME);
             break;
     }
 
@@ -1029,19 +1010,20 @@ void
 MyFrame::_OnWWWResponse_New( const wxString& responseStr )
 {
     const char* FNAME = "MyFrame::_OnWWWResponse_New";
-    wxLogDebug(wxString::Format("%s: Parsing SEND-NEW's response...", FNAME));
     wxString newTableId;
     hoxResult result;
 
-    result = hoxWWWThread::parse_string_for_new_network_table( responseStr,
-                                                               newTableId );
+    wxLogDebug("%s: Parsing SEND-NEW's response...", FNAME);
+
+    result = hoxNetworkAPI::ParseNewNetworkTable( responseStr,
+                                                  newTableId );
     if ( result != hoxRESULT_OK )
     {
-        wxLogError(wxString::Format("%s: Failed to parse for SEND-NEW's response.", FNAME));
+        wxLogError("%s: Failed to parse SEND-NEW's response.", FNAME);
         return;
     }
 
-    wxLogDebug(wxString::Format("WWW server created a new table with ID = [%s].", newTableId));
+    wxLogDebug("%s: WWW server created a new table with ID = [%s].", FNAME, newTableId);
     this->DoJoinNewWWWTable( newTableId );
 }
 
@@ -1049,20 +1031,21 @@ void
 MyFrame::_OnWWWResponse_Join( const wxString& responseStr )
 {
     const char* FNAME = "MyFrame::_OnWWWResponse_Join";
-    wxLogDebug(wxString::Format("%s: Parsing SEND-JOIN's response...", FNAME));
     hoxNetworkTableInfo tableInfo;
     hoxResult result;
 
-    result = hoxWWWThread::parse_string_for_join_network_table( responseStr,
-                                                                tableInfo );
+    wxLogDebug("%s: Parsing SEND-JOIN's response...", FNAME);
+
+    result = hoxNetworkAPI::ParseJoinNetworkTable( responseStr,
+                                                   tableInfo );
     if ( result != hoxRESULT_OK )
     {
-        wxLogError(wxString::Format("%s: Failed to parse for SEND-JOIN's response.", FNAME));
+        wxLogError("%s: Failed to parse SEND-JOIN's response.", FNAME);
         return;
     }
     else
     {
-        wxLogDebug(wxString::Format("Successfully joined the network table [%s].", tableInfo.id));
+        wxLogDebug("%s: Successfully joined the network table [%s].", FNAME, tableInfo.id);
         this->DoJoinExistingWWWTable( tableInfo );
     }
 }
@@ -1077,9 +1060,9 @@ MyFrame::_OnWWWResponse_Leave( const wxString& responseStr )
 
     wxLogDebug(wxString::Format("%s: Parsing SEND-LEAVE's response...", FNAME));
 
-    result = hoxWWWThread::parse_string_for_simple_response( responseStr,
-                                                             returnCode,
-                                                             returnMsg );
+    result = hoxNetworkAPI::ParseSimpleResponse( responseStr,
+                                                 returnCode,
+                                                 returnMsg );
     if ( result != hoxRESULT_OK )
     {
         wxLogError(wxString::Format("%s: Failed to parse for SEND-LEAVE's response.", FNAME));

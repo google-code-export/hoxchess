@@ -159,13 +159,15 @@ enum hoxSocketContant
   hoxSOCKET_CLIENT_SOCKET_TIMEOUT = 10,   // 10 seconds
                 /* Timeout applied to client -> server connection */
 
-  hoxSOCKET_SERVER_ACCEPT_TIMEOUT = 5     // 5 seconds
+  hoxSOCKET_SERVER_ACCEPT_TIMEOUT = 5,    // 5 seconds
                 /* Timeout applied to server-socket which is waiting  
                  * by wxSocketServer::Accept() for new incoming client 
                  * connections. This timeout is needed so that the server
                  * can process the SHUTDOWN request.
                  */
 
+  hoxSOCKET_CLIENT_HTTP_TIMEOUT = 5    // 5 seconds
+                /* Timeout applied to HTTP client -> WWW server connection */
 
 };
 
@@ -210,6 +212,10 @@ enum hoxRequestType
     hoxREQUEST_TYPE_LEAVE,
 
     hoxREQUEST_TYPE_LISTEN,
+        /* Instruct the 'connection' of MY player to prepare
+         * the its socket (to start listening for socket-events.
+         */
+
     hoxREQUEST_TYPE_TABLE_MOVE
 };
 
