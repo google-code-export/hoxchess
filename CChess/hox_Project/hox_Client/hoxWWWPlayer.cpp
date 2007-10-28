@@ -13,15 +13,11 @@
 #include "hoxTableMgr.h"
 #include "hoxBoard.h"
 #include "hoxNetworkAPI.h"
+#include "hoxUtility.h"
 
-
-//-----------------------------------------------------------------------------
-// hoxWWWPlayer
-//-----------------------------------------------------------------------------
 
 DEFINE_EVENT_TYPE(hoxEVT_WWW_RESPONSE)
 
-// user code intercepting the event
 IMPLEMENT_DYNAMIC_CLASS( hoxWWWPlayer, hoxPlayer )
 
 BEGIN_EVENT_TABLE(hoxWWWPlayer, hoxPlayer)
@@ -29,20 +25,28 @@ BEGIN_EVENT_TABLE(hoxWWWPlayer, hoxPlayer)
     EVT_COMMAND(wxID_ANY, hoxEVT_WWW_RESPONSE, hoxWWWPlayer::OnWWWResponse)
 END_EVENT_TABLE()
 
+//-----------------------------------------------------------------------------
+// hoxWWWPlayer
+//-----------------------------------------------------------------------------
+
 hoxWWWPlayer::hoxWWWPlayer()
-            : hoxPlayer( _("Unknown"), 
+            : hoxPlayer( "Unknown", 
                          hoxPLAYER_TYPE_LOCAL, 
                          1500 )
+            , m_wwwThread( NULL )
 { 
-    wxASSERT_MSG(false, "This constructor should not be used.");
+    wxFAIL_MSG( "This default constructor is never meant to be used." );
 }
 
 hoxWWWPlayer::hoxWWWPlayer( const wxString& name,
-                                      hoxPlayerType   type,
-                                      int             score /* = 1500 */)
+                            hoxPlayerType   type,
+                            int             score /* = 1500 */)
             : hoxPlayer( name, type, score )
             , m_wwwThread( NULL )
 {
+    const char* FNAME = "hoxWWWPlayer::hoxWWWPlayer";
+    wxLogDebug("%s: ENTER.", FNAME);
+
     m_timer.SetOwner( this );
 }
 
@@ -63,6 +67,29 @@ hoxWWWPlayer::~hoxWWWPlayer()
         wxThread::ExitCode exitCode = m_wwwThread->GetThread()->Wait();
         wxLogDebug("%s: WWW thread was shutdowned with exit-code = [%d].", FNAME, exitCode);
         delete m_wwwThread;
+    }
+}
+
+void 
+hoxWWWPlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
+{
+    const char* FNAME = "hoxWWWPlayer::OnNewMove_FromTable";
+    wxString     tableId     = event.GetTableId();
+    hoxPosition  moveFromPos = event.GetOldPosition();
+    hoxPosition  moveToPos   = event.GetPosition();
+
+    wxString moveStr = wxString::Format("%d%d%d%d", 
+                            moveFromPos.x, moveFromPos.y, moveToPos.x, moveToPos.y);
+
+    wxLogDebug("%s: ENTER. Move = [%s].", FNAME, moveStr);
+
+    wxASSERT( m_wwwThread != NULL );
+    {
+        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_TABLE_MOVE, this );
+        request->content = 
+                wxString::Format("/cchess/tables.php?op=MOVE&tid=%s&pid=%s&move=%s", 
+                            tableId, this->GetName(), moveStr);
+        m_wwwThread->AddRequest( request );
     }
 }
 
@@ -100,7 +127,7 @@ hoxWWWPlayer::LeaveTable( hoxTable* table )
 
     if ( m_timer.IsRunning() ) 
     {
-        wxLogDebug(wxString::Format("%s: Stop timer (to not polling) due to leaving table.", FNAME));
+        wxLogDebug("%s: Stop timer (to not polling) due to leaving table.", FNAME);
         m_timer.Stop();
     }
 
@@ -114,13 +141,7 @@ hoxWWWPlayer::OnTimer( wxTimerEvent& WXUNUSED(event) )
     const char* FNAME = "hoxWWWPlayer::OnTimer";
     wxLogDebug("%s: ENTER.", FNAME);
 
-    //hoxResult            result;
-    //wxString             tableId;
     hoxNetworkEventList  networkEvents;
-
-    //wxASSERT_MSG( !this->GetRoles().empty(), "This player should have at least 1 role." );
-    //// TODO: Only update 1 (first) table.
-    //tableId = this->GetRoles().front().tableId;
 
     wxASSERT( m_wwwThread != NULL );
     {
@@ -145,7 +166,7 @@ hoxWWWPlayer::ConnectToNetworkServer( const wxString& sHostname,
     {
         hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_CONNECT, sender );
         request->content = 
-                wxString::Format("/cchess/tables.php?op=HELLO");
+                wxString::Format("/cchess/tables.php?op=CONNECT");
         m_wwwThread->AddRequest( request );
     }
 
@@ -160,6 +181,21 @@ hoxWWWPlayer::QueryForNetworkTables(wxEvtHandler* sender)
         hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LIST, sender );
         request->content = 
                 wxString::Format("/cchess/tables.php?op=LIST");
+        m_wwwThread->AddRequest( request );
+    }
+
+    return hoxRESULT_OK;
+}
+
+hoxResult 
+hoxWWWPlayer::JoinNetworkTable( const wxString&  tableId,
+                                wxEvtHandler*    sender )
+{
+    wxASSERT( m_wwwThread != NULL );
+    {
+        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_JOIN, sender );
+        request->content = 
+                wxString::Format("/cchess/tables.php?op=JOIN&tid=%s&pid=%s", tableId, this->GetName());
         m_wwwThread->AddRequest( request );
     }
 
@@ -182,7 +218,7 @@ hoxWWWPlayer::OpenNewNetworkTable( wxEvtHandler* sender )
 
 hoxResult 
 hoxWWWPlayer::LeaveNetworkTable( const wxString& tableId,
-                                      wxEvtHandler*   sender )
+                                 wxEvtHandler*   sender )
 {
     wxASSERT( m_wwwThread != NULL );
     {
@@ -193,58 +229,6 @@ hoxWWWPlayer::LeaveNetworkTable( const wxString& tableId,
     }
 
     return hoxRESULT_OK;
-}
-
-hoxResult 
-hoxWWWPlayer::JoinNetworkTable( const wxString&  tableId,
-                                     wxEvtHandler*    sender )
-{
-    wxASSERT( m_wwwThread != NULL );
-    {
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_JOIN, sender );
-        request->content = 
-                wxString::Format("/cchess/tables.php?op=JOIN&tid=%s&pid=%s", tableId, this->GetName());
-        m_wwwThread->AddRequest( request );
-    }
-
-    return hoxRESULT_OK;
-}
-
-void 
-hoxWWWPlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
-{
-    wxString     tableId     = event.GetTableId();
-    hoxPosition  moveFromPos = event.GetOldPosition();
-    hoxPosition  moveToPos   = event.GetPosition();
-
-    wxString moveStr = wxString::Format("%d%d%d%d", 
-                            moveFromPos.x, moveFromPos.y, moveToPos.x, moveToPos.y);
-
-    wxASSERT( m_wwwThread != NULL );
-    {
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_MOVE, this );
-        request->content = 
-                wxString::Format("/cchess/tables.php?op=MOVE&tid=%s&pid=%s&move=%s", 
-                            tableId, this->GetName(), moveStr);
-        m_wwwThread->AddRequest( request );
-    }
-}
-
-void 
-hoxWWWPlayer::_StartWWWThread()
-{
-    wxASSERT_MSG( m_wwwThread == NULL, "WWW Thread should not have been created.");
-
-    m_wwwThread = new hoxWWWThread( m_sHostname, m_nPort );
-
-    if ( m_wwwThread->Create() != wxTHREAD_NO_ERROR )
-    {
-        wxLogError(_T("Can't create WWW thread!"));
-        return;
-    }
-    wxASSERT_MSG( !m_wwwThread->GetThread()->IsDetached(), "The WWW thread must be joinable.");
-
-    m_wwwThread->GetThread()->Run();
 }
 
 void 
@@ -276,12 +260,12 @@ hoxWWWPlayer::OnWWWResponse(wxCommandEvent& event)
 
             if ( result != hoxRESULT_OK )
             {
-                wxLogError(wxString::Format("%s: Parse for table events failed.", FNAME));
+                wxLogError("%s: Parse table events failed.", FNAME);
                 return;
             }
 
             // Display all events.
-            wxLogDebug(wxString::Format("%s: We got [%d] event(s).", FNAME, networkEvents.size()));
+            wxLogDebug("%s: We got [%d] event(s).", FNAME, networkEvents.size());
             for ( hoxNetworkEventList::iterator it = networkEvents.begin();
                                                 it != networkEvents.end(); ++it )
             {
@@ -290,13 +274,13 @@ hoxWWWPlayer::OnWWWResponse(wxCommandEvent& event)
                 infoStr << (*it)->id << " " << (*it)->pid << " " 
                         << (*it)->tid << " " << (*it)->type << " "
                         << (*it)->content;
-                wxLogDebug(wxString::Format("%s: .... + Network event [%s].", FNAME, infoStr));
+                wxLogDebug("%s: .... + Network event [%s].", FNAME, infoStr);
 
                 // Find the table hosted on this system using the specified table-Id.
                 hoxTable* table = hoxTableMgr::GetInstance()->FindTable( (*it)->tid );
                 if ( table == NULL )
                 {
-                    wxLogError(wxString::Format(_("%s: Failed to find table with ID = [%s]."), FNAME, (*it)->tid));
+                    wxLogError("%s: Failed to find table with ID = [%s].", FNAME, (*it)->tid);
                     return;
                 }
 
@@ -314,7 +298,7 @@ hoxWWWPlayer::OnWWWResponse(wxCommandEvent& event)
         }
         break;
 
-        case hoxREQUEST_TYPE_MOVE:
+        case hoxREQUEST_TYPE_TABLE_MOVE:
         {
             int        returnCode = -1;
             wxString   returnMsg;
@@ -336,9 +320,30 @@ hoxWWWPlayer::OnWWWResponse(wxCommandEvent& event)
         break;
 
         default:
-            wxLogError("%s: Unknown type [%d].", response->type );
+            wxLogError("%s: Unknown Request type [%s].", 
+                FNAME, hoxUtility::RequestTypeToString(response->type));
             break;
     }
+}
+
+void 
+hoxWWWPlayer::_StartWWWThread()
+{
+    const char* FNAME = "hoxWWWPlayer::_StartWWWThread";
+    wxASSERT_MSG( m_wwwThread == NULL, "WWW Thread should not have been created.");
+
+    wxASSERT_MSG( !m_sHostname.empty(), "Hostname must have been set." );
+    m_wwwThread = new hoxWWWThread( m_sHostname, m_nPort );
+
+    if ( m_wwwThread->Create() != wxTHREAD_NO_ERROR )
+    {
+        wxLogError("%s: Failed to create WWW thread.", FNAME);
+        return;
+    }
+    wxASSERT_MSG( !m_wwwThread->GetThread()->IsDetached(), 
+                  "The WWW thread must be joinable." );
+
+    m_wwwThread->GetThread()->Run();
 }
 
 

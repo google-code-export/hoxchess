@@ -166,11 +166,11 @@ typedef std::list<hoxRequest*> hoxRequestList;
 class hoxResponse : public wxObject
 {
 public:
-    int       type;
-    wxString  content;
+    hoxRequestType   type;
+    wxString         content;
 
     hoxResponse() : type( hoxREQUEST_TYPE_UNKNOWN ) {}
-    hoxResponse(int t) : type( t ) {}
+    hoxResponse(hoxRequestType t) : type( t ) {}
 };
 
 class hoxCommand : public wxObject

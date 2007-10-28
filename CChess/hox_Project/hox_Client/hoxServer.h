@@ -40,9 +40,6 @@ public:
     ////////////////////
     static hoxResult
     read_line(wxSocketBase* sock, wxString& result);
-
-    static hoxResult
-    parse_command( const wxString& commandStr, hoxCommand& command );
     /////////////////////
 
 private:

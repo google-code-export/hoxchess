@@ -7,8 +7,9 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxMyPlayer.h"
-#include "hoxEnums.h"
 #include "hoxConnection.h"
+#include "hoxEnums.h"
+
 
 DEFINE_EVENT_TYPE(hoxEVT_CONNECTION_RESPONSE)
 
@@ -18,13 +19,12 @@ BEGIN_EVENT_TABLE(hoxMyPlayer, hoxPlayer)
     EVT_SOCKET(CLIENT_SOCKET_ID,  hoxMyPlayer::OnIncomingNetworkData)
 END_EVENT_TABLE()
 
-
 //-----------------------------------------------------------------------------
 // hoxMyPlayer
 //-----------------------------------------------------------------------------
 
 hoxMyPlayer::hoxMyPlayer()
-            : hoxPlayer( _("Unknown"), 
+            : hoxPlayer( "Unknown", 
                          hoxPLAYER_TYPE_LOCAL, 
                          1500 )
             , m_connection( NULL )
@@ -57,6 +57,29 @@ hoxMyPlayer::~hoxMyPlayer()
     }
 }
 
+void 
+hoxMyPlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
+{
+    const char* FNAME = "hoxMyPlayer::OnNewMove_FromTable";
+    wxString     tableId     = event.GetTableId();
+    hoxPosition  moveFromPos = event.GetOldPosition();
+    hoxPosition  moveToPos   = event.GetPosition();
+
+    wxString moveStr = wxString::Format("%d%d%d%d", 
+                            moveFromPos.x, moveFromPos.y, moveToPos.x, moveToPos.y);
+
+    wxLogDebug("%s: ENTER. Move = [%s].", FNAME, moveStr);
+
+    wxASSERT( m_connection != NULL );
+    {
+        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_TABLE_MOVE );
+        request->content =    /* NOTE: Send "MOVE, not "TABLE_MOVE" string */
+                wxString::Format("op=MOVE&tid=%s&pid=%s&move=%s\r\n", 
+                            tableId, this->GetName(), moveStr);
+        m_connection->AddRequest( request );
+    }
+}
+
 hoxResult 
 hoxMyPlayer::ConnectToNetworkServer( const wxString& sHostname, 
                                      int             nPort,
@@ -71,7 +94,7 @@ hoxMyPlayer::ConnectToNetworkServer( const wxString& sHostname,
     {
         hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_CONNECT, sender );
         request->content = 
-            wxString::Format("op=HELLO\r\n");
+            wxString::Format("op=CONNECT\r\n");
         m_connection->AddRequest( request );
     }
 
@@ -135,6 +158,21 @@ hoxMyPlayer::LeaveNetworkTable( const wxString& tableId,
     return hoxRESULT_OK;
 }
 
+void
+hoxMyPlayer::OnIncomingNetworkData( wxSocketEvent& event )
+{
+    const char* FNAME = "hoxMyPlayer::OnIncomingNetworkData";
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    wxASSERT( m_connection != NULL );
+    {
+        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_PLAYER_DATA );
+        request->socket      = event.GetSocket();
+        request->socketEvent = event.GetSocketEvent();
+        m_connection->AddRequest( request );
+    }
+}
+
 hoxResult 
 hoxMyPlayer::StartListenForMoves()
 {
@@ -152,44 +190,6 @@ hoxMyPlayer::StartListenForMoves()
     }
 
     return hoxRESULT_OK;
-}
-
-void
-hoxMyPlayer::OnIncomingNetworkData( wxSocketEvent& event )
-{
-    const char* FNAME = "hoxMyPlayer::OnIncomingNetworkData";
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    wxASSERT( m_connection != NULL );
-    {
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_PLAYER_DATA );
-        request->socket      = event.GetSocket();
-        request->socketEvent = event.GetSocketEvent();
-        m_connection->AddRequest( request );
-    }
-}
-
-void 
-hoxMyPlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
-{
-    const char* FNAME = "hoxMyPlayer::OnNewMove_FromTable";
-    wxString     tableId     = event.GetTableId();
-    hoxPosition  moveFromPos = event.GetOldPosition();
-    hoxPosition  moveToPos   = event.GetPosition();
-
-    wxString moveStr = wxString::Format("%d%d%d%d", 
-                            moveFromPos.x, moveFromPos.y, moveToPos.x, moveToPos.y);
-
-    wxLogDebug("%s: ENTER. Move = [%s].", FNAME, moveStr);
-
-    wxASSERT( m_connection != NULL );
-    {
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_TABLE_MOVE );
-        request->content = 
-                wxString::Format("op=TABLE_MOVE&tid=%s&pid=%s&move=%s\r\n", 
-                            tableId, this->GetName(), moveStr);
-        m_connection->AddRequest( request );
-    }
 }
 
 void 

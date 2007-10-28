@@ -217,6 +217,7 @@ enum hoxRequestType
          */
 
     hoxREQUEST_TYPE_TABLE_MOVE
+        /* Move generated (incoming) from a physical Table */
 };
 
 //

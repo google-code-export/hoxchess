@@ -223,8 +223,7 @@ MyApp::OnServerSocketEvent(wxSocketEvent& event)
 
     wxASSERT( m_server != NULL );
     {
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_DATA, NULL /* sender */ );
-        request->content     = "";
+        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_DATA );
         request->socket      = event.GetSocket();
         request->socketEvent = event.GetSocketEvent();
         m_server->AddRequest( request );

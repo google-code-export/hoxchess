@@ -17,14 +17,14 @@
 /* Forward declarations */
 class hoxWWWThread;
 
-// ----------------------------------------------------------------------------
-// hoxWWWPlayer
-// ----------------------------------------------------------------------------
-
 /** 
- * WWW (response) event-type for polling responses.
+ * WWW (response) event-type for responses.
  */
 DECLARE_EVENT_TYPE(hoxEVT_WWW_RESPONSE, wxID_ANY)
+
+/**
+ * The WWW player.
+ */
 
 class hoxWWWPlayer :  public hoxPlayer
 {
@@ -35,8 +35,6 @@ public:
                   int             score = 1500);
 
     virtual ~hoxWWWPlayer();
-
-    void OnWWWResponse(wxCommandEvent& event);
 
     /*******************************************
      * Override the parent's event-handler API
@@ -51,25 +49,32 @@ public:
      * WWW-specific Network API
      *******************************/
 
-    void OnTimer( wxTimerEvent& WXUNUSED(event) );
-
     hoxResult ConnectToNetworkServer( const wxString& sHostname, 
                                       int             nPort, 
                                       wxEvtHandler*   sender );
 
     hoxResult QueryForNetworkTables( wxEvtHandler* sender );
-
+    hoxResult JoinNetworkTable( const wxString& tableId,
+                                wxEvtHandler* sender );
     hoxResult OpenNewNetworkTable( wxEvtHandler* sender );
 
     hoxResult LeaveNetworkTable( const wxString& tableId,
                                  wxEvtHandler* sender );
 
-    hoxResult JoinNetworkTable( const wxString& tableId,
-                                wxEvtHandler* sender );
+    /*******************************
+     * Income-data event handlers
+     *******************************/
+
+    void OnWWWResponse(wxCommandEvent& event);
+
+    /*******************************
+     * Other API
+     *******************************/
+
+    void OnTimer( wxTimerEvent& WXUNUSED(event) );
 
     wxString GetHostname() const { return m_sHostname; }
     int      GetPort()     const { return m_nPort; }
-
 
 private:
     void _StartWWWThread();
@@ -78,9 +83,9 @@ private:
     wxString       m_sHostname; 
     int            m_nPort;
 
-    wxTimer        m_timer;    // to poll the WWW server to events.
-
     hoxWWWThread*  m_wwwThread;
+
+    wxTimer        m_timer;    // to poll the WWW server to events.
 
 
     DECLARE_CLASS(hoxWWWPlayer)
