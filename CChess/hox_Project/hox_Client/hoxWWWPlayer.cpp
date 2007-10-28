@@ -12,6 +12,7 @@
 #include "hoxTable.h"
 #include "hoxTableMgr.h"
 #include "hoxBoard.h"
+#include "hoxNetworkAPI.h"
 
 
 //-----------------------------------------------------------------------------
@@ -137,6 +138,7 @@ hoxWWWPlayer::ConnectToNetworkServer( const wxString& sHostname,
 {
     m_sHostname = sHostname;
     m_nPort = nPort;
+
     _StartWWWThread();
 
     wxASSERT( m_wwwThread != NULL );
@@ -266,8 +268,8 @@ hoxWWWPlayer::OnWWWResponse(wxCommandEvent& event)
         {
             hoxNetworkEventList networkEvents;
 
-            result = hoxWWWThread::parse_string_for_network_events( response->content,
-                                                                    networkEvents );
+            result = hoxNetworkAPI::ParseNetworkEvents( response->content,
+                                                        networkEvents );
 
             // Re-start the timer before checking for the result.
             m_timer.Start( -1 /* Use the previous interval */, wxTIMER_ONE_SHOT );
@@ -317,9 +319,9 @@ hoxWWWPlayer::OnWWWResponse(wxCommandEvent& event)
             int        returnCode = -1;
             wxString   returnMsg;
 
-            result = hoxWWWThread::parse_string_for_simple_response( response->content,
-                                                                     returnCode,
-                                                                     returnMsg );
+            result = hoxNetworkAPI::ParseSimpleResponse( response->content,
+                                                         returnCode,
+                                                         returnMsg );
             if ( result != hoxRESULT_OK )
             {
                 wxLogError(wxString::Format("%s: Parse for SEND-MOVE's response.", FNAME));

@@ -9,6 +9,7 @@
 #include "hoxWWWThread.h"
 #include "hoxWWWPlayer.h"
 #include "hoxEnums.h"
+#include "hoxUtility.h"
 
 #include <wx/sstream.h>
 #include <wx/protocol/http.h>
@@ -52,25 +53,10 @@ hoxWWWThread::Entry()
             wxASSERT_MSG( m_shutdownRequested, "This thread must be shutdowning." );
             break;  // Exit the thread.
         }
-        wxLogDebug("%s: Processing request Type [%d]...", FNAME, request->type);
+        wxLogDebug("%s: Processing request Type [%s]...", 
+            FNAME, hoxUtility::RequestTypeToString(request->type));
 
-        switch( request->type )
-        {
-            case hoxREQUEST_TYPE_POLL:     /* fall through */
-            case hoxREQUEST_TYPE_MOVE:     /* fall through */
-            case hoxREQUEST_TYPE_CONNECT:  /* fall through */
-            case hoxREQUEST_TYPE_LIST:     /* fall through */
-            case hoxREQUEST_TYPE_NEW:      /* fall through */
-            case hoxREQUEST_TYPE_JOIN:     /* fall through */
-            case hoxREQUEST_TYPE_LEAVE:
-                _HandleRequest( request );
-                break;
-
-            default:
-                wxLogError("%s: Unsupported request Type [%d].", FNAME, request->type);
-                break;
-        }
-
+        _HandleRequest( request );
         delete request;
     }
 
@@ -98,20 +84,41 @@ hoxWWWThread::AddRequest( hoxRequest* request )
 void 
 hoxWWWThread::_HandleRequest( hoxRequest* request )
 {
-    hoxResult  result;
+    const char* FNAME = "hoxWWWThread::_HandleRequest";
+    hoxResult    result = hoxRESULT_ERR;
     hoxResponse* response = new hoxResponse( request->type );
 
-    result = _SendRequest( request->content,
-                           response->content );
+    switch( request->type )
+    {
+        case hoxREQUEST_TYPE_POLL:     /* fall through */
+        case hoxREQUEST_TYPE_MOVE:     /* fall through */
+        case hoxREQUEST_TYPE_CONNECT:  /* fall through */
+        case hoxREQUEST_TYPE_LIST:     /* fall through */
+        case hoxREQUEST_TYPE_NEW:      /* fall through */
+        case hoxREQUEST_TYPE_JOIN:     /* fall through */
+        case hoxREQUEST_TYPE_LEAVE:
+            result = _SendRequest( request->content, response->content );
+            break;
 
-    // NOTE: If there was error, just return it to the caller.
+        default:
+            wxLogError("%s: Unsupported request Type [%s].", 
+                FNAME, hoxUtility::RequestTypeToString(request->type));
+            result = hoxRESULT_NOT_SUPPORTED;
+            break;
+    }
+
+    /* NOTE: If there was error, just return it to the caller. */
 
     if ( request->sender != NULL )
     {
         wxCommandEvent event( hoxEVT_WWW_RESPONSE );
         event.SetInt( result );
-        event.SetEventObject( response );
+        event.SetEventObject( response );  // Caller will de-allocate.
         wxPostEvent( request->sender, event );
+    }
+    else
+    {
+        delete response;
     }
 }
 
@@ -153,17 +160,21 @@ hoxWWWThread::_SendRequest( const wxString& request,
     const char* FNAME = "hoxWWWThread::_SendRequest";
     hoxResult result = hoxRESULT_ERR;
 
-    ////////////////////////////////////////////////////////////////////
-    // Sample code from: http://www.wxwidgets.org/wiki/index.php/WxHTTP
-    //
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    /* NOTE: This code is based on the sample code from: 
+     *       http://www.wxwidgets.org/wiki/index.php/WxHTTP
+     */
     
     wxHTTP get;
 
+    wxLogDebug("%s: Creating a BLOCK-ing HTTP connection with time-out = [%d] seconds.", 
+        FNAME, hoxSOCKET_CLIENT_HTTP_TIMEOUT);
     get.SetFlags( wxSOCKET_WAITALL | wxSOCKET_BLOCK ); // Block socket + GUI
-    get.SetTimeout(5); // 5-second timeout instead of the Default 10 minutes.
+    get.SetTimeout( hoxSOCKET_CLIENT_HTTP_TIMEOUT );
 
-    get.SetHeader(_T("Content-type"), _T("text/plain; charset=utf-8"));
-    get.SetHeader(_T("User-Agent"), _T("hoxClient"));
+    get.SetHeader("Content-type", "text/plain; charset=utf-8");
+    get.SetHeader("User-Agent", "hoxClient");
  
     /* This will wait until the user connects to the internet. 
      * It is important in case of dialup (or ADSL) connections.
@@ -184,19 +195,18 @@ hoxWWWThread::_SendRequest( const wxString& request,
 
     if ( httpStream == NULL )
     {
-        wxLogError(wxString::Format("%s: GetInputStream failed. Response-code = [%d]. Protocol-error = [%d].",
-                        FNAME, get.GetResponse(), (int) get.GetError() ));
-        wxMessageBox(wxString::Format(_T("%s: Unable to connect to server [%s:%d]."), 
-                        FNAME, m_sHostname, m_nPort));
+        wxLogError("%s: GetInputStream is NULL. Response-code = [%d]. Protocol-error = [%d].",
+            FNAME, get.GetResponse(), (int) get.GetError() );
+        wxLogError("%s: Failed to connect to server [%s:%d].", FNAME, m_sHostname, m_nPort);
     }
     else if (get.GetError() == wxPROTO_NOERR)
     {
         wxStringOutputStream out_stream( &response );
         httpStream->Read( out_stream );
 
-        //wxLogDebug( wxString(_(" GetInputStream: ")) << get.GetResponse() << _("- OK") );
+        wxLogDebug("%s: GetInputStream: Response-code = [%d] - OK", FNAME, get.GetResponse());
+        wxLogDebug("%s: Received document length = [%d].", FNAME, response.size());
         //wxMessageBox(response);
-        //wxLogDebug( wxString(_T(" returned document length: ")) << (int)response.size() );
 
         result = hoxRESULT_OK;
     }
@@ -204,302 +214,8 @@ hoxWWWThread::_SendRequest( const wxString& request,
     delete httpStream;
     get.Close();
 
+    wxLogDebug("%s: END.", FNAME);
     return result;
-}
-
-/* static */
-hoxResult 
-hoxWWWThread::parse_string_for_simple_response( const wxString& responseStr,
-                                                 int&            returnCode,
-                                                 wxString&       returnMsg )
-{
-    const char* FNAME = "hoxWWWThread::parse_string_for_simple_response";
-
-    returnCode = -1;
-
-    wxStringTokenizer tkz( responseStr, wxT("\r\n") );
-    int i = 0;
-
-    while ( tkz.HasMoreTokens() )
-    {
-        wxString token = tkz.GetNextToken();
-        switch (i)
-        {
-            case 0:   // Return-code.
-                returnCode = ::atoi( token.c_str() );
-                break;
-            case 1:    // The additional informative message.
-                returnMsg = token;
-                wxLogDebug(wxString::Format("%s: Server's message = [%s].", FNAME, returnMsg)) ; 
-                break;
-            default:
-                wxLogError(wxString::Format("%s: Ignore the rest...", FNAME));
-                break;
-        }
-        ++i;
-    }
-
-    return hoxRESULT_OK;
-}
-
-/* static */
-hoxResult 
-hoxWWWThread::parse_string_for_network_tables( const wxString&          responseStr,
-                                               hoxNetworkTableInfoList& tableList )
-{
-    hoxResult  result = hoxRESULT_ERR;
-
-    if ( responseStr.size() < 2 )
-        return hoxRESULT_ERR;
-
-    // Get the return-code.
-    int returnCode = ::atoi( responseStr.c_str() );
-
-    wxStringTokenizer tkz( responseStr.substr(2), wxT(" \r\n") );
-    int i = 0;
-    hoxNetworkTableInfo* tableInfo = NULL;
-
-    tableList.clear();
-   
-    while ( tkz.HasMoreTokens() )
-    {
-        wxString token = tkz.GetNextToken();
-        switch (i)
-        {
-            case 0: 
-                tableInfo = new hoxNetworkTableInfo();
-                tableInfo->id = token; 
-                tableList.push_back( tableInfo );
-                break;
-            case 1: 
-                tableInfo->status = ::atoi( token.c_str() ); 
-                break;
-            case 2: 
-                tableInfo->redId = token; 
-                break;
-            default:
-                tableInfo->blackId = token;
-                break;
-        }
-        if ( i == 3) i = 0;
-        else ++i;
-    }
-
-    return hoxRESULT_OK;
-}
-
-/* static */
-hoxResult 
-hoxWWWThread::parse_string_for_new_network_table( const wxString&  responseStr,
-                                                  wxString&        newTableId )
-{
-    const char* FNAME = "hoxWWWThread::parse_string_for_new_network_table";
-
-    int returnCode = hoxRESULT_ERR;
-
-    wxStringTokenizer tkz( responseStr, wxT("\n") );
-    int i = 0;
-
-    while ( tkz.HasMoreTokens() )
-    {
-        wxString token = tkz.GetNextToken();
-        switch (i)
-        {
-            case 0:   // Return-code.
-                returnCode = ::atoi( token.c_str() );
-                if ( returnCode != 0 ) // failed?
-                {
-                    return hoxRESULT_ERR;
-                }
-                break;
-            case 1:    // The ID of the new table.
-                newTableId = token; 
-                break;
-            case 2:    // The additional informative message.
-                wxLogDebug(wxString::Format("%s: Server's message = [%s].", FNAME, token)) ; 
-                break;
-            default:
-                wxLogError(wxString::Format("%s: Ignore the rest...", FNAME));
-                break;
-        }
-        ++i;
-    }
-
-    return hoxRESULT_OK;
-}
-
-/* static */
-hoxResult 
-hoxWWWThread::parse_string_for_join_network_table( const wxString&      responseStr,
-                                                   hoxNetworkTableInfo& tableInfo )
-{
-    const char* FNAME = "hoxWWWThread::parse_string_for_join_network_table";
-    hoxResult  result = hoxRESULT_ERR;
-
-    int returnCode = hoxRESULT_ERR;
-
-    wxStringTokenizer tkz( responseStr, wxT("\r\n") );
-    int i = 0;
-
-    while ( tkz.HasMoreTokens() )
-    {
-        wxString token = tkz.GetNextToken();
-        switch (i)
-        {
-            case 0:   // Return-code.
-                returnCode = ::atoi( token.c_str() );
-                if ( returnCode != 0 ) // failed?
-                {
-                    return hoxRESULT_ERR;
-                }
-                break;
-            case 1:    // The additional informative message.
-                wxLogDebug(wxString::Format("%s: Server's message = [%s].", FNAME, token)) ; 
-                break;
-            case 2:    // The returned info of the requested table.
-            {
-                wxString tableInfoStr = token;
-                if ( hoxRESULT_OK != _parse_network_table_info_string( tableInfoStr, tableInfo ) )
-                {
-                    wxLogError(wxString::Format("%s: Failed to parse the Table Info String [%s].", 
-                                    FNAME, tableInfoStr)); 
-                    return hoxRESULT_ERR;
-                }
-                
-                break;
-            }
-            default:
-                wxLogError(wxString::Format("%s: Ignore the rest...", FNAME));
-                break;
-        }
-        ++i;
-    }
-
-    return hoxRESULT_OK;
-}
-
-/*static*/
-hoxResult 
-hoxWWWThread::parse_string_for_network_events( const wxString&      tablesStr,
-                                               hoxNetworkEventList& networkEvents )
-{
-    const char* FNAME = "hoxWWWThread::parse_string_for_network_events";
-    hoxResult result;
-    int returnCode = hoxRESULT_ERR;
-
-    wxStringTokenizer tkz( tablesStr, wxT("\n") );
-    int i = 0;
-
-    while ( tkz.HasMoreTokens() )
-    {
-        wxString token = tkz.GetNextToken();
-        switch (i)
-        {
-            case 0:   // Return-code.
-                returnCode = ::atoi( token.c_str() );
-                if ( returnCode != 0 ) // failed?
-                {
-                    return hoxRESULT_ERR;
-                }
-                break;
-            case 1:    // The additional informative message.
-                wxLogDebug(wxString::Format("%s: Server's message = [%s].", FNAME, token)) ; 
-                break;
-            default:
-            {
-                wxLogDebug(wxString::Format("%s: Parse and add event to the list...", FNAME));
-                const wxString eventStr = token;
-                hoxNetworkEvent networkEvent;
-                result = hoxWWWThread::_parse_network_event_string( eventStr, networkEvent );
-                if ( result != hoxRESULT_OK ) // failed?
-                {
-                    wxLogError(wxString::Format("%s: Failed to parse network events [%s].", FNAME, eventStr));
-                    return result;
-                }
-                networkEvents.push_back( new hoxNetworkEvent( networkEvent ) );
-
-                break;
-            }
-        }
-        ++i;
-    }
-
-    return hoxRESULT_OK;
-}
-
-/* static */
-hoxResult
-hoxWWWThread::_parse_network_table_info_string( const wxString&      tableInfoStr,
-                                                hoxNetworkTableInfo& tableInfo )
-{
-    const char* FNAME = "hoxWWWThread::_parse_network_table_info_string";
-    wxStringTokenizer tkz( tableInfoStr, wxT(" ") );
-    int i = 0;
-
-    while ( tkz.HasMoreTokens() )
-    {
-        wxString token = tkz.GetNextToken();
-        switch (i)
-        {
-            case 0:   // Table-Id
-                tableInfo.id = token;
-                break;
-            case 1:    // Table-Status
-                tableInfo.status = ::atoi( token.c_str() );
-                break;
-            case 2:    // RED-player's Id.
-                tableInfo.redId = token;
-                break;
-            case 3:    // BLACK-player's Id.
-                tableInfo.blackId = token;
-                break;
-            default:
-                wxLogError(wxString::Format("%s: Ignore the rest...", FNAME));
-                break;
-        }
-        ++i;
-    }
-
-    return hoxRESULT_OK;
-}
-
-/*static*/
-hoxResult 
-hoxWWWThread::_parse_network_event_string( const wxString& eventStr,
-                                           hoxNetworkEvent& networkEvent )
-{
-    const char* FNAME = "hoxWWWThread::_parse_network_event_string";
-    wxStringTokenizer tkz( eventStr, wxT(" ") );
-    int i = 0;
-
-    while ( tkz.HasMoreTokens() )
-    {
-        wxString token = tkz.GetNextToken();
-        switch (i)
-        {
-            case 0:   // event-Id
-                networkEvent.id = token;
-                break;
-            case 1:    // Player-Id.
-                networkEvent.pid = token;
-                break;
-            case 2:    // Table-Id (if applicable).
-                networkEvent.tid = token;
-                break;
-            case 3:    // Event-type
-                networkEvent.type = ::atoi( token.c_str() );
-                break;
-            case 4:    // event-content.
-                networkEvent.content = token;
-                break;
-            default:
-                wxLogError(wxString::Format("%s: Ignore the rest...", FNAME));
-                break;
-        }
-        ++i;
-    }
-
-    return hoxRESULT_OK;
 }
 
 

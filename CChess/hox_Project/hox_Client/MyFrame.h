@@ -73,7 +73,6 @@ public:
 
     void OnOpenServer(wxCommandEvent& event);
     void OnConnectServer(wxCommandEvent& event);
-    void OnQueryTables(wxCommandEvent& event);
     void OnDisconnectServer(wxCommandEvent& event);
 
     void OnConnectWWWServer(wxCommandEvent& event);

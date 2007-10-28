@@ -46,6 +46,26 @@ namespace hoxNetworkAPI
                                    int&            returnCode,
                                    wxString&       returnMsg );
 
+    hoxResult ParseNetworkTables( const wxString&          responseStr,
+                                  hoxNetworkTableInfoList& tableList );
+
+    hoxResult ParseNewNetworkTable( const wxString&  responseStr,
+                                    wxString&        newTableId );
+
+    hoxResult ParseJoinNetworkTable( const wxString&      responseStr,
+                                     hoxNetworkTableInfo& tableInfo );
+
+    hoxResult ParseNetworkEvents( const wxString&      tablesStr,
+                                  hoxNetworkEventList& networkEvents );
+
+    /* PRIVATE */
+    hoxResult _ParseNetworkTableInfoString( const wxString&      tableInfoStr,
+                                            hoxNetworkTableInfo& tableInfo );
+
+    /* PRIVATE */
+    hoxResult _ParseNetworkEventString( const wxString&  eventStr,
+                                        hoxNetworkEvent& networkEvent );
+
     /**
      * Convert a given socket-event to a (human-readable) string.
      */

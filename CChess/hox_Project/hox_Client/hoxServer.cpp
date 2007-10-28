@@ -7,7 +7,6 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxServer.h"
-#include "hoxWWWPlayer.h"
 #include "hoxEnums.h"
 #include "MyApp.h"
 #include "hoxTableMgr.h"

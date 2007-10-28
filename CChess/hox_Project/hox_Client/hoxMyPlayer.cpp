@@ -8,9 +8,9 @@
 
 #include "hoxMyPlayer.h"
 #include "hoxEnums.h"
-#include "hoxTable.h"
-#include "hoxBoard.h"
 #include "hoxConnection.h"
+
+DEFINE_EVENT_TYPE(hoxEVT_CONNECTION_RESPONSE)
 
 IMPLEMENT_DYNAMIC_CLASS( hoxMyPlayer, hoxPlayer )
 
@@ -140,8 +140,14 @@ hoxMyPlayer::StartListenForMoves()
 {
     wxASSERT( m_connection != NULL );
     {
+        /* NOTE: We set 'this' player as the 'sender' so that the player can 
+         *       be a socket-event handler.
+         *       However, the 'connection' will NOT send back a response for
+         *       this particular request. Therefore, there is no need to
+         *       'catch' a response.
+         */
+
         hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LISTEN, this );
-        request->content = "";
         m_connection->AddRequest( request );
     }
 
@@ -174,11 +180,11 @@ hoxMyPlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
     wxString moveStr = wxString::Format("%d%d%d%d", 
                             moveFromPos.x, moveFromPos.y, moveToPos.x, moveToPos.y);
 
-    wxLogDebug("%s: ENTER. move = [%s].", FNAME, moveStr);
+    wxLogDebug("%s: ENTER. Move = [%s].", FNAME, moveStr);
 
     wxASSERT( m_connection != NULL );
     {
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_TABLE_MOVE, NULL /* this */ );
+        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_TABLE_MOVE );
         request->content = 
                 wxString::Format("op=TABLE_MOVE&tid=%s&pid=%s&move=%s\r\n", 
                             tableId, this->GetName(), moveStr);
@@ -197,10 +203,11 @@ hoxMyPlayer::_StartConnection()
 
     if ( m_connection->Create() != wxTHREAD_NO_ERROR )
     {
-        wxLogError(wxString::Format("%s: Failed to create Connection.", FNAME));
+        wxLogError("%s: Failed to create Connection thread.", FNAME);
         return;
     }
-    wxASSERT_MSG( !m_connection->GetThread()->IsDetached(), "The Connection thread must be joinable.");
+    wxASSERT_MSG( !m_connection->GetThread()->IsDetached(), 
+                  "The Connection thread must be joinable." );
 
     m_connection->GetThread()->Run();
 }

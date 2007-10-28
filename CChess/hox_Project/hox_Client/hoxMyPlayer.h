@@ -9,14 +9,18 @@
 #ifndef __INCLUDED_HOX_MY_PLAYER_H_
 #define __INCLUDED_HOX_MY_PLAYER_H_
 
-#include "wx/wx.h"
-#include "wx/socket.h"
+#include <wx/wx.h>
 #include "hoxPlayer.h"
 #include "hoxEnums.h"
 #include "hoxTypes.h"
 
 /* Forward declarations */
 class hoxConnection;
+
+/** 
+ * Connection event-type for responses.
+ */
+DECLARE_EVENT_TYPE(hoxEVT_CONNECTION_RESPONSE, wxID_ANY)
 
 /**
  * The MY player.
@@ -67,8 +71,6 @@ private:
 private:
     wxString         m_sHostname; 
     int              m_nPort;
-
-    wxTimer          m_timer;    // to poll the WWW server to events.
 
     hoxConnection*   m_connection;
 
