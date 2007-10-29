@@ -28,10 +28,8 @@
 BEGIN_EVENT_TABLE(MyChild, wxMDIChildFrame)
     EVT_MENU(MDI_CHILD_QUIT, MyChild::OnQuit)
     EVT_MENU(MDI_TOGGLE, MyChild::OnToggle)
-    EVT_MENU(MDI_REFRESH, MyChild::OnRefresh)
-    EVT_MENU(MDI_CHANGE_SIZE, MyChild::OnChangeSize)
+    //EVT_MENU(MDI_CHANGE_SIZE, MyChild::OnChangeSize)
 
-    EVT_MOVE(MyChild::OnMove)
     EVT_CLOSE(MyChild::OnClose)
 END_EVENT_TABLE()
 
@@ -41,18 +39,20 @@ END_EVENT_TABLE()
 // ---------------------------------------------------------------------------
 
 MyChild::MyChild(wxMDIParentFrame *parent, const wxString& title)
-       : wxMDIChildFrame(parent, wxID_ANY, title, wxDefaultPosition, 
-                         wxSize(400, 500)/*wxDefaultSize*/,
-                         wxDEFAULT_FRAME_STYLE | wxNO_FULL_REPAINT_ON_RESIZE)
+       : wxMDIChildFrame( parent, 
+                          wxID_ANY, 
+                          title, 
+                          wxDefaultPosition, 
+                          wxSize(400, 500),
+                          wxDEFAULT_FRAME_STYLE | wxNO_FULL_REPAINT_ON_RESIZE )
         , m_table( NULL )
 {
     this->Maximize();
 
-    this->SetupMenu();
-    this->SetupStatusBar();
+    _SetupMenu();
+    _SetupStatusBar();
 
-    // Give it an icon
-    this->SetIcon(wxICON(chart));
+    SetIcon(wxICON(chart));
 
     // this should work for MDI frames as well as for normal ones
     SetSizeHints(100, 100);
@@ -60,9 +60,9 @@ MyChild::MyChild(wxMDIParentFrame *parent, const wxString& title)
 
 MyChild::~MyChild()
 {
-    //const char* FNAME = "MyChild::~MyChild";
+    const char* FNAME = "MyChild::~MyChild";
+    wxLogDebug("%s: ENTER.", FNAME);
 
-    //wxLogDebug(wxString::Format("%s: ENTER."));
     if ( m_table != NULL )
     {
         /* We should send a signal inform all players about this event.
@@ -76,9 +76,12 @@ MyChild::~MyChild()
         if ( blackPlayer != NULL ) blackPlayer->LeaveTable( m_table );
         hoxTableMgr::GetInstance()->RemoveTable( m_table );
     }
+
+    wxLogDebug("%s: END.", FNAME);
 }
 
-void MyChild::SetupMenu()
+void 
+MyChild::_SetupMenu()
 {
     /* File menu */
 
@@ -88,7 +91,6 @@ void MyChild::SetupMenu()
     file_menu->AppendSeparator();
     file_menu->Append(MDI_OPEN_SERVER, _T("&Open Server\tCtrl-O"), _T("Open server for remote access"));
     file_menu->Append(MDI_CONNECT_SERVER, _T("&Connect Server\tCtrl-C"), _T("Connect to remote server"));
-    file_menu->Append(MDI_QUERY_TABLES, _T("&Query Tables\tCtrl-L"), _T("Query for list of tables"));
     file_menu->Append(MDI_DISCONNECT_SERVER, _T("&Disconnect Server\tCtrl-D"), _T("Disconnect from remote server"));
     file_menu->AppendSeparator();
     file_menu->Append(MDI_CHILD_QUIT, _T("&Close child"), _T("Close this window"));
@@ -99,12 +101,8 @@ void MyChild::SetupMenu()
     wxMenu *option_menu = new wxMenu;
 
     option_menu->Append(MDI_TOGGLE, _T("&Toggle View\tCtrl-T"));
-    option_menu->AppendSeparator();
-    option_menu->Append(MDI_REFRESH, _T("&Refresh picture"));
-    option_menu->Append(MDI_CHANGE_TITLE, _T("Change title..."));
-    option_menu->AppendSeparator();
-    option_menu->Append(MDI_CHANGE_POSITION, _T("Move frame\tCtrl-M"));
-    option_menu->Append(MDI_CHANGE_SIZE, _T("Resize frame\tCtrl-S"));
+    //option_menu->AppendSeparator();
+    //option_menu->Append(MDI_CHANGE_SIZE, _T("Resize frame\tCtrl-S"));
 
     /* Help menu */
 
@@ -120,55 +118,41 @@ void MyChild::SetupMenu()
     menu_bar->Append(help_menu, _T("&Help"));
 
     // Associate the menu bar with the frame
-    this->SetMenuBar(menu_bar);
+    SetMenuBar(menu_bar);
 
 }
 
-void MyChild::SetupStatusBar()
+void 
+MyChild::_SetupStatusBar()
 {
-    this->CreateStatusBar();
-    this->SetStatusText( this->GetTitle() );
+    CreateStatusBar();
+    SetStatusText( this->GetTitle() );
 }
 
-void MyChild::OnQuit(wxCommandEvent& WXUNUSED(event))
+void 
+MyChild::OnQuit(wxCommandEvent& WXUNUSED(event))
 {
     Close(true);
 }
 
-void MyChild::OnToggle(wxCommandEvent& WXUNUSED(event))
+void 
+MyChild::OnToggle(wxCommandEvent& WXUNUSED(event))
 {
     if ( m_table != NULL )
         m_table->ToggleViewSide();
 }
 
-void MyChild::OnRefresh(wxCommandEvent& WXUNUSED(event))
-{
-    //if ( canvas )
-    //    canvas->Refresh();
-}
-
-void MyChild::OnChangeSize(wxCommandEvent& WXUNUSED(event))
-{
-    SetClientSize(100, 100);
-}
-
-void MyChild::OnMove(wxMoveEvent& event)
-{
-    // VZ: here everything is totally wrong under MSW, the positions are
-    //     different and both wrong (pos2 is off by 2 pixels for me which seems
-    //     to be the width of the MDI canvas border)
-    //wxPoint pos1 = event.GetPosition(),
-    //        pos2 = GetPosition();
-    //wxLogStatus(wxT("position from event: (%d, %d), from frame (%d, %d)"),
-    //            pos1.x, pos1.y, pos2.x, pos2.y);
-
-    event.Skip();
-}
+//void 
+//MyChild::OnChangeSize(wxCommandEvent& WXUNUSED(event))
+//{
+//    SetClientSize(100, 100);
+//}
 
 void 
 MyChild::OnClose(wxCloseEvent& event)
 {
     const char* FNAME = "MyChild::OnClose";
+    wxLogDebug("%s: ENTER.", FNAME);
 
     wxGetApp().m_nChildren--;
 
@@ -213,6 +197,8 @@ MyChild::OnClose(wxCloseEvent& event)
     }
 
     event.Skip(); // let the search for the event handler should continue...
+
+    wxLogDebug("%s: END.", FNAME);
 }
 
 void

@@ -76,6 +76,7 @@ hoxResult
 hoxHttpPlayer::JoinTable( hoxTable* table )
 {
     const char* FNAME = "hoxHttpPlayer::JoinTable";
+    wxLogDebug("%s: ENTER.", FNAME);
 
     hoxResult result = this->hoxLocalPlayer::JoinTable( table );
     if ( result != hoxRESULT_OK )
@@ -97,12 +98,7 @@ hoxResult
 hoxHttpPlayer::LeaveTable( hoxTable* table )
 {
     const char* FNAME = "hoxHttpPlayer::LeaveTable";
-
-    hoxResult result = this->hoxLocalPlayer::LeaveTable( table );
-    if ( result != hoxRESULT_OK )
-    {
-        return result;
-    }
+    wxLogDebug("%s: ENTER.", FNAME);
 
     if ( m_timer.IsRunning() ) 
     {
@@ -110,10 +106,9 @@ hoxHttpPlayer::LeaveTable( hoxTable* table )
         m_timer.Stop();
     }
 
-    return hoxRESULT_OK;
+    return this->hoxLocalPlayer::LeaveTable( table );
 }
 
-// On timer.
 void 
 hoxHttpPlayer::OnTimer( wxTimerEvent& WXUNUSED(event) )
 {
