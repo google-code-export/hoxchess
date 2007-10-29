@@ -42,7 +42,6 @@ hoxNetworkAPI::SendMove( wxSocketBase*   sock,
                          const wxString& commandInput )
 {
     const char* FNAME = "hoxNetworkAPI::SendMove";
-
     hoxResult     result;
     wxString      commandStr;
     wxUint32      requestSize;
@@ -553,6 +552,107 @@ hoxNetworkAPI::ParseNetworkEvents( const wxString&      tablesStr,
     }
 
     return hoxRESULT_OK;
+}
+
+hoxResult
+hoxNetworkAPI::ReadLine( wxSocketBase* sock, 
+                         wxString&     result )
+{
+    const char* FNAME = "hoxNetworkAPI::ReadLine";
+    wxString commandStr;
+
+    for (;;)
+    {
+        wxChar c;
+
+        sock->Read( &c, 1 );
+        if ( sock->LastCount() == 1 )
+        {
+            if ( c == '\n' )
+            {
+                if ( !commandStr.empty() && commandStr[ commandStr.size()-1 ] == '\r' )
+                {
+                    result = commandStr.substr(0, commandStr.size()-1);
+                    return hoxRESULT_OK;
+                }
+            }
+            else
+            {
+                commandStr += c;
+
+                // Impose some limit.
+                if ( commandStr.size() >= hoxNETWORK_MAX_MSG_SIZE )
+                {
+                    wxLogError("%s: Maximum message's size [%d] reached. Likely to be an error.", 
+                        FNAME, hoxNETWORK_MAX_MSG_SIZE);
+                    wxLogError("%s: Partial read message (64 bytes) = [%s ...].", 
+                        FNAME, commandStr.substr(0, 64));
+                    break;
+                }
+            }
+        }
+        else if ( sock->Error() )
+        {
+            wxLogWarning("%s: Fail to read 1 byte from the network. Error = [%s].", 
+                FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()));
+            wxLogWarning("%s: Result message accumulated so far = [%s].", FNAME, commandStr);
+            break;
+        }
+    }
+
+    return hoxRESULT_ERR;
+}
+
+hoxResult 
+hoxNetworkAPI::HandlePlayerData( wxSocketBase* sock )
+{
+    const char* FNAME = "hoxNetworkAPI::HandlePlayerData";
+    hoxResult      result = hoxRESULT_ERR;
+    wxString       commandStr;
+    hoxCommand     command;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    // We disable input events until we are done processing the current command.
+    hoxNetworkAPI::SocketInputLock socketLock( sock );
+
+    wxLogDebug("%s: Reading incoming command from the network...", FNAME);
+    result = hoxNetworkAPI::ReadLine( sock, commandStr );
+    if ( result != hoxRESULT_OK )
+    {
+        wxLogError("%s: Failed to read incoming command.", FNAME);
+        goto exit_label;
+    }
+    wxLogDebug("%s: Received command [%s].", FNAME, commandStr);
+
+    result = hoxNetworkAPI::ParseCommand( commandStr, command );
+    if ( result != hoxRESULT_OK )
+    {
+        wxLogError("%s: Failed to parse command-string [%s].", FNAME, commandStr);
+        goto exit_label;
+    }
+
+    switch ( command.type )
+    {
+        case hoxREQUEST_TYPE_MOVE:
+            result = hoxNetworkAPI::HandleMove( sock, command );
+            break;
+
+        case hoxREQUEST_TYPE_LEAVE:
+            result = hoxNetworkAPI::HandleLeave( sock, command );
+            break;
+
+        default:
+            wxLogError("%s: Unsupported Request-Type [%s].", 
+                FNAME, hoxUtility::RequestTypeToString(command.type));
+            result = hoxRESULT_NOT_SUPPORTED;
+            break;
+    }
+
+exit_label:
+    wxLogDebug("%s: END.", FNAME);
+
+    return result;
 }
 
 /* PRIVATE */

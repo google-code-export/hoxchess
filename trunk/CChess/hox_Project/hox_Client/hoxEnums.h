@@ -230,7 +230,7 @@ enum hoxRequestType
 enum hoxRequestFlag
 {
     hoxREQUEST_FLAG_NONE        = 0,
-    hoxREQUEST_FLAG_KEEP_ALIVE  = 1
+    hoxREQUEST_FLAG_KEEP_ALIVE  = 1  // NOTE: This flag is not being used now.
 };
 
 // ----------------------------------------------------------------------------

@@ -1,15 +1,14 @@
 /////////////////////////////////////////////////////////////////////////////
 // Name:            hoxSocketConnection.cpp
 // Program's Name:  Huy's Open Xiangqi
-// Created:         10/23/2007
+// Created:         10/28/2007
 //
-// Description:     The Connection Thread to help a "network" player.
+// Description:     The Socket-Connection Thread to help MY player.
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxSocketConnection.h"
 #include "hoxMYPlayer.h"
 #include "hoxEnums.h"
-#include "hoxServer.h"
 #include "hoxTableMgr.h"
 #include "hoxUtility.h"
 #include "hoxNetworkAPI.h"
@@ -102,11 +101,12 @@ hoxSocketConnection::_HandleRequest( hoxRequest* request )
             break;
 
         case hoxREQUEST_TYPE_TABLE_MOVE:
-            result = _HandleCommand_TableMove( request ); 
+            result = hoxNetworkAPI::SendMove( m_pSClient, request->content );
             break;
 
-        case hoxREQUEST_TYPE_PLAYER_DATA: // incoming data from remote player.
-            result = _HandleRequest_PlayerData( request );
+        case hoxREQUEST_TYPE_PLAYER_DATA:
+            wxASSERT_MSG( request->socket == m_pSClient, "Sockets should match." );
+            result = hoxNetworkAPI::HandlePlayerData( m_pSClient ); 
             break;
 
         case hoxREQUEST_TYPE_LIST:     /* fall through */
@@ -121,12 +121,6 @@ hoxSocketConnection::_HandleRequest( hoxRequest* request )
                 FNAME, hoxUtility::RequestTypeToString(request->type));
             result = hoxRESULT_NOT_SUPPORTED;
             break;
-    }
-
-    /* Keep-alive if requested. */
-    if ( (request->flags & hoxREQUEST_FLAG_KEEP_ALIVE) != 0 )
-    {
-        _Disconnect();
     }
 
     /* NOTE: If there was error, just return it to the caller. */
@@ -146,7 +140,7 @@ hoxSocketConnection::_HandleRequest( hoxRequest* request )
 
 hoxResult        
 hoxSocketConnection::_SendRequest_Connect( const wxString& request, 
-                                     wxString&       response )
+                                           wxString&       response )
 {
     const char* FNAME = "hoxSocketConnection::_SendRequest_Connect";
     hoxResult result = hoxRESULT_ERR;  // Assume: failure.
@@ -155,8 +149,8 @@ hoxSocketConnection::_SendRequest_Connect( const wxString& request,
     wxChar* buf = NULL;
 
     /* Delete the old connection, if any. */
-    _Disconnect();
-    wxASSERT_MSG( m_pSClient == NULL, "The previous connection should have been closed." );
+    _Disconnect(); 
+    wxCHECK_MSG( !m_pSClient, hoxRESULT_ERR, "Connection should have been closed." );
 
     /* Make a new connection */
 
@@ -277,13 +271,8 @@ hoxSocketConnection::_HandleRequest_Listen( hoxRequest*  request )
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    if ( m_pSClient == NULL )
-    {
-        wxLogError("%s: Connection is not yet established.", FNAME);
-        return hoxRESULT_ERR;
-    }
-
-    wxASSERT_MSG( request->sender != NULL, "Sender must not be NULL." );
+    wxCHECK_MSG( m_pSClient, hoxRESULT_ERR, "Connection is not yet established" );
+    wxCHECK_MSG( request->sender, hoxRESULT_ERR, "Sender must not be NULL." );
 
     // Setup the event handler and let the player handles all socket events.
     m_pSClient->SetEventHandler( *(request->sender), CLIENT_SOCKET_ID );
@@ -294,144 +283,6 @@ hoxSocketConnection::_HandleRequest_Listen( hoxRequest*  request )
     request->sender = NULL;
 
     return hoxRESULT_OK;
-}
-
-hoxResult   
-hoxSocketConnection::_HandleRequest_PlayerData( hoxRequest*  request )
-{
-    const char* FNAME = "hoxSocketConnection::_HandleRequest_PlayerData";
-
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    wxASSERT_MSG( request->socket == m_pSClient, "Sockets should match." );
-    wxSocketBase* sock = m_pSClient;
-    
-    // We disable input events until we are done processing the current command.
-    hoxNetworkAPI::SocketInputLock socketLock( sock );
-
-    // TODO: Only deal with wxSOCKET_INPUT for now.
-
-    wxString     commandStr;
-    hoxCommand   command;
-    hoxResult    result = hoxRESULT_ERR;  // Default = "error"
-
-    wxLogDebug("%s: Reading incoming command from the network...", FNAME);
-    result = hoxServer::read_line( sock, commandStr );
-    if ( result != hoxRESULT_OK )
-    {
-        wxLogError("%s: Failed to read incoming command.", FNAME);
-        goto exit_label;
-    }
-    wxLogDebug("%s: Received command [%s].", FNAME, commandStr);
-
-    result = hoxNetworkAPI::ParseCommand( commandStr, command );
-    if ( result != hoxRESULT_OK )
-    {
-        wxLogError("%s: Failed to parse command [%s].", FNAME, commandStr);
-        goto exit_label;
-    }
-
-    switch ( command.type )
-    {
-        case hoxREQUEST_TYPE_MOVE:
-            result = _HandleCommand_Move( request, command ); 
-            break;
-
-        default:
-            wxLogError("%s: Unexpected command-type [%s].", 
-                FNAME, hoxUtility::RequestTypeToString(command.type));
-            result = hoxRESULT_ERR;
-            goto exit_label;
-    }
-
-    result = hoxRESULT_OK;
-
-exit_label:
-    return result;
-}
-
-hoxResult   
-hoxSocketConnection::_HandleCommand_Move( hoxRequest*   request, 
-                                    hoxCommand&   command )
-{
-    const char* FNAME = "hoxSocketConnection::_HandleCommand_Move";
-    hoxResult       result = hoxRESULT_ERR;   // Assume: failure.
-    wxUint32        nWrite;
-    wxString        response;
-    hoxNetworkEvent networkEvent;
-
-    wxSocketBase* sock = m_pSClient;
-
-    wxString moveStr = command.parameters["move"];
-    wxString tableId = command.parameters["tid"];
-    wxString playerId = command.parameters["pid"];
-    hoxPlayer* player = NULL;
-
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    // Find the table hosted on this system using the specified table-Id.
-    hoxTable* table = hoxTableMgr::GetInstance()->FindTable( tableId );
-
-    if ( table == NULL )
-    {
-        wxLogError("%s: Table [%s] not found.", FNAME, tableId);
-        response << "1\r\n"  // code
-                 << "Table " << tableId << " not found.\r\n";
-        goto exit_label;
-    }
-
-    /* Look up player */
-
-    if ( table->GetRedPlayer() != NULL && table->GetRedPlayer()->GetName() == playerId )
-    {
-        player = table->GetRedPlayer();
-    }
-    else if ( table->GetBlackPlayer() != NULL && table->GetBlackPlayer()->GetName() == playerId )
-    {
-        player = table->GetBlackPlayer();
-    }
-    else
-    {
-        wxLogError("%s: Player [%s] not found at the table [%s].", 
-            FNAME, playerId, tableId);
-        response << "2\r\n"  // code
-                 << "Player " << playerId << " not found.\r\n";
-        goto exit_label;
-    }
-
-    networkEvent.content = moveStr;
-    networkEvent.type = hoxNETWORK_EVENT_TYPE_NEW_MOVE;
-
-    // Inform our table...
-    table->OnEvent_FromNetwork( player, networkEvent );
-
-    // Finally, return 'success'.
-    response << "0\r\n"       // error-code = SUCCESS
-             << "INFO: (MOVE) Move at Table [" << tableId << "] OK\r\n";
-
-    result = hoxRESULT_OK;
-
-exit_label:
-    // Send back response.
-    nWrite = (wxUint32) response.size();
-    sock->WriteMsg( response, nWrite );
-    if ( sock->LastCount() != nWrite )
-    {
-        wxLogError("%s: Writing to socket failed.", FNAME);
-        result = hoxRESULT_ERR;
-    }
-
-    wxLogDebug("%s: END.", FNAME);
-    return result;
-}
-
-hoxResult   
-hoxSocketConnection::_HandleCommand_TableMove( hoxRequest* requestCmd )
-{
-    const char* FNAME = "hoxSocketConnection::_HandleCommand_TableMove";
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    return hoxNetworkAPI::SendMove( m_pSClient, requestCmd->content );
 }
 
 hoxRequest*

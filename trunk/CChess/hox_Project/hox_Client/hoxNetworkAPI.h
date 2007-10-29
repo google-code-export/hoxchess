@@ -58,6 +58,11 @@ namespace hoxNetworkAPI
     hoxResult ParseNetworkEvents( const wxString&      tablesStr,
                                   hoxNetworkEventList& networkEvents );
 
+    hoxResult ReadLine( wxSocketBase* sock, 
+                        wxString&     result );
+
+    hoxResult HandlePlayerData( wxSocketBase* sock );
+
     /* PRIVATE */
     hoxResult _ParseNetworkTableInfoString( const wxString&      tableInfoStr,
                                             hoxNetworkTableInfo& tableInfo );

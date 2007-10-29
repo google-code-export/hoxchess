@@ -7,13 +7,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxConnection.h"
-#include "hoxMYPlayer.h"
 #include "hoxEnums.h"
-#include "hoxServer.h"
-#include "hoxTableMgr.h"
-#include "hoxUtility.h"
-#include "hoxNetworkAPI.h"
-#include "MyApp.h"    // To access wxGetApp()
 
 //-----------------------------------------------------------------------------
 // hoxConnection

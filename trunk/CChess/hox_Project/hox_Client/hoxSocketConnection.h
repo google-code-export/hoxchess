@@ -42,11 +42,6 @@ private:
     hoxResult   _SendRequest_Connect( const wxString& request, wxString& response );
     
     hoxResult   _HandleRequest_Listen( hoxRequest* request );
-    hoxResult   _HandleRequest_PlayerData( hoxRequest* request );
-
-    hoxResult   _HandleCommand_Move( hoxRequest*       request, 
-                                     hoxCommand& command );
-    hoxResult   _HandleCommand_TableMove( hoxRequest* request );
 
     void        _Disconnect();
 
