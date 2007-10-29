@@ -29,8 +29,8 @@ public:
     hoxHostPlayer* CreateHostPlayer( const wxString& name,
                                      int             score = 1500 );
 
-    hoxHttpPlayer* CreateWWWLocalPlayer( const wxString& name,
-                                         int             score = 1500 );
+    hoxHttpPlayer* CreateHTTPPlayer( const wxString& name,
+                                     int             score = 1500 );
 
     hoxMyPlayer* CreateMyPlayer( const wxString& name,
                                  int             score = 1500 );

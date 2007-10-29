@@ -29,7 +29,7 @@ enum
     MDI_QUERY_TABLES,   // Query for the list of tables
     MDI_DISCONNECT_SERVER, // Disconnect from server
 
-    MDI_CONNECT_WWW_SERVER,
+    MDI_CONNECT_HTTP_SERVER,
 
     MDI_TOGGLE,   // toggle view
     MDI_REFRESH,
@@ -75,26 +75,26 @@ public:
     void OnConnectServer(wxCommandEvent& event);
     void OnDisconnectServer(wxCommandEvent& event);
 
-    void OnConnectWWWServer(wxCommandEvent& event);
+    void OnConnectHTTPServer(wxCommandEvent& event);
 
     void OnQuit(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);
 
-    void DoJoinNewWWWTable(const wxString& tableId);
-    void DoJoinExistingWWWTable(const hoxNetworkTableInfo& tableInfo);
+    void DoJoinNewHTTPTable(const wxString& tableId);
+    void DoJoinExistingHTTPTable(const hoxNetworkTableInfo& tableInfo);
 
-    void OnWWWResponse(wxCommandEvent& event);
+    void OnHTTPResponse(wxCommandEvent& event);
     void OnMYResponse(wxCommandEvent& event);
     void DoJoinExistingMYTable(const hoxNetworkTableInfo& tableInfo);
     void DoJoinNewMYTable(const wxString& tableId);
     void OnFrameLogMsgEvent( wxCommandEvent &event );
 
 private:
-    void _OnWWWResponse_Connect( const wxString& responseStr );
-    void _OnWWWResponse_List( const wxString& responseStr );
-    void _OnWWWResponse_New( const wxString& responseStr );
-    void _OnWWWResponse_Join( const wxString& responseStr );
-    void _OnWWWResponse_Leave( const wxString& responseStr );
+    void _OnHTTPResponse_Connect( const wxString& responseStr );
+    void _OnHTTPResponse_List( const wxString& responseStr );
+    void _OnHTTPResponse_New( const wxString& responseStr );
+    void _OnHTTPResponse_Join( const wxString& responseStr );
+    void _OnHTTPResponse_Leave( const wxString& responseStr );
 
     void _OnMYResponse_Connect( const wxString& responseStr );
     void _OnMYResponse_List( const wxString& responseStr );

@@ -258,10 +258,10 @@ hoxTable::OnMove_FromNetwork( hoxPlayer*         player,
 }
 
 void 
-hoxTable::OnEvent_FromWWWNetwork( hoxPlayer*             player,
-                                  const hoxNetworkEvent& networkEvent )
+hoxTable::OnEvent_FromNetwork( hoxPlayer*             player,
+                               const hoxNetworkEvent& networkEvent )
 {
-    const char* FNAME = "hoxTable::OnEvent_FromWWWNetwork";
+    const char* FNAME = "hoxTable::OnEvent_FromNetwork";
 
     wxLogDebug(wxString::Format(_("%s: Receive new Event from Network."), FNAME));
     wxASSERT( player != NULL );

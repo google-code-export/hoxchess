@@ -135,7 +135,7 @@ typedef std::list<hoxNetworkEvent*> hoxNetworkEventList;
 
 
 //////////////////////////////////////////////////////////////////
-// Data-types required for WWW connection.
+// Data-types required for Connection Thread.
 //////////////////////////////////////////////////////////////////
 
 class hoxRequest : public wxObject

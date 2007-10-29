@@ -403,7 +403,7 @@ hoxSocketConnection::_HandleCommand_Move( hoxRequest*   request,
     networkEvent.type = hoxNETWORK_EVENT_TYPE_NEW_MOVE;
 
     // Inform our table...
-    table->OnEvent_FromWWWNetwork( player, networkEvent );
+    table->OnEvent_FromNetwork( player, networkEvent );
 
     // Finally, return 'success'.
     response << "0\r\n"       // error-code = SUCCESS

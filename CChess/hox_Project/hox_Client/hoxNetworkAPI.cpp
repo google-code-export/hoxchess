@@ -196,7 +196,7 @@ hoxNetworkAPI::HandleMove( wxSocketBase* sock,
     networkEvent.type = hoxNETWORK_EVENT_TYPE_NEW_MOVE;
 
     // Inform our table...
-    table->OnEvent_FromWWWNetwork( player, networkEvent );
+    table->OnEvent_FromNetwork( player, networkEvent );
 
     // Finally, return 'success'.
     response << "0\r\n"       // error-code = SUCCESS
@@ -271,7 +271,7 @@ hoxNetworkAPI::HandleLeave( wxSocketBase*  sock,
     networkEvent.content = requesterId;
 
     // Inform our table...
-    table->OnEvent_FromWWWNetwork( player, networkEvent );
+    table->OnEvent_FromNetwork( player, networkEvent );
 
 	// Finally, return 'success'.
 	response << "0\r\n"       // error-code = SUCCESS

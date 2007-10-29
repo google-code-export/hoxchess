@@ -91,11 +91,11 @@ class hoxTable
                              const hoxPosition& toPosition );
 
     /**
-     * Callback function from the WWW NETWORK Player to let this Table know about
+     * Callback function from the NETWORK Player to let this Table know about
      * the newly-received network event.
      */
-    void OnEvent_FromWWWNetwork( hoxPlayer*         player,
-                                 const hoxNetworkEvent& networkEvent );
+    void OnEvent_FromNetwork( hoxPlayer*             player,
+                              const hoxNetworkEvent& networkEvent );
 
     void ToggleViewSide();
 
