@@ -109,7 +109,7 @@ hoxHttpConnection::_HandleRequest( hoxRequest* request )
 
     if ( request->sender != NULL )
     {
-        wxCommandEvent event( hoxEVT_WWW_RESPONSE );
+        wxCommandEvent event( hoxEVT_HTTP_RESPONSE );
         event.SetInt( result );
         event.SetEventObject( response );  // Caller will de-allocate.
         wxPostEvent( request->sender, event );

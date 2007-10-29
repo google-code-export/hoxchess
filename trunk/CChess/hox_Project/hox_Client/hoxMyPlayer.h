@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // Name:            hoxMyPlayer.h
 // Program's Name:  Huy's Open Xiangqi
-// Created:         10/23/2007
+// Created:         10/28/2007
 //
 // Description:     The new "advanced" LOCAL Player.
 /////////////////////////////////////////////////////////////////////////////
@@ -36,25 +36,17 @@ public:
 
     virtual ~hoxMyPlayer();
 
+protected:
     /*******************************************
      * Override the parent's API
      *******************************************/
 
-protected:
     virtual const wxString BuildRequestContent( const wxString& commandStr );
 
     virtual hoxConnection* CreateNewConnection( const wxString& sHostname, 
                                                 int             nPort );
 
-    /*******************************************
-     * Override the parent's event-handler API
-     *******************************************/
-
 public:
-
-    /*******************************
-     * MY-specific Network API
-     *******************************/
 
     /*******************************
      * Socket-event handlers
@@ -67,9 +59,6 @@ public:
      *******************************/
 
     hoxResult StartListenForMoves();
-
-private:
-    void _StartConnection();
 
 private:
 

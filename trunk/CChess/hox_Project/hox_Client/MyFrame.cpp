@@ -43,7 +43,7 @@ BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
     EVT_MENU(MDI_CONNECT_SERVER, MyFrame::OnConnectServer)
     EVT_MENU(MDI_DISCONNECT_SERVER, MyFrame::OnDisconnectServer)
 
-    EVT_MENU(MDI_CONNECT_WWW_SERVER, MyFrame::OnConnectWWWServer)
+    EVT_MENU(MDI_CONNECT_HTTP_SERVER, MyFrame::OnConnectHTTPServer)
 
     EVT_MENU(MDI_QUIT, MyFrame::OnQuit)
 
@@ -51,7 +51,7 @@ BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
     EVT_SIZE(MyFrame::OnSize)
     EVT_SASH_DRAGGED(ID_WINDOW_LOG, MyFrame::OnSashDrag)
 
-    EVT_COMMAND(wxID_ANY, hoxEVT_WWW_RESPONSE, MyFrame::OnWWWResponse)
+    EVT_COMMAND(wxID_ANY, hoxEVT_HTTP_RESPONSE, MyFrame::OnHTTPResponse)
     EVT_COMMAND(wxID_ANY, hoxEVT_CONNECTION_RESPONSE, MyFrame::OnMYResponse)
     EVT_COMMAND(wxID_ANY, hoxEVT_FRAME_LOG_MSG, MyFrame::OnFrameLogMsgEvent)
 
@@ -205,9 +205,9 @@ void MyFrame::OnConnectServer(wxCommandEvent& WXUNUSED(event) )
     m_dlgProgress->Pulse();
 }
 
-void MyFrame::OnConnectWWWServer(wxCommandEvent& WXUNUSED(event) )
+void MyFrame::OnConnectHTTPServer(wxCommandEvent& WXUNUSED(event) )
 {
-    const char* FNAME = "MyFrame::OnConnectWWWServer";
+    const char* FNAME = "MyFrame::OnConnectHTTPServer";
     hoxResult result;
 
     wxLogDebug("%s: ENTER.", FNAME);
@@ -229,12 +229,12 @@ void MyFrame::OnConnectWWWServer(wxCommandEvent& WXUNUSED(event) )
     m_dlgProgress->SetSize( wxSize(500, 150) );
     m_dlgProgress->Pulse();
 
-    /* Create a WWW network player */
+    /* Create a HTTP player */
 
-    wxLogDebug("%s: Creating a WWW player to connect to a remote server.", FNAME);
+    wxLogDebug("%s: Creating a HTTP player to connect to a HTTP server.", FNAME);
     if ( wxGetApp().m_httpPlayer != NULL )
     {
-        wxLogDebug("%s: Delete the existing WWW player.", FNAME);
+        wxLogDebug("%s: Delete the existing HTTP player.", FNAME);
         hoxPlayerMgr::GetInstance()->DeletePlayer( wxGetApp().m_httpPlayer );
         wxGetApp().m_httpPlayer = NULL;
     }
@@ -242,24 +242,24 @@ void MyFrame::OnConnectWWWServer(wxCommandEvent& WXUNUSED(event) )
     hoxNetworkTableInfoList tableList;
     wxString playerName = hoxUtility::GenerateRandomString();
     wxGetApp().m_httpPlayer = 
-        hoxPlayerMgr::GetInstance()->CreateWWWLocalPlayer( playerName );
+        hoxPlayerMgr::GetInstance()->CreateHTTPPlayer( playerName );
 
     result = wxGetApp().m_httpPlayer->ConnectToNetworkServer( 
-                                "www.playxiangqi.com", 
-                                 80 /* port */,
+                                 HOX_HTTP_SERVER_HOSTNAME, 
+                                 HOX_HTTP_SERVER_PORT,
                                  this );
     if ( result != hoxRESULT_OK )
     {
-        wxLogError("%: Failed to connect to WWW server.", FNAME);
+        wxLogError("%: Failed to connect to HTTP server.", FNAME);
         return;
     }
 
     m_dlgProgress->Pulse();
 }
 
-void MyFrame::DoJoinNewWWWTable(const wxString& tableId)
+void MyFrame::DoJoinNewHTTPTable(const wxString& tableId)
 {
-    const char* FNAME = "MyFrame::DoJoinNewWWWTable";
+    const char* FNAME = "MyFrame::DoJoinNewHTTPTable";
     hoxResult result;
 
     wxLogDebug("%s: ENTER.", FNAME);
@@ -270,7 +270,7 @@ void MyFrame::DoJoinNewWWWTable(const wxString& tableId)
     /* Create a new table. */
     /***********************/
 
-    wxLogDebug("%s: Creating a new table connecting to WWW server.", FNAME);
+    wxLogDebug("%s: Creating a new table connecting to HTTP server.", FNAME);
     hoxTable* table = _CreateNewTable( tableId );
 
     /***********************/
@@ -292,9 +292,9 @@ void MyFrame::DoJoinNewWWWTable(const wxString& tableId)
      */
 }
 
-void MyFrame::DoJoinExistingWWWTable(const hoxNetworkTableInfo& tableInfo)
+void MyFrame::DoJoinExistingHTTPTable(const hoxNetworkTableInfo& tableInfo)
 {
-    const char* FNAME = "MyFrame::DoJoinExistingWWWTable";
+    const char* FNAME = "MyFrame::DoJoinExistingHTTPTable";
     hoxResult result;
 
     wxASSERT( wxGetApp().m_httpPlayer != NULL );
@@ -582,7 +582,7 @@ MyFrame::SetupMenu()
     // Server menu.
     wxMenu *server_menu = new wxMenu;
 
-    server_menu->Append(MDI_CONNECT_WWW_SERVER, _T("Connect WWW Serve&r\tCtrl-R"), _T("Connect to remote WWW server"));
+    server_menu->Append(MDI_CONNECT_HTTP_SERVER, _T("Connect HTTP Serve&r\tCtrl-R"), _T("Connect to remote HTTP server"));
 
     // Help menu.
     wxMenu *help_menu = new wxMenu;
@@ -604,9 +604,9 @@ MyFrame::SetupStatusBar()
 }
 
 void 
-MyFrame::OnWWWResponse(wxCommandEvent& event) 
+MyFrame::OnHTTPResponse(wxCommandEvent& event) 
 {
-    const char* FNAME = "MyFrame::OnWWWResponse";
+    const char* FNAME = "MyFrame::OnHTTPResponse";
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -624,23 +624,23 @@ MyFrame::OnWWWResponse(wxCommandEvent& event)
     switch ( response->type )
     {
         case hoxREQUEST_TYPE_CONNECT:
-            _OnWWWResponse_Connect( response->content );
+            _OnHTTPResponse_Connect( response->content );
             break;
 
         case hoxREQUEST_TYPE_LIST:
-            _OnWWWResponse_List( response->content );
+            _OnHTTPResponse_List( response->content );
             break;
 
         case hoxREQUEST_TYPE_NEW:
-            _OnWWWResponse_New( response->content );
+            _OnHTTPResponse_New( response->content );
             break;
 
         case hoxREQUEST_TYPE_JOIN:
-            _OnWWWResponse_Join( response->content );
+            _OnHTTPResponse_Join( response->content );
             break;
 
         case hoxREQUEST_TYPE_LEAVE:
-            _OnWWWResponse_Leave( response->content );
+            _OnHTTPResponse_Leave( response->content );
             break;
 
         default:
@@ -686,7 +686,7 @@ MyFrame::OnMYResponse(wxCommandEvent& event)
             break;
 
         case hoxREQUEST_TYPE_LEAVE:
-            _OnWWWResponse_Leave( response->content );
+            _OnHTTPResponse_Leave( response->content );
             break;
 
         default:
@@ -703,9 +703,9 @@ MyFrame::OnFrameLogMsgEvent( wxCommandEvent &event )
 }
 
 void 
-MyFrame::_OnWWWResponse_Connect( const wxString& responseStr )
+MyFrame::_OnHTTPResponse_Connect( const wxString& responseStr )
 {
-    const char* FNAME = "MyFrame::_OnWWWResponse_Connect";
+    const char* FNAME = "MyFrame::_OnHTTPResponse_Connect";
     int        returnCode = -1;
     wxString   returnMsg;
     hoxResult  result;
@@ -726,11 +726,11 @@ MyFrame::_OnWWWResponse_Connect( const wxString& responseStr )
         return;
     }
 
-    /* Get the list of tables from the WWW server */
+    /* Get the list of tables from the HTTP server */
     result = wxGetApp().m_httpPlayer->QueryForNetworkTables( this );
     if ( result != hoxRESULT_OK )
     {
-        wxLogError("%s: Failed to query for LIST of tables from WWW server.", FNAME);
+        wxLogError("%s: Failed to query for LIST of tables from HTTP server.", FNAME);
         return;
     }
 }
@@ -759,7 +759,7 @@ MyFrame::_OnMYResponse_Connect( const wxString& responseStr )
         return;
     }
 
-    /* Get the list of tables from the WWW server */
+    /* Get the list of tables from the server */
     result = wxGetApp().m_myPlayer->QueryForNetworkTables( this );
     if ( result != hoxRESULT_OK )
     {
@@ -871,9 +871,9 @@ MyFrame::_OnMYResponse_New( const wxString& responseStr )
 }
 
 void 
-MyFrame::_OnWWWResponse_List( const wxString& responseStr )
+MyFrame::_OnHTTPResponse_List( const wxString& responseStr )
 {
-    const char* FNAME = "MyFrame::_OnWWWResponse_List";
+    const char* FNAME = "MyFrame::_OnHTTPResponse_List";
     hoxNetworkTableInfoList tableList;
     hoxResult result;
 
@@ -900,7 +900,7 @@ MyFrame::_OnWWWResponse_List( const wxString& responseStr )
     {
         case hoxTablesDialog::COMMAND_ID_JOIN:
         {
-            wxLogDebug("%s: Asking WWW server to allow me to JOIN table = [%s]...", FNAME, selectedId);
+            wxLogDebug("%s: Asking HTTP server to allow me to JOIN table = [%s]...", FNAME, selectedId);
             hoxNetworkTableInfo tableInfo;
             result = wxGetApp().m_httpPlayer->JoinNetworkTable( selectedId, this );
             if ( result != hoxRESULT_OK )
@@ -912,7 +912,7 @@ MyFrame::_OnWWWResponse_List( const wxString& responseStr )
 
         case hoxTablesDialog::COMMAND_ID_NEW:
         {
-            wxLogDebug("%s: Asking the WWW server to open a new table...", FNAME);
+            wxLogDebug("%s: Asking the HTTPserver to open a new table...", FNAME);
             wxString newTableId;
             result = wxGetApp().m_httpPlayer->OpenNewNetworkTable( this );
             if ( result != hoxRESULT_OK )
@@ -931,9 +931,9 @@ MyFrame::_OnWWWResponse_List( const wxString& responseStr )
 }
 
 void 
-MyFrame::_OnWWWResponse_New( const wxString& responseStr )
+MyFrame::_OnHTTPResponse_New( const wxString& responseStr )
 {
-    const char* FNAME = "MyFrame::_OnWWWResponse_New";
+    const char* FNAME = "MyFrame::_OnHTTPResponse_New";
     wxString newTableId;
     hoxResult result;
 
@@ -947,14 +947,14 @@ MyFrame::_OnWWWResponse_New( const wxString& responseStr )
         return;
     }
 
-    wxLogDebug("%s: WWW server created a new table with ID = [%s].", FNAME, newTableId);
-    this->DoJoinNewWWWTable( newTableId );
+    wxLogDebug("%s: HTTP server created a new table with ID = [%s].", FNAME, newTableId);
+    this->DoJoinNewHTTPTable( newTableId );
 }
 
 void 
-MyFrame::_OnWWWResponse_Join( const wxString& responseStr )
+MyFrame::_OnHTTPResponse_Join( const wxString& responseStr )
 {
-    const char* FNAME = "MyFrame::_OnWWWResponse_Join";
+    const char* FNAME = "MyFrame::_OnHTTPResponse_Join";
     hoxNetworkTableInfo tableInfo;
     hoxResult result;
 
@@ -970,14 +970,14 @@ MyFrame::_OnWWWResponse_Join( const wxString& responseStr )
     else
     {
         wxLogDebug("%s: Successfully joined the network table [%s].", FNAME, tableInfo.id);
-        this->DoJoinExistingWWWTable( tableInfo );
+        this->DoJoinExistingHTTPTable( tableInfo );
     }
 }
 
 void 
-MyFrame::_OnWWWResponse_Leave( const wxString& responseStr )
+MyFrame::_OnHTTPResponse_Leave( const wxString& responseStr )
 {
-    const char* FNAME = "MyFrame::_OnWWWResponse_Leave";
+    const char* FNAME = "MyFrame::_OnHTTPResponse_Leave";
     int        returnCode = -1;
     wxString   returnMsg;
     hoxResult  result;

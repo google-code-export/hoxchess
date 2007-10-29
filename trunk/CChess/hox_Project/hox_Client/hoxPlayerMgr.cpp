@@ -48,8 +48,8 @@ hoxPlayerMgr::CreateHostPlayer( const wxString& name,
 }
 
 hoxHttpPlayer*
-hoxPlayerMgr::CreateWWWLocalPlayer( const wxString& name,
-                                    int             score /* = 1500 */)
+hoxPlayerMgr::CreateHTTPPlayer( const wxString& name,
+                                int             score /* = 1500 */)
 {
     hoxHttpPlayer* player 
         = new hoxHttpPlayer( name, hoxPLAYER_TYPE_LOCAL, score );

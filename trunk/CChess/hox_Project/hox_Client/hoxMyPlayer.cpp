@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // Name:            hoxMyPlayer.cpp
 // Program's Name:  Huy's Open Xiangqi
-// Created:         10/23/2007
+// Created:         10/28/2007
 //
 // Description:     The new "advanced" LOCAL Player.
 /////////////////////////////////////////////////////////////////////////////
@@ -65,30 +65,24 @@ hoxMyPlayer::OnIncomingNetworkData( wxSocketEvent& event )
     const char* FNAME = "hoxMyPlayer::OnIncomingNetworkData";
     wxLogDebug("%s: ENTER.", FNAME);
 
-    wxASSERT( m_connection != NULL );
-    {
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_PLAYER_DATA );
-        request->socket      = event.GetSocket();
-        request->socketEvent = event.GetSocketEvent();
-        m_connection->AddRequest( request );
-    }
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_PLAYER_DATA );
+    request->socket      = event.GetSocket();
+    request->socketEvent = event.GetSocketEvent();
+    this->AddRequestToConnection( request );
 }
 
 hoxResult 
 hoxMyPlayer::StartListenForMoves()
 {
-    wxASSERT( m_connection != NULL );
-    {
-        /* NOTE: We set 'this' player as the 'sender' so that the player can 
-         *       be a socket-event handler.
-         *       However, the 'connection' will NOT send back a response for
-         *       this particular request. Therefore, there is no need to
-         *       'catch' a response.
-         */
+    /* NOTE: We set 'this' player as the 'sender' so that the player can 
+     *       be a socket-event handler.
+     *       However, the 'connection' will NOT send back a response for
+     *       this particular request. Therefore, there is no need to
+     *       'catch' a response.
+     */
 
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LISTEN, this );
-        m_connection->AddRequest( request );
-    }
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LISTEN, this );
+    this->AddRequestToConnection( request );
 
     return hoxRESULT_OK;
 }

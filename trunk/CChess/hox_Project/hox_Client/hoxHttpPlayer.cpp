@@ -11,18 +11,17 @@
 #include "hoxEnums.h"
 #include "hoxTable.h"
 #include "hoxTableMgr.h"
-#include "hoxBoard.h"
 #include "hoxNetworkAPI.h"
 #include "hoxUtility.h"
 
 
-DEFINE_EVENT_TYPE(hoxEVT_WWW_RESPONSE)
+DEFINE_EVENT_TYPE(hoxEVT_HTTP_RESPONSE)
 
 IMPLEMENT_DYNAMIC_CLASS( hoxHttpPlayer, hoxLocalPlayer )
 
 BEGIN_EVENT_TABLE(hoxHttpPlayer, hoxLocalPlayer)
     EVT_TIMER(wxID_ANY, hoxHttpPlayer::OnTimer)
-    EVT_COMMAND(wxID_ANY, hoxEVT_WWW_RESPONSE, hoxHttpPlayer::OnWWWResponse)
+    EVT_COMMAND(wxID_ANY, hoxEVT_HTTP_RESPONSE, hoxHttpPlayer::OnHTTPResponse)
 END_EVENT_TABLE()
 
 //-----------------------------------------------------------------------------
@@ -39,7 +38,7 @@ hoxHttpPlayer::hoxHttpPlayer()
 
 hoxHttpPlayer::hoxHttpPlayer( const wxString& name,
                               hoxPlayerType   type,
-                              int             score /* = 1500 */)
+                              int             score )
             : hoxLocalPlayer( name, type, score )
 {
     const char* FNAME = "hoxHttpPlayer::hoxHttpPlayer";
@@ -79,7 +78,7 @@ hoxHttpPlayer::JoinTable( hoxTable* table )
     const char* FNAME = "hoxHttpPlayer::JoinTable";
 
     hoxResult result = this->hoxLocalPlayer::JoinTable( table );
-    if ( result != hoxRESULT_OK ) // failed?
+    if ( result != hoxRESULT_OK )
     {
         return result;
     }
@@ -88,7 +87,7 @@ hoxHttpPlayer::JoinTable( hoxTable* table )
      *       is only entered ONE at at time.
      */
 
-    wxLogDebug("%s: Start timer to poll for events from WWW server.", FNAME);
+    wxLogDebug("%s: Start timer to poll for events from HTTP server.", FNAME);
     m_timer.Start( 5 * hoxTIME_ONE_SECOND_INTERVAL, // 5-second interval
                    wxTIMER_ONE_SHOT );
     return hoxRESULT_OK;
@@ -100,7 +99,7 @@ hoxHttpPlayer::LeaveTable( hoxTable* table )
     const char* FNAME = "hoxHttpPlayer::LeaveTable";
 
     hoxResult result = this->hoxLocalPlayer::LeaveTable( table );
-    if ( result != hoxRESULT_OK ) // failed?
+    if ( result != hoxRESULT_OK )
     {
         return result;
     }
@@ -123,19 +122,16 @@ hoxHttpPlayer::OnTimer( wxTimerEvent& WXUNUSED(event) )
 
     hoxNetworkEventList  networkEvents;
 
-    wxASSERT( m_connection != NULL );
-    {
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_POLL, this );
-        request->content = 
-            wxString::Format("/cchess/tables.php?op=POLL&pid=%s", this->GetName());
-        m_connection->AddRequest( request );
-    }
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_POLL, this );
+    request->content = 
+        wxString::Format("/cchess/tables.php?op=POLL&pid=%s", this->GetName());
+    this->AddRequestToConnection( request );
 }
 
 void 
-hoxHttpPlayer::OnWWWResponse(wxCommandEvent& event) 
+hoxHttpPlayer::OnHTTPResponse(wxCommandEvent& event) 
 {
-    const char* FNAME = "hoxHttpPlayer::OnWWWResponse";
+    const char* FNAME = "hoxHttpPlayer::OnHTTPResponse";
     hoxResult result;
 
     wxLogDebug("%s: ENTER.", FNAME);
@@ -186,7 +182,7 @@ hoxHttpPlayer::OnWWWResponse(wxCommandEvent& event)
                 }
 
                 // Inform our table...
-                table->OnEvent_FromWWWNetwork( this, *(*it) );
+                table->OnEvent_FromNetwork( this, *(*it) );
             }
 
             // Release memory.
@@ -209,12 +205,12 @@ hoxHttpPlayer::OnWWWResponse(wxCommandEvent& event)
                                                          returnMsg );
             if ( result != hoxRESULT_OK )
             {
-                wxLogError(wxString::Format("%s: Parse for SEND-MOVE's response.", FNAME));
+                wxLogError("%s: Parse for SEND-MOVE's response.", FNAME);
                 return;
             }
             else if ( returnCode != 0 )
             {
-                wxLogError(wxString::Format("%s: Send MOVE to server failed. [%s]", FNAME, returnMsg));
+                wxLogError("%s: Send MOVE to server failed. [%s]", FNAME, returnMsg);
                 return;
             }
         }

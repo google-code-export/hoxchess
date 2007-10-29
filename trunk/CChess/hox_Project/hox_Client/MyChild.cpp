@@ -172,8 +172,8 @@ MyChild::OnClose(wxCloseEvent& event)
 
     wxGetApp().m_nChildren--;
 
-    /* If one of the players is the WWW local player,
-     * then inform the WWW server that the player is leaving this table.
+    /* If one of the players is the HTTP player,
+     * then inform the HTTP server that the player is leaving this table.
      */
     wxASSERT( m_table != NULL );
     hoxHttpPlayer* httpPlayer = wxGetApp().m_httpPlayer;
@@ -181,13 +181,13 @@ MyChild::OnClose(wxCloseEvent& event)
         && (   m_table->GetRedPlayer() == httpPlayer
             || m_table->GetBlackPlayer() == httpPlayer) )
     {
-        wxLogDebug(wxString::Format("%s: Info the WWW server about my leaving my table.", FNAME));
+        wxLogDebug("%s: Info the HTTP server about my leaving my table.", FNAME);
         const wxString tableId = m_table->GetId(); 
         wxASSERT( this->GetParent() );
         hoxResult result = httpPlayer->LeaveNetworkTable( tableId, this->GetParent() );
         if ( result != hoxRESULT_OK ) // failed?
         {
-            wxLogError(wxString::Format("%s: Failed to inform WWW server about my leaving the table [%s].", FNAME, tableId));
+            wxLogError("%s: Failed to inform HTTP server about my leaving the table [%s].", FNAME, tableId);
         }
         httpPlayer->LeaveTable( m_table );
     }

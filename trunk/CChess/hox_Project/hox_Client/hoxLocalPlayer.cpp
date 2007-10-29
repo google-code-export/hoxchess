@@ -16,7 +16,7 @@
 
 hoxLocalPlayer::hoxLocalPlayer( const wxString& name,
                                 hoxPlayerType   type,
-                                int             score /* = 1500 */)
+                                int             score )
             : hoxPlayer( name, type, score )
             , m_connection( NULL )
 { 
@@ -144,6 +144,13 @@ hoxLocalPlayer::LeaveNetworkTable( const wxString& tableId,
     }
 
     return hoxRESULT_OK;
+}
+
+void 
+hoxLocalPlayer::AddRequestToConnection( hoxRequest* request )
+{ 
+    wxASSERT( m_connection != NULL );
+    m_connection->AddRequest( request ); 
 }
 
 void 

@@ -26,7 +26,7 @@ class hoxLocalPlayer :  public hoxPlayer
 public:
     hoxLocalPlayer( const wxString& name,
                     hoxPlayerType   type,
-                    int             score = 1500);
+                    int             score );
 
     virtual ~hoxLocalPlayer();
 
@@ -60,6 +60,8 @@ protected:
     virtual hoxConnection* CreateNewConnection( const wxString& sHostname, 
                                                 int             nPort ) = 0;
 
+    virtual void AddRequestToConnection( hoxRequest* request );
+
 private:
     void _StartConnection();
 
@@ -67,7 +69,6 @@ private:
     wxString         m_sHostname; 
     int              m_nPort;
 
-protected:
     hoxConnection*   m_connection;
 };
 

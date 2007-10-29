@@ -18,9 +18,9 @@
 class hoxHttpConnection;
 
 /** 
- * WWW (response) event-type for responses.
+ * HTTP event-type for responses.
  */
-DECLARE_EVENT_TYPE(hoxEVT_WWW_RESPONSE, wxID_ANY)
+DECLARE_EVENT_TYPE(hoxEVT_HTTP_RESPONSE, wxID_ANY)
 
 /**
  * The HTTP player.
@@ -32,23 +32,19 @@ public:
     hoxHttpPlayer(); // DUMMY default constructor required for event handler.
     hoxHttpPlayer( const wxString& name,
                    hoxPlayerType   type,
-                   int             score = 1500);
+                   int             score );
 
     virtual ~hoxHttpPlayer();
 
+protected:
     /*******************************************
      * Override the parent's API
      *******************************************/
 
-protected:
     virtual const wxString BuildRequestContent( const wxString& commandStr );
 
     virtual hoxConnection* CreateNewConnection( const wxString& sHostname, 
                                                 int             nPort );
-
-    /*******************************************
-     * Override the parent's event-handler API
-     *******************************************/
 
 public:
     virtual hoxResult JoinTable( hoxTable* table );
@@ -58,7 +54,7 @@ public:
      * Income-data event handlers
      *******************************/
 
-    void OnWWWResponse(wxCommandEvent& event);
+    void OnHTTPResponse(wxCommandEvent& event);
 
     /*******************************
      * Other API
@@ -67,11 +63,8 @@ public:
     void OnTimer( wxTimerEvent& WXUNUSED(event) );
 
 private:
-    void _StartWWWThread();
 
-private:
-
-    wxTimer        m_timer;    // to poll the WWW server to events.
+    wxTimer        m_timer;    // to poll the HTTP server to events.
 
 
     DECLARE_CLASS(hoxHttpPlayer)

@@ -11,6 +11,10 @@
 // FIXME: Hard-coded
 #define PIECES_PATH "C:/Users/HPhan/Documents/CChess/hox_Project/pieces"
 
+// The default HTTP server.
+#define HOX_HTTP_SERVER_HOSTNAME  "www.playxiangqi.com"
+#define HOX_HTTP_SERVER_PORT      80
+
 //
 // Results
 //
@@ -167,7 +171,7 @@ enum hoxSocketContant
                  */
 
   hoxSOCKET_CLIENT_HTTP_TIMEOUT = 5    // 5 seconds
-                /* Timeout applied to HTTP client -> WWW server connection */
+                /* Timeout applied to HTTP client -> HTTP server connection */
 
 };
 
@@ -178,7 +182,7 @@ enum hoxNetworkEvenType
 {
    /*
     * !!! Do not change the values the following !!!
-    *     as they are matched with those on the WWW server.
+    *     as they are matched with those on the HTTP server.
     */
 
     hoxNETWORK_EVENT_TYPE_NEW_PLAYER_RED       = 1,
@@ -189,7 +193,7 @@ enum hoxNetworkEvenType
 };
 
 //
-// Request types to communicate with WWW Thread
+// Request types to communicate with Connection Thread
 //
 enum hoxRequestType
 {
@@ -221,7 +225,7 @@ enum hoxRequestType
 };
 
 //
-// Request flags to communicate with WWW Thread
+// Request flags to communicate with Connection Thread
 //
 enum hoxRequestFlag
 {
