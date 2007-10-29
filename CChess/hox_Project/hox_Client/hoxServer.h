@@ -37,11 +37,6 @@ public:
 
     void AddRequest( hoxRequest* request );
 
-    ////////////////////
-    static hoxResult
-    read_line(wxSocketBase* sock, wxString& result);
-    /////////////////////
-
 private:
     void _HandleCommand_Connect( wxSocketBase* sock );
     void _HandleCommand_List( wxSocketBase* sock );
@@ -57,8 +52,6 @@ private:
                                                 wxString&         response );
     hoxResult   _HandleRequest_Accept( hoxRequest* request );
     hoxResult   _HandleCommand_TableMove( hoxRequest* request );
-    hoxResult   _HandleRequest_PlayerData( const hoxRequest* request, 
-                                           wxString&         response );
     hoxResult   _SendRequest_Data( const hoxRequest* request, 
                                    wxString&          response );
 
