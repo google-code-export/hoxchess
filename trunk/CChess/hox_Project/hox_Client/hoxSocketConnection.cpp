@@ -22,7 +22,6 @@
 hoxSocketConnection::hoxSocketConnection( const wxString&  sHostname,
                                           int              nPort )
         : hoxConnection( sHostname, nPort )
-        , m_shutdownRequested( false )
         , m_pSClient( NULL )
 {
 }
@@ -36,59 +35,12 @@ hoxSocketConnection::~hoxSocketConnection()
     _Disconnect();
 }
 
-void*
-hoxSocketConnection::Entry()
-{
-    const char* FNAME = "hoxSocketConnection::Entry";
-    hoxRequest* request = NULL;
-
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    while ( !m_shutdownRequested && m_semRequests.Wait() == wxSEMA_NO_ERROR )
-    {
-        request = _GetRequest();
-        if ( request == NULL )
-        {
-            wxASSERT_MSG( m_shutdownRequested, "This thread must be shutdowning." );
-            break;  // Exit the thread.
-        }
-        wxLogDebug("%s: Processing request Type = [%s]...", 
-                    FNAME, hoxUtility::RequestTypeToString(request->type));
-
-         _HandleRequest( request );
-        delete request;
-    }
-
-    return NULL;
-}
-
 void 
-hoxSocketConnection::AddRequest( hoxRequest* request )
-{
-    const char* FNAME = "hoxSocketConnection::AddRequest";
-
-    wxLogDebug("%s ENTER. Trying to obtain the lock...", FNAME);
-    wxMutexLocker lock( m_mutexRequests );
-
-    if ( m_shutdownRequested )
-    {
-        wxLogWarning("%s: Deny request [%s]. The thread is shutdowning.", 
-            FNAME, hoxUtility::RequestTypeToString(request->type));
-        delete request;
-        return;
-    }
-
-    m_requests.push_back( request );
-    m_semRequests.Post();
-    wxLogDebug("%s END.", FNAME);
-}
-
-void 
-hoxSocketConnection::_HandleRequest( hoxRequest* request )
+hoxSocketConnection::HandleRequest( hoxRequest* request )
 {
     const char* FNAME = "hoxSocketConnection::_HandleRequest";
     hoxResult    result = hoxRESULT_ERR;
-    hoxResponse* response = new hoxResponse( request->type );
+    std::auto_ptr<hoxResponse> response( new hoxResponse(request->type) );
 
     switch( request->type )
     {
@@ -129,12 +81,8 @@ hoxSocketConnection::_HandleRequest( hoxRequest* request )
     {
         wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE );
         event.SetInt( result );
-        event.SetEventObject( response );  // Caller will de-allocate.
+        event.SetEventObject( response.release() );  // Caller will de-allocate.
         wxPostEvent( request->sender, event );
-    }
-    else
-    {
-        delete response;
     }
 }
 
@@ -285,40 +233,9 @@ hoxSocketConnection::_HandleRequest_Listen( hoxRequest*  request )
     return hoxRESULT_OK;
 }
 
-hoxRequest*
-hoxSocketConnection::_GetRequest()
-{
-    const char* FNAME = "hoxSocketConnection::_GetRequest";
-    wxMutexLocker lock( m_mutexRequests );
-
-    hoxRequest* request = NULL;
-
-    wxASSERT_MSG( !m_requests.empty(), "We must have at least one request.");
-    request = m_requests.front();
-    m_requests.pop_front();
-
-    /* Handle SHUTDOWN request here to avoid the possible memory leaks.
-     * The reason is that others (timers, for example) may continue to 
-     * send requests to this thread while this thread is shutdowning it self. 
-     *
-     * NOTE: The SHUTDOWN request is (purposely) handled here inside this function 
-     *       because the "mutex-lock" is still being held.
-     */
-
-    if ( request->type == hoxREQUEST_TYPE_SHUTDOWN )
-    {
-        wxLogDebug("%s: Shutdowning this thread...", FNAME);
-        m_shutdownRequested = true;
-        delete request; // *** Signal "no more request" ...
-        return NULL;    // ... to the caller!
-    }
-
-    return request;
-}
-
 hoxResult 
 hoxSocketConnection::_SendRequest( const wxString& request,
-                             wxString&       response )
+                                   wxString&       response )
 {
     const char* FNAME = "hoxSocketConnection::_SendRequest";
     hoxResult result = hoxRESULT_ERR;
@@ -328,14 +245,7 @@ hoxSocketConnection::_SendRequest( const wxString& request,
     wxChar*   buf = NULL;
 
     wxLogDebug("%s: ENTER.", FNAME);
-
-    /* Currently, the caller needs to initiate the connection first. */
-
-    if ( m_pSClient == NULL )
-    {
-        wxLogError("%s: The connection is not yet established.", FNAME);
-        return hoxRESULT_ERR;
-    }
+    wxCHECK_MSG( m_pSClient, hoxRESULT_ERR, "Connection is not yet established" );
 
     // We disable input events until we are done processing the current command.
     hoxNetworkAPI::SocketInputLock socketLock( m_pSClient );

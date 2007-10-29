@@ -34,11 +34,22 @@ public:
 public:
     // **** My own public API ****
 
-    virtual void AddRequest( hoxRequest* request ) = 0;
+    virtual void AddRequest( hoxRequest* request );
+
+protected:
+    virtual hoxRequest* GetRequest();         
+    virtual void        HandleRequest( hoxRequest* request ) = 0;
 
 protected:
     wxString              m_sHostname; 
     int                   m_nPort;
+
+    bool                  m_shutdownRequested;
+                /* Has a shutdown-request been received? */
+
+    wxSemaphore           m_semRequests;
+    wxMutex               m_mutexRequests;
+    hoxRequestList        m_requests;
 };
 
 

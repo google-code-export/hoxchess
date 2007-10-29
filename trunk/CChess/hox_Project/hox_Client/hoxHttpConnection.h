@@ -3,7 +3,7 @@
 // Program's Name:  Huy's Open Xiangqi
 // Created:         10/28/2007
 //
-// Description:     The HTTP Connection to help the HTTP player.
+// Description:     The HTTP-Connection Thread to help the HTTP player.
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __INCLUDED_HOX_HTTP_CONNECTION_H_
@@ -22,30 +22,19 @@ class hoxHttpConnection : public hoxConnection
 {
 public:
     hoxHttpConnection( const wxString& sHostname,
-                  int             nPort );
+                       int             nPort );
     ~hoxHttpConnection();
 
-    // Thread execution starts here
-    virtual void* Entry();
-
+protected:
     /*******************************************
      * Override the parent's event-handler API
      *******************************************/
 
-    virtual void AddRequest( hoxRequest* request );
+    virtual void HandleRequest( hoxRequest* request );
 
 private:
-    hoxRequest* _GetRequest();         
-    void        _HandleRequest( hoxRequest* request );
     hoxResult   _SendRequest( const wxString& request, wxString& response );
 
-private:
-    bool                  m_shutdownRequested;
-                /* Has a shutdown-request been received? */
-
-    wxSemaphore           m_semRequests;
-    wxMutex               m_mutexRequests;
-    hoxRequestList        m_requests;
 };
 
 
