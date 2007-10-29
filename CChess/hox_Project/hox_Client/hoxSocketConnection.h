@@ -26,17 +26,14 @@ public:
                          int             nPort );
     ~hoxSocketConnection();
 
-    // Thread execution starts here
-    virtual void* Entry();
-
+protected:
     /*******************************************
      * Override the parent's event-handler API
      *******************************************/
 
-    virtual void AddRequest( hoxRequest* request );
+    virtual void HandleRequest( hoxRequest* request );
 
 private:
-    hoxRequest* _GetRequest();         
     void        _HandleRequest( hoxRequest* request );
     hoxResult   _SendRequest( const wxString& request, wxString& response );
     hoxResult   _SendRequest_Connect( const wxString& request, wxString& response );
@@ -46,15 +43,9 @@ private:
     void        _Disconnect();
 
 private:
-    bool                  m_shutdownRequested;
-                /* Has a shutdown-request been received? */
-
     wxSocketClient*       m_pSClient;
                 /* The socket to handle network connections */
 
-    wxSemaphore           m_semRequests;
-    wxMutex               m_mutexRequests;
-    hoxRequestList        m_requests;
 };
 
 
