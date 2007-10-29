@@ -2,6 +2,8 @@
 // Name:            MyFrame.cpp
 // Program's Name:  Huy's Open Xiangqi
 // Created:         10/02/2007
+//
+// Description:     The main Frame of the App.
 /////////////////////////////////////////////////////////////////////////////
 
 #include "MyFrame.h"
@@ -71,11 +73,14 @@ MyFrame::MyFrame(wxWindow *parent,
        : wxMDIParentFrame(parent, id, title, pos, size, style)
 {
     const char* FNAME = "MyFrame::MyFrame";
-    this->SetIcon(wxICON(sample));
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    SetIcon(wxICON(sample));
 
     // A window containing our log-text.
     m_logWindow = new wxSashLayoutWindow(this, ID_WINDOW_LOG,
-                               wxDefaultPosition, wxDefaultSize/*wxSize(200, 30)*/,
+                               wxDefaultPosition, wxDefaultSize,
                                wxNO_BORDER | wxSW_3D | wxCLIP_CHILDREN);
     m_logWindow->SetDefaultSize(wxSize(1000, 180));
     m_logWindow->SetOrientation(wxLAYOUT_HORIZONTAL);
@@ -102,7 +107,7 @@ MyFrame::MyFrame(wxWindow *parent,
     // Progress dialog.
     m_dlgProgress = NULL;
 
-    wxLogDebug("%s: HOX Client ready.", FNAME);
+    wxLogDebug("%s: HOX Chess ready.", FNAME);
 }
 
 MyFrame::~MyFrame()
@@ -122,14 +127,16 @@ void MyFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 void MyFrame::OnAbout(wxCommandEvent& WXUNUSED(event) )
 {
     wxMessageBox( wxString::Format(
-                    _("Welcome to HOX Client!\n"
+                    _("Welcome to HOX Chess!\n"
+                      "\n"
                       "Author: Huy Phan (c) 2007\n"
+                      "Version: 0.0.2\n"
                       "\n"
                       "This application is powered by %s, running under %s."),
                     wxVERSION_STRING,
                     wxGetOsDescription().c_str()
                  ),
-                 _("About HOX Client"),
+                 _("About HOX Chess"),
                  wxOK | wxICON_INFORMATION,
                  this);
 }
@@ -140,13 +147,13 @@ void MyFrame::OnNewWindow(wxCommandEvent& WXUNUSED(event) )
     hoxTable* table = NULL;
 
     table = _CreateNewTable( "" );  // An Id will be generated.
-    wxLogDebug(wxString::Format("%s: Created a new table [%s].", FNAME, table->GetId()));
+    wxLogDebug("%s: Created a new table [%s].", FNAME, table->GetId());
 
     // Add the HOST player to the table.
     hoxResult result = wxGetApp().GetHostPlayer()->JoinTable( table );
     wxASSERT( result == hoxRESULT_OK  );
     wxASSERT_MSG( wxGetApp().GetHostPlayer()->HasRole( hoxRole(table->GetId(), 
-                                                         hoxPIECE_COLOR_RED) ),
+                                                       hoxPIECE_COLOR_RED) ),
                   _("Player must play RED"));
 }
 
@@ -170,8 +177,8 @@ void MyFrame::OnConnectServer(wxCommandEvent& WXUNUSED(event) )
 
     m_dlgProgress = new wxProgressDialog
                         (
-                         _T("Progress dialog"),
-                         _T("Wait until connnection is established or press [Cancel]"),
+                         _("Progress dialog"),
+                         _("Wait until connnection is established or press [Cancel]"),
                          100,
                          this,
                          wxPD_AUTO_HIDE | wxPD_CAN_ABORT
@@ -179,10 +186,10 @@ void MyFrame::OnConnectServer(wxCommandEvent& WXUNUSED(event) )
     m_dlgProgress->SetSize( wxSize(500, 150) );
     m_dlgProgress->Pulse();
 
-    wxLogDebug(_("Create MY player to connect to a remote server..."));
+    wxLogDebug("%s: Creating MY player to connect to a remote server...", FNAME);
     if ( wxGetApp().m_myPlayer != NULL )
     {
-        wxLogDebug("Delete the existing MY player.");
+        wxLogDebug("%s: Delete the existing MY player.", FNAME);
         hoxPlayerMgr::GetInstance()->DeletePlayer( wxGetApp().m_myPlayer );
         wxGetApp().m_myPlayer = NULL;
     }
@@ -198,7 +205,7 @@ void MyFrame::OnConnectServer(wxCommandEvent& WXUNUSED(event) )
                                  this );
     if ( result != hoxRESULT_OK )
     {
-        wxLogError(wxString::Format("%s: Failed to connect to server.", FNAME));
+        wxLogError("%s: Failed to connect to server.", FNAME);
         return;
     }
 
@@ -319,7 +326,7 @@ void MyFrame::DoJoinExistingHTTPTable(const hoxNetworkTableInfo& tableInfo)
     }
     else
     {
-        wxLogError(wxString::Format("I should have secured a seat in table [%s].", FNAME, tableInfo.id));
+        wxLogError("%s: I should have secured a seat in table [%s].", FNAME, tableInfo.id);
         return;
     }
 
@@ -327,7 +334,7 @@ void MyFrame::DoJoinExistingHTTPTable(const hoxNetworkTableInfo& tableInfo)
     /* Create a new table. */
     /***********************/
 
-    wxLogDebug(_("Create a new table JOINING an existing network table..."));
+    wxLogDebug("%s: Creating a new table JOINING an existing network table...", FNAME);
     hoxTable* table = _CreateNewTable( tableInfo.id );
 
     /***********************/
@@ -393,7 +400,7 @@ void MyFrame::DoJoinExistingMYTable(const hoxNetworkTableInfo& tableInfo)
     const char* FNAME = "MyFrame::DoJoinExistingMYTable";
     hoxResult result;
 
-    wxASSERT( wxGetApp().m_myPlayer != NULL );
+    wxCHECK_RET( wxGetApp().m_myPlayer, "The MY player must be created first." );
 
     /*******************************************************/
     /* Check to see which side (RED or BLACK) we will play
@@ -415,7 +422,7 @@ void MyFrame::DoJoinExistingMYTable(const hoxNetworkTableInfo& tableInfo)
     }
     else
     {
-        wxLogError("I should have secured a seat in table [%s].", FNAME, tableInfo.id);
+        wxLogError("%s: I should have secured a seat in table [%s].", FNAME, tableInfo.id);
         return;
     }
 
@@ -423,7 +430,7 @@ void MyFrame::DoJoinExistingMYTable(const hoxNetworkTableInfo& tableInfo)
     /* Create a new table. */
     /***********************/
 
-    wxLogDebug("Create a new table JOINING an existing network table...");
+    wxLogDebug("%s: Creating a new table JOINING an existing network table...", FNAME);
     hoxTable* table = _CreateNewTable( tableInfo.id );
 
     /***********************/
@@ -574,7 +581,6 @@ MyFrame::SetupMenu()
     file_menu->AppendSeparator();
     file_menu->Append(MDI_OPEN_SERVER, _T("&Open Server\tCtrl-O"), _T("Open server for remote access"));
     file_menu->Append(MDI_CONNECT_SERVER, _T("Connect Server\tCtrl-L"), _T("Connect to remote server"));
-    //file_menu->Append(MDI_QUERY_TABLES, _T("&Query Tables\t"), _T("Query for list of tables"));
     file_menu->Append(MDI_DISCONNECT_SERVER, _T("&Disconnect Server\tCtrl-D"), _T("Disconnect from remote server"));
     file_menu->AppendSeparator();
     file_menu->Append(MDI_QUIT, _T("&Exit\tAlt-X"), _T("Quit the program"));
@@ -594,13 +600,13 @@ MyFrame::SetupMenu()
     menu_bar->Append(help_menu, _T("&Help"));
 
     // Associate the menu bar with the frame
-    this->SetMenuBar(menu_bar);
+    SetMenuBar(menu_bar);
 }
 
 void
 MyFrame::SetupStatusBar()
 {
-    this->CreateStatusBar();
+    CreateStatusBar();
 }
 
 void 
@@ -772,7 +778,7 @@ void
 MyFrame::_OnMYResponse_List( const wxString& responseStr )
 {
     const char* FNAME = "MyFrame::_OnMYResponse_List";
-    wxLogDebug(wxString::Format("%s: Parsing SEND-LIST's response...", FNAME));
+    wxLogDebug("%s: Parsing SEND-LIST's response...", FNAME);
     hoxNetworkTableInfoList tableList;
     hoxResult result;
 
@@ -780,7 +786,7 @@ MyFrame::_OnMYResponse_List( const wxString& responseStr )
                                                 tableList );
     if ( result != hoxRESULT_OK )
     {
-        wxLogError(wxString::Format("%s: Failed to parse for SEND-LIST's response.", FNAME));
+        wxLogError("%s: Failed to parse for SEND-LIST's response.", FNAME);
         return;
     }
 
@@ -982,19 +988,19 @@ MyFrame::_OnHTTPResponse_Leave( const wxString& responseStr )
     wxString   returnMsg;
     hoxResult  result;
 
-    wxLogDebug(wxString::Format("%s: Parsing SEND-LEAVE's response...", FNAME));
+    wxLogDebug("%s: Parsing SEND-LEAVE's response...", FNAME);
 
     result = hoxNetworkAPI::ParseSimpleResponse( responseStr,
                                                  returnCode,
                                                  returnMsg );
     if ( result != hoxRESULT_OK )
     {
-        wxLogError(wxString::Format("%s: Failed to parse for SEND-LEAVE's response.", FNAME));
+        wxLogError("%s: Failed to parse for SEND-LEAVE's response.", FNAME);
         return;
     }
     else if ( returnCode != 0 )
     {
-        wxLogError(wxString::Format("%s: Send LEAVE to server failed. [%s]", FNAME, returnMsg));
+        wxLogError("%s: Send LEAVE to server failed. [%s]", FNAME, returnMsg);
         return;
     }
 }

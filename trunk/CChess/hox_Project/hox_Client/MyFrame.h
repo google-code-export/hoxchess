@@ -3,16 +3,15 @@
 // Program's Name:  Huy's Open Xiangqi
 // Created:         10/02/2007
 //
-// Description:     The main Frame for the Client.
+// Description:     The main Frame of the App.
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __INCLUDED_MY_FRAME_H_
 #define __INCLUDED_MY_FRAME_H_
 
-#include "wx/wx.h"
-#include "wx/laywin.h"   // wxSashLayoutWindow
-#include "wx/progdlg.h"
-#include "wx/socket.h"
+#include <wx/wx.h>
+#include <wx/laywin.h>   // wxSashLayoutWindow
+#include <wx/progdlg.h>
 
 /* Forward declarations */
 class hoxNetworkTableInfo;
@@ -26,16 +25,12 @@ enum
 
     MDI_OPEN_SERVER,    // Open server
     MDI_CONNECT_SERVER, // Connect to server
-    MDI_QUERY_TABLES,   // Query for the list of tables
     MDI_DISCONNECT_SERVER, // Disconnect from server
 
     MDI_CONNECT_HTTP_SERVER,
 
     MDI_TOGGLE,   // toggle view
-    MDI_REFRESH,
-    MDI_CHANGE_TITLE,
-    MDI_CHANGE_POSITION,
-    MDI_CHANGE_SIZE,
+    //MDI_CHANGE_SIZE,
     MDI_CHILD_QUIT,
     MDI_ABOUT = wxID_ABOUT
 };

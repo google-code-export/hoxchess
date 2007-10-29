@@ -43,8 +43,8 @@ hoxTable::~hoxTable()
 {
     const char* FNAME = "hoxTable::~hoxTable";
 
-    wxLogDebug(wxString::Format("%s: ENTER.",FNAME));
-    //this->UnassignAllPlayers();
+    wxLogDebug("%s: ENTER.", FNAME);
+
     if ( m_redPlayer != NULL )
     {
         if ( m_redPlayer->GetRoles().size() == 0 )

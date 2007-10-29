@@ -9,7 +9,7 @@
 #ifndef __INCLUDED_MY_CHILD_H_
 #define __INCLUDED_MY_CHILD_H_
 
-#include "wx/wx.h"
+#include <wx/wx.h>
 
 
 /* Forward declarations */
@@ -24,19 +24,16 @@ public:
     MyChild(wxMDIParentFrame *parent, const wxString& title);
     ~MyChild();
 
-    void SetupMenu();
-    void SetupStatusBar();
-
     void OnToggle(wxCommandEvent& event);
-    void OnRefresh(wxCommandEvent& event);
-    void OnChangeSize(wxCommandEvent& event);
+    //void OnChangeSize(wxCommandEvent& event);
     void OnQuit(wxCommandEvent& event);
-    void OnMove(wxMoveEvent& event);
     void OnClose(wxCloseEvent& event);
 
     void SetTable(hoxTable* table);
 
 private:
+    void _SetupMenu();
+    void _SetupStatusBar();
 
 private:
     hoxTable* m_table;

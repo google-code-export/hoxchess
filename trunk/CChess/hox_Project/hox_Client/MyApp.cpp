@@ -99,7 +99,7 @@ MyApp::OnInit()
     // Create the main application window
     m_frame = new MyFrame( NULL, 
                            wxID_ANY, 
-                           _T("HOX Client"),
+                           _T("HOX Chess"),
                            displayPosition,
                            displaySize,
                            wxDEFAULT_FRAME_STYLE | wxHSCROLL | wxVSCROLL );
