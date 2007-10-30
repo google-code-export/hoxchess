@@ -54,7 +54,7 @@ hoxLocalPlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
 
     wxASSERT( m_connection != NULL );
     {
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_TABLE_MOVE );
+        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_TABLE_MOVE, this );
         wxString commandStr =    /* NOTE: Send "MOVE, not "TABLE_MOVE" string */
                 wxString::Format("op=MOVE&tid=%s&pid=%s&move=%s", 
                             tableId, this->GetName(), moveStr);

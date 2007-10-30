@@ -20,14 +20,10 @@ DEFINE_EVENT_TYPE(hoxEVT_PLAYER_NOTIFY_BOARD_MOVE)
 DEFINE_EVENT_TYPE(hoxEVT_PLAYER_NEW_MOVE)
 DEFINE_EVENT_TYPE(hoxEVT_PLAYER_MOVE_AVAILABLE)  //not used now!
 
-
-// user code intercepting the event
 IMPLEMENT_DYNAMIC_CLASS( hoxPlayer, wxEvtHandler )
 
 BEGIN_EVENT_TABLE(hoxPlayer, wxEvtHandler)
     EVT_PLAYER_NEW_MOVE (wxID_ANY,  hoxPlayer::OnNewMove_FromTable)
-    //EVT_PLAYER_NOTIFY_BOARD_MOVE (wxID_ANY,  hoxPlayer::OnNotifyBoardMove)
-    //EVT_PLAYER_MOVE_AVAILABLE (wxID_ANY,  hoxPlayer::OnMoveAvailable)
 END_EVENT_TABLE()
 
 
@@ -54,7 +50,7 @@ hoxPlayer::hoxPlayer( const wxString& name,
 hoxPlayer::~hoxPlayer() 
 {
     const char* FNAME = "hoxPlayer::~hoxPlayer";
-    wxLogDebug(wxString::Format("%s: ENTER.", FNAME));
+    wxLogDebug("%s: ENTER.", FNAME);
 }
 
 void               
@@ -103,7 +99,7 @@ void
 hoxPlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
 {
     const char* FNAME = "hoxPlayer::OnNewMove_FromTable";
-    wxLogDebug(wxString::Format(_("%s: Just a DUMMY player. Do nothing."), FNAME));
+    wxLogDebug("%s: Just a DUMMY player. Do nothing.", FNAME);
 }
 
 

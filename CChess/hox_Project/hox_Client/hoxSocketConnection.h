@@ -35,7 +35,6 @@ protected:
 
 private:
     void        _HandleRequest( hoxRequest* request );
-    hoxResult   _SendRequest( const wxString& request, wxString& response );
     hoxResult   _SendRequest_Connect( const wxString& request, wxString& response );
     
     hoxResult   _HandleRequest_Listen( hoxRequest* request );

@@ -56,8 +56,6 @@ class hoxPlayer :  public wxEvtHandler
      ***************************/
 
     virtual void OnNewMove_FromTable( hoxPlayerEvent&  event );
-    //void OnNotifyBoardMove( hoxPlayerEvent& event );
-    //void OnMoveAvailable( hoxPlayerEvent& event );
 
 
     /***************************

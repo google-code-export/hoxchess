@@ -173,7 +173,9 @@ hoxServer::_HandleRequest( hoxRequest* request )
             break;
 
         case hoxREQUEST_TYPE_TABLE_MOVE:
-            result = _HandleCommand_TableMove( request ); 
+            result = hoxNetworkAPI::SendRequest( request->socket, 
+                                                 request->content,
+                                                 response->content );
             break;
 
         case hoxREQUEST_TYPE_PLAYER_DATA: // incoming data from remote player.
@@ -248,17 +250,6 @@ hoxServer::_HandleRequest_Accept( hoxRequest* request )
     m_activeSockets.push_back( request->socket );
 
     return hoxRESULT_OK;
-}
-
-hoxResult 
-hoxServer::_HandleCommand_TableMove( hoxRequest* request ) 
-{
-    const char* FNAME = "hoxServer::_HandleCommand_TableMove";  // function's name
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    // TODO: Check to make sure that the socket is in our list.
-
-    return hoxNetworkAPI::SendMove( request->socket, request->content );
 }
 
 hoxResult 
@@ -546,13 +537,6 @@ hoxServer::_GetRequest()
 
     return request;
 }
-
-//hoxResult 
-//hoxServer::_SendRequest( const wxString& request,
-//                             wxString&       response )
-//{
-//    return hoxRESULT_OK;
-//}
 
 void
 hoxServer::_Disconnect()

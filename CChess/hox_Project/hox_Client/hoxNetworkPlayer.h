@@ -3,7 +3,8 @@
 // Program's Name:  Huy's Open Xiangqi
 // Created:         10/09/2007
 //
-// Description:     The NETWORK Player.
+// Description:     The NETWORK Player. Probably, we should call the
+//                  'remote' player.
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __INCLUDED_HOX_NETWORK_PLAYER_H_
@@ -28,7 +29,7 @@ class hoxNetworkPlayer :  public hoxPlayer
     hoxNetworkPlayer(); // DUMMY default constructor required for event handler.
     hoxNetworkPlayer( const wxString& name,
                       hoxPlayerType   type,
-                      int             score = 1500);
+                      int             score );
 
     virtual ~hoxNetworkPlayer();
 
@@ -46,7 +47,6 @@ class hoxNetworkPlayer :  public hoxPlayer
 
     virtual hoxResult DisconnectFromNetwork();
 
-    wxSocketBase* GetCBSocket() const { return m_pCBSock; }
     hoxResult     SetCBSocket( wxSocketBase* socket );
 
     void SetServer( hoxServer* server) { m_server = server; }

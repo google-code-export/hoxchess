@@ -54,6 +54,8 @@ public:
 
     void OnIncomingNetworkData( wxSocketEvent& event );
 
+    void OnConnectionResponse( wxCommandEvent& event ); 
+
     /*******************************
      * Other API
      *******************************/
