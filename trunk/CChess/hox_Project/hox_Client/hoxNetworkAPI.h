@@ -30,8 +30,9 @@ namespace hoxNetworkAPI
     };
 
 
-    hoxResult SendMove( wxSocketBase*   sock, 
-                        const wxString& commandInput );
+    hoxResult SendRequest( wxSocketBase*   sock, 
+                           const wxString& request,
+                           wxString&       response );
 
     hoxResult HandleMove( wxSocketBase* sock,
                           hoxCommand&   command );
@@ -60,6 +61,9 @@ namespace hoxNetworkAPI
 
     hoxResult ReadLine( wxSocketBase* sock, 
                         wxString&     result );
+
+    hoxResult ReadMsg( wxSocketBase* sock,
+                       wxString&     response );
 
     hoxResult HandlePlayerData( wxSocketBase* sock );
 

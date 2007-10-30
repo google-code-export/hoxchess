@@ -10,7 +10,6 @@
 #include "hoxEnums.h"
 #include "hoxServer.h"
 
-// user code intercepting the event
 IMPLEMENT_DYNAMIC_CLASS( hoxNetworkPlayer, hoxPlayer )
 
 BEGIN_EVENT_TABLE(hoxNetworkPlayer, hoxPlayer)
@@ -23,9 +22,7 @@ END_EVENT_TABLE()
 //-----------------------------------------------------------------------------
 
 hoxNetworkPlayer::hoxNetworkPlayer()
-            : hoxPlayer( _("Unknown"), 
-                         hoxPLAYER_TYPE_NETWORK, 
-                         1500 )
+            : hoxPlayer()
             , m_pCBSock( NULL )
             , m_server( NULL )
 { 
@@ -34,7 +31,7 @@ hoxNetworkPlayer::hoxNetworkPlayer()
 
 hoxNetworkPlayer::hoxNetworkPlayer( const wxString& name,
                                     hoxPlayerType   type,
-                                    int             score /* = 1500 */)
+                                    int             score )
             : hoxPlayer( name, type, score )
             , m_pCBSock( NULL )
             , m_server( NULL )

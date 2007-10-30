@@ -9,6 +9,7 @@
 #include "hoxMyPlayer.h"
 #include "hoxSocketConnection.h"
 #include "hoxEnums.h"
+#include "hoxNetworkAPI.h"
 
 
 DEFINE_EVENT_TYPE(hoxEVT_CONNECTION_RESPONSE)
@@ -17,6 +18,7 @@ IMPLEMENT_DYNAMIC_CLASS( hoxMyPlayer, hoxLocalPlayer )
 
 BEGIN_EVENT_TABLE(hoxMyPlayer, hoxLocalPlayer)
     EVT_SOCKET(CLIENT_SOCKET_ID,  hoxMyPlayer::OnIncomingNetworkData)
+    EVT_COMMAND(wxID_ANY, hoxEVT_CONNECTION_RESPONSE, hoxMyPlayer::OnConnectionResponse)
 END_EVENT_TABLE()
 
 //-----------------------------------------------------------------------------
@@ -69,6 +71,38 @@ hoxMyPlayer::OnIncomingNetworkData( wxSocketEvent& event )
     request->socket      = event.GetSocket();
     request->socketEvent = event.GetSocketEvent();
     this->AddRequestToConnection( request );
+}
+
+void 
+hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
+{
+    const char* FNAME = "hoxMyPlayer::OnConnectionResponse";
+    hoxResult     result;
+    int           returnCode = -1;
+    wxString      returnMsg;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
+    const std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
+
+    /* Parse the response */
+    result = hoxNetworkAPI::ParseSimpleResponse( response->content,
+                                                 returnCode,
+                                                 returnMsg );
+    if ( result != hoxRESULT_OK )
+    {
+        wxLogError("%s: Failed to parse the response.", FNAME);
+        return;
+    }
+    else if ( returnCode != 0 )
+    {
+        wxLogError("%s: The response returned error: code = [%d], msg = [%s]", 
+            FNAME, returnCode, returnMsg);
+        return;
+    }
+
+    wxLogDebug("%s: The response is OK.", FNAME);
 }
 
 hoxResult 

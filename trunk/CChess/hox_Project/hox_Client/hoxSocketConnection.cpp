@@ -52,20 +52,20 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
             result = _HandleRequest_Listen( request );
             break;
 
-        case hoxREQUEST_TYPE_TABLE_MOVE:
-            result = hoxNetworkAPI::SendMove( m_pSClient, request->content );
-            break;
-
         case hoxREQUEST_TYPE_PLAYER_DATA:
             wxASSERT_MSG( request->socket == m_pSClient, "Sockets should match." );
             result = hoxNetworkAPI::HandlePlayerData( m_pSClient ); 
             break;
 
+        case hoxREQUEST_TYPE_TABLE_MOVE: /* fall through */
         case hoxREQUEST_TYPE_LIST:     /* fall through */
         case hoxREQUEST_TYPE_NEW:      /* fall through */
         case hoxREQUEST_TYPE_JOIN:     /* fall through */
         case hoxREQUEST_TYPE_LEAVE:
-            result = _SendRequest( request->content, response->content );
+            wxASSERT_MSG( m_pSClient, "Connection is not yet established" );
+            result = hoxNetworkAPI::SendRequest( m_pSClient, 
+                                                 request->content, 
+                                                 response->content );
             break;
 
         default:
@@ -92,9 +92,6 @@ hoxSocketConnection::_SendRequest_Connect( const wxString& request,
 {
     const char* FNAME = "hoxSocketConnection::_SendRequest_Connect";
     hoxResult result = hoxRESULT_ERR;  // Assume: failure.
-    wxUint32 nWrite;
-    wxUint32 nRead = 0;
-    wxChar* buf = NULL;
 
     /* Delete the old connection, if any. */
     _Disconnect(); 
@@ -139,68 +136,15 @@ hoxSocketConnection::_SendRequest_Connect( const wxString& request,
     wxLogDebug("%s: Succeeded! Connection established with the server.", FNAME);
 
     // Send the request...
-    wxLogDebug("%s: Sending the request [%s] to the server...", FNAME, request);
-    m_pSClient->Write( request.c_str(), (wxUint32) request.size() );
-    nWrite = m_pSClient->LastCount();
-    if ( nWrite < request.size() )
+    result = hoxNetworkAPI::SendRequest( m_pSClient, 
+                                         request,
+                                         response );
+    if ( result != hoxRESULT_OK )
     {
-        wxLogError("%s: Failed to write request. [%d] < [%d]. Error = [%s].", 
-            FNAME, nWrite, request.size(), hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()));
+        wxLogError("%s: Failed to send the CONNECT request to the server.", FNAME);
         goto exit_label;
     }
 
-#if 0
-    // Wait until data available (will also return if the connection is lost)
-    wxLogDebug(wxString::Format("%s: Waiting for response from the server (timeout = 5 sec)...", FNAME));
-    m_pSClient->WaitForRead(5 /* seconds */);
-
-    /***************************
-     * Read the response
-     ***************************/
-
-    if ( ! m_pSClient->IsData() )
-    {
-        wxLogError(wxString::Format("%s: Timeout! Sending comand failed.", FNAME));
-        goto exit_label;
-    }
-#endif
-    wxLogDebug("%s: Reading the response from the server...", FNAME);
-    buf = new wxChar[hoxNETWORK_MAX_MSG_SIZE];
-
-    /* NOTE: Do a ReadMsg operation within a loop because so far this is where
-     *       the error sometimes occurs.
-     */
-    {
-        const int MAX_TRIES = 5;   // The number of tries before giving up.
-        for ( int tries = 1; tries <= MAX_TRIES; ++tries )
-        {
-            m_pSClient->ReadMsg( buf, hoxNETWORK_MAX_MSG_SIZE );
-            nRead = m_pSClient->LastCount();
-            if ( nRead > 0 )
-            {
-                wxLogDebug("%s: Received some response data (tries = [%d]). nRead = [%d]. Done reading.", 
-                    FNAME, tries, nRead);
-                break;  // Done reading data.
-            }
-
-            if ( m_pSClient->Error() ) // Actual IO error occurred?
-            {
-                wxLogError("%s: Error occurred while reading the response data (tries = [%d]). Error = [%s].", 
-                    FNAME, tries, hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()));
-                goto exit_label;  // *** Stop trying. Return 'error' immediately.
-            }
-            wxLogDebug("%s: Receive no response data so far (tries = [%d]). Waiting...", FNAME, tries);
-            wxGetApp().Yield( false /* onlyIfNeeded = false */ );
-        } // for (...)
-
-        if ( nRead == 0 )
-        {
-            wxLogError("%s: Failed to read the response data after [%d] tries.", FNAME, MAX_TRIES);
-            goto exit_label;  // *** Stop trying. Return 'error' immediately.
-        }
-    }
-
-    response.assign( buf, nRead );
     result = hoxRESULT_OK;  // Finally, success.
 
 exit_label:
@@ -208,7 +152,7 @@ exit_label:
     {
         _Disconnect();
     }
-    delete[] buf;
+
     return result;
 }
 
@@ -231,79 +175,6 @@ hoxSocketConnection::_HandleRequest_Listen( hoxRequest*  request )
     request->sender = NULL;
 
     return hoxRESULT_OK;
-}
-
-hoxResult 
-hoxSocketConnection::_SendRequest( const wxString& request,
-                                   wxString&       response )
-{
-    const char* FNAME = "hoxSocketConnection::_SendRequest";
-    hoxResult result = hoxRESULT_ERR;
-    wxUint32  requestSize;
-    wxUint32  nRead;
-    wxUint32  nWrite;
-    wxChar*   buf = NULL;
-
-    wxLogDebug("%s: ENTER.", FNAME);
-    wxCHECK_MSG( m_pSClient, hoxRESULT_ERR, "Connection is not yet established" );
-
-    // We disable input events until we are done processing the current command.
-    hoxNetworkAPI::SocketInputLock socketLock( m_pSClient );
-
-    // Send request.
-    wxLogDebug("%s: Sending the request [%s] over the network...", FNAME, request);
-#if 0
-    m_pSClient->WaitForWrite(3 /* seconds */);
-#endif
-    requestSize = (wxUint32) request.size();
-    m_pSClient->Write( request.c_str(), requestSize );
-    nWrite = m_pSClient->LastCount();
-    if ( nWrite < requestSize )
-    {
-        wxLogError("%s: Failed to send request [%s] ( %d < %d ). Error = [%s].", 
-            FNAME, request, nWrite, requestSize, 
-            hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()));
-        result = hoxRESULT_ERR;
-        goto exit_label;
-    }
-
-#if 0
-    // Wait until data available (will also return if the connection is lost)
-    wxLogDebug("%s: Waiting for response from the server (timeout = 3 sec)...", FNAME);
-    m_pSClient->WaitForRead(3 /* seconds */);
-
-    /***************************
-     * Read the response
-     ***************************/
-
-    if ( ! m_pSClient->IsData() )
-    {
-        wxLogError("%s: Timeout! Sending comand failed.", FNAME);
-        result = hoxRESULT_ERR;
-        goto exit_label;
-    }
-#endif
-    // Read back the response.
-    wxLogDebug("%s: Reading back the response from the network...", FNAME);
-    buf = new wxChar[hoxNETWORK_MAX_MSG_SIZE];
-
-    m_pSClient->ReadMsg( buf, hoxNETWORK_MAX_MSG_SIZE );
-    nRead = m_pSClient->LastCount();
-    if ( nRead == 0 )
-    {
-        wxLogError("%s: Failed to read response. Error = [%s].", 
-            FNAME, hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()));
-        result = hoxRESULT_ERR;
-        goto exit_label;
-    }
-
-    response.assign( buf, nRead );
-    result = hoxRESULT_OK;
-
-exit_label:
-    delete[] buf;
-
-    return result;
 }
 
 void

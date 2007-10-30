@@ -200,7 +200,7 @@ hoxHttpPlayer::OnHTTPResponse(wxCommandEvent& event)
                                                          returnMsg );
             if ( result != hoxRESULT_OK )
             {
-                wxLogError("%s: Parse for SEND-MOVE's response.", FNAME);
+                wxLogError("%s: Failed to parse for the MOVE's response.", FNAME);
                 return;
             }
             else if ( returnCode != 0 )
