@@ -1,14 +1,13 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:            hoxNetworkPlayer.h
+// Name:            hoxRemotePlayer.h
 // Program's Name:  Huy's Open Xiangqi
-// Created:         10/09/2007
+// Created:         11/01/2007
 //
-// Description:     The NETWORK Player. Probably, we should call the
-//                  'remote' player.
+// Description:     The REMOTE Player.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_NETWORK_PLAYER_H_
-#define __INCLUDED_HOX_NETWORK_PLAYER_H_
+#ifndef __INCLUDED_HOX_REMOTE_PLAYER_H_
+#define __INCLUDED_HOX_REMOTE_PLAYER_H_
 
 #include <wx/wx.h>
 #include <wx/socket.h>
@@ -20,18 +19,18 @@
 class hoxServer;
 
 /**
- * The NETWORK player.
+ * The REMOTE player.
  */
 
-class hoxNetworkPlayer :  public hoxPlayer
+class hoxRemotePlayer :  public hoxPlayer
 {
   public:
-    hoxNetworkPlayer(); // DUMMY default constructor required for event handler.
-    hoxNetworkPlayer( const wxString& name,
-                      hoxPlayerType   type,
-                      int             score );
+    hoxRemotePlayer(); // DUMMY default constructor required for event handler.
+    hoxRemotePlayer( const wxString& name,
+                     hoxPlayerType   type,
+                     int             score );
 
-    virtual ~hoxNetworkPlayer();
+    virtual ~hoxRemotePlayer();
 
     /*******************************************
      * Override the parent's event-handler API
@@ -58,8 +57,8 @@ class hoxNetworkPlayer :  public hoxPlayer
 
     hoxServer*        m_server;
 
-    DECLARE_CLASS(hoxNetworkPlayer)
+    DECLARE_CLASS(hoxRemotePlayer)
     DECLARE_EVENT_TABLE()
 };
 
-#endif /* __INCLUDED_HOX_NETWORK_PLAYER_H_ */
+#endif /* __INCLUDED_HOX_REMOTE_PLAYER_H_ */

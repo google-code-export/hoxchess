@@ -102,8 +102,12 @@ enum hoxPlayerType
              * In principle, there can ONLY one local player.
              */
 
+    hoxPLAYER_TYPE_REMOTE,    
+            /* Any player who is remotely logging into this computer.
+             */
+
     hoxPLAYER_TYPE_NETWORK,    
-            /* Any player who is logging into this computer.
+            /* Any player who has a network connection.
              */
 
     hoxPLAYER_TYPE_DUMMY       
