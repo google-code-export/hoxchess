@@ -23,9 +23,8 @@ class hoxTable;
 // ----------------------------------------------------------------------------
 
 BEGIN_DECLARE_EVENT_TYPES()
-  DECLARE_EVENT_TYPE(hoxEVT_PLAYER_NOTIFY_BOARD_MOVE, -1)
+  DECLARE_EVENT_TYPE(hoxEVT_PLAYER_TABLE_CLOSED, -1)
   DECLARE_EVENT_TYPE(hoxEVT_PLAYER_NEW_MOVE, -1)
-  DECLARE_EVENT_TYPE(hoxEVT_PLAYER_MOVE_AVAILABLE, -1)
 END_DECLARE_EVENT_TYPES()
 
 
@@ -55,8 +54,8 @@ class hoxPlayer :  public wxEvtHandler
      * Event-handle API
      ***************************/
 
+    virtual void OnClose_FromTable( hoxPlayerEvent&  event );
     virtual void OnNewMove_FromTable( hoxPlayerEvent&  event );
-
 
     /***************************
      * Accessor API
@@ -70,6 +69,7 @@ class hoxPlayer :  public wxEvtHandler
     const hoxRoleList& GetRoles() const { return m_roles; }
     void               AddRole( hoxRole role );
     void               RemoveRole( hoxRole role );
+    bool               RemoveRoleAtTable( const wxString& tableId );
     bool               HasRole( hoxRole role );
 
     int                GetScore() const    { return m_score; }
@@ -106,8 +106,7 @@ class hoxPlayer :  public wxEvtHandler
 
 typedef void (wxEvtHandler::*hoxPlayerEventFunction)(hoxPlayerEvent&);
 
-#define EVT_PLAYER_NOTIFY_BOARD_MOVE(id, fn) DECLARE_EVENT_TABLE_ENTRY(hoxEVT_PLAYER_NOTIFY_BOARD_MOVE, id, wxID_ANY, (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction) (wxNotifyEventFunction)  wxStaticCastEvent( hoxPlayerEventFunction, & fn ), (wxObject *) NULL ),
+#define EVT_PLAYER_TABLE_CLOSED(id, fn) DECLARE_EVENT_TABLE_ENTRY(hoxEVT_PLAYER_TABLE_CLOSED, id, wxID_ANY, (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction) (wxNotifyEventFunction)  wxStaticCastEvent( hoxPlayerEventFunction, & fn ), (wxObject *) NULL ),
 #define EVT_PLAYER_NEW_MOVE(id, fn) DECLARE_EVENT_TABLE_ENTRY(hoxEVT_PLAYER_NEW_MOVE, id, wxID_ANY, (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction) (wxNotifyEventFunction)  wxStaticCastEvent( hoxPlayerEventFunction, & fn ), (wxObject *) NULL ),
-#define EVT_PLAYER_MOVE_AVAILABLE(id, fn) DECLARE_EVENT_TABLE_ENTRY(hoxEVT_PLAYER_MOVE_AVAILABLE, id, wxID_ANY, (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction) (wxNotifyEventFunction)  wxStaticCastEvent( hoxPlayerEventFunction, & fn ), (wxObject *) NULL ),
 
 #endif /* __INCLUDED_HOX_PLAYER_H_ */

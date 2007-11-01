@@ -40,6 +40,18 @@ hoxLocalPlayer::~hoxLocalPlayer()
 }
 
 void 
+hoxLocalPlayer::OnClose_FromTable( hoxPlayerEvent&  event )
+{
+    const char* FNAME = "hoxLocalPlayer::OnClose_FromTable";
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    this->LeaveNetworkTable( event.GetTableId(), this /* NOT USED */ );
+
+    this->hoxPlayer::OnClose_FromTable( event );
+}
+
+void 
 hoxLocalPlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
 {
     const char* FNAME = "hoxLocalPlayer::OnNewMove_FromTable";
@@ -132,11 +144,11 @@ hoxLocalPlayer::OpenNewNetworkTable( wxEvtHandler*   sender )
 
 hoxResult 
 hoxLocalPlayer::LeaveNetworkTable( const wxString& tableId,
-                                wxEvtHandler*   sender )
+                                   wxEvtHandler*   sender /* NOT USED */ )
 {
     wxASSERT( m_connection != NULL );
     {
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LEAVE, sender );
+        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LEAVE /*, sender*/ );
         wxString commandStr = 
                 wxString::Format("op=LEAVE&tid=%s&pid=%s", tableId, this->GetName());
         request->content = this->BuildRequestContent( commandStr );

@@ -85,6 +85,9 @@ hoxPlayerMgr::CreatePlayer( const wxString& name,
                             hoxPlayerType   type,
                             int             score /* = 1500 */)
 {
+    const char* FNAME = "hoxPlayerMgr::CreatePlayer";
+    wxLogDebug("%s: Creating player [%s]...", FNAME, name);
+
     hoxPlayer* player = new hoxPlayer( name, type, score );
     m_players.push_back( player );
 
@@ -94,7 +97,12 @@ hoxPlayerMgr::CreatePlayer( const wxString& name,
 void 
 hoxPlayerMgr::DeletePlayer( hoxPlayer* player )
 {
-    wxASSERT( player != NULL );
+    const char* FNAME = "hoxPlayerMgr::DeletePlayer";
+
+    wxCHECK_RET( player != NULL, "The player should not be NULL." );
+    
+    wxLogDebug("%s: Deleting player [%s]...", FNAME, player->GetName());
+
     delete player;
     m_players.remove( player );
 }

@@ -98,6 +98,22 @@ hoxResult
 hoxHttpPlayer::LeaveTable( hoxTable* table )
 {
     const char* FNAME = "hoxHttpPlayer::LeaveTable";
+    hoxResult result;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    result = this->LeaveNetworkTable( table->GetId(), this );
+    if ( result != hoxRESULT_OK )
+        return result;
+
+    return this->hoxLocalPlayer::LeaveTable( table );
+}
+
+hoxResult 
+hoxHttpPlayer::LeaveNetworkTable( const wxString& tableId,
+                                  wxEvtHandler*   sender )
+{
+    const char* FNAME = "hoxHttpPlayer::LeaveNetworkTable";
     wxLogDebug("%s: ENTER.", FNAME);
 
     if ( m_timer.IsRunning() ) 
@@ -106,8 +122,9 @@ hoxHttpPlayer::LeaveTable( hoxTable* table )
         m_timer.Stop();
     }
 
-    return this->hoxLocalPlayer::LeaveTable( table );
+    return this->hoxLocalPlayer::LeaveNetworkTable( tableId, sender );
 }
+
 
 void 
 hoxHttpPlayer::OnTimer( wxTimerEvent& WXUNUSED(event) )

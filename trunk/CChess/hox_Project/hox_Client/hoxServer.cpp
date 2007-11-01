@@ -437,7 +437,6 @@ hoxServer::_HandleCommand_Join( wxSocketBase*   sock,
     hoxNetworkPlayer* black_player = 
         hoxPlayerMgr::GetInstance()->CreateNetworkPlayer( sRequesterName,
                                                           nRequesterScore );
-    black_player->AddRole( hoxRole( tableId, hoxPIECE_COLOR_BLACK ) );
 
     // Setup the network-server which will handle all network communications.
     wxLogDebug("%s: Let this server manage the communication for this Network player [%s].", 
@@ -459,6 +458,9 @@ hoxServer::_HandleCommand_Join( wxSocketBase*   sock,
 
     result = black_player->JoinTable( table );
     wxASSERT( result == hoxRESULT_OK  );
+    wxASSERT_MSG( black_player->HasRole( hoxRole(table->GetId(), 
+                                                 hoxPIECE_COLOR_BLACK) ),
+                  "Player must play BLACK");
 
 	// Finally, return 'success'.
 	response << "0\r\n"       // error-code = SUCCESS

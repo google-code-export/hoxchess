@@ -29,7 +29,7 @@ class hoxSimpleBoard;
  */
 class hoxTable
 {
-  public:
+public:
     hoxTable( const wxString&   id,
               hoxIReferee*      referee,
               hoxSimpleBoard*   board = NULL );
@@ -53,10 +53,10 @@ class hoxTable
      *    (2) If successful, this Table will take over the memory management
      *        of the player.
      */
-    hoxResult AssignPlayer( hoxPlayer* player );
+    hoxResult AssignPlayer( hoxPlayer*     player,
+                            hoxPieceColor& assignedColor );
 
     hoxResult UnassignPlayer( hoxPlayer* player );
-    hoxResult UnassignAllPlayers();  // used when closing a table.
 
     hoxPlayer* GetRedPlayer() const { return m_redPlayer; }
     hoxPlayer* GetBlackPlayer() const { return m_blackPlayer; }
@@ -97,13 +97,30 @@ class hoxTable
     void OnEvent_FromNetwork( hoxPlayer*             player,
                               const hoxNetworkEvent& networkEvent );
 
+    /**
+     * Callback function from a player who is leaving the table..
+     */
+    void OnLeave_FromPlayer( hoxPlayer* player );
+
+    /**
+     * Callback function from the (local) system to force this table
+     * to close.
+     */
+    void OnClose_FromSystem();
+
+
     void ToggleViewSide();
 
-  private:
+private:
     hoxResult _ParseMoveString( const wxString& moveStr, hoxMove& move );
 
+    /**
+     * Post (inform) a player about the fact that this table is 
+     * about to be closed.
+     */
+    void _PostPlayer_CloseEvent( hoxPlayer* player );
 
-  private:
+private:
     const wxString   m_id;       // The table's ID.
 
     hoxIReferee*     m_referee;  // The referee

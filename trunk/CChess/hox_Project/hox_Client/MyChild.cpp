@@ -140,15 +140,6 @@ MyChild::OnClose(wxCloseEvent& event)
         return;
     }
 
-    /* We should send a signal inform all players about this event.
-     * In the mean time, use "brute force"!!!
-     */
-
-    hoxPlayer* redPlayer = m_table->GetRedPlayer();
-    hoxPlayer* blackPlayer = m_table->GetBlackPlayer();
-
-    if ( redPlayer != NULL ) redPlayer->LeaveTable( m_table );
-    if ( blackPlayer != NULL ) blackPlayer->LeaveTable( m_table );
     hoxTableMgr::GetInstance()->RemoveTable( m_table );
     m_table = NULL;
 
