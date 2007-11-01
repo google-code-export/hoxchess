@@ -20,6 +20,8 @@
 //
 enum hoxResult
 {
+    hoxRESULT_UNKNOWN = -1,
+
     hoxRESULT_OK = 0,
     hoxRESULT_ERR,   // A generic error.
 

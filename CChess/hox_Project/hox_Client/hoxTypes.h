@@ -167,10 +167,13 @@ class hoxResponse : public wxObject
 {
 public:
     hoxRequestType   type;
+    hoxResult        code;
     wxString         content;
 
-    hoxResponse() : type( hoxREQUEST_TYPE_UNKNOWN ) {}
-    hoxResponse(hoxRequestType t) : type( t ) {}
+    hoxResponse() : type( hoxREQUEST_TYPE_UNKNOWN )
+                  , code( hoxRESULT_UNKNOWN ) {}
+    hoxResponse(hoxRequestType t) : type( t )
+                                  , code( hoxRESULT_UNKNOWN ) {}
 };
 
 class hoxCommand : public wxObject

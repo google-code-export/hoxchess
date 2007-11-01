@@ -118,8 +118,9 @@ hoxHttpPlayer::OnTimer( wxTimerEvent& WXUNUSED(event) )
     hoxNetworkEventList  networkEvents;
 
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_POLL, this );
-    request->content = 
-        wxString::Format("/cchess/tables.php?op=POLL&pid=%s", this->GetName());
+    wxString commandStr =
+        wxString::Format("op=POLL&pid=%s", this->GetName());
+    request->content = this->BuildRequestContent( commandStr );
     this->AddRequestToConnection( request );
 }
 

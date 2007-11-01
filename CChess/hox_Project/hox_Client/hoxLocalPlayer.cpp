@@ -102,7 +102,7 @@ hoxLocalPlayer::QueryForNetworkTables( wxEvtHandler* sender )
 
 hoxResult 
 hoxLocalPlayer::JoinNetworkTable( const wxString& tableId,
-                               wxEvtHandler*   sender )
+                                  wxEvtHandler*   sender )
 {
     wxASSERT( m_connection != NULL );
     {

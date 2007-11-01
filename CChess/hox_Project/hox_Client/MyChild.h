@@ -25,7 +25,6 @@ public:
     ~MyChild();
 
     void OnToggle(wxCommandEvent& event);
-    //void OnChangeSize(wxCommandEvent& event);
     void OnQuit(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);
 

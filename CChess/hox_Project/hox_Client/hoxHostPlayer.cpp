@@ -32,7 +32,7 @@ hoxHostPlayer::hoxHostPlayer()
 
 hoxHostPlayer::hoxHostPlayer( const wxString& name,
                               hoxPlayerType   type,
-                              int             score /* = 1500 */)
+                              int             score )
             : hoxPlayer( name, type, score )
 { 
 }
