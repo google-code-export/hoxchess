@@ -37,6 +37,11 @@ hoxTable::hoxTable( const wxString&  id,
     //{
     //    wxLogError(_T("Unexpected NULL pointer for Board."));
     //}
+
+    const char* FNAME = "hoxTable::hoxTable";
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
 }
 
 hoxTable::~hoxTable()
@@ -66,16 +71,20 @@ hoxTable::~hoxTable()
 }
 
 hoxResult 
-hoxTable::AssignPlayer( hoxPlayer* player )
+hoxTable::AssignPlayer( hoxPlayer*     player,
+                        hoxPieceColor& assignedColor )
 {
     hoxResult result = hoxRESULT_OK;
 
-    wxASSERT( player != NULL );
+    wxCHECK_MSG( player != NULL, hoxRESULT_ERR, "The player is NULL." );
+
+    assignedColor = hoxPIECE_COLOR_NONE;
 
     /* Assign to play RED if possible. */
     if ( m_redPlayer == NULL )
     {
-        player->AddRole( hoxRole( m_id, hoxPIECE_COLOR_RED ) );
+        assignedColor = hoxPIECE_COLOR_RED;
+        //player->AddRole( hoxRole( m_id, assignedColor ) );
         m_redPlayer = player;
         
         // Inform the Board about the new player.
@@ -89,7 +98,8 @@ hoxTable::AssignPlayer( hoxPlayer* player )
     /* Assign to play BLACK if possible. */
     if ( m_blackPlayer == NULL )
     {
-        player->AddRole( hoxRole( m_id, hoxPIECE_COLOR_BLACK ) );
+        assignedColor = hoxPIECE_COLOR_BLACK;
+        //player->AddRole( hoxRole( m_id, assignedColor ) );
         m_blackPlayer = player;
 
         // Inform the Board about the new player.
@@ -110,38 +120,27 @@ hoxTable::UnassignPlayer( hoxPlayer* player )
 {
     hoxResult result = hoxRESULT_OK;
 
-    wxASSERT( player != NULL );
+    wxCHECK_MSG( player, hoxRESULT_ERR, "The player is NULL." );
 
     /* Check RED. */
     if ( m_redPlayer == player )
     {
-        player->RemoveRole( hoxRole( m_id, hoxPIECE_COLOR_RED ) );
         m_redPlayer = NULL;
-        m_board->SetRedInfo( wxString::Format(_("*")) );
+        m_board->SetRedInfo( "*" );
         return hoxRESULT_OK;
     }
 
     /* Check BLACK. */
     if ( m_blackPlayer == player )
     {
-        player->RemoveRole( hoxRole( m_id, hoxPIECE_COLOR_BLACK ) );
         m_blackPlayer = NULL;
-        m_board->SetBlackInfo( wxString::Format(_("*")) );
+        m_board->SetBlackInfo( "*" );
         return hoxRESULT_OK;
     }
 
     // TODO: Not yet support "observers" !!!
 
     return hoxRESULT_ERR;
-}
-
-hoxResult 
-hoxTable::UnassignAllPlayers()
-{
-    this->UnassignPlayer( m_redPlayer );
-    this->UnassignPlayer( m_blackPlayer );
-
-    return hoxRESULT_OK;
 }
 
 void 
@@ -169,10 +168,10 @@ hoxTable::OnMove_FromBoard( const hoxMove& move )
 {
     const char* FNAME = "hoxTable::OnMove_FromBoard";
 
-    wxLogDebug(wxString::Format(_("%s: Receive new Move from Board."), FNAME));
+    wxLogDebug("%s: Receive new Move from Board.", FNAME);
     if ( m_redPlayer == NULL || m_blackPlayer == NULL )
     {
-        wxLogError(wxString::Format(_("%s: Not enough players. Ignore Move."), FNAME));
+        wxLogError("%s: Not enough players. Ignore Move.", FNAME);
         return;
     }
 
@@ -183,8 +182,8 @@ hoxTable::OnMove_FromBoard( const hoxMove& move )
     for ( hoxPlayerList::iterator it = players.begin();
                                   it != players.end(); ++it )
     {
-        wxLogDebug(wxString::Format(_("%s: Inform player [%s] about the Board Move..."), 
-                            FNAME, (*it)->GetName()));
+        wxLogDebug("%s: Inform player [%s] about the Board Move...", 
+            FNAME, (*it)->GetName());
         hoxPlayerEvent event(hoxEVT_PLAYER_NEW_MOVE);
         event.SetTableId(m_id);
         event.SetOldPosition(move.piece.position);   // last move's old-piece.
@@ -263,8 +262,8 @@ hoxTable::OnEvent_FromNetwork( hoxPlayer*             player,
 {
     const char* FNAME = "hoxTable::OnEvent_FromNetwork";
 
-    wxLogDebug(wxString::Format(_("%s: Receive new Event from Network."), FNAME));
-    wxASSERT( player != NULL );
+    wxLogDebug("%s: ENTER.", FNAME);
+    wxCHECK_RET( player != NULL, "The player is unexpectedly NULL." );
 
     /* Determine which color is affected. */
 
@@ -272,29 +271,29 @@ hoxTable::OnEvent_FromNetwork( hoxPlayer*             player,
     {
         case hoxNETWORK_EVENT_TYPE_NEW_PLAYER_RED:    // NEW PLAYER (RED)
         {
+            hoxPieceColor assignedColor;
             wxString otherPlayerId = networkEvent.content;
             if ( this->m_redPlayer == NULL && !otherPlayerId.empty() )
             {
-                wxLogDebug(wxString::Format(_("%s: A player [%s] just joined table as RED."), 
-                                FNAME, otherPlayerId));
+                wxLogDebug("%s: A player [%s] just joined table as RED.", FNAME, otherPlayerId);
                 hoxPlayer* newPlayer 
                     = hoxPlayerMgr::GetInstance()->CreatePlayer( otherPlayerId,
                                                                  hoxPLAYER_TYPE_DUMMY );
-                this->AssignPlayer( newPlayer );
+                this->AssignPlayer( newPlayer, assignedColor );
             }
             break;
         }
         case hoxNETWORK_EVENT_TYPE_NEW_PLAYER_BLACK:    // NEW PLAYER (BLACK)
         {
+            hoxPieceColor assignedColor;
             wxString otherPlayerId = networkEvent.content;
             if ( this->m_blackPlayer == NULL && !otherPlayerId.empty() )
             {
-                wxLogDebug(wxString::Format(_("%s: A player [%s] just joined table as BLACK."), 
-                                FNAME, otherPlayerId));
-                hoxPlayer* newPlayer 
-                    = hoxPlayerMgr::GetInstance()->CreatePlayer( otherPlayerId,
-                                                                 hoxPLAYER_TYPE_DUMMY );
-                this->AssignPlayer( newPlayer );
+                wxLogDebug("%s: A player [%s] just joined table as BLACK.", FNAME, otherPlayerId);
+                hoxPlayer* newPlayer =
+                    hoxPlayerMgr::GetInstance()->CreatePlayer( otherPlayerId,
+                                                               hoxPLAYER_TYPE_DUMMY );
+                this->AssignPlayer( newPlayer, assignedColor );
             }
             break;
         }
@@ -305,13 +304,11 @@ hoxTable::OnEvent_FromNetwork( hoxPlayer*             player,
             wxString otherPlayerId = networkEvent.content;
             if ( !otherPlayerId.empty() )
             {
-                wxLogDebug(wxString::Format(_("%s: A player [%s] just left the table."), 
-                                FNAME, otherPlayerId));
-                hoxPlayer* foundPlayer 
-                    = hoxPlayerMgr::GetInstance()->FindPlayer( otherPlayerId );
+                wxLogDebug("%s: A player [%s] just left the table.", FNAME, otherPlayerId);
+                hoxPlayer* foundPlayer = 
+                    hoxPlayerMgr::GetInstance()->FindPlayer( otherPlayerId );
                 if ( foundPlayer == NULL ) {
-                    wxLogError(wxString::Format(_("%s: Player [%s] not found in the system."), 
-                                    FNAME, otherPlayerId));
+                    wxLogError("%s: Player [%s] not found in the system.", FNAME, otherPlayerId);
                 } else {
                     this->UnassignPlayer( foundPlayer );
                 }
@@ -326,20 +323,54 @@ hoxTable::OnEvent_FromNetwork( hoxPlayer*             player,
             hoxResult result = _ParseMoveString( moveStr, move );
             if ( result != hoxRESULT_OK ) // failed?
             {
-                wxLogError(wxString::Format(_("%s: Parse Move from string [%s] failed."), 
-                                FNAME, moveStr));
+                wxLogError("%s: Parse Move from string [%s] failed.", FNAME, moveStr);
                 return;
             }
 
-            wxLogDebug(wxString::Format(_("%s: Ask the Board to do this Move."), FNAME));
+            wxLogDebug("%s: Ask the Board to do this Move.", FNAME);
             m_board->DoMove( move );
 
             break;
         }
         default:
-            wxLogDebug(wxString::Format(_("%s: Unknown event type = [%d]."), FNAME, networkEvent.type));
+            wxLogDebug("%s: Unknown event type = [%d].", FNAME, networkEvent.type);
             break;
     }
+}
+
+void 
+hoxTable::OnLeave_FromPlayer( hoxPlayer* player )
+{
+    const char* FNAME = "hoxTable::OnLeave_FromPlayer";
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    this->UnassignPlayer( player );
+}
+
+void 
+hoxTable::OnClose_FromSystem()
+{
+    const char* FNAME = "hoxTable::OnClose_FromSystem";
+    hoxPlayerList players;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    if ( m_redPlayer != NULL )   players.push_back( m_redPlayer );
+    if ( m_blackPlayer != NULL ) players.push_back( m_blackPlayer );
+
+    for ( hoxPlayerList::iterator it = players.begin();
+                                  it != players.end(); ++it )
+    {
+        _PostPlayer_CloseEvent( *it );
+        this->UnassignPlayer( *it );
+    }
+
+    delete m_board;
+    m_board = NULL;
+
+    delete m_referee;
+    m_referee = NULL;
 }
 
 void 
@@ -375,11 +406,25 @@ hoxTable::_ParseMoveString( const wxString& moveStr,
 
     if ( ! m_referee->GetPieceAtPosition( fromPosition, move.piece ) )
     {
-        wxLogDebug(wxString::Format(_("%s: Failed to locate piece at the position."), FNAME));
+        wxLogDebug("%s: Failed to locate piece at the position.", FNAME);
         return hoxRESULT_ERR;
     }
 
     return hoxRESULT_OK;
+}
+
+void 
+hoxTable::_PostPlayer_CloseEvent( hoxPlayer* player )
+{
+    const char* FNAME = "hoxTable::_PostPlayer_CloseEvent";
+
+    wxCHECK_RET( player, "The player is NULL." );
+
+    wxLogDebug("%s: Informing player [%s] about the Table [%s] being closed...", 
+        FNAME, player->GetName(), m_id);
+    hoxPlayerEvent event( hoxEVT_PLAYER_TABLE_CLOSED );
+    event.SetTableId( m_id );
+    wxPostEvent( player, event );
 }
 
 

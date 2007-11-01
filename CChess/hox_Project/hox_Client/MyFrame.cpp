@@ -163,51 +163,13 @@ bool
 MyFrame::OnChildClose( hoxTable* table )
 {
     const char* FNAME = "MyFrame::OnChildClose";
-    hoxResult result;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    wxASSERT( table != NULL );
+    wxCHECK_MSG( table != NULL, true, "The table is NULL." );
 
     m_nChildren--;
-
-    const wxString tableId = table->GetId(); 
-
-    /* If one of the players is the HTTP player,
-     * then inform the HTTP server that the player is leaving this table.
-     */
-
-    hoxHttpPlayer* httpPlayer = wxGetApp().GetHTTPPlayer();
-    if (   httpPlayer != NULL
-        && (   table->GetRedPlayer() == httpPlayer
-            || table->GetBlackPlayer() == httpPlayer) )
-    {
-        wxLogDebug("%s: Informing the HTTP server about my leaving my table...", FNAME);
-        result = httpPlayer->LeaveNetworkTable( tableId, this );
-        if ( result != hoxRESULT_OK ) // failed?
-        {
-            wxLogError("%s: Failed to inform HTTP server about my leaving the table [%s].", FNAME, tableId);
-        }
-        httpPlayer->LeaveTable( table );
-    }
-
-    /* If one of the players is the MY player,
-     * then inform the the server that the player is leaving this table.
-     */
-
-    hoxMyPlayer* myPlayer = wxGetApp().GetMyPlayer();
-    if (   myPlayer != NULL
-        && (   table->GetRedPlayer() == myPlayer
-            || table->GetBlackPlayer() == myPlayer) )
-    {
-        wxLogDebug("%s: Informing the server about my leaving my table...", FNAME);
-        result = myPlayer->LeaveNetworkTable( tableId, this );
-        if ( result != hoxRESULT_OK ) // failed?
-        {
-            wxLogError("%s: Failed to inform the server about my leaving the table [%s].", FNAME, tableId);
-        }
-        myPlayer->LeaveTable( table );
-    }
+    table->OnClose_FromSystem();
 
     wxLogDebug("%s: END.", FNAME);
     return true;

@@ -189,7 +189,7 @@ hoxNetworkAPI::HandleLeave( wxSocketBase*  sock,
 
     if ( table == NULL )
     {
-        wxLogError(wxString::Format("%s: Table [%s] not found.", FNAME, tableId));
+        wxLogError("%s: Table [%s] not found.", FNAME, tableId);
         response << "1\r\n"  // code
                  << "Table " << tableId << " not found.\r\n";
         goto exit_label;
@@ -209,7 +209,7 @@ hoxNetworkAPI::HandleLeave( wxSocketBase*  sock,
     }
     else
     {
-        wxLogError(wxString::Format("%s: Player [%s] not found at the table [%s].", FNAME, requesterId, tableId));
+        wxLogError("%s: Player [%s] not found at the table [%s].", FNAME, requesterId, tableId);
         response << "2\r\n"  // code
                  << "Player " << requesterId << " not found at the table " << tableId << ".\r\n";
         goto exit_label;

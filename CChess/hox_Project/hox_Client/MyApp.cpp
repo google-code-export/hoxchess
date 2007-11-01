@@ -150,8 +150,11 @@ MyApp::OnExit()
 hoxMyPlayer* 
 MyApp::GetMyPlayer() 
 { 
+    const char* FNAME = "MyApp::GetMyPlayer";
+
     if ( m_myPlayer == NULL )
     {
+        wxLogDebug("%s: Creating the MY player...", FNAME);
         wxString playerName = hoxUtility::GenerateRandomString();
         m_myPlayer = hoxPlayerMgr::GetInstance()->CreateMyPlayer( playerName );
     }
@@ -162,8 +165,11 @@ MyApp::GetMyPlayer()
 hoxHttpPlayer* 
 MyApp::GetHTTPPlayer() const
 { 
+    const char* FNAME = "MyApp::GetHTTPPlayer";
+
     if ( m_httpPlayer == NULL )
     {
+        wxLogDebug("%s: Creating the HTTP player...", FNAME);
         wxString playerName = hoxUtility::GenerateRandomString();
         m_httpPlayer = hoxPlayerMgr::GetInstance()->CreateHTTPPlayer( playerName );
     }

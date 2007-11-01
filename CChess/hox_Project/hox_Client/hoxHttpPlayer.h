@@ -50,6 +50,9 @@ public:
     virtual hoxResult JoinTable( hoxTable* table );
     virtual hoxResult LeaveTable( hoxTable* table );
 
+    virtual hoxResult LeaveNetworkTable( const wxString& tableId,
+                                         wxEvtHandler*   sender );
+
     /*******************************
      * Income-data event handlers
      *******************************/

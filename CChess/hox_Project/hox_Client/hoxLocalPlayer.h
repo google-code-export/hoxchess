@@ -36,6 +36,7 @@ public:
      * Override the parent's event-handler API
      *******************************************/
 
+    virtual void OnClose_FromTable( hoxPlayerEvent&  event );
     virtual void OnNewMove_FromTable( hoxPlayerEvent&  event );
 
     /*******************************
