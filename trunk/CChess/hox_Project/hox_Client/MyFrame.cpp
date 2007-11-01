@@ -107,6 +107,8 @@ MyFrame::MyFrame(wxWindow *parent,
     // Progress dialog.
     m_dlgProgress = NULL;
 
+    m_nChildren = 0;
+
     wxLogDebug("%s: HOX Chess ready.", FNAME);
 }
 
@@ -157,6 +159,60 @@ void MyFrame::OnNewWindow(wxCommandEvent& WXUNUSED(event) )
                   _("Player must play RED"));
 }
 
+bool
+MyFrame::OnChildClose( hoxTable* table )
+{
+    const char* FNAME = "MyFrame::OnChildClose";
+    hoxResult result;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    wxASSERT( table != NULL );
+
+    m_nChildren--;
+
+    const wxString tableId = table->GetId(); 
+
+    /* If one of the players is the HTTP player,
+     * then inform the HTTP server that the player is leaving this table.
+     */
+
+    hoxHttpPlayer* httpPlayer = wxGetApp().GetHTTPPlayer();
+    if (   httpPlayer != NULL
+        && (   table->GetRedPlayer() == httpPlayer
+            || table->GetBlackPlayer() == httpPlayer) )
+    {
+        wxLogDebug("%s: Informing the HTTP server about my leaving my table...", FNAME);
+        result = httpPlayer->LeaveNetworkTable( tableId, this );
+        if ( result != hoxRESULT_OK ) // failed?
+        {
+            wxLogError("%s: Failed to inform HTTP server about my leaving the table [%s].", FNAME, tableId);
+        }
+        httpPlayer->LeaveTable( table );
+    }
+
+    /* If one of the players is the MY player,
+     * then inform the the server that the player is leaving this table.
+     */
+
+    hoxMyPlayer* myPlayer = wxGetApp().GetMyPlayer();
+    if (   myPlayer != NULL
+        && (   table->GetRedPlayer() == myPlayer
+            || table->GetBlackPlayer() == myPlayer) )
+    {
+        wxLogDebug("%s: Informing the server about my leaving my table...", FNAME);
+        result = myPlayer->LeaveNetworkTable( tableId, this );
+        if ( result != hoxRESULT_OK ) // failed?
+        {
+            wxLogError("%s: Failed to inform the server about my leaving the table [%s].", FNAME, tableId);
+        }
+        myPlayer->LeaveTable( table );
+    }
+
+    wxLogDebug("%s: END.", FNAME);
+    return true;
+}
+
 void MyFrame::OnOpenServer(wxCommandEvent& WXUNUSED(event) )
 {
     const char* FNAME = "MyFrame::OnOpenServer";
@@ -186,23 +242,12 @@ void MyFrame::OnConnectServer(wxCommandEvent& WXUNUSED(event) )
     m_dlgProgress->SetSize( wxSize(500, 150) );
     m_dlgProgress->Pulse();
 
-    wxLogDebug("%s: Creating MY player to connect to a remote server...", FNAME);
-    if ( wxGetApp().m_myPlayer != NULL )
-    {
-        wxLogDebug("%s: Delete the existing MY player.", FNAME);
-        hoxPlayerMgr::GetInstance()->DeletePlayer( wxGetApp().m_myPlayer );
-        wxGetApp().m_myPlayer = NULL;
-    }
-
     hoxNetworkTableInfoList tableList;
-    wxString playerName = hoxUtility::GenerateRandomString();
-    wxGetApp().m_myPlayer = 
-        hoxPlayerMgr::GetInstance()->CreateMyPlayer( playerName );
+    hoxMyPlayer* myPlayer = wxGetApp().GetMyPlayer();
 
-    result = wxGetApp().m_myPlayer->ConnectToNetworkServer( 
-                                "127.0.0.1", 
-                                 hoxNETWORK_DEFAULT_SERVER_PORT,
-                                 this );
+    result = myPlayer->ConnectToNetworkServer( "127.0.0.1", 
+                                               hoxNETWORK_DEFAULT_SERVER_PORT,
+                                               this );
     if ( result != hoxRESULT_OK )
     {
         wxLogError("%s: Failed to connect to server.", FNAME);
@@ -236,25 +281,12 @@ void MyFrame::OnConnectHTTPServer(wxCommandEvent& WXUNUSED(event) )
     m_dlgProgress->SetSize( wxSize(500, 150) );
     m_dlgProgress->Pulse();
 
-    /* Create a HTTP player */
-
-    wxLogDebug("%s: Creating a HTTP player to connect to a HTTP server.", FNAME);
-    if ( wxGetApp().m_httpPlayer != NULL )
-    {
-        wxLogDebug("%s: Delete the existing HTTP player.", FNAME);
-        hoxPlayerMgr::GetInstance()->DeletePlayer( wxGetApp().m_httpPlayer );
-        wxGetApp().m_httpPlayer = NULL;
-    }
-
     hoxNetworkTableInfoList tableList;
-    wxString playerName = hoxUtility::GenerateRandomString();
-    wxGetApp().m_httpPlayer = 
-        hoxPlayerMgr::GetInstance()->CreateHTTPPlayer( playerName );
+    hoxHttpPlayer* httpPlayer = wxGetApp().GetHTTPPlayer();
 
-    result = wxGetApp().m_httpPlayer->ConnectToNetworkServer( 
-                                 HOX_HTTP_SERVER_HOSTNAME, 
-                                 HOX_HTTP_SERVER_PORT,
-                                 this );
+    result = httpPlayer->ConnectToNetworkServer( HOX_HTTP_SERVER_HOSTNAME, 
+                                                 HOX_HTTP_SERVER_PORT,
+                                                 this );
     if ( result != hoxRESULT_OK )
     {
         wxLogError("%: Failed to connect to HTTP server.", FNAME);
@@ -271,8 +303,6 @@ void MyFrame::DoJoinNewHTTPTable(const wxString& tableId)
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    wxASSERT( wxGetApp().m_httpPlayer != NULL );
-
     /***********************/
     /* Create a new table. */
     /***********************/
@@ -287,7 +317,7 @@ void MyFrame::DoJoinNewHTTPTable(const wxString& tableId)
     /* Since we open this NEW table, we will play RED.
      */
 
-    hoxPlayer* red_player = wxGetApp().m_httpPlayer;
+    hoxPlayer* red_player = wxGetApp().GetHTTPPlayer();
 
     result = red_player->JoinTable( table );
     wxASSERT( result == hoxRESULT_OK  );
@@ -304,7 +334,7 @@ void MyFrame::DoJoinExistingHTTPTable(const hoxNetworkTableInfo& tableInfo)
     const char* FNAME = "MyFrame::DoJoinExistingHTTPTable";
     hoxResult result;
 
-    wxASSERT( wxGetApp().m_httpPlayer != NULL );
+    hoxHttpPlayer* httpPlayer = wxGetApp().GetHTTPPlayer();
 
     /*******************************************************/
     /* Check to see which side (RED or BLACK) we will play
@@ -314,12 +344,12 @@ void MyFrame::DoJoinExistingHTTPTable(const hoxNetworkTableInfo& tableInfo)
     bool     playRed = false;   // Do I play RED?
     wxString otherPlayerId;     // Who is the other player?
 
-    if ( tableInfo.redId == wxGetApp().m_httpPlayer->GetName() )
+    if ( tableInfo.redId == httpPlayer->GetName() )
     {
         playRed = true;
         otherPlayerId = tableInfo.blackId;
     }
-    else if ( tableInfo.blackId == wxGetApp().m_httpPlayer->GetName() )
+    else if ( tableInfo.blackId == httpPlayer->GetName() )
     {
         playRed = false;
         otherPlayerId = tableInfo.redId;
@@ -348,7 +378,7 @@ void MyFrame::DoJoinExistingHTTPTable(const hoxNetworkTableInfo& tableInfo)
 
     if ( playRed )  // Do I play RED?
     {
-        red_player = wxGetApp().m_httpPlayer;
+        red_player = httpPlayer;
         if ( ! otherPlayerId.empty() )
         {
             black_player = hoxPlayerMgr::GetInstance()->CreatePlayer( 
@@ -358,7 +388,7 @@ void MyFrame::DoJoinExistingHTTPTable(const hoxNetworkTableInfo& tableInfo)
     }
     else
     {
-        black_player = wxGetApp().m_httpPlayer;
+        black_player = httpPlayer;
         if ( ! otherPlayerId.empty() )
         {
             red_player = hoxPlayerMgr::GetInstance()->CreatePlayer( 
@@ -400,7 +430,7 @@ void MyFrame::DoJoinExistingMYTable(const hoxNetworkTableInfo& tableInfo)
     const char* FNAME = "MyFrame::DoJoinExistingMYTable";
     hoxResult result;
 
-    wxCHECK_RET( wxGetApp().m_myPlayer, "The MY player must be created first." );
+    hoxMyPlayer* myPlayer = wxGetApp().GetMyPlayer();
 
     /*******************************************************/
     /* Check to see which side (RED or BLACK) we will play
@@ -410,12 +440,12 @@ void MyFrame::DoJoinExistingMYTable(const hoxNetworkTableInfo& tableInfo)
     bool     playRed = false;   // Do I play RED?
     wxString otherPlayerId;     // Who is the other player?
 
-    if ( tableInfo.redId == wxGetApp().m_myPlayer->GetName() )
+    if ( tableInfo.redId == myPlayer->GetName() )
     {
         playRed = true;
         otherPlayerId = tableInfo.blackId;
     }
-    else if ( tableInfo.blackId == wxGetApp().m_myPlayer->GetName() )
+    else if ( tableInfo.blackId == myPlayer->GetName() )
     {
         playRed = false;
         otherPlayerId = tableInfo.redId;
@@ -444,7 +474,7 @@ void MyFrame::DoJoinExistingMYTable(const hoxNetworkTableInfo& tableInfo)
 
     if ( playRed )  // Do I play RED?
     {
-        red_player = wxGetApp().m_myPlayer;
+        red_player = myPlayer;
         if ( ! otherPlayerId.empty() )
         {
             black_player = hoxPlayerMgr::GetInstance()->CreatePlayer( 
@@ -454,7 +484,7 @@ void MyFrame::DoJoinExistingMYTable(const hoxNetworkTableInfo& tableInfo)
     }
     else
     {
-        black_player = wxGetApp().m_myPlayer;
+        black_player = myPlayer;
         if ( ! otherPlayerId.empty() )
         {
             red_player = hoxPlayerMgr::GetInstance()->CreatePlayer( 
@@ -491,15 +521,13 @@ void MyFrame::DoJoinExistingMYTable(const hoxNetworkTableInfo& tableInfo)
     }
 
     // Start listen for new Moves.
-    wxGetApp().m_myPlayer->StartListenForMoves();
+    myPlayer->StartListenForMoves();
 }
 
 void MyFrame::DoJoinNewMYTable(const wxString& tableId)
 {
     const char* FNAME = "MyFrame::DoJoinNewMYTable";
     hoxResult result;
-
-    wxASSERT( wxGetApp().m_myPlayer != NULL );
 
     /***********************/
     /* Create a new table. */
@@ -515,7 +543,7 @@ void MyFrame::DoJoinNewMYTable(const wxString& tableId)
     /* Since we open this NEW table, we will play RED.
      */
 
-    hoxPlayer* red_player = wxGetApp().m_myPlayer;
+    hoxPlayer* red_player = wxGetApp().GetMyPlayer();
 
     result = red_player->JoinTable( table );
     wxASSERT( result == hoxRESULT_OK  );
@@ -627,6 +655,12 @@ MyFrame::OnHTTPResponse(wxCommandEvent& event)
         return;
     }
 
+    if ( response->code != hoxRESULT_OK )
+    {
+        wxLogDebug("%s: The response's code is ERROR. END.", FNAME);
+        return;
+    }
+
     switch ( response->type )
     {
         case hoxREQUEST_TYPE_CONNECT:
@@ -670,6 +704,12 @@ MyFrame::OnMYResponse(wxCommandEvent& event)
     if ( wasCanceled )
     {
         wxLogDebug("%s: Connection has been canceled.", FNAME);
+        return;
+    }
+
+    if ( response->code != hoxRESULT_OK )
+    {
+        wxLogDebug("%s: The response's code is ERROR. END.", FNAME);
         return;
     }
 
@@ -733,7 +773,7 @@ MyFrame::_OnHTTPResponse_Connect( const wxString& responseStr )
     }
 
     /* Get the list of tables from the HTTP server */
-    result = wxGetApp().m_httpPlayer->QueryForNetworkTables( this );
+    result = wxGetApp().GetHTTPPlayer()->QueryForNetworkTables( this );
     if ( result != hoxRESULT_OK )
     {
         wxLogError("%s: Failed to query for LIST of tables from HTTP server.", FNAME);
@@ -766,7 +806,7 @@ MyFrame::_OnMYResponse_Connect( const wxString& responseStr )
     }
 
     /* Get the list of tables from the server */
-    result = wxGetApp().m_myPlayer->QueryForNetworkTables( this );
+    result = wxGetApp().GetMyPlayer()->QueryForNetworkTables( this );
     if ( result != hoxRESULT_OK )
     {
         wxLogError("%s: Failed to query for LIST of tables from the server.", FNAME);
@@ -806,7 +846,7 @@ MyFrame::_OnMYResponse_List( const wxString& responseStr )
         {
             wxLogDebug("%s: Ask the server to allow me to JOIN table = [%s]", FNAME, selectedId);
             hoxNetworkTableInfo tableInfo;
-            result = wxGetApp().m_myPlayer->JoinNetworkTable( selectedId, this );
+            result = wxGetApp().GetMyPlayer()->JoinNetworkTable( selectedId, this );
             if ( result != hoxRESULT_OK )
             {
                 wxLogError("%s: Failed to JOIN a network table [%s].", FNAME, selectedId);
@@ -818,7 +858,7 @@ MyFrame::_OnMYResponse_List( const wxString& responseStr )
         {
             wxLogDebug("%s: Ask the server to open a new table.", FNAME);
             wxString newTableId;
-            result = wxGetApp().m_myPlayer->OpenNewNetworkTable( this );
+            result = wxGetApp().GetMyPlayer()->OpenNewNetworkTable( this );
             if ( result != hoxRESULT_OK )
             {
                 wxLogError("%s: Failed to open a NEW network table.", FNAME);
@@ -909,7 +949,7 @@ MyFrame::_OnHTTPResponse_List( const wxString& responseStr )
         {
             wxLogDebug("%s: Asking HTTP server to allow me to JOIN table = [%s]...", FNAME, selectedId);
             hoxNetworkTableInfo tableInfo;
-            result = wxGetApp().m_httpPlayer->JoinNetworkTable( selectedId, this );
+            result = wxGetApp().GetHTTPPlayer()->JoinNetworkTable( selectedId, this );
             if ( result != hoxRESULT_OK )
             {
                 wxLogError("%s: Failed to JOIN the network table [%s].", FNAME, selectedId);
@@ -921,7 +961,7 @@ MyFrame::_OnHTTPResponse_List( const wxString& responseStr )
         {
             wxLogDebug("%s: Asking the HTTPserver to open a new table...", FNAME);
             wxString newTableId;
-            result = wxGetApp().m_httpPlayer->OpenNewNetworkTable( this );
+            result = wxGetApp().GetHTTPPlayer()->OpenNewNetworkTable( this );
             if ( result != hoxRESULT_OK )
             {
                 wxLogError("%s: Failed to open NEW network table.", FNAME);
@@ -1013,14 +1053,14 @@ MyFrame::_CreateNewTable( const wxString& tableId )
     MyChild*  subframe = NULL;
     wxString  tableTitle;
 
-    wxGetApp().m_nChildren++; // for tracking purpose.
+    m_nChildren++; // for tracking purpose.
 
     tableTitle = tableId;  // Use the table's Id as the Title.
 
     // Generate a table's table if required.
     if ( tableTitle.empty() )
     {
-        tableTitle.Printf(_("%d"), wxGetApp().m_nChildren );
+        tableTitle.Printf("%d", m_nChildren );
     }
 
     subframe = new MyChild( this, tableTitle );

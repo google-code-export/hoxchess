@@ -30,7 +30,6 @@ enum
     MDI_CONNECT_HTTP_SERVER,
 
     MDI_TOGGLE,   // toggle view
-    //MDI_CHANGE_SIZE,
     MDI_CHILD_QUIT,
     MDI_ABOUT = wxID_ABOUT
 };
@@ -75,6 +74,14 @@ public:
     void OnQuit(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);
 
+    /**
+     * Invoke by the Child window when it is being closed.
+     * NOTE: This *special* API is used by the Child to ask the Parent
+     *       for the permission to close.
+     *       !!! BE CAREFUL with recursive calls. !!!
+     */
+    bool OnChildClose(hoxTable* table);
+
     void DoJoinNewHTTPTable(const wxString& tableId);
     void DoJoinExistingHTTPTable(const hoxNetworkTableInfo& tableInfo);
 
@@ -106,6 +113,7 @@ private:
     // the progress dialog which we show while worker thread is running
     wxProgressDialog*   m_dlgProgress;
 
+    int                 m_nChildren;   // The number of child-frames.
 
     DECLARE_EVENT_TABLE()
 };

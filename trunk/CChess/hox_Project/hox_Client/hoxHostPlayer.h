@@ -26,7 +26,7 @@ class hoxHostPlayer :  public hoxPlayer
     hoxHostPlayer(); // Default constructor required for event handler.
     hoxHostPlayer( const wxString& name,
                    hoxPlayerType   type,
-                   int             score = 1500);
+                   int             score );
 
     virtual ~hoxHostPlayer();
 

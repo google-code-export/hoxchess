@@ -2,6 +2,8 @@
 // Name:            MyApp.cpp
 // Program's Name:  Huy's Open Xiangqi
 // Created:         10/02/2007
+//
+// Description:     The main Application.
 /////////////////////////////////////////////////////////////////////////////
 
 #include "MyApp.h"
@@ -79,7 +81,6 @@ MyApp::OnInit()
         return false;
 
     m_frame = NULL;    // To avoid "logging to early to Frame".
-    m_nChildren = 0;
     m_httpPlayer  = NULL;
     m_myPlayer  = NULL;
 
@@ -144,6 +145,30 @@ MyApp::OnExit()
     //delete wxLog::SetActiveTarget( m_oldLog );
 
     return 0;
+}
+
+hoxMyPlayer* 
+MyApp::GetMyPlayer() 
+{ 
+    if ( m_myPlayer == NULL )
+    {
+        wxString playerName = hoxUtility::GenerateRandomString();
+        m_myPlayer = hoxPlayerMgr::GetInstance()->CreateMyPlayer( playerName );
+    }
+
+    return m_myPlayer; 
+}
+
+hoxHttpPlayer* 
+MyApp::GetHTTPPlayer() const
+{ 
+    if ( m_httpPlayer == NULL )
+    {
+        wxString playerName = hoxUtility::GenerateRandomString();
+        m_httpPlayer = hoxPlayerMgr::GetInstance()->CreateHTTPPlayer( playerName );
+    }
+
+    return m_httpPlayer; 
 }
 
 void 

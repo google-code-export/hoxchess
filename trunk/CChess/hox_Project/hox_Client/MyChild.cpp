@@ -28,7 +28,6 @@
 BEGIN_EVENT_TABLE(MyChild, wxMDIChildFrame)
     EVT_MENU(MDI_CHILD_QUIT, MyChild::OnQuit)
     EVT_MENU(MDI_TOGGLE, MyChild::OnToggle)
-    //EVT_MENU(MDI_CHANGE_SIZE, MyChild::OnChangeSize)
 
     EVT_CLOSE(MyChild::OnClose)
 END_EVENT_TABLE()
@@ -62,22 +61,6 @@ MyChild::~MyChild()
 {
     const char* FNAME = "MyChild::~MyChild";
     wxLogDebug("%s: ENTER.", FNAME);
-
-    if ( m_table != NULL )
-    {
-        /* We should send a signal inform all players about this event.
-         * In the mean time, use "brute force"!!!
-         */
-
-        hoxPlayer* redPlayer = m_table->GetRedPlayer();
-        hoxPlayer* blackPlayer = m_table->GetBlackPlayer();
-
-        if ( redPlayer != NULL ) redPlayer->LeaveTable( m_table );
-        if ( blackPlayer != NULL ) blackPlayer->LeaveTable( m_table );
-        hoxTableMgr::GetInstance()->RemoveTable( m_table );
-    }
-
-    wxLogDebug("%s: END.", FNAME);
 }
 
 void 
@@ -101,8 +84,6 @@ MyChild::_SetupMenu()
     wxMenu *option_menu = new wxMenu;
 
     option_menu->Append(MDI_TOGGLE, _T("&Toggle View\tCtrl-T"));
-    //option_menu->AppendSeparator();
-    //option_menu->Append(MDI_CHANGE_SIZE, _T("Resize frame\tCtrl-S"));
 
     /* Help menu */
 
@@ -119,7 +100,6 @@ MyChild::_SetupMenu()
 
     // Associate the menu bar with the frame
     SetMenuBar(menu_bar);
-
 }
 
 void 
@@ -142,59 +122,35 @@ MyChild::OnToggle(wxCommandEvent& WXUNUSED(event))
         m_table->ToggleViewSide();
 }
 
-//void 
-//MyChild::OnChangeSize(wxCommandEvent& WXUNUSED(event))
-//{
-//    SetClientSize(100, 100);
-//}
-
 void 
 MyChild::OnClose(wxCloseEvent& event)
 {
     const char* FNAME = "MyChild::OnClose";
     wxLogDebug("%s: ENTER.", FNAME);
 
-    wxGetApp().m_nChildren--;
+    wxCHECK_RET( m_table, "The table must have been set." );
+    
+    MyFrame* parent = wxDynamicCast(this->GetParent(), MyFrame);
+    wxCHECK_RET( parent, "We should be able to cast...");
+    bool bAllowedToClose =  parent->OnChildClose( m_table );
 
-    /* If one of the players is the HTTP player,
-     * then inform the HTTP server that the player is leaving this table.
-     */
-    wxASSERT( m_table != NULL );
-    hoxHttpPlayer* httpPlayer = wxGetApp().m_httpPlayer;
-    if (   httpPlayer != NULL
-        && (   m_table->GetRedPlayer() == httpPlayer
-            || m_table->GetBlackPlayer() == httpPlayer) )
+    if ( !bAllowedToClose )
     {
-        wxLogDebug("%s: Info the HTTP server about my leaving my table.", FNAME);
-        const wxString tableId = m_table->GetId(); 
-        wxASSERT( this->GetParent() );
-        hoxResult result = httpPlayer->LeaveNetworkTable( tableId, this->GetParent() );
-        if ( result != hoxRESULT_OK ) // failed?
-        {
-            wxLogError("%s: Failed to inform HTTP server about my leaving the table [%s].", FNAME, tableId);
-        }
-        httpPlayer->LeaveTable( m_table );
+        wxLogDebug("%s: The parent did not allow me to close. END.", FNAME);
+        return;
     }
 
-    /* If one of the players is the MY player,
-     * then inform the the server that the player is leaving this table.
+    /* We should send a signal inform all players about this event.
+     * In the mean time, use "brute force"!!!
      */
-    wxASSERT( m_table != NULL );
-    hoxMyPlayer* myPlayer = wxGetApp().m_myPlayer;
-    if (   myPlayer != NULL
-        && (   m_table->GetRedPlayer() == myPlayer
-            || m_table->GetBlackPlayer() == myPlayer) )
-    {
-        wxLogDebug(wxString::Format("%s: Info the server about my leaving my table.", FNAME));
-        const wxString tableId = m_table->GetId(); 
-        wxASSERT( this->GetParent() );
-        hoxResult result = myPlayer->LeaveNetworkTable( tableId, this->GetParent() );
-        if ( result != hoxRESULT_OK ) // failed?
-        {
-            wxLogError(wxString::Format("%s: Failed to inform the server about my leaving the table [%s].", FNAME, tableId));
-        }
-        myPlayer->LeaveTable( m_table );
-    }
+
+    hoxPlayer* redPlayer = m_table->GetRedPlayer();
+    hoxPlayer* blackPlayer = m_table->GetBlackPlayer();
+
+    if ( redPlayer != NULL ) redPlayer->LeaveTable( m_table );
+    if ( blackPlayer != NULL ) blackPlayer->LeaveTable( m_table );
+    hoxTableMgr::GetInstance()->RemoveTable( m_table );
+    m_table = NULL;
 
     event.Skip(); // let the search for the event handler should continue...
 
@@ -204,7 +160,7 @@ MyChild::OnClose(wxCloseEvent& event)
 void
 MyChild::SetTable(hoxTable* table)
 {
-    wxASSERT_MSG( m_table == NULL, "A table has already been set." );
+    wxCHECK_RET( m_table == NULL, "A table has already been set." );
     wxASSERT( table != NULL );
     m_table = table;
 }

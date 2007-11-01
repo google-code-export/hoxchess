@@ -205,7 +205,7 @@ exit_label:
     if ( request->sender != NULL )
     {
         wxCommandEvent event( hoxEVT_SERVER_RESPONSE );
-        event.SetInt( result );
+        response->code = result;
         event.SetEventObject( response.release() );
         wxPostEvent( request->sender, event );
     }
