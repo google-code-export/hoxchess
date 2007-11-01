@@ -139,11 +139,9 @@ hoxServer::_HandleRequest( hoxRequest* request )
 {
     const char* FNAME = "hoxServer::_HandleRequest";
     hoxResult    result = hoxRESULT_ERR;
-    hoxResponse* response = NULL;
+    std::auto_ptr<hoxResponse> response( new hoxResponse(request->type) );
 
     wxLogDebug("%s: ENTER.", FNAME);
-
-    response = new hoxResponse( request->type );
 
     /* 
      * SPECIAL CASE: 
@@ -208,12 +206,8 @@ exit_label:
     {
         wxCommandEvent event( hoxEVT_SERVER_RESPONSE );
         event.SetInt( result );
-        event.SetEventObject( response );
+        event.SetEventObject( response.release() );
         wxPostEvent( request->sender, event );
-    }
-    else
-    {
-        delete response;
     }
 }
 
@@ -244,7 +238,6 @@ hoxResult
 hoxServer::_HandleRequest_Accept( hoxRequest* request ) 
 {
     const char* FNAME = "hoxServer::_HandleRequest_Accept";  // function's name
-    wxLogDebug("%s: ENTER.", FNAME);
 
     wxLogDebug("%s: Saving an active (socket) connection.", FNAME);
     m_activeSockets.push_back( request->socket );
@@ -258,7 +251,6 @@ hoxServer::_SendRequest_Data( const hoxRequest* request,
 {
     const char* FNAME = "hoxServer::_SendRequest_Data";
     hoxResult      result = hoxRESULT_OK;
-    wxString       commandStr;
     hoxCommand     command;
     wxSocketBase*  sock = NULL;
 
@@ -275,30 +267,21 @@ hoxServer::_SendRequest_Data( const hoxRequest* request,
         return hoxRESULT_NOT_SUPPORTED;
     }
 
-    // We disable input events until we are done processing the current command.
-    hoxNetworkAPI::SocketInputLock socketLock( sock );
-
-    wxLogDebug("%s: Reading incoming command from the network...", FNAME);
-    result = hoxNetworkAPI::ReadLine( sock, commandStr );
+    /* Read the incoming command */
+    result = hoxNetworkAPI::ReadCommand( sock, command );
     if ( result != hoxRESULT_OK )
     {
         wxLogError("%s: Failed to read incoming command.", FNAME);
         return hoxRESULT_ERR;
     }
-    wxLogDebug("%s: Received command [%s].", FNAME, commandStr);
 
-    result = hoxNetworkAPI::ParseCommand( commandStr, command );
-    if ( result != hoxRESULT_OK )
-    {
-        wxLogError("%s: Failed to parse command-string [%s].", FNAME, commandStr);
-        return hoxRESULT_ERR;
-    }
-
+    /* Process the command */
     switch ( command.type )
     {
-        case hoxREQUEST_TYPE_CONNECT:
-            _HandleCommand_Connect(sock); 
-            break;
+        // **** TEMPORARY commented due to moving to hoxSocketServer
+        //case hoxREQUEST_TYPE_CONNECT:
+        //    _HandleCommand_Connect(sock); 
+        //    break;
 
         case hoxREQUEST_TYPE_LIST:
             _HandleCommand_List(sock); 
@@ -314,7 +297,7 @@ hoxServer::_SendRequest_Data( const hoxRequest* request,
 
         default:
             wxLogError("%s: Unsupported Request-Type [%s].", 
-                FNAME, hoxUtility::RequestTypeToString(request->type));
+                FNAME, hoxUtility::RequestTypeToString(command.type));
             result = hoxRESULT_NOT_SUPPORTED;
             break;
     }
@@ -393,8 +376,8 @@ hoxServer::_HandleCommand_List( wxSocketBase *sock )
 }
 
 void 
-hoxServer::_HandleCommand_Join( wxSocketBase*      sock,
-                               hoxCommand&  command )
+hoxServer::_HandleCommand_Join( wxSocketBase*   sock,
+                                hoxCommand&     command )
 {
     const char* FNAME = "hoxServer::_HandleCommand_Join";
 

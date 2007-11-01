@@ -59,6 +59,9 @@ namespace hoxNetworkAPI
     hoxResult ParseNetworkEvents( const wxString&      tablesStr,
                                   hoxNetworkEventList& networkEvents );
 
+    hoxResult ReadCommand( wxSocketBase* sock, 
+                           hoxCommand&   command );
+
     hoxResult ReadLine( wxSocketBase* sock, 
                         wxString&     result );
 

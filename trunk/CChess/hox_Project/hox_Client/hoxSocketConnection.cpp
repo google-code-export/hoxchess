@@ -75,6 +75,14 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
             break;
     }
 
+    /* Log error */
+    if ( result != hoxRESULT_OK )
+    {
+        wxLogError("%s: Error occurred while handling request [%s].", 
+            FNAME, hoxUtility::RequestTypeToString(request->type));
+        response->content = "!Error_Result!";
+    }
+
     /* NOTE: If there was error, just return it to the caller. */
 
     if ( request->sender != NULL )
