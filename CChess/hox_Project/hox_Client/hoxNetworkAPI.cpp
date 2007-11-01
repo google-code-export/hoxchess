@@ -502,6 +502,39 @@ hoxNetworkAPI::ParseNetworkEvents( const wxString&      tablesStr,
     return hoxRESULT_OK;
 }
 
+hoxResult 
+hoxNetworkAPI::ReadCommand( wxSocketBase* sock, 
+                            hoxCommand&   command )
+{
+    const char* FNAME = "hoxServer::_SendRequest_Data";
+    hoxResult   result = hoxRESULT_OK;
+    wxString    commandStr;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+    
+    // We disable input events until we are done processing the current command.
+    hoxNetworkAPI::SocketInputLock socketLock( sock );
+
+    wxLogDebug("%s: Reading incoming command from the network...", FNAME);
+    result = hoxNetworkAPI::ReadLine( sock, commandStr );
+    if ( result != hoxRESULT_OK )
+    {
+        wxLogError("%s: Failed to read incoming command.", FNAME);
+        return hoxRESULT_ERR;
+    }
+    wxLogDebug("%s: Received command [%s].", FNAME, commandStr);
+
+    result = hoxNetworkAPI::ParseCommand( commandStr, command );
+    if ( result != hoxRESULT_OK )
+    {
+        wxLogError("%s: Failed to parse command-string [%s].", FNAME, commandStr);
+        return hoxRESULT_ERR;
+    }
+
+    return hoxRESULT_OK;
+}
+
+
 hoxResult
 hoxNetworkAPI::ReadLine( wxSocketBase* sock, 
                          wxString&     result )

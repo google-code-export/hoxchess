@@ -28,7 +28,6 @@ DEFINE_EVENT_TYPE(hoxEVT_SERVER_RESPONSE)
 
 BEGIN_EVENT_TABLE(MyApp, wxApp)
   EVT_SOCKET(SERVER_SOCKET_ID,  MyApp::OnServerSocketEvent)
-  //EVT_COMMAND(wxID_ANY, hoxEVT_SERVER_RESPONSE, MyApp::OnServerResponse)
 END_EVENT_TABLE()
 
 
@@ -230,14 +229,5 @@ MyApp::OnServerSocketEvent(wxSocketEvent& event)
     }
 }
 
-//void 
-//MyApp::OnServerResponse(wxCommandEvent& event)
-//{
-//    const char* FNAME = "MyApp::OnServerResponse";  // function's name
-//    wxLogDebug("%s: ENTER.", FNAME);
-//
-//    hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
-//    const std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
-//}
 
 /************************* END OF FILE ***************************************/

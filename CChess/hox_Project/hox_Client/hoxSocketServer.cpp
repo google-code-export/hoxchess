@@ -12,6 +12,7 @@
 #include "MyApp.h"    // To access wxGetApp()
 #include "hoxServer.h"
 #include "hoxNetworkAPI.h"
+#include "hoxUtility.h"
 
 //
 // hoxSocketServer
@@ -97,6 +98,51 @@ hoxSocketServer::Entry()
         newSock->SetEventHandler( wxGetApp(), SERVER_SOCKET_ID );
         newSock->SetNotify( wxSOCKET_INPUT_FLAG | wxSOCKET_LOST_FLAG );
         newSock->Notify( true );
+
+        /////////////////////////////////////////////////////
+        // The following CONNECT is put here to handle the problem of
+        // not being able to connect to the server.
+        /////////////////////////////////////////////////////
+
+        wxLogDebug("%s: *** TODO: Temporarily handle CONNECT here..", FNAME);
+        {
+            /* Read the incoming command */
+            hoxCommand command;
+            hoxResult result = hoxNetworkAPI::ReadCommand( newSock, command );
+            if ( result != hoxRESULT_OK )
+            {
+                wxLogError("%s: Failed to read incoming command.", FNAME);
+                continue; // return hoxRESULT_ERR;
+            }
+
+            /* Process the command */
+            if ( command.type != hoxREQUEST_TYPE_CONNECT )
+            {
+                wxLogError("%s: Unsupported Request-Type [%s].", 
+                    FNAME, hoxUtility::RequestTypeToString(command.type));
+                continue;
+            }
+
+           /* Simply send back an OK response. */
+
+            wxUint32 nWrite;
+            wxString response;
+
+            response << "0\r\n"  // code
+                     << "OK - Accepted\r\n";  // message
+
+            nWrite = (wxUint32) response.size();
+            newSock->WriteMsg( response, nWrite );
+            if ( newSock->LastCount() != nWrite )
+            {
+                wxLogError("%s: Writing to socket failed. Error = [%s]", 
+                    FNAME, hoxNetworkAPI::SocketErrorToString(newSock->LastError()));
+                continue; //return;
+            }
+        }
+        ////// END OF CONNECT ////////////////
+        //////////////////////////////////////////////////
+
 
         // *** Save the connection so that later we can cleanup before closing.
         wxLogDebug("%s: Posting ACCEPT request to save the new client connection.", FNAME);

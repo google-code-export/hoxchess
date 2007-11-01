@@ -130,7 +130,7 @@ void MyFrame::OnAbout(wxCommandEvent& WXUNUSED(event) )
                     _("Welcome to HOX Chess!\n"
                       "\n"
                       "Author: Huy Phan (c) 2007\n"
-                      "Version: 0.0.2\n"
+                      "Version: 0.0.2.0\n"
                       "\n"
                       "This application is powered by %s, running under %s."),
                     wxVERSION_STRING,
@@ -778,15 +778,16 @@ void
 MyFrame::_OnMYResponse_List( const wxString& responseStr )
 {
     const char* FNAME = "MyFrame::_OnMYResponse_List";
-    wxLogDebug("%s: Parsing SEND-LIST's response...", FNAME);
     hoxNetworkTableInfoList tableList;
-    hoxResult result;
+    hoxResult               result;
+
+    wxLogDebug("%s: Parsing LIST's response...", FNAME);
 
     result = hoxNetworkAPI::ParseNetworkTables( responseStr,
                                                 tableList );
     if ( result != hoxRESULT_OK )
     {
-        wxLogError("%s: Failed to parse for SEND-LIST's response.", FNAME);
+        wxLogError("%s: Failed to parse the LIST's response.", FNAME);
         return;
     }
 
