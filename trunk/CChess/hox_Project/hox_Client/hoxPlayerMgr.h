@@ -12,7 +12,7 @@
 #include "wx/wx.h"
 #include "hoxPlayer.h"
 #include "hoxHostPlayer.h"
-#include "hoxNetworkPlayer.h"
+#include "hoxRemotePlayer.h"
 #include "hoxHttpPlayer.h"
 #include "hoxMyPlayer.h"
 
@@ -35,8 +35,8 @@ public:
     hoxMyPlayer* CreateMyPlayer( const wxString& name,
                                  int             score = 1500 );
 
-    hoxNetworkPlayer* CreateNetworkPlayer( const wxString& name,
-                                           int             score = 1500 );
+    hoxRemotePlayer* CreateRemotePlayer( const wxString& name,
+                                         int             score = 1500 );
 
     hoxPlayer* CreatePlayer( const wxString& name,
                              hoxPlayerType   type,

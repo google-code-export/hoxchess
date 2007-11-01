@@ -1,27 +1,27 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:            hoxNetworkPlayer.cpp
+// Name:            hoxRemotePlayer.cpp
 // Program's Name:  Huy's Open Xiangqi
-// Created:         10/09/2007
+// Created:         11/01/2007
 //
-// Description:     The NETWORK Player.
+// Description:     The REMOTE Player.
 /////////////////////////////////////////////////////////////////////////////
 
-#include "hoxNetworkPlayer.h"
+#include "hoxRemotePlayer.h"
 #include "hoxEnums.h"
 #include "hoxServer.h"
 
-IMPLEMENT_DYNAMIC_CLASS( hoxNetworkPlayer, hoxPlayer )
+IMPLEMENT_DYNAMIC_CLASS( hoxRemotePlayer, hoxPlayer )
 
-BEGIN_EVENT_TABLE(hoxNetworkPlayer, hoxPlayer)
-    EVT_SOCKET(CLIENT_SOCKET_ID,  hoxNetworkPlayer::OnIncomingNetworkData)
+BEGIN_EVENT_TABLE(hoxRemotePlayer, hoxPlayer)
+    EVT_SOCKET(CLIENT_SOCKET_ID,  hoxRemotePlayer::OnIncomingNetworkData)
 END_EVENT_TABLE()
 
 
 //-----------------------------------------------------------------------------
-// hoxNetworkPlayer
+// hoxRemotePlayer
 //-----------------------------------------------------------------------------
 
-hoxNetworkPlayer::hoxNetworkPlayer()
+hoxRemotePlayer::hoxRemotePlayer()
             : hoxPlayer()
             , m_pCBSock( NULL )
             , m_server( NULL )
@@ -29,7 +29,7 @@ hoxNetworkPlayer::hoxNetworkPlayer()
     wxFAIL_MSG("This is not meant to be called.");
 }
 
-hoxNetworkPlayer::hoxNetworkPlayer( const wxString& name,
+hoxRemotePlayer::hoxRemotePlayer( const wxString& name,
                                     hoxPlayerType   type,
                                     int             score )
             : hoxPlayer( name, type, score )
@@ -38,15 +38,15 @@ hoxNetworkPlayer::hoxNetworkPlayer( const wxString& name,
 { 
 }
 
-hoxNetworkPlayer::~hoxNetworkPlayer() 
+hoxRemotePlayer::~hoxRemotePlayer() 
 {
     this->DisconnectFromNetwork();
 }
 
 void
-hoxNetworkPlayer::OnIncomingNetworkData( wxSocketEvent& event )
+hoxRemotePlayer::OnIncomingNetworkData( wxSocketEvent& event )
 {
-    const char* FNAME = "hoxNetworkPlayer::OnIncomingNetworkData";
+    const char* FNAME = "hoxRemotePlayer::OnIncomingNetworkData";
     wxLogDebug("%s: ENTER.", FNAME);
 
     wxASSERT( m_server != NULL );
@@ -59,9 +59,9 @@ hoxNetworkPlayer::OnIncomingNetworkData( wxSocketEvent& event )
 }
 
 void 
-hoxNetworkPlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
+hoxRemotePlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
 {
-    const char* FNAME = "hoxNetworkPlayer::OnNewMove_FromTable";
+    const char* FNAME = "hoxRemotePlayer::OnNewMove_FromTable";
     wxString     tableId     = event.GetTableId();
     hoxPosition  moveFromPos = event.GetOldPosition();
     hoxPosition  moveToPos   = event.GetPosition();
@@ -83,9 +83,9 @@ hoxNetworkPlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
 }
 
 hoxResult 
-hoxNetworkPlayer::SetCBSocket( wxSocketBase* socket )
+hoxRemotePlayer::SetCBSocket( wxSocketBase* socket )
 {
-    const char* FNAME = "hoxNetworkPlayer::SetCBSocket";
+    const char* FNAME = "hoxRemotePlayer::SetCBSocket";
 
     if ( m_pCBSock != NULL )
     {
@@ -99,9 +99,9 @@ hoxNetworkPlayer::SetCBSocket( wxSocketBase* socket )
 }
 
 hoxResult 
-hoxNetworkPlayer::DisconnectFromNetwork()
+hoxRemotePlayer::DisconnectFromNetwork()
 {
-    const char* FNAME = "hoxNetworkPlayer::DisconnectFromNetwork";
+    const char* FNAME = "hoxRemotePlayer::DisconnectFromNetwork";
 
     wxLogDebug("%s: ENTER. (*** but do nothing ***).", FNAME);
 

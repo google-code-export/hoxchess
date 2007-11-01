@@ -209,10 +209,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\hoxNetworkPlayer.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\hoxPiece.cpp"
 				>
 			</File>
@@ -234,6 +230,10 @@
 			</File>
 			<File
 				RelativePath=".\hoxReferee.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\hoxRemotePlayer.cpp"
 				>
 			</File>
 			<File
@@ -331,10 +331,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\hoxNetworkPlayer.h"
-				>
-			</File>
-			<File
 				RelativePath=".\hoxPiece.h"
 				>
 			</File>
@@ -356,6 +352,10 @@
 			</File>
 			<File
 				RelativePath=".\hoxReferee.h"
+				>
+			</File>
+			<File
+				RelativePath=".\hoxRemotePlayer.h"
 				>
 			</File>
 			<File

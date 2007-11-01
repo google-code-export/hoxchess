@@ -10,7 +10,7 @@
 #include "hoxEnums.h"
 #include "MyApp.h"
 #include "hoxTableMgr.h"
-#include "hoxNetworkPlayer.h"
+#include "hoxRemotePlayer.h"
 #include "hoxPlayerMgr.h"
 #include "hoxUtility.h"
 #include "hoxNetworkAPI.h"
@@ -433,10 +433,10 @@ hoxServer::_HandleCommand_Join( wxSocketBase*   sock,
 
     hoxResult result;
 
-    wxLogDebug("%s: Create a network player to the table...", FNAME);
-    hoxNetworkPlayer* black_player = 
-        hoxPlayerMgr::GetInstance()->CreateNetworkPlayer( sRequesterName,
-                                                          nRequesterScore );
+    wxLogDebug("%s: Create a remote player to the table...", FNAME);
+    hoxRemotePlayer* black_player = 
+        hoxPlayerMgr::GetInstance()->CreateRemotePlayer( sRequesterName,
+                                                         nRequesterScore );
 
     // Setup the network-server which will handle all network communications.
     wxLogDebug("%s: Let this server manage the communication for this Network player [%s].", 

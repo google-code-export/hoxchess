@@ -9,8 +9,7 @@
 #ifndef __INCLUDED_HOX_PLAYER_H_
 #define __INCLUDED_HOX_PLAYER_H_
 
-#include "wx/wx.h"
-#include "wx/socket.h"
+#include <wx/wx.h>
 #include "hoxEnums.h"
 #include "hoxTypes.h"
 #include "hoxPlayerEvent.h"
@@ -23,8 +22,8 @@ class hoxTable;
 // ----------------------------------------------------------------------------
 
 BEGIN_DECLARE_EVENT_TYPES()
-  DECLARE_EVENT_TYPE(hoxEVT_PLAYER_TABLE_CLOSED, -1)
-  DECLARE_EVENT_TYPE(hoxEVT_PLAYER_NEW_MOVE, -1)
+  DECLARE_EVENT_TYPE(hoxEVT_PLAYER_TABLE_CLOSED, wxID_ANY)
+  DECLARE_EVENT_TYPE(hoxEVT_PLAYER_NEW_MOVE, wxID_ANY)
 END_DECLARE_EVENT_TYPES()
 
 
@@ -42,7 +41,7 @@ END_DECLARE_EVENT_TYPES()
 
 class hoxPlayer :  public wxEvtHandler
 {
-  public:
+public:
     hoxPlayer(); // Default constructor required for event handler.
     hoxPlayer( const wxString& name,
                hoxPlayerType   type,
@@ -84,7 +83,7 @@ class hoxPlayer :  public wxEvtHandler
     virtual hoxResult LeaveTable( hoxTable* table );
 
 
-  private:
+private:
     wxString       m_name;   // The player's name.
 
     hoxPlayerType  m_type;       

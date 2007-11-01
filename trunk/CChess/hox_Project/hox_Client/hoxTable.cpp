@@ -243,7 +243,7 @@ hoxTable::OnMove_FromNetwork( hoxPlayer*         player,
             wxLogDebug(wxString::Format(_("%s: Ignore this Move since this is a LOCAL player."), FNAME));
             break;
 
-        case hoxPLAYER_TYPE_NETWORK:
+        case hoxPLAYER_TYPE_REMOTE:
             //(*it)->OnMove_FromTable( m_id, move );
             break;
 

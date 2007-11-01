@@ -69,12 +69,12 @@ hoxPlayerMgr::CreateMyPlayer( const wxString& name,
     return player;
 }
 
-hoxNetworkPlayer*
-hoxPlayerMgr::CreateNetworkPlayer( const wxString& name,
-                                   int             score /* = 1500 */)
+hoxRemotePlayer*
+hoxPlayerMgr::CreateRemotePlayer( const wxString& name,
+                                  int             score /* = 1500 */)
 {
-    hoxNetworkPlayer* player 
-        = new hoxNetworkPlayer( name, hoxPLAYER_TYPE_NETWORK, score );
+    hoxRemotePlayer* player 
+        = new hoxRemotePlayer( name, hoxPLAYER_TYPE_REMOTE, score );
     m_players.push_back( player );
 
     return player;
