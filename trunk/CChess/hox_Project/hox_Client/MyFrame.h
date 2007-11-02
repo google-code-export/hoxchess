@@ -12,10 +12,12 @@
 #include <wx/wx.h>
 #include <wx/laywin.h>   // wxSashLayoutWindow
 #include <wx/progdlg.h>
+#include <list>
 
 /* Forward declarations */
 class hoxNetworkTableInfo;
 class hoxTable;
+class MyChild;
 
 // menu items ids
 enum
@@ -44,6 +46,8 @@ DECLARE_EVENT_TYPE(hoxEVT_FRAME_LOG_MSG, wxID_ANY)
  */
 class MyFrame : public wxMDIParentFrame
 {
+    typedef std::list<MyChild*> MyChildList;
+
 public:
     MyFrame( wxWindow*          parent, 
              const wxWindowID   id, 
@@ -80,7 +84,7 @@ public:
      *       for the permission to close.
      *       !!! BE CAREFUL with recursive calls. !!!
      */
-    bool OnChildClose(hoxTable* table);
+    bool OnChildClose(MyChild* child, hoxTable* table);
 
     void DoJoinNewHTTPTable(const wxString& tableId);
     void DoJoinExistingHTTPTable(const hoxNetworkTableInfo& tableInfo);
@@ -114,6 +118,7 @@ private:
     wxProgressDialog*   m_dlgProgress;
 
     int                 m_nChildren;   // The number of child-frames.
+    MyChildList         m_children;
 
     DECLARE_EVENT_TABLE()
 };

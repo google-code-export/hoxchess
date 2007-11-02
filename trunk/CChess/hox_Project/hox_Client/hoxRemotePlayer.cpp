@@ -40,7 +40,6 @@ hoxRemotePlayer::hoxRemotePlayer( const wxString& name,
 
 hoxRemotePlayer::~hoxRemotePlayer() 
 {
-    this->DisconnectFromNetwork();
 }
 
 void
@@ -69,7 +68,7 @@ hoxRemotePlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
     wxString moveStr = wxString::Format("%d%d%d%d", 
                             moveFromPos.x, moveFromPos.y, moveToPos.x, moveToPos.y);
 
-    wxLogDebug("%s: ENTER. move = [%s].", FNAME, moveStr);
+    wxLogDebug("%s: ENTER. Move = [%s].", FNAME, moveStr);
 
     wxASSERT( m_server != NULL );
     {
@@ -87,30 +86,10 @@ hoxRemotePlayer::SetCBSocket( wxSocketBase* socket )
 {
     const char* FNAME = "hoxRemotePlayer::SetCBSocket";
 
-    if ( m_pCBSock != NULL )
-    {
-        wxLogError("%s: Callback socket already exists.", FNAME);
-        return hoxRESULT_ERR;
-    }
+    wxCHECK_MSG(m_pCBSock == NULL, hoxRESULT_ERR, "Callback socket already exists.");
 
     wxLogDebug("%s: Assign callback socket to this user [%s]", FNAME, GetName());
     m_pCBSock = socket;
-    return hoxRESULT_OK;
-}
-
-hoxResult 
-hoxRemotePlayer::DisconnectFromNetwork()
-{
-    const char* FNAME = "hoxRemotePlayer::DisconnectFromNetwork";
-
-    wxLogDebug("%s: ENTER. (*** but do nothing ***).", FNAME);
-
-    //if ( m_pCBSock != NULL )
-    //{
-    //    m_pCBSock->Destroy();
-    //    m_pCBSock = NULL;
-    //}
-
     return hoxRESULT_OK;
 }
 

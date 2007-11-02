@@ -77,8 +77,8 @@ hoxLocalPlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
 
 hoxResult 
 hoxLocalPlayer::ConnectToNetworkServer( const wxString& sHostname, 
-                                     int             nPort,
-                                     wxEvtHandler*   sender )
+                                        int             nPort,
+                                        wxEvtHandler*   sender )
 {
     m_sHostname = sHostname;
     m_nPort = nPort;

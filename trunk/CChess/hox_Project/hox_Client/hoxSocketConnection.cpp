@@ -87,7 +87,7 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
 
     if ( request->sender != NULL )
     {
-        wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE );
+        wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, request->type );
         response->code = result;
         event.SetEventObject( response.release() );  // Caller will de-allocate.
         wxPostEvent( request->sender, event );

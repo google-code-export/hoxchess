@@ -44,8 +44,6 @@ class hoxRemotePlayer :  public hoxPlayer
 
     void OnIncomingNetworkData( wxSocketEvent& event );
 
-    virtual hoxResult DisconnectFromNetwork();
-
     hoxResult     SetCBSocket( wxSocketBase* socket );
 
     void SetServer( hoxServer* server) { m_server = server; }

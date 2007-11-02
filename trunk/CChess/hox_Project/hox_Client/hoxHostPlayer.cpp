@@ -9,7 +9,6 @@
 #include "hoxHostPlayer.h"
 #include "hoxEnums.h"
 #include "hoxTable.h"
-#include "hoxTableMgr.h"
 
 #include <algorithm>
 

@@ -84,28 +84,59 @@ hoxTable::AssignPlayer( hoxPlayer*     player,
     if ( m_redPlayer == NULL )
     {
         assignedColor = hoxPIECE_COLOR_RED;
-        //player->AddRole( hoxRole( m_id, assignedColor ) );
         m_redPlayer = player;
-        
+    }
+    /* Assign to play BLACK if possible. */
+    else if ( m_blackPlayer == NULL )
+    {
+        assignedColor = hoxPIECE_COLOR_BLACK;
+        m_blackPlayer = player;
+    }
+
+    if ( assignedColor != hoxPIECE_COLOR_NONE )
+    {
         // Inform the Board about the new player.
         wxCommandEvent playerEvent( hoxEVT_BOARD_PLAYER_INFO );
         playerEvent.SetEventObject( player );
-        playerEvent.SetInt( hoxPIECE_COLOR_RED );
+        playerEvent.SetInt( assignedColor );
         ::wxPostEvent( m_board , playerEvent );
         return hoxRESULT_OK;
     }
 
+    // TODO: Not yet support "observers" !!!
+
+    return hoxRESULT_ERR;
+}
+
+hoxResult 
+hoxTable::RequestJoinFromPlayer( hoxPlayer*     player,
+                                 hoxPieceColor  requestColor )
+{
+    hoxResult result = hoxRESULT_OK;
+
+    wxCHECK_MSG( player != NULL, hoxRESULT_ERR, "The player is NULL." );
+
+    hoxPieceColor assignedColor = hoxPIECE_COLOR_NONE;
+
+    /* Assign to play RED if possible. */
+    if ( requestColor == hoxPIECE_COLOR_RED && m_redPlayer == NULL )
+    {
+        assignedColor = hoxPIECE_COLOR_RED;
+        m_redPlayer = player;
+    }
     /* Assign to play BLACK if possible. */
-    if ( m_blackPlayer == NULL )
+    else if ( requestColor == hoxPIECE_COLOR_BLACK && m_blackPlayer == NULL )
     {
         assignedColor = hoxPIECE_COLOR_BLACK;
-        //player->AddRole( hoxRole( m_id, assignedColor ) );
         m_blackPlayer = player;
+    }
 
+    if ( assignedColor != hoxPIECE_COLOR_NONE )
+    {
         // Inform the Board about the new player.
         wxCommandEvent playerEvent( hoxEVT_BOARD_PLAYER_INFO );
         playerEvent.SetEventObject( player );
-        playerEvent.SetInt( hoxPIECE_COLOR_BLACK );
+        playerEvent.SetInt( assignedColor );
         ::wxPostEvent( m_board , playerEvent );
         return hoxRESULT_OK;
     }
@@ -199,7 +230,7 @@ hoxTable::OnMove_FromNetwork( hoxPlayer*         player,
 {
     const char* FNAME = "hoxTable::OnMove_FromNetwork";
 
-    wxLogDebug(wxString::Format(_("%s: Receive new Move from Network."), FNAME));
+    wxLogDebug("%s: Receive new Move from Network.", FNAME);
     wxASSERT( player != NULL );
 
     // Look up Move based on "fromPosition".    
@@ -209,11 +240,11 @@ hoxTable::OnMove_FromNetwork( hoxPlayer*         player,
 
     if ( ! m_referee->GetPieceAtPosition( fromPosition, move.piece ) )
     {
-        wxLogDebug(wxString::Format(_("%s: Failed to locate piece at the position."), FNAME));
+        wxLogDebug("%s: Failed to locate piece at the position.", FNAME);
         return;
     }
 
-    wxLogDebug(wxString::Format(_("%s: Ask the Board to do this Move."), FNAME));
+    wxLogDebug("%s: Ask the Board to do this Move.", FNAME);
     m_board->DoMove( move );
 
     /* Inform all players at this table about this move. 
@@ -229,18 +260,18 @@ hoxTable::OnMove_FromNetwork( hoxPlayer*         player,
     {
         if ( (*it) == player )
         {
-            wxLogDebug(wxString::Format(_("%s: Skip this Player since he is the Sender."), FNAME));
+            wxLogDebug("%s: Skip this Player since he is the Sender.", FNAME);
             continue;
         }
 
         switch( (*it)->GetType() )
         {
         case hoxPLAYER_TYPE_HOST:
-            wxLogDebug(wxString::Format(_("%s: Ignore this Move since this is a HOST player."), FNAME));
+            wxLogDebug("%s: Ignore this Move since this is a HOST player.", FNAME);
             break;
 
         case hoxPLAYER_TYPE_LOCAL:
-            wxLogDebug(wxString::Format(_("%s: Ignore this Move since this is a LOCAL player."), FNAME));
+            wxLogDebug("%s: Ignore this Move since this is a LOCAL player.", FNAME);
             break;
 
         case hoxPLAYER_TYPE_REMOTE:
@@ -250,92 +281,28 @@ hoxTable::OnMove_FromNetwork( hoxPlayer*         player,
         case hoxPLAYER_TYPE_DUMMY:
             /* fall through */
         default: 
-            wxLogDebug(wxString::Format(_("%s: Ignore this Move since this is a DUMMY player."), FNAME));
+            wxLogDebug("%s: Ignore this Move since this is a DUMMY player.", FNAME);
             break;
         }
     }
 }
 
 void 
-hoxTable::OnEvent_FromNetwork( hoxPlayer*             player,
-                               const hoxNetworkEvent& networkEvent )
+hoxTable::OnMove_FromNetwork( hoxPlayer*         player,
+                              const wxString&    moveStr )
 {
-    const char* FNAME = "hoxTable::OnEvent_FromNetwork";
+    const char* FNAME = "hoxTable::OnMove_FromNetwork(moveStr)";
+    hoxMove  move;
 
-    wxLogDebug("%s: ENTER.", FNAME);
-    wxCHECK_RET( player != NULL, "The player is unexpectedly NULL." );
-
-    /* Determine which color is affected. */
-
-    switch ( networkEvent.type )
+    hoxResult result = _ParseMoveString( moveStr, move );
+    if ( result != hoxRESULT_OK ) // failed?
     {
-        case hoxNETWORK_EVENT_TYPE_NEW_PLAYER_RED:    // NEW PLAYER (RED)
-        {
-            hoxPieceColor assignedColor;
-            wxString otherPlayerId = networkEvent.content;
-            if ( this->m_redPlayer == NULL && !otherPlayerId.empty() )
-            {
-                wxLogDebug("%s: A player [%s] just joined table as RED.", FNAME, otherPlayerId);
-                hoxPlayer* newPlayer 
-                    = hoxPlayerMgr::GetInstance()->CreatePlayer( otherPlayerId,
-                                                                 hoxPLAYER_TYPE_DUMMY );
-                this->AssignPlayer( newPlayer, assignedColor );
-            }
-            break;
-        }
-        case hoxNETWORK_EVENT_TYPE_NEW_PLAYER_BLACK:    // NEW PLAYER (BLACK)
-        {
-            hoxPieceColor assignedColor;
-            wxString otherPlayerId = networkEvent.content;
-            if ( this->m_blackPlayer == NULL && !otherPlayerId.empty() )
-            {
-                wxLogDebug("%s: A player [%s] just joined table as BLACK.", FNAME, otherPlayerId);
-                hoxPlayer* newPlayer =
-                    hoxPlayerMgr::GetInstance()->CreatePlayer( otherPlayerId,
-                                                               hoxPLAYER_TYPE_DUMMY );
-                this->AssignPlayer( newPlayer, assignedColor );
-            }
-            break;
-        }
-        case hoxNETWORK_EVENT_TYPE_LEAVE_PLAYER_RED:    // LEAVE PLAYER (RED)
-            /* fall through */
-        case hoxNETWORK_EVENT_TYPE_LEAVE_PLAYER_BLACK:    // LEAVE PLAYER (BLACK)
-        {
-            wxString otherPlayerId = networkEvent.content;
-            if ( !otherPlayerId.empty() )
-            {
-                wxLogDebug("%s: A player [%s] just left the table.", FNAME, otherPlayerId);
-                hoxPlayer* foundPlayer = 
-                    hoxPlayerMgr::GetInstance()->FindPlayer( otherPlayerId );
-                if ( foundPlayer == NULL ) {
-                    wxLogError("%s: Player [%s] not found in the system.", FNAME, otherPlayerId);
-                } else {
-                    this->UnassignPlayer( foundPlayer );
-                }
-            }
-            break;
-        }
-        case hoxNETWORK_EVENT_TYPE_NEW_MOVE:    // NEW MOVE
-        {
-            wxString moveStr = networkEvent.content;
-            hoxMove  move;
-
-            hoxResult result = _ParseMoveString( moveStr, move );
-            if ( result != hoxRESULT_OK ) // failed?
-            {
-                wxLogError("%s: Parse Move from string [%s] failed.", FNAME, moveStr);
-                return;
-            }
-
-            wxLogDebug("%s: Ask the Board to do this Move.", FNAME);
-            m_board->DoMove( move );
-
-            break;
-        }
-        default:
-            wxLogDebug("%s: Unknown event type = [%d].", FNAME, networkEvent.type);
-            break;
+        wxLogError("%s: Parse Move from string [%s] failed.", FNAME, moveStr);
+        return;
     }
+
+    wxLogDebug("%s: Ask the Board to do this Move.", FNAME);
+    m_board->DoMove( move );
 }
 
 void 

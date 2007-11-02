@@ -132,7 +132,7 @@ MyChild::OnClose(wxCloseEvent& event)
     
     MyFrame* parent = wxDynamicCast(this->GetParent(), MyFrame);
     wxCHECK_RET( parent, "We should be able to cast...");
-    bool bAllowedToClose =  parent->OnChildClose( m_table );
+    bool bAllowedToClose =  parent->OnChildClose( this, m_table );
 
     if ( !bAllowedToClose )
     {

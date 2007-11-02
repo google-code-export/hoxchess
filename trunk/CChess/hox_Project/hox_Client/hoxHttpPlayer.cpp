@@ -13,6 +13,7 @@
 #include "hoxTableMgr.h"
 #include "hoxNetworkAPI.h"
 #include "hoxUtility.h"
+#include "hoxPlayerMgr.h"
 
 
 DEFINE_EVENT_TYPE(hoxEVT_HTTP_RESPONSE)
@@ -21,6 +22,7 @@ IMPLEMENT_DYNAMIC_CLASS( hoxHttpPlayer, hoxLocalPlayer )
 
 BEGIN_EVENT_TABLE(hoxHttpPlayer, hoxLocalPlayer)
     EVT_TIMER(wxID_ANY, hoxHttpPlayer::OnTimer)
+    EVT_COMMAND(hoxREQUEST_TYPE_POLL, hoxEVT_HTTP_RESPONSE, hoxHttpPlayer::OnHTTPResponse_Poll)
     EVT_COMMAND(wxID_ANY, hoxEVT_HTTP_RESPONSE, hoxHttpPlayer::OnHTTPResponse)
 END_EVENT_TABLE()
 
@@ -142,9 +144,9 @@ hoxHttpPlayer::OnTimer( wxTimerEvent& WXUNUSED(event) )
 }
 
 void 
-hoxHttpPlayer::OnHTTPResponse(wxCommandEvent& event) 
+hoxHttpPlayer::OnHTTPResponse_Poll(wxCommandEvent& event) 
 {
-    const char* FNAME = "hoxHttpPlayer::OnHTTPResponse";
+    const char* FNAME = "hoxHttpPlayer::OnHTTPResponse_Poll";
     hoxResult result;
 
     wxLogDebug("%s: ENTER.", FNAME);
@@ -156,85 +158,140 @@ hoxHttpPlayer::OnHTTPResponse(wxCommandEvent& event)
      *       because the response's content would be an empty string anyway.
      */
 
-    switch ( response->type )
+    hoxNetworkEventList networkEvents;
+
+    result = hoxNetworkAPI::ParseNetworkEvents( response->content,
+                                                networkEvents );
+
+    // Re-start the timer before checking for the result.
+    m_timer.Start( -1 /* Use the previous interval */, wxTIMER_ONE_SHOT );
+
+    if ( result != hoxRESULT_OK )
     {
-        case hoxREQUEST_TYPE_POLL:
-        {
-            hoxNetworkEventList networkEvents;
+        wxLogError("%s: Parse table events failed.", FNAME);
+        return;
+    }
 
-            result = hoxNetworkAPI::ParseNetworkEvents( response->content,
-                                                        networkEvents );
+    // Display all events.
+    wxLogDebug("%s: We got [%d] event(s).", FNAME, networkEvents.size());
+    for ( hoxNetworkEventList::iterator it = networkEvents.begin();
+                                        it != networkEvents.end(); ++it )
+    {
+        wxASSERT_MSG( this->GetName() == (*it)->pid, "Player Id must be the same.");
+        wxString infoStr;  // event's info-string.
+        infoStr << (*it)->id << " " << (*it)->pid << " " 
+                << (*it)->tid << " " << (*it)->type << " "
+                << (*it)->content;
+        wxLogDebug("%s: .... + Network event [%s].", FNAME, infoStr);
 
-            // Re-start the timer before checking for the result.
-            m_timer.Start( -1 /* Use the previous interval */, wxTIMER_ONE_SHOT );
+        _HandleEventFromNetwork( *(*it) );
+    }
 
-            if ( result != hoxRESULT_OK )
-            {
-                wxLogError("%s: Parse table events failed.", FNAME);
-                return;
-            }
-
-            // Display all events.
-            wxLogDebug("%s: We got [%d] event(s).", FNAME, networkEvents.size());
-            for ( hoxNetworkEventList::iterator it = networkEvents.begin();
-                                                it != networkEvents.end(); ++it )
-            {
-                wxASSERT_MSG( this->GetName() == (*it)->pid, "Player Id must be the same.");
-                wxString infoStr;  // event's info-string.
-                infoStr << (*it)->id << " " << (*it)->pid << " " 
-                        << (*it)->tid << " " << (*it)->type << " "
-                        << (*it)->content;
-                wxLogDebug("%s: .... + Network event [%s].", FNAME, infoStr);
-
-                // Find the table hosted on this system using the specified table-Id.
-                hoxTable* table = hoxTableMgr::GetInstance()->FindTable( (*it)->tid );
-                if ( table == NULL )
-                {
-                    wxLogError("%s: Failed to find table with ID = [%s].", FNAME, (*it)->tid);
-                    return;
-                }
-
-                // Inform our table...
-                table->OnEvent_FromNetwork( this, *(*it) );
-            }
-
-            // Release memory.
-            for ( hoxNetworkEventList::iterator it = networkEvents.begin();
-                                                it != networkEvents.end(); ++it )
-            {
-                delete (*it);
-            }
-
-        }
-        break;
-
-        case hoxREQUEST_TYPE_TABLE_MOVE:
-        {
-            int        returnCode = -1;
-            wxString   returnMsg;
-
-            result = hoxNetworkAPI::ParseSimpleResponse( response->content,
-                                                         returnCode,
-                                                         returnMsg );
-            if ( result != hoxRESULT_OK )
-            {
-                wxLogError("%s: Failed to parse for the MOVE's response.", FNAME);
-                return;
-            }
-            else if ( returnCode != 0 )
-            {
-                wxLogError("%s: Send MOVE to server failed. [%s]", FNAME, returnMsg);
-                return;
-            }
-        }
-        break;
-
-        default:
-            wxLogError("%s: Unknown Request type [%s].", 
-                FNAME, hoxUtility::RequestTypeToString(response->type));
-            break;
+    // Release memory.
+    for ( hoxNetworkEventList::iterator it = networkEvents.begin();
+                                        it != networkEvents.end(); ++it )
+    {
+        delete (*it);
     }
 }
 
+void 
+hoxHttpPlayer::OnHTTPResponse(wxCommandEvent& event) 
+{
+    const char* FNAME = "hoxHttpPlayer::OnHTTPResponse";
+    hoxResult result;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    hoxResponse* response = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
+    const std::auto_ptr<hoxResponse> safe_response( response ); // take care memory leak!
+
+    int        returnCode = -1;
+    wxString   returnMsg;
+
+    result = hoxNetworkAPI::ParseSimpleResponse( response->content,
+                                                 returnCode,
+                                                 returnMsg );
+    if ( result != hoxRESULT_OK )
+    {
+        wxLogError("%s: Failed to parse the HTTP response.", FNAME);
+        return;
+    }
+    else if ( returnCode != 0 )
+    {
+        wxLogError("%s: The HTTP response returns ERROR. [%s]", FNAME, returnMsg);
+        return;
+    }
+}
+
+void 
+hoxHttpPlayer::_HandleEventFromNetwork( const hoxNetworkEvent& networkEvent )
+{
+    const char* FNAME = "hoxHttpPlayer::_HandleEventFromNetwork";
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    // Find the table hosted on this system using the specified table-Id.
+    hoxTable* table = hoxTableMgr::GetInstance()->FindTable( networkEvent.tid );
+    if ( table == NULL )
+    {
+        wxLogError("%s: Failed to find table with ID = [%s].", FNAME, networkEvent.tid);
+        return;
+    }
+
+    switch ( networkEvent.type )
+    {
+        case hoxNETWORK_EVENT_TYPE_NEW_PLAYER_RED:    // NEW PLAYER (RED)
+            /* fall through */
+        case hoxNETWORK_EVENT_TYPE_NEW_PLAYER_BLACK:    // NEW PLAYER (BLACK)
+        {
+            hoxPieceColor requestColor = 
+                    ( networkEvent.type == hoxNETWORK_EVENT_TYPE_NEW_PLAYER_RED
+                      ? hoxPIECE_COLOR_RED
+                      : hoxPIECE_COLOR_BLACK );
+
+            wxString otherPlayerId = networkEvent.content;
+            
+            hoxPlayer* newPlayer = 
+                hoxPlayerMgr::GetInstance()->CreatePlayer( otherPlayerId,
+                                                           hoxPLAYER_TYPE_DUMMY );
+            
+            hoxResult result = table->RequestJoinFromPlayer( newPlayer,
+                                                             requestColor );
+            if ( result != hoxRESULT_OK )
+            {
+                wxLogError("%s: Failed to ask table to join as color [%d].", FNAME, requestColor);
+                hoxPlayerMgr::GetInstance()->DeletePlayer( newPlayer );
+                break;
+            }
+            break;
+        }
+        case hoxNETWORK_EVENT_TYPE_LEAVE_PLAYER_RED:    // LEAVE PLAYER (RED)
+            /* fall through */
+        case hoxNETWORK_EVENT_TYPE_LEAVE_PLAYER_BLACK:    // LEAVE PLAYER (BLACK)
+        {
+            wxString otherPlayerId = networkEvent.content;
+            hoxPlayer* foundPlayer = 
+                hoxPlayerMgr::GetInstance()->FindPlayer( otherPlayerId );
+            if ( foundPlayer == NULL ) 
+            {
+                wxLogError("%s: Player [%s] not found in the system.", FNAME, otherPlayerId);
+                break;
+            }
+            wxLogDebug("%s: A player [%s] just left the table.", FNAME, otherPlayerId);
+            table->OnLeave_FromPlayer( foundPlayer );
+            break;
+        }
+        case hoxNETWORK_EVENT_TYPE_NEW_MOVE:    // NEW MOVE
+        {
+            wxString moveStr = networkEvent.content;
+            table->OnMove_FromNetwork( this, moveStr );
+            break;
+        }
+        default:
+            wxLogError("%s: Unknown event type = [%d].", FNAME, networkEvent.type);
+            break;
+    }
+}
 
 /************************* END OF FILE ***************************************/
