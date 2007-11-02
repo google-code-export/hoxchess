@@ -44,17 +44,12 @@ public:
 
     /**
      * Assign a player to this Table.
-     *
-     * @note Side affects:
-     *    (1) The Role of the player is changed.
-     *        The assigned role can be RED, BLACK, or NONE (aka. observer).
-     *        The caller can query the new role by calling player->GetColor()
-     *
-     *    (2) If successful, this Table will take over the memory management
-     *        of the player.
      */
     hoxResult AssignPlayer( hoxPlayer*     player,
                             hoxPieceColor& assignedColor );
+
+    hoxResult RequestJoinFromPlayer( hoxPlayer*     player,
+                                     hoxPieceColor  requestColor );
 
     hoxResult UnassignPlayer( hoxPlayer* player );
 
@@ -89,13 +84,8 @@ public:
     void OnMove_FromNetwork( hoxPlayer*         player,
                              const hoxPosition& fromPosition,
                              const hoxPosition& toPosition );
-
-    /**
-     * Callback function from the NETWORK Player to let this Table know about
-     * the newly-received network event.
-     */
-    void OnEvent_FromNetwork( hoxPlayer*             player,
-                              const hoxNetworkEvent& networkEvent );
+    void OnMove_FromNetwork( hoxPlayer*         player,
+                             const wxString&    moveStr );
 
     /**
      * Callback function from a player who is leaving the table..

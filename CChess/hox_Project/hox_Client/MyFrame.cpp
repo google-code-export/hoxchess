@@ -118,6 +118,12 @@ MyFrame::~MyFrame()
 
 void MyFrame::OnClose(wxCloseEvent& event)
 {
+    while( ! m_children.empty() )
+    {
+        MyChild* child = m_children.front();
+        child->Close( true /* force */ );
+        // NOTE: The call above already delete the child.
+    }
     event.Skip();
 }
 
@@ -160,7 +166,8 @@ void MyFrame::OnNewWindow(wxCommandEvent& WXUNUSED(event) )
 }
 
 bool
-MyFrame::OnChildClose( hoxTable* table )
+MyFrame::OnChildClose( MyChild* child, 
+                       hoxTable* table )
 {
     const char* FNAME = "MyFrame::OnChildClose";
 
@@ -170,6 +177,7 @@ MyFrame::OnChildClose( hoxTable* table )
 
     m_nChildren--;
     table->OnClose_FromSystem();
+    m_children.remove( child );
 
     wxLogDebug("%s: END.", FNAME);
     return true;
@@ -1026,6 +1034,7 @@ MyFrame::_CreateNewTable( const wxString& tableId )
     }
 
     subframe = new MyChild( this, tableTitle );
+    m_children.push_back( subframe );
 
     // Create a new table. Use the title as the table-id.
     newTable = hoxTableMgr::GetInstance()->CreateTable( subframe, tableTitle );

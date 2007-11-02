@@ -67,10 +67,13 @@ hoxNetworkAPI::SendRequest( wxSocketBase*   sock,
         goto exit_label;
     }
 
-#if 0
+#if 1
     // Wait until data available (will also return if the connection is lost)
-    wxLogDebug(wxString::Format("%s: Waiting for response from the network (timeout = 2 sec)...", FNAME));
-    sock->WaitForRead( 2 /* seconds */ );
+    wxLogDebug("%s: Waiting for response from the network (timeout = 5 sec)...", FNAME);
+    if ( ! sock->WaitForRead( 5 /* seconds */ ) )
+    {
+        wxLogDebug("%s: Timeout while waiting for read. However, we still continue...", FNAME);
+    }
 #endif
 
     // Read back the response.
@@ -100,7 +103,6 @@ hoxNetworkAPI::HandleMove( wxSocketBase* sock,
     hoxResult       result = hoxRESULT_ERR;   // Assume: failure.
     wxUint32        nWrite;
     wxString        response;
-    hoxNetworkEvent networkEvent;
 
     wxString moveStr = command.parameters["move"];
     wxString tableId = command.parameters["tid"];
@@ -139,11 +141,8 @@ hoxNetworkAPI::HandleMove( wxSocketBase* sock,
         goto exit_label;
     }
 
-    networkEvent.content = moveStr;
-    networkEvent.type = hoxNETWORK_EVENT_TYPE_NEW_MOVE;
-
     // Inform our table...
-    table->OnEvent_FromNetwork( player, networkEvent );
+    table->OnMove_FromNetwork( player, moveStr );
 
     // Finally, return 'success'.
     response << "0\r\n"       // error-code = SUCCESS
@@ -176,7 +175,6 @@ hoxNetworkAPI::HandleLeave( wxSocketBase*  sock,
     wxString        response;
     wxString        tableId;
     wxString        requesterId;
-    hoxNetworkEvent networkEvent;
     hoxPlayer*      player = NULL;
 
     wxLogDebug("%s: ENTER.", FNAME);
@@ -199,12 +197,10 @@ hoxNetworkAPI::HandleLeave( wxSocketBase*  sock,
 
     if ( table->GetRedPlayer() != NULL && table->GetRedPlayer()->GetName() == requesterId )
     {
-        networkEvent.type = hoxNETWORK_EVENT_TYPE_LEAVE_PLAYER_RED;
         player = table->GetRedPlayer();
     }
     else if ( table->GetBlackPlayer() != NULL && table->GetBlackPlayer()->GetName() == requesterId )
     {
-        networkEvent.type = hoxNETWORK_EVENT_TYPE_LEAVE_PLAYER_BLACK;
         player = table->GetBlackPlayer();
     }
     else
@@ -215,10 +211,9 @@ hoxNetworkAPI::HandleLeave( wxSocketBase*  sock,
         goto exit_label;
     }
 
-    networkEvent.content = requesterId;
 
     // Inform our table...
-    table->OnEvent_FromNetwork( player, networkEvent );
+    table->OnLeave_FromPlayer( player );
 
 	// Finally, return 'success'.
 	response << "0\r\n"       // error-code = SUCCESS

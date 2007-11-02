@@ -64,7 +64,7 @@ hoxHttpConnection::HandleRequest( hoxRequest* request )
 
     if ( request->sender != NULL )
     {
-        wxCommandEvent event( hoxEVT_HTTP_RESPONSE );
+        wxCommandEvent event( hoxEVT_HTTP_RESPONSE, request->type );
         response->code = result;
         event.SetEventObject( response.release() );  // Caller will de-allocate.
         wxPostEvent( request->sender, event );
@@ -122,8 +122,8 @@ hoxHttpConnection::_SendRequest( const wxString& request,
         wxStringOutputStream out_stream( &response );
         httpStream->Read( out_stream );
 
-        wxLogDebug("%s: GetInputStream: Response-code = [%d] - OK", FNAME, get.GetResponse());
-        wxLogDebug("%s: Received document length = [%d].", FNAME, response.size());
+        //wxLogDebug("%s: GetInputStream: Response-code = [%d] - OK", FNAME, get.GetResponse());
+        //wxLogDebug("%s: Received document length = [%d].", FNAME, response.size());
         //wxMessageBox(response);
 
         result = hoxRESULT_OK;

@@ -57,6 +57,7 @@ public:
      * Income-data event handlers
      *******************************/
 
+    void OnHTTPResponse_Poll(wxCommandEvent& event);
     void OnHTTPResponse(wxCommandEvent& event);
 
     /*******************************
@@ -64,6 +65,9 @@ public:
      *******************************/
 
     void OnTimer( wxTimerEvent& WXUNUSED(event) );
+
+private:
+    void _HandleEventFromNetwork( const hoxNetworkEvent& networkEvent );
 
 private:
 
