@@ -95,16 +95,15 @@ hoxSocketServer::Entry()
             FNAME, hoxSOCKET_CLIENT_SOCKET_TIMEOUT);
         newSock->SetTimeout( hoxSOCKET_CLIENT_SOCKET_TIMEOUT );
 
-        newSock->SetEventHandler( wxGetApp(), SERVER_SOCKET_ID );
-        newSock->SetNotify( wxSOCKET_INPUT_FLAG | wxSOCKET_LOST_FLAG );
-        newSock->Notify( true );
-
         /////////////////////////////////////////////////////
         // The following CONNECT is put here to handle the problem of
         // not being able to connect to the server.
         /////////////////////////////////////////////////////
 
         wxLogDebug("%s: *** TODO: Temporarily handle CONNECT here..", FNAME);
+
+        wxLogDebug("%s: Turn OFF the socket-events until we finish handling CONNECT...", FNAME);
+        newSock->Notify( false );
         {
             /* Read the incoming command */
             hoxCommand command;
@@ -143,6 +142,10 @@ hoxSocketServer::Entry()
         ////// END OF CONNECT ////////////////
         //////////////////////////////////////////////////
 
+        wxLogDebug("%s: Turn ON the socket-events for the new client...", FNAME);
+        newSock->SetEventHandler( wxGetApp(), SERVER_SOCKET_ID );
+        newSock->SetNotify( wxSOCKET_INPUT_FLAG | wxSOCKET_LOST_FLAG );
+        newSock->Notify( true );
 
         // *** Save the connection so that later we can cleanup before closing.
         wxLogDebug("%s: Posting ACCEPT request to save the new client connection.", FNAME);

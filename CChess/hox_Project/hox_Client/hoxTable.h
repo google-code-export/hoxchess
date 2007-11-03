@@ -110,6 +110,10 @@ private:
      */
     void _PostPlayer_CloseEvent( hoxPlayer* player );
 
+    void _PostBoard_PlayerEvent( wxEventType commandType, 
+                                 hoxPlayer*  player,
+                                 int         extraCode = wxID_ANY );
+
 private:
     const wxString   m_id;       // The table's ID.
 

@@ -169,7 +169,12 @@ void
 hoxLocalPlayer::_StartConnection()
 {
     const char* FNAME = "hoxLocalPlayer::_StartConnection";
-    wxASSERT_MSG( m_connection == NULL, "The connection should not have been created.");
+    
+    if ( m_connection != NULL )
+    {
+        wxLogDebug("%s: The connection have been created. END.", FNAME);
+        return;
+    }
 
     wxASSERT_MSG( !m_sHostname.empty(), "Hostname must have been set." );
     m_connection = this->CreateNewConnection( m_sHostname, m_nPort );

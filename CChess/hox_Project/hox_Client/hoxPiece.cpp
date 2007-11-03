@@ -78,10 +78,15 @@ bool hoxPiece::Draw(wxDC& dc, const wxPoint& pos, int op) const
     if ( m_latest )
     {
       dc.SetPen(*wxCYAN);
-      dc.DrawLine( pos.x, pos.y, pos.x + m_bitmap.GetWidth(), pos.y);
-      dc.DrawLine( pos.x + m_bitmap.GetWidth(), pos.y, pos.x + m_bitmap.GetWidth(), pos.y + m_bitmap.GetHeight());
-      dc.DrawLine( pos.x + m_bitmap.GetWidth(), pos.y + m_bitmap.GetHeight(), pos.x, pos.y + m_bitmap.GetHeight());
-      dc.DrawLine( pos.x, pos.y + m_bitmap.GetHeight(), pos.x, pos.y);
+      int delta = 4;
+      int x = pos.x + delta;
+      int y = pos.y + delta;
+      int w = m_bitmap.GetWidth() - 2*delta;
+      int h = m_bitmap.GetHeight() - 2*delta;
+      dc.DrawLine( x, y, x + w, y);
+      dc.DrawLine( x + w, y, x + w, y + h);
+      dc.DrawLine( x + w, y + h, x, y + h);
+      dc.DrawLine( x, y + h, x, y);
     }
 
     return true;

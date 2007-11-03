@@ -9,7 +9,7 @@
 
 
 // FIXME: Hard-coded
-#define PIECES_PATH "C:/Users/HPhan/Documents/CChess/hox_Project/pieces"
+#define PIECES_PATH "C:/Users/HPhan/Documents/CChess/hox_Project/pieces_5"
 
 // The default HTTP server.
 #define HOX_HTTP_SERVER_HOSTNAME  "www.playxiangqi.com"

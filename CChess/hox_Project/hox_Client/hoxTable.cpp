@@ -96,10 +96,7 @@ hoxTable::AssignPlayer( hoxPlayer*     player,
     if ( assignedColor != hoxPIECE_COLOR_NONE )
     {
         // Inform the Board about the new player.
-        wxCommandEvent playerEvent( hoxEVT_BOARD_PLAYER_INFO );
-        playerEvent.SetEventObject( player );
-        playerEvent.SetInt( assignedColor );
-        ::wxPostEvent( m_board , playerEvent );
+        _PostBoard_PlayerEvent( hoxEVT_BOARD_PLAYER_JOIN, player, assignedColor );
         return hoxRESULT_OK;
     }
 
@@ -134,10 +131,7 @@ hoxTable::RequestJoinFromPlayer( hoxPlayer*     player,
     if ( assignedColor != hoxPIECE_COLOR_NONE )
     {
         // Inform the Board about the new player.
-        wxCommandEvent playerEvent( hoxEVT_BOARD_PLAYER_INFO );
-        playerEvent.SetEventObject( player );
-        playerEvent.SetInt( assignedColor );
-        ::wxPostEvent( m_board , playerEvent );
+        _PostBoard_PlayerEvent( hoxEVT_BOARD_PLAYER_JOIN, player, assignedColor );
         return hoxRESULT_OK;
     }
 
@@ -157,7 +151,8 @@ hoxTable::UnassignPlayer( hoxPlayer* player )
     if ( m_redPlayer == player )
     {
         m_redPlayer = NULL;
-        m_board->SetRedInfo( "*" );
+        //m_board->SetRedInfo( "*" );
+        _PostBoard_PlayerEvent( hoxEVT_BOARD_PLAYER_LEAVE, player );
         return hoxRESULT_OK;
     }
 
@@ -165,7 +160,8 @@ hoxTable::UnassignPlayer( hoxPlayer* player )
     if ( m_blackPlayer == player )
     {
         m_blackPlayer = NULL;
-        m_board->SetBlackInfo( "*" );
+        //m_board->SetBlackInfo( "*" );
+        _PostBoard_PlayerEvent( hoxEVT_BOARD_PLAYER_LEAVE, player );
         return hoxRESULT_OK;
     }
 
@@ -394,5 +390,16 @@ hoxTable::_PostPlayer_CloseEvent( hoxPlayer* player )
     wxPostEvent( player, event );
 }
 
+void 
+hoxTable::_PostBoard_PlayerEvent( wxEventType commandType,
+                                  hoxPlayer*  player,
+                                  int         extraCode /* = wxID_ANY */ )
+{
+    wxCommandEvent playerEvent( commandType );
+    playerEvent.SetEventObject( player );
+    playerEvent.SetInt( extraCode );
+    ::wxPostEvent( m_board , playerEvent );
+
+}
 
 /************************* END OF FILE ***************************************/
