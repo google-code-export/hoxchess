@@ -535,6 +535,8 @@ void MyFrame::OnSize(wxSizeEvent& event)
 {
     wxLayoutAlgorithm layout;
     layout.LayoutMDIFrame(this);
+    //wxString mySize = wxString::Format("%d x %d", event.GetSize().GetWidth(), event.GetSize().GetHeight());
+    //wxLogStatus(mySize);
 }
 
 void MyFrame::OnSashDrag(wxSashEvent& event)

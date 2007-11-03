@@ -10,6 +10,7 @@
 #define __INCLUDED_HOX_BOARD_H_
 
 #include "wx/wx.h"
+#include <list>
 
 /* Forward declarations */
 class hoxCoreBoard;
@@ -17,6 +18,7 @@ class hoxIReferee;
 class hoxTable;
 class hoxPosition;
 class hoxMove;
+class hoxPlayer;
 
 /**
  *   Board layout:
@@ -37,7 +39,9 @@ class hoxMove;
 /** 
  * Boarded-related player events (players entering / leaving tables.)
  */
-DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_INFO, wxID_ANY)
+DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_JOIN, wxID_ANY)
+DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_LEAVE, wxID_ANY)
+
 
 class hoxSimpleBoard : public wxPanel
 {
@@ -53,7 +57,8 @@ public:
      * My custom event handler.
      *********************************/
 
-    void OnPlayerInfoEvent( wxCommandEvent &event );
+    void OnPlayerJoin( wxCommandEvent &event );
+    void OnPlayerLeave( wxCommandEvent &event );
 
     /*********************************
      * Override the parent's API.
@@ -65,8 +70,8 @@ public:
      * My MAIN public API
      *********************************/
 
-    void SetRedInfo( const wxString& info );
-    void SetBlackInfo( const wxString& info );
+    void SetRedInfo( const hoxPlayer* player );
+    void SetBlackInfo( const hoxPlayer* player );
 
     void SetTable( hoxTable* table );
 
@@ -85,13 +90,20 @@ public:
 
 private:
     void _CreateBoardPanel();
-    void _LayoutBoardPanel( wxSizer* mainSizer, 
-                            wxSizer* redSizer, 
-                            wxSizer* blackSizer, 
-                            bool     viewInverted );
+    void _LayoutBoardPanel( bool viewInverted );
+    
+    void _RemovePlayerFromList( const wxString& playerId );
 
 private:
     hoxCoreBoard*     m_coreBoard;  // The "core" board.
+
+    /* Players */
+
+    typedef std::list<wxString> StringList;
+
+    wxString          m_redId;
+    wxString          m_blackId;
+    StringList        m_observerIds;
 
     /* Player Info(s) + timers */
 
@@ -104,6 +116,19 @@ private:
     wxStaticText*     m_blackFreeTime;  // Black's free-time.
     wxStaticText*     m_redFreeTime;    // Red's free-time.
 
+    /* Controls on for our Wall */
+
+    wxListBox*        m_playerListBox;
+    wxTextCtrl*       m_wallOutput;
+    wxTextCtrl*       m_wallInput;
+
+    // Convenient variables.
+    wxBoxSizer*       m_mainSizer;
+    wxBoxSizer*       m_boardSizer;
+    wxBoxSizer*       m_wallSizer;
+    
+    wxBoxSizer*       m_redSizer;
+    wxBoxSizer*       m_blackSizer;
 
     DECLARE_EVENT_TABLE()
 };

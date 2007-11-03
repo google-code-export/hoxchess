@@ -27,6 +27,7 @@ public:
     void OnToggle(wxCommandEvent& event);
     void OnQuit(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);
+    void OnSize(wxSizeEvent& event);
 
     void SetTable(hoxTable* table);
 

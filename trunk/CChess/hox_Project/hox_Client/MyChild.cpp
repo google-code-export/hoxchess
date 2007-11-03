@@ -28,8 +28,8 @@
 BEGIN_EVENT_TABLE(MyChild, wxMDIChildFrame)
     EVT_MENU(MDI_CHILD_QUIT, MyChild::OnQuit)
     EVT_MENU(MDI_TOGGLE, MyChild::OnToggle)
-
     EVT_CLOSE(MyChild::OnClose)
+    EVT_SIZE(MyChild::OnSize)
 END_EVENT_TABLE()
 
 
@@ -42,11 +42,11 @@ MyChild::MyChild(wxMDIParentFrame *parent, const wxString& title)
                           wxID_ANY, 
                           title, 
                           wxDefaultPosition, 
-                          wxSize(400, 500),
+                          wxSize(666, 586),
                           wxDEFAULT_FRAME_STYLE | wxNO_FULL_REPAINT_ON_RESIZE )
         , m_table( NULL )
 {
-    this->Maximize();
+    //this->Maximize();
 
     _SetupMenu();
     _SetupStatusBar();
@@ -146,6 +146,13 @@ MyChild::OnClose(wxCloseEvent& event)
     event.Skip(); // let the search for the event handler should continue...
 
     wxLogDebug("%s: END.", FNAME);
+}
+
+void MyChild::OnSize(wxSizeEvent& event)
+{
+    wxString mySize = wxString::Format("%d x %d", event.GetSize().GetWidth(), event.GetSize().GetHeight());
+    wxLogStatus(mySize);
+    event.Skip(); // let the search for the event handler should continue...
 }
 
 void

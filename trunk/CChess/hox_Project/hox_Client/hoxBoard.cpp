@@ -14,10 +14,12 @@
 #include "hoxTypes.h"
 
 /* Define my custom events */
-DEFINE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_INFO)
+DEFINE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_JOIN)
+DEFINE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_LEAVE)
 
 BEGIN_EVENT_TABLE(hoxSimpleBoard, wxPanel)
-  EVT_COMMAND  (wxID_ANY, hoxEVT_BOARD_PLAYER_INFO, hoxSimpleBoard::OnPlayerInfoEvent)
+  EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_JOIN, hoxSimpleBoard::OnPlayerJoin)
+  EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_LEAVE, hoxSimpleBoard::OnPlayerLeave)
 END_EVENT_TABLE()
 
 
@@ -50,23 +52,48 @@ hoxSimpleBoard::~hoxSimpleBoard()
 }
 
 void 
-hoxSimpleBoard::OnPlayerInfoEvent( wxCommandEvent &event )
+hoxSimpleBoard::OnPlayerJoin( wxCommandEvent &event )
 {
-    const char* FNAME = "hoxSimpleBoard::OnPlayerInfoEvent";
+    const char* FNAME = "hoxSimpleBoard::OnPlayerJoin";
 
     hoxPlayer* player = wx_reinterpret_cast(hoxPlayer*, event.GetEventObject());
     wxASSERT_MSG(player != NULL, wxString::Format("%s: Player cannot be NULL.", FNAME));
 
     if ( event.GetInt() == hoxPIECE_COLOR_RED )
     {
-        SetRedInfo( wxString::Format(_("%s (%d)"), 
-                                player->GetName(), player->GetScore()) );
+        SetRedInfo( player );
     } 
     else if ( event.GetInt() == hoxPIECE_COLOR_BLACK )
     {
-        SetBlackInfo( wxString::Format(_("%s (%d)"), 
-                                player->GetName(), player->GetScore()) );
+        SetBlackInfo( player );
     }
+}
+
+void 
+hoxSimpleBoard::OnPlayerLeave( wxCommandEvent &event )
+{
+    const char* FNAME = "hoxSimpleBoard::OnPlayerLeave";
+
+    hoxPlayer* player = wx_reinterpret_cast(hoxPlayer*, event.GetEventObject());
+    wxCHECK_RET(player, "Player cannot be NULL.");
+
+    const wxString playerId = player->GetName();
+
+    if ( playerId == m_redId )     // Check RED
+    {
+        m_redInfo->SetLabel( "*" );
+
+    }
+    else if ( playerId == m_blackId ) // Check BLACK
+    {
+        m_blackInfo->SetLabel( "*" ); // Check Observers
+    }
+    else
+    {
+        m_observerIds.remove( playerId );
+    }
+
+    _RemovePlayerFromList( playerId );
 }
 
 bool 
@@ -91,17 +118,31 @@ hoxSimpleBoard::Show(bool show /* = true */)
 }
 
 void 
-hoxSimpleBoard::SetRedInfo( const wxString& info )
+hoxSimpleBoard::SetRedInfo( const hoxPlayer* player )
 {
+    m_redId = player->GetName();
+
     if ( this->IsShown() )
+    {
+        const wxString info = wxString::Format("%s (%d)", 
+                player->GetName(), player->GetScore());
         m_redInfo->SetLabel( info );
+        m_playerListBox->Append( info );
+    }
 }
 
 void 
-hoxSimpleBoard::SetBlackInfo( const wxString& info )
+hoxSimpleBoard::SetBlackInfo( const hoxPlayer* player )
 {
+    m_blackId = player->GetName();
+
     if ( this->IsShown() )
+    {
+        const wxString info = wxString::Format("%s (%d)", 
+                player->GetName(), player->GetScore());
         m_blackInfo->SetLabel( info );
+        m_playerListBox->Append( info );
+    }
 }
 
 /*
@@ -146,38 +187,54 @@ hoxSimpleBoard::_CreateBoardPanel()
         wxDefaultPosition, wxSize(50,20), 
         wxBORDER_SIMPLE|wxALIGN_CENTER|wxST_NO_AUTORESIZE);
 
+    /*********************************
+     * Create Wall's contents.
+     *********************************/
+
+    m_playerListBox = new wxListBox( boardPanel, wxID_ANY );
+
+    m_wallOutput = new wxTextCtrl( boardPanel, wxID_ANY, _T(""),
+                                   wxDefaultPosition, wxDefaultSize,
+                                   wxTE_MULTILINE | wxRAISED_BORDER | wxTE_READONLY );
+    m_wallInput  = new wxTextCtrl( boardPanel, wxID_ANY, _T(""),
+                                   wxDefaultPosition, wxDefaultSize,
+                                   wxSUNKEN_BORDER );
+
     /****************************************
      * Arrange the players' info + timers 
      ****************************************/
 
     // Sizers
-    wxBoxSizer *mainSizer = new wxBoxSizer( wxVERTICAL );
-    wxBoxSizer *blackSizer = new wxBoxSizer( wxHORIZONTAL );
-    wxBoxSizer *redSizer = new wxBoxSizer( wxHORIZONTAL );
+    m_mainSizer  = new wxBoxSizer( wxHORIZONTAL );
+    m_boardSizer = new wxBoxSizer( wxVERTICAL );
+    m_wallSizer  = new wxBoxSizer( wxVERTICAL );
+    
+    m_blackSizer = new wxBoxSizer( wxHORIZONTAL );
+    m_redSizer = new wxBoxSizer( wxHORIZONTAL );
 
     // Add Black player-info
-    blackSizer->Add(
+    m_blackSizer->Add(
         m_blackInfo,
         1,            // make vertically stretchable
         wxEXPAND |    // make horizontally stretchable
         wxRIGHT|wxLEFT|wxTOP,  //   and make border
         1 );         // set border width
 
-    blackSizer->Add(
+    m_blackSizer->Add(
         m_blackGameTime,
         0,            // make vertically fixed
         wxEXPAND |    // make horizontally stretchable
         wxRIGHT|wxLEFT|wxTOP,  //   and make border
         1 );         // set border width
 
-    blackSizer->Add(
+    m_blackSizer->Add(
         m_blackMoveTime,
         0,            // make vertically fixed
         wxEXPAND |    // make horizontally stretchable
         wxRIGHT|wxLEFT|wxTOP,  //   and make border
         1 );         // set border width
 
-    blackSizer->Add(
+    m_blackSizer->Add(
         m_blackFreeTime,
         0,            // make vertically fixed
         wxEXPAND |    // make horizontally stretchable
@@ -185,28 +242,28 @@ hoxSimpleBoard::_CreateBoardPanel()
         1 );         // set border width
 
     // Add Red player-info
-    redSizer->Add(
+    m_redSizer->Add(
         m_redInfo,
         1,            // make vertically stretchable
         wxEXPAND |    // make horizontally stretchable
         wxBOTTOM|wxRIGHT|wxLEFT,  //   and make border
         1 );         // set border width
 
-    redSizer->Add(
+    m_redSizer->Add(
         m_redGameTime,
         0,            // make vertically fixed
         wxEXPAND |    // make horizontally stretchable
         wxRIGHT|wxLEFT|wxTOP,  //   and make border
         1 );         // set border width
 
-    redSizer->Add(
+    m_redSizer->Add(
         m_redMoveTime,
         0,            // make vertically fixed
         wxEXPAND |    // make horizontally stretchable
         wxRIGHT|wxLEFT|wxTOP,  //   and make border
         1 );         // set border width
 
-    redSizer->Add(
+    m_redSizer->Add(
         m_redFreeTime,
         0,            // make vertically fixed
         wxEXPAND |    // make horizontally stretchable
@@ -216,34 +273,71 @@ hoxSimpleBoard::_CreateBoardPanel()
     // Invert view if required.
 
     bool viewInverted = m_coreBoard->IsViewInverted();
-    _LayoutBoardPanel( mainSizer, redSizer, blackSizer, viewInverted);
+    _LayoutBoardPanel( viewInverted);
 
-    boardPanel->SetSizer( mainSizer );      // use the sizer for layout
-    mainSizer->SetSizeHints( boardPanel );   // set size hints to honour minimum size
+    // Setup the Wall.
+
+    m_wallSizer->Add(
+        m_playerListBox,
+        1,            // fixed-size vertically
+        wxEXPAND |    // make horizontally stretchable
+        wxRIGHT|wxLEFT, // and make border
+        1 );         // set border width
+
+    m_wallSizer->Add(
+        m_wallOutput,
+        3,            // fixed-size vertically
+        wxEXPAND |    // make horizontally stretchable
+        wxRIGHT|wxLEFT, // and make border
+        1 );         // set border width
+
+    m_wallSizer->Add(
+        m_wallInput,
+        0,            // fixed-size vertically
+        wxEXPAND |    // make horizontally stretchable
+        wxRIGHT|wxLEFT, // and make border
+        1 );         // set border width
+
+    // Setup main sizer.
+
+    m_mainSizer->Add(
+        m_boardSizer,
+        2,            // proportion
+        wxEXPAND |    // make horizontally stretchable
+        wxRIGHT|wxLEFT|wxTOP,  //   and make border
+        1 );         // set border width
+
+    m_mainSizer->Add(
+        m_wallSizer,
+        1,            // proportion
+        wxEXPAND |    // make horizontally stretchable
+        wxRIGHT|wxLEFT|wxTOP,  //   and make border
+        1 );         // set border width
+
+    /* Setup the main size */
+    boardPanel->SetSizer( m_mainSizer );      // use the sizer for layout
+    //m_mainSizer->SetSizeHints( boardPanel );   // set size hints to honour minimum size
 }
 
 void 
-hoxSimpleBoard::_LayoutBoardPanel( wxSizer* mainSizer,
-                                   wxSizer* redSizer, 
-                                   wxSizer* blackSizer,
-                                   bool     viewInverted)
+hoxSimpleBoard::_LayoutBoardPanel( bool viewInverted )
 {
     wxSizer* topSizer = NULL;
     wxSizer* bottomSizer = NULL;
 
     if ( ! viewInverted ) // normal view?
     {
-        topSizer = blackSizer;
-        bottomSizer = redSizer;
+        topSizer = m_blackSizer;
+        bottomSizer = m_redSizer;
     }
     else                  // inverted view?
     {
-        topSizer = redSizer;
-        bottomSizer = blackSizer;
+        topSizer = m_redSizer;
+        bottomSizer = m_blackSizer;
     }
 
     // Add the top-sizer to the main-sizer
-    mainSizer->Add(
+    m_boardSizer->Add(
         topSizer,
         0,            // fixed-size vertically
         wxEXPAND |    // make horizontally stretchable
@@ -251,7 +345,7 @@ hoxSimpleBoard::_LayoutBoardPanel( wxSizer* mainSizer,
         1 );         
 
     // Add the main board to the main-sizer.
-    mainSizer->Add(
+    m_boardSizer->Add(
         m_coreBoard,
         1,            // make vertically stretchable
         wxEXPAND |    // make horizontally stretchable
@@ -259,7 +353,7 @@ hoxSimpleBoard::_LayoutBoardPanel( wxSizer* mainSizer,
         1 );          // set border width
 
     // Add the bottom-sizer to the main-sizer
-    mainSizer->Add(
+    m_boardSizer->Add(
         bottomSizer,
         0,            // fixed-size vertically
         wxEXPAND |    // make horizontally stretchable
@@ -293,38 +387,28 @@ hoxSimpleBoard::ToggleViewSide()
 
     if ( m_redInfo == NULL )
     {
-        wxLogDebug(wxString::Format("%s: View not yet created. Do nothing for info-panels.", FNAME));
+        wxLogDebug("%s: View not yet created. Do nothing for info-panels.", FNAME);
         return;
     }
-
-    /* Find out about the our sizers */
-
-    wxSizer* mainSizer = m_coreBoard->GetContainingSizer();
-    wxASSERT_MSG(mainSizer != NULL, "Main sizer must have been created.");
-
-    wxSizer* redSizer = m_redInfo->GetContainingSizer();
-    wxASSERT_MSG(redSizer != NULL, "Red sizer must have been created.");
-    wxSizer* blackSizer = m_blackInfo->GetContainingSizer();
-    wxASSERT_MSG(blackSizer != NULL, "Black sizer must have been created.");
 
     /* Detach the sizers */
 
     bool found;
 
-    found = mainSizer->Detach( redSizer );
+    found = m_boardSizer->Detach( m_redSizer );
     wxASSERT( found );
-    found = mainSizer->Detach( m_coreBoard );
+    found = m_boardSizer->Detach( m_coreBoard );
     wxASSERT( found );
-    found = mainSizer->Detach( blackSizer );
+    found = m_boardSizer->Detach( m_blackSizer );
     wxASSERT( found );
 
     /* Invert */
 
     bool viewInverted = m_coreBoard->IsViewInverted();
-    _LayoutBoardPanel( mainSizer, redSizer, blackSizer, viewInverted);
+    _LayoutBoardPanel( viewInverted );
 
     // Force the layout update (just to make sure!).
-    mainSizer->Layout();
+    m_boardSizer->Layout();
 }
 
 bool 
@@ -336,11 +420,34 @@ hoxSimpleBoard::DoMove( const hoxMove& move )
     
     if ( ! this->GetReferee()->ValidateMove( move ) )
     {
-        wxLogWarning(wxString::Format("Move is not valid.", FNAME));
+        wxLogWarning("Move is not valid.", FNAME);
         return false;
     }
 
     return m_coreBoard->MovePieceToPosition( piece, move.newPosition );
+}
+
+void 
+hoxSimpleBoard::_RemovePlayerFromList( const wxString& playerId )
+{
+    const char* FNAME = "hoxSimpleBoard::_RemovePlayerFromList";
+
+    if ( ! this->IsShown() )
+    {
+        wxLogDebug("%s: Board is not shown. Do nothing.", FNAME);
+        return;
+    }
+
+    int idCount = m_playerListBox->GetCount();
+
+    for ( int i = 0; i < idCount; ++i )
+    {
+        if ( m_playerListBox->GetString(i).StartsWith(playerId) )
+        {
+            m_playerListBox->Delete( i );
+            break;
+        }
+    }
 }
 
 /************************* END OF FILE ***************************************/
