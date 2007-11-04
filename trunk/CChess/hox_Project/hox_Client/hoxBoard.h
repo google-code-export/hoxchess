@@ -50,7 +50,9 @@ public:
     /* Construct an "hidden" Board. */
     hoxSimpleBoard( wxWindow*       parent,
                     const wxString& piecesPath,
-                    hoxIReferee*    referee );
+                    hoxIReferee*    referee,
+                    const wxPoint& pos = wxDefaultPosition, 
+                    const wxSize& size = wxDefaultSize );
 
     virtual ~hoxSimpleBoard();
 
@@ -63,7 +65,6 @@ public:
     void OnWallOutput( wxCommandEvent &event );
 
     void OnWallInputEnter( wxCommandEvent &event );
-
 
     /*********************************
      * Override the parent's API.

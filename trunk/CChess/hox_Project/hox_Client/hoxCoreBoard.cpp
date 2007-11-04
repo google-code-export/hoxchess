@@ -53,11 +53,13 @@ END_EVENT_TABLE()
  * NOTE: wx_FULL_REPAINT_ON_RESIZE is used to have entire window included 
  *       in the update region.
  */
-hoxCoreBoard::hoxCoreBoard( wxWindow*    parent, 
-                            hoxIReferee* referee /* = new hoxNaiveReferee() */ )
+hoxCoreBoard::hoxCoreBoard( wxWindow*      parent, 
+                            hoxIReferee*   referee /* = new hoxNaiveReferee() */,
+                            const wxPoint& pos  /* = wxDefaultPosition */, 
+                            const wxSize&  size /* = wxDefaultSize*/ )
         : wxPanel( parent, wxID_ANY, 
-                   wxDefaultPosition, 
-                   wxDefaultSize,
+                   pos, 
+                   size,
                    wxFULL_REPAINT_ON_RESIZE )
         , m_referee( referee )
         , m_latestPiece( NULL )
@@ -655,5 +657,49 @@ hoxCoreBoard::ToggleViewSide()
   DrawAllPieces(dc);
 }
 
+wxSize 
+hoxCoreBoard::GetBestBoardSize( const int proposedHeight ) const
+{
+    const char* FNAME = "hoxCoreBoard::GetBestBoardSize";
+    wxSize totalSize( proposedHeight, proposedHeight );
+
+    // --- Get the board's max-dimension.
+    wxCoord borderW = totalSize.GetWidth() - 2*m_borderX;
+    wxCoord borderH = totalSize.GetHeight() - 2*m_borderY;
+
+    wxCoord cellS = wxMin(borderW / NUM_HORIZON_CELL, borderH / NUM_VERTICAL_CELL);
+
+    // --- Calculate the new "effective" board's size.
+    wxCoord boardW = cellS * NUM_HORIZON_CELL;
+    wxCoord boardH = cellS * NUM_VERTICAL_CELL;
+
+    int wholeBoardX = boardW + 2*m_borderX;
+    int wholeBoardY = boardH + 2*m_borderY;
+
+    wxSize bestSize( wholeBoardX, wholeBoardY );
+
+    //wxLogDebug("%s: (%d x %d) --> (%d x %d)", FNAME,
+    //    totalSize.GetWidth(), totalSize.GetHeight(),
+    //    bestSize.GetWidth(), bestSize.GetHeight());
+    return bestSize;
+}
+
+wxSize 
+hoxCoreBoard::DoGetBestSize() const
+{
+    const char* FNAME = "hoxCoreBoard::DoGetBestSize";
+
+    wxSize availableSize = GetParent()->GetClientSize();    
+
+    int proposedHeight = 
+        availableSize.GetHeight() - 50 /* TODO: The two players' info */;
+
+    wxSize bestSize = this->GetBestBoardSize( proposedHeight );
+    
+    //wxLogDebug("%s: (%d) --> (%d x %d)", FNAME,
+    //    proposedHeight,
+    //    bestSize.GetWidth(), bestSize.GetHeight());
+    return bestSize;
+}
 
 /************************* END OF FILE ***************************************/
