@@ -36,10 +36,12 @@ END_EVENT_TABLE()
 
 hoxSimpleBoard::hoxSimpleBoard( wxWindow*       parent,
                                 const wxString& piecesPath,
-                                hoxIReferee*    referee )
+                                hoxIReferee*    referee,
+                                const wxPoint&  pos  /* = wxDefaultPosition */, 
+                                const wxSize&   size /* = wxDefaultSize */)
         : wxPanel( parent, wxID_ANY, 
-                   wxDefaultPosition, 
-                   wxDefaultSize,
+                   pos, 
+                   size,
                    wxFULL_REPAINT_ON_RESIZE )
         , m_coreBoard( NULL )
         , m_table( NULL )
@@ -334,7 +336,7 @@ hoxSimpleBoard::_CreateBoardPanel()
 
     m_mainSizer->Add(
         m_boardSizer,
-        2,            // proportion
+        0,            // fixed size
         wxEXPAND |    // make horizontally stretchable
         wxRIGHT|wxLEFT|wxTOP,  //   and make border
         1 );         // set border width

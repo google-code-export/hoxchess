@@ -150,8 +150,8 @@ MyChild::OnClose(wxCloseEvent& event)
 
 void MyChild::OnSize(wxSizeEvent& event)
 {
-    wxString mySize = wxString::Format("%d x %d", event.GetSize().GetWidth(), event.GetSize().GetHeight());
-    wxLogStatus(mySize);
+    //wxString mySize = wxString::Format("%d x %d", event.GetSize().GetWidth(), event.GetSize().GetHeight());
+    //wxLogStatus(mySize);
     event.Skip(); // let the search for the event handler should continue...
 }
 

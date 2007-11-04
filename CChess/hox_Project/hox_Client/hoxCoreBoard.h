@@ -53,8 +53,10 @@ typedef std::list<hoxPiece*> hoxPieceList;
 class hoxCoreBoard : public wxPanel
 {
 public:
-    hoxCoreBoard( wxWindow*    parent,
-                  hoxIReferee* referee = new hoxNaiveReferee() );
+    hoxCoreBoard( wxWindow*      parent,
+                  hoxIReferee*   referee = new hoxNaiveReferee(),
+                  const wxPoint& pos = wxDefaultPosition, 
+                  const wxSize&  size = wxDefaultSize );
     virtual ~hoxCoreBoard();
 
     /*********************************
@@ -115,6 +117,14 @@ public:
     hoxPiece* GetPieceAt(const hoxPosition& pos) const;
     void ToggleViewSide();  // toggle view side: Red/Black is at the bottom.
     bool IsViewInverted() const { return m_bViewInverted; }
+
+protected:
+    /**
+     * The the best size of the WHOLE board.
+     */
+    wxSize GetBestBoardSize( const int proposedHeight ) const;
+
+    virtual wxSize DoGetBestSize() const;
 
 private:
     /**

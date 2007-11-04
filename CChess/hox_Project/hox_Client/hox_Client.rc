@@ -8,13 +8,13 @@
 // first icon in the executable and the icons are sorted both by their order
 // (Win9x) and by alphabetically (!) (NT), so put this icon first and give it
 // a name starting with "a"
-aaaaaaaa ICON "./icons/sample.ico"
+aaaaaaaa ICON "./icons/hoxchess.ico"
 
 // this icon is used with wxFrame::SetIcon()
 sample ICON "./icons/sample.ico"
 
 hoxchess ICON "./icons/hoxchess.ico"
-relephant ICON "./icons/relephant.ico"
+//relephant ICON "./icons/relephant.ico"
 
 // set this to 1 if you don't want to use manifest resource (manifest resource
 // is needed to enable visual styles on Windows XP - see docs/msw/winxp.txt
