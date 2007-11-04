@@ -61,7 +61,8 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
         case hoxREQUEST_TYPE_LIST:     /* fall through */
         case hoxREQUEST_TYPE_NEW:      /* fall through */
         case hoxREQUEST_TYPE_JOIN:     /* fall through */
-        case hoxREQUEST_TYPE_LEAVE:
+        case hoxREQUEST_TYPE_LEAVE:    /* fall through */
+        case hoxREQUEST_TYPE_WALL_MSG:
             wxASSERT_MSG( m_pSClient, "Connection is not yet established" );
             result = hoxNetworkAPI::SendRequest( m_pSClient, 
                                                  request->content, 

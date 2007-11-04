@@ -76,7 +76,7 @@ MyFrame::MyFrame(wxWindow *parent,
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    SetIcon(wxICON(sample));
+    SetIcon(wxICON(hoxchess));
 
     // A window containing our log-text.
     m_logWindow = new wxSashLayoutWindow(this, ID_WINDOW_LOG,

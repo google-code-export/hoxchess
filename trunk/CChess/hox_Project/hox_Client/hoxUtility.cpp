@@ -258,6 +258,7 @@ hoxUtility::RequestTypeToString( const hoxRequestType requestType )
         case hoxREQUEST_TYPE_LEAVE:       return "LEAVE";
         case hoxREQUEST_TYPE_LISTEN:      return "LISTEN";
         case hoxREQUEST_TYPE_TABLE_MOVE:  return "TABLE_MOVE";
+        case hoxREQUEST_TYPE_WALL_MSG:    return "WALL_MSG";
 
         default:                          return "UNKNOWN";
     }
@@ -285,6 +286,7 @@ hoxUtility::StringToRequestType( const wxString& input )
     if ( input == "LEAVE" )       return hoxREQUEST_TYPE_LEAVE;
     if ( input == "LISTEN" )      return hoxREQUEST_TYPE_LISTEN;
     if ( input == "TABLE_MOVE" )  return hoxREQUEST_TYPE_TABLE_MOVE;
+    if ( input == "WALL_MSG" )    return hoxREQUEST_TYPE_WALL_MSG;
 
     return hoxREQUEST_TYPE_UNKNOWN;
 }

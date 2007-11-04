@@ -236,6 +236,60 @@ exit_label:
     return result;
 }
 
+hoxResult   
+hoxNetworkAPI::HandleWallMsg( wxSocketBase* sock,
+                              hoxCommand&   command )
+{
+    const char* FNAME = "hoxNetworkAPI::HandleWallMsg";
+    hoxResult       result = hoxRESULT_ERR;   // Assume: failure.
+    wxUint32        nWrite;
+    wxString        response;
+
+    wxString message = command.parameters["msg"];
+    wxString tableId = command.parameters["tid"];
+    wxString playerId = command.parameters["pid"];
+    //hoxPlayer* player = NULL;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    // Find the table hosted on this system using the specified table-Id.
+    hoxTable* table = hoxTableMgr::GetInstance()->FindTable( tableId );
+
+    if ( table == NULL )
+    {
+        wxLogError("%s: Table [%s] not found.", FNAME, tableId);
+        response << "1\r\n"  // code
+                 << "Table " << tableId << " not found.\r\n";
+        goto exit_label;
+    }
+
+    /* Look up player */
+    // TODO: Ignore looking up the player for now!!!
+
+    // Inform our table...
+    table->OnMessage_FromNetwork( playerId, message );
+
+    // Finally, return 'success'.
+    response << "0\r\n"       // error-code = SUCCESS
+             << "INFO: (MESSAGE) Message at Table [" << tableId << "] OK\r\n";
+
+    result = hoxRESULT_OK;
+
+exit_label:
+    // Send back response.
+    nWrite = (wxUint32) response.size();
+    sock->WriteMsg( response, nWrite );
+    if ( sock->LastCount() != nWrite )
+    {
+        wxLogError("%s: Writing to socket failed. Error = [%s]", 
+            FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()));
+        result = hoxRESULT_ERR;
+    }
+
+    wxLogDebug("%s: END.", FNAME);
+    return result;
+}
+
 hoxResult
 hoxNetworkAPI::ParseCommand( const wxString& commandStr, 
                              hoxCommand&     command )
@@ -672,6 +726,10 @@ hoxNetworkAPI::HandlePlayerData( wxSocketBase* sock )
 
         case hoxREQUEST_TYPE_LEAVE:
             result = hoxNetworkAPI::HandleLeave( sock, command );
+            break;
+
+        case hoxREQUEST_TYPE_WALL_MSG:
+            result = hoxNetworkAPI::HandleWallMsg( sock, command );
             break;
 
         default:

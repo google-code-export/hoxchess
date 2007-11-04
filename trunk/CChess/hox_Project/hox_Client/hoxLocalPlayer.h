@@ -38,6 +38,7 @@ public:
 
     virtual void OnClose_FromTable( hoxPlayerEvent&  event );
     virtual void OnNewMove_FromTable( hoxPlayerEvent&  event );
+    virtual void OnWallMsg_FromTable( wxCommandEvent&  event );
 
     /*******************************
      * MY-specific Network API

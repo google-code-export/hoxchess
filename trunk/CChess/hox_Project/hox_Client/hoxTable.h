@@ -47,7 +47,7 @@ public:
      */
     hoxResult AssignPlayer( hoxPlayer*     player,
                             hoxPieceColor& assignedColor );
-
+    /* TODO: Why this API is different from AssignPlayer() */
     hoxResult RequestJoinFromPlayer( hoxPlayer*     player,
                                      hoxPieceColor  requestColor );
 
@@ -74,6 +74,12 @@ public:
     void OnMove_FromBoard( const hoxMove& move );
 
     /**
+     * Callback function from the Board to let this Table know about
+     * new Wall-input messages.
+     */
+    void OnMessage_FromBoard( const wxString& message );
+
+    /**
      * Callback function from the NETWORK Player to let this Table know about
      * the newly-received "remote" Moves.
      *
@@ -86,6 +92,15 @@ public:
                              const hoxPosition& toPosition );
     void OnMove_FromNetwork( hoxPlayer*         player,
                              const wxString&    moveStr );
+
+    /**
+     * Callback function from the NETWORK Player to let this Table know about
+     * the newly-received Wall-Message(s).
+     *
+     * @param playerId The Id of the player who generates the message.
+     */
+    void OnMessage_FromNetwork( const wxString&  playerId,
+                                const wxString&  message );
 
     /**
      * Callback function from a player who is leaving the table..
@@ -114,6 +129,18 @@ private:
                                  hoxPlayer*  player,
                                  int         extraCode = wxID_ANY );
 
+    void _PostBoard_MessageEvent( hoxPlayer*      player,
+                                  const wxString& message );
+
+    /**
+     * The the player who has physically control of the Board.
+     */
+    hoxPlayer* _GetBoardPlayer();
+
+    void       _AddPlayer( hoxPlayer* player, hoxPieceColor role );
+    void       _RemovePlayer( hoxPlayer* player );
+    hoxPlayer* _FindPlayer( const wxString& playerId );
+
 private:
     const wxString   m_id;       // The table's ID.
 
@@ -122,8 +149,9 @@ private:
     hoxSimpleBoard*  m_board;    // The (OPTIONAL) Board.
 
     // Players
-    hoxPlayer*       m_redPlayer;
-    hoxPlayer*       m_blackPlayer;
+    hoxPlayerAndRoleList  m_players;
+    hoxPlayer*            m_redPlayer;
+    hoxPlayer*            m_blackPlayer;
     
 };
 

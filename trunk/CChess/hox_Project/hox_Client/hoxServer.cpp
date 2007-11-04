@@ -171,6 +171,8 @@ hoxServer::_HandleRequest( hoxRequest* request )
             break;
 
         case hoxREQUEST_TYPE_TABLE_MOVE:
+            /* fall through */
+        case hoxREQUEST_TYPE_WALL_MSG:
             result = hoxNetworkAPI::SendRequest( request->socket, 
                                                  request->content,
                                                  response->content );

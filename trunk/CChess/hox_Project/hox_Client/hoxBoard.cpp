@@ -12,14 +12,21 @@
 #include "hoxUtility.h"
 #include "hoxReferee.h"
 #include "hoxTypes.h"
+#include "hoxTable.h"
+
+#define hoxID_BOARD_WALL_INPUT   (wxID_HIGHEST+1)
 
 /* Define my custom events */
 DEFINE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_JOIN)
 DEFINE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_LEAVE)
+DEFINE_EVENT_TYPE(hoxEVT_BOARD_WALL_OUTPUT)
 
 BEGIN_EVENT_TABLE(hoxSimpleBoard, wxPanel)
   EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_JOIN, hoxSimpleBoard::OnPlayerJoin)
   EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_LEAVE, hoxSimpleBoard::OnPlayerLeave)
+  EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_WALL_OUTPUT, hoxSimpleBoard::OnWallOutput)
+
+  EVT_TEXT_ENTER(hoxID_BOARD_WALL_INPUT, hoxSimpleBoard::OnWallInputEnter)
 END_EVENT_TABLE()
 
 
@@ -35,6 +42,7 @@ hoxSimpleBoard::hoxSimpleBoard( wxWindow*       parent,
                    wxDefaultSize,
                    wxFULL_REPAINT_ON_RESIZE )
         , m_coreBoard( NULL )
+        , m_table( NULL )
 {
     wxASSERT( referee != NULL );
 
@@ -57,7 +65,7 @@ hoxSimpleBoard::OnPlayerJoin( wxCommandEvent &event )
     const char* FNAME = "hoxSimpleBoard::OnPlayerJoin";
 
     hoxPlayer* player = wx_reinterpret_cast(hoxPlayer*, event.GetEventObject());
-    wxASSERT_MSG(player != NULL, wxString::Format("%s: Player cannot be NULL.", FNAME));
+    wxCHECK_RET(player, "Player cannot be NULL.");
 
     if ( event.GetInt() == hoxPIECE_COLOR_RED )
     {
@@ -67,6 +75,8 @@ hoxSimpleBoard::OnPlayerJoin( wxCommandEvent &event )
     {
         SetBlackInfo( player );
     }
+
+    _AddPlayerToList( player->GetName(), player->GetScore() );
 }
 
 void 
@@ -94,6 +104,29 @@ hoxSimpleBoard::OnPlayerLeave( wxCommandEvent &event )
     }
 
     _RemovePlayerFromList( playerId );
+}
+
+void 
+hoxSimpleBoard::OnWallOutput( wxCommandEvent &event )
+{
+    const wxString eventString = event.GetString();
+    const wxString who = eventString.BeforeFirst(' ');
+    const wxString msg = eventString.AfterFirst(' ');
+
+    //wxString wallMsg;
+    //wallMsg.Printf("[%s] %s\n", who, msg);
+
+    m_wallOutput->SetDefaultStyle(wxTextAttr(*wxBLACK));
+    m_wallOutput->AppendText( wxString::Format("[%s] ", who) );
+    m_wallOutput->SetDefaultStyle(wxTextAttr(*wxBLUE));
+    m_wallOutput->AppendText( wxString::Format("%s\n", msg) );
+}
+
+void 
+hoxSimpleBoard::OnWallInputEnter( wxCommandEvent &event )
+{
+    m_wallInput->Clear();
+    m_table->OnMessage_FromBoard( event.GetString() );
 }
 
 bool 
@@ -127,7 +160,6 @@ hoxSimpleBoard::SetRedInfo( const hoxPlayer* player )
         const wxString info = wxString::Format("%s (%d)", 
                 player->GetName(), player->GetScore());
         m_redInfo->SetLabel( info );
-        m_playerListBox->Append( info );
     }
 }
 
@@ -141,7 +173,6 @@ hoxSimpleBoard::SetBlackInfo( const hoxPlayer* player )
         const wxString info = wxString::Format("%s (%d)", 
                 player->GetName(), player->GetScore());
         m_blackInfo->SetLabel( info );
-        m_playerListBox->Append( info );
     }
 }
 
@@ -195,10 +226,11 @@ hoxSimpleBoard::_CreateBoardPanel()
 
     m_wallOutput = new wxTextCtrl( boardPanel, wxID_ANY, _T(""),
                                    wxDefaultPosition, wxDefaultSize,
-                                   wxTE_MULTILINE | wxRAISED_BORDER | wxTE_READONLY );
-    m_wallInput  = new wxTextCtrl( boardPanel, wxID_ANY, _T(""),
+                                   wxTE_MULTILINE | wxRAISED_BORDER | wxTE_READONLY 
+                                   | wxHSCROLL | wxTE_RICH /* needed for Windows */ );
+    m_wallInput  = new wxTextCtrl( boardPanel, hoxID_BOARD_WALL_INPUT, _T(""),
                                    wxDefaultPosition, wxDefaultSize,
-                                   wxSUNKEN_BORDER );
+                                   wxTE_PROCESS_ENTER | wxSUNKEN_BORDER );
 
     /****************************************
      * Arrange the players' info + timers 
@@ -364,7 +396,8 @@ hoxSimpleBoard::_LayoutBoardPanel( bool viewInverted )
 void 
 hoxSimpleBoard::SetTable( hoxTable* table ) 
 { 
-    m_coreBoard->SetTable( table ); 
+    m_table = table;
+    m_coreBoard->SetTable( m_table ); 
 }
 
 hoxIReferee* 
@@ -425,6 +458,22 @@ hoxSimpleBoard::DoMove( const hoxMove& move )
     }
 
     return m_coreBoard->MovePieceToPosition( piece, move.newPosition );
+}
+
+void 
+hoxSimpleBoard::_AddPlayerToList( const wxString& playerId,
+                                  int             playerScore )
+{
+    const char* FNAME = "hoxSimpleBoard::_AddPlayerToList";
+
+    if ( ! this->IsShown() )
+    {
+        wxLogDebug("%s: Board is not shown. Do nothing.", FNAME);
+        return;
+    }
+
+    const wxString info = wxString::Format("%s (%d)", playerId, playerScore);
+    m_playerListBox->Append( info );
 }
 
 void 

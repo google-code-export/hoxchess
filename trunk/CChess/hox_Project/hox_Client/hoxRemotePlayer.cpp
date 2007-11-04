@@ -81,6 +81,25 @@ hoxRemotePlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
     }
 }
 
+void 
+hoxRemotePlayer::OnWallMsg_FromTable( wxCommandEvent&  event )
+{
+    const char* FNAME = "hoxRemotePlayer::OnWallMsg_FromTable";
+
+    const wxString commandStr = event.GetString();
+
+    wxLogDebug("%s: ENTER. commandStr = [%s].", FNAME, commandStr);
+
+    wxASSERT( m_server != NULL );
+    {
+        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_WALL_MSG );
+        request->content =
+                wxString::Format("op=WALL_MSG&%s\r\n", commandStr);
+        request->socket = this->m_pCBSock;
+        m_server->AddRequest( request );
+    }
+}
+
 hoxResult 
 hoxRemotePlayer::SetCBSocket( wxSocketBase* socket )
 {
