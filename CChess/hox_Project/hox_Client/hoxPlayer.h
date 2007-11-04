@@ -26,6 +26,10 @@ BEGIN_DECLARE_EVENT_TYPES()
   DECLARE_EVENT_TYPE(hoxEVT_PLAYER_NEW_MOVE, wxID_ANY)
 END_DECLARE_EVENT_TYPES()
 
+/** 
+ * New player-event based on wxCommandEvent.
+ */
+DECLARE_EVENT_TYPE(hoxEVT_PLAYER_WALL_MSG, wxID_ANY)
 
 // ----------------------------------------------------------------------------
 // The Player class
@@ -55,6 +59,8 @@ public:
 
     virtual void OnClose_FromTable( hoxPlayerEvent&  event );
     virtual void OnNewMove_FromTable( hoxPlayerEvent&  event );
+
+    virtual void OnWallMsg_FromTable( wxCommandEvent&  event );
 
     /***************************
      * Accessor API

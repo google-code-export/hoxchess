@@ -78,38 +78,31 @@ hoxTable::AssignPlayer( hoxPlayer*     player,
 
     wxCHECK_MSG( player != NULL, hoxRESULT_ERR, "The player is NULL." );
 
-    assignedColor = hoxPIECE_COLOR_NONE;
+    assignedColor = hoxPIECE_COLOR_NONE; // Default: observer's role.
 
     /* Assign to play RED if possible. */
     if ( m_redPlayer == NULL )
     {
         assignedColor = hoxPIECE_COLOR_RED;
-        m_redPlayer = player;
     }
     /* Assign to play BLACK if possible. */
     else if ( m_blackPlayer == NULL )
     {
         assignedColor = hoxPIECE_COLOR_BLACK;
-        m_blackPlayer = player;
     }
+    /* Default: ... will join as an observer. */
 
-    if ( assignedColor != hoxPIECE_COLOR_NONE )
-    {
-        // Inform the Board about the new player.
-        _PostBoard_PlayerEvent( hoxEVT_BOARD_PLAYER_JOIN, player, assignedColor );
-        return hoxRESULT_OK;
-    }
+    /* Update our player-list */
+    _AddPlayer( player, assignedColor );
 
-    // TODO: Not yet support "observers" !!!
-
-    return hoxRESULT_ERR;
+    return hoxRESULT_OK;
 }
 
 hoxResult 
 hoxTable::RequestJoinFromPlayer( hoxPlayer*     player,
                                  hoxPieceColor  requestColor )
 {
-    hoxResult result = hoxRESULT_OK;
+    const char* FNAME = "hoxTable::RequestJoinFromPlayer";
 
     wxCHECK_MSG( player != NULL, hoxRESULT_ERR, "The player is NULL." );
 
@@ -119,55 +112,38 @@ hoxTable::RequestJoinFromPlayer( hoxPlayer*     player,
     if ( requestColor == hoxPIECE_COLOR_RED && m_redPlayer == NULL )
     {
         assignedColor = hoxPIECE_COLOR_RED;
-        m_redPlayer = player;
     }
     /* Assign to play BLACK if possible. */
     else if ( requestColor == hoxPIECE_COLOR_BLACK && m_blackPlayer == NULL )
     {
         assignedColor = hoxPIECE_COLOR_BLACK;
-        m_blackPlayer = player;
     }
-
-    if ( assignedColor != hoxPIECE_COLOR_NONE )
+    /* Assign to be an observer */
+    else if ( requestColor == hoxPIECE_COLOR_NONE )
     {
-        // Inform the Board about the new player.
-        _PostBoard_PlayerEvent( hoxEVT_BOARD_PLAYER_JOIN, player, assignedColor );
-        return hoxRESULT_OK;
+        assignedColor = hoxPIECE_COLOR_NONE;
+    }
+    else
+    {
+        wxLogWarning("%s: Failed to fullfil request-to-join from player.", FNAME);
+        return hoxRESULT_ERR;
     }
 
-    // TODO: Not yet support "observers" !!!
+    /* Update our player-list */
+    _AddPlayer( player, assignedColor );
 
-    return hoxRESULT_ERR;
+    return hoxRESULT_OK;
 }
 
 hoxResult 
 hoxTable::UnassignPlayer( hoxPlayer* player )
 {
-    hoxResult result = hoxRESULT_OK;
-
     wxCHECK_MSG( player, hoxRESULT_ERR, "The player is NULL." );
 
-    /* Check RED. */
-    if ( m_redPlayer == player )
-    {
-        m_redPlayer = NULL;
-        //m_board->SetRedInfo( "*" );
-        _PostBoard_PlayerEvent( hoxEVT_BOARD_PLAYER_LEAVE, player );
-        return hoxRESULT_OK;
-    }
+    /* Update our player-list */
+    _RemovePlayer( player );
 
-    /* Check BLACK. */
-    if ( m_blackPlayer == player )
-    {
-        m_blackPlayer = NULL;
-        //m_board->SetBlackInfo( "*" );
-        _PostBoard_PlayerEvent( hoxEVT_BOARD_PLAYER_LEAVE, player );
-        return hoxRESULT_OK;
-    }
-
-    // TODO: Not yet support "observers" !!!
-
-    return hoxRESULT_ERR;
+    return hoxRESULT_OK;
 }
 
 void 
@@ -198,25 +174,81 @@ hoxTable::OnMove_FromBoard( const hoxMove& move )
     wxLogDebug("%s: Receive new Move from Board.", FNAME);
     if ( m_redPlayer == NULL || m_blackPlayer == NULL )
     {
-        wxLogError("%s: Not enough players. Ignore Move.", FNAME);
+        wxLogWarning("%s: Not enough players. Ignore Move.", FNAME);
         return;
     }
 
-    hoxPlayerList players;
-    players.push_back( m_redPlayer );
-    players.push_back( m_blackPlayer );
+    hoxPlayer* player = NULL;  // A player holder.
 
-    for ( hoxPlayerList::iterator it = players.begin();
-                                  it != players.end(); ++it )
+    for (hoxPlayerAndRoleList::iterator it = m_players.begin(); 
+                                        it != m_players.end(); ++it)
     {
+        player = it->player;
         wxLogDebug("%s: Inform player [%s] about the Board Move...", 
-            FNAME, (*it)->GetName());
+            FNAME, player->GetName());
         hoxPlayerEvent event(hoxEVT_PLAYER_NEW_MOVE);
         event.SetTableId(m_id);
         event.SetOldPosition(move.piece.position);   // last move's old-piece.
         event.SetPosition(move.newPosition);         // last move's new-position.
-        wxPostEvent( (*it), event);
+        wxPostEvent( player, event );
     }
+}
+
+void
+hoxTable::OnMessage_FromBoard( const wxString& message )
+{
+    const char* FNAME = "hoxTable::OnMessage_FromBoard";
+    wxLogDebug("%s: Receive new Message from Board.", FNAME);
+
+    /* Get the Board Player (or the Board's owner) */
+    hoxPlayer* boardPlayer = _GetBoardPlayer();
+    wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
+    
+    /* Post the message on the Wall-Output of the "local" Board. */
+    _PostBoard_MessageEvent( boardPlayer, message );
+
+    /* Post the message to other players */
+
+    hoxPlayer* player = NULL;  // A player holder.    
+
+    for (hoxPlayerAndRoleList::iterator it = m_players.begin(); 
+                                        it != m_players.end(); ++it)
+    {
+        player = it->player;
+
+        //if ( player == boardPlayer )
+        //{
+        //    wxLogDebug("%s: Skip this Player since he is Board player.", FNAME);
+        //    continue;
+        //}
+
+        switch( player->GetType() )
+        {
+        case hoxPLAYER_TYPE_HOST:
+            wxLogDebug("%s: Ignore this Message since this is a HOST player.", FNAME);
+            break;
+
+        case hoxPLAYER_TYPE_LOCAL:
+            /* fall through */
+        case hoxPLAYER_TYPE_REMOTE:
+        {
+            wxString commandStr;
+            commandStr.Printf("tid=%s&pid=%s&msg=%s", m_id, boardPlayer->GetName(), message); 
+            wxCommandEvent event( hoxEVT_PLAYER_WALL_MSG );
+            event.SetEventObject( boardPlayer );
+            event.SetString( commandStr );
+            wxPostEvent( player,event );
+            break;
+        }
+
+        case hoxPLAYER_TYPE_DUMMY:
+            /* fall through */
+        default: 
+            wxLogDebug("%s: Ignore this Message since this is a DUMMY player.", FNAME);
+            break;
+        }
+    }
+
 }
 
 void 
@@ -299,6 +331,26 @@ hoxTable::OnMove_FromNetwork( hoxPlayer*         player,
 
     wxLogDebug("%s: Ask the Board to do this Move.", FNAME);
     m_board->DoMove( move );
+}
+
+void 
+hoxTable::OnMessage_FromNetwork( const wxString&  playerId,
+                                 const wxString&  message )
+{
+    const char* FNAME = "hoxTable::OnMessage_FromNetwork";
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    /* Lookup the player */
+    hoxPlayer* foundPlayer = _FindPlayer( playerId );
+    if ( foundPlayer == NULL )
+    {
+        wxLogWarning("%s: Player with Id = [%s] not found.", FNAME, playerId);
+        return;
+    }
+
+    /* Post the message (from the player) to the Board. */
+    _PostBoard_MessageEvent( foundPlayer, message );
 }
 
 void 
@@ -398,8 +450,107 @@ hoxTable::_PostBoard_PlayerEvent( wxEventType commandType,
     wxCommandEvent playerEvent( commandType );
     playerEvent.SetEventObject( player );
     playerEvent.SetInt( extraCode );
-    ::wxPostEvent( m_board , playerEvent );
+    wxPostEvent( m_board , playerEvent );
+}
 
+void 
+hoxTable::_PostBoard_MessageEvent( hoxPlayer*      player,
+                                   const wxString& message )
+{
+    wxCHECK_RET(player, "The player cannot be NULL.");
+    
+    wxString eventString;
+    eventString.Printf("%s %s", player->GetName(), message);
+
+    /* Post the message on the Wall-Output of the "local" Board. */
+    wxCommandEvent event( hoxEVT_BOARD_WALL_OUTPUT );
+    event.SetEventObject( player );
+    event.SetString( eventString );
+    wxPostEvent( m_board, event );
+}
+
+hoxPlayer* 
+hoxTable::_GetBoardPlayer()
+{
+    hoxPlayerType playerType;
+
+    hoxPlayerList players;
+    players.push_back( m_redPlayer );
+    players.push_back( m_blackPlayer );
+
+    for ( hoxPlayerList::iterator it = players.begin();
+                                  it != players.end(); ++it )
+    {
+        playerType = (*it)->GetType();
+        if (   playerType == hoxPLAYER_TYPE_HOST 
+            || playerType == hoxPLAYER_TYPE_LOCAL )
+        {
+            return (*it);
+        }
+    }
+
+    return NULL;
+}
+
+void 
+hoxTable::_AddPlayer( hoxPlayer* player, hoxPieceColor role )
+{
+    m_players.push_back( hoxPlayerAndRole(player, role) );
+
+    // Cache the RED and BLACK players for easy access.
+    if ( role == hoxPIECE_COLOR_RED )
+    {
+        m_redPlayer = player;
+    }
+    else if ( role == hoxPIECE_COLOR_BLACK )
+    {
+        m_blackPlayer = player;
+    }
+
+    // Inform the Board.
+    _PostBoard_PlayerEvent( hoxEVT_BOARD_PLAYER_JOIN, player, role );
+}
+
+void 
+hoxTable::_RemovePlayer( hoxPlayer* player )
+{
+    for (hoxPlayerAndRoleList::iterator it = m_players.begin(); 
+                                        it != m_players.end(); ++it)
+    {
+        if ( it->player == player )
+        {
+            m_players.erase( it );
+            break;
+        }
+    }
+
+    // Update our "cache" variables.
+    if ( m_redPlayer == player )
+    {
+        m_redPlayer = NULL;
+    }
+    else if ( m_blackPlayer == player )
+    {
+        m_blackPlayer = NULL;
+    }
+
+    // Inform the Board.
+    _PostBoard_PlayerEvent( hoxEVT_BOARD_PLAYER_LEAVE, player );
+}
+
+hoxPlayer* 
+hoxTable::_FindPlayer( const wxString& playerId )
+{
+    for (hoxPlayerAndRoleList::iterator it = m_players.begin(); 
+                                        it != m_players.end(); ++it)
+    {
+        if (  it->player->GetName() == playerId )
+        {
+            return it->player;
+        }
+    }
+
+    return NULL;
 }
 
 /************************* END OF FILE ***************************************/

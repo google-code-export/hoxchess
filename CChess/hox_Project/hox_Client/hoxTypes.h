@@ -51,6 +51,21 @@ class hoxRole
 typedef std::list<hoxRole>     hoxRoleList; 
 
 /**
+ * Representing a player + his role (color).
+ * NOTE: This class is similar to hoxRole but I will cleanup later...
+ */
+class hoxPlayerAndRole
+{
+public:
+    hoxPlayer*    player;
+    hoxPieceColor role;
+
+    hoxPlayerAndRole() : player(NULL), role(hoxPIECE_COLOR_NONE) {}
+    hoxPlayerAndRole(hoxPlayer* p, hoxPieceColor r) : player(p), role(r) {}
+};
+typedef std::list<hoxPlayerAndRole>  hoxPlayerAndRoleList;
+
+/**
  * Representing a piece's info.
  */
 class hoxPieceInfo

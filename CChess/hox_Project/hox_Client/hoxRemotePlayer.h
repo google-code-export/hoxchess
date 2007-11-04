@@ -37,6 +37,7 @@ class hoxRemotePlayer :  public hoxPlayer
      *******************************************/
 
     virtual void OnNewMove_FromTable( hoxPlayerEvent&  event );
+    virtual void OnWallMsg_FromTable( wxCommandEvent&  event );
 
     /***************************
      * Network API

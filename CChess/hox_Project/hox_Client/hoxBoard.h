@@ -41,6 +41,7 @@ class hoxPlayer;
  */
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_JOIN, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_LEAVE, wxID_ANY)
+DECLARE_EVENT_TYPE(hoxEVT_BOARD_WALL_OUTPUT, wxID_ANY)
 
 
 class hoxSimpleBoard : public wxPanel
@@ -59,6 +60,10 @@ public:
 
     void OnPlayerJoin( wxCommandEvent &event );
     void OnPlayerLeave( wxCommandEvent &event );
+    void OnWallOutput( wxCommandEvent &event );
+
+    void OnWallInputEnter( wxCommandEvent &event );
+
 
     /*********************************
      * Override the parent's API.
@@ -92,10 +97,12 @@ private:
     void _CreateBoardPanel();
     void _LayoutBoardPanel( bool viewInverted );
     
+    void _AddPlayerToList( const wxString& playerId, int playerScore );
     void _RemovePlayerFromList( const wxString& playerId );
 
 private:
     hoxCoreBoard*     m_coreBoard;  // The "core" board.
+    hoxTable*         m_table;  // The table to which this board belongs.
 
     /* Players */
 

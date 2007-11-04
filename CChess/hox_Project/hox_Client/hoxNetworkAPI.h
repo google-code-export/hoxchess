@@ -40,6 +40,9 @@ namespace hoxNetworkAPI
     hoxResult HandleLeave( wxSocketBase*  sock,
                            hoxCommand&    command );
 
+    hoxResult HandleWallMsg( wxSocketBase* sock,
+                             hoxCommand&   command );
+
     hoxResult ParseCommand( const wxString& commandStr, 
                             hoxCommand&     command );
 

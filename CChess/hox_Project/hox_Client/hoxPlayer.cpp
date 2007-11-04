@@ -18,11 +18,16 @@
 DEFINE_EVENT_TYPE(hoxEVT_PLAYER_TABLE_CLOSED)
 DEFINE_EVENT_TYPE(hoxEVT_PLAYER_NEW_MOVE)
 
+/* Define player-event based on wxCommandEvent */
+DEFINE_EVENT_TYPE(hoxEVT_PLAYER_WALL_MSG)
+
 IMPLEMENT_DYNAMIC_CLASS( hoxPlayer, wxEvtHandler )
 
 BEGIN_EVENT_TABLE(hoxPlayer, wxEvtHandler)
     EVT_PLAYER_TABLE_CLOSED (wxID_ANY,  hoxPlayer::OnClose_FromTable)
     EVT_PLAYER_NEW_MOVE (wxID_ANY,  hoxPlayer::OnNewMove_FromTable)
+
+    EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_WALL_MSG, hoxPlayer::OnWallMsg_FromTable)
 END_EVENT_TABLE()
 
 
@@ -134,5 +139,11 @@ hoxPlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
     wxLogDebug("%s: Just a DUMMY player. Do nothing.", FNAME);
 }
 
+void 
+hoxPlayer::OnWallMsg_FromTable( wxCommandEvent&  event )
+{
+    const char* FNAME = "hoxPlayer::OnWallMsg_FromTable";
+    wxLogDebug("%s: Just a DUMMY player. Do nothing.", FNAME);
+}
 
 /************************* END OF FILE ***************************************/

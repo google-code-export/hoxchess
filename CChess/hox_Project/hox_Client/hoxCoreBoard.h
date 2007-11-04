@@ -68,13 +68,6 @@ public:
     void SetPiecesPath(const wxString& piecesPath);
 
     /**
-     * Load all the pieces on board.
-     *
-     * @note The pieces' images are located in the path set by SetPiecesPath().
-     */
-    //void LoadNewPieces();
-
-    /**
      * Load pieces according the referee's list of pieces' positions.
      */
     void LoadPieces();

@@ -226,8 +226,11 @@ enum hoxRequestType
          * the its socket (to start listening for socket-events.
          */
 
-    hoxREQUEST_TYPE_TABLE_MOVE
+    hoxREQUEST_TYPE_TABLE_MOVE,
         /* Move generated (incoming) from a physical Table */
+
+    hoxREQUEST_TYPE_WALL_MSG
+        /* Message generated (incoming) from a physical Table */
 };
 
 //
