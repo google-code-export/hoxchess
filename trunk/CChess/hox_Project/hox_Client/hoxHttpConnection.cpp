@@ -23,7 +23,7 @@
 
 hoxHttpConnection::hoxHttpConnection( const wxString&  sHostname,
                                       int              nPort )
-        : hoxConnection( sHostname, nPort )
+        : hoxThreadConnection( sHostname, nPort )
 {
 }
 
@@ -44,7 +44,7 @@ hoxHttpConnection::HandleRequest( hoxRequest* request )
     switch( request->type )
     {
         case hoxREQUEST_TYPE_POLL:     /* fall through */
-        case hoxREQUEST_TYPE_TABLE_MOVE: /* fall through */
+        case hoxREQUEST_TYPE_MOVE:     /* fall through */
         case hoxREQUEST_TYPE_CONNECT:  /* fall through */
         case hoxREQUEST_TYPE_LIST:     /* fall through */
         case hoxREQUEST_TYPE_NEW:      /* fall through */

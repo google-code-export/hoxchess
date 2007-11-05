@@ -10,7 +10,7 @@
 #define __INCLUDED_HOX_HTTP_CONNECTION_H_
 
 #include <wx/wx.h>
-#include "hoxConnection.h"
+#include "hoxThreadConnection.h"
 #include "hoxEnums.h"
 #include "hoxTypes.h"
 
@@ -18,7 +18,7 @@
 // hoxHttpConnection
 // ----------------------------------------------------------------------------
 
-class hoxHttpConnection : public hoxConnection
+class hoxHttpConnection : public hoxThreadConnection
 {
 public:
     hoxHttpConnection( const wxString& sHostname,

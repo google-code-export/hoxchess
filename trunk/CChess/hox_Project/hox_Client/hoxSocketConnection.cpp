@@ -21,7 +21,7 @@
 
 hoxSocketConnection::hoxSocketConnection( const wxString&  sHostname,
                                           int              nPort )
-        : hoxConnection( sHostname, nPort )
+        : hoxThreadConnection( sHostname, nPort )
         , m_pSClient( NULL )
 {
 }
@@ -57,7 +57,7 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
             result = hoxNetworkAPI::HandlePlayerData( m_pSClient ); 
             break;
 
-        case hoxREQUEST_TYPE_TABLE_MOVE: /* fall through */
+        case hoxREQUEST_TYPE_MOVE:     /* fall through */
         case hoxREQUEST_TYPE_LIST:     /* fall through */
         case hoxREQUEST_TYPE_NEW:      /* fall through */
         case hoxREQUEST_TYPE_JOIN:     /* fall through */

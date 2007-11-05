@@ -233,6 +233,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hoxRemoteConnection.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\hoxRemotePlayer.cpp"
 				>
 			</File>
@@ -258,6 +262,10 @@
 			</File>
 			<File
 				RelativePath=".\hoxTablesDialog.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\hoxThreadConnection.cpp"
 				>
 			</File>
 			<File
@@ -355,6 +363,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hoxRemoteConnection.h"
+				>
+			</File>
+			<File
 				RelativePath=".\hoxRemotePlayer.h"
 				>
 			</File>
@@ -380,6 +392,10 @@
 			</File>
 			<File
 				RelativePath=".\hoxTablesDialog.h"
+				>
+			</File>
+			<File
+				RelativePath=".\hoxThreadConnection.h"
 				>
 			</File>
 			<File

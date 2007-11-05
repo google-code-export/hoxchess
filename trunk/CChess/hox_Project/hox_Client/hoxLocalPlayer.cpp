@@ -7,7 +7,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxLocalPlayer.h"
-#include "hoxConnection.h"
+#include "hoxThreadConnection.h"
 #include "hoxEnums.h"
 
 //-----------------------------------------------------------------------------
@@ -66,8 +66,8 @@ hoxLocalPlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
 
     wxASSERT( m_connection != NULL );
     {
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_TABLE_MOVE, this );
-        wxString commandStr =    /* NOTE: Send "MOVE, not "TABLE_MOVE" string */
+        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_MOVE, this );
+        wxString commandStr =
                 wxString::Format("op=MOVE&tid=%s&pid=%s&move=%s", 
                             tableId, this->GetName(), moveStr);
         request->content = this->BuildRequestContent( commandStr );

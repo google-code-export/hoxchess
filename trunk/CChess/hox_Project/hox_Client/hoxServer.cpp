@@ -10,6 +10,7 @@
 #include "hoxEnums.h"
 #include "MyApp.h"
 #include "hoxTableMgr.h"
+#include "hoxRemoteConnection.h"
 #include "hoxRemotePlayer.h"
 #include "hoxPlayerMgr.h"
 #include "hoxUtility.h"
@@ -170,7 +171,7 @@ hoxServer::_HandleRequest( hoxRequest* request )
             result = _HandleRequest_Accept( request );
             break;
 
-        case hoxREQUEST_TYPE_TABLE_MOVE:
+        case hoxREQUEST_TYPE_MOVE:
             /* fall through */
         case hoxREQUEST_TYPE_WALL_MSG:
             result = hoxNetworkAPI::SendRequest( request->socket, 
@@ -440,6 +441,14 @@ hoxServer::_HandleCommand_Join( wxSocketBase*   sock,
         hoxPlayerMgr::GetInstance()->CreateRemotePlayer( sRequesterName,
                                                          nRequesterScore );
 
+    // Create a connection for the new player.
+    hoxRemoteConnection* connection = new hoxRemoteConnection();
+    connection->SetServer( this );
+    connection->SetCBSocket(sock);
+
+    black_player->SetConnection( connection );
+
+#if 0
     // Setup the network-server which will handle all network communications.
     wxLogDebug("%s: Let this server manage the communication for this Network player [%s].", 
         FNAME, black_player->GetName());
@@ -451,6 +460,7 @@ hoxServer::_HandleCommand_Join( wxSocketBase*   sock,
     //{
     //    wxFAIL_MSG("Active socket not found.");
     //}
+#endif
 
     // Setup the event handler and let the player handles all socket events.
     wxLogDebug("%s: Let this Network player [%s] handle all socket events", FNAME, black_player->GetName());

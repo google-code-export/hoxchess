@@ -16,7 +16,7 @@
 #include "hoxTypes.h"
 
 /* Forward declarations */
-class hoxServer;
+class hoxConnection;
 
 /**
  * The REMOTE player.
@@ -45,16 +45,10 @@ class hoxRemotePlayer :  public hoxPlayer
 
     void OnIncomingNetworkData( wxSocketEvent& event );
 
-    hoxResult     SetCBSocket( wxSocketBase* socket );
+    void SetConnection( hoxConnection* connection );
 
-    void SetServer( hoxServer* server) { m_server = server; }
-
-  private:
-
-    wxSocketBase*     m_pCBSock; 
-        /* Callback socket for only NETWORK player.  */
-
-    hoxServer*        m_server;
+private:
+    hoxConnection*    m_connection;
 
     DECLARE_CLASS(hoxRemotePlayer)
     DECLARE_EVENT_TABLE()
