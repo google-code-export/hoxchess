@@ -43,7 +43,7 @@ protected:
 
     virtual const wxString BuildRequestContent( const wxString& commandStr );
 
-    virtual hoxConnection* CreateNewConnection( const wxString& sHostname, 
+    virtual hoxThreadConnection* CreateNewConnection( const wxString& sHostname, 
                                                 int             nPort );
 
 public:

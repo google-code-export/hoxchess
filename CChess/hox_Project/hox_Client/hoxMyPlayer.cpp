@@ -54,7 +54,7 @@ hoxMyPlayer::BuildRequestContent( const wxString& commandStr )
     return wxString::Format("%s\r\n", commandStr); 
 }
 
-hoxConnection* 
+hoxThreadConnection* 
 hoxMyPlayer::CreateNewConnection( const wxString& sHostname, 
                                   int             nPort )
 {

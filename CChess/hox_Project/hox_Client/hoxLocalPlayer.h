@@ -15,7 +15,7 @@
 #include "hoxTypes.h"
 
 /* Forward declarations */
-class hoxConnection;
+class hoxThreadConnection;
 
 /**
  * The LOCAL player.
@@ -59,7 +59,7 @@ protected:
     virtual const wxString BuildRequestContent( const wxString& commandStr )
         { return commandStr; }
 
-    virtual hoxConnection* CreateNewConnection( const wxString& sHostname, 
+    virtual hoxThreadConnection* CreateNewConnection( const wxString& sHostname, 
                                                 int             nPort ) = 0;
 
     virtual void AddRequestToConnection( hoxRequest* request );
@@ -71,7 +71,7 @@ private:
     wxString         m_sHostname; 
     int              m_nPort;
 
-    hoxConnection*   m_connection;
+    hoxThreadConnection*   m_connection;
 };
 
 

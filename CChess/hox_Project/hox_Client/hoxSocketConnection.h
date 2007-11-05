@@ -11,7 +11,7 @@
 
 #include <wx/wx.h>
 #include <wx/socket.h>
-#include "hoxConnection.h"
+#include "hoxThreadConnection.h"
 #include "hoxEnums.h"
 #include "hoxTypes.h"
 
@@ -19,7 +19,7 @@
 // hoxSocketConnection
 // ----------------------------------------------------------------------------
 
-class hoxSocketConnection : public hoxConnection
+class hoxSocketConnection : public hoxThreadConnection
 {
 public:
     hoxSocketConnection( const wxString& sHostname,

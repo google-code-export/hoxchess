@@ -1,9 +1,9 @@
 /////////////////////////////////////////////////////////////////////////////
 // Name:            hoxConnection.h
 // Program's Name:  Huy's Open Xiangqi
-// Created:         10/28/2007
+// Created:         11/05/2007
 //
-// Description:     The "base" Connection Thread to help a "network" player.
+// Description:     The Connection which is the base for all connections.
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __INCLUDED_HOX_CONNECTION_H_
@@ -17,39 +17,13 @@
 // hoxConnection
 // ----------------------------------------------------------------------------
 
-/** !!!!!!!!!!!!!!!!!!!!!!!
- * NOTE: If deriving from wxThread, acquiring mutex (using lock) would fail.
- *       Thus, I have to derive from wxThreadHelper.
- * !!!!!!!!!!!!!!!!!!!!!!! */
-class hoxConnection : public wxThreadHelper
+class hoxConnection : public wxObject
 {
 public:
-    hoxConnection( const wxString& sHostname,
-                   int             nPort );
+    hoxConnection();
     virtual ~hoxConnection();
 
-    // Thread execution starts here
-    virtual void* Entry();
-
-public:
-    // **** My own public API ****
-
-    virtual void AddRequest( hoxRequest* request );
-
-protected:
-    virtual hoxRequest* GetRequest();         
-    virtual void        HandleRequest( hoxRequest* request ) = 0;
-
-protected:
-    wxString              m_sHostname; 
-    int                   m_nPort;
-
-    bool                  m_shutdownRequested;
-                /* Has a shutdown-request been received? */
-
-    wxSemaphore           m_semRequests;
-    wxMutex               m_mutexRequests;
-    hoxRequestList        m_requests;
+    virtual void AddRequest( hoxRequest* request ) = 0;
 };
 
 

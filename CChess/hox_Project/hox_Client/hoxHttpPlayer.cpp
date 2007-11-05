@@ -66,7 +66,7 @@ hoxHttpPlayer::BuildRequestContent( const wxString& commandStr )
     return wxString::Format("/cchess/tables.php?%s", commandStr); 
 }
 
-hoxConnection* 
+hoxThreadConnection* 
 hoxHttpPlayer::CreateNewConnection( const wxString& sHostname, 
                                     int             nPort )
 {
