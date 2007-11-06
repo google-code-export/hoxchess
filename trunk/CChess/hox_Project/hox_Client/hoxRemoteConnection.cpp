@@ -10,6 +10,8 @@
 #include "hoxEnums.h"
 #include "hoxServer.h"
 
+IMPLEMENT_DYNAMIC_CLASS(hoxRemoteConnection, hoxConnection)
+
 //-----------------------------------------------------------------------------
 // hoxRemoteConnection
 //-----------------------------------------------------------------------------
@@ -27,6 +29,16 @@ hoxRemoteConnection::~hoxRemoteConnection()
 {
     const char* FNAME = "hoxRemoteConnection::~hoxRemoteConnection";
     wxLogDebug("%s: ENTER.", FNAME);
+}
+
+void 
+hoxRemoteConnection::Start()
+{
+}
+
+void 
+hoxRemoteConnection::Shutdown()
+{
 }
 
 void 

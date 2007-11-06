@@ -74,7 +74,7 @@ private:
     wxTimer        m_timer;    // to poll the HTTP server to events.
 
 
-    DECLARE_CLASS(hoxHttpPlayer)
+    DECLARE_DYNAMIC_CLASS(hoxHttpPlayer)
     DECLARE_EVENT_TABLE()
 };
 

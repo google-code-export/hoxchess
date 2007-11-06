@@ -64,7 +64,7 @@ public:
 
 private:
 
-    DECLARE_CLASS(hoxMyPlayer)
+    DECLARE_DYNAMIC_CLASS(hoxMyPlayer)
     DECLARE_EVENT_TABLE()
 };
 

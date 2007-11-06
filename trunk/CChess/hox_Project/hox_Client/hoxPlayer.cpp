@@ -9,8 +9,11 @@
 #include "hoxPlayer.h"
 #include "hoxEnums.h"
 #include "hoxTable.h"
+#include "hoxConnection.h"
 
-#include <algorithm>
+#include <algorithm>  // std::find
+
+IMPLEMENT_CLASS(hoxPlayer, wxEvtHandler)
 
 //----------------------------------------------------------------------------
 // event types
@@ -20,8 +23,6 @@ DEFINE_EVENT_TYPE(hoxEVT_PLAYER_NEW_MOVE)
 
 /* Define player-event based on wxCommandEvent */
 DEFINE_EVENT_TYPE(hoxEVT_PLAYER_WALL_MSG)
-
-IMPLEMENT_DYNAMIC_CLASS( hoxPlayer, wxEvtHandler )
 
 BEGIN_EVENT_TABLE(hoxPlayer, wxEvtHandler)
     EVT_PLAYER_TABLE_CLOSED (wxID_ANY,  hoxPlayer::OnClose_FromTable)
@@ -36,10 +37,8 @@ END_EVENT_TABLE()
 //-----------------------------------------------------------------------------
 
 hoxPlayer::hoxPlayer()
-            : m_name( "Unknown" )
-            , m_type( hoxPLAYER_TYPE_DUMMY )
-            , m_score( 1500 )
-{ 
+{
+    wxFAIL_MSG( "This default constructor is never meant to be used." );
 }
 
 hoxPlayer::hoxPlayer( const wxString& name,
@@ -48,6 +47,7 @@ hoxPlayer::hoxPlayer( const wxString& name,
             : m_name( name )
             , m_type( type )
             , m_score( score )
+            , m_connection( NULL )
 { 
 }
 
@@ -55,6 +55,8 @@ hoxPlayer::~hoxPlayer()
 {
     const char* FNAME = "hoxPlayer::~hoxPlayer";
     wxLogDebug("%s: ENTER.", FNAME);
+
+    delete m_connection;
 }
 
 void               
@@ -144,6 +146,17 @@ hoxPlayer::OnWallMsg_FromTable( wxCommandEvent&  event )
 {
     const char* FNAME = "hoxPlayer::OnWallMsg_FromTable";
     wxLogDebug("%s: Just a DUMMY player. Do nothing.", FNAME);
+}
+
+void 
+hoxPlayer::SetConnection( hoxConnection* connection )
+{
+    const char* FNAME = "hoxPlayer::SetConnection";
+
+    wxCHECK_RET(m_connection == NULL, "The Connection already exists.");
+
+    wxLogDebug("%s: Assign the connection to this user [%s]", FNAME, GetName());
+    m_connection = connection;
 }
 
 /************************* END OF FILE ***************************************/

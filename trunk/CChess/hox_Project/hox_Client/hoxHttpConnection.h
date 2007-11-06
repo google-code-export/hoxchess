@@ -21,9 +21,10 @@
 class hoxHttpConnection : public hoxThreadConnection
 {
 public:
+    hoxHttpConnection(); // DUMMY default constructor required for RTTI info.
     hoxHttpConnection( const wxString& sHostname,
                        int             nPort );
-    ~hoxHttpConnection();
+    virtual ~hoxHttpConnection();
 
 protected:
     /*******************************************
@@ -35,6 +36,7 @@ protected:
 private:
     hoxResult   _SendRequest( const wxString& request, wxString& response );
 
+    DECLARE_DYNAMIC_CLASS(hoxHttpConnection)
 };
 
 

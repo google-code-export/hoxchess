@@ -15,11 +15,16 @@
 #include <wx/protocol/http.h>
 #include <wx/tokenzr.h>
 
+IMPLEMENT_DYNAMIC_CLASS(hoxHttpConnection, hoxThreadConnection)
 
 //-----------------------------------------------------------------------------
 // hoxHttpConnection
 //-----------------------------------------------------------------------------
 
+hoxHttpConnection::hoxHttpConnection()
+{
+    wxFAIL_MSG( "This default constructor is never meant to be used." );
+}
 
 hoxHttpConnection::hoxHttpConnection( const wxString&  sHostname,
                                       int              nPort )

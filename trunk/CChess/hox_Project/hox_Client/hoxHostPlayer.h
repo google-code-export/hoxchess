@@ -9,8 +9,7 @@
 #ifndef __INCLUDED_HOX_HOST_PLAYER_H_
 #define __INCLUDED_HOX_HOST_PLAYER_H_
 
-#include "wx/wx.h"
-#include "wx/socket.h"
+#include <wx/wx.h>
 #include "hoxPlayer.h"
 #include "hoxEnums.h"
 #include "hoxTypes.h"
@@ -22,7 +21,7 @@
 
 class hoxHostPlayer :  public hoxPlayer
 {
-  public:
+public:
     hoxHostPlayer(); // Default constructor required for event handler.
     hoxHostPlayer( const wxString& name,
                    hoxPlayerType   type,
@@ -37,9 +36,9 @@ class hoxHostPlayer :  public hoxPlayer
     virtual void OnNewMove_FromTable( hoxPlayerEvent&  event );
 
    
-  private:
+private:
 
-    DECLARE_CLASS(hoxHostPlayer)
+    DECLARE_DYNAMIC_CLASS(hoxHostPlayer)
     DECLARE_EVENT_TABLE()
 };
 

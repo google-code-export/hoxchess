@@ -10,15 +10,21 @@
 #include "hoxThreadConnection.h"
 #include "hoxEnums.h"
 
+IMPLEMENT_ABSTRACT_CLASS(hoxLocalPlayer, hoxPlayer)
+
 //-----------------------------------------------------------------------------
 // hoxLocalPlayer
 //-----------------------------------------------------------------------------
+
+hoxLocalPlayer::hoxLocalPlayer()
+{
+    wxFAIL_MSG( "This default constructor is never meant to be used." );
+}
 
 hoxLocalPlayer::hoxLocalPlayer( const wxString& name,
                                 hoxPlayerType   type,
                                 int             score )
             : hoxPlayer( name, type, score )
-            , m_connection( NULL )
 { 
     const char* FNAME = "hoxLocalPlayer::hoxLocalPlayer";
     wxLogDebug("%s: ENTER.", FNAME);
@@ -33,9 +39,8 @@ hoxLocalPlayer::~hoxLocalPlayer()
         wxLogDebug("%s: Request the Connection thread to be shutdowned...", FNAME);
         hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_SHUTDOWN, NULL );
         m_connection->AddRequest( request );
-        wxThread::ExitCode exitCode = m_connection->GetThread()->Wait();
-        wxLogDebug("%s: The Connection thread was shutdowned with exit-code = [%d].", FNAME, exitCode);
-        delete m_connection;
+
+        m_connection->Shutdown();
     }
 }
 
@@ -179,7 +184,7 @@ hoxLocalPlayer::LeaveNetworkTable( const wxString& tableId,
 void 
 hoxLocalPlayer::AddRequestToConnection( hoxRequest* request )
 { 
-    wxASSERT( m_connection != NULL );
+    wxCHECK_RET( m_connection, "The connection must have been set." );
     m_connection->AddRequest( request ); 
 }
 
@@ -187,26 +192,11 @@ void
 hoxLocalPlayer::_StartConnection()
 {
     const char* FNAME = "hoxLocalPlayer::_StartConnection";
-    
-    if ( m_connection != NULL )
-    {
-        wxLogDebug("%s: The connection have been created. END.", FNAME);
-        return;
-    }
 
-    wxASSERT_MSG( !m_sHostname.empty(), "Hostname must have been set." );
-    m_connection = this->CreateNewConnection( m_sHostname, m_nPort );
-    wxASSERT_MSG( m_connection != NULL, "The new connection must not be NULL." );
+    wxCHECK_RET( m_connection, "The connection must have been set." );
+    wxCHECK_RET( !m_sHostname.empty(), "Hostname must have been set." );
 
-    if ( m_connection->Create() != wxTHREAD_NO_ERROR )
-    {
-        wxLogError("%s: Failed to create Connection thread.", FNAME);
-        return;
-    }
-    wxASSERT_MSG( !m_connection->GetThread()->IsDetached(), 
-                  "The Connection thread must be joinable." );
-
-    m_connection->GetThread()->Run();
+    m_connection->Start();
 }
 
 /************************* END OF FILE ***************************************/

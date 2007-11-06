@@ -14,10 +14,16 @@
 #include "hoxNetworkAPI.h"
 #include "MyApp.h"    // To access wxGetApp()
 
+IMPLEMENT_DYNAMIC_CLASS(hoxSocketConnection, hoxThreadConnection)
+
 //-----------------------------------------------------------------------------
 // hoxSocketConnection
 //-----------------------------------------------------------------------------
 
+hoxSocketConnection::hoxSocketConnection()
+{
+    wxFAIL_MSG( "This default constructor is never meant to be used." );
+}
 
 hoxSocketConnection::hoxSocketConnection( const wxString&  sHostname,
                                           int              nPort )

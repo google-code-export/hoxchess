@@ -23,7 +23,11 @@ public:
     hoxConnection();
     virtual ~hoxConnection();
 
+    virtual void Start() = 0;
+    virtual void Shutdown() = 0;
     virtual void AddRequest( hoxRequest* request ) = 0;
+
+    DECLARE_ABSTRACT_CLASS(hoxConnection)
 };
 
 
