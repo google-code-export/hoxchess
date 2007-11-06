@@ -807,12 +807,16 @@ hoxNetworkAPI::_ParseNetworkEventString( const wxString&  eventStr,
             case 2:    // Table-Id (if applicable).
                 networkEvent.tid = token;
                 break;
-            case 3:    // Event-type
+            case 3:    // Event-type + .. event-content (see NOTE below).
                 networkEvent.type = ::atoi( token.c_str() );
-                break;
-            case 4:    // event-content.
-                networkEvent.content = token;
-                break;
+
+                /* NOTE: Due to the fact that white-space characters which may
+                 *       be embedded within wall-messages, we will extract the
+                 *       rest of the "content" right here.
+                 */
+                networkEvent.content = tkz.GetString(); // Get the rest of ...
+                return hoxRESULT_OK;  // *** DONE.
+
             default:
                 wxLogError("%s: Ignore the rest...", FNAME);
                 break;

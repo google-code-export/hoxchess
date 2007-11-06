@@ -7,7 +7,9 @@
 #ifndef __INCLUDED_HOX_UTILITY_H_
 #define __INCLUDED_HOX_UTILITY_H_
 
-#include "wx/image.h"
+#include <wx/wx.h>
+#include <wx/image.h>
+#include <wx/uri.h>
 #include "hoxEnums.h"
 #include "hoxTypes.h"
 
@@ -52,6 +54,22 @@ namespace hoxUtility
      * Convert a given (human-readable) string to a request-type.
      */
     hoxRequestType StringToRequestType( const wxString& input );
+
+    // ----------------------------------------------------------------------------
+    // hoxURI - A simple wrapper for wxURI
+    // ----------------------------------------------------------------------------
+
+    class hoxURI : public wxURI
+    {
+    public:
+        /**
+         * API to escape/unespace URI-unsafe characters, especially since
+         * we transport wall-messages via HTTP's URI-path.
+         */
+        static wxString Escape_String(const wxString& str);
+        static wxString Unescape_String(const wxString& str)
+            { return wxURI::Unescape( str ); }
+    };
 
 }
 

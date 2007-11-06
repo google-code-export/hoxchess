@@ -36,8 +36,6 @@ class hoxRemotePlayer :  public hoxPlayer
      * Override the parent's event-handler API
      *******************************************/
 
-    virtual void OnNewMove_FromTable( hoxPlayerEvent&  event );
-    virtual void OnWallMsg_FromTable( wxCommandEvent&  event );
 
     /***************************
      * Network API

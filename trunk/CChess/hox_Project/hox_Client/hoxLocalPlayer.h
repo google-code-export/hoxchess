@@ -38,8 +38,6 @@ public:
      *******************************************/
 
     virtual void OnClose_FromTable( hoxPlayerEvent&  event );
-    virtual void OnNewMove_FromTable( hoxPlayerEvent&  event );
-    virtual void OnWallMsg_FromTable( wxCommandEvent&  event );
 
     /*******************************
      * MY-specific Network API
@@ -57,11 +55,8 @@ public:
                                          wxEvtHandler*   sender );
 
 protected:
-    virtual const wxString BuildRequestContent( const wxString& commandStr )
-        { return commandStr; }
-
     virtual hoxThreadConnection* CreateNewConnection( const wxString& sHostname, 
-                                                int             nPort ) = 0;
+                                                      int             nPort ) = 0;
 
     virtual void AddRequestToConnection( hoxRequest* request );
 

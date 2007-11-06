@@ -138,14 +138,49 @@ void
 hoxPlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
 {
     const char* FNAME = "hoxPlayer::OnNewMove_FromTable";
-    wxLogDebug("%s: Just a DUMMY player. Do nothing.", FNAME);
+
+    if ( m_connection == NULL )
+    {
+        wxLogDebug("%s: No connection. Fine. Ignore this Move.", FNAME);
+    }
+    else
+    {
+        wxString     tableId     = event.GetTableId();
+        hoxPosition  moveFromPos = event.GetOldPosition();
+        hoxPosition  moveToPos   = event.GetPosition();
+
+        wxString moveStr = wxString::Format("%d%d%d%d", 
+                                moveFromPos.x, moveFromPos.y, moveToPos.x, moveToPos.y);
+
+        wxLogDebug("%s: ENTER. Move = [%s].", FNAME, moveStr);
+
+        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_MOVE );
+        request->content =
+                wxString::Format("op=MOVE&tid=%s&pid=%s&move=%s\r\n", 
+                            tableId, this->GetName(), moveStr);
+        m_connection->AddRequest( request );
+    }
 }
 
 void 
 hoxPlayer::OnWallMsg_FromTable( wxCommandEvent&  event )
 {
     const char* FNAME = "hoxPlayer::OnWallMsg_FromTable";
-    wxLogDebug("%s: Just a DUMMY player. Do nothing.", FNAME);
+    
+    if ( m_connection == NULL )
+    {
+        wxLogDebug("%s: No connection. Fine. Ignore this Message.", FNAME);
+    }
+    else
+    {
+        const wxString commandStr = event.GetString();
+        wxLogDebug("%s: ENTER. commandStr = [%s].", FNAME, commandStr);
+
+        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_WALL_MSG );
+        request->content = 
+            wxString::Format("op=WALL_MSG&%s\r\n", commandStr);
+        m_connection->AddRequest( request );
+    }
 }
 
 void 

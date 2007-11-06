@@ -54,7 +54,9 @@ hoxHttpConnection::HandleRequest( hoxRequest* request )
         case hoxREQUEST_TYPE_LIST:     /* fall through */
         case hoxREQUEST_TYPE_NEW:      /* fall through */
         case hoxREQUEST_TYPE_JOIN:     /* fall through */
-        case hoxREQUEST_TYPE_LEAVE:
+        case hoxREQUEST_TYPE_LEAVE:    /* fall through */
+        case hoxREQUEST_TYPE_WALL_MSG:
+
             result = _SendRequest( request->content, response->content );
             break;
 
@@ -113,8 +115,19 @@ hoxHttpConnection::_SendRequest( const wxString& request,
     }
     
     wxASSERT_MSG( wxApp::IsMainLoopRunning(), "Main loop should be running.");
-   
-    wxInputStream* httpStream = get.GetInputStream(request);
+
+    /* Format the request to make sure it is URI-complied. 
+     *
+     * NOTE: When the wall-messages are retrieved from the remote HTTP server,
+     *       they have already been unescaped (by the HTTP server). 
+     *       Thus, there is no need to "unescape" here.
+     */
+    wxString formattedRequest = request;
+    formattedRequest = hoxUtility::hoxURI::Escape_String( formattedRequest.Trim() );
+
+    wxString getString = wxString::Format("/cchess/tables.php?%s", formattedRequest); 
+
+    wxInputStream* httpStream = get.GetInputStream(getString);
 
     if ( httpStream == NULL )
     {
