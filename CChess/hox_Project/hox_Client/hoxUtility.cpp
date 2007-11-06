@@ -4,9 +4,9 @@
 // Created:         09/28/2007
 /////////////////////////////////////////////////////////////////////////////
 
-#include "wx/wx.h"
-
 #include "hoxUtility.h"
+
+using namespace hoxUtility;
 
 static wxString gPiecePath = "";
 
@@ -289,6 +289,34 @@ hoxUtility::StringToRequestType( const wxString& input )
     if ( input == "WALL_MSG" )    return hoxREQUEST_TYPE_WALL_MSG;
 
     return hoxREQUEST_TYPE_UNKNOWN;
+}
+
+// ----------------------------------------------------------------------------
+// hoxURI
+// ----------------------------------------------------------------------------
+
+/* static */
+wxString 
+hoxURI::Escape_String(const wxString& str)
+{
+    /*
+     * @see Uniform Resource Identifier (URI): Generic Syntax
+     *          http://www.ietf.org/rfc/rfc3986.txt
+     */
+
+    wxString new_uri;
+    char     c;
+
+    for (size_t i = 0; i < str.length(); ++i)
+    {
+        c = str[i];
+        if ( ::isspace( c ) )
+            wxURI::Escape( new_uri, c );
+        else
+            new_uri += c;
+    }
+
+    return new_uri;
 }
 
 /************************* END OF FILE ***************************************/

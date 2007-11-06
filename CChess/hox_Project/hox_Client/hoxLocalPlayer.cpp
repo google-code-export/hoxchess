@@ -56,48 +56,6 @@ hoxLocalPlayer::OnClose_FromTable( hoxPlayerEvent&  event )
     this->hoxPlayer::OnClose_FromTable( event );
 }
 
-void 
-hoxLocalPlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
-{
-    const char* FNAME = "hoxLocalPlayer::OnNewMove_FromTable";
-    wxString     tableId     = event.GetTableId();
-    hoxPosition  moveFromPos = event.GetOldPosition();
-    hoxPosition  moveToPos   = event.GetPosition();
-
-    wxString moveStr = wxString::Format("%d%d%d%d", 
-                            moveFromPos.x, moveFromPos.y, moveToPos.x, moveToPos.y);
-
-    wxLogDebug("%s: ENTER. Move = [%s].", FNAME, moveStr);
-
-    wxASSERT( m_connection != NULL );
-    {
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_MOVE, this );
-        wxString commandStr =
-                wxString::Format("op=MOVE&tid=%s&pid=%s&move=%s", 
-                            tableId, this->GetName(), moveStr);
-        request->content = this->BuildRequestContent( commandStr );
-        m_connection->AddRequest( request );
-    }
-}
-
-void 
-hoxLocalPlayer::OnWallMsg_FromTable( wxCommandEvent&  event )
-{
-    const char* FNAME = "hoxLocalPlayer::OnWallMsg_FromTable";
-
-    const wxString commandStr = event.GetString();
-
-    wxLogDebug("%s: ENTER. commandStr = [%s].", FNAME, commandStr);
-
-    wxASSERT( m_connection != NULL );
-    {
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_WALL_MSG, this );
-        request->content =
-                wxString::Format("op=WALL_MSG&%s\r\n", commandStr);
-        m_connection->AddRequest( request );
-    }
-}
-
 hoxResult 
 hoxLocalPlayer::ConnectToNetworkServer( const wxString& sHostname, 
                                         int             nPort,
@@ -111,9 +69,8 @@ hoxLocalPlayer::ConnectToNetworkServer( const wxString& sHostname,
     wxASSERT( m_connection != NULL );
     {
         hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_CONNECT, sender );
-        wxString commandStr = 
-            wxString::Format("op=CONNECT");
-        request->content = this->BuildRequestContent( commandStr );
+        request->content = 
+            wxString::Format("op=CONNECT\r\n");
         m_connection->AddRequest( request );
     }
 
@@ -126,9 +83,8 @@ hoxLocalPlayer::QueryForNetworkTables( wxEvtHandler* sender )
     wxASSERT( m_connection != NULL );
     {
         hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LIST, sender );
-        wxString commandStr = 
-            wxString::Format("op=LIST");
-        request->content = this->BuildRequestContent( commandStr );
+        request->content = 
+            wxString::Format("op=LIST\r\n");
         m_connection->AddRequest( request );
     }
 
@@ -142,9 +98,8 @@ hoxLocalPlayer::JoinNetworkTable( const wxString& tableId,
     wxASSERT( m_connection != NULL );
     {
         hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_JOIN, sender );
-        wxString commandStr = 
-            wxString::Format("op=JOIN&tid=%s&pid=%s", tableId, this->GetName());
-        request->content = this->BuildRequestContent( commandStr );
+        request->content = 
+            wxString::Format("op=JOIN&tid=%s&pid=%s\r\n", tableId, this->GetName());
         m_connection->AddRequest( request );
     }
 
@@ -156,9 +111,8 @@ hoxLocalPlayer::OpenNewNetworkTable( wxEvtHandler*   sender )
     wxASSERT( m_connection != NULL );
     {
         hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_NEW, sender );
-        wxString commandStr = 
-            wxString::Format("op=NEW&pid=%s", this->GetName());
-        request->content = this->BuildRequestContent( commandStr );
+        request->content = 
+            wxString::Format("op=NEW&pid=%s\r\n", this->GetName());
         m_connection->AddRequest( request );
     }
 
@@ -172,9 +126,8 @@ hoxLocalPlayer::LeaveNetworkTable( const wxString& tableId,
     wxASSERT( m_connection != NULL );
     {
         hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LEAVE /*, sender*/ );
-        wxString commandStr = 
-                wxString::Format("op=LEAVE&tid=%s&pid=%s", tableId, this->GetName());
-        request->content = this->BuildRequestContent( commandStr );
+        request->content = 
+                wxString::Format("op=LEAVE&tid=%s&pid=%s\r\n", tableId, this->GetName());
         m_connection->AddRequest( request );
     }
 

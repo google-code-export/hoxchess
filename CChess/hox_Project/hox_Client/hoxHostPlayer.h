@@ -33,9 +33,7 @@ public:
      * Override the parent's event-handler API
      *******************************************/
 
-    virtual void OnNewMove_FromTable( hoxPlayerEvent&  event );
 
-   
 private:
 
     DECLARE_DYNAMIC_CLASS(hoxHostPlayer)

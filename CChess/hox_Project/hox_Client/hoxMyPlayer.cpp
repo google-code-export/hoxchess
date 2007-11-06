@@ -44,12 +44,6 @@ hoxMyPlayer::~hoxMyPlayer()
     wxLogDebug("%s: ENTER.", FNAME);
 }
 
-const wxString  
-hoxMyPlayer::BuildRequestContent( const wxString& commandStr )
-{ 
-    return wxString::Format("%s\r\n", commandStr); 
-}
-
 hoxThreadConnection* 
 hoxMyPlayer::CreateNewConnection( const wxString& sHostname, 
                                   int             nPort )

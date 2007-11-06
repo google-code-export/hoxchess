@@ -195,7 +195,8 @@ enum hoxNetworkEvenType
     hoxNETWORK_EVENT_TYPE_NEW_PLAYER_BLACK     = 2,
     hoxNETWORK_EVENT_TYPE_LEAVE_PLAYER_RED     = 3,
     hoxNETWORK_EVENT_TYPE_LEAVE_PLAYER_BLACK   = 4,
-    hoxNETWORK_EVENT_TYPE_NEW_MOVE             = 5
+    hoxNETWORK_EVENT_TYPE_NEW_MOVE             = 5,
+    hoxNETWORK_EVENT_TYPE_NEW_WALL_MSG         = 6
 };
 
 //

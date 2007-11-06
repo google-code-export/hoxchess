@@ -35,12 +35,5 @@ hoxHostPlayer::~hoxHostPlayer()
 {
 }
 
-void 
-hoxHostPlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
-{
-    const char* FNAME = "hoxHostPlayer::OnNewMove_FromTable";
-    wxLogDebug("%s: Ignore the Move since this is a HOST player.", FNAME);
-}
-
 
 /************************* END OF FILE ***************************************/

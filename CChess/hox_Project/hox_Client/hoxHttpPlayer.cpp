@@ -30,9 +30,6 @@ END_EVENT_TABLE()
 //-----------------------------------------------------------------------------
 
 hoxHttpPlayer::hoxHttpPlayer()
-            : hoxLocalPlayer( "Unknown", 
-                              hoxPLAYER_TYPE_LOCAL, 
-                              1500 )
 { 
     wxFAIL_MSG( "This default constructor is never meant to be used." );
 }
@@ -57,12 +54,6 @@ hoxHttpPlayer::~hoxHttpPlayer()
     {
         m_timer.Stop();
     }
-}
-
-const wxString  
-hoxHttpPlayer::BuildRequestContent( const wxString& commandStr )
-{ 
-    return wxString::Format("/cchess/tables.php?%s", commandStr); 
 }
 
 hoxThreadConnection* 
@@ -136,9 +127,8 @@ hoxHttpPlayer::OnTimer( wxTimerEvent& WXUNUSED(event) )
     hoxNetworkEventList  networkEvents;
 
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_POLL, this );
-    wxString commandStr =
-        wxString::Format("op=POLL&pid=%s", this->GetName());
-    request->content = this->BuildRequestContent( commandStr );
+    request->content = 
+        wxString::Format("op=POLL&pid=%s\r\n", this->GetName());
     this->AddRequestToConnection( request );
 }
 
@@ -156,6 +146,7 @@ hoxHttpPlayer::OnHTTPResponse_Poll(wxCommandEvent& event)
     /* NOTE: We do not check for the return-code ( event.GetInt() )
      *       because the response's content would be an empty string anyway.
      */
+
 
     hoxNetworkEventList networkEvents;
 
@@ -285,6 +276,12 @@ hoxHttpPlayer::_HandleEventFromNetwork( const hoxNetworkEvent& networkEvent )
         {
             wxString moveStr = networkEvent.content;
             table->OnMove_FromNetwork( this, moveStr );
+            break;
+        }
+        case hoxNETWORK_EVENT_TYPE_NEW_WALL_MSG: // NEW MESSAGE
+        {
+            wxString message = networkEvent.content;
+            table->OnMessage_FromNetwork( this->GetName(), message );
             break;
         }
         default:

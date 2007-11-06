@@ -41,10 +41,8 @@ protected:
      * Override the parent's API
      *******************************************/
 
-    virtual const wxString BuildRequestContent( const wxString& commandStr );
-
     virtual hoxThreadConnection* CreateNewConnection( const wxString& sHostname, 
-                                                int             nPort );
+                                                      int             nPort );
 
 public:
 
