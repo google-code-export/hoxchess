@@ -11,10 +11,9 @@
 #include "hoxEnums.h"
 #include "hoxNetworkAPI.h"
 
+IMPLEMENT_DYNAMIC_CLASS(hoxMyPlayer, hoxLocalPlayer)
 
 DEFINE_EVENT_TYPE(hoxEVT_CONNECTION_RESPONSE)
-
-IMPLEMENT_DYNAMIC_CLASS( hoxMyPlayer, hoxLocalPlayer )
 
 BEGIN_EVENT_TABLE(hoxMyPlayer, hoxLocalPlayer)
     EVT_SOCKET(CLIENT_SOCKET_ID,  hoxMyPlayer::OnIncomingNetworkData)
@@ -26,9 +25,6 @@ END_EVENT_TABLE()
 //-----------------------------------------------------------------------------
 
 hoxMyPlayer::hoxMyPlayer()
-            : hoxLocalPlayer( "Unknown", 
-                               hoxPLAYER_TYPE_LOCAL, 
-                               1500 )
 {
     wxFAIL_MSG( "This default constructor is never meant to be used." );
 }

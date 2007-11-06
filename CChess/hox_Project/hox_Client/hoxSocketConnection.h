@@ -22,9 +22,10 @@
 class hoxSocketConnection : public hoxThreadConnection
 {
 public:
+    hoxSocketConnection(); // DUMMY default constructor required for RTTI info.
     hoxSocketConnection( const wxString& sHostname,
                          int             nPort );
-    ~hoxSocketConnection();
+    virtual ~hoxSocketConnection();
 
 protected:
     /*******************************************
@@ -45,6 +46,7 @@ private:
     wxSocketClient*       m_pSClient;
                 /* The socket to handle network connections */
 
+    DECLARE_DYNAMIC_CLASS(hoxSocketConnection)
 };
 
 

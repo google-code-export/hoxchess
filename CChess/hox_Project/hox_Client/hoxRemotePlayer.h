@@ -45,12 +45,9 @@ class hoxRemotePlayer :  public hoxPlayer
 
     void OnIncomingNetworkData( wxSocketEvent& event );
 
-    void SetConnection( hoxConnection* connection );
-
 private:
-    hoxConnection*    m_connection;
 
-    DECLARE_CLASS(hoxRemotePlayer)
+    DECLARE_DYNAMIC_CLASS(hoxRemotePlayer)
     DECLARE_EVENT_TABLE()
 };
 

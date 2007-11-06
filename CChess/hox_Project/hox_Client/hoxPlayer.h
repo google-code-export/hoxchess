@@ -16,6 +16,7 @@
 
 /* Forward declarations */
 class hoxTable;
+class hoxConnection;
 
 // ----------------------------------------------------------------------------
 // Declare player-event types
@@ -46,7 +47,7 @@ DECLARE_EVENT_TYPE(hoxEVT_PLAYER_WALL_MSG, wxID_ANY)
 class hoxPlayer :  public wxEvtHandler
 {
 public:
-    hoxPlayer(); // Default constructor required for event handler.
+    hoxPlayer(); // DUMMY default constructor required for event handler.
     hoxPlayer( const wxString& name,
                hoxPlayerType   type,
                int             score = 1500);
@@ -88,6 +89,20 @@ public:
     virtual hoxResult JoinTable( hoxTable* table );
     virtual hoxResult LeaveTable( hoxTable* table );
 
+    /**
+     * Set the connection to the "outside" world.
+     */
+    virtual void SetConnection( hoxConnection* connection );
+
+protected:
+    hoxConnection*  m_connection;
+            /* The connection to "outside" world.
+             * For Host and Dummy player, it will be NULL.
+             * NOTE: This variable is placed here even though some players
+             *       (such as Host and Dummy) do not need it because most
+             *       players do. Also, placing it here simplifies the code
+             *       and design.
+             */
 
 private:
     wxString       m_name;   // The player's name.

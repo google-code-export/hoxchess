@@ -16,6 +16,8 @@
 #include "hoxTablesDialog.h"
 #include "hoxUtility.h"
 #include "hoxNetworkAPI.h"
+#include "hoxSocketConnection.h"
+#include "hoxHttpConnection.h"
 
 #if !defined(__WXMSW__)
     #include "icons/sample.xpm"
@@ -215,6 +217,12 @@ void MyFrame::OnConnectServer(wxCommandEvent& WXUNUSED(event) )
     hoxNetworkTableInfoList tableList;
     hoxMyPlayer* myPlayer = wxGetApp().GetMyPlayer();
 
+    // Create a new connection for the MY player.
+    hoxConnection* connection = 
+        new hoxSocketConnection( "127.0.0.1", 
+                                 hoxNETWORK_DEFAULT_SERVER_PORT );
+    myPlayer->SetConnection( connection );
+
     result = myPlayer->ConnectToNetworkServer( "127.0.0.1", 
                                                hoxNETWORK_DEFAULT_SERVER_PORT,
                                                this );
@@ -253,6 +261,12 @@ void MyFrame::OnConnectHTTPServer(wxCommandEvent& WXUNUSED(event) )
 
     hoxNetworkTableInfoList tableList;
     hoxHttpPlayer* httpPlayer = wxGetApp().GetHTTPPlayer();
+
+    // Create a new connection for the HTTP player.
+    hoxConnection* connection = 
+        new hoxHttpConnection( HOX_HTTP_SERVER_HOSTNAME, 
+                               HOX_HTTP_SERVER_PORT );
+    httpPlayer->SetConnection( connection );
 
     result = httpPlayer->ConnectToNetworkServer( HOX_HTTP_SERVER_HOSTNAME, 
                                                  HOX_HTTP_SERVER_PORT,

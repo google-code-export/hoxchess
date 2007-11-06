@@ -24,6 +24,7 @@ class hoxThreadConnection;
 class hoxLocalPlayer :  public hoxPlayer
 {
 public:
+    hoxLocalPlayer(); // DUMMY default constructor required for RTTI info.
     hoxLocalPlayer( const wxString& name,
                     hoxPlayerType   type,
                     int             score );
@@ -71,7 +72,7 @@ private:
     wxString         m_sHostname; 
     int              m_nPort;
 
-    hoxThreadConnection*   m_connection;
+    DECLARE_ABSTRACT_CLASS(hoxLocalPlayer)
 };
 
 

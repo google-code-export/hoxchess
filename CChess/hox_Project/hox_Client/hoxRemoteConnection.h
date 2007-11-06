@@ -28,6 +28,9 @@ public:
     hoxRemoteConnection();
     virtual ~hoxRemoteConnection();
 
+    // **** Override the parent's API ****
+    virtual void Start();
+    virtual void Shutdown();
     virtual void AddRequest( hoxRequest* request );
 
     /**
@@ -47,6 +50,7 @@ private:
     hoxServer*        m_server;
         /* Set the server component that will manage this connection. */
 
+    DECLARE_DYNAMIC_CLASS(hoxRemoteConnection)
 };
 
 

@@ -27,11 +27,14 @@ class hoxThreadConnection : public hoxConnection
                           , public wxThreadHelper
 {
 public:
+    hoxThreadConnection(); // DUMMY default constructor required for RTTI info.
     hoxThreadConnection( const wxString& sHostname,
                          int             nPort );
     virtual ~hoxThreadConnection();
 
     // **** Override the parent's API ****
+    virtual void Start();
+    virtual void Shutdown();
     virtual void AddRequest( hoxRequest* request );
 
     // Thread execution starts here
@@ -54,6 +57,8 @@ protected:
     wxSemaphore           m_semRequests;
     wxMutex               m_mutexRequests;
     hoxRequestList        m_requests;
+
+    DECLARE_ABSTRACT_CLASS(hoxThreadConnection)
 };
 
 

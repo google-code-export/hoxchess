@@ -8,25 +8,20 @@
 
 #include "hoxHostPlayer.h"
 #include "hoxEnums.h"
-#include "hoxTable.h"
 
-#include <algorithm>
-
-// user code intercepting the event
-IMPLEMENT_DYNAMIC_CLASS( hoxHostPlayer, hoxPlayer )
+IMPLEMENT_DYNAMIC_CLASS(hoxHostPlayer, hoxPlayer)
 
 BEGIN_EVENT_TABLE(hoxHostPlayer, hoxPlayer)
     // Need to have a table even though it is empty.
 END_EVENT_TABLE()
-
 
 //-----------------------------------------------------------------------------
 // hoxHostPlayer
 //-----------------------------------------------------------------------------
 
 hoxHostPlayer::hoxHostPlayer()
-            : hoxPlayer( _("Unknown"), hoxPLAYER_TYPE_HOST, 1500 )
-{ 
+{
+    wxFAIL_MSG( "This default constructor is never meant to be used." );
 }
 
 hoxHostPlayer::hoxHostPlayer( const wxString& name,

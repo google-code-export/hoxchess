@@ -10,7 +10,7 @@
 #include "hoxEnums.h"
 #include "hoxConnection.h"
 
-IMPLEMENT_DYNAMIC_CLASS( hoxRemotePlayer, hoxPlayer )
+IMPLEMENT_DYNAMIC_CLASS(hoxRemotePlayer, hoxPlayer)
 
 BEGIN_EVENT_TABLE(hoxRemotePlayer, hoxPlayer)
     EVT_SOCKET(CLIENT_SOCKET_ID,  hoxRemotePlayer::OnIncomingNetworkData)
@@ -23,20 +23,18 @@ END_EVENT_TABLE()
 
 hoxRemotePlayer::hoxRemotePlayer()
 { 
-    wxFAIL_MSG("This is not meant to be called.");
+    wxFAIL_MSG( "This default constructor is never meant to be used." );
 }
 
 hoxRemotePlayer::hoxRemotePlayer( const wxString& name,
                                   hoxPlayerType   type,
                                   int             score )
             : hoxPlayer( name, type, score )
-            , m_connection( NULL )
 { 
 }
 
 hoxRemotePlayer::~hoxRemotePlayer() 
 {
-    delete m_connection;
 }
 
 void
@@ -97,17 +95,6 @@ hoxRemotePlayer::OnWallMsg_FromTable( wxCommandEvent&  event )
                 wxString::Format("op=WALL_MSG&%s\r\n", commandStr);
         m_connection->AddRequest( request );
     }
-}
-
-void 
-hoxRemotePlayer::SetConnection( hoxConnection* connection )
-{
-    const char* FNAME = "hoxRemotePlayer::SetConnection";
-
-    wxCHECK_RET(m_connection == NULL, "The Connection already exists.");
-
-    wxLogDebug("%s: Assign the connection to this user [%s]", FNAME, GetName());
-    m_connection = connection;
 }
 
 

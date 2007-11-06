@@ -15,10 +15,9 @@
 #include "hoxUtility.h"
 #include "hoxPlayerMgr.h"
 
+IMPLEMENT_DYNAMIC_CLASS(hoxHttpPlayer, hoxLocalPlayer)
 
 DEFINE_EVENT_TYPE(hoxEVT_HTTP_RESPONSE)
-
-IMPLEMENT_DYNAMIC_CLASS( hoxHttpPlayer, hoxLocalPlayer )
 
 BEGIN_EVENT_TABLE(hoxHttpPlayer, hoxLocalPlayer)
     EVT_TIMER(wxID_ANY, hoxHttpPlayer::OnTimer)

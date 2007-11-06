@@ -10,9 +10,16 @@
 #include "hoxEnums.h"
 #include "hoxUtility.h"
 
+IMPLEMENT_ABSTRACT_CLASS(hoxThreadConnection, hoxConnection)
+
 //-----------------------------------------------------------------------------
 // hoxThreadConnection
 //-----------------------------------------------------------------------------
+
+hoxThreadConnection::hoxThreadConnection()
+{
+    wxFAIL_MSG( "This default constructor is never meant to be used." );
+}
 
 hoxThreadConnection::hoxThreadConnection( const wxString& sHostname,
                                           int             nPort )
@@ -30,6 +37,36 @@ hoxThreadConnection::~hoxThreadConnection()
 {
     const char* FNAME = "hoxThreadConnection::~hoxThreadConnection";
     wxLogDebug("%s: ENTER.", FNAME);
+}
+
+void 
+hoxThreadConnection::Start()
+{
+    const char* FNAME = "hoxThreadConnection::Start";
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    if ( this->Create() != wxTHREAD_NO_ERROR )
+    {
+        wxLogError("%s: Failed to create Connection thread.", FNAME);
+        return;
+    }
+    wxASSERT_MSG( !this->GetThread()->IsDetached(), 
+                  "The Connection thread must be joinable." );
+
+    this->GetThread()->Run();
+}
+
+void 
+hoxThreadConnection::Shutdown()
+{
+    const char* FNAME = "hoxThreadConnection::Shutdown";
+
+    wxLogDebug("%s: Request the Connection thread to be shutdowned...", FNAME);
+    //hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_SHUTDOWN, NULL );
+    //threadConnection->AddRequest( request );
+    wxThread::ExitCode exitCode = this->GetThread()->Wait();
+    wxLogDebug("%s: The Connection thread was shutdowned with exit-code = [%d].", FNAME, exitCode);
 }
 
 void*
