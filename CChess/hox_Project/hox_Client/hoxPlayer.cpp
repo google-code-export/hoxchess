@@ -10,6 +10,7 @@
 #include "hoxEnums.h"
 #include "hoxTable.h"
 #include "hoxConnection.h"
+#include "hoxTableMgr.h"
 
 #include <algorithm>  // std::find
 
@@ -122,6 +123,36 @@ hoxPlayer::LeaveTable( hoxTable* table )
     table->OnLeave_FromPlayer( this );
     this->RemoveRoleAtTable( table->GetId() );
     return hoxRESULT_OK;
+}
+
+hoxResult 
+hoxPlayer::LeaveAllTables()
+{
+    const char* FNAME = "hoxPlayer::LeaveAllTables";
+    bool bErrorFound = false;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    while ( ! m_roles.empty() )
+    {
+        const wxString tableId = m_roles.front().tableId;
+        m_roles.pop_front();
+
+        // Find the table hosted on this system using the specified table-Id.
+        hoxTable* table = hoxTableMgr::GetInstance()->FindTable( tableId );
+        if ( table == NULL )
+        {
+            wxLogError("%s: Failed to find table with ID = [%s].", FNAME, tableId);
+            bErrorFound = true;
+            continue;
+        }
+
+        // Inform the table that this player is leaving...
+        wxLogDebug("%s: Player [%s] leaving table [%s]...", FNAME, this->GetName(), tableId);
+        table->OnLeave_FromPlayer( this );
+    }
+
+    return bErrorFound ? hoxRESULT_ERR : hoxRESULT_OK;
 }
 
 void 

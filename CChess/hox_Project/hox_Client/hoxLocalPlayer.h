@@ -55,9 +55,6 @@ public:
                                          wxEvtHandler*   sender );
 
 protected:
-    virtual hoxThreadConnection* CreateNewConnection( const wxString& sHostname, 
-                                                      int             nPort ) = 0;
-
     virtual void AddRequestToConnection( hoxRequest* request );
 
 private:

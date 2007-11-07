@@ -36,14 +36,6 @@ public:
 
     virtual ~hoxMyPlayer();
 
-protected:
-    /*******************************************
-     * Override the parent's API
-     *******************************************/
-
-    virtual hoxThreadConnection* CreateNewConnection( const wxString& sHostname, 
-                                                      int             nPort );
-
 public:
 
     /*******************************
@@ -51,7 +43,8 @@ public:
      *******************************/
 
     void OnIncomingNetworkData( wxSocketEvent& event );
-
+    
+    void OnConnectionResponse_PlayerData( wxCommandEvent& event ); 
     void OnConnectionResponse( wxCommandEvent& event ); 
 
     /*******************************

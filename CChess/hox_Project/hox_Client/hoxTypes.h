@@ -184,11 +184,14 @@ public:
     hoxRequestType   type;
     hoxResult        code;
     wxString         content;
+    int              flags;
 
     hoxResponse() : type( hoxREQUEST_TYPE_UNKNOWN )
-                  , code( hoxRESULT_UNKNOWN ) {}
+                  , code( hoxRESULT_UNKNOWN )
+                  , flags( hoxRESPONSE_FLAG_NONE ) {}
     hoxResponse(hoxRequestType t) : type( t )
-                                  , code( hoxRESULT_UNKNOWN ) {}
+                                  , code( hoxRESULT_UNKNOWN )
+                                  , flags( hoxRESPONSE_FLAG_NONE ) {}
 };
 
 class hoxCommand : public wxObject

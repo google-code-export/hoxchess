@@ -526,7 +526,7 @@ hoxServer::_GetRequest()
 
     if ( request->type == hoxREQUEST_TYPE_SHUTDOWN )
     {
-        wxLogDebug(wxString::Format("%s: Shutdowning this thread...", FNAME));
+        wxLogDebug("%s: Shutting down this thread...", FNAME);
         m_shutdownRequested = true;
         delete request; // *** Signal "no more request" ...
         return NULL;    // ... to the caller!

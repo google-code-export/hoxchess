@@ -63,8 +63,6 @@ hoxThreadConnection::Shutdown()
     const char* FNAME = "hoxThreadConnection::Shutdown";
 
     wxLogDebug("%s: Request the Connection thread to be shutdowned...", FNAME);
-    //hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_SHUTDOWN, NULL );
-    //threadConnection->AddRequest( request );
     wxThread::ExitCode exitCode = this->GetThread()->Wait();
     wxLogDebug("%s: The Connection thread was shutdowned with exit-code = [%d].", FNAME, exitCode);
 }
@@ -139,7 +137,7 @@ hoxThreadConnection::GetRequest()
 
     if ( request->type == hoxREQUEST_TYPE_SHUTDOWN )
     {
-        wxLogDebug("%s: Shutdowning this thread...", FNAME);
+        wxLogDebug("%s: Shutting down this thread...", FNAME);
         m_shutdownRequested = true;
         delete request; // *** Signal "no more request" ...
         return NULL;    // ... to the caller!

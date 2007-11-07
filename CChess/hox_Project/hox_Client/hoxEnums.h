@@ -131,20 +131,6 @@ enum hoxNetworkContant
 };
 
 //
-// Network command
-//
-enum hoxNetworkCmd
-{
-  /*
-   * !!! Do not change the values nor orders of the following !!!
-   */
-
-  hoxNETWORK_CMD_QUERY_TABLE  = 0xBE,
-  hoxNETWORK_CMD_JOIN_TABLE   = 0xCE,
-  hoxNETWORK_CMD_NEW_MOVE     = 0xDE
-}; 
-
-//
 // Time constants
 //
 enum hoxTimeContant
@@ -241,6 +227,18 @@ enum hoxRequestFlag
 {
     hoxREQUEST_FLAG_NONE        = 0,
     hoxREQUEST_FLAG_KEEP_ALIVE  = 1  // NOTE: This flag is not being used now.
+};
+
+//
+// Response flags to communicate back to the sender.
+//
+enum hoxResponseFlag
+{
+    hoxRESPONSE_FLAG_NONE             = 0,
+
+    hoxRESPONSE_FLAG_CONNECTION_LOST  = 1 
+        /* To signal that the connection to the server has been lost. */
+
 };
 
 // ----------------------------------------------------------------------------
