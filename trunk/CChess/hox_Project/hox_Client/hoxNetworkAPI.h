@@ -34,15 +34,6 @@ namespace hoxNetworkAPI
                            const wxString& request,
                            wxString&       response );
 
-    hoxResult HandleMove( wxSocketBase* sock,
-                          hoxCommand&   command );
-
-    hoxResult HandleLeave( wxSocketBase*  sock,
-                           hoxCommand&    command );
-
-    hoxResult HandleWallMsg( wxSocketBase* sock,
-                             hoxCommand&   command );
-
     hoxResult ParseCommand( const wxString& commandStr, 
                             hoxCommand&     command );
 
@@ -71,7 +62,6 @@ namespace hoxNetworkAPI
     hoxResult ReadMsg( wxSocketBase* sock,
                        wxString&     response );
 
-    hoxResult HandlePlayerData( wxSocketBase* sock );
 
     /* PRIVATE */
     hoxResult _ParseNetworkTableInfoString( const wxString&      tableInfoStr,

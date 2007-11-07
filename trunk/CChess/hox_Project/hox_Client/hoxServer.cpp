@@ -156,6 +156,7 @@ hoxServer::_HandleRequest( hoxRequest* request )
         result = _CheckAndHandleSocketLostEvent( request, response->content );
         if ( result == hoxRESULT_HANDLED )
         {
+            response->flags |= hoxRESPONSE_FLAG_CONNECTION_LOST;
             result = hoxRESULT_OK;  // Consider "success".
             goto exit_label;
         }
@@ -180,8 +181,37 @@ hoxServer::_HandleRequest( hoxRequest* request )
             break;
 
         case hoxREQUEST_TYPE_PLAYER_DATA: // incoming data from remote player.
-            result = hoxNetworkAPI::HandlePlayerData( request->socket ); 
+        {
+            wxSocketBase* sock = request->socket;
+            // We disable input events until we are done processing the current command.
+            wxString commandStr;
+            hoxNetworkAPI::SocketInputLock socketLock( sock );
+            result = hoxNetworkAPI::ReadLine( sock, commandStr );
+            if ( result != hoxRESULT_OK )
+            {
+                wxLogError("%s: Failed to read incoming command.", FNAME);
+                goto exit_label;
+            }
+
+            // Send back a response.
+            // NOTE: Always a 'success' response.
+            wxString responseStr;
+            wxUint32 nWrite;
+            responseStr << "0\r\n"       // error-code = SUCCESS
+                        << "INFO: Accepted command. OK\r\n";
+            nWrite = (wxUint32) responseStr.size();
+            sock->WriteMsg( responseStr, nWrite );
+            if ( sock->LastCount() != nWrite )
+            {
+                wxLogError("%s: Writing to socket failed. Error = [%s]", 
+                    FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()));
+                result = hoxRESULT_ERR;
+                goto exit_label;
+            }
+
+            response->content = commandStr;
             break;
+        }
 
         case hoxREQUEST_TYPE_DATA:
             result = _SendRequest_Data( request, response->content );
@@ -207,7 +237,7 @@ exit_label:
 
     if ( request->sender != NULL )
     {
-        wxCommandEvent event( hoxEVT_SERVER_RESPONSE );
+        wxCommandEvent event( hoxEVT_SERVER_RESPONSE, request->type );
         response->code = result;
         event.SetEventObject( response.release() );
         wxPostEvent( request->sender, event );
