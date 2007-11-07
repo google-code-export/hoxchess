@@ -79,9 +79,37 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
             break;
 
         case hoxREQUEST_TYPE_PLAYER_DATA:
+        {
             wxASSERT_MSG( request->socket == m_pSClient, "Sockets should match." );
-            result = hoxNetworkAPI::HandlePlayerData( m_pSClient ); 
+            // We disable input events until we are done processing the current command.
+            wxString commandStr;
+            hoxNetworkAPI::SocketInputLock socketLock( m_pSClient );
+            result = hoxNetworkAPI::ReadLine( m_pSClient, commandStr );
+            if ( result != hoxRESULT_OK )
+            {
+                wxLogError("%s: Failed to read incoming command.", FNAME);
+                goto exit_label;
+            }
+
+            // Send back a response.
+            // NOTE: Always a 'success' response.
+            wxString responseStr;
+            wxUint32 nWrite;
+            responseStr << "0\r\n"       // error-code = SUCCESS
+                        << "INFO: Accepted command. OK\r\n";
+            nWrite = (wxUint32) responseStr.size();
+            m_pSClient->WriteMsg( responseStr, nWrite );
+            if ( m_pSClient->LastCount() != nWrite )
+            {
+                wxLogError("%s: Writing to socket failed. Error = [%s]", 
+                    FNAME, hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()));
+                result = hoxRESULT_ERR;
+                goto exit_label;
+            }
+
+            response->content = commandStr;
             break;
+        }
 
         case hoxREQUEST_TYPE_MOVE:     /* fall through */
         case hoxREQUEST_TYPE_LIST:     /* fall through */

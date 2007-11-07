@@ -99,6 +99,18 @@ public:
     virtual bool SetConnection( hoxConnection* connection );
 
 protected:
+    /**
+     * Handle the incoming data from the connection.
+     */
+    virtual hoxResult HandleIncomingData( const wxString& commandStr );
+    virtual hoxResult HandleIncomingData_Move( /* wxSocketBase* sock, */
+                                               hoxCommand&   command );
+    virtual hoxResult HandleIncomingData_Leave( /* wxSocketBase* sock, */
+                                               hoxCommand&   command );
+    virtual hoxResult HandleIncomingData_WallMsg( /* wxSocketBase* sock, */
+                                                 hoxCommand&   command );
+
+protected:
     hoxConnection*  m_connection;
             /* The connection to "outside" world.
              * For Host and Dummy player, it will be NULL.

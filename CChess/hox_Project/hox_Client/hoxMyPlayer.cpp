@@ -80,6 +80,7 @@ void
 hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 {
     const char* FNAME = "hoxMyPlayer::OnConnectionResponse_PlayerData";
+    hoxResult result = hoxRESULT_OK;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -96,6 +97,17 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
          * all tables.
          */
         this->LeaveAllTables();
+    }
+    else
+    {
+        /* Handle other type of data. */
+
+        result = this->HandleIncomingData( response->content );
+        if ( result != hoxRESULT_OK )
+        {
+            wxLogError("%s: Error occurred while handling incoming data.", FNAME);
+            return;
+        }
     }
 
     wxLogDebug("%s: END.", FNAME);

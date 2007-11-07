@@ -42,6 +42,7 @@ class hoxRemotePlayer :  public hoxPlayer
      ***************************/
 
     void OnIncomingNetworkData( wxSocketEvent& event );
+    void OnConnectionResponse_PlayerData( wxCommandEvent& event ); 
 
 private:
 
