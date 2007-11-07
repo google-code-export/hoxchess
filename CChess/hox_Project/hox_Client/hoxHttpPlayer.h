@@ -44,7 +44,7 @@ public:
                                          wxEvtHandler*   sender );
 
     /*******************************
-     * Income-data event handlers
+     * Incoming-data event handlers
      *******************************/
 
     void OnHTTPResponse_Poll(wxCommandEvent& event);

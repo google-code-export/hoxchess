@@ -92,8 +92,11 @@ public:
 
     /**
      * Set the connection to the "outside" world.
+     *
+     * @return true  - If this connection can be set.
+     *         false - If some other existing connection has been set.
      */
-    virtual void SetConnection( hoxConnection* connection );
+    virtual bool SetConnection( hoxConnection* connection );
 
 protected:
     hoxConnection*  m_connection;

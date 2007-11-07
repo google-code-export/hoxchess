@@ -214,15 +214,21 @@ hoxPlayer::OnWallMsg_FromTable( wxCommandEvent&  event )
     }
 }
 
-void 
+bool 
 hoxPlayer::SetConnection( hoxConnection* connection )
 {
     const char* FNAME = "hoxPlayer::SetConnection";
 
-    wxCHECK_RET(m_connection == NULL, "The Connection already exists.");
+    if ( m_connection != NULL )
+    {
+        wxLogDebug("%s: Connection already set to this user [%s]. Fine. END.", 
+            FNAME, GetName());
+        return false;
+    }
 
     wxLogDebug("%s: Assign the connection to this user [%s]", FNAME, GetName());
     m_connection = connection;
+    return true;
 }
 
 /************************* END OF FILE ***************************************/

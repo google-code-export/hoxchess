@@ -45,6 +45,25 @@ hoxMyPlayer::~hoxMyPlayer()
     wxLogDebug("%s: ENTER.", FNAME);
 }
 
+hoxResult 
+hoxMyPlayer::JoinTable( hoxTable* table )
+{
+    const char* FNAME = "hoxMyPlayer::JoinTable";
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    hoxResult result = this->hoxLocalPlayer::JoinTable( table );
+    if ( result != hoxRESULT_OK )
+    {
+        return result;
+    }
+
+    /* Start listen for new Moves. */
+    wxLogDebug("%s: Inform the connection to begin listening for new events...", FNAME);
+    _StartListenForMoves();
+
+    return hoxRESULT_OK;
+}
+
 void
 hoxMyPlayer::OnIncomingNetworkData( wxSocketEvent& event )
 {
@@ -77,22 +96,6 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
          * all tables.
          */
         this->LeaveAllTables();
-        //while ( ! m_roles.empty() )
-        //{
-        //    const wxString tableId = m_roles.front().tableId;
-        //    m_roles.pop_front();
-
-        //    // Find the table hosted on this system using the specified table-Id.
-        //    hoxTable* table = hoxTableMgr::GetInstance()->FindTable( tableId );
-        //    if ( table == NULL )
-        //    {
-        //        wxLogError("%s: Failed to find table with ID = [%s].", FNAME, tableId);
-        //        continue;
-        //    }
-
-        //    // Inform the table that this player is leaving...
-        //    table->OnLeave_FromPlayer( this );
-        //}
     }
 
     wxLogDebug("%s: END.", FNAME);
@@ -131,7 +134,7 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
 }
 
 hoxResult 
-hoxMyPlayer::StartListenForMoves()
+hoxMyPlayer::_StartListenForMoves()
 {
     /* NOTE: We set 'this' player as the 'sender' so that the player can 
      *       be a socket-event handler.
