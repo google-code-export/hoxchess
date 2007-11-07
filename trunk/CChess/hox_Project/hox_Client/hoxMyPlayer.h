@@ -38,6 +38,8 @@ public:
 
 public:
 
+    virtual hoxResult JoinTable( hoxTable* table );
+
     /*******************************
      * Socket-event handlers
      *******************************/
@@ -47,11 +49,8 @@ public:
     void OnConnectionResponse_PlayerData( wxCommandEvent& event ); 
     void OnConnectionResponse( wxCommandEvent& event ); 
 
-    /*******************************
-     * Other API
-     *******************************/
-
-    hoxResult StartListenForMoves();
+private:
+    hoxResult _StartListenForMoves();
 
 private:
 

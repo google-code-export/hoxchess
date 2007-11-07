@@ -18,6 +18,7 @@
 class hoxNetworkTableInfo;
 class hoxTable;
 class MyChild;
+class hoxLocalPlayer;
 
 // menu items ids
 enum
@@ -86,26 +87,20 @@ public:
      */
     bool OnChildClose(MyChild* child, hoxTable* table);
 
-    void DoJoinNewHTTPTable(const wxString& tableId);
-    void DoJoinExistingHTTPTable(const hoxNetworkTableInfo& tableInfo);
-
     void OnHTTPResponse(wxCommandEvent& event);
     void OnMYResponse(wxCommandEvent& event);
-    void DoJoinExistingMYTable(const hoxNetworkTableInfo& tableInfo);
-    void DoJoinNewMYTable(const wxString& tableId);
+    void DoJoinExistingTable(const hoxNetworkTableInfo& tableInfo, hoxLocalPlayer* localPlayer);
+    void DoJoinNewTable(const wxString& tableId, hoxLocalPlayer* localPlayer);
     void OnFrameLogMsgEvent( wxCommandEvent &event );
 
 private:
-    void _OnHTTPResponse_Connect( const wxString& responseStr );
-    void _OnHTTPResponse_List( const wxString& responseStr );
-    void _OnHTTPResponse_New( const wxString& responseStr );
-    void _OnHTTPResponse_Join( const wxString& responseStr );
-    void _OnHTTPResponse_Leave( const wxString& responseStr );
+    void _Handle_OnResponse( wxCommandEvent& event, hoxLocalPlayer* localPlayer );
 
-    void _OnMYResponse_Connect( const wxString& responseStr );
-    void _OnMYResponse_List( const wxString& responseStr );
-    void _OnMYResponse_Join( const wxString& responseStr );
-    void _OnMYResponse_New( const wxString& responseStr );
+    void _OnResponse_Leave( const wxString& responseStr );
+    void _OnResponse_Connect( const wxString& responseStr, hoxLocalPlayer* localPlayer );
+    void _OnResponse_List( const wxString& responseStr, hoxLocalPlayer* localPlayer );
+    void _OnResponse_Join( const wxString& responseStr, hoxLocalPlayer* localPlayer );
+    void _OnResponse_New( const wxString& responseStr, hoxLocalPlayer* localPlayer );
 
     hoxTable* _CreateNewTable( const wxString& tableId );
 

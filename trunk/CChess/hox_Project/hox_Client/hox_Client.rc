@@ -10,9 +10,6 @@
 // a name starting with "a"
 aaaaaaaa ICON "./icons/hoxchess.ico"
 
-// this icon is used with wxFrame::SetIcon()
-sample ICON "./icons/sample.ico"
-
 hoxchess ICON "./icons/hoxchess.ico"
 //relephant ICON "./icons/relephant.ico"
 
