@@ -48,6 +48,26 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
     hoxResult    result = hoxRESULT_ERR;
     std::auto_ptr<hoxResponse> response( new hoxResponse(request->type) );
 
+    /* 
+     * SPECIAL CASE: 
+     *     Handle the "special" request: Socket-Lost event,
+     *     which is applicable to some requests.
+     */
+    if ( request->type == hoxREQUEST_TYPE_PLAYER_DATA )
+    {
+        result = _CheckAndHandleSocketLostEvent( request, response->content );
+        if ( result == hoxRESULT_HANDLED )
+        {
+            response->flags |= hoxRESPONSE_FLAG_CONNECTION_LOST;
+            result = hoxRESULT_OK;  // Consider "success".
+            goto exit_label;
+        }
+    }
+
+    /*
+     * NORMAL CASE: 
+     *    Handle "normal" request.
+     */
     switch( request->type )
     {
         case hoxREQUEST_TYPE_CONNECT:
@@ -69,7 +89,13 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
         case hoxREQUEST_TYPE_JOIN:     /* fall through */
         case hoxREQUEST_TYPE_LEAVE:    /* fall through */
         case hoxREQUEST_TYPE_WALL_MSG:
-            wxASSERT_MSG( m_pSClient, "Connection is not yet established" );
+            if ( m_pSClient == NULL )
+            {
+                // NOTE: The connection could have been closed if the server is down.
+                wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
+                result = hoxRESULT_OK;  // Consider "success".
+                break;
+            }
             result = hoxNetworkAPI::SendRequest( m_pSClient, 
                                                  request->content, 
                                                  response->content );
@@ -82,6 +108,7 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
             break;
     }
 
+exit_label:
     /* Log error */
     if ( result != hoxRESULT_OK )
     {
@@ -99,6 +126,29 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
         event.SetEventObject( response.release() );  // Caller will de-allocate.
         wxPostEvent( request->sender, event );
     }
+}
+
+hoxResult 
+hoxSocketConnection::_CheckAndHandleSocketLostEvent( 
+                                const hoxRequest* request, 
+                                wxString&         response )
+{
+    const char* FNAME = "hoxSocketConnection::_CheckAndHandleSocketLostEvent";
+    hoxResult result = hoxRESULT_OK;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    wxASSERT_MSG( request->socket == m_pSClient, "Sockets should match." );
+
+    if ( request->socketEvent == wxSOCKET_LOST )
+    {
+        wxLogDebug("%s: Received socket-lost event. Deleting client socket.", FNAME);
+        _Disconnect();
+        result = hoxRESULT_HANDLED;
+    }
+
+    wxLogDebug("%s: Not a socket-lost event. Fine - Do nothing. END.", FNAME);
+    return result;
 }
 
 hoxResult        

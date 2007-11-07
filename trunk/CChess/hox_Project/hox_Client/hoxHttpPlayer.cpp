@@ -56,14 +56,6 @@ hoxHttpPlayer::~hoxHttpPlayer()
     }
 }
 
-hoxThreadConnection* 
-hoxHttpPlayer::CreateNewConnection( const wxString& sHostname, 
-                                    int             nPort )
-{
-    return new hoxHttpConnection( sHostname, nPort );
-}
-
-
 hoxResult 
 hoxHttpPlayer::JoinTable( hoxTable* table )
 {

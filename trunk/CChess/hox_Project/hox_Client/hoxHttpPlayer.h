@@ -36,14 +36,6 @@ public:
 
     virtual ~hoxHttpPlayer();
 
-protected:
-    /*******************************************
-     * Override the parent's API
-     *******************************************/
-
-    virtual hoxThreadConnection* CreateNewConnection( const wxString& sHostname, 
-                                                      int             nPort );
-
 public:
     virtual hoxResult JoinTable( hoxTable* table );
     virtual hoxResult LeaveTable( hoxTable* table );

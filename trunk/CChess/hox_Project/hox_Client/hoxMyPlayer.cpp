@@ -17,6 +17,7 @@ DEFINE_EVENT_TYPE(hoxEVT_CONNECTION_RESPONSE)
 
 BEGIN_EVENT_TABLE(hoxMyPlayer, hoxLocalPlayer)
     EVT_SOCKET(CLIENT_SOCKET_ID,  hoxMyPlayer::OnIncomingNetworkData)
+    EVT_COMMAND(hoxREQUEST_TYPE_PLAYER_DATA, hoxEVT_CONNECTION_RESPONSE, hoxMyPlayer::OnConnectionResponse_PlayerData)
     EVT_COMMAND(wxID_ANY, hoxEVT_CONNECTION_RESPONSE, hoxMyPlayer::OnConnectionResponse)
 END_EVENT_TABLE()
 
@@ -44,23 +45,57 @@ hoxMyPlayer::~hoxMyPlayer()
     wxLogDebug("%s: ENTER.", FNAME);
 }
 
-hoxThreadConnection* 
-hoxMyPlayer::CreateNewConnection( const wxString& sHostname, 
-                                  int             nPort )
-{
-    return new hoxSocketConnection( sHostname, nPort );
-}
-
 void
 hoxMyPlayer::OnIncomingNetworkData( wxSocketEvent& event )
 {
     const char* FNAME = "hoxMyPlayer::OnIncomingNetworkData";
     wxLogDebug("%s: ENTER.", FNAME);
 
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_PLAYER_DATA );
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_PLAYER_DATA, this );
     request->socket      = event.GetSocket();
     request->socketEvent = event.GetSocketEvent();
     this->AddRequestToConnection( request );
+}
+
+void 
+hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
+{
+    const char* FNAME = "hoxMyPlayer::OnConnectionResponse_PlayerData";
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
+    const std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
+
+    /* NOTE: Only handle the connection-lost event. */
+
+    if ( (response->flags & hoxRESPONSE_FLAG_CONNECTION_LOST) !=  0 )
+    {
+        wxLogDebug("%s: Connection has been lost.", FNAME);
+        /* Currently, we support one connection per player.
+         * Since this ONLY connection is closed, the player must leave
+         * all tables.
+         */
+        this->LeaveAllTables();
+        //while ( ! m_roles.empty() )
+        //{
+        //    const wxString tableId = m_roles.front().tableId;
+        //    m_roles.pop_front();
+
+        //    // Find the table hosted on this system using the specified table-Id.
+        //    hoxTable* table = hoxTableMgr::GetInstance()->FindTable( tableId );
+        //    if ( table == NULL )
+        //    {
+        //        wxLogError("%s: Failed to find table with ID = [%s].", FNAME, tableId);
+        //        continue;
+        //    }
+
+        //    // Inform the table that this player is leaving...
+        //    table->OnLeave_FromPlayer( this );
+        //}
+    }
+
+    wxLogDebug("%s: END.", FNAME);
 }
 
 void 

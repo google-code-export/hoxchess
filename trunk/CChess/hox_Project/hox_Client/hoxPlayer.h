@@ -88,6 +88,7 @@ public:
 
     virtual hoxResult JoinTable( hoxTable* table );
     virtual hoxResult LeaveTable( hoxTable* table );
+    virtual hoxResult LeaveAllTables();
 
     /**
      * Set the connection to the "outside" world.
