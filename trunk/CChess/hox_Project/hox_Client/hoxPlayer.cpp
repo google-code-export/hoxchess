@@ -265,6 +265,14 @@ hoxPlayer::HandleIncomingData( const wxString& commandStr )
             result = this->HandleIncomingData_WallMsg( /*sock,*/ command );
             break;
 
+        case hoxREQUEST_TYPE_LIST:
+            result = this->HandleIncomingData_List( /*sock,*/ command ); 
+            break;
+
+        case hoxREQUEST_TYPE_JOIN:
+            result = this->HandleIncomingData_Join( /*sock,*/ command ); 
+            break;
+
         default:
             wxLogError("%s: Unsupported Request-Type [%s].", 
                 FNAME, hoxUtility::RequestTypeToString(command.type));
@@ -344,6 +352,11 @@ exit_label:
     //    result = hoxRESULT_ERR;
     //}
 
+    /* Send response back to the remote player */
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_OUT_DATA );
+    request->content = response;
+    m_connection->AddRequest( request );
+
     wxLogDebug("%s: END.", FNAME);
     return result;
 }
@@ -415,6 +428,11 @@ exit_label:
     //    result = hoxRESULT_ERR;
     //}
 
+    /* Send response back to the remote player */
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_OUT_DATA );
+    request->content = response;
+    m_connection->AddRequest( request );
+
     wxLogDebug("%s: END.", FNAME);
     return result;
 }
@@ -467,6 +485,155 @@ exit_label:
     //        FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()));
     //    result = hoxRESULT_ERR;
     //}
+
+    /* Send response back to the remote player */
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_OUT_DATA );
+    request->content = response;
+    m_connection->AddRequest( request );
+
+    wxLogDebug("%s: END.", FNAME);
+    return result;
+}
+
+hoxResult 
+hoxPlayer::HandleIncomingData_List( /* wxSocketBase *sock, */
+                                    hoxCommand&   command )
+{
+    const char* FNAME = "hoxPlayer::HandleIncomingData_List";
+
+    // Get the list of hosted tables.
+    const hoxTableList& tables = hoxTableMgr::GetInstance()->GetTables();
+    wxUint32 tableCount = (wxUint32) tables.size();
+
+    // Write it back
+    wxLogDebug("%s: ... We have [%d] tables.", FNAME, tableCount);
+
+    //wxUint32 nWrite;
+    wxString response;
+
+    response << "0\r\n"  // code
+             //<< "We have " << tableCount << " tables\r\n";  // message
+             ;
+
+    // Return the info of tables.
+    for ( hoxTableList::const_iterator it = tables.begin(); 
+                                       it != tables.end(); ++it )
+    {
+        hoxPlayer* redPlayer   = (*it)->GetRedPlayer();
+        hoxPlayer* blackPlayer = (*it)->GetBlackPlayer();
+
+        response << (*it)->GetId() << " "
+                 << "1 "   // TODO: Hard-coded for table-status
+                 << (redPlayer != NULL ? redPlayer->GetName() : "0") << " "
+                 << (blackPlayer != NULL ? blackPlayer->GetName() : "0") << " "
+                 << "\r\n";
+    }
+
+    /* Send response back to the remote player */
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_OUT_DATA );
+    request->content = response;
+    m_connection->AddRequest( request );
+
+    //nWrite = (wxUint32) response.size();
+    //sock->WriteMsg( response, nWrite );
+    //if ( sock->LastCount() != nWrite )
+    //{
+    //    wxLogError("%s: Writing to socket failed. Error = [%s]", 
+    //        FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()));
+    //    return;
+    //}
+    return hoxRESULT_OK;
+}
+
+hoxResult 
+hoxPlayer::HandleIncomingData_Join( /* wxSocketBase *sock, */
+                                    hoxCommand&   command )
+{
+    const char* FNAME = "hoxPlayer::HandleIncomingData_Join";
+    hoxResult result = hoxRESULT_ERR;   // Assume: failure.
+    hoxTable* table = NULL;
+    wxString  existingPlayerId;
+    //wxUint32  nWrite;
+    wxString  response;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    const wxString tableId = command.parameters["tid"];
+
+    // Find the table hosted on this system using the specified table-Id.
+    table = hoxTableMgr::GetInstance()->FindTable( tableId );
+    if ( table == NULL )
+    {
+        wxLogError("%s: Table [%s] not found.", FNAME, tableId);
+        response << "1\r\n"  // code
+                 << "Table " << tableId << " not found.\r\n";
+        goto exit_label;
+    }
+
+    /* Get the ID of the existing player */
+
+    if ( table->GetRedPlayer() != NULL )
+    {
+        existingPlayerId = table->GetRedPlayer()->GetName();
+    }
+    else if ( table->GetBlackPlayer() != NULL )
+    {
+        existingPlayerId = table->GetBlackPlayer()->GetName();
+    }
+    else
+    {
+        wxLogError("%s: No one is at the table [%s] not found.", FNAME, tableId);
+        response << "2\r\n"  // code
+                 << "Not one is at the table " << tableId << ".\r\n";
+        goto exit_label;
+    }
+
+    /***********************/
+    /* Setup players       */
+    /***********************/
+
+    //// Create a connection for the new player.
+    //hoxRemoteConnection* connection = new hoxRemoteConnection();
+    //connection->SetServer( this );
+    //connection->SetCBSocket( sock );
+
+    //player->SetConnection( connection );
+
+    //// Setup the event handler and let the player handles all socket events.
+    //wxLogDebug("%s: Let this Remote player [%s] handle all socket events", 
+    //    FNAME, player->GetName());
+    //sock->SetEventHandler(*player, CLIENT_SOCKET_ID);
+    //sock->SetNotify(wxSOCKET_INPUT_FLAG | wxSOCKET_LOST_FLAG);
+    //sock->Notify(true);
+
+    result = this->JoinTable( table );
+    wxASSERT( result == hoxRESULT_OK  );
+    wxASSERT_MSG( this->HasRole( hoxRole(table->GetId(), 
+                                         hoxPIECE_COLOR_BLACK) ),
+                  "Player must play BLACK");
+
+	// Finally, return 'success'.
+	response << "0\r\n"       // error-code = SUCCESS
+	         << "INFO: (JOIN) Join Table [" << tableId << "] OK\r\n"
+	         << tableId << " " << "1 " << existingPlayerId << " " << this->GetName() << "\r\n";
+
+    result = hoxRESULT_OK;
+
+exit_label:
+    //// Send back response.
+    //nWrite = (wxUint32) response.size();
+    //sock->WriteMsg( response, nWrite );
+    //if ( sock->LastCount() != nWrite )
+    //{
+    //    wxLogError("%s: Failed to send back response over the network.", 
+    //        FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()));
+    //    //return;
+    //}
+
+    /* Send response back to the remote player */
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_OUT_DATA );
+    request->content = response;
+    m_connection->AddRequest( request );
 
     wxLogDebug("%s: END.", FNAME);
     return result;

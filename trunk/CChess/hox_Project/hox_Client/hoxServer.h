@@ -38,30 +38,41 @@ public:
     void AddRequest( hoxRequest* request );
 
 private:
-    void _HandleCommand_Connect( wxSocketBase* sock );
-    void _HandleCommand_List( wxSocketBase* sock );
-    void _HandleCommand_Join( wxSocketBase*  sock, 
-                              hoxCommand&    command );
-    void _HandleCommand_New( wxSocketBase* sock, 
-                             hoxCommand&   command );
-
-private:
     hoxRequest* _GetRequest();         
     void        _HandleRequest( hoxRequest* request );
     hoxResult   _CheckAndHandleSocketLostEvent( const hoxRequest* request, 
                                                 wxString&         response );
     hoxResult   _HandleRequest_Accept( hoxRequest* request );
-    hoxResult   _SendRequest_Data( const hoxRequest* request, 
-                                   wxString&          response );
 
     void        _Disconnect();
     void        _DestroyAllActiveSockets();
     void        _DestroyActiveSocket( wxSocketBase *sock );
     bool        _DetachActiveSocket( wxSocketBase *sock );
 
+    class SocketInfo; // TODO: ...
+    bool        _FindSocketInfo( const wxString& playerId, SocketInfo& socketInfo );
+
 private:
 
-    typedef std::list<wxSocketBase*> SocketList;
+    class SocketInfo {
+    public:
+        wxString       playerId;
+        wxSocketBase*  socket;
+        SocketInfo() : socket(NULL) {}
+        SocketInfo(const wxString& p, wxSocketBase* s) 
+                    : playerId(p), socket(s) {}
+        SocketInfo& operator=(const SocketInfo& other)
+        {
+            playerId = other.playerId;
+            socket = other.socket;
+            return *this;
+        }
+        //bool operator==(const SocketInfo& other)
+        //{
+        //    return ( (playerId == other.playerId) && (socket == other.socket) );
+        //}
+    };
+    typedef std::list<SocketInfo> SocketList;
 
     int                   m_nPort;
 

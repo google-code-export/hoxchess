@@ -70,7 +70,7 @@ hoxLocalPlayer::ConnectToNetworkServer( const wxString& sHostname,
     {
         hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_CONNECT, sender );
         request->content = 
-            wxString::Format("op=CONNECT\r\n");
+            wxString::Format("op=CONNECT&pid=%s\r\n", this->GetName());
         m_connection->AddRequest( request );
     }
 
@@ -84,7 +84,7 @@ hoxLocalPlayer::QueryForNetworkTables( wxEvtHandler* sender )
     {
         hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LIST, sender );
         request->content = 
-            wxString::Format("op=LIST\r\n");
+            wxString::Format("op=LIST&pid=%s\r\n", this->GetName());
         m_connection->AddRequest( request );
     }
 

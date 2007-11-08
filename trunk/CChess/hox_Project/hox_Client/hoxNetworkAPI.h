@@ -34,6 +34,9 @@ namespace hoxNetworkAPI
                            const wxString& request,
                            wxString&       response );
 
+    hoxResult SendOutData( wxSocketBase*   sock, 
+                           const wxString& contentStr );
+
     hoxResult ParseCommand( const wxString& commandStr, 
                             hoxCommand&     command );
 

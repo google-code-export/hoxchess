@@ -13,6 +13,9 @@
 #include "hoxServer.h"
 #include "hoxNetworkAPI.h"
 #include "hoxUtility.h"
+#include "hoxRemotePlayer.h"
+#include "hoxRemoteConnection.h"
+#include "hoxPlayerMgr.h"
 
 //
 // hoxSocketServer
@@ -104,10 +107,12 @@ hoxSocketServer::Entry()
 
         wxLogDebug("%s: Turn OFF the socket-events until we finish handling CONNECT...", FNAME);
         newSock->Notify( false );
+        wxString playerId;  // Who is sending this request?
         {
             /* Read the incoming command */
             hoxCommand command;
             hoxResult result = hoxNetworkAPI::ReadCommand( newSock, command );
+            //newSock->Notify( false );  // FIXME: ********** Big hack here *********
             if ( result != hoxRESULT_OK )
             {
                 wxLogError("%s: Failed to read incoming command.", FNAME);
@@ -121,6 +126,37 @@ hoxSocketServer::Entry()
                     FNAME, hoxUtility::RequestTypeToString(command.type));
                 continue;
             }
+
+            playerId = command.parameters["pid"];
+
+            /////////////////////////////////////////
+            const int      playerScore = 1999;   // FIXME hard-coded player's score
+
+            /* Create a new player to represent this new remote player */
+            wxLogDebug("%s: Creating a remote player [%s]...", FNAME, playerId);
+            hoxRemotePlayer* newPlayer = 
+                hoxPlayerMgr::GetInstance()->CreateRemotePlayer( playerId,
+                                                                 playerScore );
+            /* Create a connection for the new player. */
+            hoxRemoteConnection* connection = new hoxRemoteConnection();
+            connection->SetServer( m_server );
+            connection->SetCBSocket( newSock );
+            newPlayer->SetConnection( connection );
+
+            /* et the player handles all socket events. */
+            wxLogDebug("%s: Let this Remote player [%s] handle all socket events", 
+                FNAME, newPlayer->GetName());
+            newSock->SetEventHandler(*newPlayer, CLIENT_SOCKET_ID);
+            newSock->SetNotify(wxSOCKET_INPUT_FLAG | wxSOCKET_LOST_FLAG);
+            newSock->Notify(true);
+
+            // *** Save the connection so that later we can cleanup before closing.
+            wxLogDebug("%s: Posting ACCEPT request to save the new client connection.", FNAME);
+            request = new hoxRequest( hoxREQUEST_TYPE_ACCEPT );
+            request->content = playerId;
+            request->socket = newSock;
+            m_server->AddRequest( request );
+            /////////////////////////////////////////
 
            /* Simply send back an OK response. */
 
@@ -142,17 +178,7 @@ hoxSocketServer::Entry()
         ////// END OF CONNECT ////////////////
         //////////////////////////////////////////////////
 
-        wxLogDebug("%s: Turn ON the socket-events for the new client...", FNAME);
-        newSock->SetEventHandler( wxGetApp(), SERVER_SOCKET_ID );
-        newSock->SetNotify( wxSOCKET_INPUT_FLAG | wxSOCKET_LOST_FLAG );
-        newSock->Notify( true );
-
-        // *** Save the connection so that later we can cleanup before closing.
-        wxLogDebug("%s: Posting ACCEPT request to save the new client connection.", FNAME);
-        request = new hoxRequest( hoxREQUEST_TYPE_ACCEPT );
-        request->socket = newSock;
-        m_server->AddRequest( request );
-    }
+    } // while(...)
 
     /* Close the server-socket before exit */
     _DestroySocketServer();

@@ -247,7 +247,7 @@ hoxUtility::RequestTypeToString( const hoxRequestType requestType )
         case hoxREQUEST_TYPE_UNKNOWN:     return "UNKNOWN";
 
         case hoxREQUEST_TYPE_ACCEPT:      return "ACCEPT";
-        case hoxREQUEST_TYPE_DATA:        return "DATA";
+        //case hoxREQUEST_TYPE_DATA:        return "DATA";
         case hoxREQUEST_TYPE_PLAYER_DATA: return "PLAYER_DATA";
         case hoxREQUEST_TYPE_CONNECT:     return "CONNECT";
         case hoxREQUEST_TYPE_DISCONNECT:  return "DISCONNECT";
@@ -259,7 +259,7 @@ hoxUtility::RequestTypeToString( const hoxRequestType requestType )
         case hoxREQUEST_TYPE_JOIN:        return "JOIN";
         case hoxREQUEST_TYPE_LEAVE:       return "LEAVE";
         case hoxREQUEST_TYPE_LISTEN:      return "LISTEN";
-        //case hoxREQUEST_TYPE_TABLE_MOVE:  return "TABLE_MOVE";
+        case hoxREQUEST_TYPE_OUT_DATA:    return "OUT_DATA";
         case hoxREQUEST_TYPE_WALL_MSG:    return "WALL_MSG";
 
         default:                          return "UNKNOWN";
@@ -275,7 +275,7 @@ hoxUtility::StringToRequestType( const wxString& input )
     if ( input == "UNKNOWN" )     return hoxREQUEST_TYPE_UNKNOWN;
 
     if ( input == "ACCEPT" )      return hoxREQUEST_TYPE_ACCEPT;
-    if ( input == "DATA" )        return hoxREQUEST_TYPE_DATA;
+    //if ( input == "DATA" )        return hoxREQUEST_TYPE_DATA;
     if ( input == "PLAYER_DATA" ) return hoxREQUEST_TYPE_PLAYER_DATA;
     if ( input == "CONNECT" )     return hoxREQUEST_TYPE_CONNECT;
     if ( input == "DISCONNECT" )  return hoxREQUEST_TYPE_DISCONNECT;
@@ -287,7 +287,7 @@ hoxUtility::StringToRequestType( const wxString& input )
     if ( input == "JOIN" )        return hoxREQUEST_TYPE_JOIN;
     if ( input == "LEAVE" )       return hoxREQUEST_TYPE_LEAVE;
     if ( input == "LISTEN" )      return hoxREQUEST_TYPE_LISTEN;
-    //if ( input == "TABLE_MOVE" )  return hoxREQUEST_TYPE_TABLE_MOVE;
+    if ( input == "OUT_DATA" )    return hoxREQUEST_TYPE_OUT_DATA;
     if ( input == "WALL_MSG" )    return hoxREQUEST_TYPE_WALL_MSG;
 
     return hoxREQUEST_TYPE_UNKNOWN;
