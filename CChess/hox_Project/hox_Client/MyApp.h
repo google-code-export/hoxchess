@@ -50,7 +50,7 @@ DECLARE_EVENT_TYPE(hoxEVT_SERVER_RESPONSE, wxID_ANY)
 
 class MyApp : public wxApp
 {
-  public:
+public:
 
     /*********************************
      * Override base class virtuals
@@ -70,10 +70,7 @@ class MyApp : public wxApp
     void OpenServer();
     void CloseServer();
 
-    void OnServerSocketEvent(wxSocketEvent& event);
-
-
-  private:
+private:
     hoxLog*             m_log;
     wxLog*              m_oldLog;    // the previous log target (to be restored later)
 

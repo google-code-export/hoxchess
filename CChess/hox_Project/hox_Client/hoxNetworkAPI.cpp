@@ -94,6 +94,32 @@ exit_label:
     return result;
 }
 
+hoxResult 
+hoxNetworkAPI::SendOutData( wxSocketBase*   sock, 
+                            const wxString& contentStr )
+{
+    const char* FNAME = "hoxNetworkAPI::SendOutData";
+    hoxResult      result = hoxRESULT_ERR;
+    wxUint32       nWrite;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    nWrite = (wxUint32) contentStr.size();
+    sock->WriteMsg( contentStr, nWrite );
+    if ( sock->LastCount() != nWrite )
+    {
+        wxLogError("%s: Writing to socket failed. Error = [%s]", 
+            FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()));
+        goto exit_label;
+    }
+
+    result = hoxRESULT_OK;
+
+exit_label:
+    wxLogDebug("%s: END.", FNAME);
+    return result;
+}
+
 hoxResult
 hoxNetworkAPI::ParseCommand( const wxString& commandStr, 
                              hoxCommand&     command )
@@ -359,7 +385,7 @@ hoxResult
 hoxNetworkAPI::ReadCommand( wxSocketBase* sock, 
                             hoxCommand&   command )
 {
-    const char* FNAME = "hoxServer::_SendRequest_Data";
+    const char* FNAME = "hoxNetworkAPI::ReadCommand";
     hoxResult   result = hoxRESULT_OK;
     wxString    commandStr;
 

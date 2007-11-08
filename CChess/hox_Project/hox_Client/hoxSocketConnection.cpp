@@ -9,10 +9,8 @@
 #include "hoxSocketConnection.h"
 #include "hoxMYPlayer.h"
 #include "hoxEnums.h"
-#include "hoxTableMgr.h"
 #include "hoxUtility.h"
 #include "hoxNetworkAPI.h"
-#include "MyApp.h"    // To access wxGetApp()
 
 IMPLEMENT_DYNAMIC_CLASS(hoxSocketConnection, hoxThreadConnection)
 
@@ -90,26 +88,14 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
                 wxLogError("%s: Failed to read incoming command.", FNAME);
                 goto exit_label;
             }
-
-            // Send back a response.
-            // NOTE: Always a 'success' response.
-            wxString responseStr;
-            wxUint32 nWrite;
-            responseStr << "0\r\n"       // error-code = SUCCESS
-                        << "INFO: Accepted command. OK\r\n";
-            nWrite = (wxUint32) responseStr.size();
-            m_pSClient->WriteMsg( responseStr, nWrite );
-            if ( m_pSClient->LastCount() != nWrite )
-            {
-                wxLogError("%s: Writing to socket failed. Error = [%s]", 
-                    FNAME, hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()));
-                result = hoxRESULT_ERR;
-                goto exit_label;
-            }
-
             response->content = commandStr;
             break;
         }
+
+        case hoxREQUEST_TYPE_OUT_DATA:
+            result = hoxNetworkAPI::SendOutData( m_pSClient, 
+                                                 request->content );
+            break;
 
         case hoxREQUEST_TYPE_MOVE:     /* fall through */
         case hoxREQUEST_TYPE_LIST:     /* fall through */

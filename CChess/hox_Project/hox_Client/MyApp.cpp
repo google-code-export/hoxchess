@@ -29,7 +29,7 @@ IMPLEMENT_APP(MyApp)
 DEFINE_EVENT_TYPE(hoxEVT_SERVER_RESPONSE)
 
 BEGIN_EVENT_TABLE(MyApp, wxApp)
-  EVT_SOCKET(SERVER_SOCKET_ID,  MyApp::OnServerSocketEvent)
+  // Empty table
 END_EVENT_TABLE()
 
 
@@ -238,25 +238,6 @@ void MyApp::CloseServer()
         wxLogDebug("%s: The Server thread was shutdowned with exit-code = [%d].", FNAME, exitCode);
         delete m_server;
         m_server = NULL;
-    }
-}
-
-void 
-MyApp::OnServerSocketEvent(wxSocketEvent& event)
-{
-    const char* FNAME = "MyApp::OnServerSocketEvent";  // function's name
-
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    wxLogDebug("%s: Received new socket-event = [%s].", 
-        FNAME, hoxNetworkAPI::SocketEventToString(event.GetSocketEvent()) );
-
-    wxASSERT( m_server != NULL );
-    {
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_DATA );
-        request->socket      = event.GetSocket();
-        request->socketEvent = event.GetSocketEvent();
-        m_server->AddRequest( request );
     }
 }
 

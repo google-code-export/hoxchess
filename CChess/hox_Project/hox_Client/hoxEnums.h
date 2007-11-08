@@ -193,7 +193,7 @@ enum hoxRequestType
     hoxREQUEST_TYPE_UNKNOWN = -1,
 
     hoxREQUEST_TYPE_ACCEPT,
-    hoxREQUEST_TYPE_DATA,
+    //hoxREQUEST_TYPE_DATA,
 
     hoxREQUEST_TYPE_PLAYER_DATA,
         /* Network data incoming from a remote player */
@@ -213,8 +213,8 @@ enum hoxRequestType
          * the its socket (to start listening for socket-events.
          */
 
-    //hoxREQUEST_TYPE_TABLE_MOVE,
-        /* Move generated (incoming) from a physical Table */
+    hoxREQUEST_TYPE_OUT_DATA,
+        /* Outgoing data to be sent out */
 
     hoxREQUEST_TYPE_WALL_MSG
         /* Message generated (incoming) from a physical Table */
@@ -247,7 +247,7 @@ enum hoxResponseFlag
 enum
 {
     // id for sockets
-    SERVER_SOCKET_ID,
+    //SERVER_SOCKET_ID,
 
     // id for sockets
     CLIENT_SOCKET_ID

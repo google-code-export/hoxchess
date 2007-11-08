@@ -109,6 +109,10 @@ protected:
                                                hoxCommand&   command );
     virtual hoxResult HandleIncomingData_WallMsg( /* wxSocketBase* sock, */
                                                  hoxCommand&   command );
+    virtual hoxResult HandleIncomingData_List( /* wxSocketBase* sock, */
+                                               hoxCommand&   command );
+    virtual hoxResult HandleIncomingData_Join( /* wxSocketBase* sock, */
+                                               hoxCommand&   command );
 
 protected:
     hoxConnection*  m_connection;
