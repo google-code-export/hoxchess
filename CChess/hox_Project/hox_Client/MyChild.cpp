@@ -22,7 +22,7 @@
 // ----------------------------------------------------------------------------
 
 
-// Note that MDI_NEW_WINDOW and MDI_ABOUT commands get passed
+// Note that MDI_NEW_TABLE and MDI_ABOUT commands get passed
 // to the parent window for processing, so no need to
 // duplicate event handlers here.
 BEGIN_EVENT_TABLE(MyChild, wxMDIChildFrame)
@@ -46,8 +46,6 @@ MyChild::MyChild(wxMDIParentFrame *parent, const wxString& title)
                           wxDEFAULT_FRAME_STYLE | wxNO_FULL_REPAINT_ON_RESIZE )
         , m_table( NULL )
 {
-    //this->Maximize();
-
     _SetupMenu();
     _SetupStatusBar();
 
@@ -66,40 +64,9 @@ MyChild::~MyChild()
 void 
 MyChild::_SetupMenu()
 {
-    /* File menu */
-
-    wxMenu *file_menu = new wxMenu;
-
-    file_menu->Append(MDI_NEW_WINDOW, _T("&New window"));
-    file_menu->AppendSeparator();
-    file_menu->Append(MDI_OPEN_SERVER, _T("&Open Server\tCtrl-O"), _T("Open server for remote access"));
-    file_menu->Append(MDI_CONNECT_SERVER, _T("&Connect Server\tCtrl-C"), _T("Connect to remote server"));
-    file_menu->Append(MDI_DISCONNECT_SERVER, _T("&Disconnect Server\tCtrl-D"), _T("Disconnect from remote server"));
-    file_menu->AppendSeparator();
-    file_menu->Append(MDI_CHILD_QUIT, _T("&Close child"), _T("Close this window"));
-    file_menu->Append(MDI_QUIT, _T("&Exit"));
-
-    /* Child menu */
-
-    wxMenu *option_menu = new wxMenu;
-
-    option_menu->Append(MDI_TOGGLE, _T("&Toggle View\tCtrl-T"));
-
-    /* Help menu */
-
-    wxMenu *help_menu = new wxMenu;
-    help_menu->Append(MDI_ABOUT, _T("&About"));
-
-    /* Setup the main menu bar */
-
-    wxMenuBar *menu_bar = new wxMenuBar;
-
-    menu_bar->Append(file_menu, _T("&File"));
-    menu_bar->Append(option_menu, _T("&Child"));
-    menu_bar->Append(help_menu, _T("&Help"));
-
     // Associate the menu bar with the frame
-    SetMenuBar(menu_bar);
+    wxMenuBar* menu_bar = MyFrame::Create_Menu_Bar( true /* hasTable */);
+    SetMenuBar( menu_bar );
 }
 
 void 

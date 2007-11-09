@@ -47,6 +47,13 @@ hoxThreadConnection::Start()
 
     wxLogDebug("%s: ENTER.", FNAME);
 
+    if (    this->GetThread() 
+         && this->GetThread()->IsRunning() )
+    {
+        wxLogDebug("%s: The connection has been started. END.", FNAME);
+        return;
+    }
+
     if ( this->Create() != wxTHREAD_NO_ERROR )
     {
         wxLogError("%s: Failed to create Connection thread.", FNAME);
