@@ -104,8 +104,6 @@ MyApp::OnInit()
                            displaySize,
                            wxDEFAULT_FRAME_STYLE | wxHSCROLL | wxVSCROLL );
 
-    m_frame->SetupMenu();
-    m_frame->SetupStatusBar();
     SetTopWindow( m_frame );
 
     // Show the frame (the frames, unlike simple controls, are not shown when

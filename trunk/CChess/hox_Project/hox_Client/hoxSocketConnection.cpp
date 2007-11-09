@@ -98,7 +98,12 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
 
         case hoxREQUEST_TYPE_CONNECT:
             result = _Connect();
-            if ( result != hoxRESULT_OK )
+            if ( result == hoxRESULT_HANDLED )
+            {
+                result = hoxRESULT_OK;  // Consider "success".
+                break;
+            }
+            else if ( result != hoxRESULT_OK )
             {
                 wxLogError("%s: Failed to connect to server.", FNAME);
                 break;
@@ -181,7 +186,7 @@ hoxSocketConnection::_Connect()
     if ( m_bConnected )
     {
         wxLogDebug("%s: The connection already established. END.", FNAME);
-        return hoxRESULT_OK;
+        return hoxRESULT_HANDLED;
     }
 
     /* Get the server address. */

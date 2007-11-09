@@ -28,6 +28,8 @@
 #include "bitmaps/open.xpm"
 #include "bitmaps/save.xpm"
 #include "bitmaps/help.xpm"
+#include "bitmaps/quit.xpm"
+#include "bitmaps/delete.xpm"
 
 
 /* Define my custom events */
@@ -42,13 +44,18 @@ DEFINE_EVENT_TYPE(hoxEVT_FRAME_LOG_MSG)
 
 BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
     EVT_MENU(MDI_ABOUT, MyFrame::OnAbout)
-    EVT_MENU(MDI_NEW_WINDOW, MyFrame::OnNewWindow)
+    EVT_MENU(MDI_NEW_TABLE, MyFrame::OnNewTable)
+    EVT_MENU(MDI_CLOSE_TABLE, MyFrame::OnCloseTable)
+    EVT_UPDATE_UI(MDI_CLOSE_TABLE, MyFrame::OnUpdateCloseTable)
 
     EVT_MENU(MDI_OPEN_SERVER, MyFrame::OnOpenServer)
     EVT_MENU(MDI_CONNECT_SERVER, MyFrame::OnConnectServer)
     EVT_MENU(MDI_DISCONNECT_SERVER, MyFrame::OnDisconnectServer)
 
     EVT_MENU(MDI_CONNECT_HTTP_SERVER, MyFrame::OnConnectHTTPServer)
+
+    EVT_MENU(MDI_SHOW_LOG_WINDOW, MyFrame::OnShowLogWindow)
+    EVT_UPDATE_UI(MDI_SHOW_LOG_WINDOW, MyFrame::OnUpdateLogWindow)
 
     EVT_MENU(MDI_QUIT, MyFrame::OnQuit)
 
@@ -90,6 +97,7 @@ MyFrame::MyFrame(wxWindow *parent,
     m_logWindow->SetAlignment(wxLAYOUT_BOTTOM);
     m_logWindow->SetBackgroundColour(wxColour(0, 0, 255));
     m_logWindow->SetSashVisible(wxSASH_TOP, true);
+    m_logWindow->Show( false );
 
     m_logText = new wxTextCtrl( m_logWindow, wxID_ANY, _T(""),
                                 wxDefaultPosition, wxDefaultSize,
@@ -101,7 +109,7 @@ MyFrame::MyFrame(wxWindow *parent,
 
     // Accelerators
     wxAcceleratorEntry entries[3];
-    entries[0].Set(wxACCEL_CTRL, (int) 'N', MDI_NEW_WINDOW);
+    entries[0].Set(wxACCEL_CTRL, (int) 'N', MDI_NEW_TABLE);
     entries[1].Set(wxACCEL_CTRL, (int) 'X', MDI_QUIT);
     entries[2].Set(wxACCEL_CTRL, (int) 'A', MDI_ABOUT);
     wxAcceleratorTable accel(3, entries);
@@ -112,7 +120,10 @@ MyFrame::MyFrame(wxWindow *parent,
 
     m_nChildren = 0;
 
-    wxLogDebug("%s: HOX Chess ready.", FNAME);
+    this->SetupMenu();
+    this->SetupStatusBar();
+
+    wxLogStatus(_("HOX Chess is ready."));
 }
 
 MyFrame::~MyFrame()
@@ -152,9 +163,10 @@ void MyFrame::OnAbout(wxCommandEvent& WXUNUSED(event) )
                  this);
 }
 
-void MyFrame::OnNewWindow(wxCommandEvent& WXUNUSED(event) )
+void 
+MyFrame::OnNewTable(wxCommandEvent& WXUNUSED(event) )
 {
-    const char* FNAME = "MyFrame::OnNewWindow";
+    const char* FNAME = "MyFrame::OnNewTable";
     hoxTable* table = NULL;
 
     table = _CreateNewTable( "" );  // An Id will be generated.
@@ -166,6 +178,27 @@ void MyFrame::OnNewWindow(wxCommandEvent& WXUNUSED(event) )
     wxASSERT_MSG( wxGetApp().GetHostPlayer()->HasRole( hoxRole(table->GetId(), 
                                                        hoxPIECE_COLOR_RED) ),
                   _("Player must play RED"));
+}
+
+void 
+MyFrame::OnCloseTable(wxCommandEvent& WXUNUSED(event) )
+{
+    const char* FNAME = "MyFrame::OnCloseTable";
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    MyChild* child = wxDynamicCast(this->GetActiveChild(), MyChild);
+    if ( child != NULL )
+    {
+        wxLogDebug("%s: Closing the active Table [%s]...", FNAME, child->GetTitle());
+        child->Close( true /* force */ );
+    }
+}
+
+void 
+MyFrame::OnUpdateCloseTable(wxUpdateUIEvent& event)
+{
+    event.Enable( this->GetActiveChild() != NULL );
 }
 
 bool
@@ -191,12 +224,32 @@ void MyFrame::OnOpenServer(wxCommandEvent& WXUNUSED(event) )
     const char* FNAME = "MyFrame::OnOpenServer";
     wxLogDebug("%s: ENTER.", FNAME);
     wxGetApp().OpenServer();
+    wxLogStatus("Server opened. Listening for connections...");
 }
 
 void MyFrame::OnConnectServer(wxCommandEvent& WXUNUSED(event) )
 {
     const char* FNAME = "MyFrame::OnConnectServer";
     hoxResult result;
+    hoxMyPlayer* myPlayer = wxGetApp().GetMyPlayer();
+
+    /* If the connection has been established, then go ahead
+     * to query for the list of tables.
+     */
+
+    if ( myPlayer->GetConnection() != NULL )
+    {
+        /* Get the list of tables from the server */
+        result = myPlayer->QueryForNetworkTables( this );
+        if ( result != hoxRESULT_OK )
+        {
+            wxLogError("%s: Failed to query for LIST of tables from the server.", FNAME);
+            return;
+        }
+        return;
+    }
+
+    /* Otherwise, try to establish a connection... */
 
     if ( m_dlgProgress != NULL ) 
     {
@@ -214,9 +267,6 @@ void MyFrame::OnConnectServer(wxCommandEvent& WXUNUSED(event) )
                         );
     m_dlgProgress->SetSize( wxSize(500, 150) );
     m_dlgProgress->Pulse();
-
-    hoxNetworkTableInfoList tableList;
-    hoxMyPlayer* myPlayer = wxGetApp().GetMyPlayer();
 
     // Create a new connection for the MY player.
     hoxConnection* connection = 
@@ -260,7 +310,6 @@ void MyFrame::OnConnectHTTPServer(wxCommandEvent& WXUNUSED(event) )
     m_dlgProgress->SetSize( wxSize(500, 150) );
     m_dlgProgress->Pulse();
 
-    hoxNetworkTableInfoList tableList;
     hoxHttpPlayer* httpPlayer = wxGetApp().GetHTTPPlayer();
 
     // Create a new connection for the HTTP player.
@@ -279,6 +328,22 @@ void MyFrame::OnConnectHTTPServer(wxCommandEvent& WXUNUSED(event) )
     }
 
     m_dlgProgress->Pulse();
+}
+
+void 
+MyFrame::OnShowLogWindow( wxCommandEvent& WXUNUSED(event) )
+{
+    m_logWindow->Show( m_logWindow->IsShown() ? false : true );
+    m_logWindow->SetDefaultSize(wxSize(1000, 180));
+
+    wxLayoutAlgorithm layout;
+    layout.LayoutMDIFrame(this);
+}
+
+void 
+MyFrame::OnUpdateLogWindow(wxUpdateUIEvent& event)
+{
+    event.Check( m_logWindow->IsShown() );
 }
 
 void 
@@ -411,7 +476,7 @@ MyFrame::DoJoinNewTable( const wxString& tableId,
 void MyFrame::OnDisconnectServer(wxCommandEvent& WXUNUSED(event) )
 {
     const char* FNAME = "MyFrame::OnDisconnectServer";
-    wxLogDebug("%s: ENTER. *** Do nothing. ***", FNAME);
+    wxLogWarning("%s: ENTER. *** Not yet implemented ***", FNAME);
 }
 
 void MyFrame::OnSize(wxSizeEvent& event)
@@ -441,15 +506,19 @@ void MyFrame::InitToolBar(wxToolBar* toolBar)
     wxBitmap bitmaps[8];
 
     bitmaps[0] = wxBitmap( new_xpm );
-    bitmaps[1] = wxBitmap( open_xpm );
-    bitmaps[2] = wxBitmap( save_xpm );
-    bitmaps[6] = wxBitmap( help_xpm );
+    bitmaps[1] = wxBitmap( delete_xpm );
+    bitmaps[2] = wxBitmap( help_xpm );
+    bitmaps[3] = wxBitmap( quit_xpm );
+    //bitmaps[4] = wxBitmap( open_xpm );
+    //bitmaps[5] = wxBitmap( save_xpm );
 
-    toolBar->AddTool(MDI_NEW_WINDOW, _T("New"), bitmaps[0], _T("New file"));
-    toolBar->AddTool(1, _T("Open"), bitmaps[1], _T("Open file"));
-    toolBar->AddTool(2, _T("Save"), bitmaps[2], _T("Save file"));
+    toolBar->AddTool(MDI_NEW_TABLE, _T("New"), bitmaps[0], _("Open Table"));
+    toolBar->AddTool(MDI_CLOSE_TABLE, _("Close"), bitmaps[1], _("Close Table"));
     toolBar->AddSeparator();
-    toolBar->AddTool(MDI_ABOUT, _T("About"), bitmaps[6], _T("Help"));
+    toolBar->AddTool(MDI_ABOUT, _("About"), bitmaps[2], _("Help"));
+    toolBar->AddTool(MDI_QUIT, _("Exit"), bitmaps[3], _("Quit the Program"));
+    //toolBar->AddTool(4, _("Open"), bitmaps[4], _("Open file"));
+    //toolBar->AddTool(5, _("Save"), bitmaps[5], _("Save file"));
 
     toolBar->Realize();
 }
@@ -457,33 +526,52 @@ void MyFrame::InitToolBar(wxToolBar* toolBar)
 void
 MyFrame::SetupMenu()
 {
-    // File menu.
-    wxMenu *file_menu = new wxMenu;
-
-    file_menu->Append(MDI_NEW_WINDOW, _T("&New window\tCtrl-N"), _T("Create a new child window"));
-    file_menu->AppendSeparator();
-    file_menu->Append(MDI_OPEN_SERVER, _T("&Open Server\tCtrl-O"), _T("Open server for remote access"));
-    file_menu->Append(MDI_CONNECT_SERVER, _T("Connect Server\tCtrl-L"), _T("Connect to remote server"));
-    file_menu->Append(MDI_DISCONNECT_SERVER, _T("&Disconnect Server\tCtrl-D"), _T("Disconnect from remote server"));
-    file_menu->AppendSeparator();
-    file_menu->Append(MDI_QUIT, _T("&Exit\tAlt-X"), _T("Quit the program"));
-
-    // Server menu.
-    wxMenu *server_menu = new wxMenu;
-
-    server_menu->Append(MDI_CONNECT_HTTP_SERVER, _T("Connect HTTP Serve&r\tCtrl-R"), _T("Connect to remote HTTP server"));
-
-    // Help menu.
-    wxMenu *help_menu = new wxMenu;
-    help_menu->Append(MDI_ABOUT, _T("&About\tF1"));
-
-    wxMenuBar *menu_bar = new wxMenuBar;
-    menu_bar->Append(file_menu, _T("&File"));
-    menu_bar->Append(server_menu, _T("&Server"));
-    menu_bar->Append(help_menu, _T("&Help"));
-
     // Associate the menu bar with the frame
-    SetMenuBar(menu_bar);
+    wxMenuBar* menu_bar = MyFrame::Create_Menu_Bar();
+    SetMenuBar( menu_bar );
+}
+
+/* static */
+wxMenuBar* 
+MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
+{
+    // File menu.
+    wxMenu* file_menu = new wxMenu;
+    file_menu->Append(MDI_CONNECT_SERVER, _("Connect Server...\tCtrl-L"), _("Connect to remote server"));
+    file_menu->Append(MDI_DISCONNECT_SERVER, _("&Disconnect Server\tCtrl-D"), _("Disconnect from remote server"));
+    file_menu->AppendSeparator();
+    file_menu->Append(MDI_CONNECT_HTTP_SERVER, _("Connect HTTP Serve&r...\tCtrl-R"));
+    file_menu->AppendSeparator();
+    file_menu->Append(MDI_NEW_TABLE, _("&New Table\tCtrl-N"), _("Create New Table"));
+    file_menu->Append(MDI_CLOSE_TABLE, _("&Close Table\tCtrl-C"), _("Close Table"));
+    file_menu->AppendSeparator();
+    file_menu->Append(MDI_QUIT, _("&Exit\tAlt-X"), _("Quit the program"));
+
+    /* Server menu. */
+    wxMenu* server_menu = new wxMenu;
+    server_menu->Append(MDI_OPEN_SERVER, _("&Open Server\tCtrl-O"), _("Open server for remote access"));
+
+    /* View menu. */
+    wxMenu* view_menu = new wxMenu;
+    if ( hasTable )
+    {
+        view_menu->Append(MDI_TOGGLE, _("&Toggle Table View\tCtrl-T"));
+        view_menu->AppendSeparator();
+    }
+    view_menu->AppendCheckItem(MDI_SHOW_LOG_WINDOW, _("&Log Window\tCtrl-L"));
+
+    /* Help menu. */
+    wxMenu* help_menu = new wxMenu;
+    help_menu->Append(MDI_ABOUT, _("&About HOX Chess\tF1"));
+
+    /* The main menu bar */
+    wxMenuBar* menu_bar = new wxMenuBar;
+    menu_bar->Append(file_menu, _("&File"));
+    menu_bar->Append(server_menu, _("&Server"));
+    menu_bar->Append(view_menu, _("&View"));
+    menu_bar->Append(help_menu, _("&Help"));
+
+    return menu_bar;
 }
 
 void
@@ -736,23 +824,27 @@ MyFrame::_CreateNewTable( const wxString& tableId )
 {
     hoxTable* newTable = NULL;
     MyChild*  subframe = NULL;
-    wxString  tableTitle;
+    wxString  effectiveTableId;
+    wxString  windowTitle;
 
     m_nChildren++; // for tracking purpose.
 
-    tableTitle = tableId;  // Use the table's Id as the Title.
+    effectiveTableId = tableId;
 
-    // Generate a table's table if required.
-    if ( tableTitle.empty() )
+    // Generate a table's Id if required.
+    if ( effectiveTableId.empty() )
     {
-        tableTitle.Printf("%d", m_nChildren );
+        effectiveTableId.Printf("%d", m_nChildren );
     }
 
-    subframe = new MyChild( this, tableTitle );
+    // Generate the Window's title for the new Table.
+    windowTitle.Printf("Table #%s", effectiveTableId);
+
+    subframe = new MyChild( this, windowTitle );
     m_children.push_back( subframe );
 
     // Create a new table. Use the title as the table-id.
-    newTable = hoxTableMgr::GetInstance()->CreateTable( subframe, tableTitle );
+    newTable = hoxTableMgr::GetInstance()->CreateTable( subframe, effectiveTableId );
     subframe->SetTable( newTable );
 
     subframe->Show( true );

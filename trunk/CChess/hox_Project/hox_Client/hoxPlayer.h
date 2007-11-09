@@ -97,6 +97,7 @@ public:
      *         false - If some other existing connection has been set.
      */
     virtual bool SetConnection( hoxConnection* connection );
+    virtual hoxConnection* GetConnection() const { return m_connection; }
 
 protected:
     /**

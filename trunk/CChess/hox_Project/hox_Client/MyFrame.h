@@ -24,13 +24,15 @@ class hoxLocalPlayer;
 enum
 {
     MDI_QUIT = wxID_EXIT,
-    MDI_NEW_WINDOW = 101,
+    MDI_NEW_TABLE = 101,
+    MDI_CLOSE_TABLE,
 
     MDI_OPEN_SERVER,    // Open server
     MDI_CONNECT_SERVER, // Connect to server
     MDI_DISCONNECT_SERVER, // Disconnect from server
 
     MDI_CONNECT_HTTP_SERVER,
+    MDI_SHOW_LOG_WINDOW,
 
     MDI_TOGGLE,   // toggle view
     MDI_CHILD_QUIT,
@@ -68,13 +70,17 @@ public:
     void OnSize(wxSizeEvent& event);
     void OnSashDrag(wxSashEvent& event);
     void OnAbout(wxCommandEvent& event);
-    void OnNewWindow(wxCommandEvent& event);
+    void OnNewTable(wxCommandEvent& event);
+    void OnCloseTable(wxCommandEvent& event);
+    void OnUpdateCloseTable(wxUpdateUIEvent& event);
 
     void OnOpenServer(wxCommandEvent& event);
     void OnConnectServer(wxCommandEvent& event);
     void OnDisconnectServer(wxCommandEvent& event);
 
     void OnConnectHTTPServer(wxCommandEvent& event);
+    void OnShowLogWindow(wxCommandEvent& event);
+    void OnUpdateLogWindow(wxUpdateUIEvent& event);
 
     void OnQuit(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);
@@ -103,6 +109,9 @@ private:
     void _OnResponse_New( const wxString& responseStr, hoxLocalPlayer* localPlayer );
 
     hoxTable* _CreateNewTable( const wxString& tableId );
+
+public: /* Static API */
+    static wxMenuBar* Create_Menu_Bar( bool hasTable = false );
 
 private:
     // Logging.  
