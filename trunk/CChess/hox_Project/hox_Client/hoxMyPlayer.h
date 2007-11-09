@@ -50,9 +50,6 @@ public:
     void OnConnectionResponse( wxCommandEvent& event ); 
 
 private:
-    hoxResult _StartListenForMoves();
-
-private:
 
     DECLARE_DYNAMIC_CLASS(hoxMyPlayer)
     DECLARE_EVENT_TABLE()

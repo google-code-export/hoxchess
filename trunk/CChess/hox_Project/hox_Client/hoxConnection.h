@@ -27,6 +27,9 @@ public:
     virtual void Shutdown() = 0;
     virtual void AddRequest( hoxRequest* request ) = 0;
 
+    virtual void       SetPlayer(hoxPlayer* player) {}
+    virtual hoxPlayer* GetPlayer()           { return NULL; }
+
     DECLARE_ABSTRACT_CLASS(hoxConnection)
 };
 

@@ -38,15 +38,15 @@ private:
     void        _HandleRequest( hoxRequest* request );
     hoxResult   _CheckAndHandleSocketLostEvent( const hoxRequest* request, 
                                                 wxString&         response );
-    hoxResult   _SendRequest_Connect( const wxString& request, wxString& response );
-    
-    hoxResult   _HandleRequest_Listen( hoxRequest* request );
-
+    hoxResult   _Connect();
     void        _Disconnect();
 
 private:
     wxSocketClient*       m_pSClient;
                 /* The socket to handle network connections */
+
+    bool                  m_bConnected;
+                /* Has the connection been established with the server */
 
     DECLARE_DYNAMIC_CLASS(hoxSocketConnection)
 };

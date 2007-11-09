@@ -37,6 +37,8 @@ public:
      * Override the parent's event-handler API
      *******************************************/
 
+    virtual bool SetConnection( hoxConnection* connection );
+
     virtual void OnClose_FromTable( hoxPlayerEvent&  event );
 
     /*******************************

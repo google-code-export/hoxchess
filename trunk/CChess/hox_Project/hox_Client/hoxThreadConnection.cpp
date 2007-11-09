@@ -28,6 +28,7 @@ hoxThreadConnection::hoxThreadConnection( const wxString& sHostname,
         , m_sHostname( sHostname )
         , m_nPort( nPort )
         , m_shutdownRequested( false )
+        , m_player( NULL )
 {
     const char* FNAME = "hoxThreadConnection::hoxThreadConnection";
     wxLogDebug("%s: ENTER.", FNAME);

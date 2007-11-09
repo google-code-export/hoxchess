@@ -193,7 +193,6 @@ enum hoxRequestType
     hoxREQUEST_TYPE_UNKNOWN = -1,
 
     hoxREQUEST_TYPE_ACCEPT,
-    //hoxREQUEST_TYPE_DATA,
 
     hoxREQUEST_TYPE_PLAYER_DATA,
         /* Network data incoming from a remote player */
@@ -207,11 +206,6 @@ enum hoxRequestType
     hoxREQUEST_TYPE_NEW,
     hoxREQUEST_TYPE_JOIN,
     hoxREQUEST_TYPE_LEAVE,
-
-    hoxREQUEST_TYPE_LISTEN,
-        /* Instruct the 'connection' of MY player to prepare
-         * the its socket (to start listening for socket-events.
-         */
 
     hoxREQUEST_TYPE_OUT_DATA,
         /* Outgoing data to be sent out */

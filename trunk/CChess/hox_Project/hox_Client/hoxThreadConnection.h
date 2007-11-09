@@ -47,6 +47,9 @@ protected:
     virtual hoxRequest* GetRequest();         
     virtual void        HandleRequest( hoxRequest* request ) = 0;
 
+    virtual void       SetPlayer(hoxPlayer* player) { m_player = player; }
+    virtual hoxPlayer* GetPlayer()                  { return m_player; }
+
 protected:
     wxString              m_sHostname; 
     int                   m_nPort;
@@ -57,6 +60,9 @@ protected:
     wxSemaphore           m_semRequests;
     wxMutex               m_mutexRequests;
     hoxRequestList        m_requests;
+
+    hoxPlayer*            m_player;
+                /* The player that owns this connection */
 
     DECLARE_ABSTRACT_CLASS(hoxThreadConnection)
 };
