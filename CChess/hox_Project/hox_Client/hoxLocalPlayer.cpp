@@ -44,6 +44,25 @@ hoxLocalPlayer::~hoxLocalPlayer()
     }
 }
 
+bool 
+hoxLocalPlayer::SetConnection( hoxConnection* connection )
+{
+    const char* FNAME = "hoxLocalPlayer::SetConnection";
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    if ( ! this->hoxPlayer::SetConnection( connection ) )
+    {
+        return false;
+    }
+
+    wxLogDebug("%s: Specify this player [%s] as the connection's onwer.", 
+        FNAME, this->GetName());
+    m_connection->SetPlayer( this );
+
+    return true;
+}
+
 void 
 hoxLocalPlayer::OnClose_FromTable( hoxPlayerEvent&  event )
 {

@@ -57,10 +57,6 @@ hoxMyPlayer::JoinTable( hoxTable* table )
         return result;
     }
 
-    /* Start listen for new Moves. */
-    wxLogDebug("%s: Inform the connection to begin listening for new events...", FNAME);
-    _StartListenForMoves();
-
     return hoxRESULT_OK;
 }
 
@@ -144,22 +140,5 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
 
     wxLogDebug("%s: The response is OK.", FNAME);
 }
-
-hoxResult 
-hoxMyPlayer::_StartListenForMoves()
-{
-    /* NOTE: We set 'this' player as the 'sender' so that the player can 
-     *       be a socket-event handler.
-     *       However, the 'connection' will NOT send back a response for
-     *       this particular request. Therefore, there is no need to
-     *       'catch' a response.
-     */
-
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LISTEN, this );
-    this->AddRequestToConnection( request );
-
-    return hoxRESULT_OK;
-}
-
 
 /************************* END OF FILE ***************************************/

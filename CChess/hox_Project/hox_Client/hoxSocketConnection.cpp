@@ -27,7 +27,16 @@ hoxSocketConnection::hoxSocketConnection( const wxString&  sHostname,
                                           int              nPort )
         : hoxThreadConnection( sHostname, nPort )
         , m_pSClient( NULL )
+        , m_bConnected( false )
 {
+    const char* FNAME = "hoxSocketConnection::hoxSocketConnection";
+
+    wxLogDebug("%s: Create a client-socket with default time-out = [%d] seconds.", 
+        FNAME, hoxSOCKET_CLIENT_SOCKET_TIMEOUT);
+
+    m_pSClient = new wxSocketClient( wxSOCKET_WAITALL );
+    m_pSClient->Notify( false /* Disable socket-events */ );
+    m_pSClient->SetTimeout( hoxSOCKET_CLIENT_SOCKET_TIMEOUT );
 }
 
 hoxSocketConnection::~hoxSocketConnection()
@@ -42,7 +51,7 @@ hoxSocketConnection::~hoxSocketConnection()
 void 
 hoxSocketConnection::HandleRequest( hoxRequest* request )
 {
-    const char* FNAME = "hoxSocketConnection::_HandleRequest";
+    const char* FNAME = "hoxSocketConnection::HandleRequest";
     hoxResult    result = hoxRESULT_ERR;
     std::auto_ptr<hoxResponse> response( new hoxResponse(request->type) );
 
@@ -68,27 +77,17 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
      */
     switch( request->type )
     {
-        case hoxREQUEST_TYPE_CONNECT:
-            result = _SendRequest_Connect( request->content, response->content );
-            break;
-
-        case hoxREQUEST_TYPE_LISTEN:
-            result = _HandleRequest_Listen( request );
-            break;
-
-        case hoxREQUEST_TYPE_PLAYER_DATA:
+        case hoxREQUEST_TYPE_PLAYER_DATA: // Incoming data from remote player.
         {
             wxASSERT_MSG( request->socket == m_pSClient, "Sockets should match." );
             // We disable input events until we are done processing the current command.
-            wxString commandStr;
             hoxNetworkAPI::SocketInputLock socketLock( m_pSClient );
-            result = hoxNetworkAPI::ReadLine( m_pSClient, commandStr );
+            result = hoxNetworkAPI::ReadLine( m_pSClient, response->content );
             if ( result != hoxRESULT_OK )
             {
                 wxLogError("%s: Failed to read incoming command.", FNAME);
                 goto exit_label;
             }
-            response->content = commandStr;
             break;
         }
 
@@ -97,13 +96,22 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
                                                  request->content );
             break;
 
+        case hoxREQUEST_TYPE_CONNECT:
+            result = _Connect();
+            if ( result != hoxRESULT_OK )
+            {
+                wxLogError("%s: Failed to connect to server.", FNAME);
+                break;
+            }
+            /* fall through */
+
         case hoxREQUEST_TYPE_MOVE:     /* fall through */
         case hoxREQUEST_TYPE_LIST:     /* fall through */
         case hoxREQUEST_TYPE_NEW:      /* fall through */
         case hoxREQUEST_TYPE_JOIN:     /* fall through */
         case hoxREQUEST_TYPE_LEAVE:    /* fall through */
         case hoxREQUEST_TYPE_WALL_MSG:
-            if ( m_pSClient == NULL )
+            if ( !m_bConnected )
             {
                 // NOTE: The connection could have been closed if the server is down.
                 wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
@@ -165,93 +173,44 @@ hoxSocketConnection::_CheckAndHandleSocketLostEvent(
     return result;
 }
 
-hoxResult        
-hoxSocketConnection::_SendRequest_Connect( const wxString& request, 
-                                           wxString&       response )
+hoxResult
+hoxSocketConnection::_Connect()
 {
-    const char* FNAME = "hoxSocketConnection::_SendRequest_Connect";
-    hoxResult result = hoxRESULT_ERR;  // Assume: failure.
+    const char* FNAME = "hoxSocketConnection::_Connect";
 
-    /* Delete the old connection, if any. */
-    _Disconnect(); 
-    wxCHECK_MSG( !m_pSClient, hoxRESULT_ERR, "Connection should have been closed." );
+    if ( m_bConnected )
+    {
+        wxLogDebug("%s: The connection already established. END.", FNAME);
+        return hoxRESULT_OK;
+    }
 
-    /* Make a new connection */
-
-    wxLogDebug("%s: Create a client-socket with default time-out = [%d] seconds.", 
-        FNAME, hoxSOCKET_CLIENT_SOCKET_TIMEOUT);
-
-    m_pSClient = new wxSocketClient( /* wxSOCKET_NONE */ wxSOCKET_WAITALL );
-    m_pSClient->Notify( false /* Disable socket-events */ );
-    m_pSClient->SetTimeout( hoxSOCKET_CLIENT_SOCKET_TIMEOUT );
-
-    // Get the server address.
+    /* Get the server address. */
     wxIPV4address addr;
     addr.Hostname( m_sHostname );
     addr.Service( m_nPort );
 
-#if 0
-    wxLogDebug("%s: Trying to connect to [%s:%d] (timeout = 10 sec)...", FNAME, m_sHostname, m_nPort);
-    m_pSClient->Connect( addr, false /* no-wait */ );
-    m_pSClient->WaitOnConnect( 10 /* wait for 10 seconds */ );
+    wxLogDebug("%s: Trying to connect to [%s:%d]...", FNAME, addr.Hostname(), addr.Service());
 
-    if ( ! m_pSClient->IsConnected() ) 
-    {
-        wxLogError("%s: Failed to connect to the server [%s:%d]. Error = [%s].",
-                   FNAME, m_sHostname, m_nPort,
-                   hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()));
-        goto exit_label;
-    }
-#endif
-    wxLogDebug("%s: Trying to establish a connection to [%s:%d]...", FNAME, m_sHostname, m_nPort);
+    //m_pSClient->Connect( addr, false /* no-wait */ );
+    //m_pSClient->WaitOnConnect( 10 /* wait for 10 seconds */ );
+
     if ( ! m_pSClient->Connect( addr, true /* wait */ ) )
     {
         wxLogError("%s: Failed to connect to the server [%s:%d]. Error = [%s].",
-            FNAME, m_sHostname, m_nPort, 
+            FNAME, addr.Hostname(), addr.Service(), 
             hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()));
-        goto exit_label;
+        return hoxRESULT_ERR;
     }
 
     wxLogDebug("%s: Succeeded! Connection established with the server.", FNAME);
+    m_bConnected = true;
 
-    // Send the request...
-    result = hoxNetworkAPI::SendRequest( m_pSClient, 
-                                         request,
-                                         response );
-    if ( result != hoxRESULT_OK )
-    {
-        wxLogError("%s: Failed to send the CONNECT request to the server.", FNAME);
-        goto exit_label;
-    }
-
-    result = hoxRESULT_OK;  // Finally, success.
-
-exit_label:
-    if ( result != hoxRESULT_OK )
-    {
-        _Disconnect();
-    }
-
-    return result;
-}
-
-hoxResult   
-hoxSocketConnection::_HandleRequest_Listen( hoxRequest*  request )
-{
-    const char* FNAME = "hoxSocketConnection::_HandleRequest_Listen";
-
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    wxCHECK_MSG( m_pSClient, hoxRESULT_ERR, "Connection is not yet established" );
-    wxCHECK_MSG( request->sender, hoxRESULT_ERR, "Sender must not be NULL." );
-
-    // Setup the event handler and let the player handles all socket events.
-    m_pSClient->SetEventHandler( *(request->sender), CLIENT_SOCKET_ID );
+    wxCHECK_MSG(m_player, hoxRESULT_ERR, "The player is NULL.");
+    wxLogDebug("%s: Let the connection's Player [%s] handles all socket events.", 
+        FNAME, m_player->GetName());
+    m_pSClient->SetEventHandler( *m_player, CLIENT_SOCKET_ID );
     m_pSClient->SetNotify(wxSOCKET_INPUT_FLAG | wxSOCKET_LOST_FLAG);
     m_pSClient->Notify(true);
-
-    // NOTE: Clear the sender since there is no need to send back a response.
-    request->sender = NULL;
 
     return hoxRESULT_OK;
 }
@@ -267,6 +226,7 @@ hoxSocketConnection::_Disconnect()
         m_pSClient->Destroy();
         m_pSClient = NULL;
     }
+    m_bConnected = false;
 }
 
 /************************* END OF FILE ***************************************/

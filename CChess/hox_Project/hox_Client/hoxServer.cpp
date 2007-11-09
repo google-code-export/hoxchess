@@ -195,19 +195,17 @@ hoxServer::_HandleRequest( hoxRequest* request )
                                                  response->content );
             break;
 
-        case hoxREQUEST_TYPE_PLAYER_DATA: // incoming data from remote player.
+        case hoxREQUEST_TYPE_PLAYER_DATA: // Incoming data from remote player.
         {
             wxSocketBase* sock = request->socket;
             // We disable input events until we are done processing the current command.
-            wxString commandStr;
             hoxNetworkAPI::SocketInputLock socketLock( sock );
-            result = hoxNetworkAPI::ReadLine( sock, commandStr );
+            result = hoxNetworkAPI::ReadLine( sock, response->content );
             if ( result != hoxRESULT_OK )
             {
                 wxLogError("%s: Failed to read incoming command.", FNAME);
                 goto exit_label;
             }
-            response->content = commandStr;
             break;
         }
 
