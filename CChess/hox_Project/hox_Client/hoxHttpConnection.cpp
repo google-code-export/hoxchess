@@ -62,7 +62,7 @@ hoxHttpConnection::HandleRequest( hoxRequest* request )
 
         default:
             wxLogError("%s: Unsupported request Type [%s].", 
-                FNAME, hoxUtility::RequestTypeToString(request->type));
+                FNAME, hoxUtility::RequestTypeToString(request->type).c_str());
             result = hoxRESULT_NOT_SUPPORTED;
             break;
     }
@@ -125,7 +125,7 @@ hoxHttpConnection::_SendRequest( const wxString& request,
     wxString formattedRequest = request;
     formattedRequest = hoxUtility::hoxURI::Escape_String( formattedRequest.Trim() );
 
-    wxString getString = wxString::Format("/cchess/tables.php?%s", formattedRequest); 
+    wxString getString = wxString::Format("/cchess/tables.php?%s", formattedRequest.c_str()); 
 
     wxInputStream* httpStream = get.GetInputStream(getString);
 
@@ -133,7 +133,7 @@ hoxHttpConnection::_SendRequest( const wxString& request,
     {
         wxLogError("%s: GetInputStream is NULL. Response-code = [%d]. Protocol-error = [%d].",
             FNAME, get.GetResponse(), (int) get.GetError() );
-        wxLogError("%s: Failed to connect to server [%s:%d].", FNAME, m_sHostname, m_nPort);
+        wxLogError("%s: Failed to connect to server [%s:%d].", FNAME, m_sHostname.c_str(), m_nPort);
     }
     else if (get.GetError() == wxPROTO_NOERR)
     {

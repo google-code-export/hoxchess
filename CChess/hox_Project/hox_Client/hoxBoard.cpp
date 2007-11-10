@@ -119,9 +119,9 @@ hoxSimpleBoard::OnWallOutput( wxCommandEvent &event )
     //wallMsg.Printf("[%s] %s\n", who, msg);
 
     m_wallOutput->SetDefaultStyle(wxTextAttr(*wxBLACK));
-    m_wallOutput->AppendText( wxString::Format("[%s] ", who) );
+    m_wallOutput->AppendText( wxString::Format("[%s] ", who.c_str()) );
     m_wallOutput->SetDefaultStyle(wxTextAttr(*wxBLUE));
-    m_wallOutput->AppendText( wxString::Format("%s\n", msg) );
+    m_wallOutput->AppendText( wxString::Format("%s\n", msg.c_str()) );
 }
 
 void 
@@ -160,7 +160,7 @@ hoxSimpleBoard::SetRedInfo( const hoxPlayer* player )
     if ( this->IsShown() )
     {
         const wxString info = wxString::Format("%s (%d)", 
-                player->GetName(), player->GetScore());
+                player->GetName().c_str(), player->GetScore());
         m_redInfo->SetLabel( info );
     }
 }
@@ -173,7 +173,7 @@ hoxSimpleBoard::SetBlackInfo( const hoxPlayer* player )
     if ( this->IsShown() )
     {
         const wxString info = wxString::Format("%s (%d)", 
-                player->GetName(), player->GetScore());
+                player->GetName().c_str(), player->GetScore());
         m_blackInfo->SetLabel( info );
     }
 }
@@ -474,7 +474,7 @@ hoxSimpleBoard::_AddPlayerToList( const wxString& playerId,
         return;
     }
 
-    const wxString info = wxString::Format("%s (%d)", playerId, playerScore);
+    const wxString info = wxString::Format("%s (%d)", playerId.c_str(), playerScore);
     m_playerListBox->Append( info );
 }
 

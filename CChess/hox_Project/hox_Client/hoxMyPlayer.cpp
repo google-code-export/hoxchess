@@ -134,7 +134,7 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
     else if ( returnCode != 0 )
     {
         wxLogError("%s: The response returned error: code = [%d], msg = [%s]", 
-            FNAME, returnCode, returnMsg);
+            FNAME, returnCode, returnMsg.c_str());
         return;
     }
 

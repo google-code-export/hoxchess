@@ -97,7 +97,8 @@ MyChild::OnClose(wxCloseEvent& event)
 
     wxCHECK_RET( m_table, "The table must have been set." );
     
-    MyFrame* parent = wxDynamicCast(this->GetParent(), MyFrame);
+    //MyFrame* parent = wxDynamicCast(this->GetParent(), MyFrame);
+    MyFrame* parent = wxGetApp().GetFrame();
     wxCHECK_RET( parent, "We should be able to cast...");
     bool bAllowedToClose =  parent->OnChildClose( this, m_table );
 

@@ -247,4 +247,4 @@ enum
     CLIENT_SOCKET_ID
 };
 
-#endif /* __INCLUDED_HOX_ENUMS_H_ */s
+#endif /* __INCLUDED_HOX_ENUMS_H_ */

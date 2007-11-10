@@ -123,7 +123,7 @@ hoxSocketServer::Entry()
             if ( command.type != hoxREQUEST_TYPE_CONNECT )
             {
                 wxLogError("%s: Unsupported Request-Type [%s].", 
-                    FNAME, hoxUtility::RequestTypeToString(command.type));
+                    FNAME, hoxUtility::RequestTypeToString(command.type).c_str());
                 continue;
             }
 
@@ -133,7 +133,7 @@ hoxSocketServer::Entry()
             const int      playerScore = 1999;   // FIXME hard-coded player's score
 
             /* Create a new player to represent this new remote player */
-            wxLogDebug("%s: Creating a remote player [%s]...", FNAME, playerId);
+            wxLogDebug("%s: Creating a remote player [%s]...", FNAME, playerId.c_str());
             hoxRemotePlayer* newPlayer = 
                 hoxPlayerMgr::GetInstance()->CreateRemotePlayer( playerId,
                                                                  playerScore );
@@ -145,7 +145,7 @@ hoxSocketServer::Entry()
 
             /* et the player handles all socket events. */
             wxLogDebug("%s: Let this Remote player [%s] handle all socket events", 
-                FNAME, newPlayer->GetName());
+                FNAME, newPlayer->GetName().c_str());
             newSock->SetEventHandler(*newPlayer, CLIENT_SOCKET_ID);
             newSock->SetNotify(wxSOCKET_INPUT_FLAG | wxSOCKET_LOST_FLAG);
             newSock->Notify(true);
@@ -171,7 +171,7 @@ hoxSocketServer::Entry()
             if ( newSock->LastCount() != nWrite )
             {
                 wxLogError("%s: Writing to socket failed. Error = [%s]", 
-                    FNAME, hoxNetworkAPI::SocketErrorToString(newSock->LastError()));
+                    FNAME, hoxNetworkAPI::SocketErrorToString(newSock->LastError()).c_str());
                 continue; //return;
             }
         }

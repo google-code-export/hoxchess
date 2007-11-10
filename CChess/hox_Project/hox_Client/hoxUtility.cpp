@@ -25,31 +25,31 @@ _get_piece_image_path( hoxPieceType  type,
     switch ( type )
     {
     case hoxPIECE_TYPE_KING:     // King
-        filename.sprintf("%s/%cking.png", gPiecePath, cColor);
+        filename.sprintf("%s/%cking.png", gPiecePath.c_str(), cColor);
         break;
 
     case hoxPIECE_TYPE_ADVISOR:  // Advisor
-        filename.sprintf("%s/%cadvisor.png", gPiecePath, cColor);
+        filename.sprintf("%s/%cadvisor.png", gPiecePath.c_str(), cColor);
         break;
 
     case hoxPIECE_TYPE_ELEPHANT: // Elephant 
-        filename.sprintf("%s/%celephant.png", gPiecePath, cColor);
+        filename.sprintf("%s/%celephant.png", gPiecePath.c_str(), cColor);
         break;
   
     case hoxPIECE_TYPE_HORSE:  // Horse 
-        filename.sprintf("%s/%chorse.png", gPiecePath, cColor);
+        filename.sprintf("%s/%chorse.png", gPiecePath.c_str(), cColor);
         break;
   
     case hoxPIECE_TYPE_CHARIOT: // Chariot
-        filename.sprintf("%s/%cchariot.png", gPiecePath, cColor);
+        filename.sprintf("%s/%cchariot.png", gPiecePath.c_str(), cColor);
         break;
   
     case hoxPIECE_TYPE_CANNON: // Cannon
-        filename.sprintf("%s/%ccannon.png", gPiecePath, cColor);
+        filename.sprintf("%s/%ccannon.png", gPiecePath.c_str(), cColor);
         break;
   
     case hoxPIECE_TYPE_PAWN: // Soldier
-        filename.sprintf("%s/%cpawn.png", gPiecePath, cColor);
+        filename.sprintf("%s/%cpawn.png", gPiecePath.c_str(), cColor);
         break;
 
     default:
@@ -80,7 +80,7 @@ hoxUtility::LoadPieceImage(hoxPieceType type, hoxPieceColor color, wxImage& imag
     if ( image.LoadFile(filename, wxBITMAP_TYPE_PNG) ) 
         return hoxRESULT_OK;
 
-    wxLogError("%s: Failed to load piece-image from path [%s].", FNAME, filename);
+    wxLogError("%s: Failed to load piece-image from path [%s].", FNAME, filename.c_str());
     return hoxRESULT_ERR;
 }
 

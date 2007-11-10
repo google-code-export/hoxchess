@@ -695,7 +695,7 @@ hoxCoreBoard::DoGetBestSize() const
         availableSize.GetHeight() - 50 /* TODO: The two players' info */;
 
     wxSize bestSize = this->GetBestBoardSize( proposedHeight );
-    
+
     //wxLogDebug("%s: (%d) --> (%d x %d)", FNAME,
     //    proposedHeight,
     //    bestSize.GetWidth(), bestSize.GetHeight());

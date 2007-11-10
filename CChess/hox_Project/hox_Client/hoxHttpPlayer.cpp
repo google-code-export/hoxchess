@@ -120,7 +120,7 @@ hoxHttpPlayer::OnTimer( wxTimerEvent& WXUNUSED(event) )
 
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_POLL, this );
     request->content = 
-        wxString::Format("op=POLL&pid=%s\r\n", this->GetName());
+        wxString::Format("op=POLL&pid=%s\r\n", this->GetName().c_str());
     this->AddRequestToConnection( request );
 }
 
@@ -164,7 +164,7 @@ hoxHttpPlayer::OnHTTPResponse_Poll(wxCommandEvent& event)
         infoStr << (*it)->id << " " << (*it)->pid << " " 
                 << (*it)->tid << " " << (*it)->type << " "
                 << (*it)->content;
-        wxLogDebug("%s: .... + Network event [%s].", FNAME, infoStr);
+        wxLogDebug("%s: .... + Network event [%s].", FNAME, infoStr.c_str());
 
         _HandleEventFromNetwork( *(*it) );
     }
@@ -201,7 +201,7 @@ hoxHttpPlayer::OnHTTPResponse(wxCommandEvent& event)
     }
     else if ( returnCode != 0 )
     {
-        wxLogError("%s: The HTTP response returns ERROR. [%s]", FNAME, returnMsg);
+        wxLogError("%s: The HTTP response returns ERROR. [%s]", FNAME, returnMsg.c_str());
         return;
     }
 }
@@ -217,7 +217,7 @@ hoxHttpPlayer::_HandleEventFromNetwork( const hoxNetworkEvent& networkEvent )
     hoxTable* table = hoxTableMgr::GetInstance()->FindTable( networkEvent.tid );
     if ( table == NULL )
     {
-        wxLogError("%s: Failed to find table with ID = [%s].", FNAME, networkEvent.tid);
+        wxLogError("%s: Failed to find table with ID = [%s].", FNAME, networkEvent.tid.c_str());
         return;
     }
 
@@ -257,10 +257,10 @@ hoxHttpPlayer::_HandleEventFromNetwork( const hoxNetworkEvent& networkEvent )
                 hoxPlayerMgr::GetInstance()->FindPlayer( otherPlayerId );
             if ( foundPlayer == NULL ) 
             {
-                wxLogError("%s: Player [%s] not found in the system.", FNAME, otherPlayerId);
+                wxLogError("%s: Player [%s] not found in the system.", FNAME, otherPlayerId.c_str());
                 break;
             }
-            wxLogDebug("%s: A player [%s] just left the table.", FNAME, otherPlayerId);
+            wxLogDebug("%s: A player [%s] just left the table.", FNAME, otherPlayerId.c_str());
             table->OnLeave_FromPlayer( foundPlayer );
             break;
         }
