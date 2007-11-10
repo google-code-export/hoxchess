@@ -19,6 +19,8 @@ Starting from version *0.0.2.0*, the project can run under Windows and Linux, th
       * [http://www.ubuntu.com/ Ubuntu] 7.10 using [http://www.kdevelop.org KDevelop] 3.5 (as an Automake based project).
 
 == Detailed Instructions under Window ==
+  * wxWidgets: Put the libaries and headers under _C:\wxMSW-2.8.6_
+    * If your wxWidgets' location is different, then you need to adjust the appropriate settings of the hox_Client.vcproj (see below).
   * Simply open the project _hox_Project/hox_Client/hox_Client.vcproj_ inside Visual C++ and build from there.
 
 == Detailed Instructions under Eclipse in Linux ==
