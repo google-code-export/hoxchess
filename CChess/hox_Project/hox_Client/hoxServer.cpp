@@ -26,9 +26,8 @@
 //-----------------------------------------------------------------------------
 
 
-hoxServer::hoxServer( int nPort )
+hoxServer::hoxServer()
         : wxThreadHelper()
-        , m_nPort( nPort )
         , m_shutdownRequested( false )
         , m_pSServer( NULL )
 {

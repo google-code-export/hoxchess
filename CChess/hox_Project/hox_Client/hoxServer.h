@@ -26,7 +26,7 @@
 class hoxServer : public wxThreadHelper
 {
 public:
-    hoxServer( int nPort );
+    hoxServer();
     ~hoxServer();
 
     // Thread execution starts here
@@ -73,8 +73,6 @@ private:
         //}
     };
     typedef std::list<SocketInfo> SocketList;
-
-    int                   m_nPort;
 
     bool                  m_shutdownRequested;
                 /* Has a shutdown-request been received? */

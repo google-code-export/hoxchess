@@ -176,7 +176,7 @@ MyApp::GetHTTPPlayer() const
 }
 
 void 
-MyApp::OpenServer() 
+MyApp::OpenServer(int nPort) 
 { 
     const char* FNAME = "MyApp::OpenServer";
     wxLogDebug("%s: ENTER.", FNAME);
@@ -185,7 +185,7 @@ MyApp::OpenServer()
 
     /* Start the socket-manager */
 
-    m_server = new hoxServer( hoxNETWORK_DEFAULT_SERVER_PORT );
+    m_server = new hoxServer();
 
     if ( m_server->Create() != wxTHREAD_NO_ERROR )
     {
@@ -200,7 +200,7 @@ MyApp::OpenServer()
 
     wxASSERT_MSG( m_socketServer == NULL, "The socket-server should not have been created.");
 
-    m_socketServer = new hoxSocketServer( hoxNETWORK_DEFAULT_SERVER_PORT,
+    m_socketServer = new hoxSocketServer( nPort,
                                           m_server );
 
     if ( m_socketServer->Create() != wxTHREAD_NO_ERROR )

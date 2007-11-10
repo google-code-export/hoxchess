@@ -76,13 +76,8 @@ hoxLocalPlayer::OnClose_FromTable( hoxPlayerEvent&  event )
 }
 
 hoxResult 
-hoxLocalPlayer::ConnectToNetworkServer( const wxString& sHostname, 
-                                        int             nPort,
-                                        wxEvtHandler*   sender )
+hoxLocalPlayer::ConnectToNetworkServer( wxEvtHandler*   sender )
 {
-    m_sHostname = sHostname;
-    m_nPort = nPort;
-
     _StartConnection();
 
     wxASSERT( m_connection != NULL );
@@ -166,7 +161,6 @@ hoxLocalPlayer::_StartConnection()
     const char* FNAME = "hoxLocalPlayer::_StartConnection";
 
     wxCHECK_RET( m_connection, "The connection must have been set." );
-    wxCHECK_RET( !m_sHostname.empty(), "Hostname must have been set." );
 
     m_connection->Start();
 }

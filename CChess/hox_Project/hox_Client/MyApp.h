@@ -67,7 +67,7 @@ public:
     hoxMyPlayer*   GetMyPlayer();
     hoxHttpPlayer* GetHTTPPlayer() const;
 
-    void OpenServer();
+    void OpenServer(int nPort);
     void CloseServer();
 
 private:

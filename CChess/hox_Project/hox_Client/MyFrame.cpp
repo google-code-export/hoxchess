@@ -6,6 +6,7 @@
 // Description:     The main Frame of the App.
 /////////////////////////////////////////////////////////////////////////////
 
+#include <wx/numdlg.h>
 #include "MyFrame.h"
 #include "MyChild.h"
 #include "MyApp.h"    // To access wxGetApp()
@@ -219,15 +220,41 @@ MyFrame::OnChildClose( MyChild* child,
     return true;
 }
 
-void MyFrame::OnOpenServer(wxCommandEvent& WXUNUSED(event) )
+void 
+MyFrame::OnOpenServer(wxCommandEvent& WXUNUSED(event) )
 {
     const char* FNAME = "MyFrame::OnOpenServer";
     wxLogDebug("%s: ENTER.", FNAME);
-    wxGetApp().OpenServer();
-    wxLogStatus("Server opened. Listening for connections...");
+
+    /* Ask user for server's port-number... */
+
+    long minPort = 1024;
+    long maxPort = 64000;
+    long defaultPort = hoxNETWORK_DEFAULT_SERVER_PORT;
+
+    long nPort = wxGetNumberFromUser( 
+        _("Enter the port that the server will be listening at:"),
+        wxString::Format(_("Port [%d - %d]"), minPort, maxPort), 
+        _("Server's Port ..."),
+        defaultPort,
+        minPort,
+        maxPort,
+        this,  // parent 
+        wxDefaultPosition 
+        );
+
+    if ( nPort == -1 ) // invalid or user cancels?
+    {
+        wxLogDebug("%s: User enters an invalid port or has canceled.", FNAME);
+        return;
+    }
+
+    wxGetApp().OpenServer( (int) nPort );
+    wxLogStatus("Server listening for connections at port [%d].", nPort);
 }
 
-void MyFrame::OnConnectServer(wxCommandEvent& WXUNUSED(event) )
+void 
+MyFrame::OnConnectServer(wxCommandEvent& WXUNUSED(event) )
 {
     const char* FNAME = "MyFrame::OnConnectServer";
     hoxResult result;
@@ -249,7 +276,40 @@ void MyFrame::OnConnectServer(wxCommandEvent& WXUNUSED(event) )
         return;
     }
 
+    /***********************************************/
     /* Otherwise, try to establish a connection... */
+    /***********************************************/
+
+    /* Ask the user for the server' address. */
+
+    const wxString defaultServerAddress =
+        wxString::Format("%s:%d", "127.0.0.1", hoxNETWORK_DEFAULT_SERVER_PORT);
+
+    wxString       serverHostname;
+    int            serverPort;
+
+    wxString serverAdress = wxGetTextFromUser(
+        _("Enter the address of an HOX Chess server:"),
+        _("Connect to a server ..."),
+        defaultServerAddress,
+        this /* Parent */
+        );
+
+    if ( serverAdress.empty() ) // user canceled?
+    {
+        wxLogDebug("%s: User has canceled the connection.", FNAME);
+        return;
+    }
+
+    if ( ! hoxUtility::ParserHostnameAndPort( serverAdress,
+                                              serverHostname,
+                                              serverPort ) )
+    {
+        wxLogError("The server's address [%s] is invalid .", serverAdress);
+        return;
+    }
+
+    /* Start connecting... */
 
     if ( m_dlgProgress != NULL ) 
     {
@@ -257,26 +317,24 @@ void MyFrame::OnConnectServer(wxCommandEvent& WXUNUSED(event) )
         m_dlgProgress = NULL;
     }
 
-    m_dlgProgress = new wxProgressDialog
-                        (
-                         _("Progress dialog"),
-                         _("Wait until connnection is established or press [Cancel]"),
-                         100,
-                         this,
-                         wxPD_AUTO_HIDE | wxPD_CAN_ABORT
-                        );
+    m_dlgProgress = new wxProgressDialog(
+        _("Progress dialog"),
+        _("Wait until connnection is established or press [Cancel]"),
+        100,
+        this,
+        wxPD_AUTO_HIDE | wxPD_CAN_ABORT
+        );
     m_dlgProgress->SetSize( wxSize(500, 150) );
     m_dlgProgress->Pulse();
 
-    // Create a new connection for the MY player.
-    hoxConnection* connection = 
-        new hoxSocketConnection( "127.0.0.1", 
-                                 hoxNETWORK_DEFAULT_SERVER_PORT );
+    /* Create a new connection for the MY player. */
+    wxLogDebug("%s: Trying to connect to server [%s:%d]...", 
+        FNAME, serverHostname, serverPort);
+    hoxConnection* connection = new hoxSocketConnection( serverHostname, 
+                                                         serverPort );
     myPlayer->SetConnection( connection );
 
-    result = myPlayer->ConnectToNetworkServer( "127.0.0.1", 
-                                               hoxNETWORK_DEFAULT_SERVER_PORT,
-                                               this );
+    result = myPlayer->ConnectToNetworkServer( this );
     if ( result != hoxRESULT_OK )
     {
         wxLogError("%s: Failed to connect to server.", FNAME);
@@ -290,8 +348,60 @@ void MyFrame::OnConnectHTTPServer(wxCommandEvent& WXUNUSED(event) )
 {
     const char* FNAME = "MyFrame::OnConnectHTTPServer";
     hoxResult result;
+    hoxHttpPlayer* httpPlayer = wxGetApp().GetHTTPPlayer();
 
     wxLogDebug("%s: ENTER.", FNAME);
+
+    /* If the connection has been established, then go ahead
+     * to query for the list of tables.
+     */
+
+    if ( httpPlayer->GetConnection() != NULL )
+    {
+        /* Get the list of tables from the server */
+        result = httpPlayer->QueryForNetworkTables( this );
+        if ( result != hoxRESULT_OK )
+        {
+            wxLogError("%s: Failed to query for LIST of tables from the server.", FNAME);
+            return;
+        }
+        return;
+    }
+
+    /***********************************************/
+    /* Otherwise, try to establish a connection... */
+    /***********************************************/
+
+    /* Ask the user for the server' address. */
+
+    const wxString defaultServerAddress =
+        wxString::Format("%s:%d", HOX_HTTP_SERVER_HOSTNAME, HOX_HTTP_SERVER_PORT);
+
+    wxString       serverHostname;
+    int            serverPort;
+
+    wxString serverAdress = wxGetTextFromUser(
+        _("Enter the address of an HOX Chess server (HTTP polling):"),
+        _("Connect to a HTTP-based (polling) server ..."),
+        defaultServerAddress,
+        this /* Parent */
+        );
+
+    if ( serverAdress.empty() ) // user canceled?
+    {
+        wxLogDebug("%s: User has canceled the connection.", FNAME);
+        return;
+    }
+
+    if ( ! hoxUtility::ParserHostnameAndPort( serverAdress,
+                                              serverHostname,
+                                              serverPort ) )
+    {
+        wxLogError("The server's address [%s] is invalid .", serverAdress);
+        return;
+    }
+
+    /* Start connecting... */
 
     if ( m_dlgProgress != NULL ) 
     {
@@ -310,17 +420,14 @@ void MyFrame::OnConnectHTTPServer(wxCommandEvent& WXUNUSED(event) )
     m_dlgProgress->SetSize( wxSize(500, 150) );
     m_dlgProgress->Pulse();
 
-    hoxHttpPlayer* httpPlayer = wxGetApp().GetHTTPPlayer();
-
     // Create a new connection for the HTTP player.
-    hoxConnection* connection = 
-        new hoxHttpConnection( HOX_HTTP_SERVER_HOSTNAME, 
-                               HOX_HTTP_SERVER_PORT );
+    wxLogDebug("%s: Trying to connect to HTTP server [%s:%d]...", 
+        FNAME, serverHostname, serverPort);
+    hoxConnection* connection = new hoxHttpConnection( serverHostname, 
+                                                       serverPort );
     httpPlayer->SetConnection( connection );
 
-    result = httpPlayer->ConnectToNetworkServer( HOX_HTTP_SERVER_HOSTNAME, 
-                                                 HOX_HTTP_SERVER_PORT,
-                                                 this );
+    result = httpPlayer->ConnectToNetworkServer( this );
     if ( result != hoxRESULT_OK )
     {
         wxLogError("%: Failed to connect to HTTP server.", FNAME);
@@ -616,6 +723,12 @@ MyFrame::_Handle_OnResponse( wxCommandEvent& event,
     if ( response->code != hoxRESULT_OK )
     {
         wxLogDebug("%s: The response's code is ERROR. END.", FNAME);
+        // Delete the connection if it is bad.
+        if ( response->type == hoxREQUEST_TYPE_CONNECT )
+        {
+            wxLogDebug("%s: Deleting this BAD connection...", FNAME);
+            localPlayer->ResetConnection();
+        }
         return;
     }
 

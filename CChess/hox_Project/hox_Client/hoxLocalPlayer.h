@@ -45,9 +45,7 @@ public:
      * MY-specific Network API
      *******************************/
 
-    virtual hoxResult ConnectToNetworkServer( const wxString& sHostname, 
-                                              int             nPort, 
-                                              wxEvtHandler*   sender );
+    virtual hoxResult ConnectToNetworkServer( wxEvtHandler*   sender );
 
     virtual hoxResult QueryForNetworkTables( wxEvtHandler* sender );
     virtual hoxResult JoinNetworkTable( const wxString& tableId,
@@ -63,8 +61,6 @@ private:
     void _StartConnection();
 
 private:
-    wxString         m_sHostname; 
-    int              m_nPort;
 
     DECLARE_ABSTRACT_CLASS(hoxLocalPlayer)
 };
