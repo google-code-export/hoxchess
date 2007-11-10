@@ -6,17 +6,17 @@
 This page contains instructions on how to build [http://hoxchess.googlecode.com/ hoxchess] the binaries files based on the *latest* version of the source code.
 The page's content is solely based on my experience working on the project.
 
-
 == Requirements ==
 Starting from version *0.0.2.0*, the project can run under Windows and Linux, thanks to the cross platform portability of [http://www.wxwidgets.org wxWidgets].
 
-=== Under Windows ===
-  * Windows XP or Vista.
-  * Visual C++ 2005 Express Edition.
-
-=== Under Linux ===
-  * [http://www.centos.org/ CentOS] 4.5 using Eclipse CDT 3.3, or
-  * [http://www.ubuntu.com/ Ubuntu] 7.10 using [http://www.kdevelop.org KDevelop] 3.5 (as an Automake based project).
+  * [http://www.wxwidgets.org/ wxWidgets] 2.8.6 
+  * Operating Systems
+    * Under Windows
+      * Windows XP or Vista.
+      * Visual C++ 2005 Express Edition.
+    * Under Linux
+      * [http://www.centos.org/ CentOS] 4.5 using Eclipse CDT 3.3, or
+      * [http://www.ubuntu.com/ Ubuntu] 7.10 using [http://www.kdevelop.org KDevelop] 3.5 (as an Automake based project).
 
 == Detailed Instructions under Window ==
   * Simply open the project _hox_Project/hox_Client/hox_Client.vcproj_ inside Visual C++ and build from there.
