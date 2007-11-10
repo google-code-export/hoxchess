@@ -3,7 +3,7 @@
 
 = Introduction =
 
-This page contains instructions on how to build [http://hoxchess.googlecode.com/ hoxchess] based on the *latest* version of the source code.
+This page contains instructions on how to build [http://hoxchess.googlecode.com/ hoxchess] the binaries files based on the *latest* version of the source code.
 
 
 = Requirements =
