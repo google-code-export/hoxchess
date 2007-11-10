@@ -317,4 +317,34 @@ hoxURI::Escape_String(const wxString& str)
     return new_uri;
 }
 
+/**
+ * Parse a given string of the format "hostname:port" into a host-name
+ * and a port.
+ *
+ * @return true if everything is fine. Otherwise, return false.
+ */
+bool 
+hoxUtility::ParserHostnameAndPort( const wxString& input,
+                                   wxString&       hostname,
+                                   int&            port )
+{
+    const char SEPARATOR = ':';
+
+    hostname = input.BeforeFirst( SEPARATOR );
+    if ( hostname.empty() )
+        return false;
+
+    wxString portStr = input.AfterFirst( SEPARATOR );
+    if ( !portStr.empty() )
+    {
+        long longVal;
+        if ( !portStr.ToLong( &longVal ) )
+            return false;
+
+        port = (int) longVal;
+    }
+    
+    return true;
+}
+
 /************************* END OF FILE ***************************************/

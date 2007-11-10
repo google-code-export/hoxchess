@@ -71,6 +71,16 @@ namespace hoxUtility
             { return wxURI::Unescape( str ); }
     };
 
+    /**
+     * Parse a given string of the format "hostname:port" into a host-name
+     * and a port.
+     *
+     * @return true if everything is fine. Otherwise, return false.
+     */
+    bool ParserHostnameAndPort( const wxString& input,
+                                wxString&       hostname,
+                                int&            port );
+
 }
 
 #endif /* __INCLUDED_HOX_UTILITY_H_ */

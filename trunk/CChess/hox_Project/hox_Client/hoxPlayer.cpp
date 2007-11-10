@@ -158,6 +158,16 @@ hoxPlayer::LeaveAllTables()
 }
 
 void 
+hoxPlayer::ResetConnection()
+{ 
+    const char* FNAME = "hoxPlayer::ResetConnection";
+
+    wxLogDebug("%s: ENTER.", FNAME);
+    delete m_connection; 
+    m_connection = NULL; 
+}
+
+void 
 hoxPlayer::OnClose_FromTable( hoxPlayerEvent&  event )
 {
     const char* FNAME = "hoxPlayer::OnClose_FromTable";

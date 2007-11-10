@@ -98,6 +98,7 @@ public:
      */
     virtual bool SetConnection( hoxConnection* connection );
     virtual hoxConnection* GetConnection() const { return m_connection; }
+    virtual void ResetConnection();  // Reset connection to NULL.
 
 protected:
     /**
