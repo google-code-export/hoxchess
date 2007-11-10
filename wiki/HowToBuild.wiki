@@ -1,13 +1,13 @@
 #summary How to build this project?
-#labels Phase-Implementation
+#labels Phase-Implementation,Phase-Requirements
 
-= Introduction =
+== Introduction ==
 
 This page contains instructions on how to build [http://hoxchess.googlecode.com/ hoxchess] the binaries files based on the *latest* version of the source code.
 The page's content is solely based on my experience working on the project.
 
 
-= Requirements =
+== Requirements ==
 Starting from version *0.0.2.0*, the project can run under Windows and Linux, thanks to the cross platform portability of [http://www.wxwidgets.org wxWidgets].
 
 === Under Windows ===
@@ -18,5 +18,18 @@ Starting from version *0.0.2.0*, the project can run under Windows and Linux, th
   * [http://www.centos.org/ CentOS] 4.5 using Eclipse CDT 3.3, or
   * [http://www.ubuntu.com/ Ubuntu] 7.10 using [http://www.kdevelop.org KDevelop] 3.5 (as an Automake based project).
 
-= Detailed Instructions under Window =
-  * 
+== Detailed Instructions under Window ==
+  * Simply open the project _hox_Project/hox_Client/hox_Client.vcproj_ inside Visual C++ and build from there.
+
+== Detailed Instructions under Eclipse in Linux ==
+  * For [http://www.eclipse.org/cdt/ Eclipse C++ (CDT)], you need to create a new project.
+  * Add all the source code (.h and .cpp) files to the project.
+  * Adjust the C++ compiler's setting based on the output of wx-config program.
+  * *NOTE* : 
+    * So far, I could not install Eclipse 3.3 on my Ubuntu 7.10 based laptop, only on my CentOS 4.5 based desktop could I successfully install Eclipse.
+    * There is some work to be done... but the source code should be built as is if you can manage to install Eclipse CDT 4.0 or later.
+
+== Detailed Instructions under KDevelop in Linux ==
+  * You need to create a new wxWidgets based project.
+  * Add all the source code (.h and .cpp) files to the project.
+  * *NOTE* I do not include the project files in the release because I feel Automake is so _messy_ that I'd better find an alternative.
