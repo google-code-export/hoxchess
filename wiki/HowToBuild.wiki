@@ -1,4 +1,4 @@
-#summary How to build hoxchess?
+#summary How to build this project?
 #labels Phase-Implementation
 
 = Introduction =
