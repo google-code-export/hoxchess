@@ -1,0 +1,12 @@
+#summary How to build hoxchess?
+
+= Introduction =
+
+This page contains instructions on how to build hoxchess based on the *latest* version of the source code.
+
+
+= Requirements =
+
+== What you need under Windows OS ==
+  * Windows Vista.
+  * Visual C++ 2005 Express Edition.
