@@ -185,7 +185,7 @@ hoxTable::OnMove_FromBoard( const hoxMove& move )
     {
         player = it->player;
         wxLogDebug("%s: Inform player [%s] about the Board Move...", 
-            FNAME, player->GetName());
+            FNAME, player->GetName().c_str());
         hoxPlayerEvent event(hoxEVT_PLAYER_NEW_MOVE);
         event.SetTableId(m_id);
         event.SetOldPosition(move.piece.position);   // last move's old-piece.
@@ -233,7 +233,7 @@ hoxTable::OnMessage_FromBoard( const wxString& message )
         case hoxPLAYER_TYPE_REMOTE:
         {
             wxString commandStr;
-            commandStr.Printf("tid=%s&pid=%s&msg=%s", m_id, boardPlayer->GetName(), message); 
+            commandStr.Printf("tid=%s&pid=%s&msg=%s", m_id.c_str(), boardPlayer->GetName().c_str(), message.c_str()); 
             wxCommandEvent event( hoxEVT_PLAYER_WALL_MSG );
             event.SetEventObject( boardPlayer );
             event.SetString( commandStr );
@@ -325,7 +325,7 @@ hoxTable::OnMove_FromNetwork( hoxPlayer*         player,
     hoxResult result = _ParseMoveString( moveStr, move );
     if ( result != hoxRESULT_OK ) // failed?
     {
-        wxLogError("%s: Parse Move from string [%s] failed.", FNAME, moveStr);
+        wxLogError("%s: Parse Move from string [%s] failed.", FNAME, moveStr.c_str());
         return;
     }
 
@@ -345,7 +345,7 @@ hoxTable::OnMessage_FromNetwork( const wxString&  playerId,
     hoxPlayer* foundPlayer = _FindPlayer( playerId );
     if ( foundPlayer == NULL )
     {
-        wxLogWarning("%s: Player with Id = [%s] not found.", FNAME, playerId);
+        wxLogWarning("%s: Player with Id = [%s] not found.", FNAME, playerId.c_str());
         return;
     }
 
@@ -436,7 +436,7 @@ hoxTable::_PostPlayer_CloseEvent( hoxPlayer* player )
     wxCHECK_RET( player, "The player is NULL." );
 
     wxLogDebug("%s: Informing player [%s] about the Table [%s] being closed...", 
-        FNAME, player->GetName(), m_id);
+        FNAME, player->GetName().c_str(), m_id.c_str());
     hoxPlayerEvent event( hoxEVT_PLAYER_TABLE_CLOSED );
     event.SetTableId( m_id );
     wxPostEvent( player, event );
@@ -460,7 +460,7 @@ hoxTable::_PostBoard_MessageEvent( hoxPlayer*      player,
     wxCHECK_RET(player, "The player cannot be NULL.");
     
     wxString eventString;
-    eventString.Printf("%s %s", player->GetName(), message);
+    eventString.Printf("%s %s", player->GetName().c_str(), message.c_str());
 
     /* Post the message on the Wall-Output of the "local" Board. */
     wxCommandEvent event( hoxEVT_BOARD_WALL_OUTPUT );

@@ -53,15 +53,15 @@ hoxNetworkAPI::SendRequest( wxSocketBase*   sock,
     hoxNetworkAPI::SocketInputLock socketLock( sock );
 
     // Send request.
-    wxLogDebug("%s: Sending the request [%s] over the network...", FNAME, request);
+    wxLogDebug("%s: Sending the request [%s] over the network...", FNAME, request.c_str());
     requestSize = (wxUint32) request.size();
     sock->Write( request, requestSize );
     nWrite = sock->LastCount();
     if ( nWrite < requestSize )
     {
         wxLogError("%s: Failed to send request [%s] ( %d < %d ). Error = [%s].", 
-            FNAME, request, nWrite, requestSize, 
-            hoxNetworkAPI::SocketErrorToString(sock->LastError()));
+            FNAME, request.c_str(), nWrite, requestSize, 
+            hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
         result = hoxRESULT_ERR;
         goto exit_label;
     }
@@ -82,7 +82,7 @@ hoxNetworkAPI::SendRequest( wxSocketBase*   sock,
     if ( result != hoxRESULT_OK )
     {
         wxLogError("%s: Failed to read response. Error = [%s].", 
-            FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()));
+            FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
         goto exit_label;
     }
     
@@ -109,7 +109,7 @@ hoxNetworkAPI::SendOutData( wxSocketBase*   sock,
     if ( sock->LastCount() != nWrite )
     {
         wxLogError("%s: Writing to socket failed. Error = [%s]", 
-            FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()));
+            FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
         goto exit_label;
     }
 
@@ -150,7 +150,7 @@ hoxNetworkAPI::ParseCommand( const wxString& commandStr,
 
             if ( command.type == hoxREQUEST_TYPE_UNKNOWN )
             {
-                wxLogError("%s: Unsupported command-type = [%s].", FNAME, paramValue);
+                wxLogError("%s: Unsupported command-type = [%s].", FNAME, paramValue.c_str());
                 return hoxRESULT_NOT_SUPPORTED;
             }
         }
@@ -185,7 +185,7 @@ hoxNetworkAPI::ParseSimpleResponse( const wxString& responseStr,
                 break;
             case 1:    // The additional informative message.
                 returnMsg = token;
-                wxLogDebug("%s: Server's message = [%s].", FNAME, returnMsg); 
+                wxLogDebug("%s: Server's message = [%s].", FNAME, returnMsg.c_str()); 
                 break;
             default:
                 wxLogError("%s: Ignore the rest...", FNAME);
@@ -273,7 +273,7 @@ hoxNetworkAPI::ParseNewNetworkTable( const wxString&  responseStr,
                 newTableId = token; 
                 break;
             case 2:    // The additional informative message.
-                wxLogDebug("%s: Server's message = [%s].", FNAME, token) ; 
+                wxLogDebug("%s: Server's message = [%s].", FNAME, token.c_str()) ; 
                 break;
             default:
                 wxLogError("%s: Ignore the rest...", FNAME);
@@ -311,7 +311,7 @@ hoxNetworkAPI::ParseJoinNetworkTable( const wxString&      responseStr,
                 }
                 break;
             case 1:    // The additional informative message.
-                wxLogDebug("%s: Server's message = [%s].", FNAME, token) ; 
+                wxLogDebug("%s: Server's message = [%s].", FNAME, token.c_str()) ; 
                 break;
             case 2:    // The returned info of the requested table.
             {
@@ -319,7 +319,7 @@ hoxNetworkAPI::ParseJoinNetworkTable( const wxString&      responseStr,
                 if ( hoxRESULT_OK != _ParseNetworkTableInfoString( tableInfoStr, tableInfo ) )
                 {
                     wxLogError("%s: Failed to parse the Table Info String [%s].", 
-                        FNAME, tableInfoStr); 
+                        FNAME, tableInfoStr.c_str()); 
                     return hoxRESULT_ERR;
                 }
                 break;
@@ -358,7 +358,7 @@ hoxNetworkAPI::ParseNetworkEvents( const wxString&      tablesStr,
                 }
                 break;
             case 1:    // The additional informative message.
-                wxLogDebug("%s: Server's message = [%s].", FNAME, token) ; 
+                wxLogDebug("%s: Server's message = [%s].", FNAME, token.c_str()) ; 
                 break;
             default:
             {
@@ -368,7 +368,7 @@ hoxNetworkAPI::ParseNetworkEvents( const wxString&      tablesStr,
                 result = _ParseNetworkEventString( eventStr, networkEvent );
                 if ( result != hoxRESULT_OK ) // failed?
                 {
-                    wxLogError("%s: Failed to parse network events [%s].", FNAME, eventStr);
+                    wxLogError("%s: Failed to parse network events [%s].", FNAME, eventStr.c_str());
                     return result;
                 }
                 networkEvents.push_back( new hoxNetworkEvent( networkEvent ) );
@@ -401,12 +401,12 @@ hoxNetworkAPI::ReadCommand( wxSocketBase* sock,
         wxLogError("%s: Failed to read incoming command.", FNAME);
         return hoxRESULT_ERR;
     }
-    wxLogDebug("%s: Received command [%s].", FNAME, commandStr);
+    wxLogDebug("%s: Received command [%s].", FNAME, commandStr.c_str());
 
     result = hoxNetworkAPI::ParseCommand( commandStr, command );
     if ( result != hoxRESULT_OK )
     {
-        wxLogError("%s: Failed to parse command-string [%s].", FNAME, commandStr);
+        wxLogError("%s: Failed to parse command-string [%s].", FNAME, commandStr.c_str());
         return hoxRESULT_ERR;
     }
 
@@ -446,7 +446,7 @@ hoxNetworkAPI::ReadLine( wxSocketBase* sock,
                     wxLogError("%s: Maximum message's size [%d] reached. Likely to be an error.", 
                         FNAME, hoxNETWORK_MAX_MSG_SIZE);
                     wxLogError("%s: Partial read message (64 bytes) = [%s ...].", 
-                        FNAME, commandStr.substr(0, 64));
+                        FNAME, commandStr.substr(0, 64).c_str());
                     break;
                 }
             }
@@ -454,8 +454,8 @@ hoxNetworkAPI::ReadLine( wxSocketBase* sock,
         else if ( sock->Error() )
         {
             wxLogWarning("%s: Fail to read 1 byte from the network. Error = [%s].", 
-                FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()));
-            wxLogWarning("%s: Result message accumulated so far = [%s].", FNAME, commandStr);
+                FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
+            wxLogWarning("%s: Result message accumulated so far = [%s].", FNAME, commandStr.c_str());
             break;
         }
     }
@@ -496,7 +496,7 @@ hoxNetworkAPI::ReadMsg( wxSocketBase* sock,
         if ( sock->Error() ) // Actual IO error occurred?
         {
             wxLogError("%s: Error occurred while reading the response data (tries = [%d]). Error = [%s].", 
-                FNAME, tries, hoxNetworkAPI::SocketErrorToString(sock->LastError()));
+                FNAME, tries, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
             goto exit_label;  // *** Stop trying. Return 'error' immediately.
         }
         wxLogDebug("%s: Receive no response data so far (tries = [%d]). Waiting...", FNAME, tries);

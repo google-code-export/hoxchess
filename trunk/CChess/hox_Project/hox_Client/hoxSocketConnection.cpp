@@ -7,7 +7,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxSocketConnection.h"
-#include "hoxMYPlayer.h"
+#include "hoxMyPlayer.h"
 #include "hoxEnums.h"
 #include "hoxUtility.h"
 #include "hoxNetworkAPI.h"
@@ -130,7 +130,7 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
 
         default:
             wxLogError("%s: Unsupported request Type [%s].", 
-                FNAME, hoxUtility::RequestTypeToString(request->type));
+                FNAME, hoxUtility::RequestTypeToString(request->type).c_str());
             result = hoxRESULT_NOT_SUPPORTED;
             break;
     }
@@ -140,7 +140,7 @@ exit_label:
     if ( result != hoxRESULT_OK )
     {
         wxLogError("%s: Error occurred while handling request [%s].", 
-            FNAME, hoxUtility::RequestTypeToString(request->type));
+            FNAME, hoxUtility::RequestTypeToString(request->type).c_str());
         response->content = "!Error_Result!";
     }
 
@@ -194,7 +194,7 @@ hoxSocketConnection::_Connect()
     addr.Hostname( m_sHostname );
     addr.Service( m_nPort );
 
-    wxLogDebug("%s: Trying to connect to [%s:%d]...", FNAME, addr.Hostname(), addr.Service());
+    wxLogDebug("%s: Trying to connect to [%s:%d]...", FNAME, addr.Hostname().c_str(), addr.Service());
 
     //m_pSClient->Connect( addr, false /* no-wait */ );
     //m_pSClient->WaitOnConnect( 10 /* wait for 10 seconds */ );
@@ -202,8 +202,8 @@ hoxSocketConnection::_Connect()
     if ( ! m_pSClient->Connect( addr, true /* wait */ ) )
     {
         wxLogError("%s: Failed to connect to the server [%s:%d]. Error = [%s].",
-            FNAME, addr.Hostname(), addr.Service(), 
-            hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()));
+            FNAME, addr.Hostname().c_str(), addr.Service(), 
+            hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
         return hoxRESULT_ERR;
     }
 

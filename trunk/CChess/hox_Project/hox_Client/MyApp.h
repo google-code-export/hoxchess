@@ -70,6 +70,8 @@ public:
     void OpenServer(int nPort);
     void CloseServer();
 
+    MyFrame*       GetFrame() const { return m_frame; }
+
 private:
     hoxLog*             m_log;
     wxLog*              m_oldLog;    // the previous log target (to be restored later)

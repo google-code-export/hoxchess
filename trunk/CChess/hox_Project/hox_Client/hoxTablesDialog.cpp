@@ -103,7 +103,7 @@ hoxTablesDialog::OnButtonJoin(wxCommandEvent& WXUNUSED(event))
     }
 
     m_selectedCommand = COMMAND_ID_JOIN;
-    wxLogDebug(wxString::Format("%s: Table-Id [%s] is selected to JOIN.", FNAME, m_selectId));
+    wxLogDebug(wxString::Format("%s: Table-Id [%s] is selected to JOIN.", FNAME, m_selectId.c_str()));
     Close();
 }
 

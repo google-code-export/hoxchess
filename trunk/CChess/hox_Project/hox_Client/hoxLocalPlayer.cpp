@@ -57,7 +57,7 @@ hoxLocalPlayer::SetConnection( hoxConnection* connection )
     }
 
     wxLogDebug("%s: Specify this player [%s] as the connection's onwer.", 
-        FNAME, this->GetName());
+        FNAME, this->GetName().c_str());
     m_connection->SetPlayer( this );
 
     return true;
@@ -84,7 +84,7 @@ hoxLocalPlayer::ConnectToNetworkServer( wxEvtHandler*   sender )
     {
         hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_CONNECT, sender );
         request->content = 
-            wxString::Format("op=CONNECT&pid=%s\r\n", this->GetName());
+            wxString::Format("op=CONNECT&pid=%s\r\n", this->GetName().c_str());
         m_connection->AddRequest( request );
     }
 
@@ -98,7 +98,7 @@ hoxLocalPlayer::QueryForNetworkTables( wxEvtHandler* sender )
     {
         hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LIST, sender );
         request->content = 
-            wxString::Format("op=LIST&pid=%s\r\n", this->GetName());
+            wxString::Format("op=LIST&pid=%s\r\n", this->GetName().c_str());
         m_connection->AddRequest( request );
     }
 
@@ -113,7 +113,7 @@ hoxLocalPlayer::JoinNetworkTable( const wxString& tableId,
     {
         hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_JOIN, sender );
         request->content = 
-            wxString::Format("op=JOIN&tid=%s&pid=%s\r\n", tableId, this->GetName());
+            wxString::Format("op=JOIN&tid=%s&pid=%s\r\n", tableId.c_str(), this->GetName().c_str());
         m_connection->AddRequest( request );
     }
 
@@ -126,7 +126,7 @@ hoxLocalPlayer::OpenNewNetworkTable( wxEvtHandler*   sender )
     {
         hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_NEW, sender );
         request->content = 
-            wxString::Format("op=NEW&pid=%s\r\n", this->GetName());
+            wxString::Format("op=NEW&pid=%s\r\n", this->GetName().c_str());
         m_connection->AddRequest( request );
     }
 
@@ -141,7 +141,8 @@ hoxLocalPlayer::LeaveNetworkTable( const wxString& tableId,
     {
         hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LEAVE /*, sender*/ );
         request->content = 
-                wxString::Format("op=LEAVE&tid=%s&pid=%s\r\n", tableId, this->GetName());
+                wxString::Format("op=LEAVE&tid=%s&pid=%s\r\n", 
+                    tableId.c_str(), this->GetName().c_str());
         m_connection->AddRequest( request );
     }
 

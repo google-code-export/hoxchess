@@ -38,7 +38,7 @@ hoxLog::hoxLog()
 {
     m_filename = wxFileName::GetTempDir() + "/CChess_"
                + hoxUtility::GenerateRandomString() + ".log";
-    wxLogDebug(wxString::Format("Opened the log file [%s].", m_filename));
+    wxLogDebug(wxString::Format("Opened the log file [%s].", m_filename.c_str()));
 }
 
 hoxLog::~hoxLog()

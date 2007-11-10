@@ -52,6 +52,7 @@ class MyFrame : public wxMDIParentFrame
     typedef std::list<MyChild*> MyChildList;
 
 public:
+    MyFrame();  // Dummy default constructor required for RTTI info.
     MyFrame( wxWindow*          parent, 
              const wxWindowID   id, 
              const wxString&    title,
@@ -124,6 +125,7 @@ private:
     int                 m_nChildren;   // The number of child-frames.
     MyChildList         m_children;
 
+    DECLARE_DYNAMIC_CLASS(MyFrame)
     DECLARE_EVENT_TABLE()
 };
 

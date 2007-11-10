@@ -144,13 +144,13 @@ hoxPlayer::LeaveAllTables()
         hoxTable* table = hoxTableMgr::GetInstance()->FindTable( tableId );
         if ( table == NULL )
         {
-            wxLogError("%s: Failed to find table with ID = [%s].", FNAME, tableId);
+            wxLogError("%s: Failed to find table with ID = [%s].", FNAME, tableId.c_str());
             bErrorFound = true;
             continue;
         }
 
         // Inform the table that this player is leaving...
-        wxLogDebug("%s: Player [%s] leaving table [%s]...", FNAME, this->GetName(), tableId);
+        wxLogDebug("%s: Player [%s] leaving table [%s]...", FNAME, this->GetName().c_str(), tableId.c_str());
         table->OnLeave_FromPlayer( this );
     }
 
@@ -195,12 +195,12 @@ hoxPlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
         wxString moveStr = wxString::Format("%d%d%d%d", 
                                 moveFromPos.x, moveFromPos.y, moveToPos.x, moveToPos.y);
 
-        wxLogDebug("%s: ENTER. Move = [%s].", FNAME, moveStr);
+        wxLogDebug("%s: ENTER. Move = [%s].", FNAME, moveStr.c_str());
 
         hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_MOVE );
         request->content =
                 wxString::Format("op=MOVE&tid=%s&pid=%s&move=%s\r\n", 
-                            tableId, this->GetName(), moveStr);
+                            tableId.c_str(), this->GetName().c_str(), moveStr.c_str());
         m_connection->AddRequest( request );
     }
 }
@@ -217,11 +217,11 @@ hoxPlayer::OnWallMsg_FromTable( wxCommandEvent&  event )
     else
     {
         const wxString commandStr = event.GetString();
-        wxLogDebug("%s: ENTER. commandStr = [%s].", FNAME, commandStr);
+        wxLogDebug("%s: ENTER. commandStr = [%s].", FNAME, commandStr.c_str());
 
         hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_WALL_MSG );
         request->content = 
-            wxString::Format("op=WALL_MSG&%s\r\n", commandStr);
+            wxString::Format("op=WALL_MSG&%s\r\n", commandStr.c_str());
         m_connection->AddRequest( request );
     }
 }
@@ -234,11 +234,11 @@ hoxPlayer::SetConnection( hoxConnection* connection )
     if ( m_connection != NULL )
     {
         wxLogDebug("%s: Connection already set to this user [%s]. Fine. END.", 
-            FNAME, GetName());
+            FNAME, GetName().c_str());
         return false;
     }
 
-    wxLogDebug("%s: Assign the connection to this user [%s]", FNAME, GetName());
+    wxLogDebug("%s: Assign the connection to this user [%s]", FNAME, GetName().c_str());
     m_connection = connection;
     return true;
 }
@@ -255,11 +255,11 @@ hoxPlayer::HandleIncomingData( const wxString& commandStr )
     result = hoxNetworkAPI::ParseCommand( commandStr, command );
     if ( result != hoxRESULT_OK )
     {
-        wxLogError("%s: Failed to parse command-string [%s].", FNAME, commandStr);
+        wxLogError("%s: Failed to parse command-string [%s].", FNAME, commandStr.c_str());
         return hoxRESULT_ERR;
     }
     wxLogDebug("%s: Received a command [%s].", FNAME, 
-        hoxUtility::RequestTypeToString(command.type));
+        hoxUtility::RequestTypeToString(command.type).c_str());
 
     switch ( command.type )
     {
@@ -285,7 +285,7 @@ hoxPlayer::HandleIncomingData( const wxString& commandStr )
 
         default:
             wxLogError("%s: Unsupported Request-Type [%s].", 
-                FNAME, hoxUtility::RequestTypeToString(command.type));
+                FNAME, hoxUtility::RequestTypeToString(command.type).c_str());
             result = hoxRESULT_NOT_SUPPORTED;
             break;
     }
@@ -317,7 +317,7 @@ hoxPlayer::HandleIncomingData_Move( /* wxSocketBase* sock, */
 
     if ( table == NULL )
     {
-        wxLogError("%s: Table [%s] not found.", FNAME, tableId);
+        wxLogError("%s: Table [%s] not found.", FNAME, tableId.c_str());
         response << "1\r\n"  // code
                  << "Table " << tableId << " not found.\r\n";
         goto exit_label;
@@ -336,7 +336,7 @@ hoxPlayer::HandleIncomingData_Move( /* wxSocketBase* sock, */
     else
     {
         wxLogError("%s: Player [%s] not found at the table [%s].", 
-            FNAME, playerId, tableId);
+            FNAME, playerId.c_str(), tableId.c_str());
         response << "2\r\n"  // code
                  << "Player " << playerId << " not found.\r\n";
         goto exit_label;
@@ -358,7 +358,7 @@ exit_label:
     //if ( sock->LastCount() != nWrite )
     //{
     //    wxLogError("%s: Writing to socket failed. Error = [%s]", 
-    //        FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()));
+    //        FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
     //    result = hoxRESULT_ERR;
     //}
 
@@ -393,7 +393,7 @@ hoxPlayer::HandleIncomingData_Leave( /* wxSocketBase*  sock,*/
 
     if ( table == NULL )
     {
-        wxLogError("%s: Table [%s] not found.", FNAME, tableId);
+        wxLogError("%s: Table [%s] not found.", FNAME, tableId.c_str());
         response << "1\r\n"  // code
                  << "Table " << tableId << " not found.\r\n";
         goto exit_label;
@@ -411,7 +411,7 @@ hoxPlayer::HandleIncomingData_Leave( /* wxSocketBase*  sock,*/
     }
     else
     {
-        wxLogError("%s: Player [%s] not found at the table [%s].", FNAME, requesterId, tableId);
+        wxLogError("%s: Player [%s] not found at the table [%s].", FNAME, requesterId.c_str(), tableId.c_str());
         response << "2\r\n"  // code
                  << "Player " << requesterId << " not found at the table " << tableId << ".\r\n";
         goto exit_label;
@@ -434,7 +434,7 @@ exit_label:
     //if ( sock->LastCount() != nWrite )
     //{
     //    wxLogError("%s: Writing to socket failed. Error = [%s]", 
-    //        FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()));
+    //        FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
     //    result = hoxRESULT_ERR;
     //}
 
@@ -467,7 +467,7 @@ hoxPlayer::HandleIncomingData_WallMsg( /* wxSocketBase* sock, */
 
     if ( table == NULL )
     {
-        wxLogError("%s: Table [%s] not found.", FNAME, tableId);
+        wxLogError("%s: Table [%s] not found.", FNAME, tableId.c_str());
         response << "1\r\n"  // code
                  << "Table " << tableId << " not found.\r\n";
         goto exit_label;
@@ -492,7 +492,7 @@ exit_label:
     //if ( sock->LastCount() != nWrite )
     //{
     //    wxLogError("%s: Writing to socket failed. Error = [%s]", 
-    //        FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()));
+    //        FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
     //    result = hoxRESULT_ERR;
     //}
 
@@ -549,7 +549,7 @@ hoxPlayer::HandleIncomingData_List( /* wxSocketBase *sock, */
     //if ( sock->LastCount() != nWrite )
     //{
     //    wxLogError("%s: Writing to socket failed. Error = [%s]", 
-    //        FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()));
+    //        FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
     //    return;
     //}
     return hoxRESULT_OK;
@@ -574,7 +574,7 @@ hoxPlayer::HandleIncomingData_Join( /* wxSocketBase *sock, */
     table = hoxTableMgr::GetInstance()->FindTable( tableId );
     if ( table == NULL )
     {
-        wxLogError("%s: Table [%s] not found.", FNAME, tableId);
+        wxLogError("%s: Table [%s] not found.", FNAME, tableId.c_str());
         response << "1\r\n"  // code
                  << "Table " << tableId << " not found.\r\n";
         goto exit_label;
@@ -592,7 +592,7 @@ hoxPlayer::HandleIncomingData_Join( /* wxSocketBase *sock, */
     }
     else
     {
-        wxLogError("%s: No one is at the table [%s] not found.", FNAME, tableId);
+        wxLogError("%s: No one is at the table [%s] not found.", FNAME, tableId.c_str());
         response << "2\r\n"  // code
                  << "Not one is at the table " << tableId << ".\r\n";
         goto exit_label;
@@ -611,7 +611,7 @@ hoxPlayer::HandleIncomingData_Join( /* wxSocketBase *sock, */
 
     //// Setup the event handler and let the player handles all socket events.
     //wxLogDebug("%s: Let this Remote player [%s] handle all socket events", 
-    //    FNAME, player->GetName());
+    //    FNAME, player->GetName().c_str());
     //sock->SetEventHandler(*player, CLIENT_SOCKET_ID);
     //sock->SetNotify(wxSOCKET_INPUT_FLAG | wxSOCKET_LOST_FLAG);
     //sock->Notify(true);
@@ -636,7 +636,7 @@ exit_label:
     //if ( sock->LastCount() != nWrite )
     //{
     //    wxLogError("%s: Failed to send back response over the network.", 
-    //        FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()));
+    //        FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
     //    //return;
     //}
 

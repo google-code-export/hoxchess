@@ -122,7 +122,7 @@ hoxServer::Entry()
             break;  // Exit the thread.
         }
         wxLogDebug("%s: Processing request [%s]...", 
-            FNAME, hoxUtility::RequestTypeToString(request->type));
+            FNAME, hoxUtility::RequestTypeToString(request->type).c_str());
 
          _HandleRequest( request );
         delete request;
@@ -141,7 +141,7 @@ hoxServer::AddRequest( hoxRequest* request )
     if ( m_shutdownRequested )
     {
         wxLogWarning("%s: Deny request [%s]. The thread is shutdowning.", 
-            FNAME, hoxUtility::RequestTypeToString(request->type));
+            FNAME, hoxUtility::RequestTypeToString(request->type).c_str());
         delete request;
         return;
     }
@@ -215,7 +215,7 @@ hoxServer::_HandleRequest( hoxRequest* request )
 
         default:
             wxLogError("%s: Unsupported Request-Type [%s].", 
-                FNAME, hoxUtility::RequestTypeToString(request->type));
+                FNAME, hoxUtility::RequestTypeToString(request->type).c_str());
             result = hoxRESULT_NOT_SUPPORTED;
             break;
     }
@@ -225,7 +225,7 @@ exit_label:
     if ( result != hoxRESULT_OK )
     {
         wxLogError("%s: Error occurred while handling request [%s].", 
-            FNAME, hoxUtility::RequestTypeToString(request->type));
+            FNAME, hoxUtility::RequestTypeToString(request->type).c_str());
         response->content = "!Error_Result!";
     }
 

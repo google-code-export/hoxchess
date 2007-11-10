@@ -26,12 +26,13 @@
 #endif
 
 #include "bitmaps/new.xpm"
-#include "bitmaps/open.xpm"
-#include "bitmaps/save.xpm"
+//#include "bitmaps/open.xpm"
+//#include "bitmaps/save.xpm"
 #include "bitmaps/help.xpm"
 #include "bitmaps/quit.xpm"
 #include "bitmaps/delete.xpm"
 
+IMPLEMENT_DYNAMIC_CLASS(MyFrame, wxMDIParentFrame)
 
 /* Define my custom events */
 DEFINE_EVENT_TYPE(hoxEVT_FRAME_LOG_MSG)
@@ -73,6 +74,11 @@ END_EVENT_TABLE()
 // ---------------------------------------------------------------------------
 // MyFrame
 // ---------------------------------------------------------------------------
+
+MyFrame::MyFrame()
+{
+    wxFAIL_MSG( "This default constructor is never meant to be used." );
+}
 
 // Define my frame constructor
 MyFrame::MyFrame(wxWindow *parent,
@@ -171,7 +177,7 @@ MyFrame::OnNewTable(wxCommandEvent& WXUNUSED(event) )
     hoxTable* table = NULL;
 
     table = _CreateNewTable( "" );  // An Id will be generated.
-    wxLogDebug("%s: Created a new table [%s].", FNAME, table->GetId());
+    wxLogDebug("%s: Created a new table [%s].", FNAME, table->GetId().c_str());
 
     // Add the HOST player to the table.
     hoxResult result = wxGetApp().GetHostPlayer()->JoinTable( table );
@@ -191,7 +197,7 @@ MyFrame::OnCloseTable(wxCommandEvent& WXUNUSED(event) )
     MyChild* child = wxDynamicCast(this->GetActiveChild(), MyChild);
     if ( child != NULL )
     {
-        wxLogDebug("%s: Closing the active Table [%s]...", FNAME, child->GetTitle());
+        wxLogDebug("%s: Closing the active Table [%s]...", FNAME, child->GetTitle().c_str());
         child->Close( true /* force */ );
     }
 }
@@ -250,7 +256,7 @@ MyFrame::OnOpenServer(wxCommandEvent& WXUNUSED(event) )
     }
 
     wxGetApp().OpenServer( (int) nPort );
-    wxLogStatus("Server listening for connections at port [%d].", nPort);
+    wxLogStatus("Server listening for connections at port [%d].", (int)nPort);
 }
 
 void 
@@ -305,7 +311,7 @@ MyFrame::OnConnectServer(wxCommandEvent& WXUNUSED(event) )
                                               serverHostname,
                                               serverPort ) )
     {
-        wxLogError("The server's address [%s] is invalid .", serverAdress);
+        wxLogError("The server's address [%s] is invalid .", serverAdress.c_str());
         return;
     }
 
@@ -329,7 +335,7 @@ MyFrame::OnConnectServer(wxCommandEvent& WXUNUSED(event) )
 
     /* Create a new connection for the MY player. */
     wxLogDebug("%s: Trying to connect to server [%s:%d]...", 
-        FNAME, serverHostname, serverPort);
+        FNAME, serverHostname.c_str(), serverPort);
     hoxConnection* connection = new hoxSocketConnection( serverHostname, 
                                                          serverPort );
     myPlayer->SetConnection( connection );
@@ -397,7 +403,7 @@ void MyFrame::OnConnectHTTPServer(wxCommandEvent& WXUNUSED(event) )
                                               serverHostname,
                                               serverPort ) )
     {
-        wxLogError("The server's address [%s] is invalid .", serverAdress);
+        wxLogError("The server's address [%s] is invalid .", serverAdress.c_str());
         return;
     }
 
@@ -422,7 +428,7 @@ void MyFrame::OnConnectHTTPServer(wxCommandEvent& WXUNUSED(event) )
 
     // Create a new connection for the HTTP player.
     wxLogDebug("%s: Trying to connect to HTTP server [%s:%d]...", 
-        FNAME, serverHostname, serverPort);
+        FNAME, serverHostname.c_str(), serverPort);
     hoxConnection* connection = new hoxHttpConnection( serverHostname, 
                                                        serverPort );
     httpPlayer->SetConnection( connection );
@@ -430,7 +436,7 @@ void MyFrame::OnConnectHTTPServer(wxCommandEvent& WXUNUSED(event) )
     result = httpPlayer->ConnectToNetworkServer( this );
     if ( result != hoxRESULT_OK )
     {
-        wxLogError("%: Failed to connect to HTTP server.", FNAME);
+        wxLogError("%s: Failed to connect to HTTP server.", FNAME);
         return;
     }
 
@@ -460,10 +466,10 @@ MyFrame::DoJoinExistingTable( const hoxNetworkTableInfo& tableInfo,
     const char* FNAME = "MyFrame::DoJoinExistingTable";
     hoxResult result;
 
-    /*******************************************************/
-    /* Check to see which side (RED or BLACK) we will play
-    /* and who the other player, if any, is.
-    /*******************************************************/
+    /*******************************************************
+     * Check to see which side (RED or BLACK) we will play
+     * and who the other player, if any, is.
+     *******************************************************/
 
     bool     playRed = false;   // Do I play RED?
     wxString otherPlayerId;     // Who is the other player?
@@ -480,7 +486,7 @@ MyFrame::DoJoinExistingTable( const hoxNetworkTableInfo& tableInfo,
     }
     else
     {
-        wxLogError("%s: I should have secured a seat in table [%s].", FNAME, tableInfo.id);
+        wxLogError("%s: I should have secured a seat in table [%s].", FNAME, tableInfo.id.c_str());
         return;
     }
 
@@ -755,7 +761,7 @@ MyFrame::_Handle_OnResponse( wxCommandEvent& event,
             break;
 
         default:
-            wxLogError("%s: Unknown type [%d].", response->type );
+            wxLogError("%s: Unknown type [%d].", FNAME, response->type );
             break;
     }
 }
@@ -788,7 +794,7 @@ MyFrame::_OnResponse_Connect( const wxString& responseStr,
     }
     else if ( returnCode != 0 )
     {
-        wxLogError("%s: Send CONNECT to server failed. [%s]", FNAME, returnMsg);
+        wxLogError("%s: Send CONNECT to server failed. [%s]", FNAME, returnMsg.c_str());
         return;
     }
 
@@ -832,12 +838,12 @@ MyFrame::_OnResponse_List( const wxString& responseStr,
     {
         case hoxTablesDialog::COMMAND_ID_JOIN:
         {
-            wxLogDebug("%s: Ask the server to allow me to JOIN table = [%s]", FNAME, selectedId);
+            wxLogDebug("%s: Ask the server to allow me to JOIN table = [%s]", FNAME, selectedId.c_str());
             hoxNetworkTableInfo tableInfo;
             result = localPlayer->JoinNetworkTable( selectedId, this );
             if ( result != hoxRESULT_OK )
             {
-                wxLogError("%s: Failed to JOIN a network table [%s].", FNAME, selectedId);
+                wxLogError("%s: Failed to JOIN a network table [%s].", FNAME, selectedId.c_str());
             }
             break;
         }
@@ -875,12 +881,12 @@ MyFrame::_OnResponse_Join( const wxString& responseStr,
                                                    tableInfo );
     if ( result != hoxRESULT_OK )
     {
-        wxLogError("%s: Failed to parse for SEND-JOIN's response [%s].", FNAME, responseStr);
+        wxLogError("%s: Failed to parse for SEND-JOIN's response [%s].", FNAME, responseStr.c_str());
         return;
     }
     else
     {
-        wxLogDebug("Successfully joined the network table [%s].", tableInfo.id);
+        wxLogDebug("Successfully joined the network table [%s].", tableInfo.id.c_str());
         this->DoJoinExistingTable( tableInfo, localPlayer );
     }
 }
@@ -903,7 +909,7 @@ MyFrame::_OnResponse_New( const wxString& responseStr,
         return;
     }
 
-    wxLogDebug("The system creating a new table with ID = [%s]...", newTableId);
+    wxLogDebug("The system creating a new table with ID = [%s]...", newTableId.c_str());
     this->DoJoinNewTable( newTableId, localPlayer );
 }
 
@@ -927,7 +933,7 @@ MyFrame::_OnResponse_Leave( const wxString& responseStr )
     }
     else if ( returnCode != 0 )
     {
-        wxLogError("%s: Send LEAVE to server failed. [%s]", FNAME, returnMsg);
+        wxLogError("%s: Send LEAVE to server failed. [%s]", FNAME, returnMsg.c_str());
         return;
     }
 }
@@ -951,7 +957,7 @@ MyFrame::_CreateNewTable( const wxString& tableId )
     }
 
     // Generate the Window's title for the new Table.
-    windowTitle.Printf("Table #%s", effectiveTableId);
+    windowTitle.Printf("Table #%s", effectiveTableId.c_str());
 
     subframe = new MyChild( this, windowTitle );
     m_children.push_back( subframe );
