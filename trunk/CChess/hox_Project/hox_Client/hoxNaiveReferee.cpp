@@ -57,7 +57,7 @@ hoxNaiveReferee::GetPieceAtPosition( const hoxPosition& position,
                                      hoxPieceInfo&      pieceInfo ) const
 {
     wxLogError(_("Not yet implemented."));
-    return NULL;
+    return false;
 }
 
 /************************* END OF FILE ***************************************/
