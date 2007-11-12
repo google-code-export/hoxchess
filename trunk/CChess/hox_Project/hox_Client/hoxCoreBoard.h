@@ -95,7 +95,7 @@ public:
      * Thus, the Table should already validate the Move before 
      * invoking this API.
      *
-     * @note This move will BY PASS referee-validation.
+     * @note This move will BYPASS referee-validation.
      */
     bool MovePieceToPosition(hoxPiece* piece, const hoxPosition& newPosition);
 

@@ -116,6 +116,9 @@ class hoxMove
     hoxMove() {}
 };
 
+typedef std::list<hoxMove*> hoxMoveList;
+
+
 /**
  * A network table.
  */

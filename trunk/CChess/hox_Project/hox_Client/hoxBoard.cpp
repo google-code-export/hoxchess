@@ -455,7 +455,7 @@ hoxSimpleBoard::DoMove( const hoxMove& move )
     
     if ( ! this->GetReferee()->ValidateMove( move ) )
     {
-        wxLogWarning("Move is not valid.", FNAME);
+        wxLogWarning("%s: Move is not valid.", FNAME);
         return false;
     }
 

@@ -15,9 +15,9 @@
 
 class hoxReferee : public hoxIReferee
 {
-  public:
+public:
     hoxReferee();
-    ~hoxReferee();
+    virtual ~hoxReferee();
 
     /*********************************
      * Override base class virtuals
@@ -30,7 +30,7 @@ class hoxReferee : public hoxIReferee
     virtual bool GetPieceAtPosition( const hoxPosition& position, 
                                      hoxPieceInfo&      pieceInfo ) const;
 
-  private:
+private:
     bool _IsValidMove( const hoxMove& move );
     bool _IsValidCapture( const hoxPieceInfo& pieceInfo, 
                           const hoxPosition& newPos);
@@ -43,14 +43,26 @@ class hoxReferee : public hoxIReferee
     bool _IsValidMove_Cannon( const hoxMove& move );
     bool _IsValidMove_Pawn( const hoxMove& move );
 
-    hoxPieceInfo* _RecordMove(const hoxMove& move);
-    void _UndoMove(const hoxMove& move, hoxPieceInfo* pCaptured);
-    bool _CheckForOwnCheckmate( const hoxMove& move );
+    hoxPieceInfo* _RecordMove( const hoxMove& move );
+    void _UndoMove( const hoxMove& move, hoxPieceInfo* pCaptured );
+    bool _IsKingBeingChecked( hoxPieceColor color );
+    bool _IsKingFaceKing() const;
 
-    hoxPieceInfo* _GetPieceAt(const hoxPosition& position) const;
-    const hoxPieceInfo* _GetKing(hoxPieceColor color) const;
+    hoxPieceInfo* _GetPieceAt( const hoxPosition& position ) const;
+    const hoxPieceInfo* _GetKing( hoxPieceColor color ) const;
 
-  private:
+    // ---------- For End game.
+    bool _DoesNextMoveExist();
+    bool _DoesNextMoveExist_Piece( const hoxPieceInfo& pieceInfo );
+    bool _DoesNextMoveExist_King( const hoxPieceInfo& pieceInfo );
+    bool _DoesNextMoveExist_Advisor( const hoxPieceInfo& pieceInfo );
+    bool _DoesNextMoveExist_Elephant( const hoxPieceInfo& pieceInfo );
+    bool _DoesNextMoveExist_Horse( const hoxPieceInfo& pieceInfo );
+    bool _DoesNextMoveExist_Chariot( const hoxPieceInfo& pieceInfo );
+    bool _DoesNextMoveExist_Cannon( const hoxPieceInfo& pieceInfo );
+    bool _DoesNextMoveExist_Pawn( const hoxPieceInfo& pieceInfo );
+
+private:
     hoxPieceInfoList _pieceInfoList;
 
     hoxPieceColor    _nextColor;
