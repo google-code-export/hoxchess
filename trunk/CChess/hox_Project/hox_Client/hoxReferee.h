@@ -13,6 +13,11 @@
 #include "hoxEnums.h"
 #include "hoxTypes.h"
 
+namespace BoardAPI
+{
+   class Board;
+}
+
 class hoxReferee : public hoxIReferee
 {
 public:
@@ -63,6 +68,8 @@ private:
     bool _DoesNextMoveExist_Pawn( const hoxPieceInfo& pieceInfo );
 
 private:
+    BoardAPI::Board*  m_board;  /// Board-Info.
+
     hoxPieceInfoList _pieceInfoList;
 
     hoxPieceColor    _nextColor;
