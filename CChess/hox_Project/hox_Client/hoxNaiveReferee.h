@@ -15,7 +15,7 @@ class hoxNaiveReferee : public hoxIReferee
 {
   public:
     hoxNaiveReferee();
-    ~hoxNaiveReferee();
+    virtual ~hoxNaiveReferee();
 
     /*********************************
      * Override base class virtuals

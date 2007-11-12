@@ -2,6 +2,9 @@
 // Name:            hoxEnums.h
 // Program's Name:  Huy's Open Xiangqi
 // Created:         09/28/2007
+//
+// Description:     Containing basic constants commonly used through out 
+//                  the project.
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __INCLUDED_HOX_ENUMS_H_
@@ -37,14 +40,14 @@ enum hoxResult
 //
 enum hoxPieceType
 {
-  hoxPIECE_TYPE_INVALID = 0,
-  hoxPIECE_TYPE_KING,             // King (or General)
-  hoxPIECE_TYPE_ADVISOR,          // Advisor (or Guard, or Mandarin)
-  hoxPIECE_TYPE_ELEPHANT,         // Elephant (or Ministers)
-  hoxPIECE_TYPE_CHARIOT,          // Chariot ( Rook, or Car)
-  hoxPIECE_TYPE_HORSE,            // Horse ( Knight )
-  hoxPIECE_TYPE_CANNON,           // Canon
-  hoxPIECE_TYPE_PAWN              // Pawn (or Soldier)
+    hoxPIECE_TYPE_INVALID = 0,
+    hoxPIECE_TYPE_KING,             // King (or General)
+    hoxPIECE_TYPE_ADVISOR,          // Advisor (or Guard, or Mandarin)
+    hoxPIECE_TYPE_ELEPHANT,         // Elephant (or Ministers)
+    hoxPIECE_TYPE_CHARIOT,          // Chariot ( Rook, or Car)
+    hoxPIECE_TYPE_HORSE,            // Horse ( Knight )
+    hoxPIECE_TYPE_CANNON,           // Canon
+    hoxPIECE_TYPE_PAWN              // Pawn (or Soldier)
 };
 
 //
@@ -64,18 +67,31 @@ enum hoxPieceColor
 };
 
 //
+// Game's's status
+//
+enum hoxGameStatus
+{
+    hoxGAME_STATUS_UNKNOWN = -1,
+
+    hoxGAME_STATUS_IN_PROGRESS = 0,
+    hoxGAME_STATUS_RED_WIN,
+    hoxGAME_STATUS_BLACK_WIN,
+    hoxGAME_STATUS_DRAWN
+};
+
+//
 // Table's status
 //
 enum hoxTableStatus
 {
-  /*
-   * !!! Do not change the values nor orders of the following !!!
-   */
+   /*
+    * !!! Do not change the values nor orders of the following !!!
+    */
 
-  hoxTABLE_STATUS_OPEN = 0,  // Open but not enough player
-  hoxTABLE_STATUS_READY,   // Enough (2) players, waiting for 1st move
-  hoxTABLE_STATUS_IN_PROGRESS,  // At least 1 move has been made
-  hoxTABLE_STATUS_CLOSED
+    hoxTABLE_STATUS_OPEN = 0,  // Open but not enough player
+    hoxTABLE_STATUS_READY,   // Enough (2) players, waiting for 1st move
+    hoxTABLE_STATUS_IN_PROGRESS,  // At least 1 move has been made
+    hoxTABLE_STATUS_CLOSED
 };
 
 //
@@ -122,12 +138,12 @@ enum hoxPlayerType
 //
 enum hoxNetworkContant
 {
-  /*
-   * !!! Do not change the values nor orders of the following !!!
-   */
+   /*
+    * !!! Do not change the values nor orders of the following !!!
+    */
 
-  hoxNETWORK_MAX_MSG_SIZE         = (5 * 1024), // 5-KBytes buffer
-  hoxNETWORK_DEFAULT_SERVER_PORT  = 3000
+    hoxNETWORK_MAX_MSG_SIZE         = (5 * 1024), // 5-KByte buffer
+    hoxNETWORK_DEFAULT_SERVER_PORT  = 3000
 };
 
 //
@@ -135,12 +151,12 @@ enum hoxNetworkContant
 //
 enum hoxTimeContant
 {
-  /*
-   * !!! Do not change the values the following !!!
-   */
+   /*
+    * !!! Do not change the values the following !!!
+    */
 
-  hoxTIME_ONE_SECOND_INTERVAL     = 1000,   // 1 second
-  hoxTIME_DEFAULT_GAME_TIME       = 20*60   // 20 minutes
+    hoxTIME_ONE_SECOND_INTERVAL     = 1000,   // 1 second
+    hoxTIME_DEFAULT_GAME_TIME       = 20*60   // 20 minutes
 };
 
 //
@@ -148,21 +164,21 @@ enum hoxTimeContant
 //
 enum hoxSocketContant
 {
-  /*
-   * !!! Do not change the values the following !!!
-   */
+   /*
+    * !!! Do not change the values the following !!!
+    */
 
-  hoxSOCKET_CLIENT_SOCKET_TIMEOUT = 10,   // 10 seconds
+    hoxSOCKET_CLIENT_SOCKET_TIMEOUT = 10,   // 10 seconds
                 /* Timeout applied to client -> server connection */
 
-  hoxSOCKET_SERVER_ACCEPT_TIMEOUT = 5,    // 5 seconds
+    hoxSOCKET_SERVER_ACCEPT_TIMEOUT = 5,    // 5 seconds
                 /* Timeout applied to server-socket which is waiting  
                  * by wxSocketServer::Accept() for new incoming client 
                  * connections. This timeout is needed so that the server
                  * can process the SHUTDOWN request.
                  */
 
-  hoxSOCKET_CLIENT_HTTP_TIMEOUT = 5    // 5 seconds
+    hoxSOCKET_CLIENT_HTTP_TIMEOUT = 5    // 5 seconds
                 /* Timeout applied to HTTP client -> HTTP server connection */
 
 };

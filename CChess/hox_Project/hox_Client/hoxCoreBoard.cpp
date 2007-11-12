@@ -473,7 +473,8 @@ hoxCoreBoard::_OnPieceMoved( hoxPiece*          piece,
 }
 
 /**
- * Set a piece's position without validation (going through the referee).
+ * Set a piece's position without validation 
+ * (without going through the referee).
  */
 bool 
 hoxCoreBoard::MovePieceToPosition( hoxPiece*          piece, 

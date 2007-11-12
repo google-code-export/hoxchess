@@ -69,12 +69,12 @@ hoxPosition::IsInsidePalace(hoxPieceColor color) const
 bool 
 hoxPosition::IsInsideCountry(hoxPieceColor color) const 
 { 
-  if (color == hoxPIECE_COLOR_BLACK)
-  {
-    return (y >= 0 && y <= 4);
-  }
-  else  // Red?
-  {
-    return (y >= 5 && y <= 9);
-  }
+    if (color == hoxPIECE_COLOR_BLACK)
+    {
+        return (y >= 0 && y <= 4);
+    }
+    else  // Red?
+    {
+        return (y >= 5 && y <= 9);
+    }
 }
