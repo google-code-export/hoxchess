@@ -2,6 +2,8 @@
 // Name:            hoxPosition.h
 // Program's Name:  Huy's Open Xiangqi
 // Created:         09/28/2007
+//
+// Description:     Representing a Position on Board.
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __INCLUDED_HOX_POSITION_H_
@@ -11,26 +13,24 @@
 
 // hoxPosition
 
-class hoxPosition /* : public wxObject */
+class hoxPosition
 {
 public:
-  char x;
-  char y;
+    char x;
+    char y;
 
 public:
-  hoxPosition(char xx = -1, char yy = -1) : x(xx), y(yy) {}
-  hoxPosition(const hoxPosition& pos);
-  ~hoxPosition();
+    hoxPosition(char xx = -1, char yy = -1) : x(xx), y(yy) {}
+    hoxPosition(const hoxPosition& pos);
+    ~hoxPosition();
 
-  hoxPosition& operator=(const hoxPosition& pos);
-  bool operator==(const hoxPosition& pos) const;
-  bool operator!=(const hoxPosition& pos) const;
+    hoxPosition& operator=(const hoxPosition& pos);
+    bool operator==(const hoxPosition& pos) const;
+    bool operator!=(const hoxPosition& pos) const;
 
-// Operations
-
-  bool IsValid() const;
-  bool IsInsidePalace(hoxPieceColor color) const;
-  bool IsInsideCountry(hoxPieceColor color) const;
+    bool IsValid() const;
+    bool IsInsidePalace(hoxPieceColor color) const;
+    bool IsInsideCountry(hoxPieceColor color) const;
 };
 
 #endif /* __INCLUDED_HOX_POSITION_H_ */
