@@ -19,11 +19,6 @@ namespace hoxUtility
 
     hoxResult LoadPieceImage(hoxPieceType type, hoxPieceColor color, wxImage& image);
 
-    /**
-     * Create a brand new game by specifying the info of ALL pieces initially.
-     */
-    void CreateNewGameInfo( hoxPieceInfoList& pieceInfoList );
-
     void FreePieceInfoList( hoxPieceInfoList& pieceInfoList );
 
     /** 

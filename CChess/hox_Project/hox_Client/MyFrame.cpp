@@ -159,7 +159,7 @@ void MyFrame::OnAbout(wxCommandEvent& WXUNUSED(event) )
                     _("Welcome to HOX Chess!\n"
                       "\n"
                       "Author: Huy Phan (c) 2007\n"
-                      "Version: 0.0.2.0\n"
+                      "Version: 0.0.3.0\n"
                       "\n"
                       "This application is powered by %s, running under %s."),
                     wxVERSION_STRING,
