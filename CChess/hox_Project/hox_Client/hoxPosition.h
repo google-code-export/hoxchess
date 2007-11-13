@@ -3,7 +3,7 @@
 // Program's Name:  Huy's Open Xiangqi
 // Created:         09/28/2007
 //
-// Description:     Representing a Position on Board.
+// Description:     Representing a Position of Piece on Board.
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __INCLUDED_HOX_POSITION_H_

@@ -11,8 +11,8 @@
 #include <algorithm>  // std::find
 
 //************************************************************
-//
-//     0     1    2    3    4    5    6    7    8
+//                          BLACK
+//        0     1    2    3    4    5    6    7    8
 //
 //      +--------------+==============+--------------+
 //  0   |  0 |  1 |  2 #  3 |  4 |  5 #  6 |  7 |  8 |
@@ -36,6 +36,8 @@
 //  9   | 81 | 82 | 83 # 84 | 85 | 86 # 87 | 88 | 89 | 
 //      +--------------+==============+--------------+
 //
+//        0     1    2    3    4    5    6    7    8
+//                           RED
 //************************************************************
 
 namespace BoardInfoAPI
@@ -52,6 +54,10 @@ namespace BoardInfoAPI
 
     /* ----- */
 
+    /**
+     * The generic Piece from which other specific Pieces (King, Pawn,...)
+     * base on.  
+     */
     class Piece
     {
     public:
@@ -72,10 +78,16 @@ namespace BoardInfoAPI
         void SetPosition( const hoxPosition& pos ) { m_info.position = pos; }
         void SetBoard(Board* board) { m_board = board; }
 
-        virtual bool IsValidMove(const hoxPosition& newPos) const = 0;
+        virtual bool IsValidMove(const hoxPosition& newPos) const;
         virtual bool DoesNextMoveExist() const;
 
+        bool HasColor( hoxPieceColor c ) const { return (m_info.color == c); }
+        bool HasType(  hoxPieceType  t ) const { return (m_info.type  == t); }
+        bool HasSameColumnAs( const Piece& other ) const
+            { return (m_info.position.x == other.m_info.position.x); }
+
     protected:
+        virtual bool CanMoveTo(const hoxPosition& newPos) const = 0;
         virtual void GetPotentialNextPositions(PositionList& positions) const {} // FIXME
 
     public: /* Static Public API */ 
@@ -86,69 +98,93 @@ namespace BoardInfoAPI
         Board*        m_board;
     };
 
+    /** 
+     * KING Piece 
+     */
     class KingPiece : public Piece
     {
     public:
         KingPiece(hoxPieceColor c, const hoxPosition& p) 
             : Piece(hoxPIECE_TYPE_KING, c, p) {}
-        virtual bool IsValidMove(const hoxPosition& newPos) const;
+        virtual bool CanMoveTo(const hoxPosition& newPos) const;
         virtual void GetPotentialNextPositions(PositionList& positions) const;
     };
 
+    /** 
+     * ADVISOR Piece 
+     */
     class AdvisorPiece : public Piece
     {
     public:
         AdvisorPiece(hoxPieceColor c, const hoxPosition& p) 
             : Piece(hoxPIECE_TYPE_ADVISOR, c, p) {}
-        virtual bool IsValidMove(const hoxPosition& newPos) const;
+        virtual bool CanMoveTo(const hoxPosition& newPos) const;
         virtual void GetPotentialNextPositions(PositionList& positions) const;
     };
 
+    /** 
+     * ELEPHANT Piece 
+     */
     class ElephantPiece : public Piece
     {
     public:
         ElephantPiece(hoxPieceColor c, const hoxPosition& p) 
             : Piece(hoxPIECE_TYPE_ELEPHANT, c, p) {}
-        virtual bool IsValidMove(const hoxPosition& newPos) const;
+        virtual bool CanMoveTo(const hoxPosition& newPos) const;
         virtual void GetPotentialNextPositions(PositionList& positions) const;
     };
 
+    /** 
+     * CHARIOT Piece 
+     */
     class ChariotPiece : public Piece
     {
     public:
         ChariotPiece(hoxPieceColor c, const hoxPosition& p) 
             : Piece(hoxPIECE_TYPE_CHARIOT, c, p) {}
-        virtual bool IsValidMove(const hoxPosition& newPos) const;
+        virtual bool CanMoveTo(const hoxPosition& newPos) const;
         virtual void GetPotentialNextPositions(PositionList& positions) const;
     };
 
+    /** 
+     * HORSE Piece 
+     */
     class HorsePiece : public Piece
     {
     public:
         HorsePiece(hoxPieceColor c, const hoxPosition& p) 
             : Piece(hoxPIECE_TYPE_HORSE, c, p) {}
-        virtual bool IsValidMove(const hoxPosition& newPos) const;
+        virtual bool CanMoveTo(const hoxPosition& newPos) const;
         virtual void GetPotentialNextPositions(PositionList& positions) const;
     };
 
+    /** 
+     * CANNON Piece 
+     */
     class CannonPiece : public Piece
     {
     public:
         CannonPiece(hoxPieceColor c, const hoxPosition& p) 
             : Piece(hoxPIECE_TYPE_CANNON, c, p) {}
-        virtual bool IsValidMove(const hoxPosition& newPos) const;
+        virtual bool CanMoveTo(const hoxPosition& newPos) const;
         virtual void GetPotentialNextPositions(PositionList& positions) const;
     };
 
+    /** 
+     * PAWN Piece 
+     */
     class PawnPiece : public Piece
     {
     public:
         PawnPiece(hoxPieceColor c, const hoxPosition& p) 
             : Piece(hoxPIECE_TYPE_PAWN, c, p) {}
-        virtual bool IsValidMove(const hoxPosition& newPos) const;
+        virtual bool CanMoveTo(const hoxPosition& newPos) const;
         virtual void GetPotentialNextPositions(PositionList& positions) const;
     };
 
+    /** 
+     * A single Cell in the 9x10 Xiangqi Board.
+     */
     class Cell
     {
     public:
@@ -163,6 +199,9 @@ namespace BoardInfoAPI
         bool IsEmpty() { return ( pPiece == NULL ); }    
     };
 
+    /** 
+     * The none-UI Board helping the referee to keep the game's state. 
+     */
     class Board
     {
     public:
@@ -180,13 +219,9 @@ namespace BoardInfoAPI
                                  hoxPieceInfo&      pieceInfo ) const;
 
         // ------------ Other Public API -------
-        bool IsValidMove(const hoxMove& move);
-        bool Simulation_IsValidMove(const hoxMove& move);
-
+        bool   Simulation_IsValidMove(const hoxMove& move);
         Piece* GetPieceAt( const hoxPosition& position ) const;
         bool   HasPieceAt( const hoxPosition& position ) const;
-        bool   IsValidCapture( hoxPieceColor      myColor, 
-                               const hoxPosition& newPos );
 
     private:
         void         _CreateNewGame();
@@ -204,10 +239,10 @@ namespace BoardInfoAPI
         void         _UndoMove( const hoxMove& move, Piece* pCaptured );
 
         const Piece* _GetKing(hoxPieceColor color) const;
-        bool         _IsKingBeingChecked(hoxPieceColor color);
+        bool         _IsKingBeingChecked(hoxPieceColor color) const;
         bool         _IsKingFaceKing() const;
 
-        bool         _DoesNextMoveExist();
+        bool         _DoesNextMoveExist() const;
 
     private:
         PieceList      m_pieces;       // ACTIVE pieces
@@ -218,9 +253,15 @@ namespace BoardInfoAPI
             /* Which side (RED or BLACK) will move next? */
     };
 
+    /*********************
+     * Other utility API *
+     *********************/
 
-    /* Other utility API */
-
+    /** 
+     * NOTE: This function is an example where we may want to consider using
+     *       the 'smart' shared pointer (specifically, a shared-array pointer)
+     *       such as that from Boost Libraries.
+     */
     void PositionList_Clear( PositionList& positions );
 
 } // namespace BoardInfoAPI
@@ -233,7 +274,7 @@ using namespace BoardInfoAPI;
 
 
 //-----------------------------------------------------------------------------
-// API Definitions
+// Board
 //-----------------------------------------------------------------------------
 
 
@@ -241,9 +282,9 @@ Board::Board( hoxPieceColor nextColor /* = hoxPIECE_COLOR_NONE */ )
         : m_nextColor( nextColor )
 {
     /* Initialize Piece-Cells. */
-    for ( int x = 0; x <= 8; ++x )
+    for ( int x = 0; x <= 8; ++x ) // horizontal
     {
-        for ( int y = 0; y <= 9; ++y )
+        for ( int y = 0; y <= 9; ++y ) // vertical
         {
             m_cells[x][y].pPiece = NULL;
             m_cells[x][y].position = hoxPosition(-1,-1);
@@ -452,7 +493,7 @@ Board::HasPieceAt( const hoxPosition& position ) const
  * Put a brand new piece on Board.
  */
 void
-Board::_AddNewPiece(Piece* piece)
+Board::_AddNewPiece( Piece* piece )
 {
     wxCHECK_RET(piece, "Piece is NULL.");
 
@@ -464,7 +505,7 @@ Board::_AddNewPiece(Piece* piece)
  * Put a piece on Board.
  */
 void
-Board::_AddPiece(Piece* piece)
+Board::_AddPiece( Piece* piece )
 {
     wxCHECK_RET(piece, "Piece is NULL.");
 
@@ -473,7 +514,7 @@ Board::_AddPiece(Piece* piece)
 }
 
 void 
-Board::_PutbackPiece(Piece* piece)
+Board::_PutbackPiece( Piece* piece )
 {
     PieceList::iterator found =
         std::find( m_deadPieces.begin(), m_deadPieces.end(), piece );
@@ -526,19 +567,20 @@ Board::_UndoMove( const hoxMove& move,
 
 // Get the King of a given color.
 const Piece*
-Board::_GetKing(hoxPieceColor color) const
+Board::_GetKing( hoxPieceColor color ) const
 {
     for ( PieceList::const_iterator it = m_pieces.begin(); 
                                     it != m_pieces.end(); 
                                   ++it )
     {
-        if (    (*it)->GetType() == hoxPIECE_TYPE_KING 
-             && (*it)->GetColor() == color )
+        if (    (*it)->HasType( hoxPIECE_TYPE_KING ) 
+             && (*it)->HasColor( color ) )
         {
             return (*it);
         }
     }
 
+    wxFAIL_MSG( "A King of any color should exist." );
     return NULL;
 }
 
@@ -546,13 +588,13 @@ Board::_GetKing(hoxPieceColor color) const
 // @return true if the King is being checked.
 //         false, otherwise.
 bool 
-Board::_IsKingBeingChecked( hoxPieceColor color )
+Board::_IsKingBeingChecked( hoxPieceColor color ) const
 {
-  // Check if this move results in one's own-checkmate.
-  // This is done as follows:
-  //  + For each piece of the 'enemy', check if the king's position
-  //    is one of its valid move.
-  //
+    /* Check if this move results in one's own-checkmate.
+     * This is done as follows:
+     *  + For each piece of the 'enemy', check if the king's position
+     *    is one of its valid move.
+     */
 
     const Piece* pKing = _GetKing( color );
     wxASSERT_MSG( pKing != NULL, "King must not be NULL" );
@@ -560,16 +602,14 @@ Board::_IsKingBeingChecked( hoxPieceColor color )
     for ( PieceList::const_iterator it = m_pieces.begin(); 
                                     it != m_pieces.end(); ++it )
     {
-        if ( (*it)->GetColor() != color )  // enemy?
+        if (    ( ! (*it)->HasColor( color ) )  // enemy?
+             && (*it)->IsValidMove( pKing->GetPosition() ) )
         {
-            if ( (*it)->IsValidMove( pKing->GetPosition() ) )
-            {
-                return true;
-            }
+            return true;
         }
     }
 
-  return false;  // Not in "checked" position.
+    return false;  // Not in "checked" position.
 }
 
 // Check if one king is facing another.
@@ -582,10 +622,8 @@ Board::_IsKingFaceKing() const
     const Piece* redKing = _GetKing( hoxPIECE_COLOR_RED );
     wxASSERT_MSG( redKing != NULL, "Red King must not be NULL" );
 
-    if ( blackKing->GetPosition().x != redKing->GetPosition().x ) // not the same column.
-    {
+    if ( ! blackKing->HasSameColumnAs( *redKing ) ) // not the same column.
         return false;  // Not facing
-    }
 
     // If they are in the same column, check if there is any piece in between.
     for ( PieceList::const_iterator it = m_pieces.begin(); 
@@ -595,17 +633,15 @@ Board::_IsKingFaceKing() const
         if ( (*it) == blackKing || (*it) == redKing )
             continue;
 
-        if ( (*it)->GetPosition().x == blackKing->GetPosition().x )  // in between?
-        {
+        if ( (*it)->HasSameColumnAs( *redKing ) )  // in between Kings?
             return false;  // Not facing
-        }
     }
 
-    return true;  // Not facing
+    return true;  // Facing
 }
 
 bool
-Board::ValidateMove(const hoxMove& move)
+Board::ValidateMove( const hoxMove& move )
 {
     /* Check for 'turn' */
 
@@ -614,7 +650,11 @@ Board::ValidateMove(const hoxMove& move)
 
     /* Perform a basic validation */
 
-    if ( ! this->IsValidMove( move ) )
+    Piece* piece = this->GetPieceAt( move.piece.position );
+    if ( piece == NULL )
+        return false;
+
+    if ( ! piece->IsValidMove( move.newPosition ) )
         return false;
 
     /* At this point, the Move is valid.
@@ -623,7 +663,7 @@ Board::ValidateMove(const hoxMove& move)
 
     Piece* pCaptured = _RecordMove( move );
 
-    /* If the Move ends up results in its own check-mate OR
+    /* If the Move results in its own check-mate OR
      * there is a KING-face-KING problem...
      * then it is invalid and must be undone.
      */
@@ -633,8 +673,6 @@ Board::ValidateMove(const hoxMove& move)
         _UndoMove(move, pCaptured);
         return false;
     }
-
-    //delete pCaptured; // TODO: Should use some kind of smart pointer here?
 
     /* Set the next-turn. */
     m_nextColor = ( m_nextColor == hoxPIECE_COLOR_RED 
@@ -646,7 +684,7 @@ Board::ValidateMove(const hoxMove& move)
      *   Checking if this Move makes the Move's Player
      *   the winner of the game. The step is done by checking to see if the
      *   opponent can make ANY valid Move at all.
-     *   If no, then the opponent has just lost the game.
+     *   If not, then the opponent has just lost the game.
      */
 
     if ( ! _DoesNextMoveExist() )
@@ -657,23 +695,11 @@ Board::ValidateMove(const hoxMove& move)
     return true;
 }
 
-bool 
-Board::IsValidMove( const hoxMove& move )
-{
-    hoxPosition curPos = move.piece.position; // current position
-    Piece* piece = this->GetPieceAt( curPos );
-    if (piece == NULL)
-        return false;
-
-    return piece->IsValidMove( move.newPosition );
-}
-
 bool
 Board::Simulation_IsValidMove( const hoxMove& move )
 {
-    hoxPosition curPos = move.piece.position; // current position
-    Piece* piece = this->GetPieceAt( curPos );
-    if (piece == NULL)
+    Piece* piece = this->GetPieceAt( move.piece.position );
+    if ( piece == NULL )
         return false;
 
     if ( ! piece->IsValidMove( move.newPosition ) )
@@ -700,14 +726,18 @@ Board::Simulation_IsValidMove( const hoxMove& move )
 }
 
 bool 
-Board::_DoesNextMoveExist()
+Board::_DoesNextMoveExist() const
 {
+    /* Go through all Pieces of the 'next' color.
+     * If any piece can move 'next', then Board can as well.
+     */
+
     for ( PieceList::const_iterator it = m_pieces.begin(); 
                                     it != m_pieces.end(); ++it )
     {
-        if ( (*it)->GetColor() == m_nextColor )
+        if (    (*it)->HasColor( m_nextColor )
+             && (*it)->DoesNextMoveExist() )
         {
-            if ( (*it)->DoesNextMoveExist() )
                 return true;
         }
     }
@@ -715,22 +745,22 @@ Board::_DoesNextMoveExist()
     return false;
 }
 
-/**
- * If the given Move (piece -> newPosition) results in a piece 
- * being captured, then make sure that the captured piece is of
- * an 'enemy'.
- *
- * @return false - If a piece would be captured and NOT an 'enemy'.
- *         true  - If no piece would be captured OR the would-be-capured
- *                 piece is an 'enemy'.
- */
+//-----------------------------------------------------------------------------
+// Piece
+//-----------------------------------------------------------------------------
+
 bool 
-Board::IsValidCapture( hoxPieceColor      myColor, 
-                       const hoxPosition& newPos )
+Piece::IsValidMove( const hoxPosition& newPos ) const
 {
-    const Piece* capturedPiece = this->GetPieceAt(newPos);
+    if ( ! this->CanMoveTo( newPos ) )
+        return false;
+
+    /* If this is an Capture-Move, make sure the captured piece 
+     * is an 'enemy'. 
+     */
+    const Piece* capturedPiece = m_board->GetPieceAt( newPos );
     if (   capturedPiece != NULL 
-        && capturedPiece->GetColor() == myColor )
+        && capturedPiece->HasColor( m_info.color ) )
     {
         return false; // Capture your OWN piece! Not legal.
     }
@@ -753,11 +783,8 @@ Piece::DoesNextMoveExist() const
      * actually move there. 
      */
 
-    const hoxPieceInfo pieceInfo( this->GetType(), 
-                                  this->GetColor(), 
-                                  this->GetPosition() );
     hoxMove move;
-    move.piece = pieceInfo;
+    move.piece = this->m_info;
 
     for ( PositionList::const_iterator it = positions.begin();
                                        it != positions.end(); ++it )
@@ -779,8 +806,12 @@ Piece::DoesNextMoveExist() const
     return nextMoveExits;
 }
 
+//-----------------------------------------------------------------------------
+// KingPiece
+//-----------------------------------------------------------------------------
+
 bool 
-KingPiece::IsValidMove(const hoxPosition& newPos) const
+KingPiece::CanMoveTo( const hoxPosition& newPos ) const
 {
     const hoxPieceColor myColor = m_info.color;
     const hoxPosition   curPos = m_info.position;
@@ -790,15 +821,13 @@ KingPiece::IsValidMove(const hoxPosition& newPos) const
         return false;
 
     // Is a 1-cell horizontal or vertical move?
-    if (! (  (abs(newPos.x - curPos.x) == 1 && newPos.y == curPos.y)
-        ||   (newPos.x == curPos.x && abs(newPos.y - curPos.y) == 1)) )
+    if ( ! (   (abs(newPos.x - curPos.x) == 1 && newPos.y == curPos.y)
+            || (newPos.x == curPos.x && abs(newPos.y - curPos.y) == 1)) )
     {
         return false;
     }
 
-    // If this is capture-move, make sure the captured piece is an 'enemy'.
-    if ( ! m_board->IsValidCapture(myColor, newPos) )
-        return false;
+    // NOTE: The caller will check if the captured piece (if any) is allowed.
 
     return true;
 }
@@ -817,8 +846,12 @@ KingPiece::GetPotentialNextPositions(PositionList& positions) const
     positions.push_back( new hoxPosition(p.x+1, p.y) );
 }
 
+//-----------------------------------------------------------------------------
+// AdvisorPiece
+//-----------------------------------------------------------------------------
+
 bool 
-AdvisorPiece::IsValidMove(const hoxPosition& newPos) const
+AdvisorPiece::CanMoveTo( const hoxPosition& newPos ) const
 {
     const hoxPieceColor myColor = m_info.color;
     const hoxPosition   curPos = m_info.position;
@@ -831,9 +864,7 @@ AdvisorPiece::IsValidMove(const hoxPosition& newPos) const
     if (! (abs(newPos.x - curPos.x) == 1 && abs(newPos.y - curPos.y) == 1) )
         return false;
 
-    // If this is capture-move, make sure the captured piece is an 'enemy'.
-    if ( ! m_board->IsValidCapture(myColor, newPos) )
-        return false;
+    // NOTE: The caller will check if the captured piece (if any) is allowed.
 
     return true;
 
@@ -853,8 +884,12 @@ AdvisorPiece::GetPotentialNextPositions(PositionList& positions) const
     positions.push_back(new hoxPosition(p.x+1, p.y+1));
 }
 
+//-----------------------------------------------------------------------------
+// ElephantPiece
+//-----------------------------------------------------------------------------
+
 bool 
-ElephantPiece::IsValidMove(const hoxPosition& newPos) const
+ElephantPiece::CanMoveTo( const hoxPosition& newPos ) const
 {
     const hoxPieceColor myColor = m_info.color;
     const hoxPosition   curPos = m_info.position;
@@ -872,9 +907,7 @@ ElephantPiece::IsValidMove(const hoxPosition& newPos) const
     if ( m_board->HasPieceAt(centerPos) )
         return false;
 
-    // If this is capture-move, make sure the captured piece is an 'enemy'.
-    if ( ! m_board->IsValidCapture(myColor, newPos) )
-        return false;
+    // NOTE: The caller will check if the captured piece (if any) is allowed.
 
     return true;
 }
@@ -893,8 +926,12 @@ ElephantPiece::GetPotentialNextPositions(PositionList& positions) const
     positions.push_back(new hoxPosition(p.x+2, p.y+2));
 }
 
+//-----------------------------------------------------------------------------
+// ChariotPiece
+//-----------------------------------------------------------------------------
+
 bool 
-ChariotPiece::IsValidMove(const hoxPosition& newPos) const
+ChariotPiece::CanMoveTo( const hoxPosition& newPos ) const
 {
     const hoxPieceColor myColor = m_info.color;
     const hoxPosition   curPos = m_info.position;
@@ -962,9 +999,9 @@ ChariotPiece::IsValidMove(const hoxPosition& newPos) const
     }
 
     // Check that no middle pieces exist from the new to the current position.
-    for ( PositionList::iterator it = middlePieces.begin();
-                                 it != middlePieces.end();
-                               ++it )
+    for ( PositionList::const_iterator it = middlePieces.begin();
+                                       it != middlePieces.end();
+                                     ++it )
     {
         if ( m_board->HasPieceAt( *(*it) ) )
         {
@@ -972,9 +1009,7 @@ ChariotPiece::IsValidMove(const hoxPosition& newPos) const
         }
     }
 
-    // If this is capture-move, make sure the captured piece is an 'enemy'.
-    if ( ! m_board->IsValidCapture(myColor, newPos) )
-        goto cleanup;  // return with 'invalid' move
+    // NOTE: The caller will check if the captured piece (if any) is allowed.
 
     // Finally, return 'valid' move.
     bIsValidMove = true;
@@ -1009,8 +1044,12 @@ ChariotPiece::GetPotentialNextPositions(PositionList& positions) const
     }
 }
 
+//-----------------------------------------------------------------------------
+// HorsePiece
+//-----------------------------------------------------------------------------
+
 bool 
-HorsePiece::IsValidMove(const hoxPosition& newPos) const
+HorsePiece::CanMoveTo( const hoxPosition& newPos ) const
 {
     const hoxPieceColor myColor = m_info.color;
     const hoxPosition   curPos = m_info.position;
@@ -1062,9 +1101,7 @@ HorsePiece::IsValidMove(const hoxPosition& newPos) const
     if ( m_board->HasPieceAt( neighbor ) ) 
         return false;
 
-    // If this is capture-move, make sure the captured piece is an 'enemy'.
-    if ( ! m_board->IsValidCapture(myColor, newPos) )
-        return false;
+    // NOTE: The caller will check if the captured piece (if any) is allowed.
 
     return true;
 }
@@ -1087,8 +1124,12 @@ HorsePiece::GetPotentialNextPositions(PositionList& positions) const
     positions.push_back(new hoxPosition(p.x+2, p.y+1));
 }
 
+//-----------------------------------------------------------------------------
+// CannonPiece
+//-----------------------------------------------------------------------------
+
 bool 
-CannonPiece::IsValidMove(const hoxPosition& newPos) const
+CannonPiece::CanMoveTo( const hoxPosition& newPos ) const
 {
     const hoxPieceColor myColor = m_info.color;
     const hoxPosition   curPos = m_info.position;
@@ -1221,8 +1262,12 @@ CannonPiece::GetPotentialNextPositions(PositionList& positions) const
     }
 }
 
+//-----------------------------------------------------------------------------
+// PawnPiece
+//-----------------------------------------------------------------------------
+
 bool 
-PawnPiece::IsValidMove(const hoxPosition& newPos) const
+PawnPiece::CanMoveTo( const hoxPosition& newPos ) const
 {
     const hoxPieceColor myColor = m_info.color;
     const hoxPosition   curPos = m_info.position;
@@ -1259,9 +1304,7 @@ PawnPiece::IsValidMove(const hoxPosition& newPos) const
     if ( ! bMoveValid )
         return false;
 
-    // If this is capture-move, make sure the captured piece is an 'enemy'.
-    if ( ! m_board->IsValidCapture(myColor, newPos) )
-        return false;
+    // NOTE: The caller will check if the captured piece (if any) is allowed.
 
     return true;
 }
