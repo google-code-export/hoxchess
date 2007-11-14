@@ -16,8 +16,9 @@ Starting from version *0.0.3.0*, the project can run under Windows and Linux, th
       * Visual C++ 2005 Express Edition
       * Microsoft Platform SDK
     * Under Linux
-      * [http://www.centos.org/ CentOS] 4.5 using Eclipse CDT 3.3, or
-      * [http://www.ubuntu.com/ Ubuntu] 7.10 using [http://www.kdevelop.org KDevelop] 3.5 (as an Automake based project).
+      * Any Linux distribution that has _g++_ and _make_ package. I have tried on the following:
+        * [http://www.centos.org/ CentOS] 4.5 using Eclipse CDT 3.3, or
+        * [http://www.ubuntu.com/ Ubuntu] 7.10 using [http://www.kdevelop.org KDevelop] 3.5 (as custom project or as an Automake based project).
 
 == Detailed Instructions under Window ==
   * wxWidgets: Put the libaries and headers under _C:\wxMSW-2.8.6_
