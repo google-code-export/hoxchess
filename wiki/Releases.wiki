@@ -2,6 +2,11 @@
 
 = Releases =
 
+  * *November 14, 2007* 
+    * Release the third version *0.0.3.0* of the source code.
+    * Mostly, this release includes GNUv3 Copyright notices.
+    * Also, the archive includes a simple Linux Makefile.
+
   * *November 10, 2007* 
     * Release the second version *0.0.2.0* of the source code.
     * The version of source code can _also_ be compiled under Linux.
