@@ -32,7 +32,9 @@ Starting from version *0.0.2.0* (released on Nov 10, 2007), the project can be b
       * Once the _hoxchess_ executable file is built, run it as follows:
         * LD_LIBRARY_PATH=<_path_to_wxWidgets_libs_> ./hoxchess
           * For example: LD_LIBRARY_PATH=/opt/wxGTK-2.8.6/lib ./hoxchess
-    * I also created an KDevelop project _CChess/hox_Project/hox_Project.kdevelop_
+  * *Note* : 
+    * For those who develop in KDevelop, I also created an KDevelop project _CChess/hox_Project/hox_Project.kdevelop_
+    * This project file is simply a wrapper of the _Makefile_ mentioned above.
 
 == Detailed Instructions under Eclipse in Linux ==
   * For [http://www.eclipse.org/cdt/ Eclipse C++ (CDT)], you need to create a new project yourself.
