@@ -4,7 +4,7 @@
 == Introduction ==
 
 This page contains instructions on how to build [http://hoxchess.googlecode.com/ HOXChess] based on the _latest_ version of the source code.
-The page's content is solely based on my experience working on the project.
+The page's content is based solely on my experience working on the project.
 
 == Requirements ==
 Starting from version *0.0.2.0* (released on Nov 10, 2007), the project can be built under Windows and Linux, thanks to the cross platform portability of [http://www.wxwidgets.org wxWidgets].
