@@ -9,7 +9,7 @@
 #ifndef __INCLUDED_HOX_CORE_BOARD_H_
 #define __INCLUDED_HOX_CORE_BOARD_H_
 
-#include "wx/wx.h"
+#include <wx/wx.h>
 
 // Under Windows, change this to 1
 // to use wxGenericDragImage
@@ -20,10 +20,10 @@
 #include "wx/generic/dragimgg.h"
 #define wxDragImage wxGenericDragImage
 #else
-#include "wx/dragimag.h"
+#include <wx/dragimag.h>
 #endif
 
-#include "wx/image.h"
+#include <wx/image.h>
 
 #include <list>
 #include "hoxPiece.h"
@@ -53,6 +53,7 @@ typedef std::list<hoxPiece*> hoxPieceList;
 class hoxCoreBoard : public wxPanel
 {
 public:
+    hoxCoreBoard(); // Dummy default constructor required for RTTI info.
     hoxCoreBoard( wxWindow*      parent,
                   hoxIReferee*   referee = new hoxNaiveReferee(),
                   const wxPoint& pos = wxDefaultPosition, 
@@ -138,20 +139,21 @@ private:
     void _OnPieceMoved(hoxPiece* piece, const hoxPosition& newPos);
 
 
-    void   DrawBoard(wxDC& dc);
-    void   DrawWorkSpace( wxDC& dc );
-    void   DrawAllPieces(wxDC& dc);
-    bool   DrawPiece(wxDC& dc, const hoxPiece* piece, int op = wxCOPY);
-    bool   DrawPiece(const hoxPiece* piece, int op = wxCOPY); 
-    wxRect GetPieceRect(const hoxPiece* piece) const;
+    void   _DrawBoard(wxDC& dc);
+    void   _DrawWorkSpace( wxDC& dc );
+    void   _DrawAllPieces(wxDC& dc);
+    bool   _DrawPiece(const hoxPiece* piece, int op = wxCOPY);
+    bool   _DrawPiece(wxDC& dc, const hoxPiece* piece, int op = wxCOPY);
+    wxRect _GetPieceRect(const hoxPiece* piece) const;
 
-    void      DoPaint(wxDC& dc);
-    void      ErasePiece(hoxPiece* piece, wxDC& dc);
-    void      ClearPieces();
-    hoxPiece* FindPiece(const wxPoint& pt) const;
-    wxPoint   GetPiecePosition(const hoxPiece* piece) const;
-    bool      PieceHitTest(const hoxPiece* piece, const wxPoint& pt) const;
-    hoxPosition PointToPosition(const hoxPiece* piece, const wxPoint& p) const;
+    void      _DoPaint(wxDC& dc);
+    void      _ErasePiece(hoxPiece* piece);
+    void      _ErasePieceWithDC(hoxPiece* piece, wxDC& dc);
+    void      _ClearPieces();
+    hoxPiece* _FindPiece(const wxPoint& pt) const;
+    wxPoint   _GetPieceLocation(const hoxPiece* piece) const;
+    bool      _PieceHitTest(const hoxPiece* piece, const wxPoint& pt) const;
+    hoxPosition _PointToPosition(const hoxPiece* piece, const wxPoint& p) const;
 
 
 private:
@@ -177,7 +179,7 @@ private:
     hoxPiece*       m_latestPiece; // piece that last moved.
 
 
-    DECLARE_CLASS(hoxCoreBoard)
+    DECLARE_DYNAMIC_CLASS(hoxCoreBoard)
     DECLARE_EVENT_TABLE()
 };
 

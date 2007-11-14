@@ -2,12 +2,14 @@
 // Name:            hoxPiece.h
 // Program's Name:  Huy's Open Xiangqi
 // Created:         09/28/2007
+//
+// Description:     The UI Piece.
 /////////////////////////////////////////////////////////////////////////////
 
-#include "wx/wx.h"
-
+#include <wx/wx.h>
+#if 0
 // Under Windows, change this to 1 to use wxGenericDragImage
-#define wxUSE_GENERIC_DRAGIMAGE 1
+//#define wxUSE_GENERIC_DRAGIMAGE 1
 
 #if wxUSE_GENERIC_DRAGIMAGE
   #include "wx/generic/dragimgg.h"
@@ -15,47 +17,32 @@
 #else
   #include "wx/dragimag.h"
 #endif
+#endif
+#include <wx/image.h>
 
-#include "wx/image.h"
-
+#include "hoxPiece.h"
 #include "hoxEnums.h"
 #include "hoxUtility.h"
 #include "hoxPosition.h"
-#include "hoxPiece.h"
 
 // -----------------------------------------------------------------------
 // hoxPiece
 // -----------------------------------------------------------------------
 
-hoxPiece::hoxPiece( hoxPieceType       type, 
-                    hoxPieceColor      color,
-                    const hoxPosition& position )
-            : m_type( type )
-            , m_color( color )
-            , m_position( position ) 
+hoxPiece::hoxPiece( const hoxPieceInfo& info )
+            : m_info( info )
             , m_active( true )
             , m_show( true )
             , m_latest( false )
 {
-    // Load bitmap based on piece-type.
     wxImage image;
 
-    if ( hoxUtility::LoadPieceImage(m_type, m_color, image) == hoxRESULT_OK )
+    if ( hoxRESULT_OK == hoxUtility::LoadPieceImage( m_info.type, 
+                                                     m_info.color, 
+                                                     image ) )
     {
         m_bitmap = wxBitmap(image);
     }
-}
-
-// Copy constructor
-hoxPiece::hoxPiece(const hoxPiece& piece)
-{
-    m_pos = piece.m_pos;
-    // *** No need to copy bitmap;
-    m_active = piece.m_active;
-    m_show = piece.m_show;
-    m_type = piece.m_type;
-    m_color = piece.m_color;
-    m_position = piece.m_position;
 }
 
 hoxPiece::~hoxPiece()
@@ -63,56 +50,19 @@ hoxPiece::~hoxPiece()
   // ... Doing nothing for now.
 }
 
-bool hoxPiece::Draw(wxDC& dc, const wxPoint& pos, int op) const
-{
-  if (m_bitmap.Ok())
-  {
-    wxMemoryDC memDC;
-    memDC.SelectObject( const_cast<hoxPiece*>(this)->m_bitmap);
-
-    dc.Blit( pos.x, pos.y, 
-             m_bitmap.GetWidth(), m_bitmap.GetHeight(),
-             &memDC, 0, 0, op, true);
-
-    // Highlight the piece, if required.
-    if ( m_latest )
+bool 
+hoxPiece::SetPosition(const hoxPosition& pos) 
+{ 
+    if ( pos.IsValid() )
     {
-      dc.SetPen(*wxCYAN);
-      int delta = 4;
-      int x = pos.x + delta;
-      int y = pos.y + delta;
-      int w = m_bitmap.GetWidth() - 2*delta;
-      int h = m_bitmap.GetHeight() - 2*delta;
-      dc.DrawLine( x, y, x + w, y);
-      dc.DrawLine( x + w, y, x + w, y + h);
-      dc.DrawLine( x + w, y + h, x, y + h);
-      dc.DrawLine( x, y + h, x, y);
+        m_info.position = pos;
+        return true;
     }
-
-    return true;
-  }
-
-  return false;
-}
-
-bool hoxPiece::SetPosition(const hoxPosition& pos) 
-{ 
-  if ( pos.IsValid() )
-  {
-    m_position = pos;
-    return true;
-  }
-  return false;
-}
-
-
-const hoxPosition& hoxPiece::GetPosition() const 
-{ 
-  return m_position;
+    return false;
 }
 
 bool 
 hoxPiece::IsInsidePalace() const 
 { 
-  return m_position.IsInsidePalace(m_color);
+    return m_info.position.IsInsidePalace( m_info.color);
 }
