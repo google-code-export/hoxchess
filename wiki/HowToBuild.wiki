@@ -39,7 +39,7 @@ Starting from version *0.0.2.0* (released on Nov 10, 2007), the project can be b
 == Detailed Instructions under Eclipse in Linux ==
   * For [http://www.eclipse.org/cdt/ Eclipse C++ (CDT)], you need to create a new project yourself.
     * Add all the source code (.h and .cpp) files to the your new project.
-    * Adjust the C++ compiler's setting based on the output of wx-config program.
+    * Adjust the Eclipse' s C++ compiler's setting (such as _--cppflags_ and _--libs_) based on the output of wxWidgets' s *wx-config* program.
   * *Note* : 
     * So far, I could not install Eclipse 3.3 on my Ubuntu 7.10 based laptop, only on my CentOS 4.5 based desktop could I successfully install this new version of Eclipse.
     * There is some work to be done... but the source code should be built as is if you can manage to install Eclipse CDT 4.0 or later.
