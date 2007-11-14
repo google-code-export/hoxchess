@@ -7,13 +7,14 @@ This page contains instructions on how to build [http://hoxchess.googlecode.com/
 The page's content is solely based on my experience working on the project.
 
 == Requirements ==
-Starting from version *0.0.2.0*, the project can run under Windows and Linux, thanks to the cross platform portability of [http://www.wxwidgets.org wxWidgets].
+Starting from version *0.0.3.0*, the project can run under Windows and Linux, thanks to the cross platform portability of [http://www.wxwidgets.org wxWidgets].
 
   * [http://www.wxwidgets.org/ wxWidgets] 2.8.6 
   * Operating Systems
     * Under Windows
-      * Windows XP or Vista.
-      * Visual C++ 2005 Express Edition.
+      * Windows XP or Vista
+      * Visual C++ 2005 Express Edition
+      * Microsoft Platform SDK
     * Under Linux
       * [http://www.centos.org/ CentOS] 4.5 using Eclipse CDT 3.3, or
       * [http://www.ubuntu.com/ Ubuntu] 7.10 using [http://www.kdevelop.org KDevelop] 3.5 (as an Automake based project).
@@ -23,6 +24,11 @@ Starting from version *0.0.2.0*, the project can run under Windows and Linux, th
     * If your wxWidgets' location is different, then you need to adjust the appropriate settings of the hox_Client.vcproj (see below).
   * Simply open the project _hox_Project/hox_Client/hox_Client.vcproj_ inside Visual C++ and build from there.
 
+== Detailed Instructions under Linux ==
+  * Simply go to CChess/hox_Project folder and run the *make* command from there.
+    * Everything is contained within a simple Makefile located under CChess/hox_Project/
+    * I also created a KDevelop project CChess/hox_Project/hox_Project.kdevelop
+
 == Detailed Instructions under Eclipse in Linux ==
   * For [http://www.eclipse.org/cdt/ Eclipse C++ (CDT)], you need to create a new project.
   * Add all the source code (.h and .cpp) files to the project.
@@ -30,8 +36,3 @@ Starting from version *0.0.2.0*, the project can run under Windows and Linux, th
   * *NOTE* : 
     * So far, I could not install Eclipse 3.3 on my Ubuntu 7.10 based laptop, only on my CentOS 4.5 based desktop could I successfully install Eclipse.
     * There is some work to be done... but the source code should be built as is if you can manage to install Eclipse CDT 4.0 or later.
-
-== Detailed Instructions under KDevelop in Linux ==
-  * You need to create a new wxWidgets based project.
-  * Add all the source code (.h and .cpp) files to the project.
-  * *NOTE* I do not include the project files in the release because I feel Automake is so _messy_ that I'd better find an alternative.
