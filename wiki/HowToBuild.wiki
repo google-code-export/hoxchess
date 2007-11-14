@@ -29,6 +29,9 @@ Starting from version *0.0.2.0*, the project can be built under Windows and Linu
 == Detailed Instructions under Linux ==
   * Go to _CChess/hox_Project_ folder and run the *make* command from there.
     * Everything is contained within one simple _Makefile_ located under CChess/hox_Project/
+      * Once the _hoxchess_ executable file is built, run it as follows:
+        * LD_LIBRARY_PATH=<_path_to_wxWidgets_libs_> ./hoxchess
+          * for example: LD_LIBRARY_PATH=/opt/wxGTK-2.8.6/lib ./hoxchess
     * I also created an KDevelop project _CChess/hox_Project/hox_Project.kdevelop_
 
 == Detailed Instructions under Eclipse in Linux ==
