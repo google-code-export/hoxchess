@@ -23,7 +23,7 @@ Starting from version *0.0.2.0*, the project can run under Windows and Linux, th
 == Detailed Instructions under Windows ==
   * wxWidgets: Put the libaries and headers under _C:\wxMSW-2.8.6_
     * If your wxWidgets' location is different, then you need to adjust the appropriate settings of the hox_Client.vcproj (see below).
-  * Make sure the path of INCLUDE and LIBS in your Visual Studio C++ containing that of Microsoft Platform SDK (such as C:\WinSDK)
+  * Microsoft Platform SDK: Make sure the path of INCLUDE and LIBS in your Visual Studio C++ containing that of Microsoft Platform SDK (such as C:\WinSDK)
   * Simply open the project _hox_Project/hox_Client/hox_Client.vcproj_ inside Visual C++ and build from there.
 
 == Detailed Instructions under Linux ==
@@ -32,8 +32,8 @@ Starting from version *0.0.2.0*, the project can run under Windows and Linux, th
     * I also created a KDevelop project CChess/hox_Project/hox_Project.kdevelop
 
 == Detailed Instructions under Eclipse in Linux ==
-  * For [http://www.eclipse.org/cdt/ Eclipse C++ (CDT)], you need to create a new project.
-  * Add all the source code (.h and .cpp) files to the project.
+  * For [http://www.eclipse.org/cdt/ Eclipse C++ (CDT)], you need to create a new project yourself.
+  * Add all the source code (.h and .cpp) files to the your new project.
   * Adjust the C++ compiler's setting based on the output of wx-config program.
   * *NOTE* : 
     * So far, I could not install Eclipse 3.3 on my Ubuntu 7.10 based laptop, only on my CentOS 4.5 based desktop could I successfully install Eclipse.
