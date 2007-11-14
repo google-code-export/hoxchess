@@ -3,7 +3,7 @@
 
 == Introduction ==
 
-This page contains instructions on how to build [http://hoxchess.googlecode.com/ HOXChess] project based on the *latest* version of the source code.
+This page contains instructions on how to build [http://hoxchess.googlecode.com/ HOXChess] based on the *latest* version of the source code.
 The page's content is solely based on my experience working on the project.
 
 == Requirements ==
@@ -24,17 +24,17 @@ Starting from version *0.0.2.0*, the project can be built under Windows and Linu
   * wxWidgets: Put the libaries and headers under _C:\wxMSW-2.8.6_
     * If your wxWidgets' location is different, then you need to adjust the appropriate settings of _hox_Client.vcproj_ (see below).
   * Microsoft Platform SDK: Make sure the path of INCLUDE and LIBS in your Visual Studio C++ containing that of Microsoft Platform SDK (such as C:\WinSDK)
-  * Simply open the project _hox_Project/hox_Client/hox_Client.vcproj_ inside Visual C++ and build from there.
+  * Simply open the project _hox_Project/hox_Client/hox_Client.vcproj_ inside Visual Studio C++ and build from there.
 
 == Detailed Instructions under Linux ==
-  * Simply go to CChess/hox_Project folder and run the *make* command from there.
-    * Everything is contained within a simple _Makefile_ located under CChess/hox_Project/
-    * I also created a KDevelop project CChess/hox_Project/hox_Project.kdevelop
+  * Go to _CChess/hox_Project_ folder and run the *make* command from there.
+    * Everything is contained within one simple _Makefile_ located under CChess/hox_Project/
+    * I also created an KDevelop project _CChess/hox_Project/hox_Project.kdevelop_
 
 == Detailed Instructions under Eclipse in Linux ==
   * For [http://www.eclipse.org/cdt/ Eclipse C++ (CDT)], you need to create a new project yourself.
-  * Add all the source code (.h and .cpp) files to the your new project.
-  * Adjust the C++ compiler's setting based on the output of wx-config program.
-  * *NOTE* : 
-    * So far, I could not install Eclipse 3.3 on my Ubuntu 7.10 based laptop, only on my CentOS 4.5 based desktop could I successfully install Eclipse.
+    * Add all the source code (.h and .cpp) files to the your new project.
+    * Adjust the C++ compiler's setting based on the output of wx-config program.
+  * *Note* : 
+    * So far, I could not install Eclipse 3.3 on my Ubuntu 7.10 based laptop, only on my CentOS 4.5 based desktop could I successfully install this new version of Eclipse.
     * There is some work to be done... but the source code should be built as is if you can manage to install Eclipse CDT 4.0 or later.
