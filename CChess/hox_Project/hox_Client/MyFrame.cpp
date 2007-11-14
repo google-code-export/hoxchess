@@ -1,6 +1,24 @@
+/***************************************************************************
+ *  Copyright 2007 Huy Phan  <huyphan@playxiangqi.com>                     *
+ *                                                                         * 
+ *  This file is part of HOXChess.                                         *
+ *                                                                         *
+ *  HOXChess is free software: you can redistribute it and/or modify       *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation, either version 3 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  HOXChess is distributed in the hope that it will be useful,            *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *  You should have received a copy of the GNU General Public License      *
+ *  along with HOXChess.  If not, see <http://www.gnu.org/licenses/>.      *
+ ***************************************************************************/
+
 /////////////////////////////////////////////////////////////////////////////
 // Name:            MyFrame.cpp
-// Program's Name:  Huy's Open Xiangqi
 // Created:         10/02/2007
 //
 // Description:     The main Frame of the App.
@@ -130,7 +148,7 @@ MyFrame::MyFrame(wxWindow *parent,
     this->SetupMenu();
     this->SetupStatusBar();
 
-    wxLogStatus(_("HOX Chess is ready."));
+    wxLogStatus(_("HOXChess is ready."));
 }
 
 MyFrame::~MyFrame()
@@ -156,7 +174,7 @@ void MyFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 void MyFrame::OnAbout(wxCommandEvent& WXUNUSED(event) )
 {
     wxMessageBox( wxString::Format(
-                    _("Welcome to HOX Chess!\n"
+                    _("Welcome to HOXChess!\n"
                       "\n"
                       "Author: Huy Phan (c) 2007\n"
                       "Version: 0.0.3.0\n"
@@ -165,7 +183,7 @@ void MyFrame::OnAbout(wxCommandEvent& WXUNUSED(event) )
                     wxVERSION_STRING,
                     wxGetOsDescription().c_str()
                  ),
-                 _("About HOX Chess"),
+                 _("About HOXChess"),
                  wxOK | wxICON_INFORMATION,
                  this);
 }
@@ -295,7 +313,7 @@ MyFrame::OnConnectServer(wxCommandEvent& WXUNUSED(event) )
     int            serverPort;
 
     wxString serverAdress = wxGetTextFromUser(
-        _("Enter the address of an HOX Chess server:"),
+        _("Enter the address of an HOXChess server:"),
         _("Connect to a server ..."),
         defaultServerAddress,
         this /* Parent */
@@ -387,7 +405,7 @@ void MyFrame::OnConnectHTTPServer(wxCommandEvent& WXUNUSED(event) )
     int            serverPort;
 
     wxString serverAdress = wxGetTextFromUser(
-        _("Enter the address of an HOX Chess server (HTTP polling):"),
+        _("Enter the address of an HOXChess server (HTTP polling):"),
         _("Connect to a HTTP-based (polling) server ..."),
         defaultServerAddress,
         this /* Parent */
@@ -675,7 +693,7 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
 
     /* Help menu. */
     wxMenu* help_menu = new wxMenu;
-    help_menu->Append(MDI_ABOUT, _("&About HOX Chess\tF1"));
+    help_menu->Append(MDI_ABOUT, _("&About HOXChess\tF1"));
 
     /* The main menu bar */
     wxMenuBar* menu_bar = new wxMenuBar;
