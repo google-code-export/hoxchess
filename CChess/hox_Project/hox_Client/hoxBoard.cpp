@@ -22,11 +22,11 @@ DEFINE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_LEAVE)
 DEFINE_EVENT_TYPE(hoxEVT_BOARD_WALL_OUTPUT)
 
 BEGIN_EVENT_TABLE(hoxSimpleBoard, wxPanel)
-  EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_JOIN, hoxSimpleBoard::OnPlayerJoin)
-  EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_LEAVE, hoxSimpleBoard::OnPlayerLeave)
-  EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_WALL_OUTPUT, hoxSimpleBoard::OnWallOutput)
+    EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_JOIN, hoxSimpleBoard::OnPlayerJoin)
+    EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_LEAVE, hoxSimpleBoard::OnPlayerLeave)
+    EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_WALL_OUTPUT, hoxSimpleBoard::OnWallOutput)
 
-  EVT_TEXT_ENTER(hoxID_BOARD_WALL_INPUT, hoxSimpleBoard::OnWallInputEnter)
+    EVT_TEXT_ENTER(hoxID_BOARD_WALL_INPUT, hoxSimpleBoard::OnWallInputEnter)
 END_EVENT_TABLE()
 
 
@@ -114,9 +114,6 @@ hoxSimpleBoard::OnWallOutput( wxCommandEvent &event )
     const wxString eventString = event.GetString();
     const wxString who = eventString.BeforeFirst(' ');
     const wxString msg = eventString.AfterFirst(' ');
-
-    //wxString wallMsg;
-    //wallMsg.Printf("[%s] %s\n", who, msg);
 
     m_wallOutput->SetDefaultStyle(wxTextAttr(*wxBLACK));
     m_wallOutput->AppendText( wxString::Format("[%s] ", who.c_str()) );

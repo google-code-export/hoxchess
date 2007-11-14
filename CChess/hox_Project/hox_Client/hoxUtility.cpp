@@ -71,17 +71,21 @@ hoxUtility::SetPiecesPath(const wxString& piecesPath)
 }
 
 hoxResult 
-hoxUtility::LoadPieceImage(hoxPieceType type, hoxPieceColor color, wxImage& image)
+hoxUtility::LoadPieceImage( hoxPieceType  type, 
+                            hoxPieceColor color, 
+                            wxImage&      image)
 {
     const char* FNAME = "hoxUtility::LoadPieceImage";
     wxString filename;
 
-    filename =  _get_piece_image_path( type, color );
-    if ( image.LoadFile(filename, wxBITMAP_TYPE_PNG) ) 
-        return hoxRESULT_OK;
+    filename = _get_piece_image_path( type, color );
+    if ( ! image.LoadFile(filename, wxBITMAP_TYPE_PNG) ) 
+    {
+        wxLogError("%s: Failed to load piece-image from path [%s].", FNAME, filename.c_str());
+        return hoxRESULT_ERR;
+    }
 
-    wxLogError("%s: Failed to load piece-image from path [%s].", FNAME, filename.c_str());
-    return hoxRESULT_ERR;
+    return hoxRESULT_OK;
 }
 
 void

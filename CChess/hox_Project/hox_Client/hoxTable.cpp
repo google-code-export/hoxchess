@@ -9,6 +9,7 @@
 #include "hoxPlayerMgr.h"
 #include "hoxPlayer.h"
 #include "hoxBoard.h"
+#include "MyApp.h"     // wxGetApp()
 
 // ----------------------------------------------------------------------------
 // hoxTable
@@ -174,7 +175,9 @@ hoxTable::OnMove_FromBoard( const hoxMove& move )
     wxLogDebug("%s: Receive new Move from Board.", FNAME);
     if ( m_redPlayer == NULL || m_blackPlayer == NULL )
     {
-        wxLogWarning("%s: Not enough players. Ignore Move.", FNAME);
+        const wxString msg = "Not enough players. Ignore Move.";
+        wxLogDebug("%s: *** WARNING *** %s", FNAME, msg.c_str());
+        _PostBoard_MessageEvent( wxGetApp().GetHostPlayer(), msg );
         return;
     }
 
