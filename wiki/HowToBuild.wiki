@@ -26,7 +26,7 @@ Starting from version *0.0.3.0*, the project can run under Windows and Linux, th
 
 == Detailed Instructions under Linux ==
   * Simply go to CChess/hox_Project folder and run the *make* command from there.
-    * Everything is contained within a simple Makefile located under CChess/hox_Project/
+    * Everything is contained within a simple _Makefile_ located under CChess/hox_Project/
     * I also created a KDevelop project CChess/hox_Project/hox_Project.kdevelop
 
 == Detailed Instructions under Eclipse in Linux ==
