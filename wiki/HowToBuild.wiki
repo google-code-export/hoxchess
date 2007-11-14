@@ -1,4 +1,4 @@
-#summary How to build this project?
+#summary How to build the project?
 #labels Phase-Implementation,Phase-Requirements
 
 == Introduction ==
