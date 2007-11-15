@@ -45,7 +45,6 @@ hoxSocketConnection::hoxSocketConnection( const wxString&  sHostname,
                                           int              nPort )
         : hoxThreadConnection( sHostname, nPort )
         , m_pSClient( NULL )
-        , m_bConnected( false )
 {
     const char* FNAME = "hoxSocketConnection::hoxSocketConnection";
 
@@ -134,7 +133,7 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
         case hoxREQUEST_TYPE_JOIN:     /* fall through */
         case hoxREQUEST_TYPE_LEAVE:    /* fall through */
         case hoxREQUEST_TYPE_WALL_MSG:
-            if ( !m_bConnected )
+            if ( ! this->IsConnected() )
             {
                 // NOTE: The connection could have been closed if the server is down.
                 wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
@@ -201,7 +200,7 @@ hoxSocketConnection::_Connect()
 {
     const char* FNAME = "hoxSocketConnection::_Connect";
 
-    if ( m_bConnected )
+    if ( this->IsConnected() )
     {
         wxLogDebug("%s: The connection already established. END.", FNAME);
         return hoxRESULT_HANDLED;
@@ -212,7 +211,8 @@ hoxSocketConnection::_Connect()
     addr.Hostname( m_sHostname );
     addr.Service( m_nPort );
 
-    wxLogDebug("%s: Trying to connect to [%s:%d]...", FNAME, addr.Hostname().c_str(), addr.Service());
+    wxLogDebug("%s: Trying to connect to [%s:%d]...", 
+        FNAME, addr.Hostname().c_str(), addr.Service());
 
     //m_pSClient->Connect( addr, false /* no-wait */ );
     //m_pSClient->WaitOnConnect( 10 /* wait for 10 seconds */ );
@@ -226,10 +226,10 @@ hoxSocketConnection::_Connect()
     }
 
     wxLogDebug("%s: Succeeded! Connection established with the server.", FNAME);
-    m_bConnected = true;
+    this->SetConnected( true );
 
     wxCHECK_MSG(m_player, hoxRESULT_ERR, "The player is NULL.");
-    wxLogDebug("%s: Let the connection's Player [%s] handles all socket events.", 
+    wxLogDebug("%s: Let the connection's Player [%s] handle all socket events.", 
         FNAME, m_player->GetName());
     m_pSClient->SetEventHandler( *m_player, CLIENT_SOCKET_ID );
     m_pSClient->SetNotify(wxSOCKET_INPUT_FLAG | wxSOCKET_LOST_FLAG);

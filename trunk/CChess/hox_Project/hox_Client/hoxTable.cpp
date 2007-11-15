@@ -99,7 +99,7 @@ hoxTable::AssignPlayer( hoxPlayer*     player,
 
     wxCHECK_MSG( player != NULL, hoxRESULT_ERR, "The player is NULL." );
 
-    assignedColor = hoxPIECE_COLOR_NONE; // Default: observer's role.
+    assignedColor = hoxPIECE_COLOR_NONE; // Default: Observer's Role.
 
     /* Assign to play RED if possible. */
     if ( m_redPlayer == NULL )
@@ -111,7 +111,7 @@ hoxTable::AssignPlayer( hoxPlayer*     player,
     {
         assignedColor = hoxPIECE_COLOR_BLACK;
     }
-    /* Default: ... will join as an observer. */
+    /* Default: ... The player will join as an Observer. */
 
     /* Update our player-list */
     _AddPlayer( player, assignedColor );
@@ -516,11 +516,12 @@ hoxTable::_GetBoardPlayer()
 }
 
 void 
-hoxTable::_AddPlayer( hoxPlayer* player, hoxPieceColor role )
+hoxTable::_AddPlayer( hoxPlayer*    player, 
+                      hoxPieceColor role )
 {
     m_players.push_back( hoxPlayerAndRole(player, role) );
 
-    // Cache the RED and BLACK players for easy access.
+    // "Cache" the RED and BLACK players for easy access.
     if ( role == hoxPIECE_COLOR_RED )
     {
         m_redPlayer = player;

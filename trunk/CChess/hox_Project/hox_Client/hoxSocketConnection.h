@@ -63,9 +63,6 @@ private:
     wxSocketClient*       m_pSClient;
                 /* The socket to handle network connections */
 
-    bool                  m_bConnected;
-                /* Has the connection been established with the server */
-
     DECLARE_DYNAMIC_CLASS(hoxSocketConnection)
 };
 

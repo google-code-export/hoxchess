@@ -74,7 +74,7 @@ hoxLocalPlayer::SetConnection( hoxConnection* connection )
         return false;
     }
 
-    wxLogDebug("%s: Specify this player [%s] as the connection's onwer.", 
+    wxLogDebug("%s: Specify this player [%s] as the connection's owner.", 
         FNAME, this->GetName().c_str());
     m_connection->SetPlayer( this );
 
@@ -94,7 +94,7 @@ hoxLocalPlayer::OnClose_FromTable( hoxPlayerEvent&  event )
 }
 
 hoxResult 
-hoxLocalPlayer::ConnectToNetworkServer( wxEvtHandler*   sender )
+hoxLocalPlayer::ConnectToNetworkServer( wxEvtHandler* sender )
 {
     _StartConnection();
 
@@ -104,6 +104,25 @@ hoxLocalPlayer::ConnectToNetworkServer( wxEvtHandler*   sender )
         request->content = 
             wxString::Format("op=CONNECT&pid=%s\r\n", this->GetName().c_str());
         m_connection->AddRequest( request );
+    }
+
+    return hoxRESULT_OK;
+}
+
+hoxResult 
+hoxLocalPlayer::DisconnectFromNetworkServer( wxEvtHandler* sender )
+{
+    const char* FNAME = "hoxLocalPlayer::DisconnectFromNetworkServer";
+
+    if ( m_connection != NULL )
+    {
+        wxLogDebug("%s: Request the Connection thread to be shutdowned...", FNAME);
+        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_SHUTDOWN, NULL );
+        m_connection->AddRequest( request );
+
+        m_connection->Shutdown();
+        this->ResetConnection();
+        wxASSERT_MSG( m_connection == NULL, "The connection should have been deleted.");
     }
 
     return hoxRESULT_OK;
