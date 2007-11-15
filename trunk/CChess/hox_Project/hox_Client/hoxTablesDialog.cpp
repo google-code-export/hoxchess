@@ -100,8 +100,8 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*       parent,
         wxALIGN_CENTER ); // no border and centre horizontally);
 
     topsizer->Add(buttonsizer, 
-                0,                // make vertically unstretchable
-                wxALIGN_CENTER ); // no border and centre horizontally);
+        0,                // make vertically unstretchable
+        wxALIGN_CENTER ); // no border and centre horizontally);
 
     SetSizer( topsizer );      // use the sizer for layout
 }

@@ -44,9 +44,12 @@ class hoxIReferee
     virtual void Reset() = 0;
 
     /**
-     * Validate and record a given move.
+     * Validate and record a given Move.
+     *
+     * @note The Referee will fill in the information about
+     *       which Piece, if any, is captured as a result of the Move.
      */
-    virtual bool ValidateMove(const hoxMove& move) = 0;
+    virtual bool ValidateMove( hoxMove& move ) = 0;
 
     /**
      * Get the current state of the game:
