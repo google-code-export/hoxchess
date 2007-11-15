@@ -31,9 +31,10 @@
 #include <wx/laywin.h>   // wxSashLayoutWindow
 #include <wx/progdlg.h>
 #include <list>
+#include "hoxEnums.h"
+#include "hoxTypes.h"
 
 /* Forward declarations */
-class hoxNetworkTableInfo;
 class hoxTable;
 class MyChild;
 class hoxLocalPlayer;
@@ -126,6 +127,11 @@ private:
     void _OnResponse_List( const wxString& responseStr, hoxLocalPlayer* localPlayer );
     void _OnResponse_Join( const wxString& responseStr, hoxLocalPlayer* localPlayer );
     void _OnResponse_New( const wxString& responseStr, hoxLocalPlayer* localPlayer );
+
+    hoxResult _GetServerAddressFromUser( const wxString&         message,
+                                         const wxString&         caption,
+                                         const hoxServerAddress& defaultAddress,
+                                         hoxServerAddress&       serverAddress );
 
     hoxTable* _CreateNewTable( const wxString& tableId );
 
