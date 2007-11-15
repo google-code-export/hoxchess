@@ -229,9 +229,9 @@ hoxURI::Escape_String(const wxString& str)
  * @return true if everything is fine. Otherwise, return false.
  */
 bool 
-hoxUtility::ParserHostnameAndPort( const wxString& input,
-                                   wxString&       hostname,
-                                   int&            port )
+hoxUtility::ParseHostnameAndPort( const wxString& input,
+                                  wxString&       hostname,
+                                  int&            port )
 {
     const char SEPARATOR = ':';
 

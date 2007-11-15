@@ -54,6 +54,7 @@ public:
     virtual void Start();
     virtual void Shutdown();
     virtual void AddRequest( hoxRequest* request );
+    virtual bool IsConnected() { return m_bConnected; }
 
     // Thread execution starts here
     virtual void* Entry();
@@ -65,12 +66,17 @@ protected:
     virtual hoxRequest* GetRequest();         
     virtual void        HandleRequest( hoxRequest* request ) = 0;
 
+    virtual void SetConnected(bool connected) { m_bConnected = connected; }
+
     virtual void       SetPlayer(hoxPlayer* player) { m_player = player; }
     virtual hoxPlayer* GetPlayer()                  { return m_player; }
 
 protected:
     wxString              m_sHostname; 
     int                   m_nPort;
+
+    bool                  m_bConnected;
+                /* Has the connection been established with the server */
 
     bool                  m_shutdownRequested;
                 /* Has a shutdown-request been received? */

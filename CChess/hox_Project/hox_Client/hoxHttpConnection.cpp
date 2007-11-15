@@ -76,6 +76,7 @@ hoxHttpConnection::HandleRequest( hoxRequest* request )
         case hoxREQUEST_TYPE_WALL_MSG:
 
             result = _SendRequest( request->content, response->content );
+            this->SetConnected( result == hoxRESULT_OK );
             break;
 
         default:
@@ -117,7 +118,7 @@ hoxHttpConnection::_SendRequest( const wxString& request,
     get.SetTimeout( hoxSOCKET_CLIENT_HTTP_TIMEOUT );
 
     get.SetHeader("Content-type", "text/plain; charset=utf-8");
-    get.SetHeader("User-Agent", "hoxClient");
+    get.SetHeader("User-Agent", "HOXChess");
  
     /* This will wait until the user connects to the internet. 
      * It is important in case of dialup (or ADSL) connections.

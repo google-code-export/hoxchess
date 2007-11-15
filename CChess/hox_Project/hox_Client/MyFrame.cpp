@@ -44,8 +44,6 @@
 #endif
 
 #include "bitmaps/new.xpm"
-//#include "bitmaps/open.xpm"
-//#include "bitmaps/save.xpm"
 #include "bitmaps/help.xpm"
 #include "bitmaps/quit.xpm"
 #include "bitmaps/delete.xpm"
@@ -98,26 +96,28 @@ MyFrame::MyFrame()
     wxFAIL_MSG( "This default constructor is never meant to be used." );
 }
 
-// Define my frame constructor
-MyFrame::MyFrame(wxWindow *parent,
-                 const wxWindowID id,
-                 const wxString& title,
-                 const wxPoint& pos,
-                 const wxSize& size,
-                 const long style)
-       : wxMDIParentFrame(parent, id, title, pos, size, style)
+MyFrame::MyFrame( wxWindow*        parent,
+                  const wxWindowID id,
+                  const wxString&  title,
+                  const wxPoint&   pos,
+                  const wxSize&    size,
+                  const long       style )
+       : wxMDIParentFrame( parent, id, title, pos, size, style )
 {
     const char* FNAME = "MyFrame::MyFrame";
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    SetIcon(wxICON(hoxchess));
+    SetIcon( wxICON(hoxchess) );
 
     // A window containing our log-text.
-    m_logWindow = new wxSashLayoutWindow(this, ID_WINDOW_LOG,
-                               wxDefaultPosition, wxDefaultSize,
-                               wxNO_BORDER | wxSW_3D | wxCLIP_CHILDREN);
-    m_logWindow->SetDefaultSize(wxSize(1000, 180));
+    m_logWindow = new wxSashLayoutWindow( 
+                            this, 
+                            ID_WINDOW_LOG,
+                            wxDefaultPosition, 
+                            wxDefaultSize,
+                            wxNO_BORDER | wxSW_3D | wxCLIP_CHILDREN );
+    m_logWindow->SetDefaultSize(wxSize(1000, 180));  // TODO: Hard-coded.
     m_logWindow->SetOrientation(wxLAYOUT_HORIZONTAL);
     m_logWindow->SetAlignment(wxLAYOUT_BOTTOM);
     m_logWindow->SetBackgroundColour(wxColour(0, 0, 255));
@@ -155,7 +155,8 @@ MyFrame::~MyFrame()
 {
 }
 
-void MyFrame::OnClose(wxCloseEvent& event)
+void 
+MyFrame::OnClose(wxCloseEvent& event)
 {
     while( ! m_children.empty() )
     {
@@ -166,18 +167,20 @@ void MyFrame::OnClose(wxCloseEvent& event)
     event.Skip();
 }
 
-void MyFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
+void 
+MyFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 {
     Close();
 }
 
-void MyFrame::OnAbout(wxCommandEvent& WXUNUSED(event) )
+void 
+MyFrame::OnAbout(wxCommandEvent& WXUNUSED(event) )
 {
     wxMessageBox( wxString::Format(
                     _("Welcome to HOXChess!\n"
                       "\n"
                       "Author: Huy Phan (c) 2007\n"
-                      "Version: 0.0.3.0\n"
+                      "Version: 0.0.4.0\n"
                       "\n"
                       "This application is powered by %s, running under %s."),
                     wxVERSION_STRING,
@@ -185,7 +188,7 @@ void MyFrame::OnAbout(wxCommandEvent& WXUNUSED(event) )
                  ),
                  _("About HOXChess"),
                  wxOK | wxICON_INFORMATION,
-                 this);
+                 this );
 }
 
 void 
@@ -200,8 +203,8 @@ MyFrame::OnNewTable(wxCommandEvent& WXUNUSED(event) )
     // Add the HOST player to the table.
     hoxResult result = wxGetApp().GetHostPlayer()->JoinTable( table );
     wxASSERT( result == hoxRESULT_OK  );
-    wxASSERT_MSG( wxGetApp().GetHostPlayer()->HasRole( hoxRole(table->GetId(), 
-                                                       hoxPIECE_COLOR_RED) ),
+    wxASSERT_MSG( wxGetApp().GetHostPlayer()->HasRole( 
+                            hoxRole(table->GetId(), hoxPIECE_COLOR_RED) ),
                   _("Player must play RED"));
 }
 
@@ -220,6 +223,7 @@ MyFrame::OnCloseTable(wxCommandEvent& WXUNUSED(event) )
     }
 }
 
+// Update the menu's UI.
 void 
 MyFrame::OnUpdateCloseTable(wxUpdateUIEvent& event)
 {
@@ -284,11 +288,12 @@ MyFrame::OnConnectServer(wxCommandEvent& WXUNUSED(event) )
     hoxResult result;
     hoxMyPlayer* myPlayer = wxGetApp().GetMyPlayer();
 
-    /* If the connection has been established, then go ahead
-     * to query for the list of tables.
+    /* If the connection has been established, then skip trying to 
+     * establish one and go straight to query for the list of tables.
      */
 
-    if ( myPlayer->GetConnection() != NULL )
+    if (   myPlayer->GetConnection() != NULL
+        && myPlayer->GetConnection()->IsConnected() )
     {
         /* Get the list of tables from the server */
         result = myPlayer->QueryForNetworkTables( this );
@@ -325,9 +330,9 @@ MyFrame::OnConnectServer(wxCommandEvent& WXUNUSED(event) )
         return;
     }
 
-    if ( ! hoxUtility::ParserHostnameAndPort( serverAdress,
-                                              serverHostname,
-                                              serverPort ) )
+    if ( ! hoxUtility::ParseHostnameAndPort( serverAdress,
+                                             serverHostname,
+                                             serverPort ) )
     {
         wxLogError("The server's address [%s] is invalid .", serverAdress.c_str());
         return;
@@ -352,7 +357,7 @@ MyFrame::OnConnectServer(wxCommandEvent& WXUNUSED(event) )
     m_dlgProgress->Pulse();
 
     /* Create a new connection for the MY player. */
-    wxLogDebug("%s: Trying to connect to server [%s:%d]...", 
+    wxLogDebug("%s: Connecting to server [%s:%d]...", 
         FNAME, serverHostname.c_str(), serverPort);
     hoxConnection* connection = new hoxSocketConnection( serverHostname, 
                                                          serverPort );
@@ -380,7 +385,8 @@ void MyFrame::OnConnectHTTPServer(wxCommandEvent& WXUNUSED(event) )
      * to query for the list of tables.
      */
 
-    if ( httpPlayer->GetConnection() != NULL )
+    if (   httpPlayer->GetConnection() != NULL
+        && httpPlayer->GetConnection()->IsConnected() )
     {
         /* Get the list of tables from the server */
         result = httpPlayer->QueryForNetworkTables( this );
@@ -417,9 +423,9 @@ void MyFrame::OnConnectHTTPServer(wxCommandEvent& WXUNUSED(event) )
         return;
     }
 
-    if ( ! hoxUtility::ParserHostnameAndPort( serverAdress,
-                                              serverHostname,
-                                              serverPort ) )
+    if ( ! hoxUtility::ParseHostnameAndPort( serverAdress,
+                                             serverHostname,
+                                             serverPort ) )
     {
         wxLogError("The server's address [%s] is invalid .", serverAdress.c_str());
         return;
@@ -607,7 +613,10 @@ MyFrame::DoJoinNewTable( const wxString& tableId,
 void MyFrame::OnDisconnectServer(wxCommandEvent& WXUNUSED(event) )
 {
     const char* FNAME = "MyFrame::OnDisconnectServer";
-    wxLogWarning("%s: ENTER. *** Not yet implemented ***", FNAME);
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    hoxMyPlayer* myPlayer = wxGetApp().GetMyPlayer();
+    myPlayer->DisconnectFromNetworkServer( this );
 }
 
 void MyFrame::OnSize(wxSizeEvent& event)
@@ -689,7 +698,7 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
         view_menu->Append(MDI_TOGGLE, _("&Toggle Table View\tCtrl-T"));
         view_menu->AppendSeparator();
     }
-    view_menu->AppendCheckItem(MDI_SHOW_LOG_WINDOW, _("&Log Window\tCtrl-L"));
+    view_menu->AppendCheckItem(MDI_SHOW_LOG_WINDOW, _("Lo&g Window\tCtrl-G"));
 
     /* Help menu. */
     wxMenu* help_menu = new wxMenu;

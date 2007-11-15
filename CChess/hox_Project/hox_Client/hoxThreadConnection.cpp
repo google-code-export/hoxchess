@@ -45,6 +45,7 @@ hoxThreadConnection::hoxThreadConnection( const wxString& sHostname,
         , wxThreadHelper()
         , m_sHostname( sHostname )
         , m_nPort( nPort )
+        , m_bConnected( false )
         , m_shutdownRequested( false )
         , m_player( NULL )
 {
