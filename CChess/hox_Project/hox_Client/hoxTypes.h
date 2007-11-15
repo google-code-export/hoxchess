@@ -31,6 +31,7 @@
 #include <wx/wx.h>
 #include <wx/socket.h>
 #include <list>
+#include <vector>
 #include <map>
 
 #include "hoxEnums.h"
@@ -98,7 +99,11 @@ class hoxPieceInfo
      *       needed by the referee who can maintain its own data-type... 
      */
 
-    hoxPieceInfo() {}
+    hoxPieceInfo()
+         : type( hoxPIECE_TYPE_INVALID )
+         , color( hoxPIECE_COLOR_NONE )
+         , position( -1, -1 )
+        { }
 
     hoxPieceInfo(hoxPieceType  t,
                  hoxPieceColor c,
@@ -115,7 +120,7 @@ class hoxPieceInfo
         { }
 };
 
-typedef std::list<hoxPieceInfo*> hoxPieceInfoList;
+typedef std::list<hoxPieceInfo> hoxPieceInfoList;
 
 
 /**
@@ -124,18 +129,23 @@ typedef std::list<hoxPieceInfo*> hoxPieceInfoList;
 class hoxMove
 {
   public:
-    hoxPieceInfo   piece;
-        /* NOTE: Let's just use this structure to present the involved piece
-         *       even though the field [piece.active] MUST always be "active".
+    hoxPieceInfo    piece;        // The Piece that moves.
+    hoxPosition     newPosition;  // Position on the Board.
+
+    hoxPieceInfo    capturedPiece; 
+        /* The Piece being captured as a result of this Moves. 
+         * This information is currently filled in by the Referee.
          */
 
-    hoxPosition    newPosition;   // Position on the Board.
-
     hoxMove() {}
+    void SetCapturedPiece( const hoxPieceInfo& captured ) 
+        { capturedPiece = captured; }
+    bool IsAPieceCaptured() const 
+        { return capturedPiece.type != hoxPIECE_TYPE_INVALID; }
 };
 
-typedef std::list<hoxMove*> hoxMoveList;
-
+typedef std::list<hoxMove>    hoxMoveList;
+typedef std::vector<hoxMove>  hoxMoveVector;
 
 /**
  * A network table.

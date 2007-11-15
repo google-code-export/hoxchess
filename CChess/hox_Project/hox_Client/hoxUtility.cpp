@@ -109,20 +109,6 @@ hoxUtility::LoadPieceImage( hoxPieceType  type,
 }
 
 void
-hoxUtility::FreePieceInfoList( hoxPieceInfoList& pieceInfoList )
-{
-    for ( hoxPieceInfoList::iterator it = pieceInfoList.begin();
-                                     it != pieceInfoList.end();
-                                   ++it )
-    {
-        delete (*it);
-        (*it) = NULL;
-    }
-
-    pieceInfoList.clear();
-}
-
-void
 hoxUtility::FreeNetworkTableInfoList( hoxNetworkTableInfoList& tableList )
 {
     for ( hoxNetworkTableInfoList::iterator it = tableList.begin(); 

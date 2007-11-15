@@ -89,6 +89,8 @@ namespace BoardInfoAPI
                               : m_info( t, c, p ) { }
         virtual ~Piece() {}
 
+        hoxPieceInfo  GetInfo()     const { return m_info; }
+
         hoxPieceType  GetType()     const { return m_info.type; }
         hoxPieceColor GetColor()    const { return m_info.color; }
         hoxPosition   GetPosition() const { return m_info.position; }
@@ -228,7 +230,7 @@ namespace BoardInfoAPI
 
         // ------------ Main Public API -------
         void SetNextColor( hoxPieceColor c ) { m_nextColor = c; }
-        bool ValidateMove(const hoxMove& move);
+        bool ValidateMove( hoxMove& move );
 
         void GetGameState( hoxPieceInfoList& pieceInfoList,
                            hoxPieceColor&    nextColor );
@@ -388,9 +390,9 @@ Board::GetGameState( hoxPieceInfoList& pieceInfoList,
     for ( PieceList::const_iterator it = m_pieces.begin();
                                     it != m_pieces.end(); ++it )
     {
-        pieceInfoList.push_back( new hoxPieceInfo( (*it)->GetType(), 
-                                                   (*it)->GetColor(), 
-                                                   (*it)->GetPosition() ) );
+        pieceInfoList.push_back( hoxPieceInfo( (*it)->GetType(), 
+                                               (*it)->GetColor(), 
+                                               (*it)->GetPosition() ) );
     }
 
     /* Return the Next Color */
@@ -659,7 +661,7 @@ Board::_IsKingFaceKing() const
 }
 
 bool
-Board::ValidateMove( const hoxMove& move )
+Board::ValidateMove( hoxMove& move )
 {
     /* Check for 'turn' */
 
@@ -691,6 +693,10 @@ Board::ValidateMove( const hoxMove& move )
         _UndoMove(move, pCaptured);
         return false;
     }
+
+    /* Return the captured-piece, if any */
+    move.SetCapturedPiece( pCaptured != NULL ? pCaptured->GetInfo() 
+                                             : hoxPieceInfo() /* 'Empty' piece */ );
 
     /* Set the next-turn. */
     m_nextColor = ( m_nextColor == hoxPIECE_COLOR_RED 
@@ -1383,7 +1389,7 @@ hoxReferee::Reset()
 }
 
 bool 
-hoxReferee::ValidateMove(const hoxMove& move)
+hoxReferee::ValidateMove( hoxMove& move )
 {
     wxCHECK_MSG(m_board, false, "The Board is NULL.");
     return m_board->ValidateMove( move );

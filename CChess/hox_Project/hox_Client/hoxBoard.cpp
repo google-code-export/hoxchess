@@ -32,7 +32,17 @@
 #include "hoxTypes.h"
 #include "hoxTable.h"
 
-#define hoxID_BOARD_WALL_INPUT   (wxID_HIGHEST+1)
+/* UI-related IDs. */
+enum
+{
+    ID_BOARD_WALL_INPUT = (wxID_HIGHEST+1),
+
+    ID_HISTORY_BEGIN,
+    ID_HISTORY_PREV,
+    ID_HISTORY_NEXT,
+    ID_HISTORY_END
+};
+
 
 /* Define my custom events */
 DEFINE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_JOIN)
@@ -44,9 +54,12 @@ BEGIN_EVENT_TABLE(hoxSimpleBoard, wxPanel)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_LEAVE, hoxSimpleBoard::OnPlayerLeave)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_WALL_OUTPUT, hoxSimpleBoard::OnWallOutput)
 
-    EVT_TEXT_ENTER(hoxID_BOARD_WALL_INPUT, hoxSimpleBoard::OnWallInputEnter)
+    EVT_TEXT_ENTER(ID_BOARD_WALL_INPUT, hoxSimpleBoard::OnWallInputEnter)
+    EVT_BUTTON(ID_HISTORY_BEGIN, hoxSimpleBoard::OnButtonHistory_BEGIN)
+    EVT_BUTTON(ID_HISTORY_PREV, hoxSimpleBoard::OnButtonHistory_PREV)
+    EVT_BUTTON(ID_HISTORY_NEXT, hoxSimpleBoard::OnButtonHistory_NEXT)
+    EVT_BUTTON(ID_HISTORY_END, hoxSimpleBoard::OnButtonHistory_END)
 END_EVENT_TABLE()
-
 
 // ----------------------------------------------------------------------------
 // hoxSimpleBoard
@@ -68,6 +81,7 @@ hoxSimpleBoard::hoxSimpleBoard( wxWindow*       parent,
 
     /* Create the core board. */
     m_coreBoard = new hoxCoreBoard( this, referee );
+    m_coreBoard->SetBoardOwner( this );
     m_coreBoard->SetPiecesPath( piecesPath );
 
     // *** NOTE: By default, the Board is NOT visible.
@@ -77,6 +91,14 @@ hoxSimpleBoard::hoxSimpleBoard( wxWindow*       parent,
 hoxSimpleBoard::~hoxSimpleBoard()
 {
     delete m_coreBoard;
+}
+
+void 
+hoxSimpleBoard::OnBoardMove( const hoxMove& move )
+{
+    /* Inform the Table of the new move. */
+    wxCHECK_RET(m_table, "The table is NULL." );
+    m_table->OnMove_FromBoard( move );
 }
 
 void 
@@ -144,6 +166,44 @@ hoxSimpleBoard::OnWallInputEnter( wxCommandEvent &event )
 {
     m_wallInput->Clear();
     m_table->OnMessage_FromBoard( event.GetString() );
+}
+
+void 
+hoxSimpleBoard::OnButtonHistory_BEGIN( wxCommandEvent &event )
+{
+    if ( m_coreBoard == NULL )
+        return;
+
+    while ( m_coreBoard->DoGameReview_PREV() ) 
+    { }
+}
+
+void 
+hoxSimpleBoard::OnButtonHistory_PREV( wxCommandEvent &event )
+{
+    if ( m_coreBoard == NULL )
+        return;
+
+    m_coreBoard->DoGameReview_PREV();
+}
+
+void 
+hoxSimpleBoard::OnButtonHistory_NEXT( wxCommandEvent &event )
+{
+    if ( m_coreBoard == NULL )
+        return;
+
+    m_coreBoard->DoGameReview_NEXT();
+}
+
+void 
+hoxSimpleBoard::OnButtonHistory_END( wxCommandEvent &event )
+{
+    if ( m_coreBoard == NULL )
+        return;
+
+    while ( m_coreBoard->DoGameReview_NEXT() )
+    { }
 }
 
 bool 
@@ -236,6 +296,36 @@ hoxSimpleBoard::_CreateBoardPanel()
         wxBORDER_SIMPLE|wxALIGN_CENTER|wxST_NO_AUTORESIZE);
 
     /*********************************
+     * Create History's buttons.
+     *********************************/
+
+    m_historySizer = new wxBoxSizer( wxHORIZONTAL );
+
+    m_historySizer->Add( 
+        new wxButton( boardPanel, ID_HISTORY_BEGIN, "|<", 
+                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
+        0,    // Unstretchable
+        wxALIGN_CENTER | wxFIXED_MINSIZE );
+
+    m_historySizer->Add( 
+        new wxButton( boardPanel, ID_HISTORY_PREV, "<",
+                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
+        0,    // Unstretchable
+        wxALIGN_CENTER | wxFIXED_MINSIZE );
+
+    m_historySizer->Add( 
+        new wxButton( boardPanel, ID_HISTORY_NEXT, ">", 
+                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
+        0,    // Unstretchable
+        wxALIGN_CENTER | wxFIXED_MINSIZE );
+
+    m_historySizer->Add( 
+        new wxButton( boardPanel, ID_HISTORY_END, ">|", 
+                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
+        0,    // Unstretchable
+        wxALIGN_CENTER | wxFIXED_MINSIZE );
+
+    /*********************************
      * Create Wall's contents.
      *********************************/
 
@@ -245,7 +335,7 @@ hoxSimpleBoard::_CreateBoardPanel()
                                    wxDefaultPosition, wxDefaultSize,
                                    wxTE_MULTILINE | wxRAISED_BORDER | wxTE_READONLY 
                                    | wxHSCROLL | wxTE_RICH /* needed for Windows */ );
-    m_wallInput  = new wxTextCtrl( boardPanel, hoxID_BOARD_WALL_INPUT, _T(""),
+    m_wallInput  = new wxTextCtrl( boardPanel, ID_BOARD_WALL_INPUT, _T(""),
                                    wxDefaultPosition, wxDefaultSize,
                                    wxTE_PROCESS_ENTER | wxSUNKEN_BORDER );
 
@@ -385,7 +475,7 @@ hoxSimpleBoard::_LayoutBoardPanel( bool viewInverted )
         bottomSizer = m_blackSizer;
     }
 
-    // Add the top-sizer to the main-sizer
+    // Add the top-sizer...
     m_boardSizer->Add(
         topSizer,
         0,            // fixed-size vertically
@@ -393,7 +483,7 @@ hoxSimpleBoard::_LayoutBoardPanel( bool viewInverted )
         wxRIGHT|wxLEFT, // and make border
         1 );         
 
-    // Add the main board to the main-sizer.
+    // Add the main board...
     m_boardSizer->Add(
         m_coreBoard,
         1,            // make vertically stretchable
@@ -401,9 +491,17 @@ hoxSimpleBoard::_LayoutBoardPanel( bool viewInverted )
         wxALL,        // and make border all around
         1 );          // set border width
 
-    // Add the bottom-sizer to the main-sizer
+    // Add the bottom-sizer...
     m_boardSizer->Add(
         bottomSizer,
+        0,            // fixed-size vertically
+        wxEXPAND |    // make horizontally stretchable
+        wxRIGHT|wxLEFT,  // and make border
+        1 );          // set border width
+
+    // Add the history-sizer...
+    m_boardSizer->Add(
+        m_historySizer,
         0,            // fixed-size vertically
         wxEXPAND |    // make horizontally stretchable
         wxRIGHT|wxLEFT,  // and make border
@@ -414,7 +512,7 @@ void
 hoxSimpleBoard::SetTable( hoxTable* table ) 
 { 
     m_table = table;
-    m_coreBoard->SetTable( m_table ); 
+    //m_coreBoard->SetTable( m_table ); 
 }
 
 hoxIReferee* 
@@ -451,6 +549,8 @@ hoxSimpleBoard::ToggleViewSide()
     wxASSERT( found );
     found = m_boardSizer->Detach( m_blackSizer );
     wxASSERT( found );
+    found = m_boardSizer->Detach( m_historySizer );
+    wxASSERT( found );
 
     /* Invert */
 
@@ -462,19 +562,11 @@ hoxSimpleBoard::ToggleViewSide()
 }
 
 bool 
-hoxSimpleBoard::DoMove( const hoxMove& move )
+hoxSimpleBoard::DoMove( hoxMove& move )
 {
-    const char* FNAME = "hoxSimpleBoard::DoMove";
-    hoxPiece* piece = m_coreBoard->GetPieceAt( move.piece.position );
-    wxASSERT( piece != NULL );
-    
-    if ( ! this->GetReferee()->ValidateMove( move ) )
-    {
-        wxLogWarning("%s: Move is not valid.", FNAME);
-        return false;
-    }
+    wxCHECK_MSG( m_coreBoard, false, "The core Board is NULL." );
 
-    return m_coreBoard->MovePieceToPosition( piece, move.newPosition );
+    return m_coreBoard->DoMove( move );
 }
 
 void 

@@ -27,15 +27,15 @@
 #ifndef __INCLUDED_HOX_BOARD_H_
 #define __INCLUDED_HOX_BOARD_H_
 
-#include "wx/wx.h"
+#include <wx/wx.h>
 #include <list>
+#include "hoxTypes.h"
+#include "hoxCoreBoard.h"
 
 /* Forward declarations */
-class hoxCoreBoard;
 class hoxIReferee;
 class hoxTable;
 class hoxPosition;
-class hoxMove;
 class hoxPlayer;
 
 /**
@@ -63,16 +63,29 @@ DECLARE_EVENT_TYPE(hoxEVT_BOARD_WALL_OUTPUT, wxID_ANY)
 
 
 class hoxSimpleBoard : public wxPanel
+                     , public hoxCoreBoard::BoardOwner
 {
 public:
     /* Construct an "hidden" Board. */
     hoxSimpleBoard( wxWindow*       parent,
                     const wxString& piecesPath,
                     hoxIReferee*    referee,
-                    const wxPoint& pos = wxDefaultPosition, 
-                    const wxSize& size = wxDefaultSize );
+                    const wxPoint&  pos = wxDefaultPosition, 
+                    const wxSize&   size = wxDefaultSize );
 
     virtual ~hoxSimpleBoard();
+
+    /************************************
+     * Implement BoardOwner's interface.
+     ************************************/
+
+    /**
+     * A callback function invoked by the core Board when
+     * a physical Move (or, Board-Move) is made on the Board.
+     *
+     * @note This Move has been validated by the Referee.
+     */
+    virtual void OnBoardMove( const hoxMove& move );
 
     /*********************************
      * My custom event handler.
@@ -84,9 +97,14 @@ public:
 
     void OnWallInputEnter( wxCommandEvent &event );
 
-    /*********************************
-     * Override the parent's API.
-     *********************************/
+    void OnButtonHistory_BEGIN( wxCommandEvent &event );
+    void OnButtonHistory_PREV( wxCommandEvent &event );
+    void OnButtonHistory_NEXT( wxCommandEvent &event );
+    void OnButtonHistory_END( wxCommandEvent &event );
+
+    /****************************************
+     * Override the parent (wxPanel) 's API.
+     ****************************************/
 
     virtual bool Show(bool show /* = true */);
 
@@ -109,7 +127,7 @@ public:
      *
      * @note This move will trigger referee-validation.
      */
-    bool DoMove( const hoxMove& move );
+    bool DoMove( hoxMove& move );
 
 
 private:
@@ -148,13 +166,16 @@ private:
     wxTextCtrl*       m_wallOutput;
     wxTextCtrl*       m_wallInput;
 
-    // Convenient variables.
+    /* Convenient variables. */
+
     wxBoxSizer*       m_mainSizer;
     wxBoxSizer*       m_boardSizer;
     wxBoxSizer*       m_wallSizer;
     
     wxBoxSizer*       m_redSizer;
     wxBoxSizer*       m_blackSizer;
+
+    wxBoxSizer*       m_historySizer; // Move-History sizer.
 
     DECLARE_EVENT_TABLE()
 };

@@ -30,7 +30,6 @@
 #include "hoxPiece.h"
 #include "hoxUtility.h"
 #include "hoxReferee.h"
-#include "hoxTable.h"
 
 // ----------------------------------------------------------------------------
 // Constants
@@ -84,26 +83,25 @@ hoxCoreBoard::hoxCoreBoard( wxWindow*      parent,
                    pos, 
                    size,
                    wxFULL_REPAINT_ON_RESIZE )
+        , m_bViewInverted( false )  // Normal view: RED is at bottom of the screen
         , m_referee( referee )
+        , m_owner( NULL )
+        , m_dragMode( DRAG_MODE_NONE )
+        , m_draggedPiece( NULL )
+        , m_dragImage( NULL )
         , m_latestPiece( NULL )
+        , m_historyIndex( HISTORY_INDEX_UNKNOWN )
 {
-    // NOTE: We move this PNG code since to outside to avoid
-    //       having duplicate handles if there are more than
-    //       one Board.
-    //
-    // Add PNG image-type handler since our pieces use this format.
-    // wxImage::AddHandler( new wxPNGHandler );
+    /* NOTE: We move this PNG code since to outside to avoid
+     *       having duplicate handles if there are more than
+     *       one Board.
+     *
+     * Add PNG image-type handler since our pieces use this format.
+     * wxImage::AddHandler( new wxPNGHandler );
+     *******/
 
-    m_parent = parent;
-    m_table = NULL;
-
-    m_borderX = 40;
+    m_borderX = 40;   // TODO: Hard-coded constant
     m_borderY = m_borderX;
-    m_bViewInverted = false;   // Normal view: RED is at bottom of the screen
-
-    m_dragMode = DRAG_MODE_NONE;
-    m_draggedPiece = NULL;
-    m_dragImage = NULL;
 }
 
 hoxCoreBoard::~hoxCoreBoard()
@@ -319,11 +317,9 @@ hoxCoreBoard::LoadPieces()
                                            it != pieceInfoList.end(); 
                                          ++it )
     {
-        hoxPiece* piece = new hoxPiece( *(*it) );
+        hoxPiece* piece = new hoxPiece( (*it) );
         m_pieces.push_back( piece );
     }
-
-    hoxUtility::FreePieceInfoList( pieceInfoList );
 }
 
 void 
@@ -331,13 +327,6 @@ hoxCoreBoard::SetReferee( hoxIReferee* referee )
 {
     wxASSERT( referee != NULL );
     m_referee = referee;
-}
-
-void 
-hoxCoreBoard::SetTable( hoxTable* table )
-{
-    wxASSERT( table != NULL );
-    m_table = table;
 }
 
 void 
@@ -352,6 +341,28 @@ hoxCoreBoard::_DrawAllPieces( wxDC& dc )
             _DrawPiece(dc, piece);
         }
     }
+}
+
+bool
+hoxCoreBoard::_DrawAndHighlightPiece( hoxPiece* piece )
+{
+    // Un-highlight the "old" piece.
+    if ( m_latestPiece != NULL )
+    {
+        m_latestPiece->SetLatest(false);
+
+        /* Re-draw the "old" piece to undo the highlight.
+         * TODO: Is there a better way?
+         */
+        _ErasePiece( m_latestPiece );
+        _DrawPiece( m_latestPiece );
+    }
+
+    piece->SetLatest( true );
+    m_latestPiece = piece;
+    _DrawPiece( piece );
+
+    return true;
 }
 
 /**
@@ -526,14 +537,44 @@ hoxCoreBoard::_OnPieceMoved( hoxPiece*          piece,
      */
     if ( piece->GetPosition() != newPos )
     {
-        MovePieceToPosition(piece, newPos);
+        _MovePieceTo(piece, newPos);
     }
 
-    /* Inform the board's owner of the new move. */
-    if ( m_table != NULL )
+    /* Keep track the list of all Moves. */
+    _RecordMove( move );
+
+    /* Inform the Board's Owner of the new Move. */
+    if ( m_owner != NULL )
+        m_owner->OnBoardMove( move );
+}
+
+bool 
+hoxCoreBoard::DoMove( hoxMove& move )
+{
+    const char* FNAME = "hoxCoreBoard::DoMove";
+    hoxPiece* piece = _FindPieceAt( move.piece.position );
+    wxCHECK_MSG( piece != NULL, false, "Piece is not found." );
+    
+    if ( m_referee != NULL )
     {
-        m_table->OnMove_FromBoard( move );
+        if ( ! m_referee->ValidateMove( move ) )
+        {
+            wxLogWarning("%s: Move is not valid.", FNAME);
+            return false;
+        }
     }
+
+    /* Ask the core Board to perform the Move. */
+    if ( ! this->_MovePieceTo( piece, move.newPosition ) )
+    {
+        wxLogWarning("%s: The core Board failed to perform the Move.", FNAME);
+        return false;
+    }
+
+    /* Keep track the list of all Moves. */
+    _RecordMove( move );
+
+    return true;
 }
 
 /**
@@ -541,31 +582,20 @@ hoxCoreBoard::_OnPieceMoved( hoxPiece*          piece,
  * (without going through the referee).
  */
 bool 
-hoxCoreBoard::MovePieceToPosition( hoxPiece*          piece, 
-                                   const hoxPosition& newPosition )
+hoxCoreBoard::_MovePieceTo( hoxPiece*          piece, 
+                            const hoxPosition& newPosition,
+                            bool               hightlight /* = true */)
 {
     // Sanity check.
     if ( ! newPosition.IsValid() )
         return false;
 
     // Remove captured piece, if any.
-    hoxPiece* pCapturedPiece = GetPieceAt( newPosition );
+    hoxPiece* pCapturedPiece = _FindPieceAt( newPosition );
     if ( pCapturedPiece != NULL )
     {
-        _ErasePiece( pCapturedPiece );
         pCapturedPiece->SetActive(false);
-    }
-
-    // Un-highlight the "old" piece.
-    if ( m_latestPiece != NULL )
-    {
-        m_latestPiece->SetLatest(false);
-
-        /* Re-draw the "old" piece to undo the highlight.
-         * TODO: Is there a better way?
-         */
-        _ErasePiece( m_latestPiece );
-        _DrawPiece( m_latestPiece );
+        _ErasePiece( pCapturedPiece );
     }
 
     // Clear the old image if it was visible.
@@ -575,12 +605,128 @@ hoxCoreBoard::MovePieceToPosition( hoxPiece*          piece,
     // Simply set the position without validation.
     bool bRet = piece->SetPosition( newPosition );
 
-    m_latestPiece = piece;
-    m_latestPiece->SetLatest( true );
-
-    _DrawPiece( piece );
+    if ( hightlight )
+        _DrawAndHighlightPiece( piece );
+    else
+        _DrawPiece( piece );
 
     return bRet;
+}
+
+bool 
+hoxCoreBoard::DoGameReview_PREV()
+{
+    const char* FNAME = "hoxCoreBoard::DoGameReview_PREV";
+
+    /////////////////////////
+    if ( m_historyMoves.empty() )
+    {
+        wxLogWarning("%s: No Moves made yet.", FNAME);
+        return false;
+    }
+
+    if ( m_historyIndex == HISTORY_INDEX_UNKNOWN ) // not yet set?
+    {
+        // Get the latest move.
+        m_historyIndex = (int) (m_historyMoves.size() - 1);
+    }
+    else if ( m_historyIndex == HISTORY_INDEX_BEGIN )
+    {
+        wxLogDebug("%s: The index is already at BEGIN. Do nothing. END.", FNAME);
+        return false;
+    }
+
+    wxCHECK_MSG( m_historyIndex >= 0 && m_historyIndex < (int)m_historyMoves.size(), 
+                 false,
+                 "Invalid index." );
+    const hoxMove move = m_historyMoves[m_historyIndex];
+
+    //////////////////////////
+
+    /* Locate the Piece */
+
+    hoxPiece* piece = _FindPieceAt( move.newPosition );
+    wxCHECK_MSG(piece, false, "No piece found at NEW position.");
+
+    /* Move the piece back from NEW -> ORIGINAL position. */
+
+    piece->SetLatest( false );
+    if ( ! _MovePieceTo( piece, move.piece.position, false /* no highlight */ ) )
+    {
+        wxLogDebug("%s: Failed to move Piece back to the ORIGINAL position.", FNAME);
+        return false;
+    }
+
+    // Putback the captured piece, if any.
+    if ( move.IsAPieceCaptured() )
+    {
+        hoxPiece* capturedPiece = _FindPieceAt( move.capturedPiece.position,
+                                                true /* including Inactive pieces */ );
+        wxCHECK_MSG(capturedPiece != NULL, false, "Unable to get the captured Piece.");
+        wxCHECK_MSG(!capturedPiece->IsActive(), false, "Piece is already Active.");
+        capturedPiece->SetActive( true );
+        _DrawPiece( capturedPiece );
+    }
+
+     --m_historyIndex;
+     if ( m_historyIndex >= 0 )
+     {
+         const hoxMove prevMove = m_historyMoves[m_historyIndex];
+         hoxPiece* prevPiece = _FindPieceAt( prevMove.newPosition,
+                                              true /* including Inactive pieces */ );
+        _DrawAndHighlightPiece( prevPiece );
+     }
+
+    return true;
+}
+
+bool 
+hoxCoreBoard::DoGameReview_NEXT()
+{
+    const char* FNAME = "hoxCoreBoard::DoGameReview_NEXT";
+
+    /////////////////////////////////////
+    if ( m_historyMoves.empty() )
+    {
+        wxLogWarning("%s: No Moves made yet.", FNAME);
+        return false;
+    }
+
+    if ( m_historyIndex == HISTORY_INDEX_UNKNOWN ) // not yet set?
+    {
+        wxLogDebug("%s: No PREV done. Do nothing. END.", FNAME);
+        return false;
+    }
+    else if ( m_historyIndex == (int)m_historyMoves.size() - 1 )
+    {
+        wxLogDebug("%s: The index is already at END. Do nothing. END.", FNAME);
+        return false;
+    }
+
+    ++m_historyIndex;
+
+    wxCHECK_MSG( m_historyIndex >= 0 && m_historyIndex < (int)m_historyMoves.size(), 
+                 false,
+                 "Invalid index." );
+    const hoxMove move = m_historyMoves[m_historyIndex];
+
+    /////////////////////////////////////
+
+    // Capture piece, if any.
+    if ( move.IsAPieceCaptured() )
+    {
+        hoxPiece* capturedPiece = _FindPieceAt( move.newPosition );
+        wxCHECK_MSG(capturedPiece, false, "Unable to get the captured Piece.");
+        capturedPiece->SetActive( false );
+        _ErasePiece( capturedPiece );
+    }
+
+    /* Move the piece from ORIGINAL --> NEW position. */
+
+    hoxPiece* piece = _FindPieceAt( move.piece.position );
+    wxCHECK_MSG(piece, false, "No piece found at ORIGINAL position.");
+
+    return _MovePieceTo( piece, move.newPosition );
 }
 
 void 
@@ -704,20 +850,22 @@ hoxCoreBoard::_GetPieceLocation( const hoxPiece* piece ) const
     return wxPoint( posX, posY );
 }
 
-//
-// Return 'NULL' if no ** active ** piece is at the specified position.
-//
 hoxPiece* 
-hoxCoreBoard::GetPieceAt( const hoxPosition& pos ) const
+hoxCoreBoard::_FindPieceAt( const hoxPosition& position,
+                            bool               includeInactive /* = false */ ) const
 {
-    hoxPieceList::const_iterator it;
-    for (it = m_pieces.begin(); it != m_pieces.end(); ++it)
+    hoxPiece* piece = NULL;  // Just a piece holder.
+    
+    for ( hoxPieceList::const_iterator it = m_pieces.begin(); 
+                                       it != m_pieces.end(); ++it )
     {
-        hoxPiece* piece = *it;
-        if ( piece->IsActive() && piece->GetPosition() == pos) 
-        {
+        piece = *it;
+
+        if ( !includeInactive && !piece->IsActive() )
+            continue;
+
+        if ( piece->GetPosition() == position ) 
             return piece;
-        }
     }
 
     return NULL;
@@ -778,6 +926,13 @@ hoxCoreBoard::DoGetBestSize() const
     //    proposedHeight,
     //    bestSize.GetWidth(), bestSize.GetHeight());
     return bestSize;
+}
+
+void 
+hoxCoreBoard::_RecordMove( const hoxMove& move )
+{
+    m_historyMoves.push_back( move );
+    m_historyIndex = HISTORY_INDEX_UNKNOWN; // Clear PREVIEW mode.
 }
 
 /************************* END OF FILE ***************************************/

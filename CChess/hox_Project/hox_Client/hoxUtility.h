@@ -39,8 +39,6 @@ namespace hoxUtility
 
     hoxResult LoadPieceImage(hoxPieceType type, hoxPieceColor color, wxImage& image);
 
-    void FreePieceInfoList( hoxPieceInfoList& pieceInfoList );
-
     /** 
      * NOTE: I were thinking about deriving a class to handle the list of
      *       tables (to avoid memory leak). However, it seems that we

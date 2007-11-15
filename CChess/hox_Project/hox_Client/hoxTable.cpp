@@ -203,8 +203,8 @@ hoxTable::OnMove_FromBoard( const hoxMove& move )
 
     hoxPlayer* player = NULL;  // A player holder.
 
-    for (hoxPlayerAndRoleList::iterator it = m_players.begin(); 
-                                        it != m_players.end(); ++it)
+    for ( hoxPlayerAndRoleList::const_iterator it = m_players.begin(); 
+                                               it != m_players.end(); ++it )
     {
         player = it->player;
         wxLogDebug("%s: Inform player [%s] about the Board Move...", 

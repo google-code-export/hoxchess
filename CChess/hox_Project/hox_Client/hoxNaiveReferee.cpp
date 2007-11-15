@@ -43,7 +43,7 @@ hoxNaiveReferee::Reset()
 }
 
 bool 
-hoxNaiveReferee::ValidateMove(const hoxMove& move)
+hoxNaiveReferee::ValidateMove( hoxMove& move )
 {
     /**
      * NOTE: Only check for 'turns'. Otherwise, allow everything.

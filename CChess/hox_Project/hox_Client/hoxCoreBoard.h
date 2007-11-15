@@ -28,19 +28,7 @@
 #define __INCLUDED_HOX_CORE_BOARD_H_
 
 #include <wx/wx.h>
-
-// Under Windows, change this to 1
-// to use wxGenericDragImage
-
-//#define wxUSE_GENERIC_DRAGIMAGE 1
-
-#if wxUSE_GENERIC_DRAGIMAGE
-#include "wx/generic/dragimgg.h"
-#define wxDragImage wxGenericDragImage
-#else
 #include <wx/dragimag.h>
-#endif
-
 #include <wx/image.h>
 
 #include <list>
@@ -70,6 +58,16 @@ typedef std::list<hoxPiece*> hoxPieceList;
 
 class hoxCoreBoard : public wxPanel
 {
+public:
+    /**
+     * The Board's Owner. 
+     */
+    class BoardOwner
+    {
+    public:
+        virtual void OnBoardMove( const hoxMove& move ) = 0;
+    };
+
 public:
     hoxCoreBoard(); // Dummy default constructor required for RTTI info.
     hoxCoreBoard( wxWindow*      parent,
@@ -103,24 +101,27 @@ public:
     hoxIReferee* GetReferee() const { return m_referee; }
 
     /**
-     * Set the table which this Board will inform of new Moves.
-     *
+     * Set Owner of this Board.
      */
-    void SetTable( hoxTable* table );
+    void SetBoardOwner( BoardOwner* owner ) { m_owner = owner; }
 
     /**
      * This API is called by Table.
      * Usually, the Move is coming an external source (e.g., over the network).
-     * Thus, the Table should already validate the Move before 
-     * invoking this API.
      *
-     * @note This move will BYPASS referee-validation.
+     * @note This move will trigger referee-validation.
      */
-    bool MovePieceToPosition(hoxPiece* piece, const hoxPosition& newPosition);
-
+    bool DoMove( hoxMove& move );
 
     /*********************************
-     * override base class virtuals
+     * Game-reviewing API.
+     *********************************/
+
+    bool DoGameReview_PREV();  // Previous move.
+    bool DoGameReview_NEXT();
+
+    /*********************************
+     * My event-handlers.
      *********************************/
 
     void OnPaint(wxPaintEvent &WXUNUSED(event));
@@ -133,7 +134,6 @@ public:
      * My 'other' (less important) public API
      ******************************************/
 
-    hoxPiece* GetPieceAt(const hoxPosition& pos) const;
     void ToggleViewSide();  // toggle view side: Red/Black is at the bottom.
     bool IsViewInverted() const { return m_bViewInverted; }
 
@@ -146,6 +146,28 @@ protected:
     virtual wxSize DoGetBestSize() const;
 
 private:
+    /**
+     * Move a Piece to a new Position.
+     *
+     * @note No Referee-validation is involved.
+     *
+     * @param hightlight - If true, then the Piece will be highlighted.
+     */
+    bool _MovePieceTo( hoxPiece*          piece, 
+                       const hoxPosition& newPosition,
+                       bool               hightlight = true );
+
+    /**
+     * Find a Piece a given position.
+     *
+     * @param includeInactive - If true, then inactive pieces are also included
+     *                          in the search (useful in REVIEW mode).
+     *
+     * @return NULL if no Piece was found.
+     */
+    hoxPiece* _FindPieceAt( const hoxPosition& position,
+                            bool               includeInactive = false ) const;
+
     /**
      * This API is called when a piece is physically moved by the local player
      * using the mouse.
@@ -160,6 +182,7 @@ private:
     void   _DrawBoard(wxDC& dc);
     void   _DrawWorkSpace( wxDC& dc );
     void   _DrawAllPieces(wxDC& dc);
+    bool   _DrawAndHighlightPiece( hoxPiece* piece );
     bool   _DrawPiece(const hoxPiece* piece, int op = wxCOPY);
     bool   _DrawPiece(wxDC& dc, const hoxPiece* piece, int op = wxCOPY);
     wxRect _GetPieceRect(const hoxPiece* piece) const;
@@ -173,6 +196,7 @@ private:
     bool      _PieceHitTest(const hoxPiece* piece, const wxPoint& pt) const;
     hoxPosition _PointToPosition(const hoxPiece* piece, const wxPoint& p) const;
 
+    void      _RecordMove( const hoxMove& move );
 
 private:
     // Board's characteristics.
@@ -183,10 +207,8 @@ private:
 
     hoxPieceList    m_pieces;  // list of all pieces
 
-    wxWindow*       m_parent;  // the parent window
-
-    hoxIReferee*    m_referee;  // who will referee the game.
-    hoxTable*       m_table;  // which table this board belongs to.
+    hoxIReferee*    m_referee; // The Referee of the game.
+    BoardOwner*     m_owner;   // This Board's owner.
 
     // Variables used when a piece is dragged by the mouse.
     int             m_dragMode;
@@ -196,6 +218,16 @@ private:
 
     hoxPiece*       m_latestPiece; // piece that last moved.
 
+    /* The History of all Moves 
+     * This list is maintained so that the players can review the game.
+     */
+    hoxMoveVector     m_historyMoves; // All (past) Moves made so far.
+    enum HistoryIndex {   // TODO: Temporarily defined here.
+        HISTORY_INDEX_UNKNOWN  = -2,
+        HISTORY_INDEX_BEGIN    = -1
+        //HISTORY_INDEX_END     = -1,
+    };
+    int               m_historyIndex; // Which Move the user is reviewing.
 
     DECLARE_DYNAMIC_CLASS(hoxCoreBoard)
     DECLARE_EVENT_TABLE()
