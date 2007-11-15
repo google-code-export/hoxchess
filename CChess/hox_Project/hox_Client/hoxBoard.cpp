@@ -512,7 +512,6 @@ void
 hoxSimpleBoard::SetTable( hoxTable* table ) 
 { 
     m_table = table;
-    //m_coreBoard->SetTable( m_table ); 
 }
 
 hoxIReferee* 
