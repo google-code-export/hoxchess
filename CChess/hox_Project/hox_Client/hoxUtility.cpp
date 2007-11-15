@@ -229,14 +229,13 @@ hoxURI::Escape_String(const wxString& str)
  * @return true if everything is fine. Otherwise, return false.
  */
 bool 
-hoxUtility::ParseHostnameAndPort( const wxString& input,
-                                  wxString&       hostname,
-                                  int&            port )
+hoxUtility::ParseServerAddress( const wxString&   input,
+                                hoxServerAddress& serverAddress )
 {
     const char SEPARATOR = ':';
 
-    hostname = input.BeforeFirst( SEPARATOR );
-    if ( hostname.empty() )
+    serverAddress.name = input.BeforeFirst( SEPARATOR );
+    if ( serverAddress.name.empty() )
         return false;
 
     wxString portStr = input.AfterFirst( SEPARATOR );
@@ -246,7 +245,7 @@ hoxUtility::ParseHostnameAndPort( const wxString& input,
         if ( !portStr.ToLong( &longVal ) )
             return false;
 
-        port = (int) longVal;
+        serverAddress.port = (int) longVal;
     }
     
     return true;

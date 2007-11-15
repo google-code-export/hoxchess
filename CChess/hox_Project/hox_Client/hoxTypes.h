@@ -226,4 +226,17 @@ public:
     hoxCommand() : type( hoxREQUEST_TYPE_UNKNOWN ) {}
 };
 
+/**
+ * Representing a server address.
+ */
+class hoxServerAddress
+{
+public:
+    wxString   name;
+    int        port;
+
+    hoxServerAddress() : port( 0 ) {}
+    hoxServerAddress(const wxString& n, int p) : name( n ), port( p ) {}
+};
+
 #endif /* __INCLUDED_HOX_TYPES_H_ */

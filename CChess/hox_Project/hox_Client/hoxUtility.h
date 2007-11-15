@@ -92,9 +92,8 @@ namespace hoxUtility
      *
      * @return true if everything is fine. Otherwise, return false.
      */
-    bool ParseHostnameAndPort( const wxString& input,
-                               wxString&       hostname,
-                               int&            port );
+    bool ParseServerAddress( const wxString&   input,
+                             hoxServerAddress& serverAddress );
 
 }
 
