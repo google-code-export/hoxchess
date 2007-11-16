@@ -523,7 +523,7 @@ hoxCoreBoard::_OnPieceMoved( hoxPiece*          piece,
 
         if ( ! m_referee->ValidateMove( move ) )
         {
-            wxLogWarning("Move is not valid!!!");
+            _PrintDebug( "Move is not valid!!!" );
             this->Refresh();
             return;
         }
@@ -556,7 +556,7 @@ hoxCoreBoard::DoMove( hoxMove& move )
     {
         if ( ! m_referee->ValidateMove( move ) )
         {
-            wxLogWarning("%s: Move is not valid.", FNAME);
+            _PrintDebug( wxString::Format("%s: Move is not valid!!!", FNAME) );
             return false;
         }
     }
@@ -930,6 +930,23 @@ hoxCoreBoard::_RecordMove( const hoxMove& move )
 {
     m_historyMoves.push_back( move );
     m_historyIndex = HISTORY_INDEX_UNKNOWN; // Clear PREVIEW mode.
+}
+
+/**
+ * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ * TODO: This API exists ONLY to help printing debug-message related to
+ *       this Board.  wxLogXXX() is not used because its output can be
+ *       hidden and may not be visible to the end-users.
+ * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ */
+void 
+hoxCoreBoard::_PrintDebug( const wxString& debugMsg ) const
+{
+    if ( m_owner != NULL )
+    {
+        m_owner->OnBoardMsg( debugMsg );
+    }
+    wxLogDebug( debugMsg.c_str() );
 }
 
 /************************* END OF FILE ***************************************/

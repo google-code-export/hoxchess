@@ -29,7 +29,6 @@
 
 #include <wx/wx.h>
 #include <wx/dragimag.h>
-#include <wx/image.h>
 
 #include <list>
 #include "hoxPiece.h"
@@ -66,6 +65,7 @@ public:
     {
     public:
         virtual void OnBoardMove( const hoxMove& move ) = 0;
+        virtual void OnBoardMsg( const wxString& message ) = 0;
     };
 
 public:
@@ -204,6 +204,15 @@ private:
     hoxPosition _PointToPosition(const hoxPiece* piece, const wxPoint& p) const;
 
     void      _RecordMove( const hoxMove& move );
+
+    /**
+     * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     * TODO: This API exists ONLY to help printing debug-message related to
+     *       this Board.  wxLogXXX() is not used because its output can be
+     *       hidden and may not be visible to the end-users.
+     * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     */
+    void _PrintDebug( const wxString& debugMsg ) const;
 
 private:
     // Board's characteristics.

@@ -87,6 +87,12 @@ public:
      */
     virtual void OnBoardMove( const hoxMove& move );
 
+    /**
+     * A callback function invoked by the core Board when
+     * a message, which may need the end-user's attention, occurs.
+     */
+    virtual void OnBoardMsg( const wxString& message );
+
     /*********************************
      * My custom event handler.
      *********************************/
@@ -136,6 +142,9 @@ private:
     
     void _AddPlayerToList( const wxString& playerId, int playerScore );
     void _RemovePlayerFromList( const wxString& playerId );
+
+    void _PostToWallOutput( const wxString& who,
+                            const wxString& message );
 
 private:
     hoxCoreBoard*     m_coreBoard;  // The "core" board.
