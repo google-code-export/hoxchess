@@ -117,16 +117,40 @@ hoxSimpleBoard::OnPlayerJoin( wxCommandEvent &event )
     hoxPlayer* player = wx_reinterpret_cast(hoxPlayer*, event.GetEventObject());
     wxCHECK_RET(player, "Player cannot be NULL.");
 
+    hoxPieceColor playerColor = hoxPIECE_COLOR_NONE;
+
     if ( event.GetInt() == hoxPIECE_COLOR_RED )
     {
+        playerColor = hoxPIECE_COLOR_RED;
         SetRedInfo( player );
     } 
     else if ( event.GetInt() == hoxPIECE_COLOR_BLACK )
     {
+        playerColor = hoxPIECE_COLOR_BLACK;
         SetBlackInfo( player );
     }
 
     _AddPlayerToList( player->GetName(), player->GetScore() );
+
+    wxCHECK_RET( m_coreBoard != NULL, "The core Board is NULL." );
+
+    /* Update the LOCAL - color on the core Board */
+
+    hoxPlayerType type = player->GetType();
+    if (   type == hoxPLAYER_TYPE_HOST 
+        || type == hoxPLAYER_TYPE_LOCAL )
+    {
+        wxLogDebug("%s: Update the core Board's local-color to [%d].", 
+            FNAME, playerColor);
+        m_coreBoard->SetLocalColor( playerColor );
+    }
+
+    /* Start the game if there are two RED and BLACK players */
+
+    if ( !m_redId.empty() && !m_blackId.empty() )
+    {
+        m_coreBoard->StartGame();
+    }
 }
 
 void 
@@ -179,8 +203,7 @@ hoxSimpleBoard::OnButtonHistory_BEGIN( wxCommandEvent &event )
     if ( m_coreBoard == NULL )
         return;
 
-    while ( m_coreBoard->DoGameReview_PREV() ) 
-    { }
+    m_coreBoard->DoGameReview_BEGIN();
 }
 
 void 
@@ -207,8 +230,7 @@ hoxSimpleBoard::OnButtonHistory_END( wxCommandEvent &event )
     if ( m_coreBoard == NULL )
         return;
 
-    while ( m_coreBoard->DoGameReview_NEXT() )
-    { }
+    m_coreBoard->DoGameReview_END();
 }
 
 bool 

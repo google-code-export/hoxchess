@@ -87,9 +87,14 @@ public:
     void SetPiecesPath(const wxString& piecesPath);
 
     /**
-     * Load pieces according the referee's list of pieces' positions.
+     * Load pieces according the Referee's list of pieces' positions.
      */
     void LoadPieces();
+
+    /**
+     * Start a game.
+     */
+    void StartGame();
 
     /**
      * Set the referee who can determine whether a move is legal or not.
@@ -106,6 +111,13 @@ public:
     void SetBoardOwner( BoardOwner* owner ) { m_owner = owner; }
 
     /**
+     * Set the color (player-role) of the "local" player.
+     * Basically, this color decides if (or which color) the physical 
+     * player can use the machine's mouse the move the Pieces.
+     */
+    void SetLocalColor( hoxPieceColor color ) { m_localColor = color; }
+
+    /**
      * This API is called by Table.
      * Usually, the Move is coming an external source (e.g., over the network).
      *
@@ -117,8 +129,10 @@ public:
      * Game-reviewing API.
      *********************************/
 
+    bool DoGameReview_BEGIN();
     bool DoGameReview_PREV();  // Previous move.
     bool DoGameReview_NEXT();
+    bool DoGameReview_END();
 
     /*********************************
      * My event-handlers.
@@ -185,6 +199,15 @@ private:
 
     void _OnPieceMoved(hoxPiece* piece, const hoxPosition& newPos);
 
+    /**
+     * Check if a given piece has the right to move 'next'.
+     */
+    bool _CanPieceMoveNext( hoxPiece* piece ) const;
+
+    /**
+     * Check if this Board is in GAME-REVIEW mode.
+     */
+    bool _IsBoardInReviewMode() const;
 
     void   _DrawBoard(wxDC& dc);
     void   _DrawWorkSpace( wxDC& dc );
@@ -198,7 +221,7 @@ private:
     void      _ErasePiece(hoxPiece* piece);
     void      _ErasePieceWithDC(hoxPiece* piece, wxDC& dc);
     void      _ClearPieces();
-    hoxPiece* _FindPiece(const wxPoint& pt) const;
+    hoxPiece* _FindPiece(const wxPoint& point) const;
     wxPoint   _GetPieceLocation(const hoxPiece* piece) const;
     bool      _PieceHitTest(const hoxPiece* piece, const wxPoint& pt) const;
     hoxPosition _PointToPosition(const hoxPiece* piece, const wxPoint& p) const;
@@ -226,6 +249,9 @@ private:
     hoxIReferee*    m_referee; // The Referee of the game.
     BoardOwner*     m_owner;   // This Board's owner.
 
+    hoxPieceColor   m_localColor;
+            /* The color (player-role) of the "local" player. */
+
     // Variables used when a piece is dragged by the mouse.
     int             m_dragMode;
     hoxPiece*       m_draggedPiece;
@@ -237,12 +263,21 @@ private:
     /* The History of all Moves 
      * This list is maintained so that the players can review the game.
      */
-    hoxMoveVector     m_historyMoves; // All (past) Moves made so far.
+    hoxMoveVector   m_historyMoves; // All (past) Moves made so far.
     enum HistoryIndex {   // TODO: Temporarily defined here.
         HISTORY_INDEX_UNKNOWN  = -2,
         HISTORY_INDEX_BEGIN    = -1
     };
-    int               m_historyIndex; // Which Move the user is reviewing.
+    int             m_historyIndex; // Which Move the user is reviewing.
+
+    /*********************************
+     * Variables for Testing-purpose *
+     *********************************/
+
+    bool            m_TEST_skipColorCheck;
+            /* If true, then we skip checking for Color (Turn)
+             * when a piece is moved by the Mouse.
+             */
 
     DECLARE_DYNAMIC_CLASS(hoxCoreBoard)
     DECLARE_EVENT_TABLE()

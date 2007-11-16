@@ -45,6 +45,7 @@ class hoxNaiveReferee : public hoxIReferee
     virtual bool ValidateMove( hoxMove& move );
     virtual void GetGameState( hoxPieceInfoList& pieceInfoList,
                                hoxPieceColor&    nextColor );
+    virtual hoxPieceColor GetNextColor();
     virtual bool GetPieceAtPosition( const hoxPosition& position, 
                                      hoxPieceInfo&      pieceInfo ) const;
 

@@ -50,14 +50,12 @@ public:
     virtual bool ValidateMove( hoxMove& move );
     virtual void GetGameState( hoxPieceInfoList& pieceInfoList,
                                hoxPieceColor&    nextColor );
+    virtual hoxPieceColor GetNextColor();
     virtual bool GetPieceAtPosition( const hoxPosition& position, 
                                      hoxPieceInfo&      pieceInfo ) const;
 
 private:
     BoardInfoAPI::Board*  m_board;  // Board-Info.
-
-    hoxPieceColor         m_nextColor;
-        /* Which side (RED or BLACK) will move next? */
 };
 
 #endif /* __INCLUDED_HOX_REFEREE_H_ */
