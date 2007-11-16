@@ -89,27 +89,12 @@ enum hoxPieceColor
 //
 enum hoxGameStatus
 {
-    hoxGAME_STATUS_UNKNOWN = -1,
-
-    hoxGAME_STATUS_IN_PROGRESS = 0,
-    hoxGAME_STATUS_RED_WIN,
-    hoxGAME_STATUS_BLACK_WIN,
-    hoxGAME_STATUS_DRAWN
-};
-
-//
-// Table's status
-//
-enum hoxTableStatus
-{
-   /*
-    * !!! Do not change the values nor orders of the following !!!
-    */
-
-    hoxTABLE_STATUS_OPEN = 0,  // Open but not enough player
-    hoxTABLE_STATUS_READY,   // Enough (2) players, waiting for 1st move
-    hoxTABLE_STATUS_IN_PROGRESS,  // At least 1 move has been made
-    hoxTABLE_STATUS_CLOSED
+    hoxGAME_STATUS_OPEN = 0,    // Open but not enough Player.
+    hoxGAME_STATUS_READY,       // Enough (2) players, waiting for 1st Move.
+    hoxGAME_STATUS_IN_PROGRESS, // At least 1 Move has been made.
+    hoxGAME_STATUS_RED_WIN,     // Game Over. Red won.
+    hoxGAME_STATUS_BLACK_WIN,   // Game Over. Black won.
+    hoxGAME_STATUS_DRAWN        // Game Over. Drawn.
 };
 
 //
@@ -170,7 +155,10 @@ enum hoxTimeContant
     */
 
     hoxTIME_ONE_SECOND_INTERVAL     = 1000,   // 1 second
-    hoxTIME_DEFAULT_GAME_TIME       = 20*60   // 20 minutes
+
+    hoxTIME_DEFAULT_GAME_TIME       = 20*60,  // 20 minutes
+    hoxTIME_DEFAULT_MOVE_TIME       = 5*60,   // 5 minutes
+    hoxTIME_DEFAULT_FREE_TIME       = 30      // 30 seconds
 };
 
 //

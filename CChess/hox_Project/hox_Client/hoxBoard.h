@@ -108,6 +108,8 @@ public:
     void OnButtonHistory_NEXT( wxCommandEvent &event );
     void OnButtonHistory_END( wxCommandEvent &event );
 
+    void OnTimer( wxTimerEvent& WXUNUSED(event) );
+
     /****************************************
      * Override the parent (wxPanel) 's API.
      ****************************************/
@@ -135,7 +137,6 @@ public:
      */
     bool DoMove( hoxMove& move );
 
-
 private:
     void _CreateBoardPanel();
     void _LayoutBoardPanel( bool viewInverted );
@@ -146,9 +147,20 @@ private:
     void _PostToWallOutput( const wxString& who,
                             const wxString& message );
 
+    /**
+     * A helper to do various task whenever a valid Move has been made.
+     */
+    void _OnValidMove( const hoxMove& move );
+
+    void           _ResetTimerUI();  // Reset times to start a new game.
+    void           _UpdateTimerUI();
+    const wxString _FormatTime( int nTime ) const;
+
 private:
     hoxCoreBoard*     m_coreBoard;  // The "core" board.
-    hoxTable*         m_table;  // The table to which this board belongs.
+    hoxTable*         m_table;      // The Table to which this Board belongs.
+
+    hoxGameStatus     m_status;     // The game's status.
 
     /* Players */
 
@@ -158,16 +170,26 @@ private:
     wxString          m_blackId;
     StringList        m_observerIds;
 
-    /* Player Info(s) + timers */
+    /* Timers */
+
+    wxTimer*          m_timer;       // To keep track of time.
+    int               m_nBGameTime;  // Black's Game-time.
+    int               m_nRGameTime;  // Red's Game-time.
+    int               m_nBMoveTime;  // Black's Move-time.
+    int               m_nRMoveTime;  // Red's Move-time.
+    int               m_nBFreeTime;  // Black's Free-time.
+    int               m_nRFreeTime;  // Red's Free-time.
+
+    /* Player Info(s) + timers UI */
 
     wxStaticText*     m_blackInfo;      // Black's info.
     wxStaticText*     m_redInfo;        // Red's info.
-    wxStaticText*     m_blackGameTime;  // Black's game-time.
-    wxStaticText*     m_redGameTime;    // Red's game-time.
-    wxStaticText*     m_blackMoveTime;  // Black's move-time.
-    wxStaticText*     m_redMoveTime;    // Red's move-time.
-    wxStaticText*     m_blackFreeTime;  // Black's free-time.
-    wxStaticText*     m_redFreeTime;    // Red's free-time.
+    wxStaticText*     m_blackGameTime;  // Black's Game-time.
+    wxStaticText*     m_redGameTime;    // Red's Game-time.
+    wxStaticText*     m_blackMoveTime;  // Black's Move-time.
+    wxStaticText*     m_redMoveTime;    // Red's Move-time.
+    wxStaticText*     m_blackFreeTime;  // Black's Free-time.
+    wxStaticText*     m_redFreeTime;    // Red's Free-time.
 
     /* Controls on for our Wall */
 
