@@ -169,6 +169,13 @@ private:
                             bool               includeInactive = false ) const;
 
     /**
+     * Attempt to find a Piece a given position. If found, then "capture" it.
+     *
+     * @return The captured Piece if found. Otherwise, return NULL.
+     */
+    hoxPiece* _FindAndCapturePieceAt( const hoxPosition& position );
+
+    /**
      * This API is called when a piece is physically moved by the local player
      * using the mouse.
      *
@@ -182,9 +189,9 @@ private:
     void   _DrawBoard(wxDC& dc);
     void   _DrawWorkSpace( wxDC& dc );
     void   _DrawAllPieces(wxDC& dc);
-    bool   _DrawAndHighlightPiece( hoxPiece* piece );
-    bool   _DrawPiece(const hoxPiece* piece, int op = wxCOPY);
-    bool   _DrawPiece(wxDC& dc, const hoxPiece* piece, int op = wxCOPY);
+    void   _DrawAndHighlightPiece( hoxPiece* piece );
+    bool   _DrawPiece( const hoxPiece* piece );
+    bool   _DrawPieceWithDC( wxDC& dc, const hoxPiece* piece, int op = wxCOPY );
     wxRect _GetPieceRect(const hoxPiece* piece) const;
 
     void      _DoPaint(wxDC& dc);
@@ -225,7 +232,6 @@ private:
     enum HistoryIndex {   // TODO: Temporarily defined here.
         HISTORY_INDEX_UNKNOWN  = -2,
         HISTORY_INDEX_BEGIN    = -1
-        //HISTORY_INDEX_END     = -1,
     };
     int               m_historyIndex; // Which Move the user is reviewing.
 
