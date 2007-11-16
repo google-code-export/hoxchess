@@ -338,12 +338,12 @@ hoxCoreBoard::_DrawAllPieces( wxDC& dc )
         hoxPiece* piece = *it;
         if ( piece->IsActive() && piece->IsShown()) 
         {
-            _DrawPiece(dc, piece);
+            _DrawPieceWithDC( dc, piece );
         }
     }
 }
 
-bool
+void
 hoxCoreBoard::_DrawAndHighlightPiece( hoxPiece* piece )
 {
     // Un-highlight the "old" piece.
@@ -361,27 +361,24 @@ hoxCoreBoard::_DrawAndHighlightPiece( hoxPiece* piece )
     piece->SetLatest( true );
     m_latestPiece = piece;
     _DrawPiece( piece );
-
-    return true;
 }
 
 /**
  * Draw a given piece using THIS window's Device-Context.
  */
 bool 
-hoxCoreBoard::_DrawPiece( const hoxPiece* piece, 
-                          int             op /* = wxCOPY */ )
+hoxCoreBoard::_DrawPiece( const hoxPiece* piece )
 {
     wxClientDC dc(this);
     PrepareDC(dc);   // ... for drawing a scrolled image
 
-    return _DrawPiece( dc, piece, op );
+    return _DrawPieceWithDC( dc, piece );
 }
 
 bool 
-hoxCoreBoard::_DrawPiece( wxDC&           dc, 
-                          const hoxPiece* piece, 
-                          int             op /* = wxCOPY */ )
+hoxCoreBoard::_DrawPieceWithDC( wxDC&           dc, 
+                                const hoxPiece* piece, 
+                                int             op /* = wxCOPY */ )
 {
     const wxPoint& pos = _GetPieceLocation( piece );
     const wxBitmap& bitmap = piece->GetBitmap();
@@ -590,27 +587,22 @@ hoxCoreBoard::_MovePieceTo( hoxPiece*          piece,
     if ( ! newPosition.IsValid() )
         return false;
 
-    // Remove captured piece, if any.
-    hoxPiece* pCapturedPiece = _FindPieceAt( newPosition );
-    if ( pCapturedPiece != NULL )
-    {
-        pCapturedPiece->SetActive(false);
-        _ErasePiece( pCapturedPiece );
-    }
+    // Erase the captured piece, if any.
+    _FindAndCapturePieceAt( newPosition );
 
     // Clear the old image if it was visible.
     if ( piece->IsShown() )
         _ErasePiece( piece );
 
     // Simply set the position without validation.
-    bool bRet = piece->SetPosition( newPosition );
+    piece->SetPosition( newPosition );
 
     if ( hightlight )
         _DrawAndHighlightPiece( piece );
     else
         _DrawPiece( piece );
 
-    return bRet;
+    return true;
 }
 
 bool 
@@ -618,7 +610,6 @@ hoxCoreBoard::DoGameReview_PREV()
 {
     const char* FNAME = "hoxCoreBoard::DoGameReview_PREV";
 
-    /////////////////////////
     if ( m_historyMoves.empty() )
     {
         wxLogWarning("%s: No Moves made yet.", FNAME);
@@ -637,18 +628,13 @@ hoxCoreBoard::DoGameReview_PREV()
     }
 
     wxCHECK_MSG( m_historyIndex >= 0 && m_historyIndex < (int)m_historyMoves.size(), 
-                 false,
-                 "Invalid index." );
+                 false, "Invalid index." );
     const hoxMove move = m_historyMoves[m_historyIndex];
 
-    //////////////////////////
-
-    /* Locate the Piece */
+    /* Move the piece back from NEW -> ORIGINAL position. */
 
     hoxPiece* piece = _FindPieceAt( move.newPosition );
     wxCHECK_MSG(piece, false, "No piece found at NEW position.");
-
-    /* Move the piece back from NEW -> ORIGINAL position. */
 
     piece->SetLatest( false );
     if ( ! _MovePieceTo( piece, move.piece.position, false /* no highlight */ ) )
@@ -657,7 +643,8 @@ hoxCoreBoard::DoGameReview_PREV()
         return false;
     }
 
-    // Putback the captured piece, if any.
+    /* Putback the captured piece, if any. */
+
     if ( move.IsAPieceCaptured() )
     {
         hoxPiece* capturedPiece = _FindPieceAt( move.capturedPiece.position,
@@ -668,12 +655,14 @@ hoxCoreBoard::DoGameReview_PREV()
         _DrawPiece( capturedPiece );
     }
 
+    /* Highlight the Piece (if any) of the "next-PREV" Move. */
+
      --m_historyIndex;
      if ( m_historyIndex >= 0 )
      {
          const hoxMove prevMove = m_historyMoves[m_historyIndex];
-         hoxPiece* prevPiece = _FindPieceAt( prevMove.newPosition,
-                                              true /* including Inactive pieces */ );
+         hoxPiece* prevPiece = _FindPieceAt( prevMove.newPosition );
+         wxCHECK_MSG(prevPiece, false, "No next-PREV Piece found.");
         _DrawAndHighlightPiece( prevPiece );
      }
 
@@ -685,7 +674,6 @@ hoxCoreBoard::DoGameReview_NEXT()
 {
     const char* FNAME = "hoxCoreBoard::DoGameReview_NEXT";
 
-    /////////////////////////////////////
     if ( m_historyMoves.empty() )
     {
         wxLogWarning("%s: No Moves made yet.", FNAME);
@@ -706,25 +694,13 @@ hoxCoreBoard::DoGameReview_NEXT()
     ++m_historyIndex;
 
     wxCHECK_MSG( m_historyIndex >= 0 && m_historyIndex < (int)m_historyMoves.size(), 
-                 false,
-                 "Invalid index." );
+                 false, "Invalid index." );
     const hoxMove move = m_historyMoves[m_historyIndex];
-
-    /////////////////////////////////////
-
-    // Capture piece, if any.
-    if ( move.IsAPieceCaptured() )
-    {
-        hoxPiece* capturedPiece = _FindPieceAt( move.newPosition );
-        wxCHECK_MSG(capturedPiece, false, "Unable to get the captured Piece.");
-        capturedPiece->SetActive( false );
-        _ErasePiece( capturedPiece );
-    }
 
     /* Move the piece from ORIGINAL --> NEW position. */
 
     hoxPiece* piece = _FindPieceAt( move.piece.position );
-    wxCHECK_MSG(piece, false, "No piece found at ORIGINAL position.");
+    wxCHECK_MSG(piece, false, "No Piece found at the ORIGINAL position.");
 
     return _MovePieceTo( piece, move.newPosition );
 }
@@ -869,6 +845,27 @@ hoxCoreBoard::_FindPieceAt( const hoxPosition& position,
     }
 
     return NULL;
+}
+
+hoxPiece* 
+hoxCoreBoard::_FindAndCapturePieceAt( const hoxPosition& position )
+{
+    hoxPiece* capturedPiece = _FindPieceAt( position );
+
+    if ( capturedPiece == NULL )
+        return NULL;
+
+    capturedPiece->SetActive(false);
+    _ErasePiece( capturedPiece );
+
+    /* NOTE: To support GAME-REVIEW feature, use the following trick:
+     *     + Make sure the "recent" captured Piece is near the top of
+     *       the list so that it can be found in the case of "UN-capture".
+     */
+    m_pieces.remove( capturedPiece );
+    m_pieces.push_front( capturedPiece );
+
+    return capturedPiece;
 }
 
 // toggle view side: Red/Black is at the bottom.
