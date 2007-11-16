@@ -229,11 +229,12 @@ namespace BoardInfoAPI
         virtual ~Board();
 
         // ------------ Main Public API -------
-        void SetNextColor( hoxPieceColor c ) { m_nextColor = c; }
         bool ValidateMove( hoxMove& move );
 
         void GetGameState( hoxPieceInfoList& pieceInfoList,
                            hoxPieceColor&    nextColor );
+
+        hoxPieceColor GetNextColor() const { return m_nextColor; }
 
         bool GetPieceAtPosition( const hoxPosition& position, 
                                  hoxPieceInfo&      pieceInfo ) const;
@@ -1368,8 +1369,7 @@ BoardInfoAPI::PositionList_Clear( PositionList& positions )
 //-----------------------------------------------------------------------------
 
 hoxReferee::hoxReferee()
-            : m_nextColor( hoxPIECE_COLOR_NONE )
-            , m_board( NULL )
+            : m_board( NULL )
 {
     this->Reset();
 }
@@ -1384,8 +1384,7 @@ hoxReferee::Reset()
 {
     delete m_board;   // Delete the old Board, if exists.
 
-    m_nextColor = hoxPIECE_COLOR_RED;
-    m_board = new Board( m_nextColor );
+    m_board = new Board( hoxPIECE_COLOR_RED /* next-color */ );
 }
 
 bool 
@@ -1401,6 +1400,12 @@ hoxReferee::GetGameState( hoxPieceInfoList& pieceInfoList,
 {
     wxCHECK_RET(m_board, "The Board is NULL.");
     return m_board->GetGameState( pieceInfoList, nextColor );
+}
+
+hoxPieceColor 
+hoxReferee::GetNextColor()
+{
+    return m_board->GetNextColor();
 }
 
 bool 

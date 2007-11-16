@@ -86,11 +86,13 @@ hoxCoreBoard::hoxCoreBoard( wxWindow*      parent,
         , m_bViewInverted( false )  // Normal view: RED is at bottom of the screen
         , m_referee( referee )
         , m_owner( NULL )
+        , m_localColor( hoxPIECE_COLOR_NONE )
         , m_dragMode( DRAG_MODE_NONE )
         , m_draggedPiece( NULL )
         , m_dragImage( NULL )
         , m_latestPiece( NULL )
         , m_historyIndex( HISTORY_INDEX_UNKNOWN )
+        , m_TEST_skipColorCheck( true )
 {
     /* NOTE: We move this PNG code since to outside to avoid
      *       having duplicate handles if there are more than
@@ -110,16 +112,16 @@ hoxCoreBoard::~hoxCoreBoard()
 
     delete m_dragImage;
 
-    // *** Let the Table take care the referee.
-    // delete m_referee;
+    /* *** Let the Table take care the referee.
+     * delete m_referee;
+     */
 }
 
 void 
 hoxCoreBoard::OnPaint(wxPaintEvent &WXUNUSED(event))
 {
-    wxPaintDC dc(this);        // Device-Context
-    PrepareDC(dc);   // prepare the device context for drawing a scrolled image
-    //m_parent->PrepareDC(dc);
+    wxPaintDC dc(this);
+    PrepareDC(dc);   // ... for drawing a scrolled image
 
     _DoPaint(dc);
 }
@@ -168,13 +170,13 @@ hoxCoreBoard::_ClearPieces()
 
 // Find only active piece
 hoxPiece* 
-hoxCoreBoard::_FindPiece( const wxPoint& pt ) const
+hoxCoreBoard::_FindPiece( const wxPoint& point ) const
 {
     hoxPieceList::const_iterator it;
     for (it = m_pieces.begin(); it != m_pieces.end(); ++it)
     {
         hoxPiece* piece = *it;
-        if ( piece->IsActive() && _PieceHitTest(piece ,pt))
+        if ( piece->IsActive() && _PieceHitTest(piece, point))
             return piece;
     }
 
@@ -320,6 +322,25 @@ hoxCoreBoard::LoadPieces()
         hoxPiece* piece = new hoxPiece( (*it) );
         m_pieces.push_back( piece );
     }
+}
+
+void 
+hoxCoreBoard::StartGame()
+{
+    /* Testing-mode is over -:)
+     * Game begins...
+     */
+    m_TEST_skipColorCheck = false;
+
+    /* If the Board is in GAME-REVIEW mode, 
+     * leave it. 
+     */
+    DoGameReview_BEGIN();
+    m_historyMoves.clear();
+
+    /* Tell the Referee to Reset the game. */
+    wxCHECK_RET(m_referee, "The Referee should not be NULL.");
+    m_referee->Reset();
 }
 
 void 
@@ -546,6 +567,39 @@ hoxCoreBoard::_OnPieceMoved( hoxPiece*          piece,
 }
 
 bool 
+hoxCoreBoard::_CanPieceMoveNext( hoxPiece* piece ) const
+{
+    if ( _IsBoardInReviewMode() )
+        return false;
+
+    if (    m_referee != NULL
+         && m_referee->GetNextColor() != piece->GetColor() )
+    {
+        return false;
+    }
+
+    if ( ! m_TEST_skipColorCheck )
+    {
+        if ( piece->GetColor() != m_localColor )
+            return false;
+    }
+
+    return true;
+}
+
+bool 
+hoxCoreBoard::_IsBoardInReviewMode() const
+{
+    if (      m_historyIndex == HISTORY_INDEX_UNKNOWN
+         ||   m_historyIndex == (int)m_historyMoves.size() - 1 )
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool 
 hoxCoreBoard::DoMove( hoxMove& move )
 {
     const char* FNAME = "hoxCoreBoard::DoMove";
@@ -605,6 +659,15 @@ hoxCoreBoard::_MovePieceTo( hoxPiece*          piece,
     return true;
 }
 
+bool
+hoxCoreBoard::DoGameReview_BEGIN()
+{
+    while ( this->DoGameReview_PREV() ) 
+    { }
+
+    return true;
+}
+
 bool 
 hoxCoreBoard::DoGameReview_PREV()
 {
@@ -612,7 +675,7 @@ hoxCoreBoard::DoGameReview_PREV()
 
     if ( m_historyMoves.empty() )
     {
-        wxLogWarning("%s: No Moves made yet.", FNAME);
+        wxLogDebug("%s: No Moves made yet.", FNAME);
         return false;
     }
 
@@ -676,7 +739,7 @@ hoxCoreBoard::DoGameReview_NEXT()
 
     if ( m_historyMoves.empty() )
     {
-        wxLogWarning("%s: No Moves made yet.", FNAME);
+        wxLogDebug("%s: No Moves made yet.", FNAME);
         return false;
     }
 
@@ -705,6 +768,15 @@ hoxCoreBoard::DoGameReview_NEXT()
     return _MovePieceTo( piece, move.newPosition );
 }
 
+bool 
+hoxCoreBoard::DoGameReview_END()
+{
+    while ( this->DoGameReview_NEXT() )
+    { }
+
+    return true;
+}
+
 void 
 hoxCoreBoard::OnMouseEvent( wxMouseEvent& event )
 {
@@ -713,6 +785,10 @@ hoxCoreBoard::OnMouseEvent( wxMouseEvent& event )
         hoxPiece* piece = _FindPiece(event.GetPosition());
         if ( piece != NULL )
         {
+            // Is it this Color's Turn to move?
+            if ( ! _CanPieceMoveNext( piece ) )
+                return;
+
             // We tentatively start dragging, but wait for
             // mouse movement before dragging properly.
 

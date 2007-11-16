@@ -140,10 +140,6 @@ enum hoxPlayerType
             /* Any player who is remotely logging into this computer.
              */
 
-    hoxPLAYER_TYPE_NETWORK,    
-            /* Any player who has a network connection.
-             */
-
     hoxPLAYER_TYPE_DUMMY       
             /* Dummy player representing a Network (remote) player.
              * This player is created just to make sure that a table

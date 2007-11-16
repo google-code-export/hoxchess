@@ -72,6 +72,12 @@ hoxNaiveReferee::GetGameState( hoxPieceInfoList& pieceInfoList,
     wxLogError(_("Not yet implemented."));
 }
 
+hoxPieceColor
+hoxNaiveReferee::GetNextColor()
+{
+    return _nextColor;
+}
+
 bool 
 hoxNaiveReferee::GetPieceAtPosition( const hoxPosition& position, 
                                      hoxPieceInfo&      pieceInfo ) const
