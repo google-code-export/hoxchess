@@ -102,6 +102,14 @@ hoxSimpleBoard::OnBoardMove( const hoxMove& move )
 }
 
 void 
+hoxSimpleBoard::OnBoardMsg( const wxString& message )
+{
+    const wxString who = "** Board **";  // NOTE: This Board's name.
+
+    _PostToWallOutput( who, message ); 
+}
+
+void 
 hoxSimpleBoard::OnPlayerJoin( wxCommandEvent &event )
 {
     const char* FNAME = "hoxSimpleBoard::OnPlayerJoin";
@@ -155,10 +163,7 @@ hoxSimpleBoard::OnWallOutput( wxCommandEvent &event )
     const wxString who = eventString.BeforeFirst(' ');
     const wxString msg = eventString.AfterFirst(' ');
 
-    m_wallOutput->SetDefaultStyle(wxTextAttr(*wxBLACK));
-    m_wallOutput->AppendText( wxString::Format("[%s] ", who.c_str()) );
-    m_wallOutput->SetDefaultStyle(wxTextAttr(*wxBLUE));
-    m_wallOutput->AppendText( wxString::Format("%s\n", msg.c_str()) );
+    _PostToWallOutput( who, msg ); 
 }
 
 void 
@@ -605,6 +610,16 @@ hoxSimpleBoard::_RemovePlayerFromList( const wxString& playerId )
             break;
         }
     }
+}
+
+void 
+hoxSimpleBoard::_PostToWallOutput( const wxString& who,
+                                   const wxString& message )
+{
+    m_wallOutput->SetDefaultStyle( wxTextAttr(*wxBLACK) );
+    m_wallOutput->AppendText( wxString::Format("[%s] ", who.c_str()) );
+    m_wallOutput->SetDefaultStyle( wxTextAttr(*wxBLUE) );
+    m_wallOutput->AppendText( wxString::Format("%s\n", message.c_str()) );
 }
 
 /************************* END OF FILE ***************************************/
