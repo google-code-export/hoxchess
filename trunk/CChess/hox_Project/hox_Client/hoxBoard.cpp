@@ -59,6 +59,8 @@ BEGIN_EVENT_TABLE(hoxSimpleBoard, wxPanel)
     EVT_BUTTON(ID_HISTORY_PREV, hoxSimpleBoard::OnButtonHistory_PREV)
     EVT_BUTTON(ID_HISTORY_NEXT, hoxSimpleBoard::OnButtonHistory_NEXT)
     EVT_BUTTON(ID_HISTORY_END, hoxSimpleBoard::OnButtonHistory_END)
+
+    EVT_TIMER(wxID_ANY, hoxSimpleBoard::OnTimer)    
 END_EVENT_TABLE()
 
 // ----------------------------------------------------------------------------
@@ -76,13 +78,21 @@ hoxSimpleBoard::hoxSimpleBoard( wxWindow*       parent,
                    wxFULL_REPAINT_ON_RESIZE )
         , m_coreBoard( NULL )
         , m_table( NULL )
+        , m_status( hoxGAME_STATUS_OPEN )
 {
-    wxASSERT( referee != NULL );
+    wxCHECK_RET( referee != NULL, "A Referee must be set." );
 
     /* Create the core board. */
     m_coreBoard = new hoxCoreBoard( this, referee );
     m_coreBoard->SetBoardOwner( this );
     m_coreBoard->SetPiecesPath( piecesPath );
+
+    /* A timer to keep track of the time. */
+    m_timer = new wxTimer( this );
+    m_timer->Start( hoxTIME_ONE_SECOND_INTERVAL );
+
+    /* Set default game-times. */
+    _ResetTimerUI();
 
     // *** NOTE: By default, the Board is NOT visible.
     wxPanel::Show( false );  // invoke the parent's API.
@@ -90,6 +100,15 @@ hoxSimpleBoard::hoxSimpleBoard( wxWindow*       parent,
 
 hoxSimpleBoard::~hoxSimpleBoard()
 {
+    if ( m_timer != NULL )
+    {
+        if ( m_timer->IsRunning() )
+            m_timer->Stop();
+
+        delete m_timer;
+        m_timer = NULL;
+    }
+
     delete m_coreBoard;
 }
 
@@ -99,6 +118,8 @@ hoxSimpleBoard::OnBoardMove( const hoxMove& move )
     /* Inform the Table of the new move. */
     wxCHECK_RET(m_table, "The table is NULL." );
     m_table->OnMove_FromBoard( move );
+
+    _OnValidMove( move );
 }
 
 void 
@@ -136,9 +157,9 @@ hoxSimpleBoard::OnPlayerJoin( wxCommandEvent &event )
 
     /* Update the LOCAL - color on the core Board */
 
-    hoxPlayerType type = player->GetType();
-    if (   type == hoxPLAYER_TYPE_HOST 
-        || type == hoxPLAYER_TYPE_LOCAL )
+    hoxPlayerType playerType = player->GetType();
+    if (   playerType == hoxPLAYER_TYPE_HOST 
+        || playerType == hoxPLAYER_TYPE_LOCAL )
     {
         wxLogDebug("%s: Update the core Board's local-color to [%d].", 
             FNAME, playerColor);
@@ -147,8 +168,14 @@ hoxSimpleBoard::OnPlayerJoin( wxCommandEvent &event )
 
     /* Start the game if there are two RED and BLACK players */
 
-    if ( !m_redId.empty() && !m_blackId.empty() )
+    if (  !m_redId.empty() && !m_blackId.empty()
+        && m_status == hoxGAME_STATUS_OPEN )
     {
+        m_status = hoxGAME_STATUS_READY;
+
+        _ResetTimerUI();
+        _UpdateTimerUI();
+
         m_coreBoard->StartGame();
     }
 }
@@ -231,6 +258,29 @@ hoxSimpleBoard::OnButtonHistory_END( wxCommandEvent &event )
         return;
 
     m_coreBoard->DoGameReview_END();
+}
+
+void 
+hoxSimpleBoard::OnTimer(wxTimerEvent& WXUNUSED(event))
+{
+    if ( m_status != hoxGAME_STATUS_IN_PROGRESS )
+        return;
+
+    wxCHECK_RET(this->GetReferee(), "A Referee should have been set.");
+    hoxPieceColor nextColor = this->GetReferee()->GetNextColor();
+
+    if ( nextColor == hoxPIECE_COLOR_BLACK )
+    {
+        --m_nBGameTime;
+        --m_nBMoveTime;
+    }
+    else
+    {
+        --m_nRGameTime;
+        --m_nRMoveTime;
+    }
+
+    _UpdateTimerUI();
 }
 
 bool 
@@ -592,7 +642,12 @@ hoxSimpleBoard::DoMove( hoxMove& move )
 {
     wxCHECK_MSG( m_coreBoard, false, "The core Board is NULL." );
 
-    return m_coreBoard->DoMove( move );
+    if ( ! m_coreBoard->DoMove( move ) )
+        return false;
+
+    _OnValidMove( move );
+
+    return true;
 }
 
 void 
@@ -642,6 +697,70 @@ hoxSimpleBoard::_PostToWallOutput( const wxString& who,
     m_wallOutput->AppendText( wxString::Format("[%s] ", who.c_str()) );
     m_wallOutput->SetDefaultStyle( wxTextAttr(*wxBLUE) );
     m_wallOutput->AppendText( wxString::Format("%s\n", message.c_str()) );
+}
+
+void 
+hoxSimpleBoard::_OnValidMove( const hoxMove& move )
+{
+    /* For the 1st move, change the game-status to 'in-progress'. 
+     */
+    if ( m_status == hoxGAME_STATUS_READY )
+    {
+        m_status = hoxGAME_STATUS_IN_PROGRESS;
+        /* NOTE: This action is enough to trigger the timer which will
+         *       update the timer-related UI.
+         */
+    }
+    /* If the game is in progress, reset the Move-time. 
+     */
+    else if ( m_status == hoxGAME_STATUS_IN_PROGRESS )
+    {
+        if ( move.piece.color == hoxPIECE_COLOR_BLACK )
+        {
+            m_nBMoveTime = hoxTIME_DEFAULT_MOVE_TIME;
+        }
+        else
+        {
+            m_nRMoveTime = hoxTIME_DEFAULT_MOVE_TIME;
+        }
+    }
+}
+
+void
+hoxSimpleBoard::_ResetTimerUI()
+{
+    /* Set default game-times. */
+
+    m_nBGameTime = hoxTIME_DEFAULT_GAME_TIME;
+    m_nRGameTime = m_nBGameTime;
+
+    m_nBMoveTime = hoxTIME_DEFAULT_MOVE_TIME;
+    m_nRMoveTime = m_nBMoveTime;
+
+    m_nBFreeTime = hoxTIME_DEFAULT_FREE_TIME;
+    m_nRFreeTime = m_nBFreeTime;
+}
+
+void 
+hoxSimpleBoard::_UpdateTimerUI()
+{
+    // Game times.
+    m_blackGameTime->SetLabel( _FormatTime( m_nBGameTime ) );
+    m_redGameTime->SetLabel(   _FormatTime( m_nRGameTime ) );
+
+    // Move times.
+    m_blackMoveTime->SetLabel( _FormatTime( m_nBMoveTime ) );
+    m_redMoveTime->SetLabel(   _FormatTime( m_nRMoveTime ) );
+
+    // Free times.
+    m_blackFreeTime->SetLabel( _FormatTime( m_nBFreeTime ) );
+    m_redFreeTime->SetLabel(   _FormatTime( m_nRFreeTime ) );
+}
+
+const wxString 
+hoxSimpleBoard::_FormatTime( int nTime ) const
+{
+    return wxString::Format( "%d:%.02d", nTime / 60, nTime % 60 );
 }
 
 /************************* END OF FILE ***************************************/
