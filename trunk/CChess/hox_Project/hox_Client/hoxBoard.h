@@ -21,7 +21,11 @@
 // Name:            hoxBoard.h
 // Created:         10/05/2007
 //
-// Description:     The "simple" Board with player-info(s) + timers.
+// Description:     A "simple" Board with the following features:
+//                     + Player's information (such as Name, Score).
+//                     + Timers (including Game, Move, and Free times).
+//                     + Game History (forward/backward 'past' Moves).
+//                     + Chat feature (Text Input + Wall Output).
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __INCLUDED_HOX_BOARD_H_
@@ -35,7 +39,6 @@
 /* Forward declarations */
 class hoxIReferee;
 class hoxTable;
-class hoxPosition;
 class hoxPlayer;
 
 /**
@@ -89,7 +92,7 @@ public:
 
     /**
      * A callback function invoked by the core Board when
-     * a message, which may need the end-user's attention, occurs.
+     * a message, which may require the end-user's attention, occurs.
      */
     virtual void OnBoardMsg( const wxString& message );
 
@@ -120,12 +123,7 @@ public:
      * My MAIN public API
      *********************************/
 
-    void SetRedInfo( const hoxPlayer* player );
-    void SetBlackInfo( const hoxPlayer* player );
-
     void SetTable( hoxTable* table );
-
-    hoxIReferee* GetReferee() const;
 
     void ToggleViewSide();
 
@@ -133,11 +131,14 @@ public:
      * Do a Move on a Board. This is usually invoked indirectly 
      * from a NETWORK Player.
      *
-     * @note This move will trigger referee-validation.
+     * @note This Move will trigger Referee-validation.
      */
     bool DoMove( hoxMove& move );
 
 private:
+    void _SetRedInfo( const hoxPlayer* player );
+    void _SetBlackInfo( const hoxPlayer* player );
+
     void _CreateBoardPanel();
     void _LayoutBoardPanel( bool viewInverted );
     
@@ -158,6 +159,7 @@ private:
 
 private:
     hoxCoreBoard*     m_coreBoard;  // The "core" board.
+    hoxIReferee*      m_referee;    // The Referee.
     hoxTable*         m_table;      // The Table to which this Board belongs.
 
     hoxGameStatus     m_status;     // The game's status.
@@ -182,16 +184,16 @@ private:
 
     /* Player Info(s) + timers UI */
 
-    wxStaticText*     m_blackInfo;      // Black's info.
-    wxStaticText*     m_redInfo;        // Red's info.
-    wxStaticText*     m_blackGameTime;  // Black's Game-time.
-    wxStaticText*     m_redGameTime;    // Red's Game-time.
-    wxStaticText*     m_blackMoveTime;  // Black's Move-time.
-    wxStaticText*     m_redMoveTime;    // Red's Move-time.
-    wxStaticText*     m_blackFreeTime;  // Black's Free-time.
-    wxStaticText*     m_redFreeTime;    // Red's Free-time.
+    wxStaticText*     m_blackInfo;      // Black's info UI.
+    wxStaticText*     m_redInfo;        // Red's info UI.
+    wxStaticText*     m_blackGameTime;  // Black's Game-time UI.
+    wxStaticText*     m_redGameTime;    // Red's Game-time UI.
+    wxStaticText*     m_blackMoveTime;  // Black's Move-time UI.
+    wxStaticText*     m_redMoveTime;    // Red's Move-time UI.
+    wxStaticText*     m_blackFreeTime;  // Black's Free-time UI.
+    wxStaticText*     m_redFreeTime;    // Red's Free-time UI.
 
-    /* Controls on for our Wall */
+    /* Controls for our Wall */
 
     wxListBox*        m_playerListBox;
     wxTextCtrl*       m_wallOutput;

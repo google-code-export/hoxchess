@@ -335,7 +335,7 @@ hoxCoreBoard::StartGame()
     /* If the Board is in GAME-REVIEW mode, 
      * leave it. 
      */
-    DoGameReview_BEGIN();
+    this->DoGameReview_BEGIN();
     m_historyMoves.clear();
 
     /* Tell the Referee to Reset the game. */

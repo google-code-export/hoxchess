@@ -21,7 +21,11 @@
 // Name:            hoxBoard.cpp
 // Created:         10/05/2007
 //
-// Description:     The "simple" Board with player-info(s) + timers.
+// Description:     A "simple" Board with the following features:
+//                     + Player's information (such as Name, Score).
+//                     + Timers (including Game, Move, and Free times).
+//                     + Game History (forward/backward 'past' Moves).
+//                     + Chat feature (Text Input + Wall Output).
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxBoard.h"
@@ -45,9 +49,9 @@ enum
 
 
 /* Define my custom events */
-DEFINE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_JOIN)
-DEFINE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_LEAVE)
-DEFINE_EVENT_TYPE(hoxEVT_BOARD_WALL_OUTPUT)
+DEFINE_EVENT_TYPE( hoxEVT_BOARD_PLAYER_JOIN )
+DEFINE_EVENT_TYPE( hoxEVT_BOARD_PLAYER_LEAVE )
+DEFINE_EVENT_TYPE( hoxEVT_BOARD_WALL_OUTPUT )
 
 BEGIN_EVENT_TABLE(hoxSimpleBoard, wxPanel)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_JOIN, hoxSimpleBoard::OnPlayerJoin)
@@ -72,18 +76,20 @@ hoxSimpleBoard::hoxSimpleBoard( wxWindow*       parent,
                                 hoxIReferee*    referee,
                                 const wxPoint&  pos  /* = wxDefaultPosition */, 
                                 const wxSize&   size /* = wxDefaultSize */)
-        : wxPanel( parent, wxID_ANY, 
+        : wxPanel( parent, 
+                   wxID_ANY, 
                    pos, 
                    size,
                    wxFULL_REPAINT_ON_RESIZE )
         , m_coreBoard( NULL )
+        , m_referee( referee )
         , m_table( NULL )
         , m_status( hoxGAME_STATUS_OPEN )
 {
     wxCHECK_RET( referee != NULL, "A Referee must be set." );
 
     /* Create the core board. */
-    m_coreBoard = new hoxCoreBoard( this, referee );
+    m_coreBoard = new hoxCoreBoard( this, m_referee );
     m_coreBoard->SetBoardOwner( this );
     m_coreBoard->SetPiecesPath( piecesPath );
 
@@ -143,19 +149,21 @@ hoxSimpleBoard::OnPlayerJoin( wxCommandEvent &event )
     if ( event.GetInt() == hoxPIECE_COLOR_RED )
     {
         playerColor = hoxPIECE_COLOR_RED;
-        SetRedInfo( player );
+        _SetRedInfo( player );
     } 
     else if ( event.GetInt() == hoxPIECE_COLOR_BLACK )
     {
         playerColor = hoxPIECE_COLOR_BLACK;
-        SetBlackInfo( player );
+        _SetBlackInfo( player );
     }
 
     _AddPlayerToList( player->GetName(), player->GetScore() );
 
     wxCHECK_RET( m_coreBoard != NULL, "The core Board is NULL." );
 
-    /* Update the LOCAL - color on the core Board */
+    /* Update the LOCAL - color on the core Board so that it knows
+     * who is allowed to make a Move using the mouse.
+     */
 
     hoxPlayerType playerType = player->GetType();
     if (   playerType == hoxPLAYER_TYPE_HOST 
@@ -166,7 +174,7 @@ hoxSimpleBoard::OnPlayerJoin( wxCommandEvent &event )
         m_coreBoard->SetLocalColor( playerColor );
     }
 
-    /* Start the game if there are two RED and BLACK players */
+    /* Start the game if there are a RED and a BLACK players */
 
     if (  !m_redId.empty() && !m_blackId.empty()
         && m_status == hoxGAME_STATUS_OPEN )
@@ -193,7 +201,6 @@ hoxSimpleBoard::OnPlayerLeave( wxCommandEvent &event )
     if ( playerId == m_redId )     // Check RED
     {
         m_redInfo->SetLabel( "*" );
-
     }
     else if ( playerId == m_blackId ) // Check BLACK
     {
@@ -266,8 +273,7 @@ hoxSimpleBoard::OnTimer(wxTimerEvent& WXUNUSED(event))
     if ( m_status != hoxGAME_STATUS_IN_PROGRESS )
         return;
 
-    wxCHECK_RET(this->GetReferee(), "A Referee should have been set.");
-    hoxPieceColor nextColor = this->GetReferee()->GetNextColor();
+    hoxPieceColor nextColor = m_referee->GetNextColor();
 
     if ( nextColor == hoxPIECE_COLOR_BLACK )
     {
@@ -292,7 +298,7 @@ hoxSimpleBoard::Show(bool show /* = true */)
         m_coreBoard->LoadPieces();
 
         /* Create the whole panel with player-info + timers */
-        this->_CreateBoardPanel();
+        _CreateBoardPanel();
 
         // Set its background color.
         wxColour bgPanelCol = wxTheColourDatabase->Find(_T("SKY BLUE"));
@@ -305,7 +311,7 @@ hoxSimpleBoard::Show(bool show /* = true */)
 }
 
 void 
-hoxSimpleBoard::SetRedInfo( const hoxPlayer* player )
+hoxSimpleBoard::_SetRedInfo( const hoxPlayer* player )
 {
     m_redId = player->GetName();
 
@@ -318,7 +324,7 @@ hoxSimpleBoard::SetRedInfo( const hoxPlayer* player )
 }
 
 void 
-hoxSimpleBoard::SetBlackInfo( const hoxPlayer* player )
+hoxSimpleBoard::_SetBlackInfo( const hoxPlayer* player )
 {
     m_blackId = player->GetName();
 
@@ -591,12 +597,6 @@ hoxSimpleBoard::SetTable( hoxTable* table )
     m_table = table;
 }
 
-hoxIReferee* 
-hoxSimpleBoard::GetReferee() const 
-{ 
-    return m_coreBoard->GetReferee(); 
-}
-
 void 
 hoxSimpleBoard::ToggleViewSide()
 {
@@ -707,7 +707,7 @@ hoxSimpleBoard::_OnValidMove( const hoxMove& move )
     if ( m_status == hoxGAME_STATUS_READY )
     {
         m_status = hoxGAME_STATUS_IN_PROGRESS;
-        /* NOTE: This action is enough to trigger the timer which will
+        /* NOTE: The above action is enough to trigger the timer which will
          *       update the timer-related UI.
          */
     }
@@ -716,13 +716,9 @@ hoxSimpleBoard::_OnValidMove( const hoxMove& move )
     else if ( m_status == hoxGAME_STATUS_IN_PROGRESS )
     {
         if ( move.piece.color == hoxPIECE_COLOR_BLACK )
-        {
             m_nBMoveTime = hoxTIME_DEFAULT_MOVE_TIME;
-        }
         else
-        {
             m_nRMoveTime = hoxTIME_DEFAULT_MOVE_TIME;
-        }
     }
 }
 
