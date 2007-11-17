@@ -2,7 +2,7 @@
 
 = Releases =
 
-All releases can be found from [Releases this Releases page]
+All releases can be found from [http://code.google.com/p/hoxchess/downloads/list this Downloads page]
 
   * *November 17, 2007* 
     * Release *HOXChess 0.1.0.0* of the _source_ code.
