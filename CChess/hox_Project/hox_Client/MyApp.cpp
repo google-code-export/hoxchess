@@ -111,7 +111,7 @@ MyApp::OnInit()
     // Get display size and position.
     int x, y, width, height;
     ::wxClientDisplayRect( &x, &y, &width, &height );
-    wxSize displaySize( width/2, height );
+    wxSize displaySize( width/2, height - 150 );
     wxPoint displayPosition( x, y );
 
     // Create the main application window
