@@ -41,5 +41,5 @@ Starting from version _0.0.2.0_ (released on Nov 10, 2007), the project can be b
     * Add all the source code (.h and .cpp) files to the your new project.
     * Adjust the Eclipse' s C++ compiler's setting (such as _--cppflags_ and _--libs_) based on the output of wxWidgets' s *wx-config* program.
   * *Note* : 
-    * So far, I could not install Eclipse 3.3 on my Ubuntu 7.10 based laptop, only on my CentOS 4.5 based desktop could I successfully install this new version of Eclipse.
+    * So far, I could not install Eclipse CDT 4.0.1 on my Ubuntu 7.10 based laptop, only on my CentOS 4.5 based desktop could I successfully install this new version of Eclipse.
     * There is some work to be done... but the source code should be built as is if you can manage to install Eclipse CDT 4.0 or later.
