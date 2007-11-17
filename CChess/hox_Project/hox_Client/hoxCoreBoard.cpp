@@ -79,7 +79,8 @@ hoxCoreBoard::hoxCoreBoard( wxWindow*      parent,
                             hoxIReferee*   referee /* = new hoxNaiveReferee() */,
                             const wxPoint& pos  /* = wxDefaultPosition */, 
                             const wxSize&  size /* = wxDefaultSize*/ )
-        : wxPanel( parent, wxID_ANY, 
+        : wxPanel( parent, 
+                   wxID_ANY, 
                    pos, 
                    size,
                    wxFULL_REPAINT_ON_RESIZE )
@@ -186,7 +187,7 @@ hoxCoreBoard::_FindPiece( const wxPoint& point ) const
 void 
 hoxCoreBoard::_DoPaint( wxDC& dc )
 {
-    _DrawBoard(dc);  // Display board
+    _DrawBoard(dc);       // Display board
     _DrawAllPieces(dc);   // Display pieces.
 }
 
@@ -195,7 +196,7 @@ hoxCoreBoard::_DrawBoard( wxDC& dc )
 {
     wxSize totalSize = GetClientSize();   // of this Board
 
-    dc.SetPen(*wxRED_PEN);
+    dc.SetPen( *wxRED_PEN );
     dc.SetBrush( *wxLIGHT_GREY_BRUSH );
 
     // --- Get the board's max-dimension.
@@ -273,28 +274,31 @@ hoxCoreBoard::_DrawBoard( wxDC& dc )
     }
 }
 
-void hoxCoreBoard::_DrawWorkSpace( wxDC& dc )
+void 
+hoxCoreBoard::_DrawWorkSpace( wxDC& dc )
 {
     wxSize sz = GetClientSize();
     dc.SetBrush( *wxLIGHT_GREY_BRUSH );
     dc.DrawRectangle( 0, 0, sz.x, sz.y );;
 }
 
-void hoxCoreBoard::OnEraseBackground( wxEraseEvent& event )
+void 
+hoxCoreBoard::OnEraseBackground( wxEraseEvent& event )
 {
     // *** Paint the entire working space with a background's color.
-    if (event.GetDC())
+    if ( event.GetDC() )
     {
-        _DrawWorkSpace(*event.GetDC());
+        _DrawWorkSpace( *event.GetDC() );
     }
     else
     {
         wxClientDC dc(this);
-        _DrawWorkSpace(dc);
+        _DrawWorkSpace( dc );
     }
 }
 
-void hoxCoreBoard::OnIdle(wxIdleEvent& WXUNUSED(event))
+void 
+hoxCoreBoard::OnIdle(wxIdleEvent& WXUNUSED(event))
 {
     // Do nothing for now.
 }
@@ -387,16 +391,16 @@ hoxCoreBoard::_DrawAndHighlightPiece( hoxPiece* piece )
 /**
  * Draw a given piece using THIS window's Device-Context.
  */
-bool 
+void 
 hoxCoreBoard::_DrawPiece( const hoxPiece* piece )
 {
     wxClientDC dc(this);
     PrepareDC(dc);   // ... for drawing a scrolled image
 
-    return _DrawPieceWithDC( dc, piece );
+    _DrawPieceWithDC( dc, piece );
 }
 
-bool 
+void 
 hoxCoreBoard::_DrawPieceWithDC( wxDC&           dc, 
                                 const hoxPiece* piece, 
                                 int             op /* = wxCOPY */ )
@@ -404,7 +408,7 @@ hoxCoreBoard::_DrawPieceWithDC( wxDC&           dc,
     const wxPoint& pos = _GetPieceLocation( piece );
     const wxBitmap& bitmap = piece->GetBitmap();
     if ( ! bitmap.Ok() )
-      return false;
+      return;
 
     wxMemoryDC memDC;
     memDC.SelectObject( const_cast<wxBitmap&>(bitmap) );
@@ -426,8 +430,6 @@ hoxCoreBoard::_DrawPieceWithDC( wxDC&           dc,
         dc.SetBrush(*wxTRANSPARENT_BRUSH);
         dc.DrawRectangle( wxRect(x, y, w, h) );
     }
-
-    return true;
 }
 
 wxRect 
@@ -951,9 +953,9 @@ hoxCoreBoard::ToggleViewSide()
     m_bViewInverted = !m_bViewInverted;
 
     wxClientDC dc(this);
-    _DrawWorkSpace(dc);
-    _DrawBoard(dc);
-    _DrawAllPieces(dc);
+    _DrawWorkSpace( dc );
+    _DrawBoard( dc );
+    _DrawAllPieces( dc );
 }
 
 wxSize 
