@@ -34,7 +34,6 @@
 #include "hoxPiece.h"
 #include "hoxIReferee.h"
 #include "hoxNaiveReferee.h"
-#include "hoxPlayer.h"
 
 /*
  * typedefs
@@ -97,13 +96,11 @@ public:
     void StartGame();
 
     /**
-     * Set the referee who can determine whether a move is legal or not.
+     * Set a Referee who can determine whether a Move is legal or not.
      *
      * @see hoxIReferee
      */
     void SetReferee( hoxIReferee* referee );
-
-    hoxIReferee* GetReferee() const { return m_referee; }
 
     /**
      * Set Owner of this Board.
@@ -138,17 +135,17 @@ public:
      * My event-handlers.
      *********************************/
 
-    void OnPaint(wxPaintEvent &WXUNUSED(event));
+    void OnPaint( wxPaintEvent &WXUNUSED(event) );
     void OnEraseBackground( wxEraseEvent &event );
-    void OnIdle(wxIdleEvent& event);
-    void OnMouseEvent(wxMouseEvent& event);
-    void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
+    void OnIdle( wxIdleEvent& event );
+    void OnMouseEvent( wxMouseEvent& event );
+    void OnMouseCaptureLost( wxMouseCaptureLostEvent& event );
 
     /******************************************
      * My 'other' (less important) public API
      ******************************************/
 
-    void ToggleViewSide();  // toggle view side: Red/Black is at the bottom.
+    void ToggleViewSide();  // Toggle view side: Red/Black is at the bottom.
     bool IsViewInverted() const { return m_bViewInverted; }
 
 protected:
@@ -209,22 +206,22 @@ private:
      */
     bool _IsBoardInReviewMode() const;
 
-    void   _DrawBoard(wxDC& dc);
+    void   _DrawBoard( wxDC& dc );
     void   _DrawWorkSpace( wxDC& dc );
-    void   _DrawAllPieces(wxDC& dc);
+    void   _DrawAllPieces( wxDC& dc );
     void   _DrawAndHighlightPiece( hoxPiece* piece );
-    bool   _DrawPiece( const hoxPiece* piece );
-    bool   _DrawPieceWithDC( wxDC& dc, const hoxPiece* piece, int op = wxCOPY );
-    wxRect _GetPieceRect(const hoxPiece* piece) const;
+    void   _DrawPiece( const hoxPiece* piece );
+    void   _DrawPieceWithDC( wxDC& dc, const hoxPiece* piece, int op = wxCOPY );
+    wxRect _GetPieceRect( const hoxPiece* piece ) const;
 
-    void      _DoPaint(wxDC& dc);
-    void      _ErasePiece(hoxPiece* piece);
-    void      _ErasePieceWithDC(hoxPiece* piece, wxDC& dc);
+    void      _DoPaint( wxDC& dc );
+    void      _ErasePiece( hoxPiece* piece );
+    void      _ErasePieceWithDC( hoxPiece* piece, wxDC& dc );
     void      _ClearPieces();
-    hoxPiece* _FindPiece(const wxPoint& point) const;
-    wxPoint   _GetPieceLocation(const hoxPiece* piece) const;
-    bool      _PieceHitTest(const hoxPiece* piece, const wxPoint& pt) const;
-    hoxPosition _PointToPosition(const hoxPiece* piece, const wxPoint& p) const;
+    hoxPiece* _FindPiece( const wxPoint& point ) const;
+    wxPoint   _GetPieceLocation( const hoxPiece* piece ) const;
+    bool      _PieceHitTest( const hoxPiece* piece, const wxPoint& pt ) const;
+    hoxPosition _PointToPosition( const hoxPiece* piece, const wxPoint& p ) const;
 
     void      _RecordMove( const hoxMove& move );
 
@@ -238,21 +235,20 @@ private:
     void _PrintDebug( const wxString& debugMsg ) const;
 
 private:
-    // Board's characteristics.
+    /* Board's characteristics. */
     wxCoord         m_borderX;  // X-position from the border
     wxCoord         m_borderY;  // Y-position from the border
-    wxCoord         m_cellS;    // size of each cell.
+    wxCoord         m_cellS;    // The size of each cell.
     bool            m_bViewInverted; // true if Black is at the bottom
 
-    hoxPieceList    m_pieces;  // list of all pieces
-
+    hoxPieceList    m_pieces;  // List of all Pieces
     hoxIReferee*    m_referee; // The Referee of the game.
     BoardOwner*     m_owner;   // This Board's owner.
 
     hoxPieceColor   m_localColor;
             /* The color (player-role) of the "local" player. */
 
-    // Variables used when a piece is dragged by the mouse.
+    /* Variables used when a piece is dragged by the mouse. */
     int             m_dragMode;
     hoxPiece*       m_draggedPiece;
     wxPoint         m_dragStartPos;

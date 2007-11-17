@@ -35,6 +35,7 @@
 #include "hoxReferee.h"
 #include "hoxTypes.h"
 #include "hoxTable.h"
+#include "hoxPlayer.h"
 
 /* UI-related IDs. */
 enum
@@ -86,7 +87,7 @@ hoxSimpleBoard::hoxSimpleBoard( wxWindow*       parent,
         , m_table( NULL )
         , m_status( hoxGAME_STATUS_OPEN )
 {
-    wxCHECK_RET( referee != NULL, "A Referee must be set." );
+    wxCHECK_RET( m_referee != NULL, "A Referee must be set." );
 
     /* Create the core board. */
     m_coreBoard = new hoxCoreBoard( this, m_referee );
