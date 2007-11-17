@@ -93,6 +93,7 @@ hoxCoreBoard::hoxCoreBoard( wxWindow*      parent,
         , m_dragImage( NULL )
         , m_latestPiece( NULL )
         , m_historyIndex( HISTORY_INDEX_UNKNOWN )
+        , m_isGameOver( false )
         , m_TEST_skipColorCheck( true )
 {
     /* NOTE: We move this PNG code since to outside to avoid
@@ -272,6 +273,17 @@ hoxCoreBoard::_DrawBoard( wxDC& dc )
 
         dc.DrawLine(x1, y1, x2, y2);
     }
+
+    // Drawing "Game Over" if specified.
+    if ( m_isGameOver )
+    {
+        dc.SetFont( wxFont( 24, wxFONTFAMILY_ROMAN, 
+                            wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL ) );
+        dc.SetTextForeground( *wxRED );
+        dc.DrawText( "Game Over", 
+                     m_borderX + 2.5*m_cellS, 
+                     m_borderY + 4*m_cellS );
+    }
 }
 
 void 
@@ -345,6 +357,9 @@ hoxCoreBoard::StartGame()
     /* Tell the Referee to Reset the game. */
     wxCHECK_RET(m_referee, "The Referee should not be NULL.");
     m_referee->Reset();
+
+    /* Clear the Game-Over state in the last game, if any. */
+    _SetGameOver( false );
 }
 
 void 
@@ -544,12 +559,16 @@ hoxCoreBoard::_OnPieceMoved( hoxPiece*          piece,
         move.piece       = piece->GetInfo();
         move.newPosition = newPos;
 
-        if ( ! m_referee->ValidateMove( move ) )
+        hoxGameStatus status;
+        if ( ! m_referee->ValidateMove( move, status ) )
         {
             _PrintDebug( "Move is not valid!!!" );
             this->Refresh();
             return;
         }
+
+        if ( status != hoxGAME_STATUS_IN_PROGRESS)
+            _SetGameOver( true );
     }
 
     /* NOTE: Need to the following check. 
@@ -571,6 +590,9 @@ hoxCoreBoard::_OnPieceMoved( hoxPiece*          piece,
 bool 
 hoxCoreBoard::_CanPieceMoveNext( hoxPiece* piece ) const
 {
+    if ( m_isGameOver )
+        return false;
+
     if ( _IsBoardInReviewMode() )
         return false;
 
@@ -610,11 +632,15 @@ hoxCoreBoard::DoMove( hoxMove& move )
     
     if ( m_referee != NULL )
     {
-        if ( ! m_referee->ValidateMove( move ) )
+        hoxGameStatus status;
+        if ( ! m_referee->ValidateMove( move, status ) )
         {
             _PrintDebug( wxString::Format("%s: Move is not valid!!!", FNAME) );
             return false;
         }
+
+        if ( status != hoxGAME_STATUS_IN_PROGRESS)
+            _SetGameOver( true );
     }
 
     /* Ask the core Board to perform the Move. */
@@ -1008,6 +1034,13 @@ hoxCoreBoard::_RecordMove( const hoxMove& move )
 {
     m_historyMoves.push_back( move );
     m_historyIndex = HISTORY_INDEX_UNKNOWN; // Clear PREVIEW mode.
+}
+
+void      
+hoxCoreBoard::_SetGameOver( bool isGameOver /* = true */ )
+{
+    m_isGameOver = isGameOver;
+    this->Refresh();
 }
 
 /**

@@ -43,7 +43,8 @@ hoxNaiveReferee::Reset()
 }
 
 bool 
-hoxNaiveReferee::ValidateMove( hoxMove& move )
+hoxNaiveReferee::ValidateMove( hoxMove&       move,
+                               hoxGameStatus& status )
 {
     /**
      * NOTE: Only check for 'turns'. Otherwise, allow everything.
@@ -61,6 +62,8 @@ hoxNaiveReferee::ValidateMove( hoxMove& move )
     _nextColor = ( _nextColor == hoxPIECE_COLOR_RED 
                    ? hoxPIECE_COLOR_BLACK
                    : hoxPIECE_COLOR_RED);
+
+    status = hoxGAME_STATUS_IN_PROGRESS;
 
     return true;
 }
