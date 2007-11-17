@@ -229,7 +229,8 @@ namespace BoardInfoAPI
         virtual ~Board();
 
         // ------------ Main Public API -------
-        bool ValidateMove( hoxMove& move );
+        bool ValidateMove( hoxMove&       move,
+                           hoxGameStatus& status );
 
         void GetGameState( hoxPieceInfoList& pieceInfoList,
                            hoxPieceColor&    nextColor );
@@ -662,8 +663,11 @@ Board::_IsKingFaceKing() const
 }
 
 bool
-Board::ValidateMove( hoxMove& move )
+Board::ValidateMove( hoxMove&       move,
+                     hoxGameStatus& status )
 {
+    const char* FNAME = "Board::ValidateMove";
+
     /* Check for 'turn' */
 
     if ( move.piece.color != m_nextColor )
@@ -714,7 +718,14 @@ Board::ValidateMove( hoxMove& move )
 
     if ( ! _DoesNextMoveExist() )
     {
-        wxLogWarning("The game is over.");
+        wxLogDebug("%s: The game is over.", FNAME);
+        status = (  m_nextColor == hoxPIECE_COLOR_BLACK 
+                  ? hoxGAME_STATUS_RED_WIN
+                  : hoxGAME_STATUS_BLACK_WIN );
+    }
+    else
+    {
+        status = hoxGAME_STATUS_IN_PROGRESS;
     }
 
     return true;
@@ -1388,10 +1399,11 @@ hoxReferee::Reset()
 }
 
 bool 
-hoxReferee::ValidateMove( hoxMove& move )
+hoxReferee::ValidateMove( hoxMove&      move,
+                         hoxGameStatus& status )
 {
     wxCHECK_MSG(m_board, false, "The Board is NULL.");
-    return m_board->ValidateMove( move );
+    return m_board->ValidateMove( move, status );
 }
 
 void 

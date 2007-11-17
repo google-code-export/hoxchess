@@ -47,7 +47,8 @@ public:
      *********************************/
 
     virtual void Reset();
-    virtual bool ValidateMove( hoxMove& move );
+    virtual bool ValidateMove( hoxMove&       move,
+                               hoxGameStatus& status );
     virtual void GetGameState( hoxPieceInfoList& pieceInfoList,
                                hoxPieceColor&    nextColor );
     virtual hoxPieceColor GetNextColor();

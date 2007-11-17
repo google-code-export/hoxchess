@@ -49,7 +49,8 @@ class hoxIReferee
      * @note The Referee will fill in the information about
      *       which Piece, if any, is captured as a result of the Move.
      */
-    virtual bool ValidateMove( hoxMove& move ) = 0;
+    virtual bool ValidateMove( hoxMove&       move,
+                               hoxGameStatus& status ) = 0;
 
     /**
      * Get the current state of the game:

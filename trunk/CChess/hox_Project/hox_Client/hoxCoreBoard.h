@@ -224,6 +224,7 @@ private:
     hoxPosition _PointToPosition( const hoxPiece* piece, const wxPoint& p ) const;
 
     void      _RecordMove( const hoxMove& move );
+    void      _SetGameOver( bool isGameOver = true );
 
     /**
      * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -265,6 +266,9 @@ private:
         HISTORY_INDEX_BEGIN    = -1
     };
     int             m_historyIndex; // Which Move the user is reviewing.
+
+    /* End-Game tracking */
+    bool            m_isGameOver;
 
     /*********************************
      * Variables for Testing-purpose *
