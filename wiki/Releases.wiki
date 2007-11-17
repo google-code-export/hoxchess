@@ -2,6 +2,8 @@
 
 = Releases =
 
+All releases can be found from [Releases this Releases page]
+
   * *November 17, 2007* 
     * Release *HOXChess 0.1.0.0* of the _source_ code.
     * This release is a major milestone for HOXChess because all the _core_ features have been implemented and are ready to be tested by the end users.
