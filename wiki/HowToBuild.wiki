@@ -1,5 +1,5 @@
 #summary How to build the project?
-#labels Phase-Implementation,Phase-Requirements
+#labels Phase-Implementation,Phase-Requirements,Phase-Deploy,Featured
 
 == Introduction ==
 
