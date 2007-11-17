@@ -37,7 +37,8 @@ Starting from version _0.0.2.0_ (released on Nov 10, 2007), the project can be b
     * This project file is simply a wrapper of the _Makefile_ mentioned above.
 
 == Detailed Instructions under Eclipse in Linux ==
-  * For [http://www.eclipse.org/cdt/ Eclipse C++ (CDT)], you need to create a new project yourself.
+  * For [http://www.eclipse.org/cdt/ Eclipse C++ (CDT)], the project files (_.project_ and _.cproject_) have been included in the .zip archive since the release 0.1.0.0
+  * If you ever need to create a new project yourself, here is the summary of the steps:
     * Add all the source code (.h and .cpp) files to the your new project.
     * Adjust the Eclipse' s C++ compiler's setting (such as _--cppflags_ and _--libs_) based on the output of wxWidgets' s *wx-config* program.
   * *Note* : 
