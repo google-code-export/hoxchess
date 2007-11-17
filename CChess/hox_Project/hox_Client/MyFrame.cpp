@@ -57,8 +57,9 @@ DEFINE_EVENT_TYPE(hoxEVT_FRAME_LOG_MSG)
 // constants
 // ----------------------------------------------------------------------------
 
-#define ID_WINDOW_LOG    103
+#define hoxVERSION_STRING  "0.1.0.0"
 
+#define ID_WINDOW_LOG    103
 
 BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
     EVT_MENU(MDI_ABOUT, MyFrame::OnAbout)
@@ -124,9 +125,11 @@ MyFrame::MyFrame( wxWindow*        parent,
     m_logWindow->SetSashVisible(wxSASH_TOP, true);
     m_logWindow->Show( false );
 
-    m_logText = new wxTextCtrl( m_logWindow, wxID_ANY, _T(""),
-                                wxDefaultPosition, wxDefaultSize,
-                                wxTE_MULTILINE | wxSUNKEN_BORDER );
+    m_logText = new wxTextCtrl( 
+            m_logWindow, wxID_ANY, 
+            "A Log Window (currently not being used due to its instabilities)",
+            wxDefaultPosition, wxDefaultSize,
+            wxTE_MULTILINE | wxSUNKEN_BORDER );
 
     // Create toolbar.
     CreateToolBar(wxNO_BORDER | wxTB_FLAT | wxTB_HORIZONTAL);
@@ -177,12 +180,14 @@ void
 MyFrame::OnAbout(wxCommandEvent& WXUNUSED(event) )
 {
     wxMessageBox( wxString::Format(
-                    _("Welcome to HOXChess!\n"
+                    _("HOXChess %s\n"
                       "\n"
                       "Author: Huy Phan (c) 2007\n"
-                      "Version: 0.0.4.0\n"
+                      "Email: huyphan@playxiangqi.com\n"
                       "\n"
-                      "This application is powered by %s, running under %s."),
+                      "This application is powered by %s, running under %s.\n"
+                      "\n"),
+                    hoxVERSION_STRING,
                     wxVERSION_STRING,
                     wxGetOsDescription().c_str()
                  ),
@@ -261,7 +266,7 @@ MyFrame::OnOpenServer(wxCommandEvent& WXUNUSED(event) )
     long defaultPort = hoxNETWORK_DEFAULT_SERVER_PORT;
 
     long nPort = wxGetNumberFromUser( 
-        _("Enter the port that the server will be listening at:"),
+        _("Enter the port at which the server will be listening:"),
         wxString::Format(_("Port [%d - %d]"), minPort, maxPort), 
         _("Server's Port ..."),
         defaultPort,
@@ -392,8 +397,11 @@ void MyFrame::OnConnectHTTPServer(wxCommandEvent& WXUNUSED(event) )
     hoxServerAddress serverAddress;
 
     result = _GetServerAddressFromUser( 
-                    _("Enter the address of an HOXChess server (HTTP polling):"),
-                    _("Connect to a HTTP-based (polling) server ..."),
+                    _("This is an EXPERIMENT feature.\n"
+                      "The default HTTP server specified below is not yet ready.\n"
+                      "\n"
+                      "Enter the address of an HOXChess server (HTTP polling):"),
+                    _("EXPERIMENT - Connect to a HTTP-based (polling) server ..."),
                     hoxServerAddress( HOX_HTTP_SERVER_HOSTNAME, 
                                       HOX_HTTP_SERVER_PORT ),
                     serverAddress );
@@ -659,26 +667,28 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
 
     /* Server menu. */
     wxMenu* server_menu = new wxMenu;
-    server_menu->Append(MDI_OPEN_SERVER, _("&Open Server\tCtrl-O"), _("Open server for remote access"));
+    server_menu->Append(MDI_OPEN_SERVER, _("&Open Server...\tCtrl-O"), _("Open server for remote access"));
 
-    /* View menu. */
-    wxMenu* view_menu = new wxMenu;
+    /* View menu (only if a Table exits) */
+    wxMenu* view_menu = NULL;
     if ( hasTable )
     {
+        view_menu = new wxMenu;
         view_menu->Append(MDI_TOGGLE, _("&Toggle Table View\tCtrl-T"));
-        view_menu->AppendSeparator();
     }
-    view_menu->AppendCheckItem(MDI_SHOW_LOG_WINDOW, _("Lo&g Window\tCtrl-G"));
 
     /* Help menu. */
     wxMenu* help_menu = new wxMenu;
+    help_menu->AppendCheckItem(MDI_SHOW_LOG_WINDOW, _("Lo&g Window\tCtrl-G"));
+    help_menu->AppendSeparator();
     help_menu->Append(MDI_ABOUT, _("&About HOXChess\tF1"));
 
     /* The main menu bar */
     wxMenuBar* menu_bar = new wxMenuBar;
     menu_bar->Append(file_menu, _("&File"));
     menu_bar->Append(server_menu, _("&Server"));
-    menu_bar->Append(view_menu, _("&View"));
+    if ( view_menu != NULL )
+        menu_bar->Append(view_menu, _("&View"));
     menu_bar->Append(help_menu, _("&Help"));
 
     return menu_bar;
