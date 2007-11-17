@@ -281,7 +281,7 @@ hoxCoreBoard::_DrawBoard( wxDC& dc )
                             wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL ) );
         dc.SetTextForeground( *wxRED );
         dc.DrawText( "Game Over", 
-                     m_borderX + 2.5*m_cellS, 
+                     m_borderX + (int)(2.5*m_cellS), 
                      m_borderY + 4*m_cellS );
     }
 }
