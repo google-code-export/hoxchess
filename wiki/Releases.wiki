@@ -3,7 +3,7 @@
 _All releases can be found from_ [http://code.google.com/p/hoxchess/downloads/list this Downloads page]
 
   * *November 17, 2007* 
-    * Release *HOXChess 0.1.0.0* of the _source_ code.
+    * Released *HOXChess 0.1.0.0* of the _source_ code.
     * This release is a major milestone for HOXChess because all the _core_ features have been implemented and are ready to be tested by the end users.
       * In other words, this is the _Alpha_ release of the project.
     * The two main features introduced in this release are:
@@ -11,16 +11,16 @@ _All releases can be found from_ [http://code.google.com/p/hoxchess/downloads/li
       # Game-Ending (i.e., the Board can detect and print "Game Over" message).
 
   * *November 14, 2007* 
-    * Release the third version *0.0.3.0* of the source code.
+    * Released the third version *0.0.3.0* of the source code.
     * Mostly, this release includes GNUv3 Copyright notices.
     * Also, the archive includes a simple Linux Makefile.
 
   * *November 10, 2007* 
-    * Release the second version *0.0.2.0* of the source code.
+    * Released the second version *0.0.2.0* of the source code.
     * The version of source code can _also_ be compiled under Linux.
       * CentOS 4.5 using Eclipse CDT 3.3.
       * Ubuntu 7.10 using KDevelop 3.5 (as a C++ Automake project).
 
   * *October 26, 2007* 
-    * Release the first version *0.0.1.0* (Windows only).
+    * Released the first version *0.0.1.0* (Windows only).
     * You need Visual C++ 2005 Express Edition and wxWidgets library 2.8.6 to compile this release.
