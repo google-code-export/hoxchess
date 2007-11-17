@@ -3,7 +3,12 @@
 = Releases =
 
   * *November 17, 2007* 
-    * Release HOXChess *0.1.0.0* of the source code.
+    * Release *HOXChess 0.1.0.0* of the _source_ code.
+    * This release is a major milestone for HOXChess because all the _core_ features have been completed and are ready to be tested by the end users.
+      * In other words, this is the _Alpha_ release of the project.
+    * The two main features introduced in this release are:
+      # Game-Review (i.e., backward/forward old Moves).
+      # Game-Ending (i.e., the Board can detect and print "Game Over" message).
 
   * *November 14, 2007* 
     * Release the third version *0.0.3.0* of the source code.
@@ -15,7 +20,6 @@
     * The version of source code can _also_ be compiled under Linux.
       * Centos 4.5 using Eclipse CDT 3.3.
       * Ubuntu 7.10 using KDevelop 3.5 (as a C++ Automake project).
-
 
   * *October 26, 2007* 
     * Release the first version *0.0.1.0* (Windows only).
