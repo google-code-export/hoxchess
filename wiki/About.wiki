@@ -1,0 +1,11 @@
+#summary About this project
+#labels Featured,Phase-Requirements,Phase-Support
+
+=== About _HOXChess_ ===
+
+_HOXChess_ is an _open source_ Xiangqi (Chinese Chess) program, capable of acting as a client, a server, or both. The program is a _traditional desktop_ application. It is developed mainly in C++ using wxWidgets library.
+
+=== Key Goals ===
+
+  * Documentation - Providing extensive documentation on how to build and and improve the project.
+  * Reusability - Seeking to build the project on top a list of _core_ components that can be used in _other_ projects.
