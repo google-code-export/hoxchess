@@ -440,7 +440,7 @@ void MyFrame::OnConnectHTTPServer(wxCommandEvent& WXUNUSED(event) )
 void 
 MyFrame::OnShowLogWindow( wxCommandEvent& WXUNUSED(event) )
 {
-    m_logWindow->Show( m_logWindow->IsShown() ? false : true );
+    m_logWindow->Show( ! m_logWindow->IsShown() );
     m_logWindow->SetDefaultSize(wxSize(1000, 180));
 
     wxLayoutAlgorithm layout;
