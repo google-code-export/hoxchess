@@ -6,6 +6,7 @@ CXX         = g++
 WX_CXXFLAGS = `wx-config --cxxflags`
 WX_LDLIBS   = `wx-config --libs`
 LDFLAGS     = -pthread
+DEBUGFLAGS  = -g
 
 # Define our sources and object files
 SOURCES := \
@@ -42,7 +43,7 @@ SOURCES := \
 OBJECTS := $(SOURCES:.cpp=.o)
 
 .cpp.o :
-	$(CXX) $(WX_CXXFLAGS) -c  -o $@ $<
+	$(CXX) $(WX_CXXFLAGS) $(DEBUGFLAGS) -c  -o $@ $<
 
 all: $(PROGRAM)
 
