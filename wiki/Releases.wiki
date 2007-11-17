@@ -6,6 +6,7 @@ _All releases can be found from_ [http://code.google.com/p/hoxchess/downloads/li
     * Released *HOXChess 0.1.0.0* of the _source_ code.
     * This release is a major milestone for HOXChess because all the _core_ features have been implemented and are ready to be tested by the end users.
       * In other words, this is the _Alpha_ release of the project.
+      * Please start filling issues at the [Issues Issues page]
     * The two main features introduced in this release are:
       # Game-Review (i.e., backward/forward old Moves).
       # Game-Ending (i.e., the Board can detect and print "Game Over" message).
