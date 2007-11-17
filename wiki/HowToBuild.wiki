@@ -43,5 +43,4 @@ Starting from version _0.0.2.0_ (released on Nov 10, 2007), the project can be b
     * Adjust the Eclipse' s C++ compiler's setting (such as _--cppflags_ and _--libs_) based on the output of wxWidgets' s *wx-config* program.
   * *Note* : 
     * So far, I can only manage to install Eclipse CDT 4.0.1 on my CentOS 4.5 based desktop.
-      * I have _not_ been able to so the same on my Ubuntu 7.10 based laptop.
-    * There is some work to be done... but the source code should be built as is if you can manage to install Eclipse CDT 4.0 or later.
+      * I have _not_ been able to do the same on my Ubuntu 7.10 based laptop.
