@@ -54,28 +54,13 @@
 
 /* Forward declarations */
 class MyFrame;
+class hoxLog;
 class hoxSocketServer;
 class hoxPlayer;
 class hoxTable;
 class hoxHttpPlayer;
 class hoxMyPlayer;
 class hoxServer;
-
-/*
- * @note We go through all these troubles because the wxLogGui is
- *       not thread-safe (would crash under multi-threads running).
- */
-class hoxLog : public wxLog
-{
-public:
-    hoxLog();
-    ~hoxLog();
-
-    virtual void DoLogString(const wxChar *msg, time_t timestamp);
-
-private:
-    wxString   m_filename;
-};
 
 // Server (response) event-type.
 DECLARE_EVENT_TYPE(hoxEVT_SERVER_RESPONSE, wxID_ANY)

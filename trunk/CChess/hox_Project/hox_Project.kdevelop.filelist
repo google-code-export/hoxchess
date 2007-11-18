@@ -61,3 +61,5 @@ hox_Client/hoxThreadConnection.h
 hox_Client/hoxTypes.h
 hox_Client/hoxUtility.cpp
 hox_Client/hoxUtility.h
+hox_Client/hoxLog.cpp
+hox_Client/hoxLog.h

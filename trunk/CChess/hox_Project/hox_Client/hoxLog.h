@@ -18,65 +18,45 @@
  ***************************************************************************/
 
 /////////////////////////////////////////////////////////////////////////////
-// Name:            hoxSocketServer.h
-// Created:         10/25/2007
+// Name:            hoxLog.h
+// Created:         11/18/2007
 //
-// Description:     The main (only) server socket that handles 
-//                  all incoming connection.
+// Description:     The Log for the Application.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __HOX_SOCKET_SERVER_H_
-#define __HOX_SOCKET_SERVER_H_
+#ifndef __INCLUDED_HOX_LOG_H_
+#define __INCLUDED_HOX_LOG_H_
 
 #include <wx/wx.h>
-#include <wx/socket.h>
-#include "hoxEnums.h"
-#include "hoxTypes.h"
-
-/* Forward declarations */
-class hoxServer;
 
 /**
- * The server-component listening for new connections.
- * Once a new remote client (hoxRemotePlayer) has been established, this
- * component will forward the connection to hoxServer to manage it.
+ * The Log of the Application.
+ * NOTE: Currently, this log is not being used due to its instabilities.
+ *       Perhaps, this issue is caused by log messages coming from secondary
+ *       threads and wxLogGui is not thread-safe.
  *
- * @see hoxServer
+ * @note We go through all these troubles because the wxLogGui is
+ *       not thread-safe (would crash under multi-threads running).
  */
-class hoxSocketServer : public wxThreadHelper
+class hoxLog : public wxLog
 {
 public:
-    hoxSocketServer( int        nPort,
-                     hoxServer* server );
-    ~hoxSocketServer();
+    hoxLog();
+    virtual ~hoxLog();
+
+    /***********************************
+     * Override the parent's API.
+     ***********************************/
 
     /**
-     * The entry point of the Thread.
-     * In other words, Thread execution starts here.
+     * Log a given string with a timestamp.
      */
-    virtual void* Entry();
-
-    /********************
-     * My own API       *
-     ********************/
-
-    /**
-     * Send a request to this server instructing that it should be shutdowned. 
-     */
-    void RequestShutdown() { m_shutdownRequested = true; }
+    virtual void DoLogString( const wxChar* msg, 
+                              time_t        timestamp);
 
 private:
-    void _DestroySocketServer();
-
-private:
-    int               m_nPort;       // The main server's port.
-    wxSocketServer*   m_pSServer;    // The main server's socket
-
-    hoxServer*        m_server;
-
-    bool              m_shutdownRequested;
-                /* Has a shutdown-request been received? */
-
+    wxString   m_filename;
 };
 
-#endif /* __HOX_SOCKET_SERVER_H_ */
+
+#endif  /* __INCLUDED_HOX_LOG_H_ */

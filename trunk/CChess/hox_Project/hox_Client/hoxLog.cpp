@@ -18,65 +18,60 @@
  ***************************************************************************/
 
 /////////////////////////////////////////////////////////////////////////////
-// Name:            hoxSocketServer.h
-// Created:         10/25/2007
+// Name:            hoxLog.cpp
+// Created:         11/18/2007
 //
-// Description:     The main (only) server socket that handles 
-//                  all incoming connection.
+// Description:     The Log for the Application.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __HOX_SOCKET_SERVER_H_
-#define __HOX_SOCKET_SERVER_H_
+#include <wx/ffile.h>
+#include <wx/filename.h>
 
-#include <wx/wx.h>
-#include <wx/socket.h>
-#include "hoxEnums.h"
-#include "hoxTypes.h"
-
-/* Forward declarations */
-class hoxServer;
+#include "hoxLog.h"
+#include "hoxUtility.h"
 
 /**
- * The server-component listening for new connections.
- * Once a new remote client (hoxRemotePlayer) has been established, this
- * component will forward the connection to hoxServer to manage it.
- *
- * @see hoxServer
+ * The default constructor.
  */
-class hoxSocketServer : public wxThreadHelper
+hoxLog::hoxLog()
+        : wxLog()
 {
-public:
-    hoxSocketServer( int        nPort,
-                     hoxServer* server );
-    ~hoxSocketServer();
+    const char* FNAME = "hoxLog::hoxLog";
 
-    /**
-     * The entry point of the Thread.
-     * In other words, Thread execution starts here.
-     */
-    virtual void* Entry();
+    m_filename = wxFileName::GetTempDir() + "/CChess_"
+               + hoxUtility::GenerateRandomString() + ".log";
+    wxLogDebug("%s: Opened the log file [%s].", FNAME, m_filename.c_str());
+}
 
-    /********************
-     * My own API       *
-     ********************/
+/**
+ * The destructor.
+ */
+hoxLog::~hoxLog()
+{
+}
 
-    /**
-     * Send a request to this server instructing that it should be shutdowned. 
-     */
-    void RequestShutdown() { m_shutdownRequested = true; }
+void 
+hoxLog::DoLogString( const wxChar* msg, 
+                     time_t        timestamp )
+{
+    if ( msg == NULL ) return;
 
-private:
-    void _DestroySocketServer();
+    wxFFile logFile( m_filename, "a" );
 
-private:
-    int               m_nPort;       // The main server's port.
-    wxSocketServer*   m_pSServer;    // The main server's socket
+    if ( logFile.IsOpened() )
+    {
+        logFile.Write( msg );
+        logFile.Write( "\n" );
+        logFile.Close();
+    }
+#if 0
+    if ( wxGetApp().GetTopWindow() != NULL )
+    {
+        wxCommandEvent logEvent( hoxEVT_FRAME_LOG_MSG );
+        logEvent.SetString( wxString(msg) );
+        ::wxPostEvent( wxGetApp().GetTopWindow(), logEvent );
+    }
+#endif
+}
 
-    hoxServer*        m_server;
-
-    bool              m_shutdownRequested;
-                /* Has a shutdown-request been received? */
-
-};
-
-#endif /* __HOX_SOCKET_SERVER_H_ */
+/************************* END OF FILE ***************************************/

@@ -63,6 +63,7 @@ public:
 
 public:
     // **** My own public API ****
+    bool IsBeingShutdowned() const { return m_shutdownRequested; } 
 
 protected:
     virtual hoxRequest* GetRequest();         
@@ -80,15 +81,17 @@ protected:
     bool                  m_bConnected;
                 /* Has the connection been established with the server */
 
-    bool                  m_shutdownRequested;
-                /* Has a shutdown-request been received? */
-
     wxSemaphore           m_semRequests;
     wxMutex               m_mutexRequests;
     hoxRequestList        m_requests;
 
     hoxPlayer*            m_player;
                 /* The player that owns this connection */
+
+private:
+    bool                  m_shutdownRequested;
+                /* Has a shutdown-request been received? */
+
 
     DECLARE_ABSTRACT_CLASS(hoxThreadConnection)
 };
