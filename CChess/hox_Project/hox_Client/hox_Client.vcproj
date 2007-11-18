@@ -197,6 +197,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hoxLog.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\hoxMyPlayer.cpp"
 				>
 			</File>
@@ -324,6 +328,10 @@
 			</File>
 			<File
 				RelativePath=".\hoxLocalPlayer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\hoxLog.h"
 				>
 			</File>
 			<File

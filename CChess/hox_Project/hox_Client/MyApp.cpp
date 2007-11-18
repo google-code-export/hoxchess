@@ -27,6 +27,7 @@
 #include "MyApp.h"
 #include "MyFrame.h"
 #include "hoxEnums.h"
+#include "hoxLog.h"
 #include "hoxSocketServer.h"
 #include "hoxPlayer.h"
 #include "hoxTable.h"
@@ -35,7 +36,6 @@
 #include "hoxUtility.h"
 #include "hoxNetworkAPI.h"
 #include "hoxServer.h"
-#include <wx/filename.h>
 
 // Create a new application object: this macro will allow wxWidgets to create
 // the application object during program execution (it's better than using a
@@ -49,43 +49,6 @@ DEFINE_EVENT_TYPE(hoxEVT_SERVER_RESPONSE)
 BEGIN_EVENT_TABLE(MyApp, wxApp)
   // Empty table
 END_EVENT_TABLE()
-
-
-hoxLog::hoxLog()
-    : wxLog()
-{
-    m_filename = wxFileName::GetTempDir() + "/CChess_"
-               + hoxUtility::GenerateRandomString() + ".log";
-    wxLogDebug(wxString::Format("Opened the log file [%s].", m_filename.c_str()));
-}
-
-hoxLog::~hoxLog()
-{
-}
-
-void 
-hoxLog::DoLogString(const wxChar *msg, time_t timestamp)
-{
-    if ( msg == NULL ) return;
-
-    wxFFile logFile( m_filename, "a" );
-
-    if ( logFile.IsOpened() )
-    {
-        logFile.Write( msg );
-        logFile.Write( "\n" );
-        logFile.Close();
-    }
-#if 0
-    if ( wxGetApp().GetTopWindow() != NULL )
-    {
-        wxCommandEvent logEvent( hoxEVT_FRAME_LOG_MSG );
-        logEvent.SetString( wxString(msg) );
-        ::wxPostEvent( wxGetApp().GetTopWindow(), logEvent );
-    }
-#endif
-}
-
 
 /**
  * 'Main program' equivalent: the program execution "starts" here
