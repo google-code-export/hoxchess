@@ -37,10 +37,12 @@
 // hoxThreadConnection
 // ----------------------------------------------------------------------------
 
-/** !!!!!!!!!!!!!!!!!!!!!!!
- * NOTE: If deriving from wxThread, acquiring mutex (using lock) would fail.
+/**
+ * A Connection powered by a Thread.
+ *
+ * @note If deriving from wxThread, acquiring mutex (using lock) would fail.
  *       Thus, I have to derive from wxThreadHelper.
- * !!!!!!!!!!!!!!!!!!!!!!! */
+ */
 class hoxThreadConnection : public hoxConnection
                           , public wxThreadHelper
 {

@@ -70,9 +70,9 @@ hoxTableMgr::CreateTable( wxWindow*       parent,
     hoxTable* table = new hoxTable( tableId, referee );
 
     /* Create a "hidden" Board */
-    hoxSimpleBoard* board = new hoxSimpleBoard( parent, PIECES_PATH, referee,
-                                                wxDefaultPosition,
-                                                parent->GetSize() );
+    hoxBoard* board = new hoxBoard( parent, PIECES_PATH, referee,
+                                    wxDefaultPosition,
+                                    parent->GetSize() );
 
     /* Attach the Board to the Table to be served as a Table's GUI 
      * Also, trigger the Board to be displayed.

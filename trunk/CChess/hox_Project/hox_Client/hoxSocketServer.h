@@ -36,12 +36,13 @@
 /* Forward declarations */
 class hoxServer;
 
-//
-// hoxSocketServer
-//
-// Perhaps we should rename it to something without the word "socket"
-// in it (may be used pipe for local connections...)
-
+/**
+ * The server-component listening for new connections.
+ * Once a new remote client (hoxRemotePlayer) has been established, this
+ * component will forward the connection to hoxServer to manage it.
+ *
+ * @see hoxServer
+ */
 class hoxSocketServer : public wxThreadHelper
 {
 public:

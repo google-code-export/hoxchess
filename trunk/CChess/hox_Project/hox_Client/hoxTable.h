@@ -37,20 +37,21 @@
 /* Forward declarations */
 class hoxIReferee;
 class hoxPlayer;
-class hoxSimpleBoard;
+class hoxBoard;
 
 /**
- * Representing a logical Table consisting of the following:
- *      + One Board (with all pieces + One Referee).
- *      + One RED Player.
- *      + One BLACK Player.
+ * The Table with a board, a referee, and players.
+ * Specifically, it contains the following components:
+ *      - One hoxBoard (with all Pieces + One hoxIReferee).
+ *      - One RED hoxPlayer.
+ *      - One BLACK hoxPlayer.
  */
 class hoxTable
 {
 public:
     hoxTable( const wxString&   id,
               hoxIReferee*      referee,
-              hoxSimpleBoard*   board = NULL );
+              hoxBoard*         board = NULL );
     
     virtual ~hoxTable();
 
@@ -77,9 +78,9 @@ public:
     /**
      * Set the Board (the Table's GUI).
      */
-    void SetBoard( hoxSimpleBoard* board );
+    void SetBoard( hoxBoard* board );
 
-    hoxSimpleBoard* GetBoard() const { return m_board; }
+    hoxBoard* GetBoard() const { return m_board; }
 
 
     /**
@@ -104,6 +105,8 @@ public:
      * @param player The parameter is passed in so that the Table does not have
      *               to inform that player about this move (to avoid getting 
      *               into an endless loop).
+     * @param fromPosition The current position of the Piece.
+     * @param toPosition The new position of the Piece.
      */
     void OnMove_FromNetwork( hoxPlayer*         player,
                              const hoxPosition& fromPosition,
@@ -116,12 +119,13 @@ public:
      * the newly-received Wall-Message(s).
      *
      * @param playerId The Id of the player who generates the message.
+     * @param message The message that are being sent from the network.
      */
     void OnMessage_FromNetwork( const wxString&  playerId,
                                 const wxString&  message );
 
     /**
-     * Callback function from a player who is leaving the table..
+     * Callback function from a player who is leaving the table.
      */
     void OnLeave_FromPlayer( hoxPlayer* player );
 
@@ -164,7 +168,7 @@ private:
 
     hoxIReferee*     m_referee;  // The referee
 
-    hoxSimpleBoard*  m_board;    // The (OPTIONAL) Board.
+    hoxBoard*        m_board;    // The (OPTIONAL) Board.
 
     // Players
     hoxPlayerAndRoleList  m_players;

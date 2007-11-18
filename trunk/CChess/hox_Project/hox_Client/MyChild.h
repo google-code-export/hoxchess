@@ -33,8 +33,10 @@
 /* Forward declarations */
 class hoxTable;
 
-/*
- * My child frame.
+/**
+ * The child (MDI) frame.
+ *
+ * @see MyFrame
  */
 class MyChild: public wxMDIChildFrame
 {

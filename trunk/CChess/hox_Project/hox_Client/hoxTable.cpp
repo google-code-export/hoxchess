@@ -37,7 +37,7 @@
 
 hoxTable::hoxTable( const wxString&  id,
                     hoxIReferee*     referee,
-                    hoxSimpleBoard*  board /* = NULL */ )
+                    hoxBoard*        board /* = NULL */ )
         : m_id( id )
         , m_referee( referee )
         , m_board( board )
@@ -168,7 +168,7 @@ hoxTable::UnassignPlayer( hoxPlayer* player )
 }
 
 void 
-hoxTable::SetBoard( hoxSimpleBoard* board )
+hoxTable::SetBoard( hoxBoard* board )
 {
     wxASSERT_MSG( m_board == NULL, "The Board has already been set." );
 

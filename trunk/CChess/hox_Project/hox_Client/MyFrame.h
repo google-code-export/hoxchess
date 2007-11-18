@@ -58,13 +58,16 @@ enum
     MDI_ABOUT = wxID_ABOUT
 };
 
-/** 
+/* 
  * Log events
  */
 DECLARE_EVENT_TYPE(hoxEVT_FRAME_LOG_MSG, wxID_ANY)
 
-/*
- * Define main (MDI) frame
+/**
+ * The main (MDI) frame acting as the App's main GUI.
+ * It manages a list of MDI child frames.
+ *
+ * @see MyChild
  */
 class MyFrame : public wxMDIParentFrame
 {

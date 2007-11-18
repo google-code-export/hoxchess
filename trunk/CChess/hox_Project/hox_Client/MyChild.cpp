@@ -95,13 +95,13 @@ MyChild::_SetupStatusBar()
 }
 
 void 
-MyChild::OnQuit(wxCommandEvent& WXUNUSED(event))
+MyChild::OnQuit( wxCommandEvent& event )
 {
     Close(true);
 }
 
 void 
-MyChild::OnToggle(wxCommandEvent& WXUNUSED(event))
+MyChild::OnToggle( wxCommandEvent& event )
 {
     if ( m_table != NULL )
         m_table->ToggleViewSide();

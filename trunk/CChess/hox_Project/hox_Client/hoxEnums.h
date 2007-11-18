@@ -28,17 +28,27 @@
 #ifndef __INCLUDED_HOX_ENUMS_H_
 #define __INCLUDED_HOX_ENUMS_H_
 
+/**
+ * @file hoxEnums.h
+ *
+ * The file contains all basic constants commonly used through out 
+ * the project.
+ */
 
-// The default path of all the pieces' images.
+/**
+ * The default path of all the pieces' images.
+ */
 #define PIECES_PATH "../pieces_5"
 
-// The default HTTP server.
+/**
+ * The default HTTP server (hostname and port).
+ */
 #define HOX_HTTP_SERVER_HOSTNAME  "www.playxiangqi.com"
 #define HOX_HTTP_SERVER_PORT      80
 
-//
-// Results
-//
+/**
+ * Results
+ */
 enum hoxResult
 {
     hoxRESULT_UNKNOWN = -1,
@@ -50,12 +60,12 @@ enum hoxResult
     hoxRESULT_NOT_SUPPORTED
 };
 
-//
-// Piece's Type.
-//
-//  King (K), Advisor (A), Elephant (E), chaRiot (R), Horse (H), 
-//  Cannons (C), Pawns (P).
-//
+/**
+ * Piece's Type.
+ *
+ *  King (K), Advisor (A), Elephant (E), chaRiot (R), Horse (H), 
+ *  Cannons (C), Pawns (P).
+ */
 enum hoxPieceType
 {
     hoxPIECE_TYPE_INVALID = 0,
@@ -68,9 +78,9 @@ enum hoxPieceType
     hoxPIECE_TYPE_PAWN              // Pawn (or Soldier)
 };
 
-//
-// Piece's color.
-//
+/**
+ * Piece's color.
+ */
 enum hoxPieceColor
 {
     hoxPIECE_COLOR_RED,   // RED color.
@@ -84,9 +94,9 @@ enum hoxPieceColor
          */
 };
 
-//
-// Game's's status
-//
+/**
+ * Game's status.
+ */
 enum hoxGameStatus
 {
     hoxGAME_STATUS_OPEN = 0,    // Open but not enough Player.
@@ -97,9 +107,9 @@ enum hoxGameStatus
     hoxGAME_STATUS_DRAWN        // Game Over. Drawn.
 };
 
-//
-// Player's type.
-//
+/**
+ * Player's type.
+ */
 enum hoxPlayerType
 {
     hoxPLAYER_TYPE_HOST,      
@@ -132,9 +142,9 @@ enum hoxPlayerType
              */
 };
 
-//
-// Network constants
-//
+/**
+ * Network constants.
+ */
 enum hoxNetworkContant
 {
    /*
@@ -145,9 +155,9 @@ enum hoxNetworkContant
     hoxNETWORK_DEFAULT_SERVER_PORT  = 3000
 };
 
-//
-// Time constants
-//
+/**
+ * Time constants.
+ */
 enum hoxTimeContant
 {
    /*
@@ -161,9 +171,9 @@ enum hoxTimeContant
     hoxTIME_DEFAULT_FREE_TIME       = 30      // 30 seconds
 };
 
-//
-// Socket related constants
-//
+/**
+ * Socket related constants.
+ */
 enum hoxSocketContant
 {
    /*
@@ -185,9 +195,9 @@ enum hoxSocketContant
 
 };
 
-//
-// Network event-types
-//
+/**
+ * Network event-types.
+ */
 enum hoxNetworkEvenType
 {
    /*
@@ -203,9 +213,9 @@ enum hoxNetworkEvenType
     hoxNETWORK_EVENT_TYPE_NEW_WALL_MSG         = 6
 };
 
-//
-// Request types to communicate with Connection Thread
-//
+/**
+ * Request types to communicate with Connection Thread.
+ */
 enum hoxRequestType
 {
     hoxREQUEST_TYPE_UNKNOWN = -1,
@@ -232,18 +242,18 @@ enum hoxRequestType
         /* Message generated (incoming) from a physical Table */
 };
 
-//
-// Request flags to communicate with Connection Thread
-//
+/**
+ * Request flags to communicate with Connection Thread.
+ */
 enum hoxRequestFlag
 {
     hoxREQUEST_FLAG_NONE        = 0,
     hoxREQUEST_FLAG_KEEP_ALIVE  = 1  // NOTE: This flag is not being used now.
 };
 
-//
-// Response flags to communicate back to the sender.
-//
+/**
+ * Response flags to communicate back to the sender.
+ */
 enum hoxResponseFlag
 {
     hoxRESPONSE_FLAG_NONE             = 0,
@@ -253,14 +263,11 @@ enum hoxResponseFlag
 
 };
 
-// ----------------------------------------------------------------------------
-// Other constants
-// ----------------------------------------------------------------------------
+/**
+ * Other constants.
+ */
 enum
 {
-    // id for sockets
-    //SERVER_SOCKET_ID,
-
     // id for sockets
     CLIENT_SOCKET_ID
 };

@@ -107,7 +107,7 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*       parent,
 }
 
 void 
-hoxTablesDialog::OnButtonJoin(wxCommandEvent& WXUNUSED(event))
+hoxTablesDialog::OnButtonJoin(wxCommandEvent& event)
 {
     const char* FNAME = "hoxTablesDialog::OnButtonJoin";
     int selection = m_tablesListBox->GetSelection();
@@ -126,7 +126,7 @@ hoxTablesDialog::OnButtonJoin(wxCommandEvent& WXUNUSED(event))
 }
 
 void 
-hoxTablesDialog::OnButtonNew(wxCommandEvent& WXUNUSED(event))
+hoxTablesDialog::OnButtonNew(wxCommandEvent& event)
 {
     wxLogDebug("Return [NEW] as the selected command to the caller.");
     m_selectedCommand = COMMAND_ID_NEW;

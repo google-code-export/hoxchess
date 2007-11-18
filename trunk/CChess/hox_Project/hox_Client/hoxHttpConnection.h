@@ -36,6 +36,9 @@
 // hoxHttpConnection
 // ----------------------------------------------------------------------------
 
+/**
+ * A HTTP Connection used by the HTTP Player.
+ */
 class hoxHttpConnection : public hoxThreadConnection
 {
 public:

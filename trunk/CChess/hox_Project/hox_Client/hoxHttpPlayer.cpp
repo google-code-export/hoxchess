@@ -129,7 +129,7 @@ hoxHttpPlayer::LeaveNetworkTable( const wxString& tableId,
 
 
 void 
-hoxHttpPlayer::OnTimer( wxTimerEvent& WXUNUSED(event) )
+hoxHttpPlayer::OnTimer( wxTimerEvent& event )
 {
     const char* FNAME = "hoxHttpPlayer::OnTimer";
     wxLogDebug("%s: ENTER.", FNAME);

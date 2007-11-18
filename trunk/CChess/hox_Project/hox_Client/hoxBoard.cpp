@@ -21,7 +21,7 @@
 // Name:            hoxBoard.cpp
 // Created:         10/05/2007
 //
-// Description:     A "simple" Board with the following features:
+// Description:     A full-featured Board with the following features:
 //                     + Player's information (such as Name, Score).
 //                     + Timers (including Game, Move, and Free times).
 //                     + Game History (forward/backward 'past' Moves).
@@ -54,29 +54,29 @@ DEFINE_EVENT_TYPE( hoxEVT_BOARD_PLAYER_JOIN )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_PLAYER_LEAVE )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_WALL_OUTPUT )
 
-BEGIN_EVENT_TABLE(hoxSimpleBoard, wxPanel)
-    EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_JOIN, hoxSimpleBoard::OnPlayerJoin)
-    EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_LEAVE, hoxSimpleBoard::OnPlayerLeave)
-    EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_WALL_OUTPUT, hoxSimpleBoard::OnWallOutput)
+BEGIN_EVENT_TABLE(hoxBoard, wxPanel)
+    EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_JOIN, hoxBoard::OnPlayerJoin)
+    EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_LEAVE, hoxBoard::OnPlayerLeave)
+    EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_WALL_OUTPUT, hoxBoard::OnWallOutput)
 
-    EVT_TEXT_ENTER(ID_BOARD_WALL_INPUT, hoxSimpleBoard::OnWallInputEnter)
-    EVT_BUTTON(ID_HISTORY_BEGIN, hoxSimpleBoard::OnButtonHistory_BEGIN)
-    EVT_BUTTON(ID_HISTORY_PREV, hoxSimpleBoard::OnButtonHistory_PREV)
-    EVT_BUTTON(ID_HISTORY_NEXT, hoxSimpleBoard::OnButtonHistory_NEXT)
-    EVT_BUTTON(ID_HISTORY_END, hoxSimpleBoard::OnButtonHistory_END)
+    EVT_TEXT_ENTER(ID_BOARD_WALL_INPUT, hoxBoard::OnWallInputEnter)
+    EVT_BUTTON(ID_HISTORY_BEGIN, hoxBoard::OnButtonHistory_BEGIN)
+    EVT_BUTTON(ID_HISTORY_PREV, hoxBoard::OnButtonHistory_PREV)
+    EVT_BUTTON(ID_HISTORY_NEXT, hoxBoard::OnButtonHistory_NEXT)
+    EVT_BUTTON(ID_HISTORY_END, hoxBoard::OnButtonHistory_END)
 
-    EVT_TIMER(wxID_ANY, hoxSimpleBoard::OnTimer)    
+    EVT_TIMER(wxID_ANY, hoxBoard::OnTimer)    
 END_EVENT_TABLE()
 
 // ----------------------------------------------------------------------------
-// hoxSimpleBoard
+// hoxBoard
 // ----------------------------------------------------------------------------
 
-hoxSimpleBoard::hoxSimpleBoard( wxWindow*       parent,
-                                const wxString& piecesPath,
-                                hoxIReferee*    referee,
-                                const wxPoint&  pos  /* = wxDefaultPosition */, 
-                                const wxSize&   size /* = wxDefaultSize */)
+hoxBoard::hoxBoard( wxWindow*       parent,
+                    const wxString& piecesPath,
+                    hoxIReferee*    referee,
+                    const wxPoint&  pos  /* = wxDefaultPosition */, 
+                    const wxSize&   size /* = wxDefaultSize */)
         : wxPanel( parent, 
                    wxID_ANY, 
                    pos, 
@@ -105,7 +105,7 @@ hoxSimpleBoard::hoxSimpleBoard( wxWindow*       parent,
     wxPanel::Show( false );  // invoke the parent's API.
 }
 
-hoxSimpleBoard::~hoxSimpleBoard()
+hoxBoard::~hoxBoard()
 {
     if ( m_timer != NULL )
     {
@@ -120,7 +120,7 @@ hoxSimpleBoard::~hoxSimpleBoard()
 }
 
 void 
-hoxSimpleBoard::OnBoardMove( const hoxMove& move )
+hoxBoard::OnBoardMove( const hoxMove& move )
 {
     /* Inform the Table of the new move. */
     wxCHECK_RET(m_table, "The table is NULL." );
@@ -130,7 +130,7 @@ hoxSimpleBoard::OnBoardMove( const hoxMove& move )
 }
 
 void 
-hoxSimpleBoard::OnBoardMsg( const wxString& message )
+hoxBoard::OnBoardMsg( const wxString& message )
 {
     const wxString who = "** Board **";  // NOTE: This Board's name.
 
@@ -138,9 +138,9 @@ hoxSimpleBoard::OnBoardMsg( const wxString& message )
 }
 
 void 
-hoxSimpleBoard::OnPlayerJoin( wxCommandEvent &event )
+hoxBoard::OnPlayerJoin( wxCommandEvent &event )
 {
-    const char* FNAME = "hoxSimpleBoard::OnPlayerJoin";
+    const char* FNAME = "hoxBoard::OnPlayerJoin";
 
     hoxPlayer* player = wx_reinterpret_cast(hoxPlayer*, event.GetEventObject());
     wxCHECK_RET(player, "Player cannot be NULL.");
@@ -190,9 +190,9 @@ hoxSimpleBoard::OnPlayerJoin( wxCommandEvent &event )
 }
 
 void 
-hoxSimpleBoard::OnPlayerLeave( wxCommandEvent &event )
+hoxBoard::OnPlayerLeave( wxCommandEvent &event )
 {
-    const char* FNAME = "hoxSimpleBoard::OnPlayerLeave";
+    const char* FNAME = "hoxBoard::OnPlayerLeave";
 
     hoxPlayer* player = wx_reinterpret_cast(hoxPlayer*, event.GetEventObject());
     wxCHECK_RET(player, "Player cannot be NULL.");
@@ -216,7 +216,7 @@ hoxSimpleBoard::OnPlayerLeave( wxCommandEvent &event )
 }
 
 void 
-hoxSimpleBoard::OnWallOutput( wxCommandEvent &event )
+hoxBoard::OnWallOutput( wxCommandEvent &event )
 {
     const wxString eventString = event.GetString();
     const wxString who = eventString.BeforeFirst(' ');
@@ -226,14 +226,14 @@ hoxSimpleBoard::OnWallOutput( wxCommandEvent &event )
 }
 
 void 
-hoxSimpleBoard::OnWallInputEnter( wxCommandEvent &event )
+hoxBoard::OnWallInputEnter( wxCommandEvent &event )
 {
     m_wallInput->Clear();
     m_table->OnMessage_FromBoard( event.GetString() );
 }
 
 void 
-hoxSimpleBoard::OnButtonHistory_BEGIN( wxCommandEvent &event )
+hoxBoard::OnButtonHistory_BEGIN( wxCommandEvent &event )
 {
     if ( m_coreBoard == NULL )
         return;
@@ -242,7 +242,7 @@ hoxSimpleBoard::OnButtonHistory_BEGIN( wxCommandEvent &event )
 }
 
 void 
-hoxSimpleBoard::OnButtonHistory_PREV( wxCommandEvent &event )
+hoxBoard::OnButtonHistory_PREV( wxCommandEvent &event )
 {
     if ( m_coreBoard == NULL )
         return;
@@ -251,7 +251,7 @@ hoxSimpleBoard::OnButtonHistory_PREV( wxCommandEvent &event )
 }
 
 void 
-hoxSimpleBoard::OnButtonHistory_NEXT( wxCommandEvent &event )
+hoxBoard::OnButtonHistory_NEXT( wxCommandEvent &event )
 {
     if ( m_coreBoard == NULL )
         return;
@@ -260,7 +260,7 @@ hoxSimpleBoard::OnButtonHistory_NEXT( wxCommandEvent &event )
 }
 
 void 
-hoxSimpleBoard::OnButtonHistory_END( wxCommandEvent &event )
+hoxBoard::OnButtonHistory_END( wxCommandEvent &event )
 {
     if ( m_coreBoard == NULL )
         return;
@@ -269,7 +269,7 @@ hoxSimpleBoard::OnButtonHistory_END( wxCommandEvent &event )
 }
 
 void 
-hoxSimpleBoard::OnTimer(wxTimerEvent& WXUNUSED(event))
+hoxBoard::OnTimer(wxTimerEvent& event)
 {
     if ( m_status != hoxGAME_STATUS_IN_PROGRESS )
         return;
@@ -291,7 +291,7 @@ hoxSimpleBoard::OnTimer(wxTimerEvent& WXUNUSED(event))
 }
 
 bool 
-hoxSimpleBoard::Show(bool show /* = true */)
+hoxBoard::Show(bool show /* = true */)
 {
     if ( !this->IsShown() && show ) // hidden -> shown?
     {
@@ -312,7 +312,7 @@ hoxSimpleBoard::Show(bool show /* = true */)
 }
 
 void 
-hoxSimpleBoard::_SetRedInfo( const hoxPlayer* player )
+hoxBoard::_SetRedInfo( const hoxPlayer* player )
 {
     m_redId = player->GetName();
 
@@ -325,7 +325,7 @@ hoxSimpleBoard::_SetRedInfo( const hoxPlayer* player )
 }
 
 void 
-hoxSimpleBoard::_SetBlackInfo( const hoxPlayer* player )
+hoxBoard::_SetBlackInfo( const hoxPlayer* player )
 {
     m_blackId = player->GetName();
 
@@ -341,7 +341,7 @@ hoxSimpleBoard::_SetBlackInfo( const hoxPlayer* player )
  * Create panel with the core board + player-info(s) + timers
  */
 void
-hoxSimpleBoard::_CreateBoardPanel()
+hoxBoard::_CreateBoardPanel()
 {
     wxPanel* boardPanel = this;
 
@@ -543,7 +543,7 @@ hoxSimpleBoard::_CreateBoardPanel()
 }
 
 void 
-hoxSimpleBoard::_LayoutBoardPanel( bool viewInverted )
+hoxBoard::_LayoutBoardPanel( bool viewInverted )
 {
     wxSizer* topSizer = NULL;
     wxSizer* bottomSizer = NULL;
@@ -593,15 +593,15 @@ hoxSimpleBoard::_LayoutBoardPanel( bool viewInverted )
 }
 
 void 
-hoxSimpleBoard::SetTable( hoxTable* table ) 
+hoxBoard::SetTable( hoxTable* table ) 
 { 
     m_table = table;
 }
 
 void 
-hoxSimpleBoard::ToggleViewSide()
+hoxBoard::ToggleViewSide()
 {
-    const char* FNAME = "hoxSimpleBoard::ToggleViewSide";
+    const char* FNAME = "hoxBoard::ToggleViewSide";
 
     m_coreBoard->ToggleViewSide();
 
@@ -639,7 +639,7 @@ hoxSimpleBoard::ToggleViewSide()
 }
 
 bool 
-hoxSimpleBoard::DoMove( hoxMove& move )
+hoxBoard::DoMove( hoxMove& move )
 {
     wxCHECK_MSG( m_coreBoard, false, "The core Board is NULL." );
 
@@ -652,10 +652,10 @@ hoxSimpleBoard::DoMove( hoxMove& move )
 }
 
 void 
-hoxSimpleBoard::_AddPlayerToList( const wxString& playerId,
-                                  int             playerScore )
+hoxBoard::_AddPlayerToList( const wxString& playerId,
+                            int             playerScore )
 {
-    const char* FNAME = "hoxSimpleBoard::_AddPlayerToList";
+    const char* FNAME = "hoxBoard::_AddPlayerToList";
 
     if ( ! this->IsShown() )
     {
@@ -668,9 +668,9 @@ hoxSimpleBoard::_AddPlayerToList( const wxString& playerId,
 }
 
 void 
-hoxSimpleBoard::_RemovePlayerFromList( const wxString& playerId )
+hoxBoard::_RemovePlayerFromList( const wxString& playerId )
 {
-    const char* FNAME = "hoxSimpleBoard::_RemovePlayerFromList";
+    const char* FNAME = "hoxBoard::_RemovePlayerFromList";
 
     if ( ! this->IsShown() )
     {
@@ -691,8 +691,8 @@ hoxSimpleBoard::_RemovePlayerFromList( const wxString& playerId )
 }
 
 void 
-hoxSimpleBoard::_PostToWallOutput( const wxString& who,
-                                   const wxString& message )
+hoxBoard::_PostToWallOutput( const wxString& who,
+                             const wxString& message )
 {
     m_wallOutput->SetDefaultStyle( wxTextAttr(*wxBLACK) );
     m_wallOutput->AppendText( wxString::Format("[%s] ", who.c_str()) );
@@ -701,7 +701,7 @@ hoxSimpleBoard::_PostToWallOutput( const wxString& who,
 }
 
 void 
-hoxSimpleBoard::_OnValidMove( const hoxMove& move )
+hoxBoard::_OnValidMove( const hoxMove& move )
 {
     /* For the 1st move, change the game-status to 'in-progress'. 
      */
@@ -724,7 +724,7 @@ hoxSimpleBoard::_OnValidMove( const hoxMove& move )
 }
 
 void
-hoxSimpleBoard::_ResetTimerUI()
+hoxBoard::_ResetTimerUI()
 {
     /* Set default game-times. */
 
@@ -739,7 +739,7 @@ hoxSimpleBoard::_ResetTimerUI()
 }
 
 void 
-hoxSimpleBoard::_UpdateTimerUI()
+hoxBoard::_UpdateTimerUI()
 {
     // Game times.
     m_blackGameTime->SetLabel( _FormatTime( m_nBGameTime ) );
@@ -755,7 +755,7 @@ hoxSimpleBoard::_UpdateTimerUI()
 }
 
 const wxString 
-hoxSimpleBoard::_FormatTime( int nTime ) const
+hoxBoard::_FormatTime( int nTime ) const
 {
     return wxString::Format( "%d:%.02d", nTime / 60, nTime % 60 );
 }
