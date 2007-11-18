@@ -72,7 +72,7 @@ public:
      * Other API
      *******************************/
 
-    void OnTimer( wxTimerEvent& WXUNUSED(event) );
+    void OnTimer( wxTimerEvent& event );
 
 private:
     void _HandleEventFromNetwork( const hoxNetworkEvent& networkEvent );

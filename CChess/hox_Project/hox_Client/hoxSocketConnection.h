@@ -37,6 +37,9 @@
 // hoxSocketConnection
 // ----------------------------------------------------------------------------
 
+/**
+ * A Connection based on a network Socket.
+ */
 class hoxSocketConnection : public hoxThreadConnection
 {
 public:

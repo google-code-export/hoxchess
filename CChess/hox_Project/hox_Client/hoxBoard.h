@@ -41,9 +41,21 @@ class hoxIReferee;
 class hoxTable;
 class hoxPlayer;
 
-/**
- *   Board layout:
+DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_JOIN, wxID_ANY)
+DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_LEAVE, wxID_ANY)
+DECLARE_EVENT_TYPE(hoxEVT_BOARD_WALL_OUTPUT, wxID_ANY)
+
+
+/** 
+ * A full-featured Board acting as the Table's UI.
+ * It has the following features:
+ *    - Player's information (such as Name, Score).
+ *    - Timers (including Game, Move, and Free times).
+ *    - Game History (forward/backward 'past' Moves).
+ *    - Chat feature (Text Input + Wall Output).
  *
+ *  Board layout:
+ * <pre>
  *  +------------------+
  *  | Player-Info |    |
  *  +------------------+
@@ -54,29 +66,20 @@ class hoxPlayer;
  *  +------------------+
  *  | Player-Info |    |
  *  +------------------+
- *
+ * </pre>
  */
-
-/** 
- * Boarded-related player events (players entering / leaving tables.)
- */
-DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_JOIN, wxID_ANY)
-DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_LEAVE, wxID_ANY)
-DECLARE_EVENT_TYPE(hoxEVT_BOARD_WALL_OUTPUT, wxID_ANY)
-
-
-class hoxSimpleBoard : public wxPanel
-                     , public hoxCoreBoard::BoardOwner
+class hoxBoard : public wxPanel
+               , public hoxCoreBoard::BoardOwner
 {
 public:
     /* Construct an "hidden" Board. */
-    hoxSimpleBoard( wxWindow*       parent,
-                    const wxString& piecesPath,
-                    hoxIReferee*    referee,
-                    const wxPoint&  pos = wxDefaultPosition, 
-                    const wxSize&   size = wxDefaultSize );
+    hoxBoard( wxWindow*       parent,
+              const wxString& piecesPath,
+              hoxIReferee*    referee,
+              const wxPoint&  pos = wxDefaultPosition, 
+              const wxSize&   size = wxDefaultSize );
 
-    virtual ~hoxSimpleBoard();
+    virtual ~hoxBoard();
 
     /************************************
      * Implement BoardOwner's interface.
@@ -111,7 +114,7 @@ public:
     void OnButtonHistory_NEXT( wxCommandEvent &event );
     void OnButtonHistory_END( wxCommandEvent &event );
 
-    void OnTimer( wxTimerEvent& WXUNUSED(event) );
+    void OnTimer( wxTimerEvent& event );
 
     /****************************************
      * Override the parent (wxPanel) 's API.

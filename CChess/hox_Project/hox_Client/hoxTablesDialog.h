@@ -50,8 +50,8 @@ public:
                      const wxString&                title,
                      const hoxNetworkTableInfoList& tableList );
 
-    void OnButtonJoin(wxCommandEvent& WXUNUSED(event));
-    void OnButtonNew(wxCommandEvent& WXUNUSED(event));
+    void OnButtonJoin(wxCommandEvent& event);
+    void OnButtonNew(wxCommandEvent& event);
 
     CommandId GetSelectedCommand() const { return m_selectedCommand; }
     wxString GetSelectedId() const { return m_selectId; }

@@ -24,6 +24,27 @@
 // Description:     The main Application.
 /////////////////////////////////////////////////////////////////////////////
 
+/**
+ * @mainpage HOXChess Main Page
+ *
+ * @section intro_sec Introduction
+ *
+ * HOXChess can function as a client, a server, or both.
+ *
+ * @section key_classes_sec Key Classes
+ *
+ * Here are the list of the main classes:
+ *  - MyApp         - The main App.
+ *  - MyFrame       - The main (MDI) Frame acting as the App's main GUI.
+ *  - hoxTable      - The Table with a board, a referee, and players.
+ *  - hoxBoard      - The Board acting as the Table's GUI.
+ *  - hoxReferee    - The Referee of a Table. 
+ *  - hoxPlayer     - The interface to a Player.
+ *  - hoxConnection - The Connection used by a Player for network traffic.
+ *  - hoxSocketServer - The server-component listening for new connections.
+ *  - hoxServer     - The server-component managed all remote connections.
+ */
+
 #ifndef __INCLUDED_MY_APP_H_
 #define __INCLUDED_MY_APP_H_
 
@@ -40,7 +61,7 @@ class hoxHttpPlayer;
 class hoxMyPlayer;
 class hoxServer;
 
-/**
+/*
  * @note We go through all these troubles because the wxLogGui is
  *       not thread-safe (would crash under multi-threads running).
  */
@@ -56,16 +77,13 @@ private:
     wxString   m_filename;
 };
 
+// Server (response) event-type.
+DECLARE_EVENT_TYPE(hoxEVT_SERVER_RESPONSE, wxID_ANY)
+
 /**
  * The main Application.
  * Everything starts from here (i.e., the entry point).
  */
-
-/** 
- * Server (response) event-type.
- */
-DECLARE_EVENT_TYPE(hoxEVT_SERVER_RESPONSE, wxID_ANY)
-
 class MyApp : public wxApp
 {
 public:

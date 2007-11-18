@@ -120,7 +120,7 @@ hoxCoreBoard::~hoxCoreBoard()
 }
 
 void 
-hoxCoreBoard::OnPaint(wxPaintEvent &WXUNUSED(event))
+hoxCoreBoard::OnPaint( wxPaintEvent& event )
 {
     wxPaintDC dc(this);
     PrepareDC(dc);   // ... for drawing a scrolled image
@@ -310,7 +310,7 @@ hoxCoreBoard::OnEraseBackground( wxEraseEvent& event )
 }
 
 void 
-hoxCoreBoard::OnIdle(wxIdleEvent& WXUNUSED(event))
+hoxCoreBoard::OnIdle( wxIdleEvent& event )
 {
     // Do nothing for now.
 }

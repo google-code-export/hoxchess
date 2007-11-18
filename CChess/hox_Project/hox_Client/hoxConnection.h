@@ -35,6 +35,10 @@
 // hoxConnection
 // ----------------------------------------------------------------------------
 
+/**
+ * The interface for a Connection providing the communication between a player
+ * and a remote server.
+ */
 class hoxConnection : public wxObject
 {
 public:

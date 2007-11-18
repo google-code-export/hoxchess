@@ -36,6 +36,9 @@ namespace BoardInfoAPI
    class Board;
 }
 
+/**
+ * The main Referee of this Application.
+ */
 class hoxReferee : public hoxIReferee
 {
 public:

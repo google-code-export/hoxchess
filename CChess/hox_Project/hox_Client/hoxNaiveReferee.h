@@ -18,7 +18,7 @@
  ***************************************************************************/
 
 /////////////////////////////////////////////////////////////////////////////
-// Name:            hoxIReferre.h
+// Name:            hoxNaiveReferee.h
 // Created:         09/29/2007
 //
 // Description:     A simple (naive) Referee.
@@ -30,7 +30,9 @@
 #include "hoxIReferee.h"
 #include "hoxEnums.h"
 
-
+/**
+ * A very simple-minded (naive) Referee.
+ */
 class hoxNaiveReferee : public hoxIReferee
 {
   public:

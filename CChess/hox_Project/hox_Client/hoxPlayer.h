@@ -45,7 +45,7 @@ BEGIN_DECLARE_EVENT_TYPES()
   DECLARE_EVENT_TYPE(hoxEVT_PLAYER_NEW_MOVE, wxID_ANY)
 END_DECLARE_EVENT_TYPES()
 
-/** 
+/* 
  * New player-event based on wxCommandEvent.
  */
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_WALL_MSG, wxID_ANY)
@@ -62,6 +62,10 @@ DECLARE_EVENT_TYPE(hoxEVT_PLAYER_WALL_MSG, wxID_ANY)
 //         identical to the "this" pointer for the wxEvtHandler portion.
 //
 
+/**
+ * An interface for a Player.
+ * Other more advanced Players derived from this class.
+ */
 class hoxPlayer :  public wxEvtHandler
 {
 public:

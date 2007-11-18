@@ -57,7 +57,7 @@ DEFINE_EVENT_TYPE(hoxEVT_FRAME_LOG_MSG)
 // constants
 // ----------------------------------------------------------------------------
 
-#define hoxVERSION_STRING  "0.1.0.0"
+#define hoxVERSION_STRING  "0.1.0.1"
 
 #define ID_WINDOW_LOG    103
 
@@ -171,13 +171,13 @@ MyFrame::OnClose(wxCloseEvent& event)
 }
 
 void 
-MyFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
+MyFrame::OnQuit( wxCommandEvent& event )
 {
     Close();
 }
 
 void 
-MyFrame::OnAbout(wxCommandEvent& WXUNUSED(event) )
+MyFrame::OnAbout( wxCommandEvent& event )
 {
     wxMessageBox( wxString::Format(
                     _("HOXChess %s\n"
@@ -197,7 +197,7 @@ MyFrame::OnAbout(wxCommandEvent& WXUNUSED(event) )
 }
 
 void 
-MyFrame::OnNewTable(wxCommandEvent& WXUNUSED(event) )
+MyFrame::OnNewTable( wxCommandEvent& event )
 {
     const char* FNAME = "MyFrame::OnNewTable";
     hoxTable* table = NULL;
@@ -214,7 +214,7 @@ MyFrame::OnNewTable(wxCommandEvent& WXUNUSED(event) )
 }
 
 void 
-MyFrame::OnCloseTable(wxCommandEvent& WXUNUSED(event) )
+MyFrame::OnCloseTable( wxCommandEvent& event )
 {
     const char* FNAME = "MyFrame::OnCloseTable";
 
@@ -254,7 +254,7 @@ MyFrame::OnChildClose( MyChild* child,
 }
 
 void 
-MyFrame::OnOpenServer(wxCommandEvent& WXUNUSED(event) )
+MyFrame::OnOpenServer( wxCommandEvent& event )
 {
     const char* FNAME = "MyFrame::OnOpenServer";
     wxLogDebug("%s: ENTER.", FNAME);
@@ -287,7 +287,7 @@ MyFrame::OnOpenServer(wxCommandEvent& WXUNUSED(event) )
 }
 
 void 
-MyFrame::OnConnectServer(wxCommandEvent& WXUNUSED(event) )
+MyFrame::OnConnectServer( wxCommandEvent& event )
 {
     const char* FNAME = "MyFrame::OnConnectServer";
     hoxResult result;
@@ -363,7 +363,7 @@ MyFrame::OnConnectServer(wxCommandEvent& WXUNUSED(event) )
     m_dlgProgress->Pulse();
 }
 
-void MyFrame::OnConnectHTTPServer(wxCommandEvent& WXUNUSED(event) )
+void MyFrame::OnConnectHTTPServer( wxCommandEvent& event )
 {
     const char* FNAME = "MyFrame::OnConnectHTTPServer";
     hoxResult result;
@@ -446,7 +446,7 @@ void MyFrame::OnConnectHTTPServer(wxCommandEvent& WXUNUSED(event) )
 }
 
 void 
-MyFrame::OnShowLogWindow( wxCommandEvent& WXUNUSED(event) )
+MyFrame::OnShowLogWindow( wxCommandEvent& event )
 {
     m_logWindow->Show( ! m_logWindow->IsShown() );
     m_logWindow->SetDefaultSize(wxSize(1000, 180));
@@ -588,7 +588,7 @@ MyFrame::DoJoinNewTable( const wxString& tableId,
      */
 }
 
-void MyFrame::OnDisconnectServer(wxCommandEvent& WXUNUSED(event) )
+void MyFrame::OnDisconnectServer( wxCommandEvent& event )
 {
     const char* FNAME = "MyFrame::OnDisconnectServer";
     wxLogDebug("%s: ENTER.", FNAME);

@@ -40,6 +40,9 @@ class hoxServer;
 // hoxRemoteConnection
 // ----------------------------------------------------------------------------
 
+/**
+ * A Connection used by a Remote Player.
+ */
 class hoxRemoteConnection : public hoxConnection
 {
 public:

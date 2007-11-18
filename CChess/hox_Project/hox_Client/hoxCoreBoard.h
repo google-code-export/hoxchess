@@ -54,6 +54,9 @@ typedef std::list<hoxPiece*> hoxPieceList;
  *
  */
 
+/**
+ * The 'core' Board providing UI for the Board and Pieces.
+ */
 class hoxCoreBoard : public wxPanel
 {
 public:
@@ -135,7 +138,7 @@ public:
      * My event-handlers.
      *********************************/
 
-    void OnPaint( wxPaintEvent &WXUNUSED(event) );
+    void OnPaint( wxPaintEvent& event );
     void OnEraseBackground( wxEraseEvent &event );
     void OnIdle( wxIdleEvent& event );
     void OnMouseEvent( wxMouseEvent& event );

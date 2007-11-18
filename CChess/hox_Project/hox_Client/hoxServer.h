@@ -28,8 +28,8 @@
 #ifndef __INCLUDED_HOX_SERVER_H_
 #define __INCLUDED_HOX_SERVER_H_
 
-#include "wx/wx.h"
-#include "wx/socket.h"
+#include <wx/wx.h>
+#include <wx/socket.h>
 #include "hoxEnums.h"
 #include "hoxTypes.h"
 
@@ -37,10 +37,16 @@
 // hoxServer
 // ----------------------------------------------------------------------------
 
-/** !!!!!!!!!!!!!!!!!!!!!!!
- * NOTE: If deriving from wxThread, acquiring mutex (using lock) would fail.
+/**
+ * The server-component managed all remote connections.
+ * New connections are arriving from the other server-component,
+ * namely hoxSocketServer.
+ * 
+ * @note If deriving from wxThread, acquiring mutex (using lock) would fail.
  *       Thus, I have to derive from wxThreadHelper.
- * !!!!!!!!!!!!!!!!!!!!!!! */
+ *
+ * @see hoxSocketServer
+ */
 class hoxServer : public wxThreadHelper
 {
 public:
