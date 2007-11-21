@@ -25,7 +25,6 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxConnection.h"
-#include "hoxEnums.h"
 
 IMPLEMENT_ABSTRACT_CLASS(hoxConnection, wxObject)
 

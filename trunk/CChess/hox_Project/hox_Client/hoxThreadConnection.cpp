@@ -19,13 +19,12 @@
 
 /////////////////////////////////////////////////////////////////////////////
 // Name:            hoxThreadConnection.cpp
-// Created:         10/28/2007
+// Created:         11/05/2007
 //
 // Description:     The "base" Connection Thread to help a "network" player.
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxThreadConnection.h"
-#include "hoxEnums.h"
 #include "hoxUtility.h"
 
 IMPLEMENT_ABSTRACT_CLASS(hoxThreadConnection, hoxConnection)
@@ -69,7 +68,7 @@ hoxThreadConnection::Start()
     if (    this->GetThread() 
          && this->GetThread()->IsRunning() )
     {
-        wxLogDebug("%s: The connection has been started. END.", FNAME);
+        wxLogDebug("%s: The connection has already been started. END.", FNAME);
         return;
     }
 
@@ -127,7 +126,7 @@ hoxThreadConnection::AddRequest( hoxRequest* request )
 {
     const char* FNAME = "hoxThreadConnection::AddRequest";
 
-    wxLogDebug("%s ENTER. Trying to obtain the lock...", FNAME);
+    //wxLogDebug("%s ENTER. Trying to obtain the lock...", FNAME);
     wxMutexLocker lock( m_mutexRequests );
 
     if ( m_shutdownRequested )
@@ -140,7 +139,7 @@ hoxThreadConnection::AddRequest( hoxRequest* request )
 
     m_requests.push_back( request );
     m_semRequests.Post();
-    wxLogDebug("%s END.", FNAME);
+    //wxLogDebug("%s END.", FNAME);
 }
 
 hoxRequest*
@@ -178,8 +177,8 @@ hoxThreadConnection::GetRequest()
     if ( m_shutdownRequested )
     {
         wxLogDebug("%s: Shutting down this thread...", FNAME);
-        delete request; // *** Signal "no more request" ...
-        return NULL;    // ... to the caller!
+        delete request;    // *** Signal "no more request" ...
+        request = NULL;    // ... to the caller!
     }
 
     return request;

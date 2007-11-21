@@ -61,7 +61,7 @@ public:
     hoxResult SetCBSocket( wxSocketBase* socket );
 
     /**
-     * Set the server component that will manage this connection.
+     * Set the server component that will manage this Connection.
      */
     void SetServer( hoxServer* server);
 
@@ -70,10 +70,9 @@ private:
         /* Callback socket to help the server.  */
 
     hoxServer*        m_server;
-        /* Set the server component that will manage this connection. */
+        /* The server component that manages this Connection. */
 
     DECLARE_DYNAMIC_CLASS(hoxRemoteConnection)
 };
-
 
 #endif /* __INCLUDED_HOX_REMOTE_CONNECTION_H_ */

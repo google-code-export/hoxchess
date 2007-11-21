@@ -25,7 +25,6 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxRemoteConnection.h"
-#include "hoxEnums.h"
 #include "hoxServer.h"
 
 IMPLEMENT_DYNAMIC_CLASS(hoxRemoteConnection, hoxConnection)
@@ -65,26 +64,27 @@ hoxRemoteConnection::AddRequest( hoxRequest* request )
     const char* FNAME = "hoxRemoteConnection::AddRequest";
     wxLogDebug("%s: ENTER.", FNAME);
 
-    // *** Simply forward to the server to handle...
+    wxCHECK_RET( m_server, "The Server component must have been set." );
 
-    wxASSERT( m_server != NULL );
+    // *************************
+    // Simply forward to the server to handle...
+    // *************************
+
+    /* This type of connection doest not need to handle SHUTDOWN. */
+    if ( request->type == hoxREQUEST_TYPE_SHUTDOWN )
     {
-        /* This type of connection doest not need to handle SHUTDOWN. */
-        if ( request->type == hoxREQUEST_TYPE_SHUTDOWN )
-        {
-            wxLogDebug("%s: Ignore this shutdown request.", FNAME);
-            delete request;
-            return;
-        }
-
-        // Perform sanity check if possible.
-        if ( request->socket != NULL )
-        {
-            wxCHECK_RET(m_pCBSock == request->socket, "The sockets must match.");
-        }
-        request->socket = m_pCBSock;
-        m_server->AddRequest( request );
+        wxLogDebug("%s: Ignore this shutdown request.", FNAME);
+        delete request;
+        return;
     }
+
+    // Perform sanity check if possible.
+    if ( request->socket != NULL )
+    {
+        wxCHECK_RET(m_pCBSock == request->socket, "The sockets must match.");
+    }
+    request->socket = m_pCBSock;
+    m_server->AddRequest( request );
 }
 
 hoxResult 

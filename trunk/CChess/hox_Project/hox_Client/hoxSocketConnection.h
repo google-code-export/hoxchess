@@ -56,7 +56,6 @@ protected:
     virtual void HandleRequest( hoxRequest* request );
 
 private:
-    void        _HandleRequest( hoxRequest* request );
     hoxResult   _CheckAndHandleSocketLostEvent( const hoxRequest* request, 
                                                 wxString&         response );
     hoxResult   _Connect();
@@ -68,6 +67,5 @@ private:
 
     DECLARE_DYNAMIC_CLASS(hoxSocketConnection)
 };
-
 
 #endif /* __INCLUDED_HOX_SOCKET_CONNECTION_H_ */

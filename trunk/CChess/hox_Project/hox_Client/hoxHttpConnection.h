@@ -60,5 +60,4 @@ private:
     DECLARE_DYNAMIC_CLASS(hoxHttpConnection)
 };
 
-
 #endif /* __INCLUDED_HOX_HTTP_CONNECTION_H_ */

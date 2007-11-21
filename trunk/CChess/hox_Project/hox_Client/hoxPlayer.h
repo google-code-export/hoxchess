@@ -65,9 +65,9 @@ DECLARE_EVENT_TYPE(hoxEVT_PLAYER_APP_SHUTDOWN, wxID_ANY)
 
 /**
  * An interface for a Player.
- * Other more advanced Players derived from this class.
+ * Other more advanced Players will derive from this class.
  */
-class hoxPlayer :  public wxEvtHandler
+class hoxPlayer : public wxEvtHandler
 {
 public:
     hoxPlayer(); // DUMMY default constructor required for event handler.

@@ -26,7 +26,6 @@
 
 #include "hoxHttpConnection.h"
 #include "hoxHttpPlayer.h"
-#include "hoxEnums.h"
 #include "hoxUtility.h"
 
 #include <wx/sstream.h>
@@ -87,15 +86,20 @@ hoxHttpConnection::HandleRequest( hoxRequest* request )
             break;
     }
 
+    /* Log error */
+    if ( result != hoxRESULT_OK )
+    {
+        wxLogError("%s: Error occurred while handling request [%s].", 
+            FNAME, hoxUtility::RequestTypeToString(request->type).c_str());
+        response->content = "!Error_Result!";
+    }
+
     /* NOTE: If there was error, just return it to the caller. */
 
-    //if ( request->sender != NULL )
-    {
-        wxCommandEvent event( hoxEVT_HTTP_RESPONSE, request->type );
-        response->code = result;
-        event.SetEventObject( response.release() );  // Caller will de-allocate.
-        wxPostEvent( m_player /*request->sender*/, event );
-    }
+    wxCommandEvent event( hoxEVT_HTTP_RESPONSE, request->type );
+    response->code = result;
+    event.SetEventObject( response.release() );  // Caller will de-allocate.
+    wxPostEvent( m_player, event );
 }
 
 hoxResult 
