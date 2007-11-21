@@ -26,7 +26,6 @@
 
 #include "hoxSocketConnection.h"
 #include "hoxMyPlayer.h"
-#include "hoxEnums.h"
 #include "hoxUtility.h"
 #include "hoxNetworkAPI.h"
 
@@ -154,7 +153,6 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
     }
 
 exit_label:
-    /* Log error */
     if ( result != hoxRESULT_OK )
     {
         wxLogError("%s: Error occurred while handling request [%s].", 
@@ -164,13 +162,10 @@ exit_label:
 
     /* NOTE: If there was error, just return it to the caller. */
 
-    //if ( request->sender != NULL )
-    {
-        wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, request->type );
-        response->code = result;
-        event.SetEventObject( response.release() );  // Caller will de-allocate.
-        wxPostEvent( m_player /*request->sender*/, event );
-    }
+    wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, request->type );
+    response->code = result;
+    event.SetEventObject( response.release() );  // Caller will de-allocate.
+    wxPostEvent( m_player, event );
 }
 
 hoxResult 
@@ -192,7 +187,7 @@ hoxSocketConnection::_CheckAndHandleSocketLostEvent(
         result = hoxRESULT_HANDLED;
     }
 
-    wxLogDebug("%s: Not a socket-lost event. Fine - Do nothing. END.", FNAME);
+    //wxLogDebug("%s: Not a socket-lost event. Fine - Do nothing. END.", FNAME);
     return result;
 }
 
@@ -246,11 +241,11 @@ hoxSocketConnection::_Disconnect()
 
     if ( m_pSClient != NULL )
     {
-        wxLogDebug("%s: Close the client socket.", FNAME);
+        wxLogDebug("%s: Closing the client socket...", FNAME);
         m_pSClient->Destroy();
         m_pSClient = NULL;
     }
-    m_bConnected = false;
+    this->SetConnected( false );
 }
 
 /************************* END OF FILE ***************************************/

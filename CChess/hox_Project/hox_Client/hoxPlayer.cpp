@@ -25,7 +25,6 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxPlayer.h"
-#include "hoxEnums.h"
 #include "hoxTable.h"
 #include "hoxConnection.h"
 #include "hoxTableMgr.h"
@@ -88,6 +87,10 @@ hoxPlayer::~hoxPlayer()
 
     /* Very important! Wait for all outstanding requests to be serviced
      * before closing down the connection.
+     *
+     * NOTE: Currently, I am not sure if this loop works beccause any while
+     *       loop used so far results "bad" expericence such as high CPU 's 
+     *       usuage, low GUI responses, and network traffic failure.
      */
     while ( m_nOutstandingRequests > 0 )
     {
@@ -165,10 +168,16 @@ hoxPlayer::JoinTable( hoxTable* table )
 hoxResult 
 hoxPlayer::LeaveTable( hoxTable* table )
 {
+    const char* FNAME = "hoxPlayer::LeaveTable";
+
     wxCHECK_MSG(table != NULL, hoxRESULT_ERR, "The table is NULL." );
+
+    wxLogDebug("%s: Player [%s] is leaving table [%s]...", 
+        FNAME, this->GetName().c_str(), table->GetId().c_str());
 
     table->OnLeave_FromPlayer( this );
     this->RemoveRoleAtTable( table->GetId() );
+
     return hoxRESULT_OK;
 }
 
@@ -195,10 +204,7 @@ hoxPlayer::LeaveAllTables()
         }
 
         // Inform the table that this player is leaving...
-        wxLogDebug("%s: Player [%s] leaving table [%s]...", 
-            FNAME, this->GetName().c_str(), tableId.c_str());
-        table->OnLeave_FromPlayer( this );
-        this->RemoveRoleAtTable( table->GetId() );
+        this->LeaveTable( table );
     }
 
     return bErrorFound ? hoxRESULT_ERR : hoxRESULT_OK;

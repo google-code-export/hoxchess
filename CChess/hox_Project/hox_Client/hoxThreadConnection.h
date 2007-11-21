@@ -39,6 +39,8 @@
 
 /**
  * A Connection powered by a Thread.
+ * This is an abstract class providing the base for other Connections that
+ * need a secondary Thread.
  *
  * @note If deriving from wxThread, acquiring mutex (using lock) would fail.
  *       Thus, I have to derive from wxThreadHelper.
@@ -58,11 +60,17 @@ public:
     virtual void AddRequest( hoxRequest* request );
     virtual bool IsConnected() { return m_bConnected; }
 
-    // Thread execution starts here
+    virtual void       SetPlayer(hoxPlayer* player) { m_player = player; }
+    virtual hoxPlayer* GetPlayer()                  { return m_player; }
+
+    /**
+     * Thread execution starts here.
+     */
     virtual void* Entry();
 
-public:
-    // **** My own public API ****
+    /**
+     * Is this Thread being shutdowned by the System.
+     */
     bool IsBeingShutdowned() const { return m_shutdownRequested; } 
 
 protected:
@@ -70,9 +78,6 @@ protected:
     virtual void        HandleRequest( hoxRequest* request ) = 0;
 
     virtual void SetConnected(bool connected) { m_bConnected = connected; }
-
-    virtual void       SetPlayer(hoxPlayer* player) { m_player = player; }
-    virtual hoxPlayer* GetPlayer()                  { return m_player; }
 
 protected:
     wxString              m_sHostname; 
@@ -95,6 +100,5 @@ private:
 
     DECLARE_ABSTRACT_CLASS(hoxThreadConnection)
 };
-
 
 #endif /* __INCLUDED_HOX_THREAD_CONNECTION_H_ */

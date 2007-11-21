@@ -38,6 +38,7 @@
 /**
  * The interface for a Connection providing the communication between a player
  * and a remote server.
+ * The class is the base class for all other Connections.
  */
 class hoxConnection : public wxObject
 {
@@ -55,6 +56,5 @@ public:
 
     DECLARE_ABSTRACT_CLASS(hoxConnection)
 };
-
 
 #endif /* __INCLUDED_HOX_CONNECTION_H_ */
