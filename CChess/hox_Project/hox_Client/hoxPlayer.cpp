@@ -326,6 +326,7 @@ hoxPlayer::HandleIncomingData( const wxString& commandStr )
     const char* FNAME = "hoxPlayer::HandleIncomingData";
     hoxResult   result = hoxRESULT_OK;
     hoxCommand  command;
+    wxString    response;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -341,42 +342,49 @@ hoxPlayer::HandleIncomingData( const wxString& commandStr )
     switch ( command.type )
     {
         case hoxREQUEST_TYPE_MOVE:
-            result = this->HandleIncomingData_Move( command );
+            result = this->HandleIncomingData_Move( command, response );
             break;
 
         case hoxREQUEST_TYPE_LEAVE:
-            result = this->HandleIncomingData_Leave( command );
+            result = this->HandleIncomingData_Leave( command, response );
             break;
 
         case hoxREQUEST_TYPE_WALL_MSG:
-            result = this->HandleIncomingData_WallMsg( command );
+            result = this->HandleIncomingData_WallMsg( command, response );
             break;
 
         case hoxREQUEST_TYPE_LIST:
-            result = this->HandleIncomingData_List( command ); 
+            result = this->HandleIncomingData_List( command, response ); 
             break;
 
         case hoxREQUEST_TYPE_JOIN:
-            result = this->HandleIncomingData_Join( command ); 
+            result = this->HandleIncomingData_Join( command, response ); 
             break;
 
         default:
             wxLogError("%s: Unsupported Request-Type [%s].", 
                 FNAME, hoxUtility::RequestTypeToString(command.type).c_str());
             result = hoxRESULT_NOT_SUPPORTED;
+            response = "Not supported.";
             break;
     }
+
+    /* Send response back to the remote player 
+     */
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_OUT_DATA, this );
+    request->content = response;
+    this->AddRequestToConnection( request );
 
     wxLogDebug("%s: END.", FNAME);
     return result;
 }
 
 hoxResult   
-hoxPlayer::HandleIncomingData_Move( hoxCommand& command )
+hoxPlayer::HandleIncomingData_Move( hoxCommand& command,
+                                    wxString&   response )
 {
     const char* FNAME = "hoxPlayer::HandleIncomingData_Move";
     hoxResult       result = hoxRESULT_ERR;   // Assume: failure.
-    wxString        response;
 
     wxString moveStr = command.parameters["move"];
     wxString tableId = command.parameters["tid"];
@@ -425,21 +433,16 @@ hoxPlayer::HandleIncomingData_Move( hoxCommand& command )
     result = hoxRESULT_OK;
 
 exit_label:
-    /* Send response back to the remote player */
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_OUT_DATA );
-    request->content = response;
-    m_connection->AddRequest( request );
-
     wxLogDebug("%s: END.", FNAME);
     return result;
 }
 
 hoxResult 
-hoxPlayer::HandleIncomingData_Leave( hoxCommand& command )
+hoxPlayer::HandleIncomingData_Leave( hoxCommand& command,
+                                     wxString&   response )
 {
     const char* FNAME = "hoxPlayer::HandleIncomingData_Leave";
     hoxResult       result = hoxRESULT_ERR;   // Assume: failure.
-    wxString        response;
     wxString        tableId;
     wxString        requesterId;
     hoxPlayer*      player = NULL;
@@ -489,21 +492,16 @@ hoxPlayer::HandleIncomingData_Leave( hoxCommand& command )
     result = hoxRESULT_OK;
 
 exit_label:
-    /* Send response back to the remote player */
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_OUT_DATA );
-    request->content = response;
-    m_connection->AddRequest( request );
-
     wxLogDebug("%s: END.", FNAME);
     return result;
 }
 
 hoxResult   
-hoxPlayer::HandleIncomingData_WallMsg( hoxCommand& command )
+hoxPlayer::HandleIncomingData_WallMsg( hoxCommand& command,
+                                       wxString&   response )
 {
     const char* FNAME = "hoxPlayer::HandleIncomingData_WallMsg";
     hoxResult       result = hoxRESULT_ERR;   // Assume: failure.
-    wxString        response;
 
     wxString message = command.parameters["msg"];
     wxString tableId = command.parameters["tid"];
@@ -535,22 +533,17 @@ hoxPlayer::HandleIncomingData_WallMsg( hoxCommand& command )
     result = hoxRESULT_OK;
 
 exit_label:
-    /* Send response back to the remote player */
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_OUT_DATA );
-    request->content = response;
-    m_connection->AddRequest( request );
-
     wxLogDebug("%s: END.", FNAME);
     return result;
 }
 
 hoxResult 
-hoxPlayer::HandleIncomingData_List( hoxCommand& command )
+hoxPlayer::HandleIncomingData_List( hoxCommand& command,
+                                    wxString&   response )
 {
     const char* FNAME = "hoxPlayer::HandleIncomingData_List";
-    wxString response;
 
-   wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", FNAME);
 
     // Get the list of hosted tables.
     const hoxTableList& tables = hoxTableMgr::GetInstance()->GetTables();
@@ -577,23 +570,18 @@ hoxPlayer::HandleIncomingData_List( hoxCommand& command )
                  << "\r\n";
     }
 
-    /* Send response back to the remote player */
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_OUT_DATA );
-    request->content = response;
-    m_connection->AddRequest( request );
-
     wxLogDebug("%s: END.", FNAME);
     return hoxRESULT_OK;
 }
 
 hoxResult 
-hoxPlayer::HandleIncomingData_Join( hoxCommand& command )
+hoxPlayer::HandleIncomingData_Join( hoxCommand& command,
+                                    wxString&   response )
 {
     const char* FNAME = "hoxPlayer::HandleIncomingData_Join";
     hoxResult result = hoxRESULT_ERR;   // Assume: failure.
     hoxTable* table = NULL;
     wxString  existingPlayerId;
-    wxString  response;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -645,11 +633,6 @@ hoxPlayer::HandleIncomingData_Join( hoxCommand& command )
     result = hoxRESULT_OK;
 
 exit_label:
-    /* Send response back to the remote player */
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_OUT_DATA );
-    request->content = response;
-    m_connection->AddRequest( request );
-
     wxLogDebug("%s: END.", FNAME);
     return result;
 }
