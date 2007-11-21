@@ -137,11 +137,11 @@ protected:
      * Handle the incoming data from the connection.
      */
     virtual hoxResult HandleIncomingData( const wxString& commandStr );
-    virtual hoxResult HandleIncomingData_Move( hoxCommand& command );
-    virtual hoxResult HandleIncomingData_Leave( hoxCommand& command );
-    virtual hoxResult HandleIncomingData_WallMsg( hoxCommand& command );
-    virtual hoxResult HandleIncomingData_List( hoxCommand& command );
-    virtual hoxResult HandleIncomingData_Join( hoxCommand& command );
+    virtual hoxResult HandleIncomingData_Move( hoxCommand& command, wxString& response );
+    virtual hoxResult HandleIncomingData_Leave( hoxCommand& command, wxString& response );
+    virtual hoxResult HandleIncomingData_WallMsg( hoxCommand& command, wxString& response );
+    virtual hoxResult HandleIncomingData_List( hoxCommand& command, wxString& response );
+    virtual hoxResult HandleIncomingData_Join( hoxCommand& command, wxString& response );
 
     virtual void StartConnection();
     virtual void ShutdownConnection();
