@@ -30,24 +30,16 @@
 #include <wx/wx.h>
 #include "hoxEnums.h"
 #include "hoxTypes.h"
-#include "hoxPlayerEvent.h"
 
 /* Forward declarations */
 class hoxTable;
 class hoxConnection;
 
-// ----------------------------------------------------------------------------
-// Declare player-event types
-// ----------------------------------------------------------------------------
-
-BEGIN_DECLARE_EVENT_TYPES()
-  DECLARE_EVENT_TYPE(hoxEVT_PLAYER_TABLE_CLOSED, wxID_ANY)
-  DECLARE_EVENT_TYPE(hoxEVT_PLAYER_NEW_MOVE, wxID_ANY)
-END_DECLARE_EVENT_TYPES()
-
 /* 
  * New player-event based on wxCommandEvent.
  */
+DECLARE_EVENT_TYPE(hoxEVT_PLAYER_NEW_MOVE, wxID_ANY)
+DECLARE_EVENT_TYPE(hoxEVT_PLAYER_TABLE_CLOSE, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_WALL_MSG, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_APP_SHUTDOWN, wxID_ANY)
 
@@ -81,9 +73,8 @@ public:
      * Event-handle API
      ***************************/
 
-    virtual void OnClose_FromTable( hoxPlayerEvent&  event );
-    virtual void OnNewMove_FromTable( hoxPlayerEvent&  event );
-
+    virtual void OnNewMove_FromTable( wxCommandEvent&  event );
+    virtual void OnClose_FromTable( wxCommandEvent&  event );
     virtual void OnWallMsg_FromTable( wxCommandEvent&  event );
     virtual void OnShutdown_FromApp( wxCommandEvent&  event );
 
@@ -181,14 +172,5 @@ private:
     DECLARE_DYNAMIC_CLASS(hoxPlayer)
     DECLARE_EVENT_TABLE()
 };
-
-// ----------------------------------------------------------------------------
-// Player event macros
-// ----------------------------------------------------------------------------
-
-typedef void (wxEvtHandler::*hoxPlayerEventFunction)(hoxPlayerEvent&);
-
-#define EVT_PLAYER_TABLE_CLOSED(id, fn) DECLARE_EVENT_TABLE_ENTRY(hoxEVT_PLAYER_TABLE_CLOSED, id, wxID_ANY, (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction) (wxNotifyEventFunction)  wxStaticCastEvent( hoxPlayerEventFunction, & fn ), (wxObject *) NULL ),
-#define EVT_PLAYER_NEW_MOVE(id, fn) DECLARE_EVENT_TABLE_ENTRY(hoxEVT_PLAYER_NEW_MOVE, id, wxID_ANY, (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction) (wxNotifyEventFunction)  wxStaticCastEvent( hoxPlayerEventFunction, & fn ), (wxObject *) NULL ),
 
 #endif /* __INCLUDED_HOX_PLAYER_H_ */
