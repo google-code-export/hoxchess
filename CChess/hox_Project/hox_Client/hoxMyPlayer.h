@@ -32,10 +32,7 @@
 #include "hoxEnums.h"
 #include "hoxTypes.h"
 
-/* Forward declarations */
-class hoxSocketConnection;
-
-/** 
+/* 
  * Connection event-type for responses.
  */
 DECLARE_EVENT_TYPE(hoxEVT_CONNECTION_RESPONSE, wxID_ANY)
@@ -43,7 +40,6 @@ DECLARE_EVENT_TYPE(hoxEVT_CONNECTION_RESPONSE, wxID_ANY)
 /**
  * The MY player.
  */
-
 class hoxMyPlayer :  public hoxLocalPlayer
 {
 public:
@@ -55,8 +51,6 @@ public:
     virtual ~hoxMyPlayer();
 
 public:
-
-    virtual hoxResult JoinTable( hoxTable* table );
 
     /*******************************
      * Socket-event handlers

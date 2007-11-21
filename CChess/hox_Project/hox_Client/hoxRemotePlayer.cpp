@@ -27,13 +27,14 @@
 #include "hoxRemotePlayer.h"
 #include "hoxEnums.h"
 #include "hoxConnection.h"
-#include "MyApp.h"
+#include "hoxServer.h"
 
 IMPLEMENT_DYNAMIC_CLASS(hoxRemotePlayer, hoxPlayer)
 
 BEGIN_EVENT_TABLE(hoxRemotePlayer, hoxPlayer)
     EVT_SOCKET(CLIENT_SOCKET_ID,  hoxRemotePlayer::OnIncomingNetworkData)
     EVT_COMMAND(hoxREQUEST_TYPE_PLAYER_DATA, hoxEVT_SERVER_RESPONSE, hoxRemotePlayer::OnConnectionResponse_PlayerData)
+    EVT_COMMAND(wxID_ANY, hoxEVT_SERVER_RESPONSE, hoxRemotePlayer::OnServerResponse)
 END_EVENT_TABLE()
 
 
@@ -63,17 +64,14 @@ hoxRemotePlayer::OnIncomingNetworkData( wxSocketEvent& event )
     const char* FNAME = "hoxRemotePlayer::OnIncomingNetworkData";
     wxLogDebug("%s: ENTER.", FNAME);
 
-    wxASSERT( m_connection != NULL );
-    {
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_PLAYER_DATA, this );
-        request->socket      = event.GetSocket();
-            /* Set the socket here so that the connection can perform 
-             * sanity check to make sure the socket matches.
-             */
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_PLAYER_DATA, this );
+    request->socket      = event.GetSocket();
+        /* Set the socket here so that the connection can perform 
+         * sanity check to make sure the socket matches.
+         */
 
-        request->socketEvent = event.GetSocketEvent(); // TODO: Not consistent???
-        m_connection->AddRequest( request );
-    }
+    request->socketEvent = event.GetSocketEvent(); // TODO: Not consistent???
+    this->AddRequestToConnection( request );
 }
 
 void 
@@ -87,11 +85,14 @@ hoxRemotePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
     hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
     const std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
 
+    /* Make a note to 'self' that one request has been serviced. */
+    DecrementOutstandingRequests();
+
     /* NOTE: Only handle the connection-lost event. */
 
     if ( (response->flags & hoxRESPONSE_FLAG_CONNECTION_LOST) !=  0 )
     {
-        wxLogDebug("%s: Connection has been lost.", FNAME);
+        wxLogDebug("%s: Connection has been lost. Leaving all tables...", FNAME);
         /* Currently, we support one connection per player.
          * Since this ONLY connection is closed, the player must leave
          * all tables.
@@ -106,9 +107,27 @@ hoxRemotePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
         if ( result != hoxRESULT_OK )
         {
             wxLogError("%s: Error occurred while handling incoming data.", FNAME);
-            return;
+            goto exit_label;
         }
     }
+
+exit_label:
+    wxLogDebug("%s: END.", FNAME);
+}
+
+void 
+hoxRemotePlayer::OnServerResponse( wxCommandEvent& event )
+{
+    const char* FNAME = "hoxRemotePlayer::OnServerResponse";
+    hoxResult result = hoxRESULT_OK;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
+    const std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
+
+    /* Make a note to 'self' that one request has been serviced. */
+    DecrementOutstandingRequests();
 
     wxLogDebug("%s: END.", FNAME);
 }

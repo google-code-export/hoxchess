@@ -33,6 +33,9 @@
 #include "hoxEnums.h"
 #include "hoxTypes.h"
 
+/* Server (response) event-type. */
+DECLARE_EVENT_TYPE(hoxEVT_SERVER_RESPONSE, wxID_ANY)
+
 // ----------------------------------------------------------------------------
 // hoxServer
 // ----------------------------------------------------------------------------

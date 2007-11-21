@@ -25,8 +25,6 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxLocalPlayer.h"
-#include "hoxThreadConnection.h"
-#include "hoxEnums.h"
 
 IMPLEMENT_ABSTRACT_CLASS(hoxLocalPlayer, hoxPlayer)
 
@@ -51,34 +49,7 @@ hoxLocalPlayer::hoxLocalPlayer( const wxString& name,
 hoxLocalPlayer::~hoxLocalPlayer() 
 {
     const char* FNAME = "hoxLocalPlayer::~hoxLocalPlayer";
-
-    if ( m_connection != NULL )
-    {
-        wxLogDebug("%s: Request the Connection thread to be shutdowned...", FNAME);
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_SHUTDOWN, NULL );
-        m_connection->AddRequest( request );
-
-        m_connection->Shutdown();
-    }
-}
-
-bool 
-hoxLocalPlayer::SetConnection( hoxConnection* connection )
-{
-    const char* FNAME = "hoxLocalPlayer::SetConnection";
-
     wxLogDebug("%s: ENTER.", FNAME);
-
-    if ( ! this->hoxPlayer::SetConnection( connection ) )
-    {
-        return false;
-    }
-
-    wxLogDebug("%s: Specify this player [%s] as the connection's owner.", 
-        FNAME, this->GetName().c_str());
-    m_connection->SetPlayer( this );
-
-    return true;
 }
 
 void 
@@ -88,7 +59,7 @@ hoxLocalPlayer::OnClose_FromTable( hoxPlayerEvent&  event )
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    this->LeaveNetworkTable( event.GetTableId(), this /* NOT USED */ );
+    this->LeaveNetworkTable( event.GetTableId(), this );
 
     this->hoxPlayer::OnClose_FromTable( event );
 }
@@ -96,15 +67,12 @@ hoxLocalPlayer::OnClose_FromTable( hoxPlayerEvent&  event )
 hoxResult 
 hoxLocalPlayer::ConnectToNetworkServer( wxEvtHandler* sender )
 {
-    _StartConnection();
+    this->StartConnection();
 
-    wxASSERT( m_connection != NULL );
-    {
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_CONNECT, sender );
-        request->content = 
-            wxString::Format("op=CONNECT&pid=%s\r\n", this->GetName().c_str());
-        m_connection->AddRequest( request );
-    }
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_CONNECT, sender );
+    request->content = 
+        wxString::Format("op=CONNECT&pid=%s\r\n", this->GetName().c_str());
+    this->AddRequestToConnection( request );
 
     return hoxRESULT_OK;
 }
@@ -114,16 +82,7 @@ hoxLocalPlayer::DisconnectFromNetworkServer( wxEvtHandler* sender )
 {
     const char* FNAME = "hoxLocalPlayer::DisconnectFromNetworkServer";
 
-    if ( m_connection != NULL )
-    {
-        wxLogDebug("%s: Request the Connection thread to be shutdowned...", FNAME);
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_SHUTDOWN, NULL );
-        m_connection->AddRequest( request );
-
-        m_connection->Shutdown();
-        this->ResetConnection();
-        wxASSERT_MSG( m_connection == NULL, "The connection should have been deleted.");
-    }
+    this->ResetConnection();
 
     return hoxRESULT_OK;
 }
@@ -131,13 +90,10 @@ hoxLocalPlayer::DisconnectFromNetworkServer( wxEvtHandler* sender )
 hoxResult 
 hoxLocalPlayer::QueryForNetworkTables( wxEvtHandler* sender )
 {
-    wxASSERT( m_connection != NULL );
-    {
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LIST, sender );
-        request->content = 
-            wxString::Format("op=LIST&pid=%s\r\n", this->GetName().c_str());
-        m_connection->AddRequest( request );
-    }
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LIST, sender );
+    request->content = 
+        wxString::Format("op=LIST&pid=%s\r\n", this->GetName().c_str());
+    this->AddRequestToConnection( request );
 
     return hoxRESULT_OK;
 }
@@ -146,61 +102,35 @@ hoxResult
 hoxLocalPlayer::JoinNetworkTable( const wxString& tableId,
                                   wxEvtHandler*   sender )
 {
-    wxASSERT( m_connection != NULL );
-    {
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_JOIN, sender );
-        request->content = 
-            wxString::Format("op=JOIN&tid=%s&pid=%s\r\n", tableId.c_str(), this->GetName().c_str());
-        m_connection->AddRequest( request );
-    }
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_JOIN, sender );
+    request->content = 
+        wxString::Format("op=JOIN&tid=%s&pid=%s\r\n", tableId.c_str(), this->GetName().c_str());
+    this->AddRequestToConnection( request );
 
     return hoxRESULT_OK;
 }
 hoxResult 
 hoxLocalPlayer::OpenNewNetworkTable( wxEvtHandler*   sender )
 {
-    wxASSERT( m_connection != NULL );
-    {
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_NEW, sender );
-        request->content = 
-            wxString::Format("op=NEW&pid=%s\r\n", this->GetName().c_str());
-        m_connection->AddRequest( request );
-    }
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_NEW, sender );
+    request->content = 
+        wxString::Format("op=NEW&pid=%s\r\n", this->GetName().c_str());
+    this->AddRequestToConnection( request );
 
     return hoxRESULT_OK;
 }
 
 hoxResult 
 hoxLocalPlayer::LeaveNetworkTable( const wxString& tableId,
-                                   wxEvtHandler*   sender /* NOT USED */ )
+                                   wxEvtHandler*   sender )
 {
-    wxASSERT( m_connection != NULL );
-    {
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LEAVE /*, sender*/ );
-        request->content = 
-                wxString::Format("op=LEAVE&tid=%s&pid=%s\r\n", 
-                    tableId.c_str(), this->GetName().c_str());
-        m_connection->AddRequest( request );
-    }
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LEAVE, sender );
+    request->content = 
+            wxString::Format("op=LEAVE&tid=%s&pid=%s\r\n", 
+                tableId.c_str(), this->GetName().c_str());
+    this->AddRequestToConnection( request );
 
     return hoxRESULT_OK;
-}
-
-void 
-hoxLocalPlayer::AddRequestToConnection( hoxRequest* request )
-{ 
-    wxCHECK_RET( m_connection, "The connection must have been set." );
-    m_connection->AddRequest( request ); 
-}
-
-void 
-hoxLocalPlayer::_StartConnection()
-{
-    const char* FNAME = "hoxLocalPlayer::_StartConnection";
-
-    wxCHECK_RET( m_connection, "The connection must have been set." );
-
-    m_connection->Start();
 }
 
 /************************* END OF FILE ***************************************/

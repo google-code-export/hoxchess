@@ -62,8 +62,8 @@ class hoxHttpPlayer;
 class hoxMyPlayer;
 class hoxServer;
 
-// Server (response) event-type.
-DECLARE_EVENT_TYPE(hoxEVT_SERVER_RESPONSE, wxID_ANY)
+
+DECLARE_EVENT_TYPE(hoxEVT_APP_PLAYER_SHUTDOWN_DONE, wxID_ANY)
 
 /**
  * The main Application.
@@ -79,6 +79,8 @@ public:
 
     bool OnInit();
     int  OnExit();
+
+    void OnShutdownDone_FromPlayer( wxCommandEvent&  event );
 
     /*********************************
      * My own API

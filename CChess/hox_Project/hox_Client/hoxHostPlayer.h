@@ -47,11 +47,6 @@ public:
 
     virtual ~hoxHostPlayer();
 
-    /*******************************************
-     * Override the parent's event-handler API
-     *******************************************/
-
-
 private:
 
     DECLARE_DYNAMIC_CLASS(hoxHostPlayer)

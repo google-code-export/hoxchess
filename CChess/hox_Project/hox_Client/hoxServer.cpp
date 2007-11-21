@@ -19,30 +19,22 @@
 
 /////////////////////////////////////////////////////////////////////////////
 // Name:            hoxServer.cpp
-// Created:         10/23/2007
+// Created:         10/24/2007
 //
-// Description:     The Connection Thread to help a "network" player.
+// Description:     The Server Thread to help this server dealing with
+//                  network connections.
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxServer.h"
-#include "hoxEnums.h"
-#include "MyApp.h"
-#include "hoxTableMgr.h"
-#include "hoxRemoteConnection.h"
-#include "hoxRemotePlayer.h"
-#include "hoxPlayerMgr.h"
 #include "hoxUtility.h"
 #include "hoxNetworkAPI.h"
 
-#include <wx/sstream.h>
-#include <wx/protocol/http.h>
-#include <wx/tokenzr.h>
-#include <algorithm>
+
+DEFINE_EVENT_TYPE( hoxEVT_SERVER_RESPONSE )
 
 //-----------------------------------------------------------------------------
 // hoxServer
 //-----------------------------------------------------------------------------
-
 
 hoxServer::hoxServer()
         : wxThreadHelper()

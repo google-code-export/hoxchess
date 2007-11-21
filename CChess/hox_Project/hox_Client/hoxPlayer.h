@@ -49,6 +49,7 @@ END_DECLARE_EVENT_TYPES()
  * New player-event based on wxCommandEvent.
  */
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_WALL_MSG, wxID_ANY)
+DECLARE_EVENT_TYPE(hoxEVT_PLAYER_APP_SHUTDOWN, wxID_ANY)
 
 // ----------------------------------------------------------------------------
 // The Player class
@@ -84,6 +85,7 @@ public:
     virtual void OnNewMove_FromTable( hoxPlayerEvent&  event );
 
     virtual void OnWallMsg_FromTable( wxCommandEvent&  event );
+    virtual void OnShutdown_FromApp( wxCommandEvent&  event );
 
     /***************************
      * Accessor API
@@ -119,26 +121,39 @@ public:
      *         false - If some other existing connection has been set.
      */
     virtual bool SetConnection( hoxConnection* connection );
+
+    /**
+     * Return the connection.
+     */
     virtual hoxConnection* GetConnection() const { return m_connection; }
-    virtual void ResetConnection();  // Reset connection to NULL.
+  
+    /**
+     * Reset connection to NULL.    
+     */
+    virtual void ResetConnection();
 
 protected:
     /**
      * Handle the incoming data from the connection.
      */
     virtual hoxResult HandleIncomingData( const wxString& commandStr );
-    virtual hoxResult HandleIncomingData_Move( /* wxSocketBase* sock, */
-                                               hoxCommand&   command );
-    virtual hoxResult HandleIncomingData_Leave( /* wxSocketBase* sock, */
-                                               hoxCommand&   command );
-    virtual hoxResult HandleIncomingData_WallMsg( /* wxSocketBase* sock, */
-                                                 hoxCommand&   command );
-    virtual hoxResult HandleIncomingData_List( /* wxSocketBase* sock, */
-                                               hoxCommand&   command );
-    virtual hoxResult HandleIncomingData_Join( /* wxSocketBase* sock, */
-                                               hoxCommand&   command );
+    virtual hoxResult HandleIncomingData_Move( hoxCommand& command );
+    virtual hoxResult HandleIncomingData_Leave( hoxCommand& command );
+    virtual hoxResult HandleIncomingData_WallMsg( hoxCommand& command );
+    virtual hoxResult HandleIncomingData_List( hoxCommand& command );
+    virtual hoxResult HandleIncomingData_Join( hoxCommand& command );
 
-protected:
+    virtual void StartConnection();
+    virtual void ShutdownConnection();
+
+    virtual void AddRequestToConnection( hoxRequest* request );
+
+    void DecrementOutstandingRequests();
+
+private:
+    void _ShutdownMyself();
+
+private:
     hoxConnection*  m_connection;
             /* The connection to "outside" world.
              * For Host and Dummy player, it will be NULL.
@@ -148,7 +163,6 @@ protected:
              *       and design.
              */
 
-private:
     wxString       m_name;   // The player's name.
 
     hoxPlayerType  m_type;       
@@ -160,7 +174,11 @@ private:
 
     int            m_score;  // The player's Score.
 
-    DECLARE_CLASS(hoxPlayer)
+    int            m_nOutstandingRequests;
+
+    bool           m_shutdownRequested;
+
+    DECLARE_DYNAMIC_CLASS(hoxPlayer)
     DECLARE_EVENT_TABLE()
 };
 

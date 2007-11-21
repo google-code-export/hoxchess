@@ -25,9 +25,9 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxMyPlayer.h"
-#include "hoxSocketConnection.h"
-#include "hoxEnums.h"
 #include "hoxNetworkAPI.h"
+#include "MyApp.h"      // wxGetApp()
+#include "MyFrame.h"
 
 IMPLEMENT_DYNAMIC_CLASS(hoxMyPlayer, hoxLocalPlayer)
 
@@ -61,21 +61,6 @@ hoxMyPlayer::~hoxMyPlayer()
 {
     const char* FNAME = "hoxMyPlayer::~hoxMyPlayer";
     wxLogDebug("%s: ENTER.", FNAME);
-}
-
-hoxResult 
-hoxMyPlayer::JoinTable( hoxTable* table )
-{
-    const char* FNAME = "hoxMyPlayer::JoinTable";
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    hoxResult result = this->hoxLocalPlayer::JoinTable( table );
-    if ( result != hoxRESULT_OK )
-    {
-        return result;
-    }
-
-    return hoxRESULT_OK;
 }
 
 void
@@ -138,7 +123,24 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
     wxLogDebug("%s: ENTER.", FNAME);
 
     hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
-    const std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
+    std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
+
+    /* Make a note to 'self' that one request has been serviced. */
+    DecrementOutstandingRequests();
+
+    if ( response->sender && response->sender != this )
+    {
+        MyFrame* frame = wxGetApp().GetFrame();
+        wxCHECK_RET( response->sender == frame, "The sender should be the Frame.");
+        frame->Handle_PlayerResponse( response.release(), this );
+        return;
+    }
+
+    if ( response->type == hoxREQUEST_TYPE_OUT_DATA )
+    {
+        wxLogDebug("%s: OUT_DATA 's response received. END.", FNAME);
+        return;
+    }
 
     /* Parse the response */
     result = hoxNetworkAPI::ParseSimpleResponse( response->content,

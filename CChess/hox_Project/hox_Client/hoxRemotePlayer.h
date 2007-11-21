@@ -33,13 +33,9 @@
 #include "hoxEnums.h"
 #include "hoxTypes.h"
 
-/* Forward declarations */
-class hoxConnection;
-
 /**
  * The REMOTE player.
  */
-
 class hoxRemotePlayer :  public hoxPlayer
 {
   public:
@@ -61,6 +57,7 @@ class hoxRemotePlayer :  public hoxPlayer
 
     void OnIncomingNetworkData( wxSocketEvent& event );
     void OnConnectionResponse_PlayerData( wxCommandEvent& event ); 
+    void OnServerResponse( wxCommandEvent& event ); 
 
 private:
 

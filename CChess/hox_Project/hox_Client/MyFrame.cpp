@@ -82,10 +82,7 @@ BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
     EVT_SIZE(MyFrame::OnSize)
     EVT_SASH_DRAGGED(ID_WINDOW_LOG, MyFrame::OnSashDrag)
 
-    EVT_COMMAND(wxID_ANY, hoxEVT_HTTP_RESPONSE, MyFrame::OnHTTPResponse)
-    EVT_COMMAND(wxID_ANY, hoxEVT_CONNECTION_RESPONSE, MyFrame::OnMYResponse)
     EVT_COMMAND(wxID_ANY, hoxEVT_FRAME_LOG_MSG, MyFrame::OnFrameLogMsgEvent)
-
 END_EVENT_TABLE()
 
 // ---------------------------------------------------------------------------
@@ -161,12 +158,27 @@ MyFrame::~MyFrame()
 void 
 MyFrame::OnClose(wxCloseEvent& event)
 {
+    const char* FNAME = "MyFrame::OnClose";
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
     while( ! m_children.empty() )
     {
         MyChild* child = m_children.front();
         child->Close( true /* force */ );
         // NOTE: The call above already delete the child.
     }
+
+    /* Inform all players about the SHUTDOWN. */
+    hoxPlayerMgr::GetInstance()->OnSystemShutdown();
+
+    if ( hoxPlayerMgr::GetInstance()->GetNumberOfPlayers() > 0 )
+    {
+        // *** Postpone the shutdown until all players leave the system.
+        return;
+    }
+
+    /* Forward this Close event to let the App close the entire system. */
     event.Skip();
 }
 
@@ -267,7 +279,7 @@ MyFrame::OnOpenServer( wxCommandEvent& event )
 
     long nPort = wxGetNumberFromUser( 
         _("Enter the port at which the server will be listening:"),
-        wxString::Format(_("Port [%d - %d]"), minPort, maxPort), 
+        wxString::Format("Port [%d - %d]", minPort, maxPort), 
         _("Server's Port ..."),
         defaultPort,
         minPort,
@@ -700,30 +712,15 @@ MyFrame::SetupStatusBar()
     CreateStatusBar();
 }
 
-void 
-MyFrame::OnHTTPResponse(wxCommandEvent& event) 
+void
+MyFrame::Handle_PlayerResponse( hoxResponse*    pResponse,
+                                hoxLocalPlayer* localPlayer ) 
 {
-    const char* FNAME = "MyFrame::OnHTTPResponse";
-    _Handle_OnResponse( event, wxGetApp().GetHTTPPlayer() );
-}
-
-void 
-MyFrame::OnMYResponse(wxCommandEvent& event) 
-{
-    const char* FNAME = "MyFrame::OnMYResponse";
-    _Handle_OnResponse( event, wxGetApp().GetMyPlayer() );
-}
-
-void 
-MyFrame::_Handle_OnResponse( wxCommandEvent& event,
-                             hoxLocalPlayer* localPlayer ) 
-{
-    const char* FNAME = "MyFrame::_Handle_OnResponse";
+    const char* FNAME = "MyFrame::Handle_PlayerResponse";
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
-    const std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
+    const std::auto_ptr<hoxResponse> response( pResponse ); // take care memory leak!
 
     bool wasCanceled = !m_dlgProgress->Pulse();
     m_dlgProgress->Update(100);  // make sure to close the dialog.
