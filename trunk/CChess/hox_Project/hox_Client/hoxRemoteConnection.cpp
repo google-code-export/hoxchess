@@ -69,6 +69,14 @@ hoxRemoteConnection::AddRequest( hoxRequest* request )
 
     wxASSERT( m_server != NULL );
     {
+        /* This type of connection doest not need to handle SHUTDOWN. */
+        if ( request->type == hoxREQUEST_TYPE_SHUTDOWN )
+        {
+            wxLogDebug("%s: Ignore this shutdown request.", FNAME);
+            delete request;
+            return;
+        }
+
         // Perform sanity check if possible.
         if ( request->socket != NULL )
         {

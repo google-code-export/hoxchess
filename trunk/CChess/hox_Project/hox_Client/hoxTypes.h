@@ -216,13 +216,17 @@ public:
     hoxResult        code;
     wxString         content;
     int              flags;
+    wxEvtHandler*    sender;
 
     hoxResponse() : type( hoxREQUEST_TYPE_UNKNOWN )
                   , code( hoxRESULT_UNKNOWN )
-                  , flags( hoxRESPONSE_FLAG_NONE ) {}
-    hoxResponse(hoxRequestType t) : type( t )
-                                  , code( hoxRESULT_UNKNOWN )
-                                  , flags( hoxRESPONSE_FLAG_NONE ) {}
+                  , flags( hoxRESPONSE_FLAG_NONE )
+                  , sender( NULL ) {}
+    hoxResponse(hoxRequestType t, wxEvtHandler* s = NULL) 
+                  : type( t )
+                  , code( hoxRESULT_UNKNOWN )
+                  , flags( hoxRESPONSE_FLAG_NONE )
+                  , sender( s ) {}
 };
 
 class hoxCommand : public wxObject

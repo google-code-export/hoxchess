@@ -32,10 +32,7 @@
 #include "hoxEnums.h"
 #include "hoxTypes.h"
 
-/* Forward declarations */
-class hoxHttpConnection;
-
-/** 
+/*
  * HTTP event-type for responses.
  */
 DECLARE_EVENT_TYPE(hoxEVT_HTTP_RESPONSE, wxID_ANY)
@@ -43,7 +40,6 @@ DECLARE_EVENT_TYPE(hoxEVT_HTTP_RESPONSE, wxID_ANY)
 /**
  * The HTTP player.
  */
-
 class hoxHttpPlayer :  public hoxLocalPlayer
 {
 public:

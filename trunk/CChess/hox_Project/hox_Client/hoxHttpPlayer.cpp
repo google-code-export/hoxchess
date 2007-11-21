@@ -26,12 +26,13 @@
 
 #include "hoxHttpPlayer.h"
 #include "hoxHttpConnection.h"
-#include "hoxEnums.h"
 #include "hoxTable.h"
 #include "hoxTableMgr.h"
 #include "hoxNetworkAPI.h"
 #include "hoxUtility.h"
 #include "hoxPlayerMgr.h"
+#include "MyApp.h"      // wxGetApp()
+#include "MyFrame.h"
 
 IMPLEMENT_DYNAMIC_CLASS(hoxHttpPlayer, hoxLocalPlayer)
 
@@ -153,10 +154,12 @@ hoxHttpPlayer::OnHTTPResponse_Poll(wxCommandEvent& event)
     hoxResponse* response = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
     const std::auto_ptr<hoxResponse> safe_response( response ); // take care memory leak!
 
+    /* Notice to 'self' that one request has been serviced. */
+    DecrementOutstandingRequests();
+
     /* NOTE: We do not check for the return-code ( event.GetInt() )
      *       because the response's content would be an empty string anyway.
      */
-
 
     hoxNetworkEventList networkEvents;
 
@@ -203,8 +206,27 @@ hoxHttpPlayer::OnHTTPResponse(wxCommandEvent& event)
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    hoxResponse* response = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
-    const std::auto_ptr<hoxResponse> safe_response( response ); // take care memory leak!
+    hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
+    std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
+
+    /* Notice to 'self' that one request has been serviced. */
+    DecrementOutstandingRequests();
+
+    if ( response->sender && response->sender != this )
+    {
+        MyFrame* frame = wxGetApp().GetFrame();
+        wxCHECK_RET( response->sender == frame, "The sender should be the Frame.");
+        frame->Handle_PlayerResponse( response.release(), this );
+        return;
+    }
+
+    if ( response->type == hoxREQUEST_TYPE_OUT_DATA )
+    {
+        wxLogDebug("%s: OUT_DATA 's response received. END.", FNAME);
+        return;
+    }
+
+    /* Parse the response. */
 
     int        returnCode = -1;
     wxString   returnMsg;

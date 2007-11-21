@@ -116,15 +116,14 @@ public:
      */
     bool OnChildClose(MyChild* child, hoxTable* table);
 
-    void OnHTTPResponse(wxCommandEvent& event);
-    void OnMYResponse(wxCommandEvent& event);
     void DoJoinExistingTable(const hoxNetworkTableInfo& tableInfo, hoxLocalPlayer* localPlayer);
     void DoJoinNewTable(const wxString& tableId, hoxLocalPlayer* localPlayer);
     void OnFrameLogMsgEvent( wxCommandEvent &event );
 
-private:
-    void _Handle_OnResponse( wxCommandEvent& event, hoxLocalPlayer* localPlayer );
+    void Handle_PlayerResponse( hoxResponse*    pResponse,
+                                hoxLocalPlayer* localPlayer );
 
+private:
     void _OnResponse_Leave( const wxString& responseStr );
     void _OnResponse_Connect( const wxString& responseStr, hoxLocalPlayer* localPlayer );
     void _OnResponse_List( const wxString& responseStr, hoxLocalPlayer* localPlayer );

@@ -25,6 +25,8 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxPlayerMgr.h"
+#include "MyApp.h"          // wxGetApp()
+#include <algorithm>   // std::find
 
 
 // Declare the single instance.
@@ -125,6 +127,26 @@ hoxPlayerMgr::DeletePlayer( hoxPlayer* player )
     m_players.remove( player );
 }
 
+int
+hoxPlayerMgr::RemovePlayer( hoxPlayer* player )
+{
+    const char* FNAME = "hoxPlayerMgr::RemovePlayer";
+    int playerFound = 0;
+
+    wxCHECK_MSG( player != NULL, 0, "The player should not be NULL." );
+    
+    wxLogDebug("%s: Deleting player [%s]...", FNAME, player->GetName().c_str());
+
+    hoxPlayerList::iterator found = std::find( m_players.begin(), m_players.end(), player );
+    if ( found != m_players.end() )
+        playerFound = 1;
+
+    //delete player;
+    m_players.remove( player );
+
+    return playerFound;
+}
+
 hoxPlayer* 
 hoxPlayerMgr::FindPlayer( const wxString& playerId )
 {
@@ -138,6 +160,24 @@ hoxPlayerMgr::FindPlayer( const wxString& playerId )
     }
     
     return NULL;
+}
+
+void
+hoxPlayerMgr::OnSystemShutdown()
+{
+    const char* FNAME = "hoxPlayerMgr::OnSystemShutdown";
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    /* Inform all players about the SHUTDOWN. */
+    for ( hoxPlayerList::iterator it = m_players.begin();
+                                  it != m_players.end(); ++it )
+    {
+        wxCommandEvent event( hoxEVT_PLAYER_APP_SHUTDOWN );
+        event.SetString( "System being shutdowned" );
+        event.SetEventObject( &(wxGetApp()) );
+        wxPostEvent( (*it) , event );
+    }
 }
 
 /************************* END OF FILE ***************************************/

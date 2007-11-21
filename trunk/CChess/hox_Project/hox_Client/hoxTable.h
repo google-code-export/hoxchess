@@ -70,6 +70,11 @@ public:
     hoxResult RequestJoinFromPlayer( hoxPlayer*     player,
                                      hoxPieceColor  requestColor );
 
+    /**
+     * Unseat a given player from this table.
+     *
+     * @param player The player to be unseated.
+     */
     hoxResult UnassignPlayer( hoxPlayer* player );
 
     hoxPlayer* GetRedPlayer() const { return m_redPlayer; }

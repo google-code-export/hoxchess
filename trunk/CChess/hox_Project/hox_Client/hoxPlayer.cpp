@@ -29,12 +29,14 @@
 #include "hoxTable.h"
 #include "hoxConnection.h"
 #include "hoxTableMgr.h"
+#include "hoxPlayerMgr.h"
 #include "hoxUtility.h"
 #include "hoxNetworkAPI.h"
+#include "MyApp.h"
 
 #include <algorithm>  // std::find
 
-IMPLEMENT_CLASS(hoxPlayer, wxEvtHandler)
+IMPLEMENT_DYNAMIC_CLASS(hoxPlayer, wxEvtHandler)
 
 //----------------------------------------------------------------------------
 // event types
@@ -44,12 +46,14 @@ DEFINE_EVENT_TYPE(hoxEVT_PLAYER_NEW_MOVE)
 
 /* Define player-event based on wxCommandEvent */
 DEFINE_EVENT_TYPE(hoxEVT_PLAYER_WALL_MSG)
+DEFINE_EVENT_TYPE(hoxEVT_PLAYER_APP_SHUTDOWN)
 
 BEGIN_EVENT_TABLE(hoxPlayer, wxEvtHandler)
     EVT_PLAYER_TABLE_CLOSED (wxID_ANY,  hoxPlayer::OnClose_FromTable)
     EVT_PLAYER_NEW_MOVE (wxID_ANY,  hoxPlayer::OnNewMove_FromTable)
 
     EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_WALL_MSG, hoxPlayer::OnWallMsg_FromTable)
+    EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_APP_SHUTDOWN, hoxPlayer::OnShutdown_FromApp)
 END_EVENT_TABLE()
 
 
@@ -69,6 +73,8 @@ hoxPlayer::hoxPlayer( const wxString& name,
             , m_type( type )
             , m_score( score )
             , m_connection( NULL )
+            , m_nOutstandingRequests( 0 )
+            , m_shutdownRequested( false )
 { 
 }
 
@@ -77,6 +83,25 @@ hoxPlayer::~hoxPlayer()
     const char* FNAME = "hoxPlayer::~hoxPlayer";
     wxLogDebug("%s: ENTER.", FNAME);
 
+    if ( m_connection == NULL )
+        return;
+
+    /* Very important! Wait for all outstanding requests to be serviced
+     * before closing down the connection.
+     */
+    while ( m_nOutstandingRequests > 0 )
+    {
+        wxLogDebug("%s: Waiting for outstanding requests [%d] to be serviced...", 
+            FNAME, m_nOutstandingRequests);
+        wxSleep( 1 /* second */ );
+        wxGetApp().Yield();
+    }
+
+    this->ShutdownConnection();
+
+    /* Deleting the connection itself.
+     */
+    wxLogDebug("%s: Deleting connection...", FNAME);
     delete m_connection;
 }
 
@@ -119,8 +144,10 @@ hoxPlayer::HasRole( hoxRole role )
     return ( found != m_roles.end() );
 }
 
-// We can check the player's color afterwards to 
-// see which role the player has.
+/**
+ * @note We can check the player's color afterwards to 
+ *       see which role the player has.
+ */
 hoxResult 
 hoxPlayer::JoinTable( hoxTable* table )
 {
@@ -168,8 +195,10 @@ hoxPlayer::LeaveAllTables()
         }
 
         // Inform the table that this player is leaving...
-        wxLogDebug("%s: Player [%s] leaving table [%s]...", FNAME, this->GetName().c_str(), tableId.c_str());
+        wxLogDebug("%s: Player [%s] leaving table [%s]...", 
+            FNAME, this->GetName().c_str(), tableId.c_str());
         table->OnLeave_FromPlayer( this );
+        this->RemoveRoleAtTable( table->GetId() );
     }
 
     return bErrorFound ? hoxRESULT_ERR : hoxRESULT_OK;
@@ -181,8 +210,18 @@ hoxPlayer::ResetConnection()
     const char* FNAME = "hoxPlayer::ResetConnection";
 
     wxLogDebug("%s: ENTER.", FNAME);
-    delete m_connection; 
-    m_connection = NULL; 
+
+    if ( m_connection != NULL )
+    {
+        wxLogDebug("%s: Request the Connection thread to be shutdowned...", FNAME);
+        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_SHUTDOWN, NULL );
+        m_connection->AddRequest( request );
+
+        m_connection->Shutdown();
+
+        delete m_connection; 
+        m_connection = NULL; 
+    }
 }
 
 void 
@@ -203,24 +242,23 @@ hoxPlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
     if ( m_connection == NULL )
     {
         wxLogDebug("%s: No connection. Fine. Ignore this Move.", FNAME);
+        return;
     }
-    else
-    {
-        wxString     tableId     = event.GetTableId();
-        hoxPosition  moveFromPos = event.GetOldPosition();
-        hoxPosition  moveToPos   = event.GetPosition();
 
-        wxString moveStr = wxString::Format("%d%d%d%d", 
-                                moveFromPos.x, moveFromPos.y, moveToPos.x, moveToPos.y);
+    wxString     tableId     = event.GetTableId();
+    hoxPosition  moveFromPos = event.GetOldPosition();
+    hoxPosition  moveToPos   = event.GetPosition();
 
-        wxLogDebug("%s: ENTER. Move = [%s].", FNAME, moveStr.c_str());
+    wxString moveStr = wxString::Format("%d%d%d%d", 
+                            moveFromPos.x, moveFromPos.y, moveToPos.x, moveToPos.y);
 
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_MOVE );
-        request->content =
-                wxString::Format("op=MOVE&tid=%s&pid=%s&move=%s\r\n", 
-                            tableId.c_str(), this->GetName().c_str(), moveStr.c_str());
-        m_connection->AddRequest( request );
-    }
+    wxLogDebug("%s: ENTER. Move = [%s].", FNAME, moveStr.c_str());
+
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_MOVE, this );
+    request->content =
+            wxString::Format("op=MOVE&tid=%s&pid=%s&move=%s\r\n", 
+                        tableId.c_str(), this->GetName().c_str(), moveStr.c_str());
+    this->AddRequestToConnection( request );
 }
 
 void 
@@ -231,16 +269,32 @@ hoxPlayer::OnWallMsg_FromTable( wxCommandEvent&  event )
     if ( m_connection == NULL )
     {
         wxLogDebug("%s: No connection. Fine. Ignore this Message.", FNAME);
+        return;
     }
-    else
-    {
-        const wxString commandStr = event.GetString();
-        wxLogDebug("%s: ENTER. commandStr = [%s].", FNAME, commandStr.c_str());
 
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_WALL_MSG );
-        request->content = 
-            wxString::Format("op=WALL_MSG&%s\r\n", commandStr.c_str());
-        m_connection->AddRequest( request );
+    const wxString commandStr = event.GetString();
+    wxLogDebug("%s: ENTER. commandStr = [%s].", FNAME, commandStr.c_str());
+
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_WALL_MSG, this );
+    request->content = 
+        wxString::Format("op=WALL_MSG&%s\r\n", commandStr.c_str());
+    this->AddRequestToConnection( request );
+}
+
+void 
+hoxPlayer::OnShutdown_FromApp( wxCommandEvent&  event )
+{
+    const char* FNAME = "hoxPlayer::OnShutdown_FromApp";
+
+    wxLogDebug("%s: ENTER. (player = [%s])", FNAME, this->GetName().c_str());
+
+    m_shutdownRequested = true; // *** Turn it ON!
+
+    this->LeaveAllTables();
+
+    if ( m_nOutstandingRequests == 0 )
+    {
+        _ShutdownMyself();
     }
 }
 
@@ -251,13 +305,18 @@ hoxPlayer::SetConnection( hoxConnection* connection )
 
     if ( m_connection != NULL )
     {
-        wxLogDebug("%s: Connection already set to this user [%s]. Fine. END.", 
+        wxLogDebug("%s: Connection already set to this Player [%s]. Fine. END.", 
             FNAME, GetName().c_str());
         return false;
     }
 
     wxLogDebug("%s: Assign the connection to this user [%s]", FNAME, GetName().c_str());
     m_connection = connection;
+
+    wxLogDebug("%s: Specify this Player [%s] as the Connection's owner.", 
+        FNAME, this->GetName().c_str());
+    m_connection->SetPlayer( this );
+
     return true;
 }
 
@@ -282,23 +341,23 @@ hoxPlayer::HandleIncomingData( const wxString& commandStr )
     switch ( command.type )
     {
         case hoxREQUEST_TYPE_MOVE:
-            result = this->HandleIncomingData_Move( /*sock,*/ command );
+            result = this->HandleIncomingData_Move( command );
             break;
 
         case hoxREQUEST_TYPE_LEAVE:
-            result = this->HandleIncomingData_Leave( /*sock,*/ command );
+            result = this->HandleIncomingData_Leave( command );
             break;
 
         case hoxREQUEST_TYPE_WALL_MSG:
-            result = this->HandleIncomingData_WallMsg( /*sock,*/ command );
+            result = this->HandleIncomingData_WallMsg( command );
             break;
 
         case hoxREQUEST_TYPE_LIST:
-            result = this->HandleIncomingData_List( /*sock,*/ command ); 
+            result = this->HandleIncomingData_List( command ); 
             break;
 
         case hoxREQUEST_TYPE_JOIN:
-            result = this->HandleIncomingData_Join( /*sock,*/ command ); 
+            result = this->HandleIncomingData_Join( command ); 
             break;
 
         default:
@@ -308,19 +367,15 @@ hoxPlayer::HandleIncomingData( const wxString& commandStr )
             break;
     }
 
-//exit_label:
     wxLogDebug("%s: END.", FNAME);
-
     return result;
 }
 
 hoxResult   
-hoxPlayer::HandleIncomingData_Move( /* wxSocketBase* sock, */
-                                    hoxCommand&   command )
+hoxPlayer::HandleIncomingData_Move( hoxCommand& command )
 {
     const char* FNAME = "hoxPlayer::HandleIncomingData_Move";
     hoxResult       result = hoxRESULT_ERR;   // Assume: failure.
-    //wxUint32        nWrite;
     wxString        response;
 
     wxString moveStr = command.parameters["move"];
@@ -370,16 +425,6 @@ hoxPlayer::HandleIncomingData_Move( /* wxSocketBase* sock, */
     result = hoxRESULT_OK;
 
 exit_label:
-    //// Send back response.
-    //nWrite = (wxUint32) response.size();
-    //sock->WriteMsg( response, nWrite );
-    //if ( sock->LastCount() != nWrite )
-    //{
-    //    wxLogError("%s: Writing to socket failed. Error = [%s]", 
-    //        FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
-    //    result = hoxRESULT_ERR;
-    //}
-
     /* Send response back to the remote player */
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_OUT_DATA );
     request->content = response;
@@ -390,12 +435,10 @@ exit_label:
 }
 
 hoxResult 
-hoxPlayer::HandleIncomingData_Leave( /* wxSocketBase*  sock,*/
-                                     hoxCommand&    command )
+hoxPlayer::HandleIncomingData_Leave( hoxCommand& command )
 {
     const char* FNAME = "hoxPlayer::HandleIncomingData_Leave";
     hoxResult       result = hoxRESULT_ERR;   // Assume: failure.
-    //wxUint32        nWrite;
     wxString        response;
     wxString        tableId;
     wxString        requesterId;
@@ -446,16 +489,6 @@ hoxPlayer::HandleIncomingData_Leave( /* wxSocketBase*  sock,*/
     result = hoxRESULT_OK;
 
 exit_label:
-    //// Send back response.
-    //nWrite = (wxUint32) response.size();
-    //sock->WriteMsg( response, nWrite );
-    //if ( sock->LastCount() != nWrite )
-    //{
-    //    wxLogError("%s: Writing to socket failed. Error = [%s]", 
-    //        FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
-    //    result = hoxRESULT_ERR;
-    //}
-
     /* Send response back to the remote player */
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_OUT_DATA );
     request->content = response;
@@ -466,12 +499,10 @@ exit_label:
 }
 
 hoxResult   
-hoxPlayer::HandleIncomingData_WallMsg( /* wxSocketBase* sock, */
-                                       hoxCommand&   command )
+hoxPlayer::HandleIncomingData_WallMsg( hoxCommand& command )
 {
     const char* FNAME = "hoxPlayer::HandleIncomingData_WallMsg";
     hoxResult       result = hoxRESULT_ERR;   // Assume: failure.
-    //wxUint32        nWrite;
     wxString        response;
 
     wxString message = command.parameters["msg"];
@@ -504,16 +535,6 @@ hoxPlayer::HandleIncomingData_WallMsg( /* wxSocketBase* sock, */
     result = hoxRESULT_OK;
 
 exit_label:
-    //// Send back response.
-    //nWrite = (wxUint32) response.size();
-    //sock->WriteMsg( response, nWrite );
-    //if ( sock->LastCount() != nWrite )
-    //{
-    //    wxLogError("%s: Writing to socket failed. Error = [%s]", 
-    //        FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
-    //    result = hoxRESULT_ERR;
-    //}
-
     /* Send response back to the remote player */
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_OUT_DATA );
     request->content = response;
@@ -524,10 +545,12 @@ exit_label:
 }
 
 hoxResult 
-hoxPlayer::HandleIncomingData_List( /* wxSocketBase *sock, */
-                                    hoxCommand&   command )
+hoxPlayer::HandleIncomingData_List( hoxCommand& command )
 {
     const char* FNAME = "hoxPlayer::HandleIncomingData_List";
+    wxString response;
+
+   wxLogDebug("%s: ENTER.", FNAME);
 
     // Get the list of hosted tables.
     const hoxTableList& tables = hoxTableMgr::GetInstance()->GetTables();
@@ -535,9 +558,6 @@ hoxPlayer::HandleIncomingData_List( /* wxSocketBase *sock, */
 
     // Write it back
     wxLogDebug("%s: ... We have [%d] tables.", FNAME, tableCount);
-
-    //wxUint32 nWrite;
-    wxString response;
 
     response << "0\r\n"  // code
              //<< "We have " << tableCount << " tables\r\n";  // message
@@ -562,26 +582,17 @@ hoxPlayer::HandleIncomingData_List( /* wxSocketBase *sock, */
     request->content = response;
     m_connection->AddRequest( request );
 
-    //nWrite = (wxUint32) response.size();
-    //sock->WriteMsg( response, nWrite );
-    //if ( sock->LastCount() != nWrite )
-    //{
-    //    wxLogError("%s: Writing to socket failed. Error = [%s]", 
-    //        FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
-    //    return;
-    //}
+    wxLogDebug("%s: END.", FNAME);
     return hoxRESULT_OK;
 }
 
 hoxResult 
-hoxPlayer::HandleIncomingData_Join( /* wxSocketBase *sock, */
-                                    hoxCommand&   command )
+hoxPlayer::HandleIncomingData_Join( hoxCommand& command )
 {
     const char* FNAME = "hoxPlayer::HandleIncomingData_Join";
     hoxResult result = hoxRESULT_ERR;   // Assume: failure.
     hoxTable* table = NULL;
     wxString  existingPlayerId;
-    //wxUint32  nWrite;
     wxString  response;
 
     wxLogDebug("%s: ENTER.", FNAME);
@@ -620,20 +631,6 @@ hoxPlayer::HandleIncomingData_Join( /* wxSocketBase *sock, */
     /* Setup players       */
     /***********************/
 
-    //// Create a connection for the new player.
-    //hoxRemoteConnection* connection = new hoxRemoteConnection();
-    //connection->SetServer( this );
-    //connection->SetCBSocket( sock );
-
-    //player->SetConnection( connection );
-
-    //// Setup the event handler and let the player handles all socket events.
-    //wxLogDebug("%s: Let this Remote player [%s] handle all socket events", 
-    //    FNAME, player->GetName().c_str());
-    //sock->SetEventHandler(*player, CLIENT_SOCKET_ID);
-    //sock->SetNotify(wxSOCKET_INPUT_FLAG | wxSOCKET_LOST_FLAG);
-    //sock->Notify(true);
-
     result = this->JoinTable( table );
     wxASSERT( result == hoxRESULT_OK  );
     wxASSERT_MSG( this->HasRole( hoxRole(table->GetId(), 
@@ -648,16 +645,6 @@ hoxPlayer::HandleIncomingData_Join( /* wxSocketBase *sock, */
     result = hoxRESULT_OK;
 
 exit_label:
-    //// Send back response.
-    //nWrite = (wxUint32) response.size();
-    //sock->WriteMsg( response, nWrite );
-    //if ( sock->LastCount() != nWrite )
-    //{
-    //    wxLogError("%s: Failed to send back response over the network.", 
-    //        FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
-    //    //return;
-    //}
-
     /* Send response back to the remote player */
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_OUT_DATA );
     request->content = response;
@@ -665,6 +652,97 @@ exit_label:
 
     wxLogDebug("%s: END.", FNAME);
     return result;
+}
+
+void 
+hoxPlayer::StartConnection()
+{
+    const char* FNAME = "hoxPlayer::StartConnection";
+
+    wxCHECK_RET( m_connection, "The connection must have been set." );
+
+    m_connection->Start();
+}
+
+void 
+hoxPlayer::ShutdownConnection()
+{
+    const char* FNAME = "hoxPlayer::ShutdownConnection";
+
+    wxLogDebug("%s: Player [%s] requesting the Connection to be shutdowned...", 
+        FNAME, this->GetName().c_str());
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_SHUTDOWN, NULL );
+    this->AddRequestToConnection( request );
+}
+
+void 
+hoxPlayer::AddRequestToConnection( hoxRequest* request )
+{ 
+    const char* FNAME = "hoxPlayer::AddRequestToConnection";
+
+    if ( m_connection == NULL )
+    {
+        wxLogWarning("%s: No connection set. Deleting the request.", FNAME);
+        delete request;
+        return;
+    }
+
+    wxCHECK_RET(request, "The request cannot be NULL.");
+    if ( request->sender != NULL /* this */ )
+    {
+        ++m_nOutstandingRequests;
+        wxLogDebug("%s: After incremented, the number of outstanding requests = [%d].",
+            FNAME, m_nOutstandingRequests);
+    }
+
+    m_connection->AddRequest( request ); 
+
+    if ( request->type == hoxREQUEST_TYPE_SHUTDOWN )
+    {
+        wxLogDebug("%s: Request the Connection thread to be shutdowned...", FNAME);
+        m_connection->Shutdown();
+    }
+}
+
+void 
+hoxPlayer::DecrementOutstandingRequests() 
+{ 
+    const char* FNAME = "hoxPlayer::DecrementOutstandingRequests";
+
+    if ( m_nOutstandingRequests == 0 )
+    {
+        wxLogWarning("%s: No more outstanding requests to be decremented.", FNAME);
+        return;
+    }
+
+    --m_nOutstandingRequests; 
+    wxLogDebug("%s: After decremented, the number of outstanding requests = [%d].",
+        FNAME, m_nOutstandingRequests);
+
+    if ( m_shutdownRequested && m_nOutstandingRequests == 0 )
+    {
+        _ShutdownMyself();
+    }
+}
+
+void 
+hoxPlayer::_ShutdownMyself()
+{
+    const char* FNAME  = "hoxPlayer::_ShutdownMyself";
+
+    if ( m_connection != NULL ) 
+    {
+        this->ShutdownConnection();
+
+        wxLogDebug("%s: Deleting connection...", FNAME);
+        delete m_connection;
+        m_connection = NULL;
+    }
+
+    /* Notify the App */
+    wxCommandEvent event( hoxEVT_APP_PLAYER_SHUTDOWN_DONE );
+    event.SetEventObject( this );
+    wxPostEvent( &(wxGetApp()), event );
 }
 
 /************************* END OF FILE ***************************************/

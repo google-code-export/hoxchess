@@ -32,13 +32,9 @@
 #include "hoxEnums.h"
 #include "hoxTypes.h"
 
-/* Forward declarations */
-class hoxThreadConnection;
-
 /**
- * The LOCAL player.
+ * The abstract LOCAL player.
  */
-
 class hoxLocalPlayer :  public hoxPlayer
 {
 public:
@@ -55,8 +51,6 @@ public:
      * Override the parent's event-handler API
      *******************************************/
 
-    virtual bool SetConnection( hoxConnection* connection );
-
     virtual void OnClose_FromTable( hoxPlayerEvent&  event );
 
     /*******************************
@@ -72,12 +66,6 @@ public:
     virtual hoxResult OpenNewNetworkTable( wxEvtHandler*   sender );
     virtual hoxResult LeaveNetworkTable( const wxString& tableId,
                                          wxEvtHandler*   sender );
-
-protected:
-    virtual void AddRequestToConnection( hoxRequest* request );
-
-private:
-    void _StartConnection();
 
 private:
 

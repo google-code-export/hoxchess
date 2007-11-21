@@ -63,9 +63,25 @@ public:
     void DeletePlayer( hoxPlayer* player );
 
     /**
+     * Remove a given player from the list only, do not release it memory.
+     * FIXME: We need to look into this further.
+     */
+    int RemovePlayer( hoxPlayer* player );
+
+    /**
      * @return NULL if not found.
      */
     hoxPlayer* FindPlayer( const wxString& playerId );
+
+    /**
+     * Handle SHUTDOWN request from App.
+     */
+    void OnSystemShutdown();
+
+    /**
+     * Return the number of players in the system.
+     */
+    int GetNumberOfPlayers() { return (int) m_players.size(); }
 
 private:
     hoxPlayerMgr();

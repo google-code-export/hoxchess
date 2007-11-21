@@ -568,7 +568,7 @@ hoxTable::_FindPlayer( const wxString& playerId )
     for (hoxPlayerAndRoleList::iterator it = m_players.begin(); 
                                         it != m_players.end(); ++it)
     {
-        if (  it->player->GetName() == playerId )
+        if ( it->player->GetName() == playerId )
         {
             return it->player;
         }

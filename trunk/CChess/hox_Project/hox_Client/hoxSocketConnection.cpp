@@ -70,7 +70,8 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
 {
     const char* FNAME = "hoxSocketConnection::HandleRequest";
     hoxResult    result = hoxRESULT_ERR;
-    std::auto_ptr<hoxResponse> response( new hoxResponse(request->type) );
+    std::auto_ptr<hoxResponse> response( new hoxResponse(request->type, 
+                                                         request->sender) );
 
     /* 
      * SPECIAL CASE: 
@@ -163,12 +164,12 @@ exit_label:
 
     /* NOTE: If there was error, just return it to the caller. */
 
-    if ( request->sender != NULL )
+    //if ( request->sender != NULL )
     {
         wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, request->type );
         response->code = result;
         event.SetEventObject( response.release() );  // Caller will de-allocate.
-        wxPostEvent( request->sender, event );
+        wxPostEvent( m_player /*request->sender*/, event );
     }
 }
 

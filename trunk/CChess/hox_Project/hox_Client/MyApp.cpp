@@ -34,7 +34,6 @@
 #include "hoxPlayerMgr.h"
 #include "hoxTableMgr.h"
 #include "hoxUtility.h"
-#include "hoxNetworkAPI.h"
 #include "hoxServer.h"
 
 // Create a new application object: this macro will allow wxWidgets to create
@@ -44,10 +43,10 @@
 // not wxApp)
 IMPLEMENT_APP(MyApp)
 
-DEFINE_EVENT_TYPE(hoxEVT_SERVER_RESPONSE)
+DEFINE_EVENT_TYPE(hoxEVT_APP_PLAYER_SHUTDOWN_DONE)
 
 BEGIN_EVENT_TABLE(MyApp, wxApp)
-  // Empty table
+    EVT_COMMAND(wxID_ANY, hoxEVT_APP_PLAYER_SHUTDOWN_DONE, MyApp::OnShutdownDone_FromPlayer)
 END_EVENT_TABLE()
 
 /**
@@ -114,16 +113,44 @@ MyApp::OnInit()
 int 
 MyApp::OnExit()
 {
-    this->CloseServer();
+    const char* FNAME = "MyApp::OnExit";
 
-    delete m_socketServer;
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    /* NOTE: We rely on the Frame to notify about active players that the
+     *      system is being shutdowned.
+     */
+
 
     delete hoxPlayerMgr::GetInstance();
     delete hoxTableMgr::GetInstance();
 
+    this->CloseServer();
+    delete m_socketServer;
+
     //delete wxLog::SetActiveTarget( m_oldLog );
 
     return 0;
+}
+
+void 
+MyApp::OnShutdownDone_FromPlayer( wxCommandEvent&  event )
+{
+    const char* FNAME = "MyApp::OnShutdownDone_FromPlayer";
+
+    hoxPlayer* player = wx_reinterpret_cast(hoxPlayer*, event.GetEventObject());
+    wxCHECK_RET(player, "Player cannot be NULL.");
+
+    wxLogDebug("%s: Removing this player [%s] from the system...", 
+        FNAME, player->GetName().c_str());
+
+    hoxPlayerMgr::GetInstance()->DeletePlayer( player );
+
+    /* Initiate the App's shutdown if there is no more active players. */
+    if ( hoxPlayerMgr::GetInstance()->GetNumberOfPlayers() == 0 )
+    {
+        m_frame->Close();  // NOTE: Is there a better way?
+    }
 }
 
 hoxMyPlayer* 
