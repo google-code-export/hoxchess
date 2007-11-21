@@ -38,19 +38,17 @@
 IMPLEMENT_DYNAMIC_CLASS(hoxPlayer, wxEvtHandler)
 
 //----------------------------------------------------------------------------
-// event types
+// Event types
 //----------------------------------------------------------------------------
-DEFINE_EVENT_TYPE(hoxEVT_PLAYER_TABLE_CLOSED)
-DEFINE_EVENT_TYPE(hoxEVT_PLAYER_NEW_MOVE)
 
-/* Define player-event based on wxCommandEvent */
-DEFINE_EVENT_TYPE(hoxEVT_PLAYER_WALL_MSG)
-DEFINE_EVENT_TYPE(hoxEVT_PLAYER_APP_SHUTDOWN)
+DEFINE_EVENT_TYPE( hoxEVT_PLAYER_NEW_MOVE )
+DEFINE_EVENT_TYPE( hoxEVT_PLAYER_TABLE_CLOSE )
+DEFINE_EVENT_TYPE( hoxEVT_PLAYER_WALL_MSG )
+DEFINE_EVENT_TYPE( hoxEVT_PLAYER_APP_SHUTDOWN )
 
 BEGIN_EVENT_TABLE(hoxPlayer, wxEvtHandler)
-    EVT_PLAYER_TABLE_CLOSED (wxID_ANY,  hoxPlayer::OnClose_FromTable)
-    EVT_PLAYER_NEW_MOVE (wxID_ANY,  hoxPlayer::OnNewMove_FromTable)
-
+    EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_NEW_MOVE, hoxPlayer::OnNewMove_FromTable)
+    EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_TABLE_CLOSE, hoxPlayer::OnClose_FromTable)
     EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_WALL_MSG, hoxPlayer::OnWallMsg_FromTable)
     EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_APP_SHUTDOWN, hoxPlayer::OnShutdown_FromApp)
 END_EVENT_TABLE()
@@ -231,17 +229,17 @@ hoxPlayer::ResetConnection()
 }
 
 void 
-hoxPlayer::OnClose_FromTable( hoxPlayerEvent&  event )
+hoxPlayer::OnClose_FromTable( wxCommandEvent&  event )
 {
     const char* FNAME = "hoxPlayer::OnClose_FromTable";
 
-    const wxString tableId  = event.GetTableId();
+    const wxString tableId  = event.GetString();
 
     this->RemoveRoleAtTable( tableId );
 }
 
 void 
-hoxPlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
+hoxPlayer::OnNewMove_FromTable( wxCommandEvent&  event )
 {
     const char* FNAME = "hoxPlayer::OnNewMove_FromTable";
 
@@ -251,19 +249,14 @@ hoxPlayer::OnNewMove_FromTable( hoxPlayerEvent&  event )
         return;
     }
 
-    wxString     tableId     = event.GetTableId();
-    hoxPosition  moveFromPos = event.GetOldPosition();
-    hoxPosition  moveToPos   = event.GetPosition();
+    const wxString commandStr = event.GetString();
 
-    wxString moveStr = wxString::Format("%d%d%d%d", 
-                            moveFromPos.x, moveFromPos.y, moveToPos.x, moveToPos.y);
-
-    wxLogDebug("%s: ENTER. Move = [%s].", FNAME, moveStr.c_str());
+    wxLogDebug("%s: ENTER. commandStr = [%s].", FNAME, commandStr.c_str());
 
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_MOVE, this );
     request->content =
-            wxString::Format("op=MOVE&tid=%s&pid=%s&move=%s\r\n", 
-                        tableId.c_str(), this->GetName().c_str(), moveStr.c_str());
+            wxString::Format("op=MOVE&pid=%s&%s\r\n", 
+                        this->GetName().c_str(), commandStr.c_str());
     this->AddRequestToConnection( request );
 }
 

@@ -51,7 +51,7 @@ public:
      * Override the parent's event-handler API
      *******************************************/
 
-    virtual void OnClose_FromTable( hoxPlayerEvent&  event );
+    virtual void OnClose_FromTable( wxCommandEvent&  event );
 
     /*******************************
      * MY-specific Network API

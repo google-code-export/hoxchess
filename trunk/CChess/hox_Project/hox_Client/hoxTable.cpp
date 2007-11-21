@@ -202,6 +202,7 @@ hoxTable::OnMove_FromBoard( const hoxMove& move )
     }
 
     hoxPlayer* player = NULL;  // A player holder.
+    wxString   commandStr;
 
     for ( hoxPlayerAndRoleList::const_iterator it = m_players.begin(); 
                                                it != m_players.end(); ++it )
@@ -209,10 +210,12 @@ hoxTable::OnMove_FromBoard( const hoxMove& move )
         player = it->player;
         wxLogDebug("%s: Inform player [%s] about the Board Move...", 
             FNAME, player->GetName().c_str());
-        hoxPlayerEvent event(hoxEVT_PLAYER_NEW_MOVE);
-        event.SetTableId(m_id);
-        event.SetOldPosition(move.piece.position);   // last move's old-piece.
-        event.SetPosition(move.newPosition);         // last move's new-position.
+        wxCommandEvent event(hoxEVT_PLAYER_NEW_MOVE);
+        commandStr.Printf("tid=%s&move=%d%d%d%d", 
+            m_id.c_str(), 
+            move.piece.position.x, move.piece.position.y,
+            move.newPosition.x, move.newPosition.y); 
+        event.SetString( commandStr );
         wxPostEvent( player, event );
     }
 }
@@ -460,8 +463,8 @@ hoxTable::_PostPlayer_CloseEvent( hoxPlayer* player )
 
     wxLogDebug("%s: Informing player [%s] about the Table [%s] being closed...", 
         FNAME, player->GetName().c_str(), m_id.c_str());
-    hoxPlayerEvent event( hoxEVT_PLAYER_TABLE_CLOSED );
-    event.SetTableId( m_id );
+    wxCommandEvent event( hoxEVT_PLAYER_TABLE_CLOSE );
+    event.SetString( m_id );
     wxPostEvent( player, event );
 }
 

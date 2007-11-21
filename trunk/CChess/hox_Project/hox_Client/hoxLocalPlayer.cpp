@@ -53,13 +53,14 @@ hoxLocalPlayer::~hoxLocalPlayer()
 }
 
 void 
-hoxLocalPlayer::OnClose_FromTable( hoxPlayerEvent&  event )
+hoxLocalPlayer::OnClose_FromTable( wxCommandEvent&  event )
 {
     const char* FNAME = "hoxLocalPlayer::OnClose_FromTable";
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    this->LeaveNetworkTable( event.GetTableId(), this );
+    const wxString tableId  = event.GetString();
+    this->LeaveNetworkTable( tableId, this );
 
     this->hoxPlayer::OnClose_FromTable( event );
 }

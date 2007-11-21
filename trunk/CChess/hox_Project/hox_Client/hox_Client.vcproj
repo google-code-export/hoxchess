@@ -221,10 +221,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\hoxPlayerEvent.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\hoxPlayerMgr.cpp"
 				>
 			</File>
@@ -352,10 +348,6 @@
 			</File>
 			<File
 				RelativePath=".\hoxPlayer.h"
-				>
-			</File>
-			<File
-				RelativePath=".\hoxPlayerEvent.h"
 				>
 			</File>
 			<File
