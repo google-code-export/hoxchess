@@ -149,15 +149,10 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
     result = hoxNetworkAPI::ParseSimpleResponse( response->content,
                                                  returnCode,
                                                  returnMsg );
-    if ( result != hoxRESULT_OK )
+    if ( result != hoxRESULT_OK || returnCode != 0 )
     {
-        wxLogError("%s: Failed to parse the response.", FNAME);
-        return;
-    }
-    else if ( returnCode != 0 )
-    {
-        wxLogError("%s: The response returned error: code = [%d], msg = [%s]", 
-            FNAME, returnCode, returnMsg.c_str());
+        wxLogError("%s: Failed to parse the response. [%d] [%s]", 
+            FNAME,  returnCode, returnMsg.c_str());
         return;
     }
 

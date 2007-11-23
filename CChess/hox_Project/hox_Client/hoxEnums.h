@@ -190,7 +190,10 @@ enum hoxSocketContant
                  * can process the SHUTDOWN request.
                  */
 
-    hoxSOCKET_CLIENT_HTTP_TIMEOUT = 5    // 5 seconds
+    hoxSOCKET_HTTP_POLL_INTERVAL = 5,  // 5 seconds
+                /* HTTP Polling interval for HTTP Connection */
+
+    hoxSOCKET_HTTP_TIMEOUT = 5         // 5 seconds
                 /* Timeout applied to HTTP client -> HTTP server connection */
 
 };

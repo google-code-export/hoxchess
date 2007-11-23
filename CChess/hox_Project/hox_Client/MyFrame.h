@@ -123,6 +123,15 @@ public:
     void Handle_PlayerResponse( hoxResponse*    pResponse,
                                 hoxLocalPlayer* localPlayer );
 
+    /**
+     * Create a GUI Frame that can be used as a frame for a new Table.
+     *
+     * @param requestTableId If this Id is specified (NOT empty), then this
+     *                       function will use it. Otherwise, a new table-Id
+     *                       is created and is returned to the caller.
+     */
+    MyChild* CreateFrameForTable( wxString& requestTableId );
+
 private:
     void _OnResponse_Leave( const wxString& responseStr );
     void _OnResponse_Connect( const wxString& responseStr, hoxLocalPlayer* localPlayer );

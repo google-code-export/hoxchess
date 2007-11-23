@@ -187,15 +187,17 @@ hoxNetworkAPI::ParseSimpleResponse( const wxString& responseStr,
                                     wxString&       returnMsg )
 {
     const char* FNAME = "hoxNetworkAPI::ParseSimpleResponse";
+    int      i = 0;
+    wxString token;
 
     returnCode = -1;
+    returnMsg  = responseStr;
 
     wxStringTokenizer tkz( responseStr, "\r\n" );
-    int i = 0;
 
     while ( tkz.HasMoreTokens() )
     {
-        wxString token = tkz.GetNextToken();
+        token = tkz.GetNextToken();
         switch (i)
         {
             case 0:   // Return-code.
@@ -287,11 +289,11 @@ hoxNetworkAPI::ParseNewNetworkTable( const wxString&  responseStr,
                     return hoxRESULT_ERR;
                 }
                 break;
-            case 1:    // The ID of the new table.
-                newTableId = token; 
-                break;
-            case 2:    // The additional informative message.
+            case 1:    // The additional informative message.
                 wxLogDebug("%s: Server's message = [%s].", FNAME, token.c_str()) ; 
+                break;
+            case 2:    // The ID of the new table.
+                newTableId = token; 
                 break;
             default:
                 wxLogError("%s: Ignore the rest...", FNAME);

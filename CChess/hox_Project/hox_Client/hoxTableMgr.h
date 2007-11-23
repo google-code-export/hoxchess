@@ -40,8 +40,9 @@ public:
 
     ~hoxTableMgr();
 
-    hoxTable* CreateTable( wxWindow*       parent,
-                           const wxString& tableId );
+    hoxTable* CreateTable();
+    hoxTable* CreateTableWithFrame( wxWindow*       parent,
+                                    const wxString& tableId );
     void RemoveTable( hoxTable* table );
     
     hoxTable* FindTable( const wxString& tableId ) const;
