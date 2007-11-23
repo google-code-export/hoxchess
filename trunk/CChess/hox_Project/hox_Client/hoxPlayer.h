@@ -133,6 +133,7 @@ protected:
     virtual hoxResult HandleIncomingData_WallMsg( hoxCommand& command, wxString& response );
     virtual hoxResult HandleIncomingData_List( hoxCommand& command, wxString& response );
     virtual hoxResult HandleIncomingData_Join( hoxCommand& command, wxString& response );
+    virtual hoxResult HandleIncomingData_New( hoxCommand& command, wxString& response );
 
     virtual void StartConnection();
     virtual void ShutdownConnection();

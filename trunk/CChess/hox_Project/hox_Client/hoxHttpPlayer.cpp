@@ -92,7 +92,7 @@ hoxHttpPlayer::JoinTable( hoxTable* table )
      */
 
     wxLogDebug("%s: Start timer to poll for events from HTTP server.", FNAME);
-    m_timer.Start( 5 * hoxTIME_ONE_SECOND_INTERVAL, // 5-second interval
+    m_timer.Start( hoxSOCKET_HTTP_POLL_INTERVAL * hoxTIME_ONE_SECOND_INTERVAL,
                    wxTIMER_ONE_SHOT );
     return hoxRESULT_OK;
 }
@@ -134,8 +134,6 @@ hoxHttpPlayer::OnTimer( wxTimerEvent& event )
 {
     const char* FNAME = "hoxHttpPlayer::OnTimer";
     wxLogDebug("%s: ENTER.", FNAME);
-
-    hoxNetworkEventList  networkEvents;
 
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_POLL, this );
     request->content = 
@@ -234,14 +232,10 @@ hoxHttpPlayer::OnHTTPResponse(wxCommandEvent& event)
     result = hoxNetworkAPI::ParseSimpleResponse( response->content,
                                                  returnCode,
                                                  returnMsg );
-    if ( result != hoxRESULT_OK )
+    if ( result != hoxRESULT_OK || returnCode != 0 )
     {
-        wxLogError("%s: Failed to parse the HTTP response.", FNAME);
-        return;
-    }
-    else if ( returnCode != 0 )
-    {
-        wxLogError("%s: The HTTP response returns ERROR. [%s]", FNAME, returnMsg.c_str());
+        wxLogError("%s: Failed to parse HTTP's response. [%d] [%s]", 
+            FNAME,  returnCode, returnMsg.c_str());
         return;
     }
 }

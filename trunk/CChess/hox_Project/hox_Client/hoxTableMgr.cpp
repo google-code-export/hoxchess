@@ -27,6 +27,9 @@
 #include "hoxTableMgr.h"
 #include "hoxBoard.h"
 #include "hoxReferee.h"
+#include "MyApp.h"      // wxGetApp
+#include "MyFrame.h"
+#include "MyChild.h"
 
 // Declare the single instance.
 hoxTableMgr* hoxTableMgr::m_instance = NULL;
@@ -56,8 +59,27 @@ hoxTableMgr::~hoxTableMgr()
 }
 
 hoxTable*
-hoxTableMgr::CreateTable( wxWindow*       parent,
-                          const wxString& tableId )
+hoxTableMgr::CreateTable()
+{
+    hoxTable* newTable = NULL;
+    wxString  tableId;
+
+    /* Create a GUI Frame for the new Table. */
+    MyFrame* frame = wxGetApp().GetFrame();
+    MyChild* childFrame = frame->CreateFrameForTable( tableId );
+
+    /* Create a new table with newly created Frame. */
+    newTable = this->CreateTableWithFrame( childFrame, 
+                                           tableId );
+    childFrame->SetTable( newTable );
+    childFrame->Show( true );
+
+    return newTable;
+}
+
+hoxTable*
+hoxTableMgr::CreateTableWithFrame( wxWindow*       parent,
+                                   const wxString& tableId )
 {
     /* Create a Referee */
     hoxIReferee* referee = new hoxReferee();

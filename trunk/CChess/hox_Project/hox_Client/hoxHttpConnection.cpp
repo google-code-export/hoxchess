@@ -118,9 +118,9 @@ hoxHttpConnection::_SendRequest( const wxString& request,
     wxHTTP get;
 
     wxLogDebug("%s: Creating a BLOCK-ing HTTP connection with time-out = [%d] seconds.", 
-        FNAME, hoxSOCKET_CLIENT_HTTP_TIMEOUT);
+        FNAME, hoxSOCKET_HTTP_TIMEOUT);
     get.SetFlags( wxSOCKET_WAITALL | wxSOCKET_BLOCK ); // Block socket + GUI
-    get.SetTimeout( hoxSOCKET_CLIENT_HTTP_TIMEOUT );
+    get.SetTimeout( hoxSOCKET_HTTP_TIMEOUT );
 
     get.SetHeader("Content-type", "text/plain; charset=utf-8");
     get.SetHeader("User-Agent", "HOXChess");

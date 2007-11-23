@@ -791,14 +791,10 @@ MyFrame::_OnResponse_Connect( const wxString& responseStr,
     result = hoxNetworkAPI::ParseSimpleResponse( responseStr,
                                                  returnCode,
                                                  returnMsg );
-    if ( result != hoxRESULT_OK )
+    if ( result != hoxRESULT_OK || returnCode != 0 )
     {
-        wxLogError("%s: Failed to parse for SEND-CONNECT's response.", FNAME);
-        return;
-    }
-    else if ( returnCode != 0 )
-    {
-        wxLogError("%s: Send CONNECT to server failed. [%s]", FNAME, returnMsg.c_str());
+        wxLogError("%s: Failed to parse CONNECT's response. [%d] [%s]", 
+            FNAME,  returnCode, returnMsg.c_str());
         return;
     }
 
@@ -930,14 +926,10 @@ MyFrame::_OnResponse_Leave( const wxString& responseStr )
     result = hoxNetworkAPI::ParseSimpleResponse( responseStr,
                                                  returnCode,
                                                  returnMsg );
-    if ( result != hoxRESULT_OK )
+    if ( result != hoxRESULT_OK || returnCode != 0 )
     {
-        wxLogError("%s: Failed to parse for SEND-LEAVE's response.", FNAME);
-        return;
-    }
-    else if ( returnCode != 0 )
-    {
-        wxLogError("%s: Send LEAVE to server failed. [%s]", FNAME, returnMsg.c_str());
+        wxLogError("%s: Failed to parse LEAVE's response. [%d] [%s]", 
+            FNAME,  returnCode, returnMsg.c_str());
         return;
     }
 }
@@ -975,35 +967,53 @@ MyFrame::_GetServerAddressFromUser(
     return hoxRESULT_OK;
 }
 
-hoxTable* 
-MyFrame::_CreateNewTable( const wxString& tableId )
+MyChild* 
+MyFrame::CreateFrameForTable( wxString& requestTableId )
 {
-    hoxTable* newTable = NULL;
-    MyChild*  subframe = NULL;
+    const char* FNAME = "MyFrame::CreateFrameForTable";
+    MyChild*  childFrame = NULL;
     wxString  effectiveTableId;
     wxString  windowTitle;
 
     m_nChildren++; // for tracking purpose.
 
-    effectiveTableId = tableId;
-
-    // Generate a table's Id if required.
-    if ( effectiveTableId.empty() )
+    /* Generate a table's Id if required. */
+    if ( requestTableId.empty() )
     {
-        effectiveTableId.Printf("%d", m_nChildren );
+        requestTableId.Printf("%d", m_nChildren );
+        wxLogDebug("%s: Generated a new table-Id [%s].", FNAME, requestTableId.c_str());  
     }
 
-    // Generate the Window's title for the new Table.
-    windowTitle.Printf("Table #%s", effectiveTableId.c_str());
+    /* TODO: We should check if the new Id has already been taken
+     *       by an existing Table.
+     */
 
-    subframe = new MyChild( this, windowTitle );
-    m_children.push_back( subframe );
+    /* Generate the Window's title for the new Table. */
+    windowTitle.Printf("Table #%s", requestTableId.c_str());
 
-    // Create a new table. Use the title as the table-id.
-    newTable = hoxTableMgr::GetInstance()->CreateTable( subframe, effectiveTableId );
-    subframe->SetTable( newTable );
+    childFrame = new MyChild( this, windowTitle );
+    m_children.push_back( childFrame );
 
-    subframe->Show( true );
+    return childFrame;
+}
+
+hoxTable* 
+MyFrame::_CreateNewTable( const wxString& tableId )
+{
+    hoxTable* newTable = NULL;
+    MyChild*  childFrame = NULL;
+    wxString  effectiveTableId;
+
+    /* Create a GUI Frame for the new Table. */
+    effectiveTableId = tableId;
+    childFrame = this->CreateFrameForTable( effectiveTableId );
+
+    /* Create a new table with newly created Frame. */
+    newTable = hoxTableMgr::GetInstance()->CreateTableWithFrame( childFrame, 
+                                                                 effectiveTableId );
+    childFrame->SetTable( newTable );
+    childFrame->Show( true );
+
     return newTable;
 }
 

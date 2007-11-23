@@ -360,6 +360,10 @@ hoxPlayer::HandleIncomingData( const wxString& commandStr )
             result = this->HandleIncomingData_Join( command, response ); 
             break;
 
+        case hoxREQUEST_TYPE_NEW:
+            result = this->HandleIncomingData_New( command, response ); 
+            break;
+
         default:
             wxLogError("%s: Unsupported Request-Type [%s].", 
                 FNAME, hoxUtility::RequestTypeToString(command.type).c_str());
@@ -629,6 +633,49 @@ hoxPlayer::HandleIncomingData_Join( hoxCommand& command,
 	         << "INFO: (JOIN) Join Table [" << tableId << "] OK\r\n"
 	         << tableId << " " << "1 " << existingPlayerId << " " << this->GetName() << "\r\n";
 
+    result = hoxRESULT_OK;
+
+exit_label:
+    wxLogDebug("%s: END.", FNAME);
+    return result;
+}
+
+hoxResult 
+hoxPlayer::HandleIncomingData_New( hoxCommand& command,
+                                   wxString&   response )
+{
+    const char* FNAME = "hoxPlayer::HandleIncomingData_New";
+    hoxResult result = hoxRESULT_ERR;   // Assume: failure.
+    hoxTable* table = NULL;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    const wxString playerId = command.parameters["pid"];
+
+    /* Check the player-Id. */
+    if ( playerId != this->GetName() )
+    {
+        wxLogError("%s: No player-Id. (%s vs. %s)", FNAME, playerId.c_str(), this->GetName().c_str());
+        response << "1\r\n"  // code
+                 << "Wrong player-Id. " << playerId << " vs. " << this->GetName() << ".\r\n";
+        goto exit_label;
+    }
+
+    /* Create a new Table. */
+    table = hoxTableMgr::GetInstance()->CreateTable();
+    wxCHECK_MSG(table, hoxRESULT_ERR, "New Table is NULL.");
+
+    /* Join the Table as RED. */
+    result = this->JoinTable( table );
+    wxASSERT( result == hoxRESULT_OK  );
+    wxASSERT_MSG( this->HasRole( hoxRole(table->GetId(), 
+                                         hoxPIECE_COLOR_RED) ),
+                  "Player must play RED");
+
+	/* Finally, return 'success'. */
+	response << "0\r\n"       // error-code = SUCCESS
+	         << "INFO: (NEW) The new table-Id = [" << table->GetId() << "]\r\n"
+	         << table->GetId() << "\r\n";
     result = hoxRESULT_OK;
 
 exit_label:

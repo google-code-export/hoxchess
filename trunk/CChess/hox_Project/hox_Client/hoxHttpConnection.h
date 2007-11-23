@@ -49,7 +49,7 @@ public:
 
 protected:
     /*******************************************
-     * Override the parent's event-handler API
+     * Override the parent's API
      *******************************************/
 
     virtual void HandleRequest( hoxRequest* request );

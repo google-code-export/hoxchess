@@ -74,13 +74,10 @@ private:
     void _HandleEventFromNetwork( const hoxNetworkEvent& networkEvent );
 
 private:
-
     wxTimer        m_timer;    // to poll the HTTP server to events.
-
 
     DECLARE_DYNAMIC_CLASS(hoxHttpPlayer)
     DECLARE_EVENT_TABLE()
 };
-
 
 #endif /* __INCLUDED_HOX_HTTP_PLAYER_H_ */
