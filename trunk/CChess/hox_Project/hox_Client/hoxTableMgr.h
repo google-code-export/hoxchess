@@ -30,6 +30,8 @@
 #include "wx/wx.h"
 #include "hoxTable.h"
 
+class hoxSite;
+
 /**
  * A singleton class that manages all tables in the system.
  */
@@ -38,6 +40,7 @@ class hoxTableMgr
 public:
     static hoxTableMgr* GetInstance();        
 
+    hoxTableMgr();
     ~hoxTableMgr();
 
     hoxTable* CreateTable();
@@ -48,12 +51,13 @@ public:
     hoxTable* FindTable( const wxString& tableId ) const;
     const hoxTableList& GetTables() const { return m_tables; } 
 
+    void     SetSite(hoxSite* site) { m_site = site; }
+    hoxSite* GetSite() const        { return m_site; }
 
 private:
-    hoxTableMgr();
-
     static hoxTableMgr* m_instance;  // The single instance
 
+    hoxSite*        m_site;
     hoxTableList    m_tables; // The list of all tables in the system.
 };
 

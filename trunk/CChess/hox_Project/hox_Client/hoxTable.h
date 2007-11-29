@@ -38,6 +38,7 @@
 class hoxIReferee;
 class hoxPlayer;
 class hoxBoard;
+class hoxSite;
 
 /**
  * The Table with a board, a referee, and players.
@@ -49,7 +50,8 @@ class hoxBoard;
 class hoxTable
 {
 public:
-    hoxTable( const wxString&   id,
+    hoxTable( hoxSite*          site,
+              const wxString&   id,
               hoxIReferee*      referee,
               hoxBoard*         board = NULL );
     
@@ -63,19 +65,38 @@ public:
 
     /**
      * Assign a player to this Table.
+     *
+     * @note If the JOIN is successful, other Players in the Table will
+     *       be informed about this event.
+     *
+     * @param player The Player that is requesting to join the Table.
+     * @param assignedColor The assigned Color of the Player if 
+     *                      the JOIN is allowed.
      */
     hoxResult AssignPlayer( hoxPlayer*     player,
                             hoxPieceColor& assignedColor );
-    /* TODO: Why this API is different from AssignPlayer() */
-    hoxResult RequestJoinFromPlayer( hoxPlayer*     player,
-                                     hoxPieceColor  requestColor );
+
+    /**
+     * Attempt to assign a player to this Table as a specified role.
+     *
+     * @note Currently, the Table will NOT inform other Player about this event.
+     *
+     * @param player The Player that is requesting to join the Table.
+     * @param requestColor The requested Color the Player wants to join as.
+     */
+    hoxResult AssignPlayerAs( hoxPlayer*     player,
+                              hoxPieceColor  requestColor );
 
     /**
      * Unseat a given player from this table.
      *
      * @param player The player to be unseated.
+     * @param informer The Player that informs the Table about that face that
+     *                 a player wants to be unseated.
+     *                 If NULL, then the leaving player is also the informer.
      */
-    hoxResult UnassignPlayer( hoxPlayer* player );
+    hoxResult UnassignPlayer( hoxPlayer* player,
+                              hoxPlayer* informer = NULL );
 
     hoxPlayer* GetRedPlayer() const { return m_redPlayer; }
     hoxPlayer* GetBlackPlayer() const { return m_blackPlayer; }
@@ -123,11 +144,25 @@ public:
      * Callback function from the NETWORK Player to let this Table know about
      * the newly-received Wall-Message(s).
      *
-     * @param playerId The Id of the player who generates the message.
+     * @param player The Player who generates the message.
      * @param message The message that are being sent from the network.
      */
+    void OnMessage_FromNetwork( hoxPlayer*       player,
+                                const wxString&  message );
+
+    // TODO: We should delete the API.
     void OnMessage_FromNetwork( const wxString&  playerId,
                                 const wxString&  message );
+
+    /**
+     * Callback function from the NETWORK player to let the Table know that
+     * a player who just left the table.
+     *
+     * @param leavePlayer The Player that just left the table.
+     * @param informer The Player that informs the Table about this event.
+     */
+    void OnLeave_FromNetwork( hoxPlayer* leavePlayer,
+                              hoxPlayer* informer );
 
     /**
      * Callback function from a player who is leaving the table.
@@ -140,8 +175,9 @@ public:
      */
     void OnClose_FromSystem();
 
-
     void ToggleViewSide();
+
+    hoxSite* GetSite() const { return m_site; }
 
 private:
     hoxResult _ParseMoveString( const wxString& moveStr, hoxMove& move );
@@ -150,25 +186,110 @@ private:
      * Post (inform) a player about the fact that this table is 
      * about to be closed.
      */
-    void _PostPlayer_CloseEvent( hoxPlayer* player );
+    void _PostPlayer_CloseEvent( hoxPlayer* player ) const;
+
+    /**
+     * Post (inform) a player that a Player just left the table.
+     *
+     * @param player      The Player to be informed.
+     * @param leavePlayer The Player that just left the table.
+     */
+    void _PostPlayer_LeaveEvent( hoxPlayer*  player,
+                                 hoxPlayer*  leavePlayer ) const;
+
+    /**
+     * Post (inform) a player that a new Player just joined the table.
+     *
+     * @param player    The Player to be informed.
+     * @param newPlayer The Player that just joined the table.
+     * @param newColor  The color (role) that the new Play will have.
+     */
+    void _PostPlayer_JoinEvent( hoxPlayer*    player,
+                                hoxPlayer*    newPlayer,
+                                hoxPieceColor newColor ) const;
+
+    /**
+     * Post (inform) a player that a new Move has just been made.
+     *
+     * @param player    The Player to be informed.
+     * @param movePlayer The Player that just made the Move.
+     * @param moveStr  The string containing the new Move.
+     */
+    void _PostPlayer_MoveEvent( hoxPlayer*      player,
+                                hoxPlayer*      movePlayer,
+                                const wxString& moveStr ) const;
+
+    /**
+     * Post (inform) a player that a new Message has just been sent.
+     *
+     * @param player    The Player to be informed.
+     * @param msgPlayer The Player that just sent the Message.
+     * @param message   The string containing the new Message.
+     */
+    void _PostPlayer_MessageEvent( hoxPlayer*      player,
+                                   hoxPlayer*      msgPlayer,
+                                   const wxString& message ) const;
 
     void _PostBoard_PlayerEvent( wxEventType commandType, 
                                  hoxPlayer*  player,
-                                 int         extraCode = wxID_ANY );
+                                 int         extraCode = wxID_ANY ) const;
 
     void _PostBoard_MessageEvent( hoxPlayer*      player,
-                                  const wxString& message );
+                                  const wxString& message ) const;
+
+    /**
+     * Inform other Players that a new Player just joined the Table.
+     *
+     * @param newPlayer The Player that just joined the table.
+     * @param newColor  The color (role) that the new Play will have.
+     */
+    void _PostAll_JoinEvent( hoxPlayer*    newPlayer,
+                             hoxPieceColor newColor ) const;
+
+    /**
+     * Inform other Players that a new Move was just made.
+     *
+     * @param player  The Player that just made the Move.
+     * @param moveStr The string containing the new Move.
+     */
+    void _PostAll_MoveEvent( hoxPlayer*      player,
+                             const wxString& moveStr ) const;
+
+    /**
+     * Inform other Players that a new Message was just sent.
+     *
+     * @param player  The Player that just sent the Message.
+     * @param message The string containing the new Message.
+     * @param fromBoard If true, then the Message is coming from the Board.
+     *                  In this case, the Table should inform ALL players
+     *                  currently at the Table (instead of skipping the
+     *                  sender and skipping the Board-player.)
+     */
+    void _PostAll_MessageEvent( hoxPlayer*      player,
+                                const wxString& message,
+                                bool            fromBoard = false ) const;
+
+    /**
+     * Inform other Players that a Player just left the Table.
+     *
+     * @param player  The Player that just left the Table.
+     * @param informer The Player that informs the Table about this event.
+     *                 If NULL, then the leaving player is also the informer.
+     */
+    void _PostAll_LeaveEvent( hoxPlayer* player,
+                              hoxPlayer* informer = NULL ) const;
 
     /**
      * The the player who has physically control of the Board.
      */
-    hoxPlayer* _GetBoardPlayer();
+    hoxPlayer* _GetBoardPlayer() const;
 
     void       _AddPlayer( hoxPlayer* player, hoxPieceColor role );
     void       _RemovePlayer( hoxPlayer* player );
     hoxPlayer* _FindPlayer( const wxString& playerId );
 
 private:
+    hoxSite*         m_site;
     const wxString   m_id;       // The table's ID.
 
     hoxIReferee*     m_referee;  // The referee
@@ -179,7 +300,6 @@ private:
     hoxPlayerAndRoleList  m_players;
     hoxPlayer*            m_redPlayer;
     hoxPlayer*            m_blackPlayer;
-    
 };
 
 #endif /* __INCLUDED_HOX_TABLE_H_ */

@@ -134,9 +134,19 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
     if ( response->sender && response->sender != this )
     {
         MyFrame* frame = wxGetApp().GetFrame();
-        wxCHECK_RET( response->sender == frame, "The sender should be the Frame.");
-        frame->Handle_PlayerResponse( response.release(), this );
-        return;
+        if ( frame == response->sender )
+        {
+            wxCHECK_RET( response->sender == frame, "The sender should be the Frame.");
+            frame->Handle_PlayerResponse( response.release(), this );
+            return;
+        }
+        else
+        {
+            wxEvtHandler* sender = response->sender;
+            response.release();
+            wxPostEvent( sender, event );
+            return;
+        }
     }
 
     if ( response->type == hoxREQUEST_TYPE_OUT_DATA )

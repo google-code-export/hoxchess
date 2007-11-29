@@ -49,19 +49,16 @@
 #define __INCLUDED_MY_APP_H_
 
 #include <wx/wx.h>
-#include <wx/ffile.h>
 #include "hoxTypes.h"
+#include "hoxSite.h"
+#include "MyFrame.h"
 
 /* Forward declarations */
-class MyFrame;
 class hoxLog;
-class hoxSocketServer;
 class hoxPlayer;
 class hoxTable;
 class hoxHttpPlayer;
 class hoxMyPlayer;
-class hoxServer;
-
 
 DECLARE_EVENT_TYPE(hoxEVT_APP_PLAYER_SHUTDOWN_DONE, wxID_ANY)
 
@@ -86,12 +83,13 @@ public:
      * My own API
      *********************************/
 
-    hoxPlayer*     GetHostPlayer() const { return m_pPlayer; }
-    hoxMyPlayer*   GetMyPlayer();
     hoxHttpPlayer* GetHTTPPlayer() const;
 
     void OpenServer(int nPort);
     void CloseServer();
+
+    void ConnectRemoteServer(const hoxServerAddress& address);
+    void DisconnectRemoteServer(hoxRemoteSite* remoteSite);
 
     MyFrame*       GetFrame() const { return m_frame; }
 
@@ -101,22 +99,13 @@ private:
 
     MyFrame*            m_frame;  // The main frame.
 
-    /* The server part */
-    hoxServer*          m_server;
-    hoxSocketServer*    m_socketServer;
-
-    hoxPlayer*          m_pPlayer;
-            /* The player representing the host 
-             * Even though the host may particiate in more than one game
-             * at the same time, it is assumed to be run by only ONE player.
-             */
+    hoxSiteList         m_sites;
+    hoxLocalSite*       m_localSite;  // "cache" variable for easy access.
 
     mutable hoxHttpPlayer*  m_httpPlayer;
             /* The player that this Host uses to connect to the HTTP server. */
 
-    mutable hoxMyPlayer*    m_myPlayer;
-            /* The player that this Host uses to connect to the server. */
-
+    friend class MyFrame;
 
     DECLARE_EVENT_TABLE()
 };

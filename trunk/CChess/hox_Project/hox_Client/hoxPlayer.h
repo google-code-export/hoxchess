@@ -30,8 +30,10 @@
 #include <wx/wx.h>
 #include "hoxEnums.h"
 #include "hoxTypes.h"
+//#include "hoxSite.h"
 
 /* Forward declarations */
+class hoxSite;
 class hoxTable;
 class hoxConnection;
 
@@ -39,6 +41,8 @@ class hoxConnection;
  * New player-event based on wxCommandEvent.
  */
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_NEW_MOVE, wxID_ANY)
+DECLARE_EVENT_TYPE(hoxEVT_PLAYER_NEW_JOIN, wxID_ANY)
+DECLARE_EVENT_TYPE(hoxEVT_PLAYER_NEW_LEAVE, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_TABLE_CLOSE, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_WALL_MSG, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_APP_SHUTDOWN, wxID_ANY)
@@ -74,6 +78,8 @@ public:
      ***************************/
 
     virtual void OnNewMove_FromTable( wxCommandEvent&  event );
+    virtual void OnNewJoin_FromTable( wxCommandEvent&  event );
+    virtual void OnNewLeave_FromTable( wxCommandEvent&  event );
     virtual void OnClose_FromTable( wxCommandEvent&  event );
     virtual void OnWallMsg_FromTable( wxCommandEvent&  event );
     virtual void OnShutdown_FromApp( wxCommandEvent&  event );
@@ -96,12 +102,30 @@ public:
     int                GetScore() const    { return m_score; }
     void               SetScore(int score) { m_score = score; }
 
+    void     SetSite(hoxSite* site) { m_site = site; }
+    hoxSite* GetSite() const        { return m_site; }
     
     /***************************
      * Basic action API
      ***************************/
 
+    /**
+     * Request to join a Table.
+     * Upon returned, the Player will be assigned a role.
+     *
+     * @param table The Table to join.
+     */
     virtual hoxResult JoinTable( hoxTable* table );
+
+    /**
+     * Request to join a Table as a specified role.
+     *
+     * @param table        The Table to join.
+     * @param requestColor The request role (color).
+     */
+    virtual hoxResult JoinTableAs( hoxTable*     table,
+                                   hoxPieceColor requestColor );
+
     virtual hoxResult LeaveTable( hoxTable* table );
     virtual hoxResult LeaveAllTables();
 
@@ -133,6 +157,7 @@ protected:
     virtual hoxResult HandleIncomingData_WallMsg( hoxCommand& command, wxString& response );
     virtual hoxResult HandleIncomingData_List( hoxCommand& command, wxString& response );
     virtual hoxResult HandleIncomingData_Join( hoxCommand& command, wxString& response );
+    virtual hoxResult HandleIncomingData_NewJoin( hoxCommand& command, wxString& response );
     virtual hoxResult HandleIncomingData_New( hoxCommand& command, wxString& response );
 
     virtual void StartConnection();
@@ -146,6 +171,8 @@ private:
     void _ShutdownMyself();
 
 private:
+    hoxSite*        m_site;
+
     hoxConnection*  m_connection;
             /* The connection to "outside" world.
              * For Host and Dummy player, it will be NULL.

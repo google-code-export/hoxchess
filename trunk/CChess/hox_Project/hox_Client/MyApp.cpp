@@ -28,13 +28,11 @@
 #include "MyFrame.h"
 #include "hoxEnums.h"
 #include "hoxLog.h"
-#include "hoxSocketServer.h"
 #include "hoxPlayer.h"
 #include "hoxTable.h"
 #include "hoxPlayerMgr.h"
 #include "hoxTableMgr.h"
 #include "hoxUtility.h"
-#include "hoxServer.h"
 
 // Create a new application object: this macro will allow wxWidgets to create
 // the application object during program execution (it's better than using a
@@ -62,7 +60,6 @@ MyApp::OnInit()
 
     m_frame = NULL;    // To avoid "logging to early to Frame".
     m_httpPlayer  = NULL;
-    m_myPlayer  = NULL;
 
     //m_log = new hoxLog();
     //m_oldLog = wxLog::SetActiveTarget( m_log );
@@ -90,12 +87,7 @@ MyApp::OnInit()
     // created initially)
     m_frame->Show(true);
 
-    // Create a server to service remote clients.
-    m_server = NULL;
-    m_socketServer = NULL;
-    
-    // Create a "host" player representing this machine.
-    m_pPlayer = hoxPlayerMgr::GetInstance()->CreateHostPlayer( "This_HOST" );
+    m_localSite = NULL;
 
     // Initialize socket so that secondary threads can use network-related API.
     if ( ! wxSocketBase::Initialize() )
@@ -117,6 +109,13 @@ MyApp::OnExit()
 
     wxLogDebug("%s: ENTER.", FNAME);
 
+    for ( hoxSiteList::iterator it = m_sites.begin();
+                                it != m_sites.end(); ++it )
+    {
+        (*it)->Close();
+        delete (*it);
+    }
+
     /* NOTE: We rely on the Frame to notify about active players that the
      *      system is being shutdowned.
      */
@@ -124,9 +123,6 @@ MyApp::OnExit()
 
     delete hoxPlayerMgr::GetInstance();
     delete hoxTableMgr::GetInstance();
-
-    this->CloseServer();
-    delete m_socketServer;
 
     //delete wxLog::SetActiveTarget( m_oldLog );
 
@@ -153,21 +149,6 @@ MyApp::OnShutdownDone_FromPlayer( wxCommandEvent&  event )
     }
 }
 
-hoxMyPlayer* 
-MyApp::GetMyPlayer() 
-{ 
-    const char* FNAME = "MyApp::GetMyPlayer";
-
-    if ( m_myPlayer == NULL )
-    {
-        wxLogDebug("%s: Creating the MY player...", FNAME);
-        wxString playerName = hoxUtility::GenerateRandomString();
-        m_myPlayer = hoxPlayerMgr::GetInstance()->CreateMyPlayer( playerName );
-    }
-
-    return m_myPlayer; 
-}
-
 hoxHttpPlayer* 
 MyApp::GetHTTPPlayer() const
 { 
@@ -189,63 +170,76 @@ MyApp::OpenServer(int nPort)
     const char* FNAME = "MyApp::OpenServer";
     wxLogDebug("%s: ENTER.", FNAME);
 
-    wxASSERT_MSG( m_server == NULL, "The server should not have been created.");
-
-    /* Start the socket-manager */
-
-    m_server = new hoxServer();
-
-    if ( m_server->Create() != wxTHREAD_NO_ERROR )
+    if ( m_localSite == NULL )
     {
-        wxLogError("%s: Failed to create Server thread.", FNAME);
-        return;
+        hoxServerAddress address( "127.0.0.1", nPort ); 
+        m_localSite = new hoxLocalSite( address );
+        m_sites.push_back( m_localSite );
     }
-    wxASSERT_MSG( !m_server->GetThread()->IsDetached(), "The Server thread must be joinable.");
 
-    m_server->GetThread()->Run();
+    m_localSite->OpenServer();
 
-    /* Start the socket-server */
-
-    wxASSERT_MSG( m_socketServer == NULL, "The socket-server should not have been created.");
-
-    m_socketServer = new hoxSocketServer( nPort,
-                                          m_server );
-
-    if ( m_socketServer->Create() != wxTHREAD_NO_ERROR )
-    {
-        wxLogError("%s: Failed to create socker-server thread.", FNAME);
-        return;
-    }
-    wxASSERT_MSG( !m_socketServer->GetThread()->IsDetached(), "The socket-server thread must be joinable.");
-
-    m_socketServer->GetThread()->Run();
+    m_frame->UpdateSiteTreeUI();
 }
 
 void MyApp::CloseServer()
 {
     const char* FNAME = "MyApp::CloseServer";
 
-    if ( m_socketServer != NULL )
+    if ( m_localSite != NULL )
     {
-        wxLogDebug("%s: Request the socket-server thread to be shutdowned...", FNAME);
-        m_socketServer->RequestShutdown();
-        wxThread::ExitCode exitCode = m_socketServer->GetThread()->Wait();
-        wxLogDebug("%s: The socket-server thread was shutdowned with exit-code = [%d].", FNAME, exitCode);
-        delete m_socketServer;
-        m_socketServer = NULL;
-    }
-
-    if ( m_server != NULL )
-    {
-        wxLogDebug("%s: Request the Server thread to be shutdowned...", FNAME);
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_SHUTDOWN, NULL );
-        m_server->AddRequest( request );
-        wxThread::ExitCode exitCode = m_server->GetThread()->Wait();
-        wxLogDebug("%s: The Server thread was shutdowned with exit-code = [%d].", FNAME, exitCode);
-        delete m_server;
-        m_server = NULL;
+        m_localSite->Close();
+        m_sites.remove( m_localSite );
+        delete m_localSite;
+        m_localSite = NULL;
+        m_frame->UpdateSiteTreeUI();
     }
 }
 
+void 
+MyApp::ConnectRemoteServer( const hoxServerAddress& address )
+{
+    const char* FNAME = "MyApp::ConnectRemoteServer";
+    hoxRemoteSite* remoteSite = NULL;
+
+    /* Search for existing site. */
+    for ( hoxSiteList::iterator it = m_sites.begin();
+                                it != m_sites.end(); ++it )
+    {
+        if (   (*it)->IsLocal() == false
+            && (*it)->GetAddress() == address )
+        {
+            remoteSite = (hoxRemoteSite*) (*it);
+            break;
+        }
+    }
+
+    /* Create a new Remote site if necessary. */
+    if ( remoteSite == NULL )
+    {
+        remoteSite = new hoxRemoteSite( address );
+        m_sites.push_back( remoteSite );
+    }
+
+    /* Connect to the Remote site. */
+    if ( remoteSite->Connect() != hoxRESULT_OK )
+    {
+        wxLogError("%s: Failed to connect to the remote server [%s:%d].", 
+            FNAME, address.name.c_str(), address.port);
+    }
+
+    m_frame->UpdateSiteTreeUI();
+
+}
+
+void 
+MyApp::DisconnectRemoteServer(hoxRemoteSite* remoteSite)
+{
+    remoteSite->Close();
+    m_sites.remove( remoteSite );
+    delete remoteSite;
+
+    m_frame->UpdateSiteTreeUI();
+}
 
 /************************* END OF FILE ***************************************/

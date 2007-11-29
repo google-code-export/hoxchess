@@ -89,7 +89,7 @@ hoxTableMgr::CreateTableWithFrame( wxWindow*       parent,
      * NOTE: Since this App can function as a server, it is important
      *       to have a notion of a Table withOUT a Board (or Table's GUI).
      */
-    hoxTable* table = new hoxTable( tableId, referee );
+    hoxTable* table = new hoxTable( m_site, tableId, referee );
 
     /* Create a "hidden" Board */
     hoxBoard* board = new hoxBoard( parent, PIECES_PATH, referee,

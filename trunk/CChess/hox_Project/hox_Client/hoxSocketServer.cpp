@@ -40,10 +40,12 @@
 //
 
 hoxSocketServer::hoxSocketServer( int        nPort,
-                                  hoxServer* server )
+                                  hoxServer* server,
+                                  hoxSite*   site )
         : wxThreadHelper()
         , m_nPort( nPort )
         , m_pSServer( NULL )
+        , m_site( site )
         , m_server( server )
         , m_shutdownRequested( false )
 {
@@ -130,7 +132,6 @@ hoxSocketServer::Entry()
             /* Read the incoming command */
             hoxCommand command;
             hoxResult result = hoxNetworkAPI::ReadCommand( newSock, command );
-            //newSock->Notify( false );  // FIXME: ********** Big hack here *********
             if ( result != hoxRESULT_OK )
             {
                 wxLogError("%s: Failed to read incoming command.", FNAME);
@@ -153,8 +154,8 @@ hoxSocketServer::Entry()
             /* Create a new player to represent this new remote player */
             wxLogDebug("%s: Creating a remote player [%s]...", FNAME, playerId.c_str());
             hoxRemotePlayer* newPlayer = 
-                hoxPlayerMgr::GetInstance()->CreateRemotePlayer( playerId,
-                                                                 playerScore );
+                m_site->m_playerMgr.CreateRemotePlayer( playerId, playerScore );
+
             /* Create a connection for the new player. */
             hoxRemoteConnection* connection = new hoxRemoteConnection();
             connection->SetServer( m_server );

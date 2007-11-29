@@ -28,9 +28,10 @@
 #include "MyFrame.h"
 #include "MyApp.h"    // To access wxGetApp()
 #include "hoxTable.h"
+#include "hoxSite.h"
 #include "hoxPlayer.h"
 #include "hoxTableMgr.h"
-#include "hoxPlayerMgr.h"
+
 #if !defined(__WXMSW__)
     #include "icons/chart.xpm"
 #endif
@@ -126,8 +127,12 @@ MyChild::OnClose(wxCloseEvent& event)
         return;
     }
 
-    hoxTableMgr::GetInstance()->RemoveTable( m_table );
+    //hoxTableMgr::GetInstance()->RemoveTable( m_table );
+    hoxSite* site = m_table->GetSite();
+    site->CloseTable( m_table );
     m_table = NULL;
+
+    parent->UpdateSiteTreeUI();
 
     event.Skip(); // let the search for the event handler should continue...
 
@@ -149,5 +154,13 @@ MyChild::SetTable(hoxTable* table)
     m_table = table;
 }
 
+hoxSite* 
+MyChild::GetSite() const
+{
+    if ( m_table != NULL )
+        return m_table->GetSite();
+
+    return NULL;
+}
 
 /************************* END OF FILE ***************************************/

@@ -274,7 +274,7 @@ hoxNetworkAPI::ParseNewNetworkTable( const wxString&  responseStr,
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    wxStringTokenizer tkz( responseStr, wxT("\n") );
+    wxStringTokenizer tkz( responseStr, wxT("\r\n") );
     int i = 0;
 
     while ( tkz.HasMoreTokens() )
@@ -294,6 +294,7 @@ hoxNetworkAPI::ParseNewNetworkTable( const wxString&  responseStr,
                 break;
             case 2:    // The ID of the new table.
                 newTableId = token; 
+                wxLogDebug("%s: New Table-Id = [%s].", FNAME, token.c_str()) ; 
                 break;
             default:
                 wxLogError("%s: Ignore the rest...", FNAME);

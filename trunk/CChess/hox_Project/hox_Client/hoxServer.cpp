@@ -36,10 +36,10 @@ DEFINE_EVENT_TYPE( hoxEVT_SERVER_RESPONSE )
 // hoxServer
 //-----------------------------------------------------------------------------
 
-hoxServer::hoxServer()
+hoxServer::hoxServer( hoxSite* site )
         : wxThreadHelper()
         , m_shutdownRequested( false )
-        , m_pSServer( NULL )
+        , m_site( site )
 {
     const char* FNAME = "hoxServer::hoxServer";
     wxLogDebug("%s: ENTER.", FNAME);
@@ -51,7 +51,6 @@ hoxServer::~hoxServer()
     wxLogDebug("%s: ENTER.", FNAME);
 
     _DestroyAllActiveSockets();
-    _Disconnect();
 }
 
 void
@@ -198,6 +197,8 @@ hoxServer::_HandleRequest( hoxRequest* request )
             break;
 
         case hoxREQUEST_TYPE_MOVE: /* fall through */
+        case hoxREQUEST_TYPE_NEW_JOIN: /* fall through */
+        case hoxREQUEST_TYPE_LEAVE: /* fall through */
         case hoxREQUEST_TYPE_WALL_MSG:
             result = hoxNetworkAPI::SendRequest( request->socket, 
                                                  request->content,
@@ -260,7 +261,6 @@ hoxServer::_CheckAndHandleSocketLostEvent( const hoxRequest* request,
     wxLogDebug("%s: ENTER.", FNAME);
 
     wxSocketBase* sock = request->socket;
-    //wxASSERT_MSG( sock == m_pendingSock, _T("Sockets should match!") );
     
     if ( request->socketEvent == wxSOCKET_LOST )
     {
@@ -269,7 +269,7 @@ hoxServer::_CheckAndHandleSocketLostEvent( const hoxRequest* request,
         result = hoxRESULT_HANDLED;
     }
 
-    wxLogDebug("%s: Not a socket-lost event. Fine - Do nothing. END.", FNAME);
+    //wxLogDebug("%s: Not a socket-lost event. Fine - Do nothing. END.", FNAME);
     return result;
 }
 
@@ -321,16 +321,6 @@ hoxServer::_GetRequest()
     }
 
     return request;
-}
-
-void
-hoxServer::_Disconnect()
-{    
-    if ( m_pSServer != NULL )
-    {
-        m_pSServer->Destroy();
-        m_pSServer = NULL;
-    }
 }
 
 /************************* END OF FILE ***************************************/
