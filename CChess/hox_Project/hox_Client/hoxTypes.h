@@ -62,7 +62,7 @@ class hoxRole
     hoxRole( const wxString& id, hoxPieceColor c) : tableId( id ), color( c )
         { }
 
-    bool operator==(const hoxRole& other)
+    bool operator==(const hoxRole& other) const
     {
         return ( (tableId == other.tableId) && (color == other.color) );
     }
@@ -81,6 +81,10 @@ public:
 
     hoxPlayerAndRole() : player(NULL), role(hoxPIECE_COLOR_NONE) {}
     hoxPlayerAndRole(hoxPlayer* p, hoxPieceColor r) : player(p), role(r) {}
+    bool operator==(const hoxPlayerAndRole& other) const
+    {
+        return ( (player == other.player) && (role == other.role) );
+    }
 };
 typedef std::list<hoxPlayerAndRole>  hoxPlayerAndRoleList;
 
@@ -251,6 +255,11 @@ public:
 
     hoxServerAddress() : port( 0 ) {}
     hoxServerAddress(const wxString& n, int p) : name( n ), port( p ) {}
+
+    bool operator==(const hoxServerAddress& other) const
+    {
+        return ( (name == other.name) && (port == other.port) );
+    }
 };
 
 #endif /* __INCLUDED_HOX_TYPES_H_ */

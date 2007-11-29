@@ -31,6 +31,7 @@
 
 
 /* Forward declarations */
+class hoxSite;
 class hoxTable;
 
 /**
@@ -50,6 +51,8 @@ public:
     void OnSize(wxSizeEvent& event);
 
     void SetTable(hoxTable* table);
+    
+    hoxSite* GetSite() const;
 
 private:
     void _SetupMenu();

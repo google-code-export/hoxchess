@@ -32,6 +32,7 @@
 #include <wx/socket.h>
 #include "hoxEnums.h"
 #include "hoxTypes.h"
+#include "hoxSite.h"
 
 /* Server (response) event-type. */
 DECLARE_EVENT_TYPE(hoxEVT_SERVER_RESPONSE, wxID_ANY)
@@ -53,7 +54,7 @@ DECLARE_EVENT_TYPE(hoxEVT_SERVER_RESPONSE, wxID_ANY)
 class hoxServer : public wxThreadHelper
 {
 public:
-    hoxServer();
+    hoxServer(hoxSite* site);
     ~hoxServer();
 
     // Thread execution starts here
@@ -64,6 +65,8 @@ public:
 
     void AddRequest( hoxRequest* request );
 
+    hoxSite* GetSite() const { return m_site; }
+
 private:
     hoxRequest* _GetRequest();         
     void        _HandleRequest( hoxRequest* request );
@@ -71,7 +74,6 @@ private:
                                                 wxString&         response );
     hoxResult   _HandleRequest_Accept( hoxRequest* request );
 
-    void        _Disconnect();
     void        _DestroyAllActiveSockets();
     void        _DestroyActiveSocket( wxSocketBase *sock );
     bool        _DetachActiveSocket( wxSocketBase *sock );
@@ -94,17 +96,13 @@ private:
             socket = other.socket;
             return *this;
         }
-        //bool operator==(const SocketInfo& other)
-        //{
-        //    return ( (playerId == other.playerId) && (socket == other.socket) );
-        //}
     };
     typedef std::list<SocketInfo> SocketList;
 
     bool                  m_shutdownRequested;
                 /* Has a shutdown-request been received? */
 
-    wxSocketServer*       m_pSServer;    // The main server's socket
+    hoxSite*              m_site;
 
     SocketList            m_activeSockets;
 

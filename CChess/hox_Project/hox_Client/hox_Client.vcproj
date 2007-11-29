@@ -245,6 +245,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hoxSite.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\hoxSocketConnection.cpp"
 				>
 			</File>
@@ -372,6 +376,10 @@
 			</File>
 			<File
 				RelativePath=".\hoxServer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\hoxSite.h"
 				>
 			</File>
 			<File

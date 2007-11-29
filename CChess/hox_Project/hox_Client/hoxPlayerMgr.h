@@ -34,6 +34,9 @@
 #include "hoxHttpPlayer.h"
 #include "hoxMyPlayer.h"
 
+/* Forward declarations */
+class hoxSite;
+
 /**
  * A singleton class that manages all players in the system.
  */
@@ -42,6 +45,7 @@ class hoxPlayerMgr
 public:
     static hoxPlayerMgr* GetInstance();        
 
+    hoxPlayerMgr();
     ~hoxPlayerMgr();
 
     hoxHostPlayer* CreateHostPlayer( const wxString& name,
@@ -56,9 +60,8 @@ public:
     hoxRemotePlayer* CreateRemotePlayer( const wxString& name,
                                          int             score = 1500 );
 
-    hoxPlayer* CreatePlayer( const wxString& name,
-                             hoxPlayerType   type,
-                             int             score = 1500 );
+    hoxPlayer* CreateDummyPlayer( const wxString& name,
+                                  int             score = 1500 );
 
     void DeletePlayer( hoxPlayer* player );
 
@@ -71,7 +74,7 @@ public:
     /**
      * @return NULL if not found.
      */
-    hoxPlayer* FindPlayer( const wxString& playerId );
+    hoxPlayer* FindPlayer( const wxString& playerId ) const;
 
     /**
      * Handle SHUTDOWN request from App.
@@ -83,11 +86,13 @@ public:
      */
     int GetNumberOfPlayers() { return (int) m_players.size(); }
 
-private:
-    hoxPlayerMgr();
+    void     SetSite(hoxSite* site) { m_site = site; }
+    hoxSite* GetSite() const        { return m_site; }
 
+private:
     static hoxPlayerMgr* m_instance;  // The single instance
 
+    hoxSite*        m_site;
     hoxPlayerList   m_players;  // The list of all players in the system.
 };
 

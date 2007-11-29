@@ -59,8 +59,6 @@ DEFINE_EVENT_TYPE(hoxEVT_FRAME_LOG_MSG)
 
 #define hoxVERSION_STRING  "0.1.0.1"
 
-#define ID_WINDOW_LOG    103
-
 BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
     EVT_MENU(MDI_ABOUT, MyFrame::OnAbout)
     EVT_MENU(MDI_NEW_TABLE, MyFrame::OnNewTable)
@@ -68,10 +66,15 @@ BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
     EVT_UPDATE_UI(MDI_CLOSE_TABLE, MyFrame::OnUpdateCloseTable)
 
     EVT_MENU(MDI_OPEN_SERVER, MyFrame::OnOpenServer)
+    EVT_MENU(MDI_CLOSE_SERVER, MyFrame::OnCloseServer)
     EVT_MENU(MDI_CONNECT_SERVER, MyFrame::OnConnectServer)
     EVT_MENU(MDI_DISCONNECT_SERVER, MyFrame::OnDisconnectServer)
+    EVT_MENU(MDI_LIST_TABLES, MyFrame::OnListTables)
 
     EVT_MENU(MDI_CONNECT_HTTP_SERVER, MyFrame::OnConnectHTTPServer)
+
+    EVT_MENU(MDI_SHOW_SERVERS_WINDOW, MyFrame::OnShowServersWindow)
+    EVT_UPDATE_UI(MDI_SHOW_SERVERS_WINDOW, MyFrame::OnUpdateServersWindow)
 
     EVT_MENU(MDI_SHOW_LOG_WINDOW, MyFrame::OnShowLogWindow)
     EVT_UPDATE_UI(MDI_SHOW_LOG_WINDOW, MyFrame::OnUpdateLogWindow)
@@ -80,9 +83,12 @@ BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
 
     EVT_CLOSE(MyFrame::OnClose)
     EVT_SIZE(MyFrame::OnSize)
-    EVT_SASH_DRAGGED(ID_WINDOW_LOG, MyFrame::OnSashDrag)
+    EVT_SASH_DRAGGED(ID_WINDOW_SITES, MyFrame::OnServersSashDrag)
+    EVT_SASH_DRAGGED(ID_WINDOW_LOG, MyFrame::OnLogSashDrag)
 
     EVT_COMMAND(wxID_ANY, hoxEVT_FRAME_LOG_MSG, MyFrame::OnFrameLogMsgEvent)
+
+    EVT_CONTEXT_MENU(MyFrame::OnContextMenu)
 END_EVENT_TABLE()
 
 // ---------------------------------------------------------------------------
@@ -108,6 +114,25 @@ MyFrame::MyFrame( wxWindow*        parent,
 
     SetIcon( wxICON(hoxchess) );
 
+    // A window to the left of the client window
+    m_sitesWindow = new wxSashLayoutWindow(this, ID_WINDOW_SITES,
+                               wxDefaultPosition, wxDefaultSize,
+                               wxNO_BORDER | wxSW_3D | wxCLIP_CHILDREN);
+    m_sitesWindow->SetDefaultSize(wxSize(200, -1));
+    m_sitesWindow->SetOrientation(wxLAYOUT_VERTICAL);
+    m_sitesWindow->SetAlignment(wxLAYOUT_LEFT);
+    m_sitesWindow->SetBackgroundColour(wxColour(0, 0, 255));
+    m_sitesWindow->SetSashVisible(wxSASH_RIGHT, true);
+    m_sitesWindow->SetExtraBorderSize(2);
+
+    m_sitesTree = new wxTreeCtrl( m_sitesWindow, 
+                                    ID_TREE_SITES,
+                                    wxDefaultPosition, wxDefaultSize,
+                                    wxTR_DEFAULT_STYLE | wxNO_BORDER);
+
+    wxTreeItemId root = m_sitesTree->AddRoot( "Sites" );
+    this->UpdateSiteTreeUI();
+
     // A window containing our log-text.
     m_logWindow = new wxSashLayoutWindow( 
                             this, 
@@ -115,7 +140,7 @@ MyFrame::MyFrame( wxWindow*        parent,
                             wxDefaultPosition, 
                             wxDefaultSize,
                             wxNO_BORDER | wxSW_3D | wxCLIP_CHILDREN );
-    m_logWindow->SetDefaultSize(wxSize(1000, 180));  // TODO: Hard-coded.
+    m_logWindow->SetDefaultSize(wxSize(-1, 180));  // TODO: Hard-coded.
     m_logWindow->SetOrientation(wxLAYOUT_HORIZONTAL);
     m_logWindow->SetAlignment(wxLAYOUT_BOTTOM);
     m_logWindow->SetBackgroundColour(wxColour(0, 0, 255));
@@ -212,17 +237,18 @@ void
 MyFrame::OnNewTable( wxCommandEvent& event )
 {
     const char* FNAME = "MyFrame::OnNewTable";
-    hoxTable* table = NULL;
 
-    table = _CreateNewTable( "" );  // An Id will be generated.
-    wxLogDebug("%s: Created a new table [%s].", FNAME, table->GetId().c_str());
+    hoxTable* selectedTable = NULL;
+    hoxSite* selectedSite = _GetSelectedSite(selectedTable);
 
-    // Add the HOST player to the table.
-    hoxResult result = wxGetApp().GetHostPlayer()->JoinTable( table );
-    wxASSERT( result == hoxRESULT_OK  );
-    wxASSERT_MSG( wxGetApp().GetHostPlayer()->HasRole( 
-                            hoxRole(table->GetId(), hoxPIECE_COLOR_RED) ),
-                  _("Player must play RED"));
+    if ( selectedSite == NULL )
+        return;
+
+    wxString newTableId;
+    if ( hoxRESULT_OK != selectedSite->CreateNewTable( newTableId ) )
+    {
+        wxLogError("%s: Failed to create a new Table.", FNAME);
+    }
 }
 
 void 
@@ -299,32 +325,36 @@ MyFrame::OnOpenServer( wxCommandEvent& event )
 }
 
 void 
+MyFrame::OnCloseServer( wxCommandEvent& event )
+{
+    const char* FNAME = "MyFrame::OnCloseServer";
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    /* Find out which site is selected. */
+
+    hoxTable* selectedTable = NULL;
+    hoxSite* selectedSite = _GetSelectedSite(selectedTable);
+
+    if ( selectedSite == NULL )
+    {
+        wxLogError("%s: A site must be selected. END.", FNAME);
+        return;
+    }
+
+    /* Go through my children to see which ones belong to the site and
+     * trigger a close event.
+     */
+    _CloseChildrenOfSite( selectedSite );
+
+    /* Close the site itself. */
+    wxGetApp().CloseServer();
+}
+
+void 
 MyFrame::OnConnectServer( wxCommandEvent& event )
 {
     const char* FNAME = "MyFrame::OnConnectServer";
     hoxResult result;
-    hoxMyPlayer* myPlayer = wxGetApp().GetMyPlayer();
-
-    /* If the connection has been established, then skip trying to 
-     * establish one and go straight to query for the list of tables.
-     */
-
-    if (   myPlayer->GetConnection() != NULL
-        && myPlayer->GetConnection()->IsConnected() )
-    {
-        /* Get the list of tables from the server */
-        result = myPlayer->QueryForNetworkTables( this );
-        if ( result != hoxRESULT_OK )
-        {
-            wxLogError("%s: Failed to query for LIST of tables from the server.", FNAME);
-            return;
-        }
-        return;
-    }
-
-    /***********************************************/
-    /* Otherwise, try to establish a connection... */
-    /***********************************************/
 
     /* Ask the user for the server' address. */
 
@@ -341,38 +371,7 @@ MyFrame::OnConnectServer( wxCommandEvent& event )
         return;
 
     /* Start connecting... */
-
-    if ( m_dlgProgress != NULL ) 
-    {
-        m_dlgProgress->Destroy();  // NOTE: ... see wxWidgets' documentation.
-        m_dlgProgress = NULL;
-    }
-
-    m_dlgProgress = new wxProgressDialog(
-        _("Progress dialog"),
-        _("Wait until connnection is established or press [Cancel]"),
-        100,
-        this,
-        wxPD_AUTO_HIDE | wxPD_CAN_ABORT
-        );
-    m_dlgProgress->SetSize( wxSize(500, 150) );
-    m_dlgProgress->Pulse();
-
-    /* Create a new connection for the MY player. */
-    wxLogDebug("%s: Connecting to server [%s:%d]...", 
-        FNAME, serverAddress.name.c_str(), serverAddress.port);
-    hoxConnection* connection = new hoxSocketConnection( serverAddress.name, 
-                                                         serverAddress.port );
-    myPlayer->SetConnection( connection );
-
-    result = myPlayer->ConnectToNetworkServer( this );
-    if ( result != hoxRESULT_OK )
-    {
-        wxLogError("%s: Failed to connect to server.", FNAME);
-        return;
-    }
-
-    m_dlgProgress->Pulse();
+    wxGetApp().ConnectRemoteServer( serverAddress );
 }
 
 void MyFrame::OnConnectHTTPServer( wxCommandEvent& event )
@@ -458,17 +457,36 @@ void MyFrame::OnConnectHTTPServer( wxCommandEvent& event )
 }
 
 void 
+MyFrame::OnShowServersWindow( wxCommandEvent& event )
+{
+    m_sitesWindow->Show( ! m_sitesWindow->IsShown() );
+    m_sitesWindow->SetDefaultSize(wxSize(200, -1));
+
+    wxLayoutAlgorithm layout;
+    layout.LayoutMDIFrame(this);
+
+    // Leaves bits of itself behind sometimes
+    GetClientWindow()->Refresh();
+}
+
+void 
+MyFrame::OnUpdateServersWindow( wxUpdateUIEvent& event )
+{
+    event.Check( m_sitesWindow->IsShown() );
+}
+
+void 
 MyFrame::OnShowLogWindow( wxCommandEvent& event )
 {
     m_logWindow->Show( ! m_logWindow->IsShown() );
-    m_logWindow->SetDefaultSize(wxSize(1000, 180));
+    m_logWindow->SetDefaultSize(wxSize(-1, 180));
 
     wxLayoutAlgorithm layout;
     layout.LayoutMDIFrame(this);
 }
 
 void 
-MyFrame::OnUpdateLogWindow(wxUpdateUIEvent& event)
+MyFrame::OnUpdateLogWindow( wxUpdateUIEvent& event )
 {
     event.Check( m_logWindow->IsShown() );
 }
@@ -478,94 +496,17 @@ MyFrame::DoJoinExistingTable( const hoxNetworkTableInfo& tableInfo,
                               hoxLocalPlayer*            localPlayer )
 {
     const char* FNAME = "MyFrame::DoJoinExistingTable";
-    hoxResult result;
 
-    /*******************************************************
-     * Check to see which side (RED or BLACK) we will play
-     * and who the other player, if any, is.
-     *******************************************************/
-
-    bool     playRed = false;   // Do I play RED?
-    wxString otherPlayerId;     // Who is the other player?
-
-    if ( tableInfo.redId == localPlayer->GetName() )
+    hoxSite* site = localPlayer->GetSite();
+    hoxRemoteSite* remoteSite = wxDynamicCast( site, hoxRemoteSite );
+    if ( remoteSite != NULL )
     {
-        playRed = true;
-        otherPlayerId = tableInfo.blackId;
-    }
-    else if ( tableInfo.blackId == localPlayer->GetName() )
-    {
-        playRed = false;
-        otherPlayerId = tableInfo.redId;
-    }
-    else
-    {
-        wxLogError("%s: I should have secured a seat in table [%s].", FNAME, tableInfo.id.c_str());
-        return;
-    }
-
-    /***********************/
-    /* Create a new table. */
-    /***********************/
-
-    wxLogDebug("%s: Creating a new table JOINING an existing network table...", FNAME);
-    hoxTable* table = _CreateNewTable( tableInfo.id );
-
-    /***********************/
-    /* Setup players       */
-    /***********************/
-
-    // The other player will be a DUMMY player.
-
-    hoxPlayer* red_player = NULL;
-    hoxPlayer* black_player = NULL;
-
-    if ( playRed )  // Do I play RED?
-    {
-        red_player = localPlayer;
-        if ( ! otherPlayerId.empty() )
+        if ( hoxRESULT_OK != remoteSite->JoinExistingTable( tableInfo ) )
         {
-            black_player = hoxPlayerMgr::GetInstance()->CreatePlayer( 
-                                                        otherPlayerId,
-                                                        hoxPLAYER_TYPE_DUMMY );
+            wxLogError("%s: Failed to join existing network table.", FNAME);
+            return;
         }
-    }
-    else
-    {
-        black_player = localPlayer;
-        if ( ! otherPlayerId.empty() )
-        {
-            red_player = hoxPlayerMgr::GetInstance()->CreatePlayer( 
-                                                        otherPlayerId,
-                                                        hoxPLAYER_TYPE_DUMMY );
-        }
-    }
-
-    /* Join the players at the table.
-     */
-
-    if ( red_player != NULL )
-    {
-        result = red_player->JoinTable( table );
-        wxASSERT( result == hoxRESULT_OK  );
-        wxASSERT_MSG( red_player->HasRole( hoxRole(table->GetId(), 
-                                                   hoxPIECE_COLOR_RED) ),
-                      _("Player must play RED"));
-    }
-
-    if ( black_player != NULL )
-    {
-        result = black_player->JoinTable( table );
-        wxASSERT( result == hoxRESULT_OK  );
-        wxASSERT_MSG( black_player->HasRole( hoxRole(table->GetId(), 
-                                                     hoxPIECE_COLOR_BLACK) ),
-                      _("Player must play BLACK"));
-    }
-
-    // Toggle board if I play BLACK.
-    if ( !playRed )
-    {
-        table->ToggleViewSide();
+        this->UpdateSiteTreeUI();
     }
 }
 
@@ -605,8 +546,48 @@ void MyFrame::OnDisconnectServer( wxCommandEvent& event )
     const char* FNAME = "MyFrame::OnDisconnectServer";
     wxLogDebug("%s: ENTER.", FNAME);
 
-    hoxMyPlayer* myPlayer = wxGetApp().GetMyPlayer();
-    myPlayer->DisconnectFromNetworkServer( this );
+    hoxTable* selectedTable = NULL;
+    hoxSite* selectedSite = _GetSelectedSite(selectedTable);
+
+    if ( selectedSite == NULL )
+        return;
+
+    /* Go through my children to see which ones belong to the site and
+     * trigger a close event.
+     */
+    _CloseChildrenOfSite( selectedSite );
+
+    /* Close the site itself. */
+    if ( ! selectedSite->IsLocal() )
+    {
+        hoxRemoteSite* remoteSite = (hoxRemoteSite*) selectedSite;
+        wxGetApp().DisconnectRemoteServer( remoteSite );
+    }
+}
+
+void MyFrame::OnListTables( wxCommandEvent& event )
+{
+    const char* FNAME = "MyFrame::OnListTables";
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    hoxTable* selectedTable = NULL;
+    hoxSite* selectedSite = _GetSelectedSite(selectedTable);
+
+    if ( selectedSite == NULL )
+        return;
+
+    if ( ! selectedSite->IsLocal() )
+    {
+        hoxRemoteSite* remoteSite = (hoxRemoteSite*) selectedSite;
+
+        /* Get the list of tables from the server */
+        hoxResult result = remoteSite->QueryForNetworkTables( /*this*/ );
+        if ( result != hoxRESULT_OK )
+        {
+            wxLogError("%s: Failed to query for LIST of tables from the server.", FNAME);
+            return;
+        }
+    }
 }
 
 void MyFrame::OnSize(wxSizeEvent& event)
@@ -617,12 +598,26 @@ void MyFrame::OnSize(wxSizeEvent& event)
     //wxLogStatus(mySize);
 }
 
-void MyFrame::OnSashDrag(wxSashEvent& event)
+void MyFrame::OnServersSashDrag(wxSashEvent& event)
 {
     if (event.GetDragStatus() == wxSASH_STATUS_OUT_OF_RANGE)
         return;
 
-    m_logWindow->SetDefaultSize(wxSize(1000, event.GetDragRect().height));
+    m_sitesWindow->SetDefaultSize(wxSize(event.GetDragRect().width, -1));
+
+    wxLayoutAlgorithm layout;
+    layout.LayoutMDIFrame(this);
+
+    // Leaves bits of itself behind sometimes
+    GetClientWindow()->Refresh();
+}
+
+void MyFrame::OnLogSashDrag(wxSashEvent& event)
+{
+    if (event.GetDragStatus() == wxSASH_STATUS_OUT_OF_RANGE)
+        return;
+
+    m_logWindow->SetDefaultSize(wxSize(-1, event.GetDragRect().height));
 
     wxLayoutAlgorithm layout;
     layout.LayoutMDIFrame(this);
@@ -680,6 +675,8 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
     /* Server menu. */
     wxMenu* server_menu = new wxMenu;
     server_menu->Append(MDI_OPEN_SERVER, _("&Open Server...\tCtrl-O"), _("Open server for remote access"));
+    server_menu->AppendSeparator();
+    server_menu->AppendCheckItem(MDI_SHOW_SERVERS_WINDOW, _("Server&s Window\tCtrl-S"));
 
     /* View menu (only if a Table exits) */
     wxMenu* view_menu = NULL;
@@ -721,14 +718,6 @@ MyFrame::Handle_PlayerResponse( hoxResponse*    pResponse,
     wxLogDebug("%s: ENTER.", FNAME);
 
     const std::auto_ptr<hoxResponse> response( pResponse ); // take care memory leak!
-
-    bool wasCanceled = !m_dlgProgress->Pulse();
-    m_dlgProgress->Update(100);  // make sure to close the dialog.
-    if ( wasCanceled )
-    {
-        wxLogDebug("%s: Connection has been canceled.", FNAME);
-        return;
-    }
 
     if ( response->code != hoxRESULT_OK )
     {
@@ -778,6 +767,72 @@ MyFrame::OnFrameLogMsgEvent( wxCommandEvent &event )
 }
 
 void 
+MyFrame::OnContextMenu( wxContextMenuEvent& event )
+{ 
+    wxPoint point = event.GetPosition(); 
+    point = ScreenToClient(point);
+    
+    wxMenu menu;
+    bool serverItemsInserted = false;
+    bool remoteItemsInserted = false;
+    bool tableItemsInserted = false;
+
+    if ( wxGetApp().m_localSite == NULL )
+    {
+        menu.Append(MDI_OPEN_SERVER, _("&Open Server...\tCtrl-O"), 
+                                     _("Open server for remote access"));
+        serverItemsInserted = true;
+    }
+
+    hoxTable* selectedTable = NULL;
+    hoxSite* selectedSite = _GetSelectedSite(selectedTable);
+
+    if ( selectedTable != NULL )
+    {
+        menu.Append(MDI_CLOSE_TABLE, _("&Close Table\tCtrl-C"), _("Close Table"));
+        tableItemsInserted = true;
+    }
+    else if ( selectedSite != NULL )
+    {
+        if ( selectedSite->IsLocal() )
+        {
+            hoxLocalSite* localSite = (hoxLocalSite*) selectedSite;
+            if ( localSite->IsOpened() )
+            {
+                menu.Append(MDI_CLOSE_SERVER, _("&Close Server...\tCtrl-C"), 
+                                              _("Close local server"));
+                serverItemsInserted = true;
+            }
+        }
+        else /* Remote */
+        {
+            hoxRemoteSite* remoteSite = (hoxRemoteSite*) selectedSite;
+            if ( remoteSite->IsConnected() )
+            {
+                menu.Append(MDI_DISCONNECT_SERVER, _("&Disconnect Server\tCtrl-D"), 
+                                                   _("Disconnect from remote server"));
+                menu.Append(MDI_LIST_TABLES, _("&Query for Tables\tCtrl-Q"), 
+                                                   _("Query for the list of tables"));
+                remoteItemsInserted = true;
+            }
+
+            menu.Append(MDI_NEW_TABLE, _("&New Table\tCtrl-N"), _("Create New Table"));
+        }
+    }
+
+    if ( ! tableItemsInserted )
+    {
+        if ( serverItemsInserted )
+            menu.AppendSeparator();
+
+        if ( !remoteItemsInserted )
+            menu.Append(MDI_CONNECT_SERVER, _("Connect Remote Server...\tCtrl-L"), _("Connect to remote server"));
+    }
+
+    PopupMenu(&menu, point.x, point.y);
+}
+
+void 
 MyFrame::_OnResponse_Connect( const wxString& responseStr,
                               hoxLocalPlayer* localPlayer )
 {
@@ -795,14 +850,6 @@ MyFrame::_OnResponse_Connect( const wxString& responseStr,
     {
         wxLogError("%s: Failed to parse CONNECT's response. [%d] [%s]", 
             FNAME,  returnCode, returnMsg.c_str());
-        return;
-    }
-
-    /* Get the list of tables from the server */
-    result = localPlayer->QueryForNetworkTables( this );
-    if ( result != hoxRESULT_OK )
-    {
-        wxLogError("%s: Failed to query for LIST of tables from the server.", FNAME);
         return;
     }
 }
@@ -1015,6 +1062,129 @@ MyFrame::_CreateNewTable( const wxString& tableId )
     childFrame->Show( true );
 
     return newTable;
+}
+
+void 
+MyFrame::UpdateSiteTreeUI()
+{
+    wxTreeItemId  rootId = m_sitesTree->GetRootItem();
+    wxTreeItemId  siteId;
+    wxTreeItemId  tableId;
+
+    /* Delete the old tree's content */
+    m_sitesTree->DeleteChildren( rootId );
+
+    /* Add new Sites */
+    const hoxSiteList& sites = wxGetApp().m_sites;
+
+    for ( hoxSiteList::const_iterator it = sites.begin();
+                                      it != sites.end(); ++it )
+    {
+        siteId = m_sitesTree->AppendItem(rootId, (*it)->GetName());
+        SiteTreeItemData* itemData = new SiteTreeItemData( *it );
+        m_sitesTree->SetItemData(siteId, itemData);
+
+        const hoxTableList& tables = (*it)->GetTables();
+        for ( hoxTableList::const_iterator table_it = tables.begin();
+                                           table_it != tables.end(); 
+                                         ++table_it )
+        {
+            wxString tableStr;
+            tableStr.Printf("Table #%s", (*table_it)->GetId().c_str());
+            tableId = m_sitesTree->AppendItem(siteId, tableStr);
+
+            TableTreeItemData* itemData = new TableTreeItemData( *table_it );
+            m_sitesTree->SetItemData(tableId, itemData);
+        }
+    }
+
+    /* Make Sites visible. */
+    m_sitesTree->Expand(rootId);
+}
+
+void     
+MyFrame::_CloseChildrenOfSite(hoxSite* site)
+{
+    wxCHECK_RET(site != NULL, "Site must not be NULL.");
+
+    /* Go through my children to see which ones belong to the site.
+     */
+    MyChildList closeList;
+    for ( MyChildList::const_iterator it = m_children.begin();
+                                      it != m_children.end(); ++it )
+    {
+        if ( (*it)->GetSite() == site )
+        {
+            closeList.push_back( *it );
+        }
+    }
+
+    /* Trigger a close event.
+     */
+    for ( MyChildList::const_iterator it = closeList.begin();
+                                      it != closeList.end(); ++it )
+    {
+        (*it)->Close( true /* force */ );
+        // NOTE: The call above already delete the child.
+    }
+}
+
+hoxSite* 
+MyFrame::_GetSelectedSite(hoxTable*& selectedTable) const
+{
+    selectedTable = NULL;
+
+    hoxSite* selectedSite = NULL;
+
+    wxTreeItemId selectedItem = m_sitesTree->GetSelection();
+    wxTreeItemId rootId = m_sitesTree->GetRootItem();
+    int depth = -1;
+
+    // Get item's depth.
+    wxTreeItemId itemId = selectedItem;
+    while ( itemId.IsOk() )
+    {
+        ++depth;
+        if ( itemId == rootId )
+            break;
+        itemId = m_sitesTree->GetItemParent( itemId );
+    }
+
+    //wxLogDebug("***** Depth = [%d]", depth);    
+
+    if ( depth == 2 ) // table selected?
+    {
+        wxTreeItemData* itemData = m_sitesTree->GetItemData(selectedItem);
+        TableTreeItemData* tableData = (TableTreeItemData*) itemData;
+        selectedTable = tableData->GetTable();
+        selectedSite = selectedTable->GetSite();
+    }
+    else if ( depth == 1 ) // site selected?
+    {
+        wxTreeItemData* itemData = m_sitesTree->GetItemData(selectedItem);
+        SiteTreeItemData* siteData = (SiteTreeItemData*) itemData;
+        selectedSite = siteData->GetSite();
+        selectedTable = NULL;
+    }
+    else
+    {
+        selectedSite = NULL;
+        selectedTable = NULL;
+    }
+
+    /// --------
+    //if ( selectedItem.IsOk() )
+    //{
+    //    // Check first first-level children.
+    //    if ( m_sitesTree->GetItemParent( selectedItem ) == rootId )
+    //    {
+    //        wxTreeItemData* itemData = m_sitesTree->GetItemData(selectedItem);
+    //        SiteTreeItemData* siteData = (SiteTreeItemData*) itemData;
+    //        selectedSite = siteData->GetSite();
+    //    }
+    //}
+
+    return selectedSite;
 }
 
 /************************* END OF FILE ***************************************/

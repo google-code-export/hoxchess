@@ -42,12 +42,16 @@ IMPLEMENT_DYNAMIC_CLASS(hoxPlayer, wxEvtHandler)
 //----------------------------------------------------------------------------
 
 DEFINE_EVENT_TYPE( hoxEVT_PLAYER_NEW_MOVE )
+DEFINE_EVENT_TYPE( hoxEVT_PLAYER_NEW_JOIN )
+DEFINE_EVENT_TYPE( hoxEVT_PLAYER_NEW_LEAVE )
 DEFINE_EVENT_TYPE( hoxEVT_PLAYER_TABLE_CLOSE )
 DEFINE_EVENT_TYPE( hoxEVT_PLAYER_WALL_MSG )
 DEFINE_EVENT_TYPE( hoxEVT_PLAYER_APP_SHUTDOWN )
 
 BEGIN_EVENT_TABLE(hoxPlayer, wxEvtHandler)
     EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_NEW_MOVE, hoxPlayer::OnNewMove_FromTable)
+    EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_NEW_JOIN, hoxPlayer::OnNewJoin_FromTable)
+    EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_NEW_LEAVE, hoxPlayer::OnNewLeave_FromTable)
     EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_TABLE_CLOSE, hoxPlayer::OnClose_FromTable)
     EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_WALL_MSG, hoxPlayer::OnWallMsg_FromTable)
     EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_APP_SHUTDOWN, hoxPlayer::OnShutdown_FromApp)
@@ -164,6 +168,20 @@ hoxPlayer::JoinTable( hoxTable* table )
 }
 
 hoxResult 
+hoxPlayer::JoinTableAs( hoxTable*     table,
+                        hoxPieceColor requestColor )
+{
+    wxCHECK_MSG( table != NULL, hoxRESULT_ERR, "The table is NULL." );
+
+    hoxResult result = table->AssignPlayerAs( this, requestColor );
+    if ( result == hoxRESULT_OK )
+    {
+        this->AddRole( hoxRole( table->GetId(), requestColor ) );
+    }
+    return result;
+}
+
+hoxResult 
 hoxPlayer::LeaveTable( hoxTable* table )
 {
     const char* FNAME = "hoxPlayer::LeaveTable";
@@ -193,7 +211,7 @@ hoxPlayer::LeaveAllTables()
         m_roles.pop_front();
 
         // Find the table hosted on this system using the specified table-Id.
-        hoxTable* table = hoxTableMgr::GetInstance()->FindTable( tableId );
+        hoxTable* table = m_site->FindTable( tableId );
         if ( table == NULL )
         {
             wxLogError("%s: Failed to find table with ID = [%s].", FNAME, tableId.c_str());
@@ -254,9 +272,59 @@ hoxPlayer::OnNewMove_FromTable( wxCommandEvent&  event )
     wxLogDebug("%s: ENTER. commandStr = [%s].", FNAME, commandStr.c_str());
 
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_MOVE, this );
+    // FIXME: Cheating...
+    if ( commandStr.Contains("pid=") )
+    {
+        request->content = wxString::Format("op=MOVE&%s\r\n", 
+                                commandStr.c_str());
+    }
+    else
+    {
+        request->content = wxString::Format("op=MOVE&pid=%s&%s\r\n", 
+                                this->GetName().c_str(), commandStr.c_str());
+    }
+    this->AddRequestToConnection( request );
+}
+
+void 
+hoxPlayer::OnNewJoin_FromTable( wxCommandEvent&  event )
+{
+    const char* FNAME = "hoxPlayer::OnNewJoin_FromTable";
+
+    if ( m_connection == NULL )
+    {
+        wxLogDebug("%s: No connection. Fine. Ignore the JOIN event.", FNAME);
+        return;
+    }
+
+    const wxString commandStr = event.GetString();
+
+    wxLogDebug("%s: ENTER. commandStr = [%s].", FNAME, commandStr.c_str());
+
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_NEW_JOIN, this );
     request->content =
-            wxString::Format("op=MOVE&pid=%s&%s\r\n", 
-                        this->GetName().c_str(), commandStr.c_str());
+            wxString::Format("op=NEW_JOIN&%s\r\n", commandStr.c_str());
+    this->AddRequestToConnection( request );
+}
+
+void 
+hoxPlayer::OnNewLeave_FromTable( wxCommandEvent&  event )
+{
+    const char* FNAME = "hoxPlayer::OnNewLeave_FromTable";
+
+    if ( m_connection == NULL )
+    {
+        wxLogDebug("%s: No connection. Fine. Ignore the LEAVE event.", FNAME);
+        return;
+    }
+
+    const wxString commandStr = event.GetString();
+
+    wxLogDebug("%s: ENTER. commandStr = [%s].", FNAME, commandStr.c_str());
+
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LEAVE, this );
+    request->content =
+            wxString::Format("op=LEAVE&%s\r\n", commandStr.c_str());
     this->AddRequestToConnection( request );
 }
 
@@ -360,6 +428,10 @@ hoxPlayer::HandleIncomingData( const wxString& commandStr )
             result = this->HandleIncomingData_Join( command, response ); 
             break;
 
+        case hoxREQUEST_TYPE_NEW_JOIN:
+            result = this->HandleIncomingData_NewJoin( command, response ); 
+            break;
+
         case hoxREQUEST_TYPE_NEW:
             result = this->HandleIncomingData_New( command, response ); 
             break;
@@ -397,7 +469,7 @@ hoxPlayer::HandleIncomingData_Move( hoxCommand& command,
     wxLogDebug("%s: ENTER.", FNAME);
 
     // Find the table hosted on this system using the specified table-Id.
-    hoxTable* table = hoxTableMgr::GetInstance()->FindTable( tableId );
+    hoxTable* table = m_site->FindTable( tableId );
 
     if ( table == NULL )
     {
@@ -456,7 +528,7 @@ hoxPlayer::HandleIncomingData_Leave( hoxCommand& command,
     requesterId = command.parameters["pid"];
 
     // Find the table hosted on this system using the specified table-Id.
-    hoxTable* table = hoxTableMgr::GetInstance()->FindTable( tableId );
+    hoxTable* table = m_site->FindTable( tableId );
 
     if ( table == NULL )
     {
@@ -486,7 +558,13 @@ hoxPlayer::HandleIncomingData_Leave( hoxCommand& command,
 
 
     // Inform our table...
-    table->OnLeave_FromPlayer( player );
+    table->OnLeave_FromNetwork( player, this );
+    if ( this == player )
+    {
+        wxLogDebug("%s: Remove myself as Player [%s] from table [%s].", 
+            FNAME, this->GetName().c_str(), table->GetId().c_str());
+        this->RemoveRoleAtTable( table->GetId() );
+    }
 
 	// Finally, return 'success'.
 	response << "0\r\n"       // error-code = SUCCESS
@@ -504,7 +582,9 @@ hoxPlayer::HandleIncomingData_WallMsg( hoxCommand& command,
                                        wxString&   response )
 {
     const char* FNAME = "hoxPlayer::HandleIncomingData_WallMsg";
-    hoxResult       result = hoxRESULT_ERR;   // Assume: failure.
+    hoxResult   result = hoxRESULT_ERR;
+    hoxTable*   table = NULL;
+    hoxPlayer*  player = NULL;
 
     wxString message = command.parameters["msg"];
     wxString tableId = command.parameters["tid"];
@@ -512,9 +592,9 @@ hoxPlayer::HandleIncomingData_WallMsg( hoxCommand& command,
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    // Find the table hosted on this system using the specified table-Id.
-    hoxTable* table = hoxTableMgr::GetInstance()->FindTable( tableId );
+    /* Lookup table */
 
+    table = m_site->FindTable( tableId );
     if ( table == NULL )
     {
         wxLogError("%s: Table [%s] not found.", FNAME, tableId.c_str());
@@ -524,7 +604,15 @@ hoxPlayer::HandleIncomingData_WallMsg( hoxCommand& command,
     }
 
     /* Look up player */
-    // TODO: Ignore looking up the player for now!!!
+
+    player = m_site->FindPlayer( playerId );
+    if ( player == NULL )
+    {
+        wxLogError("%s: Player [%s] not found.", FNAME, playerId.c_str());
+        response << "2\r\n"  // code
+                 << "Player " << playerId << " not found.\r\n";
+        goto exit_label;
+    }
 
     // Inform our table...
     table->OnMessage_FromNetwork( playerId, message );
@@ -549,7 +637,7 @@ hoxPlayer::HandleIncomingData_List( hoxCommand& command,
     wxLogDebug("%s: ENTER.", FNAME);
 
     // Get the list of hosted tables.
-    const hoxTableList& tables = hoxTableMgr::GetInstance()->GetTables();
+    const hoxTableList& tables = m_site->GetTables();
     wxUint32 tableCount = (wxUint32) tables.size();
 
     // Write it back
@@ -582,7 +670,7 @@ hoxPlayer::HandleIncomingData_Join( hoxCommand& command,
                                     wxString&   response )
 {
     const char* FNAME = "hoxPlayer::HandleIncomingData_Join";
-    hoxResult result = hoxRESULT_ERR;   // Assume: failure.
+    hoxResult result = hoxRESULT_ERR;
     hoxTable* table = NULL;
     wxString  existingPlayerId;
 
@@ -591,7 +679,7 @@ hoxPlayer::HandleIncomingData_Join( hoxCommand& command,
     const wxString tableId = command.parameters["tid"];
 
     // Find the table hosted on this system using the specified table-Id.
-    table = hoxTableMgr::GetInstance()->FindTable( tableId );
+    table = m_site->FindTable( tableId );
     if ( table == NULL )
     {
         wxLogError("%s: Table [%s] not found.", FNAME, tableId.c_str());
@@ -624,8 +712,7 @@ hoxPlayer::HandleIncomingData_Join( hoxCommand& command,
 
     result = this->JoinTable( table );
     wxASSERT( result == hoxRESULT_OK  );
-    wxASSERT_MSG( this->HasRole( hoxRole(table->GetId(), 
-                                         hoxPIECE_COLOR_BLACK) ),
+    wxASSERT_MSG( this->HasRole( hoxRole(table->GetId(), hoxPIECE_COLOR_BLACK) ),
                   "Player must play BLACK");
 
 	// Finally, return 'success'.
@@ -641,12 +728,79 @@ exit_label:
 }
 
 hoxResult 
+hoxPlayer::HandleIncomingData_NewJoin( hoxCommand& command,
+                                       wxString&   response )
+{
+    const char* FNAME = "hoxPlayer::HandleIncomingData_NewJoin";
+    hoxResult result = hoxRESULT_ERR;
+    hoxTable*  table = NULL;
+    hoxPlayer* player = NULL;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    const wxString tableId = command.parameters["tid"];
+    const wxString playerId = command.parameters["pid"];
+    const hoxPieceColor requestColor = 
+        (hoxPieceColor) ::atoi(command.parameters["color"]); // FIXME: Force it!!!
+
+    /* Lookup Table. */
+
+    table = m_site->FindTable( tableId );
+    if ( table == NULL )
+    {
+        wxLogError("%s: Table [%s] not found.", FNAME, tableId.c_str());
+        response << "1\r\n"  // code
+                 << "Table " << tableId << " not found.\r\n";
+        goto exit_label;
+    }
+
+    /* Lookup Player. */
+
+    player = m_site->FindPlayer( playerId );
+    if ( player == NULL )
+    {
+        /* The site that THIS Player belongs must be remote. */
+        wxASSERT_MSG( !m_site->IsLocal(), "The site must be remote.");
+        hoxRemoteSite* remoteSite = wxDynamicCast( m_site, hoxRemoteSite );
+        wxCHECK_MSG( remoteSite, hoxRESULT_ERR, "The site is NULL.");
+        player = remoteSite->CreateDummyPlayer( playerId );
+    }
+
+    /* Request to join the Table as the specified color. 
+     * NOTE: The player in this case can be different from THIS player.
+     */
+
+    result = player->JoinTableAs( table, requestColor );
+    if ( result != hoxRESULT_OK )
+    {
+        wxLogError("%s: Table denied the JOIN request as color [%d] from player [%s].", 
+            FNAME, requestColor, playerId.c_str());
+        response << "3\r\n"  // code
+                 << "Table " << tableId << " denied the JOIN request.\r\n";
+        goto exit_label;
+    }
+    wxASSERT_MSG( player->HasRole( hoxRole(table->GetId(), requestColor) ),
+                  "Player must play the specified color");
+
+	// Finally, return 'success'.
+	response << "0\r\n"       // error-code = SUCCESS
+	         << "INFO: (NEW-JOIN) New-Join Table [" << tableId << "] OK\r\n";
+
+    result = hoxRESULT_OK;
+
+exit_label:
+    wxLogDebug("%s: END.", FNAME);
+    return result;
+}
+
+hoxResult 
 hoxPlayer::HandleIncomingData_New( hoxCommand& command,
                                    wxString&   response )
 {
     const char* FNAME = "hoxPlayer::HandleIncomingData_New";
     hoxResult result = hoxRESULT_ERR;   // Assume: failure.
     hoxTable* table = NULL;
+    wxString newTableId;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -662,20 +816,19 @@ hoxPlayer::HandleIncomingData_New( hoxCommand& command,
     }
 
     /* Create a new Table. */
-    table = hoxTableMgr::GetInstance()->CreateTable();
-    wxCHECK_MSG(table, hoxRESULT_ERR, "New Table is NULL.");
-
-    /* Join the Table as RED. */
-    result = this->JoinTable( table );
-    wxASSERT( result == hoxRESULT_OK  );
-    wxASSERT_MSG( this->HasRole( hoxRole(table->GetId(), 
-                                         hoxPIECE_COLOR_RED) ),
-                  "Player must play RED");
+    result = m_site->CreateNewTableAsPlayer( newTableId, this );
+    if ( result != hoxRESULT_OK )
+    {
+        wxLogError("%s: Failed to create a new table.", FNAME);
+        response << "2\r\n"  // code
+                 << "Failed to create a new table." << "\r\n";
+        goto exit_label;
+    }
 
 	/* Finally, return 'success'. */
 	response << "0\r\n"       // error-code = SUCCESS
-	         << "INFO: (NEW) The new table-Id = [" << table->GetId() << "]\r\n"
-	         << table->GetId() << "\r\n";
+	         << "INFO: (NEW) The new table-Id = [" << newTableId << "]\r\n"
+	         << newTableId << "\r\n";
     result = hoxRESULT_OK;
 
 exit_label:

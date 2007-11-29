@@ -32,6 +32,7 @@
 #include <wx/socket.h>
 #include "hoxEnums.h"
 #include "hoxTypes.h"
+#include "hoxSite.h"
 
 /* Forward declarations */
 class hoxServer;
@@ -47,7 +48,8 @@ class hoxSocketServer : public wxThreadHelper
 {
 public:
     hoxSocketServer( int        nPort,
-                     hoxServer* server );
+                     hoxServer* server,
+                     hoxSite*   site );
     ~hoxSocketServer();
 
     /**
@@ -65,6 +67,8 @@ public:
      */
     void RequestShutdown() { m_shutdownRequested = true; }
 
+    hoxSite* GetSite() const { return m_site; }
+
 private:
     void _DestroySocketServer();
 
@@ -72,6 +76,7 @@ private:
     int               m_nPort;       // The main server's port.
     wxSocketServer*   m_pSServer;    // The main server's socket
 
+    hoxSite*          m_site;
     hoxServer*        m_server;
 
     bool              m_shutdownRequested;

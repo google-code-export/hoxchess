@@ -269,11 +269,10 @@ hoxHttpPlayer::_HandleEventFromNetwork( const hoxNetworkEvent& networkEvent )
             wxString otherPlayerId = networkEvent.content;
             
             hoxPlayer* newPlayer = 
-                hoxPlayerMgr::GetInstance()->CreatePlayer( otherPlayerId,
-                                                           hoxPLAYER_TYPE_DUMMY );
+                hoxPlayerMgr::GetInstance()->CreateDummyPlayer( otherPlayerId );
             
-            hoxResult result = table->RequestJoinFromPlayer( newPlayer,
-                                                             requestColor );
+            hoxResult result = table->AssignPlayerAs( newPlayer,
+                                                      requestColor );
             if ( result != hoxRESULT_OK )
             {
                 wxLogError("%s: Failed to ask table to join as color [%d].", FNAME, requestColor);

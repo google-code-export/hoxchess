@@ -35,6 +35,7 @@ SOURCES := \
 	hoxTablesDialog.cpp \
 	hoxThreadConnection.cpp \
 	hoxUtility.cpp \
+	hoxSite.cpp \
 	MyApp.cpp \
 	MyChild.cpp \
 	MyFrame.cpp

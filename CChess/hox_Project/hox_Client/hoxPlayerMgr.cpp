@@ -44,6 +44,7 @@ hoxPlayerMgr::GetInstance()
 }
 
 hoxPlayerMgr::hoxPlayerMgr()
+        : m_site( NULL )
 {
 }
 
@@ -62,6 +63,7 @@ hoxPlayerMgr::CreateHostPlayer( const wxString& name,
 {
     hoxHostPlayer* player 
         = new hoxHostPlayer( name, hoxPLAYER_TYPE_HOST, score );
+    player->SetSite( m_site );
     m_players.push_back( player );
 
     return player;
@@ -73,6 +75,7 @@ hoxPlayerMgr::CreateHTTPPlayer( const wxString& name,
 {
     hoxHttpPlayer* player 
         = new hoxHttpPlayer( name, hoxPLAYER_TYPE_LOCAL, score );
+    player->SetSite( m_site );
     m_players.push_back( player );
 
     return player;
@@ -84,6 +87,7 @@ hoxPlayerMgr::CreateMyPlayer( const wxString& name,
 {
     hoxMyPlayer* player 
         = new hoxMyPlayer( name, hoxPLAYER_TYPE_LOCAL, score );
+    player->SetSite( m_site );
     m_players.push_back( player );
 
     return player;
@@ -95,20 +99,19 @@ hoxPlayerMgr::CreateRemotePlayer( const wxString& name,
 {
     hoxRemotePlayer* player 
         = new hoxRemotePlayer( name, hoxPLAYER_TYPE_REMOTE, score );
+    player->SetSite( m_site );
     m_players.push_back( player );
 
     return player;
 }
 
 hoxPlayer*
-hoxPlayerMgr::CreatePlayer( const wxString& name,
-                            hoxPlayerType   type,
-                            int             score /* = 1500 */)
+hoxPlayerMgr::CreateDummyPlayer( const wxString& name,
+                                 int             score /* = 1500 */)
 {
-    const char* FNAME = "hoxPlayerMgr::CreatePlayer";
-    wxLogDebug("%s: Creating player [%s]...", FNAME, name.c_str());
-
-    hoxPlayer* player = new hoxPlayer( name, type, score );
+    hoxPlayer* player 
+        = new hoxPlayer( name, hoxPLAYER_TYPE_DUMMY, score );
+    player->SetSite( m_site );
     m_players.push_back( player );
 
     return player;
@@ -148,10 +151,10 @@ hoxPlayerMgr::RemovePlayer( hoxPlayer* player )
 }
 
 hoxPlayer* 
-hoxPlayerMgr::FindPlayer( const wxString& playerId )
+hoxPlayerMgr::FindPlayer( const wxString& playerId ) const
 {
-    for ( hoxPlayerList::iterator it = m_players.begin();
-                                  it != m_players.end(); ++it )
+    for ( hoxPlayerList::const_iterator it = m_players.begin();
+                                        it != m_players.end(); ++it )
     {
         if ( playerId == (*it)->GetName() )
         {
