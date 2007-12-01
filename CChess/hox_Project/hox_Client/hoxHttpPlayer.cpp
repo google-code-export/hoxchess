@@ -40,8 +40,10 @@ DEFINE_EVENT_TYPE(hoxEVT_HTTP_RESPONSE)
 
 BEGIN_EVENT_TABLE(hoxHttpPlayer, hoxLocalPlayer)
     EVT_TIMER(wxID_ANY, hoxHttpPlayer::OnTimer)
-    EVT_COMMAND(hoxREQUEST_TYPE_POLL, hoxEVT_HTTP_RESPONSE, hoxHttpPlayer::OnHTTPResponse_Poll)
-    EVT_COMMAND(wxID_ANY, hoxEVT_HTTP_RESPONSE, hoxHttpPlayer::OnHTTPResponse)
+    //EVT_COMMAND(hoxREQUEST_TYPE_POLL, hoxEVT_HTTP_RESPONSE, hoxHttpPlayer::OnHTTPResponse_Poll)
+    //EVT_COMMAND(wxID_ANY, hoxEVT_HTTP_RESPONSE, hoxHttpPlayer::OnHTTPResponse)
+    EVT_COMMAND(hoxREQUEST_TYPE_POLL, hoxEVT_CONNECTION_RESPONSE, hoxHttpPlayer::OnHTTPResponse_Poll)
+    EVT_COMMAND(wxID_ANY, hoxEVT_CONNECTION_RESPONSE, hoxHttpPlayer::OnHTTPResponse)
 END_EVENT_TABLE()
 
 //-----------------------------------------------------------------------------
@@ -213,9 +215,19 @@ hoxHttpPlayer::OnHTTPResponse(wxCommandEvent& event)
     if ( response->sender && response->sender != this )
     {
         MyFrame* frame = wxGetApp().GetFrame();
-        wxCHECK_RET( response->sender == frame, "The sender should be the Frame.");
-        frame->Handle_PlayerResponse( response.release(), this );
-        return;
+        if ( frame == response->sender )
+        {
+            wxCHECK_RET( response->sender == frame, "The sender should be the Frame.");
+            frame->Handle_PlayerResponse( response.release(), this );
+            return;
+        }
+        else
+        {
+            wxEvtHandler* sender = response->sender;
+            response.release();
+            wxPostEvent( sender, event );
+            return;
+        }
     }
 
     if ( response->type == hoxREQUEST_TYPE_OUT_DATA )
@@ -244,14 +256,18 @@ void
 hoxHttpPlayer::_HandleEventFromNetwork( const hoxNetworkEvent& networkEvent )
 {
     const char* FNAME = "hoxHttpPlayer::_HandleEventFromNetwork";
+    hoxSite*  site = NULL;
+    hoxTable* table = NULL;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    // Find the table hosted on this system using the specified table-Id.
-    hoxTable* table = hoxTableMgr::GetInstance()->FindTable( networkEvent.tid );
+    site = this->GetSite();
+
+    /* Lookup table */
+    table = site->FindTable( networkEvent.tid );
     if ( table == NULL )
     {
-        wxLogError("%s: Failed to find table with ID = [%s].", FNAME, networkEvent.tid.c_str());
+        wxLogError("%s: Failed to find table = [%s].", FNAME, networkEvent.tid.c_str());
         return;
     }
 
@@ -267,16 +283,14 @@ hoxHttpPlayer::_HandleEventFromNetwork( const hoxNetworkEvent& networkEvent )
                       : hoxPIECE_COLOR_BLACK );
 
             wxString otherPlayerId = networkEvent.content;
-            
-            hoxPlayer* newPlayer = 
-                hoxPlayerMgr::GetInstance()->CreateDummyPlayer( otherPlayerId );
+            hoxPlayer* newPlayer = site->CreateDummyPlayer( otherPlayerId );
             
             hoxResult result = table->AssignPlayerAs( newPlayer,
                                                       requestColor );
             if ( result != hoxRESULT_OK )
             {
                 wxLogError("%s: Failed to ask table to join as color [%d].", FNAME, requestColor);
-                hoxPlayerMgr::GetInstance()->DeletePlayer( newPlayer );
+                site->DeletePlayer( newPlayer );
                 break;
             }
             break;
@@ -286,15 +300,14 @@ hoxHttpPlayer::_HandleEventFromNetwork( const hoxNetworkEvent& networkEvent )
         case hoxNETWORK_EVENT_TYPE_LEAVE_PLAYER_BLACK:    // LEAVE PLAYER (BLACK)
         {
             wxString otherPlayerId = networkEvent.content;
-            hoxPlayer* foundPlayer = 
-                hoxPlayerMgr::GetInstance()->FindPlayer( otherPlayerId );
-            if ( foundPlayer == NULL ) 
+            hoxPlayer* leavePlayer = site->FindPlayer( otherPlayerId );
+            if ( leavePlayer == NULL ) 
             {
                 wxLogError("%s: Player [%s] not found in the system.", FNAME, otherPlayerId.c_str());
                 break;
             }
-            wxLogDebug("%s: A player [%s] just left the table.", FNAME, otherPlayerId.c_str());
-            table->OnLeave_FromPlayer( foundPlayer );
+            wxLogDebug("%s: Player [%s] just left the table.", FNAME, leavePlayer->GetName().c_str());
+            table->OnLeave_FromNetwork( leavePlayer, this );
             break;
         }
         case hoxNETWORK_EVENT_TYPE_NEW_MOVE:    // NEW MOVE

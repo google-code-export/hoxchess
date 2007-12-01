@@ -26,6 +26,7 @@
 
 #include "hoxHttpConnection.h"
 #include "hoxHttpPlayer.h"
+#include "hoxMyPlayer.h"
 #include "hoxUtility.h"
 
 #include <wx/sstream.h>
@@ -96,7 +97,7 @@ hoxHttpConnection::HandleRequest( hoxRequest* request )
 
     /* NOTE: If there was error, just return it to the caller. */
 
-    wxCommandEvent event( hoxEVT_HTTP_RESPONSE, request->type );
+    wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE /*hoxEVT_HTTP_RESPONSE*/, request->type );
     response->code = result;
     event.SetEventObject( response.release() );  // Caller will de-allocate.
     wxPostEvent( m_player, event );

@@ -194,12 +194,17 @@ MyFrame::OnClose(wxCloseEvent& event)
         // NOTE: The call above already delete the child.
     }
 
-    /* Inform all players about the SHUTDOWN. */
-    hoxPlayerMgr::GetInstance()->OnSystemShutdown();
+    /* Let close the local server first. */
+    wxGetApp().CloseLocalSite();
 
-    if ( hoxPlayerMgr::GetInstance()->GetNumberOfPlayers() > 0 )
+    /* Inform all sites about the SHUTDOWN. */
+    //hoxPlayerMgr::GetInstance()->OnSystemShutdown();
+    wxGetApp().OnSystemShutdown();
+
+    //if ( hoxPlayerMgr::GetInstance()->GetNumberOfPlayers() > 0 )
+    if ( ! wxGetApp().m_sites.empty() )
     {
-        // *** Postpone the shutdown until all players leave the system.
+        // *** Postpone the shutdown until all sites are closed.
         return;
     }
 
@@ -558,7 +563,7 @@ void MyFrame::OnDisconnectServer( wxCommandEvent& event )
     _CloseChildrenOfSite( selectedSite );
 
     /* Close the site itself. */
-    if ( ! selectedSite->IsLocal() )
+    if ( selectedSite->GetType() != hoxSITE_TYPE_LOCAL )
     {
         hoxRemoteSite* remoteSite = (hoxRemoteSite*) selectedSite;
         wxGetApp().DisconnectRemoteServer( remoteSite );
@@ -576,7 +581,7 @@ void MyFrame::OnListTables( wxCommandEvent& event )
     if ( selectedSite == NULL )
         return;
 
-    if ( ! selectedSite->IsLocal() )
+    if ( selectedSite->GetType() != hoxSITE_TYPE_LOCAL )
     {
         hoxRemoteSite* remoteSite = (hoxRemoteSite*) selectedSite;
 
@@ -794,7 +799,7 @@ MyFrame::OnContextMenu( wxContextMenuEvent& event )
     }
     else if ( selectedSite != NULL )
     {
-        if ( selectedSite->IsLocal() )
+        if ( selectedSite->GetType() == hoxSITE_TYPE_LOCAL )
         {
             hoxLocalSite* localSite = (hoxLocalSite*) selectedSite;
             if ( localSite->IsOpened() )

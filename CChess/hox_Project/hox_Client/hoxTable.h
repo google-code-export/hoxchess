@@ -66,15 +66,15 @@ public:
     /**
      * Assign a player to this Table.
      *
-     * @note If the JOIN is successful, other Players in the Table will
-     *       be informed about this event.
-     *
      * @param player The Player that is requesting to join the Table.
      * @param assignedColor The assigned Color of the Player if 
      *                      the JOIN is allowed.
+     * @param informOthers By default, other players will be informed about
+     *                     this new event.
      */
     hoxResult AssignPlayer( hoxPlayer*     player,
-                            hoxPieceColor& assignedColor );
+                            hoxPieceColor& assignedColor,
+                            bool           informOthers = true );
 
     /**
      * Attempt to assign a player to this Table as a specified role.

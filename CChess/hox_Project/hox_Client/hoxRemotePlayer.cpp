@@ -106,7 +106,8 @@ hoxRemotePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
         result = this->HandleIncomingData( response->content );
         if ( result != hoxRESULT_OK )
         {
-            wxLogError("%s: Error occurred while handling incoming data.", FNAME);
+            wxLogDebug("%s: *** WARN *** Error occurred while handling incoming data [%s].", 
+                FNAME, response->content.c_str());
             goto exit_label;
         }
     }

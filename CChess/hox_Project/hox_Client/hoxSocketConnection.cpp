@@ -155,7 +155,7 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
 exit_label:
     if ( result != hoxRESULT_OK )
     {
-        wxLogError("%s: Error occurred while handling request [%s].", 
+        wxLogDebug("%s: *** WARN *** Error occurred while handling request [%s].", 
             FNAME, hoxUtility::RequestTypeToString(request->type).c_str());
         response->content = "!Error_Result!";
     }

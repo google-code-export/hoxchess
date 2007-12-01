@@ -41,10 +41,11 @@
 // not wxApp)
 IMPLEMENT_APP(MyApp)
 
-DEFINE_EVENT_TYPE(hoxEVT_APP_PLAYER_SHUTDOWN_DONE)
+DEFINE_EVENT_TYPE(hoxEVT_APP_SITE_SHUTDOWN_READY)
 
 BEGIN_EVENT_TABLE(MyApp, wxApp)
-    EVT_COMMAND(wxID_ANY, hoxEVT_APP_PLAYER_SHUTDOWN_DONE, MyApp::OnShutdownDone_FromPlayer)
+    //EVT_COMMAND(wxID_ANY, hoxEVT_APP_PLAYER_SHUTDOWN_DONE, MyApp::OnShutdownDone_FromPlayer)
+    EVT_COMMAND(wxID_ANY, hoxEVT_APP_SITE_SHUTDOWN_READY, MyApp::OnShutdownReady_FromSite)
 END_EVENT_TABLE()
 
 /**
@@ -206,7 +207,7 @@ MyApp::ConnectRemoteServer( const hoxServerAddress& address )
     for ( hoxSiteList::iterator it = m_sites.begin();
                                 it != m_sites.end(); ++it )
     {
-        if (   (*it)->IsLocal() == false
+        if (   (*it)->GetType() != hoxSITE_TYPE_LOCAL
             && (*it)->GetAddress() == address )
         {
             remoteSite = (hoxRemoteSite*) (*it);
@@ -217,7 +218,15 @@ MyApp::ConnectRemoteServer( const hoxServerAddress& address )
     /* Create a new Remote site if necessary. */
     if ( remoteSite == NULL )
     {
-        remoteSite = new hoxRemoteSite( address );
+        // FIXME: Cheating here to create HTTP server based on port 80.
+        if ( address.port != 80 )
+        {
+            remoteSite = new hoxRemoteSite( address );
+        }
+        else
+        {
+            remoteSite = new hoxHTTPSite( address );
+        }
         m_sites.push_back( remoteSite );
     }
 
@@ -229,7 +238,6 @@ MyApp::ConnectRemoteServer( const hoxServerAddress& address )
     }
 
     m_frame->UpdateSiteTreeUI();
-
 }
 
 void 
@@ -240,6 +248,87 @@ MyApp::DisconnectRemoteServer(hoxRemoteSite* remoteSite)
     delete remoteSite;
 
     m_frame->UpdateSiteTreeUI();
+}
+
+void 
+MyApp::CloseLocalSite()
+{
+    if ( m_localSite != NULL )
+    {
+        m_localSite->Close();
+    }
+}
+
+void 
+MyApp::OnSystemShutdown()
+{
+    const char* FNAME = "MyApp::OnSystemShutdown";
+
+    wxLogDebug("%s: ENTER.", FNAME);
+    for ( hoxSiteList::iterator it = m_sites.begin();
+                                it != m_sites.end(); ++it )
+    {
+        (*it)->OnSystemShutdown();
+    }
+}
+
+void 
+MyApp::OnShutdownReady_FromSite( wxCommandEvent&  event )
+{
+    const char* FNAME = "MyApp::OnShutdownReady_FromSite";
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    hoxSite* site = wx_reinterpret_cast(hoxSite*, event.GetEventObject());
+    wxCHECK_RET(site, "Site cannot be NULL.");
+
+    if ( site == m_localSite )
+    {
+        m_localSite = NULL;
+    }
+
+    m_sites.remove( site );
+    site->Close();
+    delete site;
+
+    /* Initiate the App's shutdown if there is no more sites. */
+    if ( m_sites.empty() )
+    {
+        wxLogDebug("%s: Trigger a Frame's Close event.", FNAME);
+        m_frame->Close();  // NOTE: Is there a better way?
+    }
+
+#if 0
+    /* Close remote sites first */
+
+    while ( ! m_sites.empty() )
+    {
+        hoxSite* site = m_sites.front();
+        m_sites.pop_front();
+
+        /* Save the local site for last. */
+        //if ( site->IsLocal() )
+        //{
+        //    wxASSERT_MSG(localSite == NULL, "Only support 1 local site now");
+        //    localSite = site;
+        //}
+        //else
+        {
+            site->Close();
+            delete site;
+        }
+    }
+
+    /* Close the local site */
+    //if ( localSite != NULL )
+    //{
+    //    wxASSERT_MSG(localSite == m_localSite, "Only support 1 local site now");
+    //    m_localSite = NULL;
+
+    //    localSite->Close();
+    //    delete localSite;
+    //}
+#endif
 }
 
 /************************* END OF FILE ***************************************/

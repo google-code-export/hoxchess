@@ -156,14 +156,31 @@ hoxPlayer::HasRole( hoxRole role )
 hoxResult 
 hoxPlayer::JoinTable( hoxTable* table )
 {
+    const char* FNAME = "hoxPlayer::JoinTable";
+
     wxCHECK_MSG( table != NULL, hoxRESULT_ERR, "The table is NULL." );
     // TODO: Check for duplicate!!! (join same table twice)
     hoxPieceColor assignedColor;
-    hoxResult result = table->AssignPlayer( this, assignedColor );
+    bool          informOthers = true;
+
+    /* NOTE: Except for dummy players, this player will inform other
+     *       about his presence.
+     */
+    if ( this->GetType() == hoxPLAYER_TYPE_DUMMY )
+    {
+        wxLogDebug("%s: Dummy player [%s] will not inform others about his JOIN.", 
+            FNAME, this->GetName().c_str());
+        informOthers = false;
+    }
+
+    hoxResult result = table->AssignPlayer( this, 
+                                            assignedColor, 
+                                            informOthers );
     if ( result == hoxRESULT_OK )
     {
         this->AddRole( hoxRole( table->GetId(), assignedColor ) );
     }
+
     return result;
 }
 
@@ -532,7 +549,7 @@ hoxPlayer::HandleIncomingData_Leave( hoxCommand& command,
 
     if ( table == NULL )
     {
-        wxLogError("%s: Table [%s] not found.", FNAME, tableId.c_str());
+        wxLogDebug("%s: *** WARN *** Table [%s] not found.", FNAME, tableId.c_str());
         response << "1\r\n"  // code
                  << "Table " << tableId << " not found.\r\n";
         goto exit_label;
@@ -760,10 +777,8 @@ hoxPlayer::HandleIncomingData_NewJoin( hoxCommand& command,
     if ( player == NULL )
     {
         /* The site that THIS Player belongs must be remote. */
-        wxASSERT_MSG( !m_site->IsLocal(), "The site must be remote.");
-        hoxRemoteSite* remoteSite = wxDynamicCast( m_site, hoxRemoteSite );
-        wxCHECK_MSG( remoteSite, hoxRESULT_ERR, "The site is NULL.");
-        player = remoteSite->CreateDummyPlayer( playerId );
+        wxASSERT_MSG( m_site->GetType() != hoxSITE_TYPE_LOCAL, "The site must be remote.");
+        player = m_site->CreateDummyPlayer( playerId );
     }
 
     /* Request to join the Table as the specified color. 
@@ -921,10 +936,10 @@ hoxPlayer::_ShutdownMyself()
         m_connection = NULL;
     }
 
-    /* Notify the App */
-    wxCommandEvent event( hoxEVT_APP_PLAYER_SHUTDOWN_DONE );
+    /* Notify the Site */
+    wxCommandEvent event( hoxEVT_SITE_PLAYER_SHUTDOWN_DONE );
     event.SetEventObject( this );
-    wxPostEvent( &(wxGetApp()), event );
+    wxPostEvent( m_site->GetResponseHandler(), event );
 }
 
 /************************* END OF FILE ***************************************/

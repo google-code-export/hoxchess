@@ -30,24 +30,87 @@
 #include "hoxServer.h"
 #include "hoxUtility.h"
 #include "hoxSocketConnection.h"
+#include "hoxHttpConnection.h"
 #include "MyFrame.h"
 #include "MyChild.h"
 #include "hoxNetworkAPI.h"
+#include "hoxTablesDialog.h"
+
+DEFINE_EVENT_TYPE(hoxEVT_SITE_PLAYER_SHUTDOWN_DONE)
+
+BEGIN_EVENT_TABLE(hoxResponseHandler, wxEvtHandler)
+    EVT_COMMAND(wxID_ANY, hoxEVT_SITE_PLAYER_SHUTDOWN_DONE, hoxResponseHandler::OnShutdownDone_FromPlayer)
+    EVT_COMMAND(wxID_ANY, hoxEVT_CONNECTION_RESPONSE, hoxResponseHandler::OnConnectionResponse)
+END_EVENT_TABLE()
+
+
+void 
+hoxResponseHandler::OnShutdownDone_FromPlayer( wxCommandEvent& event )
+{
+    const char* FNAME = "hoxResponseHandler::OnShutdownDone_FromPlayer";
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    hoxPlayer* player = wx_reinterpret_cast(hoxPlayer*, event.GetEventObject());
+    wxCHECK_RET(player, "Player cannot be NULL.");
+
+    m_site->Handle_ShutdownDoneFromPlayer( player );
+}
+
+void 
+hoxResponseHandler::OnConnectionResponse( wxCommandEvent& event )
+{
+    const char* FNAME = "hoxResponseHandler::OnConnectionResponse";
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
+    std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
+
+    if ( m_site->GetType() != hoxSITE_TYPE_LOCAL ) // remote site?
+    {
+        hoxRemoteSite* remoteSite = (hoxRemoteSite*) m_site;
+        remoteSite->Handle_ConnectionResponse( response.release() );
+    }
+}
+
 
 // --------------------------------------------------------------------------
 // hoxSite
 // --------------------------------------------------------------------------
 
 
-hoxSite::hoxSite( const hoxServerAddress& address )
-        : m_address( address)
+hoxSite::hoxSite( hoxSiteType             type,
+                  const hoxServerAddress& address )
+        : m_type( type )
+        , m_address( address)
+        , m_responseHandler( NULL )
+        , m_dlgProgress( NULL )
 {
     m_playerMgr.SetSite( this );
     m_tableMgr.SetSite( this );
+
+    m_responseHandler = new hoxResponseHandler( this );
 }
 
 hoxSite::~hoxSite()
 {
+    delete m_responseHandler;
+}
+
+void 
+hoxSite::OnSystemShutdown() 
+{ 
+    const char* FNAME = "hoxSite::OnSystemShutdown";
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    /* Inform all players about the SHUTDOWN. */
+    m_playerMgr.OnSystemShutdown();
+
+    //if ( m_playerMgr.GetNumberOfPlayers() > 0 )
+    //{
+    //    return;
+    //}
 }
 
 hoxResult 
@@ -57,13 +120,33 @@ hoxSite::CloseTable(hoxTable* table)
     return hoxRESULT_OK;
 }
 
+void 
+hoxSite::Handle_ShutdownDoneFromPlayer( hoxPlayer* player )
+{
+    const char* FNAME = "hoxSite::Handle_ShutdownDoneFromPlayer";
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    wxLogDebug("%s: Removing this player [%s] from the system...", 
+        FNAME, player->GetName().c_str());
+
+    m_playerMgr.DeletePlayer( player );
+
+    /* Initiate the App if there is no more active players. */
+    if ( m_playerMgr.GetNumberOfPlayers() == 0 )
+    {
+        wxCommandEvent event( hoxEVT_APP_SITE_SHUTDOWN_READY );
+        event.SetEventObject( this );
+        wxPostEvent( &(wxGetApp()), event );
+    }
+}
+
 // --------------------------------------------------------------------------
 // hoxLocalSite
 // --------------------------------------------------------------------------
 
 
 hoxLocalSite::hoxLocalSite(const hoxServerAddress& address)
-        : hoxSite( address )
+        : hoxSite( hoxSITE_TYPE_LOCAL, address )
         , m_server( NULL )
         , m_socketServer( NULL )
         , m_isOpened( false )
@@ -213,22 +296,49 @@ hoxLocalSite::CreateNewTableAsPlayer( wxString&  newTableId,
 // hoxRemoteSite
 // --------------------------------------------------------------------------
 
-BEGIN_EVENT_TABLE(hoxResponseHandler, wxEvtHandler)
-    EVT_COMMAND(wxID_ANY, hoxEVT_CONNECTION_RESPONSE, hoxResponseHandler::OnConnectionResponse)
-END_EVENT_TABLE()
-
-//////////////////////////
-void 
-hoxResponseHandler::OnConnectionResponse( wxCommandEvent& event )
+hoxRemoteSite::hoxRemoteSite(const hoxServerAddress& address,
+                             hoxSiteType             type /*= hoxSITE_TYPE_REMOTE*/)
+        : hoxSite( type, address )
+        , m_player( NULL )
 {
-    const char* FNAME = "hoxResponseHandler::OnConnectionResponse";
-
+    const char* FNAME = "hoxRemoteSite::hoxRemoteSite";
     wxLogDebug("%s: ENTER.", FNAME);
 
-    hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
-    std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
+    m_player = _CreateLocalPlayer();
+}
 
-    m_remoteSite->Handle_ConnectionResponse( response.release() );
+hoxRemoteSite::~hoxRemoteSite()
+{
+    const char* FNAME = "hoxRemoteSite::~hoxRemoteSite";
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    this->Close();
+}
+
+hoxLocalPlayer* 
+hoxRemoteSite::_CreateLocalPlayer()
+{
+    hoxLocalPlayer* localPlayer = NULL;
+    hoxConnection* connection = NULL;
+
+    wxString playerName = hoxUtility::GenerateRandomString();
+
+    if ( m_type == hoxSITE_TYPE_HTTP )
+    {
+        localPlayer = m_playerMgr.CreateHTTPPlayer( playerName );
+        connection = new hoxHttpConnection( m_address.name, 
+                                            m_address.port );
+    }
+    else
+    {
+        localPlayer = m_playerMgr.CreateMyPlayer( playerName );
+        connection = new hoxSocketConnection( m_address.name, 
+                                              m_address.port );
+    }
+
+    localPlayer->SetConnection( connection );
+
+    return localPlayer;
 }
 
 void 
@@ -260,23 +370,32 @@ hoxRemoteSite::Handle_ConnectionResponse( hoxResponse* pResponse )
     switch ( response->type )
     {
         case hoxREQUEST_TYPE_CONNECT:
-            _OnResponse_Connect( response->content );
+            this->OnResponse_Connect( response->content );
             break;
 
         case hoxREQUEST_TYPE_NEW:
-            _OnResponse_New( response->content );
+            this->OnResponse_New( response->content );
+            break;
+
+        case hoxREQUEST_TYPE_LIST:
+            this->OnResponse_List( response->content );
+            break;
+
+        case hoxREQUEST_TYPE_JOIN:
+            this->OnResponse_Join( response->content );
             break;
 
         default:
-            wxLogError("%s: Unknown type [%d].", FNAME, response->type );
+            wxLogError("%s: Unknown type [%s].", 
+                FNAME, hoxUtility::RequestTypeToString(response->type).c_str() );
             break;
     }
 }
 
 void 
-hoxRemoteSite::_OnResponse_Connect( const wxString& responseStr )
+hoxRemoteSite::OnResponse_Connect( const wxString& responseStr )
 {
-    const char* FNAME = "hoxRemoteSite::_OnResponse_Connect";
+    const char* FNAME = "hoxRemoteSite::OnResponse_Connect";
     int        returnCode = -1;
     wxString   returnMsg;
     hoxResult  result;
@@ -295,9 +414,9 @@ hoxRemoteSite::_OnResponse_Connect( const wxString& responseStr )
 }
 
 void 
-hoxRemoteSite::_OnResponse_New( const wxString& responseStr )
+hoxRemoteSite::OnResponse_New( const wxString& responseStr )
 {
-    const char* FNAME = "hoxRemoteSite::_OnResponse_New";
+    const char* FNAME = "hoxRemoteSite::OnResponse_New";
     wxString newTableId;
     hoxResult result;
     
@@ -332,31 +451,90 @@ hoxRemoteSite::_OnResponse_New( const wxString& responseStr )
     frame->UpdateSiteTreeUI();
 }
 
-//////////////////////////
-hoxRemoteSite::hoxRemoteSite(const hoxServerAddress& address)
-        : hoxSite( address )
-        , m_player( NULL )
-        , m_responseHandler( NULL )
-        , m_dlgProgress( NULL )
+void 
+hoxRemoteSite::OnResponse_List( const wxString& responseStr )
 {
-    const char* FNAME = "hoxRemoteSite::hoxRemoteSite";
+    const char* FNAME = "hoxRemoteSite::OnResponse_List";
+    hoxNetworkTableInfoList tableList;
+    hoxResult               result;
 
-    /* Create a new MY player. */
-    wxString playerName = hoxUtility::GenerateRandomString();
-    m_player = m_playerMgr.CreateMyPlayer( playerName );
+    wxLogDebug("%s: ENTER.", FNAME);
 
-    hoxConnection* connection = new hoxSocketConnection( m_address.name, 
-                                                         m_address.port );
-    m_player->SetConnection( connection );
+    result = hoxNetworkAPI::ParseNetworkTables( responseStr,
+                                                tableList );
+    if ( result != hoxRESULT_OK )
+    {
+        wxLogError("%s: Failed to parse LIST's response [%s].", 
+            FNAME, responseStr.c_str());
+        return;
+    }
 
-    /////////
-    m_responseHandler = new hoxResponseHandler( this );
+    /* Show tables. */
+    MyFrame* frame = wxGetApp().GetFrame();
+    hoxTablesDialog tablesDlg( frame, wxID_ANY, "Tables", tableList);
+    tablesDlg.ShowModal();
+    hoxTablesDialog::CommandId selectedCommand = tablesDlg.GetSelectedCommand();
+    wxString selectedId = tablesDlg.GetSelectedId();
+
+    /* Find out which command the use wants to execute... */
+
+    switch( selectedCommand )
+    {
+        case hoxTablesDialog::COMMAND_ID_JOIN:
+        {
+            wxLogDebug("%s: Ask the server to allow me to JOIN table = [%s]", FNAME, selectedId.c_str());
+            hoxNetworkTableInfo tableInfo;
+            result = m_player->JoinNetworkTable( selectedId, m_responseHandler );
+            if ( result != hoxRESULT_OK )
+            {
+                wxLogError("%s: Failed to JOIN a network table [%s].", FNAME, selectedId.c_str());
+            }
+            break;
+        }
+
+        case hoxTablesDialog::COMMAND_ID_NEW:
+        {
+            wxLogDebug("%s: Ask the server to open a new table.", FNAME);
+            wxString newTableId;
+            result = m_player->OpenNewNetworkTable( m_responseHandler );
+            if ( result != hoxRESULT_OK )
+            {
+                wxLogError("%s: Failed to open a NEW network table.", FNAME);
+            }
+            break;
+        }
+
+        default:
+            wxLogDebug("%s: No command is selected. Fine.", FNAME);
+            break;
+    }
+
+    hoxUtility::FreeNetworkTableInfoList( tableList );
 }
 
-hoxRemoteSite::~hoxRemoteSite()
+void 
+hoxRemoteSite::OnResponse_Join( const wxString& responseStr )
 {
-    this->Close();
-    delete m_responseHandler;
+    const char* FNAME = "hoxRemoteSite::OnResponse_Join";
+    hoxNetworkTableInfo tableInfo;
+    hoxResult result;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    result = hoxNetworkAPI::ParseJoinNetworkTable( responseStr,
+                                                   tableInfo );
+    if ( result != hoxRESULT_OK )
+    {
+        wxLogError("%s: Failed to parse JOIN's response [%s].", 
+            FNAME, responseStr.c_str());
+        return;
+    }
+    else
+    {
+        wxLogDebug("Successfully joined the network table [%s].", 
+            tableInfo.id.c_str());
+        this->JoinExistingTable( tableInfo );
+    }
 }
 
 const wxString 
@@ -412,6 +590,10 @@ hoxRemoteSite::Connect()
 hoxResult 
 hoxRemoteSite::Close()
 {
+    const char* FNAME = "hoxRemoteSite::Close";
+
+    wxLogDebug("%s: ENTER. Do nothing. END.", FNAME);
+
     return hoxRESULT_OK;
 }
 
@@ -420,7 +602,6 @@ hoxRemoteSite::QueryForNetworkTables()
 {
     const char* FNAME = "hoxRemoteSite::QueryForNetworkTables";
     hoxResult result;
-    MyFrame* frame = wxGetApp().GetFrame();
 
     if ( ! this->IsConnected() )
     {
@@ -428,7 +609,8 @@ hoxRemoteSite::QueryForNetworkTables()
         return hoxRESULT_ERR;
     }
 
-    result = m_player->QueryForNetworkTables( frame );
+    //MyFrame* frame = wxGetApp().GetFrame();
+    result = m_player->QueryForNetworkTables( m_responseHandler /*frame*/ );
     if ( result != hoxRESULT_OK )
     {
         wxLogError("%s: Failed to query for tables.", FNAME);
@@ -465,8 +647,9 @@ hoxResult
 hoxRemoteSite::JoinExistingTable( const hoxNetworkTableInfo& tableInfo )
 {
     const char* FNAME = "hoxRemoteSite::JoinExistingTable";
-
     hoxResult result;
+
+    wxLogDebug("%s: ENTER.", FNAME);
 
     /*******************************************************
      * Check to see which side (RED or BLACK) we will play
@@ -565,6 +748,25 @@ hoxRemoteSite::JoinExistingTable( const hoxNetworkTableInfo& tableInfo )
     }
 
     return hoxRESULT_OK;
+}
+
+// --------------------------------------------------------------------------
+// hoxHTTPSite
+// --------------------------------------------------------------------------
+
+hoxHTTPSite::hoxHTTPSite( const hoxServerAddress& address )
+        : hoxRemoteSite( address, hoxSITE_TYPE_HTTP )
+{
+    const char* FNAME = "hoxHTTPSite::hoxHTTPSite";
+    wxLogDebug("%s: ENTER.", FNAME);
+}
+
+hoxHTTPSite::~hoxHTTPSite()
+{
+    const char* FNAME = "hoxHTTPSite::~hoxHTTPSite";
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    this->Close();
 }
 
 /************************* END OF FILE ***************************************/
