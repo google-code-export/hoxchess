@@ -96,7 +96,8 @@ hoxTable::~hoxTable()
 
 hoxResult 
 hoxTable::AssignPlayer( hoxPlayer*     player,
-                        hoxPieceColor& assignedColor )
+                        hoxPieceColor& assignedColor,
+                        bool           informOthers /* = true */)
 {
     hoxResult result = hoxRESULT_OK;
 
@@ -120,7 +121,10 @@ hoxTable::AssignPlayer( hoxPlayer*     player,
     _AddPlayer( player, assignedColor );
 
     /* Inform other players about the new Player */
-    _PostAll_JoinEvent( player, assignedColor );
+    if ( informOthers )
+    {
+        _PostAll_JoinEvent( player, assignedColor );
+    }
 
     return hoxRESULT_OK;
 }
@@ -603,6 +607,8 @@ hoxTable::_PostAll_JoinEvent( hoxPlayer*    newPlayer,
                               hoxPieceColor newColor ) const
 {
     const char* FNAME = "hoxTable::_PostAll_JoinEvent";
+
+    wxLogDebug("%s: ENTER.", FNAME);
 
     for (hoxPlayerAndRoleList::const_iterator it = m_players.begin(); 
                                               it != m_players.end(); ++it)

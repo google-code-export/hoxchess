@@ -131,7 +131,7 @@ hoxThreadConnection::AddRequest( hoxRequest* request )
 
     if ( m_shutdownRequested )
     {
-        wxLogWarning("%s: Deny request [%s]. The thread is shutdowning.", 
+        wxLogDebug("%s: *** WARN*** Deny request [%s]. The thread is shutdowning.", 
             FNAME, hoxUtility::RequestTypeToString(request->type).c_str());
         delete request;
         return;

@@ -161,7 +161,7 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
                                                  returnMsg );
     if ( result != hoxRESULT_OK || returnCode != 0 )
     {
-        wxLogError("%s: Failed to parse the response. [%d] [%s]", 
+        wxLogDebug("%s: *** WARN *** Failed to parse the response. [%d] [%s]", 
             FNAME,  returnCode, returnMsg.c_str());
         return;
     }

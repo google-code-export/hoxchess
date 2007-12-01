@@ -108,6 +108,18 @@ enum hoxGameStatus
 };
 
 /**
+ * Site's type.
+ */
+enum hoxSiteType
+{
+    hoxSITE_TYPE_UNKNOWN = -1,
+
+    hoxSITE_TYPE_LOCAL,
+    hoxSITE_TYPE_REMOTE,
+    hoxSITE_TYPE_HTTP
+};
+
+/**
  * Player's type.
  */
 enum hoxPlayerType

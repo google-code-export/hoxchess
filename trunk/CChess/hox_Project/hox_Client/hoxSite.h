@@ -36,9 +36,27 @@
 #include "hoxMyPlayer.h"
 #include "hoxLocalPlayer.h"
 
+DECLARE_EVENT_TYPE(hoxEVT_SITE_PLAYER_SHUTDOWN_DONE, wxID_ANY)
+
 /* Forward declarations */
 class hoxSocketServer;
 class hoxServer;
+class hoxSite;
+
+class hoxResponseHandler : public wxEvtHandler
+{
+public:
+    hoxResponseHandler(hoxSite* site) : m_site(site) {}
+    virtual ~hoxResponseHandler() {}
+
+    void OnShutdownDone_FromPlayer( wxCommandEvent& event ); 
+    void OnConnectionResponse( wxCommandEvent& event ); 
+
+    hoxSite*   m_site;
+
+private:
+    DECLARE_EVENT_TABLE()
+};
 
 /**
  * The Site.
@@ -46,14 +64,16 @@ class hoxServer;
 class hoxSite : public wxObject
 {
 public:
-    hoxSite(const hoxServerAddress& address);
+    hoxSite( hoxSiteType             type, 
+             const hoxServerAddress& address );
     virtual ~hoxSite();
 
-    const hoxServerAddress GetAddress() const { return m_address; }
-    
-    virtual bool IsLocal() const { return false; }
+    hoxSiteType GetType() const { return m_type; }
+    hoxServerAddress GetAddress() const { return m_address; }
+
     virtual const wxString GetName() const { return "_Unknown_"; }
-    virtual hoxResult Close() { return hoxRESULT_ERR; }
+    virtual hoxResult Close() = 0;
+    virtual void OnSystemShutdown();
 
     virtual hoxResult CreateNewTable(wxString& newTableId) { return hoxRESULT_ERR; }
     virtual hoxResult CreateNewTableAsPlayer(wxString& newTableId, hoxPlayer* player) 
@@ -67,10 +87,26 @@ public:
     hoxPlayer* FindPlayer( const wxString& playerId ) const
         { return m_playerMgr.FindPlayer( playerId ); }
 
+    hoxPlayer* CreateDummyPlayer( const wxString& playerId )
+        { return m_playerMgr.CreateDummyPlayer( playerId ); }
+
+    void DeletePlayer( hoxPlayer* player )
+        { m_playerMgr.DeletePlayer( player ); }
+
+    hoxResponseHandler*  GetResponseHandler() const 
+        { return m_responseHandler; }
+
+    void Handle_ShutdownDoneFromPlayer( hoxPlayer* player );
+
 protected:
+    const hoxSiteType  m_type;
+
     hoxServerAddress   m_address;
     hoxPlayerMgr       m_playerMgr;
     hoxTableMgr        m_tableMgr;
+
+    hoxResponseHandler*  m_responseHandler;
+    wxProgressDialog*    m_dlgProgress;
 
     friend class hoxSocketServer;
     friend class hoxServer;
@@ -87,7 +123,6 @@ public:
     hoxLocalSite(const hoxServerAddress& address);
     virtual ~hoxLocalSite();
 
-    virtual bool IsLocal() const { return true; }
     virtual const wxString GetName() const;
 
     virtual hoxResult OpenServer();
@@ -110,32 +145,14 @@ private:
              */
 };
 
-///////////////////////////////////////////////////////////
-class hoxRemoteSite;
-
-class hoxResponseHandler : public wxEvtHandler
-{
-public:
-    hoxResponseHandler(hoxRemoteSite* site) : m_remoteSite(site) {}
-    virtual ~hoxResponseHandler() {}
-
-    void OnConnectionResponse( wxCommandEvent& event ); 
-
-    hoxRemoteSite* m_remoteSite;
-
-private:
-    DECLARE_EVENT_TABLE()
-};
-
-///////////////////////////////////////////////////////////
-
 /**
  * The REMOTE Site.
  */
 class hoxRemoteSite : public hoxSite
 {
 public:
-    hoxRemoteSite(const hoxServerAddress& address);
+    hoxRemoteSite(const hoxServerAddress& address,
+                  hoxSiteType             type = hoxSITE_TYPE_REMOTE );
     virtual ~hoxRemoteSite();
 
     virtual const wxString GetName() const;
@@ -143,28 +160,37 @@ public:
     virtual hoxResult Connect();
     virtual hoxResult Close();
 
-    bool IsConnected() const;
+    virtual bool IsConnected() const;
     virtual hoxResult QueryForNetworkTables();
     virtual hoxResult CreateNewTable(wxString& newTableId);
     virtual hoxResult JoinExistingTable(const hoxNetworkTableInfo& tableInfo);
 
-    //////////////
-    void Handle_ConnectionResponse( hoxResponse* pResponse );
+protected:
+    virtual void Handle_ConnectionResponse( hoxResponse* pResponse );
     
-    hoxPlayer* CreateDummyPlayer( const wxString& playerId )
-        { return m_playerMgr.CreateDummyPlayer( playerId ); }
-    /////////////
+    virtual void OnResponse_Connect( const wxString& responseStr );
+    virtual void OnResponse_New( const wxString& responseStr );
+    virtual void OnResponse_List( const wxString& responseStr );
+    virtual void OnResponse_Join( const wxString& responseStr );
 
 private:
-    void _OnResponse_Connect( const wxString& responseStr );
-    void _OnResponse_New( const wxString& responseStr );
+    hoxLocalPlayer* _CreateLocalPlayer();
 
-private:
+protected:
     hoxLocalPlayer*      m_player;
             /* The player that this Host uses to connect to the server. */
 
-    hoxResponseHandler*  m_responseHandler;
-    wxProgressDialog*    m_dlgProgress;
+    friend class hoxResponseHandler;
+};
+
+/**
+ * The HTTP (remote) Site.
+ */
+class hoxHTTPSite : public hoxRemoteSite
+{
+public:
+    hoxHTTPSite(const hoxServerAddress& address);
+    virtual ~hoxHTTPSite();
 };
 
 #endif /* __INCLUDED_HOX_SITE_H_ */
