@@ -26,11 +26,35 @@ class MyFrame : public wxFrame {
                       wxDefaultPosition, wxSize(200,150),
                       wxNO_BORDER | wxTE_MULTILINE);
          
+   // create the notebook off-window to avoid flicker
+   wxSize client_size = GetClientSize();
+   long m_notebook_style = wxAUI_NB_DEFAULT_STYLE | wxAUI_NB_TAB_EXTERNAL_MOVE | wxNO_BORDER;
+   wxAuiNotebook* notebookCtrl = new wxAuiNotebook(this, wxID_ANY,
+                                    wxPoint(client_size.x, client_size.y),
+                                    wxSize(430,200),
+                                    m_notebook_style);
+   notebookCtrl->AddPage( new wxTextCtrl( notebookCtrl, wxID_ANY, wxT("Some text #1"),
+                                          wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxNO_BORDER) , 
+                          wxT("wxTextCtrl 1"), false /*, page_bmp*/ );
+
+   notebookCtrl->AddPage( new wxTextCtrl( notebookCtrl, wxID_ANY, wxT("Some text #2"),
+                                          wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxNO_BORDER) , 
+                          wxT("wxTextCtrl 2"), false /*, page_bmp*/ );
+
      // add the panes to the manager
      m_mgr.AddPane(text1, wxLEFT, wxT("Pane Number One"));
      m_mgr.AddPane(text2, wxBOTTOM, wxT("Pane Number Two"));
      m_mgr.AddPane(text3, wxCENTER);
-                               
+    //m_mgr.AddPane(notebookCtrl, wxAuiPaneInfo().
+    //              Caption(wxT("Notebook")).
+    //              Float().
+    //              //FloatingPosition(GetStartPosition()).
+    //              //FloatingSize(300,200).
+    //              CloseButton(true).MaximizeButton(true));
+
+    m_mgr.AddPane(notebookCtrl, wxAuiPaneInfo().Name(wxT("notebook_content")).
+                  CenterPane().PaneBorder(false));
+
      // tell the manager to "commit" all the changes just made
      m_mgr.Update();
    }

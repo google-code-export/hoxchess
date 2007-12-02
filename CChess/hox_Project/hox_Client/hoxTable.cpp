@@ -74,18 +74,6 @@ hoxTable::~hoxTable()
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    if ( m_redPlayer != NULL )
-    {
-        if ( m_redPlayer->GetRoles().size() == 0 )
-            hoxPlayerMgr::GetInstance()->DeletePlayer( m_redPlayer );
-    }
-
-    if ( m_blackPlayer != NULL )
-    {
-        if ( m_blackPlayer->GetRoles().size() == 0 )
-            hoxPlayerMgr::GetInstance()->DeletePlayer( m_blackPlayer );
-    }
-
     /* NOTE: The order of deletion is important.
      * Board should be deleted AFTER all the players.
      */

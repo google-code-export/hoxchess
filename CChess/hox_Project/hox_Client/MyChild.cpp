@@ -127,7 +127,6 @@ MyChild::OnClose(wxCloseEvent& event)
         return;
     }
 
-    //hoxTableMgr::GetInstance()->RemoveTable( m_table );
     hoxSite* site = m_table->GetSite();
     site->CloseTable( m_table );
     m_table = NULL;

@@ -21,25 +21,22 @@
 // Name:            hoxTableMgr.h
 // Created:         10/06/2007
 //
-// Description:     The manager that manages ALL the tables in this server.
+// Description:     A Table-Manager that manages a group of tables.
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __INCLUDED_HOX_TABLE_MGR_H_
 #define __INCLUDED_HOX_TABLE_MGR_H_
 
-#include "wx/wx.h"
 #include "hoxTable.h"
 
 class hoxSite;
 
 /**
- * A singleton class that manages all tables in the system.
+ * A Table-Manager that manages a group of tables.
  */
 class hoxTableMgr
 {
 public:
-    static hoxTableMgr* GetInstance();        
-
     hoxTableMgr();
     ~hoxTableMgr();
 
@@ -55,8 +52,6 @@ public:
     hoxSite* GetSite() const        { return m_site; }
 
 private:
-    static hoxTableMgr* m_instance;  // The single instance
-
     hoxSite*        m_site;
     hoxTableList    m_tables; // The list of all tables in the system.
 };

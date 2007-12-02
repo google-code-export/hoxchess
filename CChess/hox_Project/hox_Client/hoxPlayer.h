@@ -30,7 +30,6 @@
 #include <wx/wx.h>
 #include "hoxEnums.h"
 #include "hoxTypes.h"
-//#include "hoxSite.h"
 
 /* Forward declarations */
 class hoxSite;

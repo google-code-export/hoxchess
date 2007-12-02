@@ -44,7 +44,6 @@ IMPLEMENT_APP(MyApp)
 DEFINE_EVENT_TYPE(hoxEVT_APP_SITE_SHUTDOWN_READY)
 
 BEGIN_EVENT_TABLE(MyApp, wxApp)
-    //EVT_COMMAND(wxID_ANY, hoxEVT_APP_PLAYER_SHUTDOWN_DONE, MyApp::OnShutdownDone_FromPlayer)
     EVT_COMMAND(wxID_ANY, hoxEVT_APP_SITE_SHUTDOWN_READY, MyApp::OnShutdownReady_FromSite)
 END_EVENT_TABLE()
 
@@ -60,7 +59,6 @@ MyApp::OnInit()
         return false;
 
     m_frame = NULL;    // To avoid "logging to early to Frame".
-    m_httpPlayer  = NULL;
 
     //m_log = new hoxLog();
     //m_oldLog = wxLog::SetActiveTarget( m_log );
@@ -122,47 +120,9 @@ MyApp::OnExit()
      */
 
 
-    delete hoxPlayerMgr::GetInstance();
-    delete hoxTableMgr::GetInstance();
-
     //delete wxLog::SetActiveTarget( m_oldLog );
 
     return 0;
-}
-
-void 
-MyApp::OnShutdownDone_FromPlayer( wxCommandEvent&  event )
-{
-    const char* FNAME = "MyApp::OnShutdownDone_FromPlayer";
-
-    hoxPlayer* player = wx_reinterpret_cast(hoxPlayer*, event.GetEventObject());
-    wxCHECK_RET(player, "Player cannot be NULL.");
-
-    wxLogDebug("%s: Removing this player [%s] from the system...", 
-        FNAME, player->GetName().c_str());
-
-    hoxPlayerMgr::GetInstance()->DeletePlayer( player );
-
-    /* Initiate the App's shutdown if there is no more active players. */
-    if ( hoxPlayerMgr::GetInstance()->GetNumberOfPlayers() == 0 )
-    {
-        m_frame->Close();  // NOTE: Is there a better way?
-    }
-}
-
-hoxHttpPlayer* 
-MyApp::GetHTTPPlayer() const
-{ 
-    const char* FNAME = "MyApp::GetHTTPPlayer";
-
-    if ( m_httpPlayer == NULL )
-    {
-        wxLogDebug("%s: Creating the HTTP player...", FNAME);
-        wxString playerName = hoxUtility::GenerateRandomString();
-        m_httpPlayer = hoxPlayerMgr::GetInstance()->CreateHTTPPlayer( playerName );
-    }
-
-    return m_httpPlayer; 
 }
 
 void 

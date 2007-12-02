@@ -36,12 +36,8 @@
 
 IMPLEMENT_DYNAMIC_CLASS(hoxHttpPlayer, hoxLocalPlayer)
 
-DEFINE_EVENT_TYPE(hoxEVT_HTTP_RESPONSE)
-
 BEGIN_EVENT_TABLE(hoxHttpPlayer, hoxLocalPlayer)
     EVT_TIMER(wxID_ANY, hoxHttpPlayer::OnTimer)
-    //EVT_COMMAND(hoxREQUEST_TYPE_POLL, hoxEVT_HTTP_RESPONSE, hoxHttpPlayer::OnHTTPResponse_Poll)
-    //EVT_COMMAND(wxID_ANY, hoxEVT_HTTP_RESPONSE, hoxHttpPlayer::OnHTTPResponse)
     EVT_COMMAND(hoxREQUEST_TYPE_POLL, hoxEVT_CONNECTION_RESPONSE, hoxHttpPlayer::OnHTTPResponse_Poll)
     EVT_COMMAND(wxID_ANY, hoxEVT_CONNECTION_RESPONSE, hoxHttpPlayer::OnHTTPResponse)
 END_EVENT_TABLE()
@@ -214,20 +210,10 @@ hoxHttpPlayer::OnHTTPResponse(wxCommandEvent& event)
 
     if ( response->sender && response->sender != this )
     {
-        MyFrame* frame = wxGetApp().GetFrame();
-        if ( frame == response->sender )
-        {
-            wxCHECK_RET( response->sender == frame, "The sender should be the Frame.");
-            frame->Handle_PlayerResponse( response.release(), this );
-            return;
-        }
-        else
-        {
-            wxEvtHandler* sender = response->sender;
-            response.release();
-            wxPostEvent( sender, event );
-            return;
-        }
+        wxEvtHandler* sender = response->sender;
+        response.release();
+        wxPostEvent( sender, event );
+        return;
     }
 
     if ( response->type == hoxREQUEST_TYPE_OUT_DATA )
