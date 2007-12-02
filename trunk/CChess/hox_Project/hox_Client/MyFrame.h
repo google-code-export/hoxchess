@@ -57,7 +57,6 @@ enum
     MDI_DISCONNECT_SERVER, // Disconnect from server
     MDI_LIST_TABLES,     // Get list of tables.
 
-    MDI_CONNECT_HTTP_SERVER,
     MDI_SHOW_SERVERS_WINDOW,
     MDI_SHOW_LOG_WINDOW,
 
@@ -116,8 +115,6 @@ public:
     void OnDisconnectServer(wxCommandEvent& event);
     void OnListTables(wxCommandEvent& event);
 
-    void OnConnectHTTPServer(wxCommandEvent& event);
-
     void OnShowServersWindow(wxCommandEvent& event);
     void OnUpdateServersWindow(wxUpdateUIEvent& event);
 
@@ -139,10 +136,6 @@ public:
     void OnContextMenu( wxContextMenuEvent& event );
 
     void DoJoinExistingTable(const hoxNetworkTableInfo& tableInfo, hoxLocalPlayer* localPlayer);
-    void DoJoinNewTable(const wxString& tableId, hoxLocalPlayer* localPlayer);
-
-    void Handle_PlayerResponse( hoxResponse*    pResponse,
-                                hoxLocalPlayer* localPlayer );
 
     /**
      * Create a GUI Frame that can be used as a frame for a new Table.
@@ -179,18 +172,10 @@ public:
     void UpdateSiteTreeUI();
 
 private:
-    void _OnResponse_Leave( const wxString& responseStr );
-    void _OnResponse_Connect( const wxString& responseStr, hoxLocalPlayer* localPlayer );
-    void _OnResponse_List( const wxString& responseStr, hoxLocalPlayer* localPlayer );
-    void _OnResponse_Join( const wxString& responseStr, hoxLocalPlayer* localPlayer );
-    void _OnResponse_New( const wxString& responseStr, hoxLocalPlayer* localPlayer );
-
     hoxResult _GetServerAddressFromUser( const wxString&         message,
                                          const wxString&         caption,
                                          const hoxServerAddress& defaultAddress,
                                          hoxServerAddress&       serverAddress );
-
-    hoxTable* _CreateNewTable( const wxString& tableId );
 
     /**
      * Close all children (child-frame) of a specified Site.

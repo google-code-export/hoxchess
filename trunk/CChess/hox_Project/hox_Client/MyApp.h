@@ -77,13 +77,9 @@ public:
     bool OnInit();
     int  OnExit();
 
-    void OnShutdownDone_FromPlayer( wxCommandEvent&  event );
-
     /*********************************
      * My own API
      *********************************/
-
-    hoxHttpPlayer* GetHTTPPlayer() const;
 
     void OpenServer(int nPort);
     void CloseServer();
@@ -105,9 +101,6 @@ private:
 
     hoxSiteList         m_sites;
     hoxLocalSite*       m_localSite;  // "cache" variable for easy access.
-
-    mutable hoxHttpPlayer*  m_httpPlayer;
-            /* The player that this Host uses to connect to the HTTP server. */
 
     friend class MyFrame;
 

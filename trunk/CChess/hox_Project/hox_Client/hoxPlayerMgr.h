@@ -21,13 +21,12 @@
 // Name:            hoxPlayerMgr.h
 // Created:         10/06/2007
 //
-// Description:     The manager that manages ALL the tables in this server.
+// Description:     A Player-Manager that manages a group of players.
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __INCLUDED_HOX_PLAYER_MGR_H_
 #define __INCLUDED_HOX_PLAYER_MGR_H_
 
-#include "wx/wx.h"
 #include "hoxPlayer.h"
 #include "hoxHostPlayer.h"
 #include "hoxRemotePlayer.h"
@@ -38,13 +37,11 @@
 class hoxSite;
 
 /**
- * A singleton class that manages all players in the system.
+ * A Player-Manager that manages a group of players.
  */
 class hoxPlayerMgr
 {
 public:
-    static hoxPlayerMgr* GetInstance();        
-
     hoxPlayerMgr();
     ~hoxPlayerMgr();
 
@@ -66,12 +63,6 @@ public:
     void DeletePlayer( hoxPlayer* player );
 
     /**
-     * Remove a given player from the list only, do not release it memory.
-     * FIXME: We need to look into this further.
-     */
-    int RemovePlayer( hoxPlayer* player );
-
-    /**
      * @return NULL if not found.
      */
     hoxPlayer* FindPlayer( const wxString& playerId ) const;
@@ -90,8 +81,6 @@ public:
     hoxSite* GetSite() const        { return m_site; }
 
 private:
-    static hoxPlayerMgr* m_instance;  // The single instance
-
     hoxSite*        m_site;
     hoxPlayerList   m_players;  // The list of all players in the system.
 };

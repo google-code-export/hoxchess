@@ -29,20 +29,6 @@
 #include <algorithm>   // std::find
 
 
-// Declare the single instance.
-hoxPlayerMgr* hoxPlayerMgr::m_instance = NULL;
-
-hoxPlayerMgr*
-hoxPlayerMgr::GetInstance()
-{
-    if ( m_instance == NULL )
-    {
-        m_instance = new hoxPlayerMgr();
-    }
-        
-    return m_instance;
-}
-
 hoxPlayerMgr::hoxPlayerMgr()
         : m_site( NULL )
 {
@@ -128,26 +114,6 @@ hoxPlayerMgr::DeletePlayer( hoxPlayer* player )
 
     delete player;
     m_players.remove( player );
-}
-
-int
-hoxPlayerMgr::RemovePlayer( hoxPlayer* player )
-{
-    const char* FNAME = "hoxPlayerMgr::RemovePlayer";
-    int playerFound = 0;
-
-    wxCHECK_MSG( player != NULL, 0, "The player should not be NULL." );
-    
-    wxLogDebug("%s: Deleting player [%s]...", FNAME, player->GetName().c_str());
-
-    hoxPlayerList::iterator found = std::find( m_players.begin(), m_players.end(), player );
-    if ( found != m_players.end() )
-        playerFound = 1;
-
-    //delete player;
-    m_players.remove( player );
-
-    return playerFound;
 }
 
 hoxPlayer* 

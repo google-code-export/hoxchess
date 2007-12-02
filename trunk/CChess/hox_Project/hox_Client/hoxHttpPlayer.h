@@ -32,11 +32,6 @@
 #include "hoxEnums.h"
 #include "hoxTypes.h"
 
-/*
- * HTTP event-type for responses.
- */
-DECLARE_EVENT_TYPE(hoxEVT_HTTP_RESPONSE, wxID_ANY)
-
 /**
  * The HTTP player.
  */

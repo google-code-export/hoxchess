@@ -31,20 +31,6 @@
 #include "MyFrame.h"
 #include "MyChild.h"
 
-// Declare the single instance.
-hoxTableMgr* hoxTableMgr::m_instance = NULL;
-
-hoxTableMgr*
-hoxTableMgr::GetInstance()
-{
-    if ( m_instance == NULL )
-    {
-        m_instance = new hoxTableMgr();
-    }
-        
-    return m_instance;
-}
-
 hoxTableMgr::hoxTableMgr()
 {
 }
