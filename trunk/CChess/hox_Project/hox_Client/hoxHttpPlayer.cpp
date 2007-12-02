@@ -39,6 +39,7 @@ IMPLEMENT_DYNAMIC_CLASS(hoxHttpPlayer, hoxLocalPlayer)
 BEGIN_EVENT_TABLE(hoxHttpPlayer, hoxLocalPlayer)
     EVT_TIMER(wxID_ANY, hoxHttpPlayer::OnTimer)
     EVT_COMMAND(hoxREQUEST_TYPE_POLL, hoxEVT_CONNECTION_RESPONSE, hoxHttpPlayer::OnHTTPResponse_Poll)
+    EVT_COMMAND(hoxREQUEST_TYPE_CONNECT, hoxEVT_CONNECTION_RESPONSE, hoxHttpPlayer::OnHTTPResponse_Connect)
     EVT_COMMAND(wxID_ANY, hoxEVT_CONNECTION_RESPONSE, hoxHttpPlayer::OnHTTPResponse)
 END_EVENT_TABLE()
 
@@ -72,60 +73,6 @@ hoxHttpPlayer::~hoxHttpPlayer()
         m_timer.Stop();
     }
 }
-
-hoxResult 
-hoxHttpPlayer::JoinTable( hoxTable* table )
-{
-    const char* FNAME = "hoxHttpPlayer::JoinTable";
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    hoxResult result = this->hoxLocalPlayer::JoinTable( table );
-    if ( result != hoxRESULT_OK )
-    {
-        return result;
-    }
-
-    /* NOTE: Only enable 1-short at a time to be sure that the timer-handler
-     *       is only entered ONE at at time.
-     */
-
-    wxLogDebug("%s: Start timer to poll for events from HTTP server.", FNAME);
-    m_timer.Start( hoxSOCKET_HTTP_POLL_INTERVAL * hoxTIME_ONE_SECOND_INTERVAL,
-                   wxTIMER_ONE_SHOT );
-    return hoxRESULT_OK;
-}
-
-hoxResult 
-hoxHttpPlayer::LeaveTable( hoxTable* table )
-{
-    const char* FNAME = "hoxHttpPlayer::LeaveTable";
-    hoxResult result;
-
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    result = this->LeaveNetworkTable( table->GetId(), this );
-    if ( result != hoxRESULT_OK )
-        return result;
-
-    return this->hoxLocalPlayer::LeaveTable( table );
-}
-
-hoxResult 
-hoxHttpPlayer::LeaveNetworkTable( const wxString& tableId,
-                                  wxEvtHandler*   sender )
-{
-    const char* FNAME = "hoxHttpPlayer::LeaveNetworkTable";
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    if ( m_timer.IsRunning() ) 
-    {
-        wxLogDebug("%s: Stop timer (to not polling) due to leaving table.", FNAME);
-        m_timer.Stop();
-    }
-
-    return this->hoxLocalPlayer::LeaveNetworkTable( tableId, sender );
-}
-
 
 void 
 hoxHttpPlayer::OnTimer( wxTimerEvent& event )
@@ -192,6 +139,38 @@ hoxHttpPlayer::OnHTTPResponse_Poll(wxCommandEvent& event)
     {
         delete (*it);
     }
+}
+
+void 
+hoxHttpPlayer::OnHTTPResponse_Connect(wxCommandEvent& event) 
+{
+    const char* FNAME = "hoxHttpPlayer::OnHTTPResponse_Connect";
+    hoxResult  result;
+    int        returnCode = -1;
+    wxString   returnMsg;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    hoxResponse* response = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
+
+    /* Start the polling timer if the CONNECT's response is OK. */
+
+    result = hoxNetworkAPI::ParseSimpleResponse( response->content,
+                                                 returnCode,
+                                                 returnMsg );
+    if ( result == hoxRESULT_OK && returnCode == 0 )
+    {
+        wxLogDebug("%s: Connection established. Start timer...", FNAME);
+        /* NOTE: Only enable 1-short at a time to be sure that the timer-handler
+         *       is only entered ONE at at time.
+         */
+        wxLogDebug("%s: Start timer to poll for events from HTTP server.", FNAME);
+        m_timer.Start( hoxSOCKET_HTTP_POLL_INTERVAL * hoxTIME_ONE_SECOND_INTERVAL,
+                       wxTIMER_ONE_SHOT );
+    }
+
+    wxLogDebug("%s: Forward event to the default handler...", FNAME);
+    event.Skip();
 }
 
 void 

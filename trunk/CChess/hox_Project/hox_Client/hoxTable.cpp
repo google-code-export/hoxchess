@@ -215,22 +215,22 @@ hoxTable::OnMove_FromBoard( const hoxMove& move )
         return;
     }
 
-    hoxPlayer* player = NULL;  // A player holder.
-    wxString   commandStr;
+    /* Get the Board Player (or the Board's owner) because he is the
+     * one that sent the Move.
+     */
+    hoxPlayer* boardPlayer = _GetBoardPlayer();
+    wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
+
+    /* Inform all players (including the Board's owner about the new Move */
+
+    wxString moveStr = move.ToString();
 
     for ( hoxPlayerAndRoleList::const_iterator it = m_players.begin(); 
                                                it != m_players.end(); ++it )
     {
-        player = it->player;
         wxLogDebug("%s: Inform player [%s] about the Board Move...", 
-            FNAME, player->GetName().c_str());
-        wxCommandEvent event(hoxEVT_PLAYER_NEW_MOVE);
-        commandStr.Printf("tid=%s&move=%d%d%d%d", 
-            m_id.c_str(), 
-            move.piece.position.x, move.piece.position.y,
-            move.newPosition.x, move.newPosition.y); 
-        event.SetString( commandStr );
-        wxPostEvent( player, event );
+            FNAME, it->player->GetName().c_str());
+        _PostPlayer_MoveEvent( it->player, boardPlayer, moveStr );
     }
 }
 

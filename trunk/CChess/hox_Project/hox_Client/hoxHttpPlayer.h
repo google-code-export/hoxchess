@@ -46,17 +46,12 @@ public:
     virtual ~hoxHttpPlayer();
 
 public:
-    virtual hoxResult JoinTable( hoxTable* table );
-    virtual hoxResult LeaveTable( hoxTable* table );
-
-    virtual hoxResult LeaveNetworkTable( const wxString& tableId,
-                                         wxEvtHandler*   sender );
-
     /*******************************
      * Incoming-data event handlers
      *******************************/
 
     void OnHTTPResponse_Poll(wxCommandEvent& event);
+    void OnHTTPResponse_Connect(wxCommandEvent& event);
     void OnHTTPResponse(wxCommandEvent& event);
 
     /*******************************

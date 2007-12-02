@@ -29,15 +29,7 @@
 #include "MyChild.h"
 #include "MyApp.h"    // To access wxGetApp()
 #include "hoxTable.h"
-#include "hoxPlayer.h"
-#include "hoxTableMgr.h"
-#include "hoxPlayerMgr.h"
-#include "hoxTablesDialog.h"
 #include "hoxUtility.h"
-#include "hoxNetworkAPI.h"
-#include "hoxSocketConnection.h"
-#include "hoxHttpConnection.h"
-#include "hoxLocalPlayer.h"
 
 #if !defined(__WXMSW__)
     #include "icons/hoxchess.xpm"
@@ -162,9 +154,6 @@ MyFrame::MyFrame( wxWindow*        parent,
     entries[2].Set(wxACCEL_CTRL, (int) 'A', MDI_ABOUT);
     wxAcceleratorTable accel(3, entries);
     SetAcceleratorTable(accel);
-
-    // Progress dialog.
-    m_dlgProgress = NULL;
 
     m_nChildren = 0;
 
@@ -411,25 +400,7 @@ MyFrame::OnUpdateLogWindow( wxUpdateUIEvent& event )
 }
 
 void 
-MyFrame::DoJoinExistingTable( const hoxNetworkTableInfo& tableInfo,
-                              hoxLocalPlayer*            localPlayer )
-{
-    const char* FNAME = "MyFrame::DoJoinExistingTable";
-
-    hoxSite* site = localPlayer->GetSite();
-    hoxRemoteSite* remoteSite = wxDynamicCast( site, hoxRemoteSite );
-    if ( remoteSite != NULL )
-    {
-        if ( hoxRESULT_OK != remoteSite->JoinExistingTable( tableInfo ) )
-        {
-            wxLogError("%s: Failed to join existing network table.", FNAME);
-            return;
-        }
-        this->UpdateSiteTreeUI();
-    }
-}
-
-void MyFrame::OnDisconnectServer( wxCommandEvent& event )
+MyFrame::OnDisconnectServer( wxCommandEvent& event )
 {
     const char* FNAME = "MyFrame::OnDisconnectServer";
     wxLogDebug("%s: ENTER.", FNAME);
@@ -453,7 +424,8 @@ void MyFrame::OnDisconnectServer( wxCommandEvent& event )
     }
 }
 
-void MyFrame::OnListTables( wxCommandEvent& event )
+void 
+MyFrame::OnListTables( wxCommandEvent& event )
 {
     const char* FNAME = "MyFrame::OnListTables";
     wxLogDebug("%s: ENTER.", FNAME);
@@ -478,7 +450,8 @@ void MyFrame::OnListTables( wxCommandEvent& event )
     }
 }
 
-void MyFrame::OnSize(wxSizeEvent& event)
+void 
+MyFrame::OnSize(wxSizeEvent& event)
 {
     wxLayoutAlgorithm layout;
     layout.LayoutMDIFrame(this);
@@ -486,7 +459,8 @@ void MyFrame::OnSize(wxSizeEvent& event)
     //wxLogStatus(mySize);
 }
 
-void MyFrame::OnServersSashDrag(wxSashEvent& event)
+void 
+MyFrame::OnServersSashDrag(wxSashEvent& event)
 {
     if (event.GetDragStatus() == wxSASH_STATUS_OUT_OF_RANGE)
         return;
@@ -500,7 +474,8 @@ void MyFrame::OnServersSashDrag(wxSashEvent& event)
     GetClientWindow()->Refresh();
 }
 
-void MyFrame::OnLogSashDrag(wxSashEvent& event)
+void 
+MyFrame::OnLogSashDrag(wxSashEvent& event)
 {
     if (event.GetDragStatus() == wxSASH_STATUS_OUT_OF_RANGE)
         return;
@@ -514,7 +489,8 @@ void MyFrame::OnLogSashDrag(wxSashEvent& event)
     GetClientWindow()->Refresh();
 }
 
-void MyFrame::InitToolBar(wxToolBar* toolBar)
+void 
+MyFrame::InitToolBar(wxToolBar* toolBar)
 {
     wxBitmap bitmaps[8];
 
@@ -805,15 +781,14 @@ MyFrame::_GetSelectedSite(hoxTable*& selectedTable) const
 
     // Get item's depth.
     wxTreeItemId itemId = selectedItem;
-    while ( itemId.IsOk() )
+    for ( itemId = selectedItem; 
+          itemId.IsOk(); 
+          itemId = m_sitesTree->GetItemParent( itemId ) )
     {
         ++depth;
         if ( itemId == rootId )
             break;
-        itemId = m_sitesTree->GetItemParent( itemId );
     }
-
-    //wxLogDebug("***** Depth = [%d]", depth);    
 
     if ( depth == 2 ) // table selected?
     {
@@ -834,18 +809,6 @@ MyFrame::_GetSelectedSite(hoxTable*& selectedTable) const
         selectedSite = NULL;
         selectedTable = NULL;
     }
-
-    /// --------
-    //if ( selectedItem.IsOk() )
-    //{
-    //    // Check first first-level children.
-    //    if ( m_sitesTree->GetItemParent( selectedItem ) == rootId )
-    //    {
-    //        wxTreeItemData* itemData = m_sitesTree->GetItemData(selectedItem);
-    //        SiteTreeItemData* siteData = (SiteTreeItemData*) itemData;
-    //        selectedSite = siteData->GetSite();
-    //    }
-    //}
 
     return selectedSite;
 }

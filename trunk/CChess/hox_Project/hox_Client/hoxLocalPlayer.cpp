@@ -81,10 +81,7 @@ hoxLocalPlayer::ConnectToNetworkServer( wxEvtHandler* sender )
 hoxResult 
 hoxLocalPlayer::DisconnectFromNetworkServer( wxEvtHandler* sender )
 {
-    const char* FNAME = "hoxLocalPlayer::DisconnectFromNetworkServer";
-
     this->ResetConnection();
-
     return hoxRESULT_OK;
 }
 

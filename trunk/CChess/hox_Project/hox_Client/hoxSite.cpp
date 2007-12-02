@@ -609,8 +609,7 @@ hoxRemoteSite::QueryForNetworkTables()
         return hoxRESULT_ERR;
     }
 
-    //MyFrame* frame = wxGetApp().GetFrame();
-    result = m_player->QueryForNetworkTables( m_responseHandler /*frame*/ );
+    result = m_player->QueryForNetworkTables( m_responseHandler );
     if ( result != hoxRESULT_OK )
     {
         wxLogError("%s: Failed to query for tables.", FNAME);

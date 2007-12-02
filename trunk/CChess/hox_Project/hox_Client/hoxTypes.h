@@ -146,6 +146,14 @@ class hoxMove
         { capturedPiece = captured; }
     bool IsAPieceCaptured() const 
         { return capturedPiece.type != hoxPIECE_TYPE_INVALID; }
+
+    const wxString ToString() const
+    {
+        wxString moveStr;
+        moveStr.Printf("%d%d%d%d", piece.position.x, piece.position.y,
+                                   newPosition.x, newPosition.y); 
+        return moveStr;
+    }
 };
 
 typedef std::list<hoxMove>    hoxMoveList;
