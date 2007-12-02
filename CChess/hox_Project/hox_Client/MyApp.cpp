@@ -69,7 +69,7 @@ MyApp::OnInit()
     // Get display size and position.
     int x, y, width, height;
     ::wxClientDisplayRect( &x, &y, &width, &height );
-    wxSize displaySize( width/2, height - 150 );
+    wxSize displaySize( width/2 + 200, height - 150 );
     wxPoint displayPosition( x, y );
 
     // Create the main application window
@@ -179,13 +179,13 @@ MyApp::ConnectRemoteServer( const hoxServerAddress& address )
     if ( remoteSite == NULL )
     {
         // FIXME: Cheating here to create HTTP server based on port 80.
-        if ( address.port != 80 )
+        if ( address.name == "www.playxiangqi.com" && address.port == 80 )
         {
-            remoteSite = new hoxRemoteSite( address );
+            remoteSite = new hoxHTTPSite( address );
         }
         else
         {
-            remoteSite = new hoxHTTPSite( address );
+            remoteSite = new hoxRemoteSite( address );
         }
         m_sites.push_back( remoteSite );
     }
@@ -257,38 +257,6 @@ MyApp::OnShutdownReady_FromSite( wxCommandEvent&  event )
         wxLogDebug("%s: Trigger a Frame's Close event.", FNAME);
         m_frame->Close();  // NOTE: Is there a better way?
     }
-
-#if 0
-    /* Close remote sites first */
-
-    while ( ! m_sites.empty() )
-    {
-        hoxSite* site = m_sites.front();
-        m_sites.pop_front();
-
-        /* Save the local site for last. */
-        //if ( site->IsLocal() )
-        //{
-        //    wxASSERT_MSG(localSite == NULL, "Only support 1 local site now");
-        //    localSite = site;
-        //}
-        //else
-        {
-            site->Close();
-            delete site;
-        }
-    }
-
-    /* Close the local site */
-    //if ( localSite != NULL )
-    //{
-    //    wxASSERT_MSG(localSite == m_localSite, "Only support 1 local site now");
-    //    m_localSite = NULL;
-
-    //    localSite->Close();
-    //    delete localSite;
-    //}
-#endif
 }
 
 /************************* END OF FILE ***************************************/

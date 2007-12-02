@@ -289,17 +289,8 @@ hoxPlayer::OnNewMove_FromTable( wxCommandEvent&  event )
     wxLogDebug("%s: ENTER. commandStr = [%s].", FNAME, commandStr.c_str());
 
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_MOVE, this );
-    // FIXME: Cheating...
-    if ( commandStr.Contains("pid=") )
-    {
-        request->content = wxString::Format("op=MOVE&%s\r\n", 
-                                commandStr.c_str());
-    }
-    else
-    {
-        request->content = wxString::Format("op=MOVE&pid=%s&%s\r\n", 
-                                this->GetName().c_str(), commandStr.c_str());
-    }
+    request->content = wxString::Format("op=MOVE&%s\r\n", commandStr.c_str());
+
     this->AddRequestToConnection( request );
 }
 
@@ -728,9 +719,13 @@ hoxPlayer::HandleIncomingData_Join( hoxCommand& command,
     /***********************/
 
     result = this->JoinTable( table );
-    wxASSERT( result == hoxRESULT_OK  );
-    wxASSERT_MSG( this->HasRole( hoxRole(table->GetId(), hoxPIECE_COLOR_BLACK) ),
-                  "Player must play BLACK");
+    if ( result != hoxRESULT_OK  )
+    {
+        wxLogError("%s: Failed to ask Table [%s] to join.", FNAME, tableId.c_str());
+        response << "3\r\n"  // code
+                 << "JOIN failed at table " << tableId << ".\r\n";
+        goto exit_label;
+    }
 
 	// Finally, return 'success'.
 	response << "0\r\n"       // error-code = SUCCESS

@@ -70,7 +70,7 @@ hoxRemoteConnection::AddRequest( hoxRequest* request )
     // Simply forward to the server to handle...
     // *************************
 
-    /* This type of connection doest not need to handle SHUTDOWN. */
+    /* This type of connection does not need to handle SHUTDOWN. */
     if ( request->type == hoxREQUEST_TYPE_SHUTDOWN )
     {
         wxLogDebug("%s: Ignore this shutdown request.", FNAME);

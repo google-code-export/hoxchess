@@ -30,7 +30,6 @@
 #include <wx/wx.h>
 #include <wx/laywin.h>   // wxSashLayoutWindow
 #include <wx/treectrl.h>
-#include <wx/progdlg.h>
 #include <list>
 #include "hoxEnums.h"
 #include "hoxTypes.h"
@@ -135,8 +134,6 @@ public:
     void OnFrameLogMsgEvent( wxCommandEvent &event );
     void OnContextMenu( wxContextMenuEvent& event );
 
-    void DoJoinExistingTable(const hoxNetworkTableInfo& tableInfo, hoxLocalPlayer* localPlayer);
-
     /**
      * Create a GUI Frame that can be used as a frame for a new Table.
      *
@@ -195,9 +192,6 @@ private:
     // Logging.  
     wxSashLayoutWindow* m_logWindow; // To contain the log-text below.
     wxTextCtrl*         m_logText;   // Log window for debugging purpose.
-
-    // the progress dialog which we show while worker thread is running
-    wxProgressDialog*   m_dlgProgress;
 
     int                 m_nChildren;   // The number of child-frames.
     MyChildList         m_children;
