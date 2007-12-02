@@ -39,11 +39,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\wxMSW-2.8.6\include&quot;;&quot;C:\wxMSW-2.8.6\lib\vc_lib\mswd&quot;"
+				AdditionalIncludeDirectories="&quot;C:\wxMSW-2.8.7\include&quot;;&quot;C:\wxMSW-2.8.7\lib\vc_lib\mswd&quot;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
+				SmallerTypeCheck="true"
 				RuntimeLibrary="3"
 				WarningLevel="3"
+				WarnAsError="true"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
 			/>
@@ -59,7 +61,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="wxmsw28d_adv.lib wxmsw28d_core.lib wxbase28d_net.lib wxbase28d.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib odbc32.lib ole32.lib User32.lib Gdi32.lib shell32.lib Comdlg32.lib oleaut32.lib Advapi32.lib"
-				AdditionalLibraryDirectories="&quot;C:\wxMSW-2.8.6\lib\vc_lib&quot;;"
+				AdditionalLibraryDirectories="&quot;C:\wxMSW-2.8.7\lib\vc_lib&quot;"
 				GenerateDebugInformation="true"
 				TargetMachine="1"
 			/>
