@@ -22,6 +22,8 @@ hox_Client/hoxHttpPlayer.h
 hox_Client/hoxIReferee.h
 hox_Client/hoxLocalPlayer.cpp
 hox_Client/hoxLocalPlayer.h
+hox_Client/hoxLog.cpp
+hox_Client/hoxLog.h
 hox_Client/hoxMyPlayer.cpp
 hox_Client/hoxMyPlayer.h
 hox_Client/hoxNaiveReferee.cpp
@@ -59,5 +61,3 @@ hox_Client/hoxThreadConnection.h
 hox_Client/hoxTypes.h
 hox_Client/hoxUtility.cpp
 hox_Client/hoxUtility.h
-hox_Client/hoxLog.cpp
-hox_Client/hoxLog.h
