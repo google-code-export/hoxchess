@@ -48,7 +48,7 @@ public:
 
     virtual void Start() = 0;
     virtual void Shutdown() = 0;
-    virtual void AddRequest( hoxRequest* request ) = 0;
+    virtual bool AddRequest( hoxRequest* request ) = 0;
     virtual bool IsConnected() = 0;
 
     virtual void       SetPlayer(hoxPlayer* player) {}

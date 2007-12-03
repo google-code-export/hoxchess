@@ -179,7 +179,8 @@ MyApp::ConnectRemoteServer( const hoxServerAddress& address )
     if ( remoteSite == NULL )
     {
         // FIXME: Cheating here to create HTTP server based on port 80.
-        if ( address.name == "www.playxiangqi.com" && address.port == 80 )
+        if (   address.name == HOX_HTTP_SERVER_HOSTNAME 
+			&& address.port == HOX_HTTP_SERVER_PORT )
         {
             remoteSite = new hoxHTTPSite( address );
         }

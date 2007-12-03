@@ -52,7 +52,7 @@ public:
     // **** Override the parent's API ****
     virtual void Start();
     virtual void Shutdown();
-    virtual void AddRequest( hoxRequest* request );
+    virtual bool AddRequest( hoxRequest* request );
     virtual bool IsConnected()   { return false; }
 
     /**

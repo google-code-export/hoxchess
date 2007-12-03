@@ -414,7 +414,6 @@ hoxTable::OnClose_FromSystem()
     while ( ! m_players.empty() )
     {
         player = m_players.front().player;
-        //m_players.pop_front();
 
         _PostPlayer_CloseEvent( player );
         _RemovePlayer( player );

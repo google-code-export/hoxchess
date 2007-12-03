@@ -58,13 +58,13 @@ hoxRemoteConnection::Shutdown()
 {
 }
 
-void 
+bool 
 hoxRemoteConnection::AddRequest( hoxRequest* request )
 {
     const char* FNAME = "hoxRemoteConnection::AddRequest";
     wxLogDebug("%s: ENTER.", FNAME);
 
-    wxCHECK_RET( m_server, "The Server component must have been set." );
+    wxCHECK_MSG( m_server, false, "The Server component must have been set." );
 
     // *************************
     // Simply forward to the server to handle...
@@ -75,16 +75,16 @@ hoxRemoteConnection::AddRequest( hoxRequest* request )
     {
         wxLogDebug("%s: Ignore this shutdown request.", FNAME);
         delete request;
-        return;
+        return false;
     }
 
     // Perform sanity check if possible.
     if ( request->socket != NULL )
     {
-        wxCHECK_RET(m_pCBSock == request->socket, "The sockets must match.");
+        wxCHECK_MSG(m_pCBSock == request->socket, false, "The sockets must match.");
     }
     request->socket = m_pCBSock;
-    m_server->AddRequest( request );
+    return m_server->AddRequest( request );
 }
 
 hoxResult 

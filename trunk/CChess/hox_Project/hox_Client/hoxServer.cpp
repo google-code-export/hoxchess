@@ -140,24 +140,25 @@ hoxServer::Entry()
     return NULL;
 }
 
-void 
+bool 
 hoxServer::AddRequest( hoxRequest* request )
 {
     const char* FNAME = "hoxServer::AddRequest";
-    wxLogDebug("%s: ENTER. Trying to obtain the lock...", FNAME);
+    //wxLogDebug("%s: ENTER. Trying to obtain the lock...", FNAME);
     wxMutexLocker lock( m_mutexRequests );
 
     if ( m_shutdownRequested )
     {
-        wxLogWarning("%s: Deny request [%s]. The thread is shutdowning.", 
+        wxLogDebug("%s: *** WARN *** Deny request [%s]. The thread is shutdowning.", 
             FNAME, hoxUtility::RequestTypeToString(request->type).c_str());
         delete request;
-        return;
+        return false;
     }
 
     m_requests.push_back( request );
     m_semRequests.Post();
-    wxLogDebug("%s: END.", FNAME);
+    //wxLogDebug("%s: END.", FNAME);
+	return true;
 }
 
 void 

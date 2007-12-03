@@ -98,6 +98,12 @@ hoxSite::~hoxSite()
 }
 
 void 
+hoxSite::DeletePlayer( hoxPlayer* player )
+{ 
+	m_playerMgr.DeletePlayer( player ); 
+}
+
+void 
 hoxSite::OnSystemShutdown() 
 { 
     const char* FNAME = "hoxSite::OnSystemShutdown";
@@ -129,7 +135,7 @@ hoxSite::Handle_ShutdownDoneFromPlayer( hoxPlayer* player )
     wxLogDebug("%s: Removing this player [%s] from the system...", 
         FNAME, player->GetName().c_str());
 
-    m_playerMgr.DeletePlayer( player );
+    this->DeletePlayer( player );
 
     /* Initiate the App if there is no more active players. */
     if ( m_playerMgr.GetNumberOfPlayers() == 0 )
@@ -290,6 +296,17 @@ hoxLocalSite::CreateNewTableAsPlayer( wxString&  newTableId,
     frame->UpdateSiteTreeUI();
 
     return hoxRESULT_OK;
+}
+
+void 
+hoxLocalSite::DeletePlayer( hoxPlayer* player )
+{
+	if ( m_player == player )
+	{
+		m_player = NULL;
+	}
+
+	this->hoxSite::DeletePlayer( player );
 }
 
 // --------------------------------------------------------------------------
@@ -591,8 +608,18 @@ hoxResult
 hoxRemoteSite::Close()
 {
     const char* FNAME = "hoxRemoteSite::Close";
+    hoxResult result;
+    wxLogDebug("%s: ENTER.", FNAME);
 
-    wxLogDebug("%s: ENTER. Do nothing. END.", FNAME);
+	if ( m_player != NULL )
+	{
+		result = m_player->DisconnectFromNetworkServer( NULL /*m_responseHandler*/ );
+		if ( result != hoxRESULT_OK )
+		{
+			wxLogError("%s: Failed to disconnect from remote server.", FNAME);
+			return hoxRESULT_ERR;
+		}
+	}
 
     return hoxRESULT_OK;
 }
@@ -747,6 +774,17 @@ hoxRemoteSite::JoinExistingTable( const hoxNetworkTableInfo& tableInfo )
     }
 
     return hoxRESULT_OK;
+}
+
+void 
+hoxRemoteSite::DeletePlayer( hoxPlayer* player )
+{
+	if ( m_player == player )
+	{
+		m_player = NULL;
+	}
+
+	this->hoxSite::DeletePlayer( player );
 }
 
 // --------------------------------------------------------------------------

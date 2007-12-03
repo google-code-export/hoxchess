@@ -63,7 +63,7 @@ public:
 public:
     // **** My own public API ****
 
-    void AddRequest( hoxRequest* request );
+    bool AddRequest( hoxRequest* request );
 
     hoxSite* GetSite() const { return m_site; }
 
