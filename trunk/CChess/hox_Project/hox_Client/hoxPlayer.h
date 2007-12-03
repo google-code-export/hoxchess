@@ -44,6 +44,7 @@ DECLARE_EVENT_TYPE(hoxEVT_PLAYER_NEW_JOIN, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_NEW_LEAVE, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_TABLE_CLOSE, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_WALL_MSG, wxID_ANY)
+DECLARE_EVENT_TYPE(hoxEVT_PLAYER_SITE_CLOSING, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_APP_SHUTDOWN, wxID_ANY)
 
 // ----------------------------------------------------------------------------
@@ -81,6 +82,7 @@ public:
     virtual void OnNewLeave_FromTable( wxCommandEvent&  event );
     virtual void OnClose_FromTable( wxCommandEvent&  event );
     virtual void OnWallMsg_FromTable( wxCommandEvent&  event );
+	virtual void OnClosing_FromSite( wxCommandEvent&  event );
     virtual void OnShutdown_FromApp( wxCommandEvent&  event );
 
     /***************************
@@ -167,6 +169,7 @@ protected:
     void DecrementOutstandingRequests();
 
 private:
+	void _PostSite_ShutdownReady();
     void _ShutdownMyself();
 
 private:
@@ -194,6 +197,7 @@ private:
 
     int            m_nOutstandingRequests;
 
+	bool           m_siteClosing;    // The site is being closed?
     bool           m_shutdownRequested;
 
     DECLARE_DYNAMIC_CLASS(hoxPlayer)

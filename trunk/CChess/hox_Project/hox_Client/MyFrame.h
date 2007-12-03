@@ -111,7 +111,6 @@ public:
     void OnOpenServer(wxCommandEvent& event);
     void OnCloseServer(wxCommandEvent& event);
     void OnConnectServer(wxCommandEvent& event);
-    void OnDisconnectServer(wxCommandEvent& event);
     void OnListTables(wxCommandEvent& event);
 
     void OnShowServersWindow(wxCommandEvent& event);

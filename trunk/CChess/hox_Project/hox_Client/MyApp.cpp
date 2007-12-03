@@ -41,9 +41,11 @@
 // not wxApp)
 IMPLEMENT_APP(MyApp)
 
+DEFINE_EVENT_TYPE(hoxEVT_APP_SITE_CLOSE_READY)
 DEFINE_EVENT_TYPE(hoxEVT_APP_SITE_SHUTDOWN_READY)
 
 BEGIN_EVENT_TABLE(MyApp, wxApp)
+	EVT_COMMAND(wxID_ANY, hoxEVT_APP_SITE_CLOSE_READY, MyApp::OnCloseReady_FromSite)
     EVT_COMMAND(wxID_ANY, hoxEVT_APP_SITE_SHUTDOWN_READY, MyApp::OnShutdownReady_FromSite)
 END_EVENT_TABLE()
 
@@ -143,18 +145,25 @@ MyApp::OpenServer(int nPort)
     m_frame->UpdateSiteTreeUI();
 }
 
-void MyApp::CloseServer()
+void 
+MyApp::CloseServer( hoxSite* site )
 {
     const char* FNAME = "MyApp::CloseServer";
 
-    if ( m_localSite != NULL )
-    {
-        m_localSite->Close();
-        m_sites.remove( m_localSite );
-        delete m_localSite;
-        m_localSite = NULL;
-        m_frame->UpdateSiteTreeUI();
-    }
+	wxLogDebug("%s: ENTER. (%s)", FNAME, site->GetName().c_str());
+
+    site->Close();
+
+	// For local site, just delete it now.
+	if ( site == m_localSite )
+	{
+		m_sites.remove( site );
+		delete site;
+
+		m_localSite = NULL;
+
+		m_frame->UpdateSiteTreeUI();
+	}
 }
 
 void 
@@ -202,16 +211,6 @@ MyApp::ConnectRemoteServer( const hoxServerAddress& address )
 }
 
 void 
-MyApp::DisconnectRemoteServer(hoxRemoteSite* remoteSite)
-{
-    remoteSite->Close();
-    m_sites.remove( remoteSite );
-    delete remoteSite;
-
-    m_frame->UpdateSiteTreeUI();
-}
-
-void 
 MyApp::CloseLocalSite()
 {
     if ( m_localSite != NULL )
@@ -231,6 +230,26 @@ MyApp::OnSystemShutdown()
     {
         (*it)->OnSystemShutdown();
     }
+}
+
+void 
+MyApp::OnCloseReady_FromSite( wxCommandEvent&  event )
+{
+    const char* FNAME = "MyApp::OnCloseReady_FromSite";
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    hoxSite* site = wx_reinterpret_cast(hoxSite*, event.GetEventObject());
+    wxCHECK_RET(site, "Site cannot be NULL.");
+
+    if ( site == m_localSite )
+        m_localSite = NULL;
+
+    m_sites.remove( site );
+    //site->Close();
+    delete site;
+
+	m_frame->UpdateSiteTreeUI();
 }
 
 void 

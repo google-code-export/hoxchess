@@ -60,6 +60,7 @@ class hoxTable;
 class hoxHttpPlayer;
 class hoxMyPlayer;
 
+DECLARE_EVENT_TYPE(hoxEVT_APP_SITE_CLOSE_READY, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_APP_SITE_SHUTDOWN_READY, wxID_ANY)
 
 /**
@@ -82,13 +83,13 @@ public:
      *********************************/
 
     void OpenServer(int nPort);
-    void CloseServer();
+    void CloseServer( hoxSite* site );
 
     void ConnectRemoteServer(const hoxServerAddress& address);
-    void DisconnectRemoteServer(hoxRemoteSite* remoteSite);
 
     void CloseLocalSite();
     void OnSystemShutdown();
+	void OnCloseReady_FromSite( wxCommandEvent&  event ); 
     void OnShutdownReady_FromSite( wxCommandEvent&  event ); 
 
     MyFrame*       GetFrame() const { return m_frame; }
