@@ -90,13 +90,12 @@ public:
     hoxPlayer* CreateDummyPlayer( const wxString& playerId )
         { return m_playerMgr.CreateDummyPlayer( playerId ); }
 
-    void DeletePlayer( hoxPlayer* player )
-        { m_playerMgr.DeletePlayer( player ); }
+    virtual void DeletePlayer( hoxPlayer* player );
 
     hoxResponseHandler*  GetResponseHandler() const 
         { return m_responseHandler; }
 
-    void Handle_ShutdownDoneFromPlayer( hoxPlayer* player );
+    virtual void Handle_ShutdownDoneFromPlayer( hoxPlayer* player );
 
 protected:
     const hoxSiteType  m_type;
@@ -131,6 +130,8 @@ public:
 
     virtual hoxResult CreateNewTable(wxString& newTableId);
     virtual hoxResult CreateNewTableAsPlayer(wxString& newTableId, hoxPlayer* player);
+	
+	virtual void DeletePlayer( hoxPlayer* player );
 
 private:
     hoxServer*          m_server;
@@ -164,6 +165,8 @@ public:
     virtual hoxResult QueryForNetworkTables();
     virtual hoxResult CreateNewTable(wxString& newTableId);
     virtual hoxResult JoinExistingTable(const hoxNetworkTableInfo& tableInfo);
+
+	virtual void DeletePlayer( hoxPlayer* player );
 
 protected:
     virtual void Handle_ConnectionResponse( hoxResponse* pResponse );

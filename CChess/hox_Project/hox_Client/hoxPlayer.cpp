@@ -82,7 +82,7 @@ hoxPlayer::hoxPlayer( const wxString& name,
 hoxPlayer::~hoxPlayer() 
 {
     const char* FNAME = "hoxPlayer::~hoxPlayer";
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER. (%s)", FNAME, this->GetName().c_str());
 
     if ( m_connection == NULL )
         return;
@@ -879,15 +879,16 @@ hoxPlayer::AddRequestToConnection( hoxRequest* request )
         return;
     }
 
-    wxCHECK_RET(request, "The request cannot be NULL.");
-    if ( request->sender != NULL /* this */ )
-    {
-        ++m_nOutstandingRequests;
-        wxLogDebug("%s: After incremented, the number of outstanding requests = [%d].",
-            FNAME, m_nOutstandingRequests);
-    }
-
-    m_connection->AddRequest( request ); 
+    if ( m_connection->AddRequest( request ) )  // success?
+	{
+		wxCHECK_RET(request, "The request cannot be NULL.");
+		if ( request->sender != NULL )
+		{
+			++m_nOutstandingRequests;
+			wxLogDebug("%s: After incremented, the number of outstanding requests = [%d].",
+				FNAME, m_nOutstandingRequests);
+		}
+	}
 
     if ( request->type == hoxREQUEST_TYPE_SHUTDOWN )
     {

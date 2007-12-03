@@ -121,7 +121,7 @@ hoxThreadConnection::Entry()
     return NULL;
 }
 
-void 
+bool
 hoxThreadConnection::AddRequest( hoxRequest* request )
 {
     const char* FNAME = "hoxThreadConnection::AddRequest";
@@ -134,12 +134,13 @@ hoxThreadConnection::AddRequest( hoxRequest* request )
         wxLogDebug("%s: *** WARN*** Deny request [%s]. The thread is shutdowning.", 
             FNAME, hoxUtility::RequestTypeToString(request->type).c_str());
         delete request;
-        return;
+        return false;
     }
 
     m_requests.push_back( request );
     m_semRequests.Post();
     //wxLogDebug("%s END.", FNAME);
+	return true;
 }
 
 hoxRequest*
