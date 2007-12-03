@@ -46,6 +46,7 @@ DEFINE_EVENT_TYPE( hoxEVT_PLAYER_NEW_JOIN )
 DEFINE_EVENT_TYPE( hoxEVT_PLAYER_NEW_LEAVE )
 DEFINE_EVENT_TYPE( hoxEVT_PLAYER_TABLE_CLOSE )
 DEFINE_EVENT_TYPE( hoxEVT_PLAYER_WALL_MSG )
+DEFINE_EVENT_TYPE( hoxEVT_PLAYER_SITE_CLOSING )
 DEFINE_EVENT_TYPE( hoxEVT_PLAYER_APP_SHUTDOWN )
 
 BEGIN_EVENT_TABLE(hoxPlayer, wxEvtHandler)
@@ -54,6 +55,7 @@ BEGIN_EVENT_TABLE(hoxPlayer, wxEvtHandler)
     EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_NEW_LEAVE, hoxPlayer::OnNewLeave_FromTable)
     EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_TABLE_CLOSE, hoxPlayer::OnClose_FromTable)
     EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_WALL_MSG, hoxPlayer::OnWallMsg_FromTable)
+	EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_SITE_CLOSING, hoxPlayer::OnClosing_FromSite)
     EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_APP_SHUTDOWN, hoxPlayer::OnShutdown_FromApp)
 END_EVENT_TABLE()
 
@@ -75,6 +77,7 @@ hoxPlayer::hoxPlayer( const wxString& name,
             , m_score( score )
             , m_connection( NULL )
             , m_nOutstandingRequests( 0 )
+			, m_siteClosing( false )
             , m_shutdownRequested( false )
 { 
 }
@@ -122,6 +125,11 @@ hoxPlayer::RemoveRole( hoxRole role )
 {
     wxASSERT( this->HasRole( role ) );
     m_roles.remove( role );
+
+    if ( m_siteClosing && m_nOutstandingRequests == 0 && m_roles.empty() )
+    {
+		_PostSite_ShutdownReady();
+    }
 }
 
 bool
@@ -133,7 +141,8 @@ hoxPlayer::RemoveRoleAtTable( const wxString& tableId )
     {
         if ( it->tableId == tableId )
         {
-            m_roles.remove( *it );
+            //m_roles.remove( *it );
+			this->RemoveRole( *it );
             return true; // role found.
         }
     }
@@ -354,6 +363,21 @@ hoxPlayer::OnWallMsg_FromTable( wxCommandEvent&  event )
     request->content = 
         wxString::Format("op=WALL_MSG&%s\r\n", commandStr.c_str());
     this->AddRequestToConnection( request );
+}
+
+void 
+hoxPlayer::OnClosing_FromSite( wxCommandEvent&  event )
+{
+    const char* FNAME = "hoxPlayer::OnClosing_FromSite";
+
+    wxLogDebug("%s: ENTER. (player = [%s])", FNAME, this->GetName().c_str());
+
+    m_siteClosing = true; // *** Turn it ON!
+
+    if ( m_nOutstandingRequests == 0 && m_roles.empty() )
+    {
+		_PostSite_ShutdownReady();
+    }
 }
 
 void 
@@ -912,10 +936,29 @@ hoxPlayer::DecrementOutstandingRequests()
     wxLogDebug("%s: After decremented, the number of outstanding requests = [%d].",
         FNAME, m_nOutstandingRequests);
 
-    if ( m_shutdownRequested && m_nOutstandingRequests == 0 )
+    if ( m_nOutstandingRequests == 0 )
     {
-        _ShutdownMyself();
-    }
+		if ( m_siteClosing && m_roles.empty() )
+		{
+			_PostSite_ShutdownReady();
+		}
+
+		if ( m_shutdownRequested )
+		{
+			_ShutdownMyself();
+		}
+	}
+}
+
+void 
+hoxPlayer::_PostSite_ShutdownReady()
+{
+	const char* FNAME  = "hoxPlayer::_PostSite_ShutdownReady";
+	wxLogDebug("%s: ENTER.", FNAME);
+
+    wxCommandEvent event( hoxEVT_SITE_PLAYER_SHUTDOWN_READY );
+    event.SetEventObject( this );
+    wxPostEvent( m_site->GetResponseHandler(), event );
 }
 
 void 

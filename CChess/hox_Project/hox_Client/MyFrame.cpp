@@ -60,7 +60,6 @@ BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
     EVT_MENU(MDI_OPEN_SERVER, MyFrame::OnOpenServer)
     EVT_MENU(MDI_CLOSE_SERVER, MyFrame::OnCloseServer)
     EVT_MENU(MDI_CONNECT_SERVER, MyFrame::OnConnectServer)
-    EVT_MENU(MDI_DISCONNECT_SERVER, MyFrame::OnDisconnectServer)
     EVT_MENU(MDI_LIST_TABLES, MyFrame::OnListTables)
 
     EVT_MENU(MDI_SHOW_SERVERS_WINDOW, MyFrame::OnShowServersWindow)
@@ -327,7 +326,7 @@ MyFrame::OnCloseServer( wxCommandEvent& event )
 
     if ( selectedSite == NULL )
     {
-        wxLogError("%s: A site must be selected. END.", FNAME);
+        wxLogDebug("%s: No site is selected. Do nothing. END.", FNAME);
         return;
     }
 
@@ -337,7 +336,7 @@ MyFrame::OnCloseServer( wxCommandEvent& event )
     _CloseChildrenOfSite( selectedSite );
 
     /* Close the site itself. */
-    wxGetApp().CloseServer();
+    wxGetApp().CloseServer( selectedSite );
 }
 
 void 
@@ -397,31 +396,6 @@ void
 MyFrame::OnUpdateLogWindow( wxUpdateUIEvent& event )
 {
     event.Check( m_logWindow->IsShown() );
-}
-
-void 
-MyFrame::OnDisconnectServer( wxCommandEvent& event )
-{
-    const char* FNAME = "MyFrame::OnDisconnectServer";
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    hoxTable* selectedTable = NULL;
-    hoxSite* selectedSite = _GetSelectedSite(selectedTable);
-
-    if ( selectedSite == NULL )
-        return;
-
-    /* Go through my children to see which ones belong to the site and
-     * trigger a close event.
-     */
-    _CloseChildrenOfSite( selectedSite );
-
-    /* Close the site itself. */
-    if ( selectedSite->GetType() != hoxSITE_TYPE_LOCAL )
-    {
-        hoxRemoteSite* remoteSite = (hoxRemoteSite*) selectedSite;
-        wxGetApp().DisconnectRemoteServer( remoteSite );
-    }
 }
 
 void 
@@ -523,7 +497,7 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
     // File menu.
     wxMenu* file_menu = new wxMenu;
     file_menu->Append(MDI_CONNECT_SERVER, _("Connect Server...\tCtrl-L"), _("Connect to remote server"));
-    file_menu->Append(MDI_DISCONNECT_SERVER, _("&Disconnect Server\tCtrl-D"), _("Disconnect from remote server"));
+    file_menu->Append(MDI_CLOSE_SERVER, _("&Close Server\tCtrl-D"), _("Close the server"));
     file_menu->AppendSeparator();
     file_menu->Append(MDI_NEW_TABLE, _("&New Table\tCtrl-N"), _("Create New Table"));
     file_menu->Append(MDI_CLOSE_TABLE, _("&Close Table\tCtrl-C"), _("Close Table"));
@@ -617,7 +591,7 @@ MyFrame::OnContextMenu( wxContextMenuEvent& event )
             hoxRemoteSite* remoteSite = (hoxRemoteSite*) selectedSite;
             if ( remoteSite->IsConnected() )
             {
-                menu.Append(MDI_DISCONNECT_SERVER, _("&Disconnect Server\tCtrl-D"), 
+                menu.Append(MDI_CLOSE_SERVER, _("&Disconnect Server\tCtrl-D"), 
                                                    _("Disconnect from remote server"));
                 menu.Append(MDI_LIST_TABLES, _("&Query for Tables\tCtrl-Q"), 
                                                    _("Query for the list of tables"));
