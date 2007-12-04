@@ -109,14 +109,7 @@ MyApp::OnExit()
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    //for ( hoxSiteList::iterator it = m_sites.begin();
-    //                            it != m_sites.end(); ++it )
-    //{
-    //    (*it)->Close();
-    //    delete (*it);
-    //}
-
-    /* NOTE: We rely on the Frame to notify about active players that the
+     /* NOTE: We rely on the Frame to notify about active players that the
      *      system is being shutdowned.
      */
 
@@ -152,17 +145,6 @@ MyApp::CloseServer( hoxSite* site )
 	wxLogDebug("%s: ENTER. (%s)", FNAME, site->GetName().c_str());
 
     site->Close();
-
-	// For local site, just delete it now.
-	//if ( site == m_localSite )
-	//{
-	//	m_sites.remove( site );
-	//	delete site;
-
-	//	m_localSite = NULL;
-
-	//	m_frame->UpdateSiteTreeUI();
-	//}
 }
 
 void 
@@ -236,7 +218,6 @@ MyApp::OnCloseReady_FromSite( wxCommandEvent&  event )
     wxCHECK_RET(site, "Site cannot be NULL.");
 
     m_sites.remove( site );
-    //site->Close();
     delete site;
 
     if ( site == m_localSite )
