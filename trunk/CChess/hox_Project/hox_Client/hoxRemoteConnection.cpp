@@ -46,6 +46,14 @@ hoxRemoteConnection::~hoxRemoteConnection()
 {
     const char* FNAME = "hoxRemoteConnection::~hoxRemoteConnection";
     wxLogDebug("%s: ENTER.", FNAME);
+
+	/* Disable event-handler for the callback socket because THIS object
+	 * is being deleted and can no longer handle socket-events.
+	 */
+	if ( m_pCBSock != NULL )
+	{
+		m_pCBSock->SetNotify( false );
+	}
 }
 
 void 
@@ -90,12 +98,12 @@ hoxRemoteConnection::AddRequest( hoxRequest* request )
 hoxResult 
 hoxRemoteConnection::SetCBSocket( wxSocketBase* socket )
 {
-    const char* FNAME = "hoxRemoteConnection::SetCBSocket";
+    //const char* FNAME = "hoxRemoteConnection::SetCBSocket";
 
-    wxCHECK_MSG(m_pCBSock == NULL, hoxRESULT_ERR, "Callback socket already exists.");
-    wxCHECK_MSG(socket != NULL, hoxRESULT_ERR, "The socket is NULL.");
+    //wxCHECK_MSG(m_pCBSock == NULL, hoxRESULT_ERR, "Callback socket already exists.");
+    //wxCHECK_MSG(socket != NULL, hoxRESULT_ERR, "The socket is NULL.");
 
-    wxLogDebug("%s: Assign callback socket to this connection.", FNAME);
+    //wxLogDebug("%s: Assign callback socket to this connection.", FNAME);
     m_pCBSock = socket;
 
     return hoxRESULT_OK;

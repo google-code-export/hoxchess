@@ -167,8 +167,7 @@ hoxBoard::OnPlayerJoin( wxCommandEvent &event )
      */
 
     hoxPlayerType playerType = player->GetType();
-    if (   playerType == hoxPLAYER_TYPE_HOST 
-        || playerType == hoxPLAYER_TYPE_LOCAL )
+    if ( playerType == hoxPLAYER_TYPE_LOCAL )
     {
         wxLogDebug("%s: Update the core Board's local-color to [%d].", 
             FNAME, playerColor);

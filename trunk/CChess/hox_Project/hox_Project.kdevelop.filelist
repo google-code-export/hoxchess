@@ -13,8 +13,6 @@ hox_Client/hoxConnection.h
 hox_Client/hoxCoreBoard.cpp
 hox_Client/hoxCoreBoard.h
 hox_Client/hoxEnums.h
-hox_Client/hoxHostPlayer.cpp
-hox_Client/hoxHostPlayer.h
 hox_Client/hoxHttpConnection.cpp
 hox_Client/hoxHttpConnection.h
 hox_Client/hoxHttpPlayer.cpp

@@ -61,7 +61,6 @@ class hoxHttpPlayer;
 class hoxMyPlayer;
 
 DECLARE_EVENT_TYPE(hoxEVT_APP_SITE_CLOSE_READY, wxID_ANY)
-DECLARE_EVENT_TYPE(hoxEVT_APP_SITE_SHUTDOWN_READY, wxID_ANY)
 
 /**
  * The main Application.
@@ -87,10 +86,8 @@ public:
 
     void ConnectRemoteServer(const hoxServerAddress& address);
 
-    void CloseLocalSite();
-    void OnSystemShutdown();
+    void OnSystemClose();
 	void OnCloseReady_FromSite( wxCommandEvent&  event ); 
-    void OnShutdownReady_FromSite( wxCommandEvent&  event ); 
 
     MyFrame*       GetFrame() const { return m_frame; }
 
@@ -102,6 +99,8 @@ private:
 
     hoxSiteList         m_sites;
     hoxLocalSite*       m_localSite;  // "cache" variable for easy access.
+
+	bool                m_appClosing;    // The App is being closed?
 
     friend class MyFrame;
 

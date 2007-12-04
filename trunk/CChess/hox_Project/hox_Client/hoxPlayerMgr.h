@@ -28,7 +28,6 @@
 #define __INCLUDED_HOX_PLAYER_MGR_H_
 
 #include "hoxPlayer.h"
-#include "hoxHostPlayer.h"
 #include "hoxRemotePlayer.h"
 #include "hoxHttpPlayer.h"
 #include "hoxMyPlayer.h"
@@ -44,9 +43,6 @@ class hoxPlayerMgr
 public:
     hoxPlayerMgr();
     ~hoxPlayerMgr();
-
-    hoxHostPlayer* CreateHostPlayer( const wxString& name,
-                                     int             score = 1500 );
 
     hoxHttpPlayer* CreateHTTPPlayer( const wxString& name,
                                      int             score = 1500 );
@@ -68,9 +64,9 @@ public:
     hoxPlayer* FindPlayer( const wxString& playerId ) const;
 
     /**
-     * Handle SHUTDOWN request from App.
+     * Handle SITE-CLOSING request from Site.
      */
-    void OnSystemShutdown();
+    void OnSiteClosing();
 
     /**
      * Return the number of players in the system.

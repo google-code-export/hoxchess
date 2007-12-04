@@ -28,7 +28,7 @@
 #include "hoxServer.h"
 #include "hoxUtility.h"
 #include "hoxNetworkAPI.h"
-
+#include "hoxRemoteConnection.h"
 
 DEFINE_EVENT_TYPE( hoxEVT_SERVER_RESPONSE )
 
@@ -89,6 +89,18 @@ hoxServer::_DetachActiveSocket( wxSocketBase *sock )
     {
         if ( it->socket == sock )
         {
+			hoxPlayer* player = m_site->FindPlayer( it->playerId );
+			if ( player != NULL )
+			{
+				hoxConnection* connection = player->GetConnection();
+				hoxRemoteConnection* remoteConnection = wxDynamicCast(connection, hoxRemoteConnection );
+				if ( remoteConnection )
+				{
+					wxLogDebug("%s: Clear call-backk socket for player [%s].", 
+						FNAME, player->GetName().c_str());
+					remoteConnection->SetCBSocket( NULL );
+				}
+			}
             m_activeSockets.erase( it );
             return true;
         }

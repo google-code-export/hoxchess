@@ -49,7 +49,7 @@ DEFINE_EVENT_TYPE(hoxEVT_FRAME_LOG_MSG)
 // constants
 // ----------------------------------------------------------------------------
 
-#define hoxVERSION_STRING  "0.1.0.1"
+#define hoxVERSION_STRING  "0.2.0.0"
 
 BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
     EVT_MENU(MDI_ABOUT, MyFrame::OnAbout)
@@ -180,11 +180,8 @@ MyFrame::OnClose(wxCloseEvent& event)
         // NOTE: The call above already delete the child.
     }
 
-    /* Let close the local server first. */
-    wxGetApp().CloseLocalSite();
-
-    /* Inform all sites about the SHUTDOWN. */
-    wxGetApp().OnSystemShutdown();
+    /* Inform all sites about the CLOSING. */
+    wxGetApp().OnSystemClose();
 
     if ( ! wxGetApp().m_sites.empty() )
     {
