@@ -37,6 +37,8 @@
 /* Server (response) event-type. */
 DECLARE_EVENT_TYPE(hoxEVT_SERVER_RESPONSE, wxID_ANY)
 
+class hoxSocketServer;
+
 // ----------------------------------------------------------------------------
 // hoxServer
 // ----------------------------------------------------------------------------
@@ -62,8 +64,11 @@ public:
 
 public:
     // **** My own public API ****
-
-    bool AddRequest( hoxRequest* request );
+	
+	hoxResult StartServer(int nPort);
+	void      CloseServer();
+    
+	bool AddRequest( hoxRequest* request );
 
     hoxSite* GetSite() const { return m_site; }
 
@@ -98,6 +103,8 @@ private:
         }
     };
     typedef std::list<SocketInfo> SocketList;
+
+	hoxSocketServer*      m_socketServer;
 
     bool                  m_shutdownRequested;
                 /* Has a shutdown-request been received? */

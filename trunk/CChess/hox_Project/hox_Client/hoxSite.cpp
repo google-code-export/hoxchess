@@ -26,7 +26,6 @@
 
 #include "hoxSite.h"
 #include "MyApp.h"
-#include "hoxSocketServer.h"
 #include "hoxServer.h"
 #include "hoxUtility.h"
 #include "hoxSocketConnection.h"
@@ -85,6 +84,7 @@ hoxSite::hoxSite( hoxSiteType             type,
         , m_address( address)
         , m_responseHandler( NULL )
         , m_dlgProgress( NULL )
+		, m_siteClosing( false )
 {
     m_playerMgr.SetSite( this );
     m_tableMgr.SetSite( this );
@@ -126,14 +126,12 @@ hoxSite::Handle_ShutdownReadyFromPlayer( hoxPlayer* player )
 hoxLocalSite::hoxLocalSite(const hoxServerAddress& address)
         : hoxSite( hoxSITE_TYPE_LOCAL, address )
         , m_server( NULL )
-        , m_socketServer( NULL )
         , m_isOpened( false )
 {
 }
 
 hoxLocalSite::~hoxLocalSite()
 {
-    //this->Close();
 }
 
 const wxString 
@@ -157,35 +155,13 @@ hoxLocalSite::OpenServer()
         return hoxRESULT_OK;
     }
 
-    /* Start the socket-manager */
-
     m_server = new hoxServer( this );
 
-    if ( m_server->Create() != wxTHREAD_NO_ERROR )
-    {
-        wxLogError("%s: Failed to create Server thread.", FNAME);
+	if ( hoxRESULT_OK !=  m_server->StartServer( m_address.port ) )
+	{
+        wxLogError("%s: Failed to start socker-server thread.", FNAME);
         return hoxRESULT_ERR;
-    }
-    wxASSERT_MSG( !m_server->GetThread()->IsDetached(), "The Server thread must be joinable.");
-
-    m_server->GetThread()->Run();
-
-    /* Start the socket-server */
-
-    wxASSERT_MSG( m_socketServer == NULL, "The socket-server should not have been created.");
-
-    m_socketServer = new hoxSocketServer( m_address.port,
-                                          m_server,
-                                          this );
-
-    if ( m_socketServer->Create() != wxTHREAD_NO_ERROR )
-    {
-        wxLogError("%s: Failed to create socker-server thread.", FNAME);
-        return hoxRESULT_ERR;
-    }
-    wxASSERT_MSG( !m_socketServer->GetThread()->IsDetached(), "The socket-server thread must be joinable.");
-
-    m_socketServer->GetThread()->Run();
+	}
 
     m_isOpened = true;
 
@@ -197,30 +173,12 @@ hoxLocalSite::Close()
 {
     const char* FNAME = "hoxLocalSite::Close";
 
-#if 0  /* HAS TO BE DONE HERE !!!!!!!! */
-    if ( m_socketServer != NULL )
-    {
-        wxLogDebug("%s: Request the socket-server thread to be shutdowned...", FNAME);
-        m_socketServer->RequestShutdown();
-        wxThread::ExitCode exitCode = m_socketServer->GetThread()->Wait();
-        wxLogDebug("%s: The socket-server thread was shutdowned with exit-code = [%d].", FNAME, exitCode);
-        delete m_socketServer;
-        m_socketServer = NULL;
-    }
-
-    if ( m_server != NULL )
-    {
-        wxLogDebug("%s: Request the Server thread to be shutdowned...", FNAME);
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_SHUTDOWN, NULL );
-        m_server->AddRequest( request );
-        wxThread::ExitCode exitCode = m_server->GetThread()->Wait();
-        wxLogDebug("%s: The Server thread was shutdowned with exit-code = [%d].", FNAME, exitCode);
-        delete m_server;
-        m_server = NULL;
-    }
-
-    m_isOpened = false;
-#endif
+	if ( m_siteClosing )
+	{
+		wxLogDebug("%s: Site [%s] is already being closed. END.", FNAME, this->GetName().c_str());
+		return hoxRESULT_OK;
+	}
+	m_siteClosing = true;
 
 	m_playerMgr.OnSiteClosing();
 
@@ -273,15 +231,6 @@ hoxLocalSite::Handle_ShutdownReadyFromPlayer( hoxPlayer* player )
     const char* FNAME = "hoxLocalSite::Handle_ShutdownReadyFromPlayer";
     wxLogDebug("%s: ENTER. (%s)", FNAME, player->GetName().c_str());
 
-	//wxCHECK_RET( m_player, "Player must not be NULL.");
-
-	//hoxResult result = m_player->DisconnectFromNetworkServer( NULL /*m_responseHandler*/ );
-	//if ( result != hoxRESULT_OK )
-	//{
-	//	wxLogError("%s: Failed to disconnect from remote server.", FNAME);
-	//	return;
-	//}
-
 	this->DeletePlayer( player );
 
     /* Perform the actual closing. */
@@ -297,30 +246,16 @@ hoxLocalSite::_DoCloseSite()
 	const char* FNAME = "hoxLocalSite::_DoCloseSite";
 
 	wxLogDebug("%s: ENTER.", FNAME);
-#if 1
-	if ( m_socketServer != NULL )
-	{
-		wxLogDebug("%s: Request the socket-server thread to be shutdowned...", FNAME);
-		m_socketServer->RequestShutdown();
-		wxThread::ExitCode exitCode = m_socketServer->GetThread()->Wait();
-		wxLogDebug("%s: The socket-server thread was shutdowned with exit-code = [%d].", FNAME, exitCode);
-		delete m_socketServer;
-		m_socketServer = NULL;
-	}
 
 	if ( m_server != NULL )
 	{
-		wxLogDebug("%s: Request the Server thread to be shutdowned...", FNAME);
-		hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_SHUTDOWN, NULL );
-		m_server->AddRequest( request );
-		wxThread::ExitCode exitCode = m_server->GetThread()->Wait();
-		wxLogDebug("%s: The Server thread was shutdowned with exit-code = [%d].", FNAME, exitCode);
+		m_server->CloseServer();
 		delete m_server;
 		m_server = NULL;
 	}
 
 	m_isOpened = false;
-#endif
+
 	wxCommandEvent event( hoxEVT_APP_SITE_CLOSE_READY );
 	event.SetEventObject( this );
 	wxPostEvent( &(wxGetApp()), event );
@@ -346,8 +281,6 @@ hoxRemoteSite::~hoxRemoteSite()
 {
     const char* FNAME = "hoxRemoteSite::~hoxRemoteSite";
     wxLogDebug("%s: ENTER.", FNAME);
-
-    //this->Close();
 }
 
 hoxLocalPlayer* 
@@ -635,6 +568,13 @@ hoxRemoteSite::Close()
     const char* FNAME = "hoxRemoteSite::Close";
     wxLogDebug("%s: ENTER.", FNAME);
 
+	if ( m_siteClosing )
+	{
+		wxLogDebug("%s: Site [%s] is already being closed. END.", FNAME, this->GetName().c_str());
+		return hoxRESULT_OK;
+	}
+	m_siteClosing = true;
+
 	if ( m_player != NULL )
 	{
         wxCommandEvent event( hoxEVT_PLAYER_SITE_CLOSING );
@@ -856,8 +796,6 @@ hoxHTTPSite::~hoxHTTPSite()
 {
     const char* FNAME = "hoxHTTPSite::~hoxHTTPSite";
     wxLogDebug("%s: ENTER.", FNAME);
-
-    this->Close();
 }
 
 /************************* END OF FILE ***************************************/

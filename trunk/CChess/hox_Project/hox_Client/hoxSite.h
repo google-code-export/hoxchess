@@ -39,7 +39,6 @@
 DECLARE_EVENT_TYPE(hoxEVT_SITE_PLAYER_SHUTDOWN_READY, wxID_ANY)
 
 /* Forward declarations */
-class hoxSocketServer;
 class hoxServer;
 class hoxSite;
 
@@ -106,6 +105,8 @@ protected:
     hoxResponseHandler*  m_responseHandler;
     wxProgressDialog*    m_dlgProgress;
 
+	bool               m_siteClosing;    // The Site is being closed?
+
     friend class hoxSocketServer;
     friend class hoxServer;
 };
@@ -136,7 +137,6 @@ private:
 
 private:
     hoxServer*          m_server;
-    hoxSocketServer*    m_socketServer;
 
     bool                m_isOpened;
 };

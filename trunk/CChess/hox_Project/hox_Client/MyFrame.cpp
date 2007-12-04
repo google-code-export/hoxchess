@@ -55,6 +55,7 @@ BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
     EVT_MENU(MDI_ABOUT, MyFrame::OnAbout)
     EVT_MENU(MDI_NEW_TABLE, MyFrame::OnNewTable)
     EVT_MENU(MDI_CLOSE_TABLE, MyFrame::OnCloseTable)
+	EVT_UPDATE_UI(MDI_NEW_TABLE, MyFrame::OnUpdateNewTable)
     EVT_UPDATE_UI(MDI_CLOSE_TABLE, MyFrame::OnUpdateCloseTable)
 
     EVT_MENU(MDI_OPEN_SERVER, MyFrame::OnOpenServer)
@@ -252,7 +253,22 @@ MyFrame::OnCloseTable( wxCommandEvent& event )
     }
 }
 
-// Update the menu's UI.
+void 
+MyFrame::OnUpdateNewTable(wxUpdateUIEvent& event)
+{
+	bool enableMenu = false;
+    hoxTable* selectedTable = NULL;
+    hoxSite* selectedSite = _GetSelectedSite(selectedTable);
+
+    if ( selectedSite != NULL 
+		&& selectedSite->GetType() != hoxSITE_TYPE_LOCAL )
+	{
+		enableMenu = true;
+	}
+
+    event.Enable( enableMenu );
+}
+
 void 
 MyFrame::OnUpdateCloseTable(wxUpdateUIEvent& event)
 {

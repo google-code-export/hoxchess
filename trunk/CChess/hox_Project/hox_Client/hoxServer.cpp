@@ -26,6 +26,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxServer.h"
+#include "hoxSocketServer.h"
 #include "hoxUtility.h"
 #include "hoxNetworkAPI.h"
 #include "hoxRemoteConnection.h"
@@ -38,6 +39,7 @@ DEFINE_EVENT_TYPE( hoxEVT_SERVER_RESPONSE )
 
 hoxServer::hoxServer( hoxSite* site )
         : wxThreadHelper()
+		, m_socketServer( NULL )
         , m_shutdownRequested( false )
         , m_site( site )
 {
@@ -51,6 +53,71 @@ hoxServer::~hoxServer()
     wxLogDebug("%s: ENTER.", FNAME);
 
     _DestroyAllActiveSockets();
+}
+
+hoxResult
+hoxServer::StartServer( int nPort )
+{
+    const char* FNAME = "hoxServer::StartServer";
+
+	/* Start the main server thread */
+
+    if ( this->Create() != wxTHREAD_NO_ERROR )
+    {
+        wxLogError("%s: Failed to create Server thread.", FNAME);
+        return hoxRESULT_ERR;
+    }
+    wxASSERT_MSG( !this->GetThread()->IsDetached(), "The Server thread must be joinable.");
+
+    this->GetThread()->Run();
+
+	/* Start the socket-server thread */
+
+    wxCHECK_MSG( m_socketServer == NULL, hoxRESULT_ERR, "The socket-server should not have been created.");
+
+    m_socketServer = new hoxSocketServer( nPort,
+                                          this,
+                                          m_site );
+
+    if ( m_socketServer->Create() != wxTHREAD_NO_ERROR )
+    {
+        wxLogError("%s: Failed to create socker-server thread.", FNAME);
+        return hoxRESULT_ERR;
+    }
+    wxASSERT_MSG( !m_socketServer->GetThread()->IsDetached(), "The socket-server thread must be joinable.");
+
+    m_socketServer->GetThread()->Run();
+
+	return hoxRESULT_OK;
+}
+
+void      
+hoxServer::CloseServer()
+{
+	const char* FNAME = "hoxServer::CloseServer";
+
+	/* Close the socket-server thread */
+
+	if ( m_socketServer != NULL )
+	{
+		wxLogDebug("%s: Request the socket-server thread to be shutdowned...", FNAME);
+		m_socketServer->RequestShutdown();
+		wxThread::ExitCode exitCode = m_socketServer->GetThread()->Wait();
+		wxLogDebug("%s: The socket-server thread was shutdowned with exit-code = [%d].", FNAME, exitCode);
+		delete m_socketServer;
+		m_socketServer = NULL;
+	}
+
+	/* Close the main thread. */
+
+	if ( this->GetThread()->IsRunning() )
+	{
+		wxLogDebug("%s: Request the Server thread to be shutdowned...", FNAME);
+		hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_SHUTDOWN, NULL );
+		this->AddRequest( request );
+		wxThread::ExitCode exitCode = this->GetThread()->Wait();
+		wxLogDebug("%s: The Server thread was shutdowned with exit-code = [%d].", FNAME, exitCode);
+	}
 }
 
 void

@@ -106,6 +106,7 @@ public:
     void OnAbout(wxCommandEvent& event);
     void OnNewTable(wxCommandEvent& event);
     void OnCloseTable(wxCommandEvent& event);
+	void OnUpdateNewTable(wxUpdateUIEvent& event);
     void OnUpdateCloseTable(wxUpdateUIEvent& event);
 
     void OnOpenServer(wxCommandEvent& event);
