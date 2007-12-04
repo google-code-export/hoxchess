@@ -77,7 +77,7 @@ hoxNetworkAPI::SendRequest( wxSocketBase*   sock,
     nWrite = sock->LastCount();
     if ( nWrite < requestSize )
     {
-        wxLogError("%s: Failed to send request [%s] ( %d < %d ). Error = [%s].", 
+        wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
             FNAME, request.c_str(), nWrite, requestSize, 
             hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
         result = hoxRESULT_ERR;
@@ -99,7 +99,7 @@ hoxNetworkAPI::SendRequest( wxSocketBase*   sock,
     result = hoxNetworkAPI::ReadMsg( sock, response );
     if ( result != hoxRESULT_OK )
     {
-        wxLogError("%s: Failed to read response. Error = [%s].", 
+        wxLogDebug("%s: *** WARN *** Failed to read response. Error = [%s].", 
             FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
         goto exit_label;
     }
@@ -516,7 +516,7 @@ hoxNetworkAPI::ReadMsg( wxSocketBase* sock,
 
         if ( sock->Error() ) // Actual IO error occurred?
         {
-            wxLogError("%s: Error occurred while reading the response data (tries = [%d]). Error = [%s].", 
+            wxLogDebug("%s: *** WARN *** Error occurred while reading the response data (tries = [%d]). Error = [%s].", 
                 FNAME, tries, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
             goto exit_label;  // *** Stop trying. Return 'error' immediately.
         }
@@ -526,7 +526,7 @@ hoxNetworkAPI::ReadMsg( wxSocketBase* sock,
 
     if ( nRead == 0 )
     {
-        wxLogError("%s: Failed to read the response data after [%d] tries.", FNAME, MAX_TRIES);
+        wxLogDebug("%s: *** WARN *** Failed to read the response data after [%d] tries.", FNAME, MAX_TRIES);
         goto exit_label;  // *** Stop trying. Return 'error' immediately.
     }
 

@@ -47,7 +47,6 @@ DEFINE_EVENT_TYPE( hoxEVT_PLAYER_NEW_LEAVE )
 DEFINE_EVENT_TYPE( hoxEVT_PLAYER_TABLE_CLOSE )
 DEFINE_EVENT_TYPE( hoxEVT_PLAYER_WALL_MSG )
 DEFINE_EVENT_TYPE( hoxEVT_PLAYER_SITE_CLOSING )
-DEFINE_EVENT_TYPE( hoxEVT_PLAYER_APP_SHUTDOWN )
 
 BEGIN_EVENT_TABLE(hoxPlayer, wxEvtHandler)
     EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_NEW_MOVE, hoxPlayer::OnNewMove_FromTable)
@@ -56,7 +55,6 @@ BEGIN_EVENT_TABLE(hoxPlayer, wxEvtHandler)
     EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_TABLE_CLOSE, hoxPlayer::OnClose_FromTable)
     EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_WALL_MSG, hoxPlayer::OnWallMsg_FromTable)
 	EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_SITE_CLOSING, hoxPlayer::OnClosing_FromSite)
-    EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_APP_SHUTDOWN, hoxPlayer::OnShutdown_FromApp)
 END_EVENT_TABLE()
 
 
@@ -78,7 +76,6 @@ hoxPlayer::hoxPlayer( const wxString& name,
             , m_connection( NULL )
             , m_nOutstandingRequests( 0 )
 			, m_siteClosing( false )
-            , m_shutdownRequested( false )
 { 
 }
 
@@ -377,23 +374,6 @@ hoxPlayer::OnClosing_FromSite( wxCommandEvent&  event )
     if ( m_nOutstandingRequests == 0 && m_roles.empty() )
     {
 		_PostSite_ShutdownReady();
-    }
-}
-
-void 
-hoxPlayer::OnShutdown_FromApp( wxCommandEvent&  event )
-{
-    const char* FNAME = "hoxPlayer::OnShutdown_FromApp";
-
-    wxLogDebug("%s: ENTER. (player = [%s])", FNAME, this->GetName().c_str());
-
-    m_shutdownRequested = true; // *** Turn it ON!
-
-    this->LeaveAllTables();
-
-    if ( m_nOutstandingRequests == 0 )
-    {
-        _ShutdownMyself();
     }
 }
 
@@ -942,11 +922,6 @@ hoxPlayer::DecrementOutstandingRequests()
 		{
 			_PostSite_ShutdownReady();
 		}
-
-		if ( m_shutdownRequested )
-		{
-			_ShutdownMyself();
-		}
 	}
 }
 
@@ -957,26 +932,6 @@ hoxPlayer::_PostSite_ShutdownReady()
 	wxLogDebug("%s: ENTER.", FNAME);
 
     wxCommandEvent event( hoxEVT_SITE_PLAYER_SHUTDOWN_READY );
-    event.SetEventObject( this );
-    wxPostEvent( m_site->GetResponseHandler(), event );
-}
-
-void 
-hoxPlayer::_ShutdownMyself()
-{
-    const char* FNAME  = "hoxPlayer::_ShutdownMyself";
-
-    if ( m_connection != NULL ) 
-    {
-        this->ShutdownConnection();
-
-        wxLogDebug("%s: Deleting connection...", FNAME);
-        delete m_connection;
-        m_connection = NULL;
-    }
-
-    /* Notify the Site */
-    wxCommandEvent event( hoxEVT_SITE_PLAYER_SHUTDOWN_DONE );
     event.SetEventObject( this );
     wxPostEvent( m_site->GetResponseHandler(), event );
 }

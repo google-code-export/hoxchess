@@ -300,10 +300,6 @@ hoxTable::OnMove_FromNetwork( hoxPlayer*         player,
 
         switch( (*it)->GetType() )
         {
-        case hoxPLAYER_TYPE_HOST:
-            wxLogDebug("%s: Ignore this Move since this is a HOST player.", FNAME);
-            break;
-
         case hoxPLAYER_TYPE_LOCAL:
             wxLogDebug("%s: Ignore this Move since this is a LOCAL player.", FNAME);
             break;
@@ -732,8 +728,7 @@ hoxTable::_GetBoardPlayer() const
                                   it != players.end(); ++it )
     {
         playerType = (*it)->GetType();
-        if (   playerType == hoxPLAYER_TYPE_HOST 
-            || playerType == hoxPLAYER_TYPE_LOCAL )
+        if ( playerType == hoxPLAYER_TYPE_LOCAL )
         {
             return (*it);
         }

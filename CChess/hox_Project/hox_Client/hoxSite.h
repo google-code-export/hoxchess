@@ -37,7 +37,6 @@
 #include "hoxLocalPlayer.h"
 
 DECLARE_EVENT_TYPE(hoxEVT_SITE_PLAYER_SHUTDOWN_READY, wxID_ANY)
-DECLARE_EVENT_TYPE(hoxEVT_SITE_PLAYER_SHUTDOWN_DONE, wxID_ANY)
 
 /* Forward declarations */
 class hoxSocketServer;
@@ -51,7 +50,6 @@ public:
     virtual ~hoxResponseHandler() {}
 
 	void OnShutdownReady_FromPlayer( wxCommandEvent& event ); 
-    void OnShutdownDone_FromPlayer( wxCommandEvent& event ); 
     void OnConnectionResponse( wxCommandEvent& event ); 
 
     hoxSite*   m_site;
@@ -75,7 +73,6 @@ public:
 
     virtual const wxString GetName() const { return "_Unknown_"; }
     virtual hoxResult Close() = 0;
-    virtual void OnSystemShutdown();
 
     virtual hoxResult CreateNewTable(wxString& newTableId) { return hoxRESULT_ERR; }
     virtual hoxResult CreateNewTableAsPlayer(wxString& newTableId, hoxPlayer* player) 
@@ -98,7 +95,6 @@ public:
         { return m_responseHandler; }
 
 	virtual void Handle_ShutdownReadyFromPlayer( hoxPlayer* player );
-    void Handle_ShutdownDoneFromPlayer( hoxPlayer* player );
 
 protected:
     const hoxSiteType  m_type;
@@ -131,22 +127,18 @@ public:
     virtual hoxResult Close();
     bool IsOpened() const { return m_isOpened; }
 
-    virtual hoxResult CreateNewTable(wxString& newTableId);
     virtual hoxResult CreateNewTableAsPlayer(wxString& newTableId, hoxPlayer* player);
 	
-	virtual void DeletePlayer( hoxPlayer* player );
+	virtual void Handle_ShutdownReadyFromPlayer( hoxPlayer* player );
+
+private:
+	void _DoCloseSite();
 
 private:
     hoxServer*          m_server;
     hoxSocketServer*    m_socketServer;
 
     bool                m_isOpened;
-
-    hoxPlayer*          m_player;
-            /* The player representing the host 
-             * Even though the host may particiate in more than one game
-             * at the same time, it is assumed to be run by only ONE player.
-             */
 };
 
 /**

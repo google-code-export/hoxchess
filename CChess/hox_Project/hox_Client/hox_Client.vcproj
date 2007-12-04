@@ -182,10 +182,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\hoxHostPlayer.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\hoxHttpConnection.cpp"
 				>
 			</File>
@@ -309,10 +305,6 @@
 			</File>
 			<File
 				RelativePath=".\hoxEnums.h"
-				>
-			</File>
-			<File
-				RelativePath=".\hoxHostPlayer.h"
 				>
 			</File>
 			<File

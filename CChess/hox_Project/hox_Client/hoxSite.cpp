@@ -37,11 +37,9 @@
 #include "hoxTablesDialog.h"
 
 DEFINE_EVENT_TYPE(hoxEVT_SITE_PLAYER_SHUTDOWN_READY)
-DEFINE_EVENT_TYPE(hoxEVT_SITE_PLAYER_SHUTDOWN_DONE)
 
 BEGIN_EVENT_TABLE(hoxResponseHandler, wxEvtHandler)
 	EVT_COMMAND(wxID_ANY, hoxEVT_SITE_PLAYER_SHUTDOWN_READY, hoxResponseHandler::OnShutdownReady_FromPlayer)
-    EVT_COMMAND(wxID_ANY, hoxEVT_SITE_PLAYER_SHUTDOWN_DONE, hoxResponseHandler::OnShutdownDone_FromPlayer)
     EVT_COMMAND(wxID_ANY, hoxEVT_CONNECTION_RESPONSE, hoxResponseHandler::OnConnectionResponse)
 END_EVENT_TABLE()
 
@@ -56,18 +54,6 @@ hoxResponseHandler::OnShutdownReady_FromPlayer( wxCommandEvent& event )
     wxCHECK_RET(player, "Player cannot be NULL.");
 
     m_site->Handle_ShutdownReadyFromPlayer( player );
-}
-
-void 
-hoxResponseHandler::OnShutdownDone_FromPlayer( wxCommandEvent& event )
-{
-    const char* FNAME = "hoxResponseHandler::OnShutdownDone_FromPlayer";
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    hoxPlayer* player = wx_reinterpret_cast(hoxPlayer*, event.GetEventObject());
-    wxCHECK_RET(player, "Player cannot be NULL.");
-
-    m_site->Handle_ShutdownDoneFromPlayer( player );
 }
 
 void 
@@ -117,22 +103,6 @@ hoxSite::DeletePlayer( hoxPlayer* player )
 	m_playerMgr.DeletePlayer( player ); 
 }
 
-void 
-hoxSite::OnSystemShutdown() 
-{ 
-    const char* FNAME = "hoxSite::OnSystemShutdown";
-
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    /* Inform all players about the SHUTDOWN. */
-    m_playerMgr.OnSystemShutdown();
-
-    //if ( m_playerMgr.GetNumberOfPlayers() > 0 )
-    //{
-    //    return;
-    //}
-}
-
 hoxResult 
 hoxSite::CloseTable(hoxTable* table)
 {
@@ -148,26 +118,6 @@ hoxSite::Handle_ShutdownReadyFromPlayer( hoxPlayer* player )
 	wxLogDebug("%s: ENTER. Do nothing. END.", FNAME);
 }
 
-void 
-hoxSite::Handle_ShutdownDoneFromPlayer( hoxPlayer* player )
-{
-    const char* FNAME = "hoxSite::Handle_ShutdownDoneFromPlayer";
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    wxLogDebug("%s: Removing this player [%s] from the system...", 
-        FNAME, player->GetName().c_str());
-
-    this->DeletePlayer( player );
-
-    /* Initiate the App if there is no more active players. */
-    if ( m_playerMgr.GetNumberOfPlayers() == 0 )
-    {
-        wxCommandEvent event( hoxEVT_APP_SITE_SHUTDOWN_READY );
-        event.SetEventObject( this );
-        wxPostEvent( &(wxGetApp()), event );
-    }
-}
-
 // --------------------------------------------------------------------------
 // hoxLocalSite
 // --------------------------------------------------------------------------
@@ -178,17 +128,12 @@ hoxLocalSite::hoxLocalSite(const hoxServerAddress& address)
         , m_server( NULL )
         , m_socketServer( NULL )
         , m_isOpened( false )
-        , m_player( NULL )
 {
-    // Create a "host" player representing this machine.
-    wxString playerName = hoxUtility::GenerateRandomString();
-    playerName += "_HOST";
-    m_player = m_playerMgr.CreateHostPlayer( playerName );
 }
 
 hoxLocalSite::~hoxLocalSite()
 {
-    this->Close();
+    //this->Close();
 }
 
 const wxString 
@@ -252,6 +197,7 @@ hoxLocalSite::Close()
 {
     const char* FNAME = "hoxLocalSite::Close";
 
+#if 0  /* HAS TO BE DONE HERE !!!!!!!! */
     if ( m_socketServer != NULL )
     {
         wxLogDebug("%s: Request the socket-server thread to be shutdowned...", FNAME);
@@ -274,15 +220,16 @@ hoxLocalSite::Close()
     }
 
     m_isOpened = false;
+#endif
+
+	m_playerMgr.OnSiteClosing();
+
+	if ( m_playerMgr.GetNumberOfPlayers() == 0 )	
+	{
+		_DoCloseSite();
+	}
 
     return hoxRESULT_OK;
-}
-
-hoxResult 
-hoxLocalSite::CreateNewTable( wxString& newTableId )
-{
-    return this->CreateNewTableAsPlayer( newTableId, 
-                                         m_player );
 }
 
 hoxResult 
@@ -321,15 +268,64 @@ hoxLocalSite::CreateNewTableAsPlayer( wxString&  newTableId,
 }
 
 void 
-hoxLocalSite::DeletePlayer( hoxPlayer* player )
+hoxLocalSite::Handle_ShutdownReadyFromPlayer( hoxPlayer* player )
 {
-	if ( m_player == player )
+    const char* FNAME = "hoxLocalSite::Handle_ShutdownReadyFromPlayer";
+    wxLogDebug("%s: ENTER. (%s)", FNAME, player->GetName().c_str());
+
+	//wxCHECK_RET( m_player, "Player must not be NULL.");
+
+	//hoxResult result = m_player->DisconnectFromNetworkServer( NULL /*m_responseHandler*/ );
+	//if ( result != hoxRESULT_OK )
+	//{
+	//	wxLogError("%s: Failed to disconnect from remote server.", FNAME);
+	//	return;
+	//}
+
+	this->DeletePlayer( player );
+
+    /* Perform the actual closing. */
+	if ( m_playerMgr.GetNumberOfPlayers() == 0 )	
 	{
-		m_player = NULL;
+		_DoCloseSite();
+	}
+}
+
+void 
+hoxLocalSite::_DoCloseSite()
+{
+	const char* FNAME = "hoxLocalSite::_DoCloseSite";
+
+	wxLogDebug("%s: ENTER.", FNAME);
+#if 1
+	if ( m_socketServer != NULL )
+	{
+		wxLogDebug("%s: Request the socket-server thread to be shutdowned...", FNAME);
+		m_socketServer->RequestShutdown();
+		wxThread::ExitCode exitCode = m_socketServer->GetThread()->Wait();
+		wxLogDebug("%s: The socket-server thread was shutdowned with exit-code = [%d].", FNAME, exitCode);
+		delete m_socketServer;
+		m_socketServer = NULL;
 	}
 
-	this->hoxSite::DeletePlayer( player );
+	if ( m_server != NULL )
+	{
+		wxLogDebug("%s: Request the Server thread to be shutdowned...", FNAME);
+		hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_SHUTDOWN, NULL );
+		m_server->AddRequest( request );
+		wxThread::ExitCode exitCode = m_server->GetThread()->Wait();
+		wxLogDebug("%s: The Server thread was shutdowned with exit-code = [%d].", FNAME, exitCode);
+		delete m_server;
+		m_server = NULL;
+	}
+
+	m_isOpened = false;
+#endif
+	wxCommandEvent event( hoxEVT_APP_SITE_CLOSE_READY );
+	event.SetEventObject( this );
+	wxPostEvent( &(wxGetApp()), event );
 }
+
 
 // --------------------------------------------------------------------------
 // hoxRemoteSite
@@ -351,7 +347,7 @@ hoxRemoteSite::~hoxRemoteSite()
     const char* FNAME = "hoxRemoteSite::~hoxRemoteSite";
     wxLogDebug("%s: ENTER.", FNAME);
 
-    this->Close();
+    //this->Close();
 }
 
 hoxLocalPlayer* 
@@ -450,6 +446,8 @@ hoxRemoteSite::OnResponse_Connect( const wxString& responseStr )
             FNAME, returnCode, returnMsg.c_str());
         return;
     }
+
+	//wxGetApp().GetFrame()->UpdateSiteTreeUI();
 }
 
 void 
@@ -581,7 +579,12 @@ hoxRemoteSite::GetName() const
 {
     wxString name;
 
-    name.Printf("Remote %s:%d", m_address.name.c_str(), m_address.port);
+	name.Printf("%s:%d", m_address.name.c_str(), m_address.port);
+	//if ( ! this->IsConnected() )
+	//{
+	//	name += " (disconnected)";		
+	//}
+
     return name;
 }
 
@@ -630,7 +633,6 @@ hoxResult
 hoxRemoteSite::Close()
 {
     const char* FNAME = "hoxRemoteSite::Close";
-    //hoxResult result;
     wxLogDebug("%s: ENTER.", FNAME);
 
 	if ( m_player != NULL )
@@ -639,13 +641,6 @@ hoxRemoteSite::Close()
         event.SetString( "The site is being closed" );
         event.SetEventObject( &(wxGetApp()) );
         wxPostEvent( m_player , event );
-
-		//result = m_player->DisconnectFromNetworkServer( NULL /*m_responseHandler*/ );
-		//if ( result != hoxRESULT_OK )
-		//{
-		//	wxLogError("%s: Failed to disconnect from remote server.", FNAME);
-		//	return hoxRESULT_ERR;
-		//}
 	}
 
     return hoxRESULT_OK;
@@ -676,7 +671,8 @@ hoxRemoteSite::QueryForNetworkTables()
 bool 
 hoxRemoteSite::IsConnected() const
 {
-    return (    m_player->GetConnection() != NULL
+    return (    m_player != NULL
+		     && m_player->GetConnection() != NULL
              && m_player->GetConnection()->IsConnected() );
 }
 
@@ -820,9 +816,19 @@ hoxRemoteSite::Handle_ShutdownReadyFromPlayer( hoxPlayer* player )
     const char* FNAME = "hoxRemoteSite::Handle_ShutdownReadyFromPlayer";
     wxLogDebug("%s: ENTER.", FNAME);
 
-	wxCHECK_RET( m_player, "Player must not be NULL.");
+	if ( m_player == NULL )
+	{
+		wxLogDebug("%s: Player is NULL. Shutdown must have already been processed.", FNAME);
+		return;
+	}
 
-	hoxResult result = m_player->DisconnectFromNetworkServer( NULL /*m_responseHandler*/ );
+	/* Must set the local player to NULL immediately to handle "re-entrance"
+	 * because the DISCONNECT call below can go to sleep...
+	 */
+	hoxLocalPlayer* localPlayer = m_player;
+	m_player = NULL;
+
+	hoxResult result = localPlayer->DisconnectFromNetworkServer( NULL /*m_responseHandler*/ );
 	if ( result != hoxRESULT_OK )
 	{
 		wxLogError("%s: Failed to disconnect from remote server.", FNAME);

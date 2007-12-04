@@ -42,11 +42,9 @@
 IMPLEMENT_APP(MyApp)
 
 DEFINE_EVENT_TYPE(hoxEVT_APP_SITE_CLOSE_READY)
-DEFINE_EVENT_TYPE(hoxEVT_APP_SITE_SHUTDOWN_READY)
 
 BEGIN_EVENT_TABLE(MyApp, wxApp)
 	EVT_COMMAND(wxID_ANY, hoxEVT_APP_SITE_CLOSE_READY, MyApp::OnCloseReady_FromSite)
-    EVT_COMMAND(wxID_ANY, hoxEVT_APP_SITE_SHUTDOWN_READY, MyApp::OnShutdownReady_FromSite)
 END_EVENT_TABLE()
 
 /**
@@ -89,6 +87,7 @@ MyApp::OnInit()
     m_frame->Show(true);
 
     m_localSite = NULL;
+	m_appClosing = false;
 
     // Initialize socket so that secondary threads can use network-related API.
     if ( ! wxSocketBase::Initialize() )
@@ -110,12 +109,12 @@ MyApp::OnExit()
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    for ( hoxSiteList::iterator it = m_sites.begin();
-                                it != m_sites.end(); ++it )
-    {
-        (*it)->Close();
-        delete (*it);
-    }
+    //for ( hoxSiteList::iterator it = m_sites.begin();
+    //                            it != m_sites.end(); ++it )
+    //{
+    //    (*it)->Close();
+    //    delete (*it);
+    //}
 
     /* NOTE: We rely on the Frame to notify about active players that the
      *      system is being shutdowned.
@@ -155,15 +154,15 @@ MyApp::CloseServer( hoxSite* site )
     site->Close();
 
 	// For local site, just delete it now.
-	if ( site == m_localSite )
-	{
-		m_sites.remove( site );
-		delete site;
+	//if ( site == m_localSite )
+	//{
+	//	m_sites.remove( site );
+	//	delete site;
 
-		m_localSite = NULL;
+	//	m_localSite = NULL;
 
-		m_frame->UpdateSiteTreeUI();
-	}
+	//	m_frame->UpdateSiteTreeUI();
+	//}
 }
 
 void 
@@ -211,24 +210,18 @@ MyApp::ConnectRemoteServer( const hoxServerAddress& address )
 }
 
 void 
-MyApp::CloseLocalSite()
+MyApp::OnSystemClose()
 {
-    if ( m_localSite != NULL )
-    {
-        m_localSite->Close();
-    }
-}
-
-void 
-MyApp::OnSystemShutdown()
-{
-    const char* FNAME = "MyApp::OnSystemShutdown";
+    const char* FNAME = "MyApp::OnSystemClose";
 
     wxLogDebug("%s: ENTER.", FNAME);
+
+	m_appClosing = true;
+
     for ( hoxSiteList::iterator it = m_sites.begin();
                                 it != m_sites.end(); ++it )
     {
-        (*it)->OnSystemShutdown();
+		(*it)->Close();
     }
 }
 
@@ -242,41 +235,21 @@ MyApp::OnCloseReady_FromSite( wxCommandEvent&  event )
     hoxSite* site = wx_reinterpret_cast(hoxSite*, event.GetEventObject());
     wxCHECK_RET(site, "Site cannot be NULL.");
 
-    if ( site == m_localSite )
-        m_localSite = NULL;
-
     m_sites.remove( site );
     //site->Close();
     delete site;
 
-	m_frame->UpdateSiteTreeUI();
-}
-
-void 
-MyApp::OnShutdownReady_FromSite( wxCommandEvent&  event )
-{
-    const char* FNAME = "MyApp::OnShutdownReady_FromSite";
-
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    hoxSite* site = wx_reinterpret_cast(hoxSite*, event.GetEventObject());
-    wxCHECK_RET(site, "Site cannot be NULL.");
-
     if ( site == m_localSite )
-    {
         m_localSite = NULL;
-    }
 
-    m_sites.remove( site );
-    site->Close();
-    delete site;
+	m_frame->UpdateSiteTreeUI();
 
     /* Initiate the App's shutdown if there is no more sites. */
-    if ( m_sites.empty() )
-    {
+	if ( m_appClosing && m_sites.empty() )
+	{
         wxLogDebug("%s: Trigger a Frame's Close event.", FNAME);
         m_frame->Close();  // NOTE: Is there a better way?
-    }
+	}
 }
 
 /************************* END OF FILE ***************************************/

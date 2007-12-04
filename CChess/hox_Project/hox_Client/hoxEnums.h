@@ -124,18 +124,6 @@ enum hoxSiteType
  */
 enum hoxPlayerType
 {
-    hoxPLAYER_TYPE_HOST,      
-            /* A player who controls this computer.
-             * He has the physical access to the Board.
-             * Specifically, he can make Move(s) using the mouse
-             * on the local computer.
-             * There can ONLY one host player.
-             * This player does not have any network connections.
-             * If there is a such a need, the Host will dynamically
-             * create LOCALl players (see below) to do the network-related
-             * tasks.
-             */
-
     hoxPLAYER_TYPE_LOCAL,      
             /* A player who have physical access to the Board.
              * Specifically, he can make Move(s) using the mouse

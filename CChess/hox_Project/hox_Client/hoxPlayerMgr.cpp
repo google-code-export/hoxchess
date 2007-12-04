@@ -43,18 +43,6 @@ hoxPlayerMgr::~hoxPlayerMgr()
     }
 }
 
-hoxHostPlayer*
-hoxPlayerMgr::CreateHostPlayer( const wxString& name,
-                                int             score /* = 1500 */)
-{
-    hoxHostPlayer* player 
-        = new hoxHostPlayer( name, hoxPLAYER_TYPE_HOST, score );
-    player->SetSite( m_site );
-    m_players.push_back( player );
-
-    return player;
-}
-
 hoxHttpPlayer*
 hoxPlayerMgr::CreateHTTPPlayer( const wxString& name,
                                 int             score /* = 1500 */)
@@ -132,18 +120,18 @@ hoxPlayerMgr::FindPlayer( const wxString& playerId ) const
 }
 
 void
-hoxPlayerMgr::OnSystemShutdown()
+hoxPlayerMgr::OnSiteClosing()
 {
-    const char* FNAME = "hoxPlayerMgr::OnSystemShutdown";
+    const char* FNAME = "hoxPlayerMgr::OnSiteClosing";
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    /* Inform all players about the SHUTDOWN. */
+    /* Inform all players about the CLOSING. */
     for ( hoxPlayerList::iterator it = m_players.begin();
                                   it != m_players.end(); ++it )
     {
-        wxCommandEvent event( hoxEVT_PLAYER_APP_SHUTDOWN );
-        event.SetString( "System being shutdowned" );
+        wxCommandEvent event( hoxEVT_PLAYER_SITE_CLOSING );
+        event.SetString( "The site is being closed" );
         event.SetEventObject( &(wxGetApp()) );
         wxPostEvent( (*it) , event );
     }
