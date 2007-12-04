@@ -13,7 +13,6 @@ SOURCES := \
 	hoxBoard.cpp \
 	hoxConnection.cpp \
 	hoxCoreBoard.cpp \
-	hoxHostPlayer.cpp \
 	hoxHttpConnection.cpp \
 	hoxHttpPlayer.cpp \
 	hoxLocalPlayer.cpp \
