@@ -9,21 +9,19 @@ The page's content is based entirely on my experience working on the project.
 == Requirements ==
 Starting from version _0.0.2.0_ (released on Nov 10, 2007), the project can be built under Windows and Linux, thanks to the cross platform portability of [http://www.wxwidgets.org wxWidgets].
 
-  * [http://www.wxwidgets.org/ wxWidgets] 2.8.6 
+  * [http://www.wxwidgets.org/ wxWidgets] 2.8.7 
   * Operating Systems
     * Under Windows
-      * Windows XP or Vista
-      * Visual C++ 2005 Express Edition
-      * Microsoft Platform SDK
+      * Windows Vista
+      * Visual C++ 2008 Express Edition
     * Under Linux
       * Any Linux distribution that supports _g++_ and _make_ packages. I have tried on the following:
         * [http://www.centos.org/ CentOS] 4.5 using [http://www.eclipse.org/cdt/ Eclipse CDT] 4.0.1, or
         * [http://www.ubuntu.com/ Ubuntu] 7.10 using [http://www.kdevelop.org KDevelop] 3.5 (as a _custom Makefile_ project or as an _Automake_ based project).
 
 == Detailed Instructions under Windows ==
-  * wxWidgets: Put the libaries and headers under _C:\wxMSW-2.8.6_
+  * wxWidgets: Put the libraries and headers under _C:\wxMSW-2.8.7_
     * If your wxWidgets' location is different, then you need to adjust the appropriate settings of _hox_Client.vcproj_.
-  * Microsoft Platform SDK: Make sure the paths of INCLUDE and LIBS in your Visual Studio C++ containing that of Microsoft Platform SDK (such as C:\WinSDK)
   * Open the project _hox_Project/hox_Client/hox_Client.vcproj_ inside Visual Studio C++ and build from there.
 
 == Detailed Instructions under Linux ==
@@ -31,7 +29,7 @@ Starting from version _0.0.2.0_ (released on Nov 10, 2007), the project can be b
     * Everything is contained within one simple _Makefile_ located under _CChess/hox_Project/_
       * Once the _hoxchess_ executable file is built, run it as follows:
         * LD_LIBRARY_PATH=<_path_to_wxWidgets_libs_> ./hoxchess
-          * For example: LD_LIBRARY_PATH=/opt/wxGTK-2.8.6/lib ./hoxchess
+          * For example: LD_LIBRARY_PATH=/opt/wxGTK-2.8.7/lib ./hoxchess
   * *Note* : 
     * For those who develop in [http://www.kdevelop.org KDevelop], I also created an KDevelop project _CChess/hox_Project/hox_Project.kdevelop_
     * This project file is simply a wrapper of the _Makefile_ mentioned above.
