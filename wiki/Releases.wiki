@@ -2,6 +2,14 @@
 
 _All releases can be found from_ [http://code.google.com/p/hoxchess/downloads/list this Downloads page]
 
+  * *December 04, 2007* 
+    * Released *HOXChess 0.2.0.0* of the _source_ code.
+    * Here are some of the major changes:
+      * Introduced a concept of a _Site_ that represents either a _local_ server or a _remote_ server.
+      * Fixed a number of crashes related to closing the App.      
+      * Updated the project to use the latest _wxWidgets 2.8.7_.
+      * Updated the project to use the _Visual C++ 2008 Express Edition_.
+
   * *November 17, 2007* 
     * Released *HOXChess 0.1.0.0* of the _source_ code.
     * This release is a major milestone for HOXChess because all the _core_ features have been implemented and are ready to be tested by the end users.
