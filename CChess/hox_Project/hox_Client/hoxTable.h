@@ -61,6 +61,9 @@ public:
      * My MAIN public API
      *********************************/
 
+	/**
+	 * Return the Table's Id.
+	 */
     const wxString GetId() const { return m_id; }
 
     /**
@@ -106,9 +109,6 @@ public:
      */
     void SetBoard( hoxBoard* board );
 
-    hoxBoard* GetBoard() const { return m_board; }
-
-
     /**
      * Callback function from the Board to let this Table know about
      * physical (Board) Moves.
@@ -128,15 +128,12 @@ public:
      * Callback function from the NETWORK Player to let this Table know about
      * the newly-received "remote" Moves.
      *
-     * @param player The parameter is passed in so that the Table does not have
-     *               to inform that player about this move (to avoid getting 
-     *               into an endless loop).
-     * @param fromPosition The current position of the Piece.
-     * @param toPosition The new position of the Piece.
+     * @param player Currently, this player can be the one that made the Move
+	 *               OR can be the Player that informs about the Move.
+	 *               TODO: We need to look at this 'dual-role' issue.
+	 *
+     * @param moveStr The string containing the Move.
      */
-    void OnMove_FromNetwork( hoxPlayer*         player,
-                             const hoxPosition& fromPosition,
-                             const hoxPosition& toPosition );
     void OnMove_FromNetwork( hoxPlayer*         player,
                              const wxString&    moveStr );
 
@@ -180,8 +177,6 @@ public:
     hoxSite* GetSite() const { return m_site; }
 
 private:
-    hoxResult _ParseMoveString( const wxString& moveStr, hoxMove& move );
-
     /**
      * Post (inform) a player about the fact that this table is 
      * about to be closed.
@@ -236,6 +231,8 @@ private:
 
     void _PostBoard_MessageEvent( hoxPlayer*      player,
                                   const wxString& message ) const;
+
+    void _PostBoard_MoveEvent( const wxString& moveStr ) const;
 
     /**
      * Inform other Players that a new Player just joined the Table.

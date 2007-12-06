@@ -127,6 +127,7 @@ hoxLocalSite::hoxLocalSite(const hoxServerAddress& address)
         : hoxSite( hoxSITE_TYPE_LOCAL, address )
         , m_server( NULL )
         , m_isOpened( false )
+		, m_nNextTableId( 0 )
 {
 }
 
@@ -196,31 +197,24 @@ hoxLocalSite::CreateNewTableAsPlayer( wxString&  newTableId,
 {
     const char* FNAME = "hoxLocalSite::CreateNewTableAsPlayer";
     hoxTable* newTable = NULL;
-    wxString  tableId;  // TODO: we should generate our table-Id.
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    /* Create a GUI Frame for the new Table. */
-    MyFrame* frame = wxGetApp().GetFrame();
-    MyChild* childFrame = frame->CreateFrameForTable( tableId );
+	/* Generate a new Table-Id */
+	newTableId = _GenerateTableId();
 
-    /* Create a new table with newly created Frame. */
-    newTable = m_tableMgr.CreateTableWithFrame( childFrame, 
-                                                tableId );
-    childFrame->SetTable( newTable );
-    childFrame->Show( false /*true*/ );
+    /* Create a new table without a frame. */
+    newTable = m_tableMgr.CreateTable( newTableId );
 
-    newTableId = newTable->GetId();
-
-    // Add the specified player to the table.
+    /* Add the specified player to the table. */
     hoxResult result = player->JoinTable( newTable );
     wxASSERT( result == hoxRESULT_OK  );
     wxASSERT_MSG( player->HasRole( 
                             hoxRole(newTable->GetId(), hoxPIECE_COLOR_RED) ),
                   _("Player must play RED"));
 
-    // Update UI.
-    frame->UpdateSiteTreeUI();
+    /* Update UI. */
+    wxGetApp().GetFrame()->UpdateSiteTreeUI();
 
     return hoxRESULT_OK;
 }
@@ -259,6 +253,13 @@ hoxLocalSite::_DoCloseSite()
 	wxCommandEvent event( hoxEVT_APP_SITE_CLOSE_READY );
 	event.SetEventObject( this );
 	wxPostEvent( &(wxGetApp()), event );
+}
+
+const wxString 
+hoxLocalSite::_GenerateTableId()
+{
+	++m_nNextTableId;
+	return wxString::Format("%d", m_nNextTableId);
 }
 
 
@@ -405,8 +406,8 @@ hoxRemoteSite::OnResponse_New( const wxString& responseStr )
     MyChild* childFrame = frame->CreateFrameForTable( newTableId );
 
     /* Create a new table with newly created Frame. */
-    newTable = m_tableMgr.CreateTableWithFrame( childFrame, 
-                                                newTableId );
+    newTable = m_tableMgr.CreateTable( newTableId, 
+                                       childFrame );
     childFrame->SetTable( newTable );
     childFrame->Show( true );
 
@@ -678,8 +679,8 @@ hoxRemoteSite::JoinExistingTable( const hoxNetworkTableInfo& tableInfo )
     MyChild* childFrame = frame->CreateFrameForTable( tableId );
 
     /* Create a new table with newly created Frame. */
-    table = m_tableMgr.CreateTableWithFrame( childFrame, 
-                                             tableId );
+    table = m_tableMgr.CreateTable( tableId, 
+                                    childFrame );
     childFrame->SetTable( table );
     childFrame->Show( true );
 
@@ -735,6 +736,8 @@ hoxRemoteSite::JoinExistingTable( const hoxNetworkTableInfo& tableInfo )
     {
         table->ToggleViewSide();
     }
+
+	frame->UpdateSiteTreeUI();
 
     return hoxRESULT_OK;
 }

@@ -45,27 +45,8 @@ hoxTableMgr::~hoxTableMgr()
 }
 
 hoxTable*
-hoxTableMgr::CreateTable()
-{
-    hoxTable* newTable = NULL;
-    wxString  tableId;
-
-    /* Create a GUI Frame for the new Table. */
-    MyFrame* frame = wxGetApp().GetFrame();
-    MyChild* childFrame = frame->CreateFrameForTable( tableId );
-
-    /* Create a new table with newly created Frame. */
-    newTable = this->CreateTableWithFrame( childFrame, 
-                                           tableId );
-    childFrame->SetTable( newTable );
-    childFrame->Show( true );
-
-    return newTable;
-}
-
-hoxTable*
-hoxTableMgr::CreateTableWithFrame( wxWindow*       parent,
-                                   const wxString& tableId )
+hoxTableMgr::CreateTable( const wxString& tableId,
+                          wxWindow*       tableWindow /* = NULL */ )
 {
     /* Create a Referee */
     hoxIReferee* referee = new hoxReferee();
@@ -77,15 +58,18 @@ hoxTableMgr::CreateTableWithFrame( wxWindow*       parent,
      */
     hoxTable* table = new hoxTable( m_site, tableId, referee );
 
-    /* Create a "hidden" Board */
-    hoxBoard* board = new hoxBoard( parent, PIECES_PATH, referee,
-                                    wxDefaultPosition,
-                                    parent->GetSize() );
+    /* Create a Board if a table-window (or table-frame) is provided. */
+	if ( tableWindow != NULL )
+	{
+		hoxBoard* board = new hoxBoard( tableWindow, PIECES_PATH, referee,
+										wxDefaultPosition,
+										tableWindow->GetSize() );
 
-    /* Attach the Board to the Table to be served as a Table's GUI 
-     * Also, trigger the Board to be displayed.
-     */
-    table->SetBoard( board );
+		/* Attach the Board to the Table to be served as a Table's GUI 
+		 * Also, trigger the Board to be displayed.
+		 */
+		table->SetBoard( board );
+	}
 
     /* Save this table to our list */
     m_tables.push_back( table);

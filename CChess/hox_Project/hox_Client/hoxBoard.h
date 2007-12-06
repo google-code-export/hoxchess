@@ -44,7 +44,7 @@ class hoxPlayer;
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_JOIN, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_LEAVE, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_WALL_OUTPUT, wxID_ANY)
-
+DECLARE_EVENT_TYPE(hoxEVT_BOARD_NEW_MOVE, wxID_ANY)
 
 /** 
  * A full-featured Board acting as the Table's UI.
@@ -106,6 +106,7 @@ public:
     void OnPlayerJoin( wxCommandEvent &event );
     void OnPlayerLeave( wxCommandEvent &event );
     void OnWallOutput( wxCommandEvent &event );
+	void OnNewMove( wxCommandEvent &event );
 
     void OnWallInputEnter( wxCommandEvent &event );
 
@@ -130,14 +131,6 @@ public:
 
     void ToggleViewSide();
 
-    /**
-     * Do a Move on a Board. This is usually invoked indirectly 
-     * from a NETWORK Player.
-     *
-     * @note This Move will trigger Referee-validation.
-     */
-    bool DoMove( hoxMove& move );
-
 private:
     void _SetRedInfo( const hoxPlayer* player );
     void _SetBlackInfo( const hoxPlayer* player );
@@ -159,6 +152,9 @@ private:
     void           _ResetTimerUI();  // Reset times to start a new game.
     void           _UpdateTimerUI();
     const wxString _FormatTime( int nTime ) const;
+
+	bool _ParseMoveString( const wxString& moveStr, 
+		                   hoxMove&        move ) const;
 
 private:
     hoxCoreBoard*     m_coreBoard;  // The "core" board.

@@ -26,10 +26,8 @@
 
 #include "hoxTable.h"
 #include "hoxReferee.h"
-#include "hoxPlayerMgr.h"
 #include "hoxPlayer.h"
 #include "hoxBoard.h"
-#include "MyApp.h"     // wxGetApp()
 #include "hoxSite.h"
 
 // ----------------------------------------------------------------------------
@@ -47,38 +45,16 @@ hoxTable::hoxTable( hoxSite*         site,
         , m_redPlayer( NULL )
         , m_blackPlayer( NULL )
 {
-    /* Validate inputs.
-     *
-     * NOTE: Currently, we only log errors.
-     *       This is not the best way to handle errors within a contructor
-     *       because an Table object has already been constructed.
-     *       Throwing an exception would be a better solution.
-     *       However, as of now (Sep 30, 2007), wxWidgets 2.8.5 does not
-     *       officially support C++ exceptions.
-     */
-
-    //if ( m_board == NULL )
-    //{
-    //    wxLogError(_T("Unexpected NULL pointer for Board."));
-    //}
-
     const char* FNAME = "hoxTable::hoxTable";
-
     wxLogDebug("%s: ENTER.", FNAME);
-
 }
 
 hoxTable::~hoxTable()
 {
     const char* FNAME = "hoxTable::~hoxTable";
-
     wxLogDebug("%s: ENTER.", FNAME);
 
-    /* NOTE: The order of deletion is important.
-     * Board should be deleted AFTER all the players.
-     */
     delete m_board;
-
     delete m_referee;
 }
 
@@ -144,7 +120,7 @@ hoxTable::AssignPlayerAs( hoxPlayer*     player,
     }
     else
     {
-        wxLogWarning("%s: Failed to fullfil request-to-join from player.", FNAME);
+        wxLogWarning("%s: Failed to handle request-to-join from player.", FNAME);
         return hoxRESULT_ERR;
     }
 
@@ -259,80 +235,12 @@ hoxTable::OnMessage_FromBoard( const wxString& message )
 
 void 
 hoxTable::OnMove_FromNetwork( hoxPlayer*         player,
-                              const hoxPosition& fromPosition,
-                              const hoxPosition& toPosition )
+                              const wxString&    moveStr )
 {
     const char* FNAME = "hoxTable::OnMove_FromNetwork";
 
-    wxLogDebug("%s: Receive new Move from Network.", FNAME);
-    wxASSERT( player != NULL );
-
-    // Look up Move based on "fromPosition".    
-
-    hoxMove move;
-    move.newPosition = toPosition;
-
-    if ( ! m_referee->GetPieceAtPosition( fromPosition, move.piece ) )
-    {
-        wxLogDebug("%s: Failed to locate piece at the position.", FNAME);
-        return;
-    }
-
-    wxLogDebug("%s: Ask the Board to do this Move.", FNAME);
-    m_board->DoMove( move );
-
-    /* Inform all players at this table about this move. 
-     * Skip the Move's sender since he is the one that informed me.
-     */
-
-    hoxPlayerList players;
-    players.push_back( m_redPlayer );
-    players.push_back( m_blackPlayer );
-
-    for ( hoxPlayerList::iterator it = players.begin();
-                                  it != players.end(); ++it )
-    {
-        if ( (*it) == player )
-        {
-            wxLogDebug("%s: Skip this Player since he is the Sender.", FNAME);
-            continue;
-        }
-
-        switch( (*it)->GetType() )
-        {
-        case hoxPLAYER_TYPE_LOCAL:
-            wxLogDebug("%s: Ignore this Move since this is a LOCAL player.", FNAME);
-            break;
-
-        case hoxPLAYER_TYPE_REMOTE:
-            //(*it)->OnMove_FromTable( m_id, move );
-            break;
-
-        case hoxPLAYER_TYPE_DUMMY:
-            /* fall through */
-        default: 
-            wxLogDebug("%s: Ignore this Move since this is a DUMMY player.", FNAME);
-            break;
-        }
-    }
-}
-
-void 
-hoxTable::OnMove_FromNetwork( hoxPlayer*         player,
-                              const wxString&    moveStr )
-{
-    const char* FNAME = "hoxTable::OnMove_FromNetwork(moveStr)";
-    hoxMove  move;
-
-    hoxResult result = _ParseMoveString( moveStr, move );
-    if ( result != hoxRESULT_OK ) // failed?
-    {
-        wxLogError("%s: Parse Move from string [%s] failed.", FNAME, moveStr.c_str());
-        return;
-    }
-
-    wxLogDebug("%s: Ask the Board to do this Move.", FNAME);
-    m_board->DoMove( move );
+    /* Inform the Board about this Move. */
+	_PostBoard_MoveEvent( moveStr );
 
     /* Inform other players about the new Player */
     _PostAll_MoveEvent( player, moveStr );
@@ -425,41 +333,8 @@ hoxTable::OnClose_FromSystem()
 void 
 hoxTable::ToggleViewSide()
 {
+	wxCHECK_RET(m_board, "The Board is not yet set.");
     m_board->ToggleViewSide();
-}
-
-hoxResult 
-hoxTable::_ParseMoveString( const wxString& moveStr, 
-                            hoxMove&        move )
-{
-    const char* FNAME = "hoxTable::_ParseMoveString";
-
-    /* NOTE: Move-string has the format of "xyXY" */
-
-    if ( moveStr.size() != 4 )
-    {
-        return hoxRESULT_ERR;
-    }
-
-    hoxPosition fromPosition;
-    hoxPosition toPosition;
-
-    fromPosition.x = moveStr[0] - '0';
-    fromPosition.y = moveStr[1] - '0';
-    toPosition.x = moveStr[2] - '0';
-    toPosition.y = moveStr[3] - '0';
-
-    // Look up Move based on "fromPosition".    
-
-    move.newPosition = toPosition;
-
-    if ( ! m_referee->GetPieceAtPosition( fromPosition, move.piece ) )
-    {
-        wxLogDebug("%s: Failed to locate piece at the position.", FNAME);
-        return hoxRESULT_ERR;
-    }
-
-    return hoxRESULT_OK;
 }
 
 void 
@@ -561,6 +436,9 @@ hoxTable::_PostBoard_PlayerEvent( wxEventType commandType,
                                   hoxPlayer*  player,
                                   int         extraCode /* = wxID_ANY */ ) const
 {
+	if ( m_board == NULL )
+		return;
+
     wxCommandEvent playerEvent( commandType );
     playerEvent.SetEventObject( player );
     playerEvent.SetInt( extraCode );
@@ -571,6 +449,9 @@ void
 hoxTable::_PostBoard_MessageEvent( hoxPlayer*      player,
                                    const wxString& message ) const
 {
+	if ( m_board == NULL )
+		return;
+
     wxString who;
     wxString eventString;
 
@@ -582,6 +463,17 @@ hoxTable::_PostBoard_MessageEvent( hoxPlayer*      player,
     /* Post the message on the Wall-Output of the "local" Board. */
     wxCommandEvent event( hoxEVT_BOARD_WALL_OUTPUT );
     event.SetString( eventString );
+    wxPostEvent( m_board, event );
+}
+
+void 
+hoxTable::_PostBoard_MoveEvent( const wxString& moveStr ) const
+{
+	if ( m_board == NULL )
+		return;
+
+    wxCommandEvent event( hoxEVT_BOARD_NEW_MOVE );
+    event.SetString( moveStr );
     wxPostEvent( m_board, event );
 }
 
@@ -718,8 +610,6 @@ hoxTable::_PostAll_LeaveEvent( hoxPlayer* player,
 hoxPlayer* 
 hoxTable::_GetBoardPlayer() const
 {
-    hoxPlayerType playerType;
-
     hoxPlayerList players;
     players.push_back( m_redPlayer );
     players.push_back( m_blackPlayer );
@@ -727,8 +617,7 @@ hoxTable::_GetBoardPlayer() const
     for ( hoxPlayerList::iterator it = players.begin();
                                   it != players.end(); ++it )
     {
-        playerType = (*it)->GetType();
-        if ( playerType == hoxPLAYER_TYPE_LOCAL )
+        if ( (*it)->GetType() == hoxPLAYER_TYPE_LOCAL )
         {
             return (*it);
         }
