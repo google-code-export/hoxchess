@@ -133,12 +133,14 @@ public:
 	virtual void Handle_ShutdownReadyFromPlayer( hoxPlayer* player );
 
 private:
-	void _DoCloseSite();
+	void           _DoCloseSite();
+	const wxString _GenerateTableId();
 
 private:
-    hoxServer*          m_server;
+    hoxServer*   m_server;
+    bool         m_isOpened;
 
-    bool                m_isOpened;
+	int          m_nNextTableId; // To generate new Table-Id.
 };
 
 /**

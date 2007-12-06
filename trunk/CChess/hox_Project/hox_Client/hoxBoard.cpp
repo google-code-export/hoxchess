@@ -53,11 +53,13 @@ enum
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_PLAYER_JOIN )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_PLAYER_LEAVE )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_WALL_OUTPUT )
+DEFINE_EVENT_TYPE( hoxEVT_BOARD_NEW_MOVE )
 
 BEGIN_EVENT_TABLE(hoxBoard, wxPanel)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_JOIN, hoxBoard::OnPlayerJoin)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_LEAVE, hoxBoard::OnPlayerLeave)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_WALL_OUTPUT, hoxBoard::OnWallOutput)
+	EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_NEW_MOVE, hoxBoard::OnNewMove)
 
     EVT_TEXT_ENTER(ID_BOARD_WALL_INPUT, hoxBoard::OnWallInputEnter)
     EVT_BUTTON(ID_HISTORY_BEGIN, hoxBoard::OnButtonHistory_BEGIN)
@@ -222,6 +224,30 @@ hoxBoard::OnWallOutput( wxCommandEvent &event )
     const wxString msg = eventString.AfterFirst(' ');
 
     _PostToWallOutput( who, msg ); 
+}
+
+void 
+hoxBoard::OnNewMove( wxCommandEvent &event )
+{
+	const char* FNAME = "hoxBoard::OnNewMove";
+    hoxMove  move;
+
+    const wxString moveStr = event.GetString();
+
+    if ( ! _ParseMoveString( moveStr, move ) ) // failed?
+    {
+        wxLogError("%s: Failed to parse Move-string [%s].", FNAME, moveStr.c_str());
+        return;
+    }
+
+	/* Ask the core Board to realize the Move */
+
+    wxCHECK_RET( m_coreBoard, "The core Board is NULL." );
+
+    if ( ! m_coreBoard->DoMove( move ) )  // failed?
+        return;
+
+    _OnValidMove( move );
 }
 
 void 
@@ -637,19 +663,6 @@ hoxBoard::ToggleViewSide()
     m_boardSizer->Layout();
 }
 
-bool 
-hoxBoard::DoMove( hoxMove& move )
-{
-    wxCHECK_MSG( m_coreBoard, false, "The core Board is NULL." );
-
-    if ( ! m_coreBoard->DoMove( move ) )
-        return false;
-
-    _OnValidMove( move );
-
-    return true;
-}
-
 void 
 hoxBoard::_AddPlayerToList( const wxString& playerId,
                             int             playerScore )
@@ -757,6 +770,40 @@ const wxString
 hoxBoard::_FormatTime( int nTime ) const
 {
     return wxString::Format( "%d:%.02d", nTime / 60, nTime % 60 );
+}
+
+bool 
+hoxBoard::_ParseMoveString( const wxString& moveStr, 
+	                        hoxMove&        move ) const
+{
+    const char* FNAME = "hoxBoard::_ParseMoveString";
+
+    /* NOTE: Move-string has the format of "xyXY" */
+
+    if ( moveStr.size() != 4 )
+    {
+        return false;   // failure
+    }
+
+    hoxPosition fromPosition;
+    hoxPosition toPosition;
+
+    fromPosition.x = moveStr[0] - '0';
+    fromPosition.y = moveStr[1] - '0';
+    toPosition.x = moveStr[2] - '0';
+    toPosition.y = moveStr[3] - '0';
+
+    // Look up Move based on "fromPosition".    
+
+    move.newPosition = toPosition;
+
+    if ( ! m_referee->GetPieceAtPosition( fromPosition, move.piece ) )
+    {
+        wxLogDebug("%s: *** WARN *** Failed to locate piece at the position.", FNAME);
+        return false;   // failure
+    }
+
+    return true; // success
 }
 
 /************************* END OF FILE ***************************************/
