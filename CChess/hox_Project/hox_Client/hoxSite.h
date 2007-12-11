@@ -150,7 +150,7 @@ class hoxRemoteSite : public hoxSite
 {
 public:
     hoxRemoteSite(const hoxServerAddress& address,
-                  hoxSiteType             type = hoxSITE_TYPE_REMOTE );
+                  hoxSiteType             type = hoxSITE_TYPE_REMOTE);
     virtual ~hoxRemoteSite();
 
     virtual const wxString GetName() const;
@@ -167,6 +167,9 @@ public:
 
 	virtual void Handle_ShutdownReadyFromPlayer( hoxPlayer* player );
 
+	/* TODO: Need to review this API... */
+    virtual hoxLocalPlayer* CreateLocalPlayer(const wxString& playerName);
+
 protected:
     virtual void Handle_ConnectionResponse( hoxResponse* pResponse );
     
@@ -174,9 +177,6 @@ protected:
     virtual void OnResponse_New( const wxString& responseStr );
     virtual void OnResponse_List( const wxString& responseStr );
     virtual void OnResponse_Join( const wxString& responseStr );
-
-private:
-    hoxLocalPlayer* _CreateLocalPlayer();
 
 protected:
     hoxLocalPlayer*      m_player;
@@ -193,6 +193,41 @@ class hoxHTTPSite : public hoxRemoteSite
 public:
     hoxHTTPSite(const hoxServerAddress& address);
     virtual ~hoxHTTPSite();
+
+	/* TODO: Need to review this API... */
+    virtual hoxLocalPlayer* CreateLocalPlayer(const wxString& playerName);
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+/**
+ * The Site-Manager.
+ * This is implemented as a singleton since we only need one instance.
+ */
+class hoxSiteManager
+{
+public:
+	static hoxSiteManager* GetInstance();
+    ~hoxSiteManager();
+
+	hoxSite* CreateSite( hoxSiteType             siteType, 
+		                 const hoxServerAddress& address );
+
+	hoxRemoteSite* FindRemoteSite( const hoxServerAddress& address ) const;
+	
+	int GetNumberOfSites() const { return (int) m_sites.size(); }
+
+	void DeleteSite( hoxSite* site );
+
+	void Close();
+
+	const hoxSiteList& GetSites() const { return m_sites; }
+
+private:
+    hoxSiteManager();
+	static hoxSiteManager* m_instance;
+
+	hoxSiteList     m_sites;
 };
 
 #endif /* __INCLUDED_HOX_SITE_H_ */

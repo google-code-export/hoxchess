@@ -109,10 +109,12 @@ MyApp::OnExit()
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-     /* NOTE: We rely on the Frame to notify about active players that the
+    /* NOTE: We rely on the Frame to notify about active players that the
      *      system is being shutdowned.
      */
 
+
+	delete hoxSiteManager::GetInstance();
 
     //delete wxLog::SetActiveTarget( m_oldLog );
 
@@ -128,8 +130,9 @@ MyApp::OpenServer(int nPort)
     if ( m_localSite == NULL )
     {
         hoxServerAddress address( "127.0.0.1", nPort ); 
-        m_localSite = new hoxLocalSite( address );
-        m_sites.push_back( m_localSite );
+		m_localSite = static_cast<hoxLocalSite*>( 
+			hoxSiteManager::GetInstance()->CreateSite( hoxSITE_TYPE_LOCAL, 
+			                                           address ) );
     }
 
     m_localSite->OpenServer();
@@ -154,16 +157,7 @@ MyApp::ConnectRemoteServer( const hoxServerAddress& address )
     hoxRemoteSite* remoteSite = NULL;
 
     /* Search for existing site. */
-    for ( hoxSiteList::iterator it = m_sites.begin();
-                                it != m_sites.end(); ++it )
-    {
-        if (   (*it)->GetType() != hoxSITE_TYPE_LOCAL
-            && (*it)->GetAddress() == address )
-        {
-            remoteSite = (hoxRemoteSite*) (*it);
-            break;
-        }
-    }
+	remoteSite = hoxSiteManager::GetInstance()->FindRemoteSite( address );
 
     /* Create a new Remote site if necessary. */
     if ( remoteSite == NULL )
@@ -172,13 +166,16 @@ MyApp::ConnectRemoteServer( const hoxServerAddress& address )
         if (   address.name == HOX_HTTP_SERVER_HOSTNAME 
 			&& address.port == HOX_HTTP_SERVER_PORT )
         {
-            remoteSite = new hoxHTTPSite( address );
+			remoteSite = static_cast<hoxHTTPSite*>( 
+				hoxSiteManager::GetInstance()->CreateSite( hoxSITE_TYPE_HTTP, 
+														   address ) );
         }
         else
         {
-            remoteSite = new hoxRemoteSite( address );
+			remoteSite = static_cast<hoxRemoteSite*>( 
+				hoxSiteManager::GetInstance()->CreateSite( hoxSITE_TYPE_REMOTE, 
+														   address ) );
         }
-        m_sites.push_back( remoteSite );
     }
 
     /* Connect to the Remote site. */
@@ -195,16 +192,11 @@ void
 MyApp::OnSystemClose()
 {
     const char* FNAME = "MyApp::OnSystemClose";
-
     wxLogDebug("%s: ENTER.", FNAME);
 
 	m_appClosing = true;
 
-    for ( hoxSiteList::iterator it = m_sites.begin();
-                                it != m_sites.end(); ++it )
-    {
-		(*it)->Close();
-    }
+	hoxSiteManager::GetInstance()->Close();
 }
 
 void 
@@ -217,8 +209,7 @@ MyApp::OnCloseReady_FromSite( wxCommandEvent&  event )
     hoxSite* site = wx_reinterpret_cast(hoxSite*, event.GetEventObject());
     wxCHECK_RET(site, "Site cannot be NULL.");
 
-    m_sites.remove( site );
-    delete site;
+	hoxSiteManager::GetInstance()->DeleteSite( site );
 
     if ( site == m_localSite )
         m_localSite = NULL;
@@ -226,7 +217,8 @@ MyApp::OnCloseReady_FromSite( wxCommandEvent&  event )
 	m_frame->UpdateSiteTreeUI();
 
     /* Initiate the App's shutdown if there is no more sites. */
-	if ( m_appClosing && m_sites.empty() )
+	if (   m_appClosing 
+		&& hoxSiteManager::GetInstance()->GetNumberOfSites() == 0 )
 	{
         wxLogDebug("%s: Trigger a Frame's Close event.", FNAME);
         m_frame->Close();  // NOTE: Is there a better way?
