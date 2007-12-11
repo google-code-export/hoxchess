@@ -274,8 +274,6 @@ hoxRemoteSite::hoxRemoteSite(const hoxServerAddress& address,
 {
     const char* FNAME = "hoxRemoteSite::hoxRemoteSite";
     wxLogDebug("%s: ENTER.", FNAME);
-
-    m_player = _CreateLocalPlayer();
 }
 
 hoxRemoteSite::~hoxRemoteSite()
@@ -285,29 +283,12 @@ hoxRemoteSite::~hoxRemoteSite()
 }
 
 hoxLocalPlayer* 
-hoxRemoteSite::_CreateLocalPlayer()
+hoxRemoteSite::CreateLocalPlayer( const wxString& playerName )
 {
-    hoxLocalPlayer* localPlayer = NULL;
-    hoxConnection* connection = NULL;
+	wxCHECK_MSG(m_player == NULL, NULL, "The player has already been set.");
 
-    wxString playerName = hoxUtility::GenerateRandomString();
-
-    if ( m_type == hoxSITE_TYPE_HTTP )
-    {
-        localPlayer = m_playerMgr.CreateHTTPPlayer( playerName );
-        connection = new hoxHttpConnection( m_address.name, 
-                                            m_address.port );
-    }
-    else
-    {
-        localPlayer = m_playerMgr.CreateMyPlayer( playerName );
-        connection = new hoxSocketConnection( m_address.name, 
-                                              m_address.port );
-    }
-
-    localPlayer->SetConnection( connection );
-
-    return localPlayer;
+	m_player = m_playerMgr.CreateMyPlayer( playerName );
+	return m_player;
 }
 
 void 
@@ -799,6 +780,135 @@ hoxHTTPSite::~hoxHTTPSite()
 {
     const char* FNAME = "hoxHTTPSite::~hoxHTTPSite";
     wxLogDebug("%s: ENTER.", FNAME);
+}
+
+hoxLocalPlayer* 
+hoxHTTPSite::CreateLocalPlayer( const wxString& playerName )
+{
+	wxCHECK_MSG(m_player == NULL, NULL, "The player has already been set.");
+
+	m_player = m_playerMgr.CreateHTTPPlayer( playerName );
+	return m_player;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+// --------------------------------------------------------------------------
+// hoxSiteManager
+// --------------------------------------------------------------------------
+
+/* Define (initialize) the single instance */
+hoxSiteManager* 
+hoxSiteManager::m_instance = NULL;
+
+/* static */
+hoxSiteManager* 
+hoxSiteManager::GetInstance()
+{
+	if ( m_instance == NULL )
+		m_instance = new hoxSiteManager();
+
+	return m_instance;
+}
+
+/* private */
+hoxSiteManager::hoxSiteManager()
+{
+
+}
+
+hoxSiteManager::~hoxSiteManager()
+{
+
+}
+
+hoxSite* 
+hoxSiteManager::CreateSite( hoxSiteType             siteType,
+						    const hoxServerAddress& address )
+{
+	hoxSite* site = NULL;
+
+	switch ( siteType )
+	{
+	case hoxSITE_TYPE_LOCAL:
+	{
+        hoxLocalSite* localSite = new hoxLocalSite( address );
+		site = localSite;
+		break;
+	}
+	case hoxSITE_TYPE_REMOTE:
+	{
+		hoxRemoteSite* remoteSite = new hoxRemoteSite( address );
+
+		wxString playerName = hoxUtility::GenerateRandomString();
+		hoxLocalPlayer* localPlayer = remoteSite->CreateLocalPlayer( playerName );
+        hoxConnection* connection = new hoxSocketConnection( address.name, 
+                                                             address.port );
+		localPlayer->SetConnection( connection );
+		site = remoteSite;
+		break;
+	}
+	case hoxSITE_TYPE_HTTP:
+	{
+		hoxRemoteSite* remoteSite = new hoxHTTPSite( address );
+
+		wxString playerName = hoxUtility::GenerateRandomString();
+		hoxLocalPlayer* localPlayer = remoteSite->CreateLocalPlayer( playerName );
+        hoxConnection* connection = new hoxHttpConnection( address.name, 
+                                                           address.port );
+		localPlayer->SetConnection( connection );
+		site = remoteSite;
+		break;
+	}
+	default:
+		break;
+	}
+
+    m_sites.push_back( site );
+	return site;
+}
+
+hoxRemoteSite*
+hoxSiteManager::FindRemoteSite( const hoxServerAddress& address ) const
+{
+    /* Search for existing REMOTE site. */
+    for ( hoxSiteList::const_iterator it = m_sites.begin();
+                                      it != m_sites.end(); ++it )
+    {
+        if (   (*it)->GetType() != hoxSITE_TYPE_LOCAL
+            && (*it)->GetAddress() == address )
+        {
+            return (hoxRemoteSite*) (*it);
+        }
+    }
+
+	return NULL;
+}
+
+void
+hoxSiteManager::DeleteSite( hoxSite* site )
+{
+    const char* FNAME = "hoxSiteManager::DeleteSite";
+
+    wxCHECK_RET( site != NULL, "The Site must not be NULL." );
+    
+    wxLogDebug("%s: Deleting site [%s]...", FNAME, site->GetName().c_str());
+
+    delete site;
+    m_sites.remove( site );
+}
+
+void 
+hoxSiteManager::Close()
+{
+    const char* FNAME = "hoxSiteManager::Close";
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    for ( hoxSiteList::iterator it = m_sites.begin();
+                                it != m_sites.end(); ++it )
+    {
+		(*it)->Close();
+    }
 }
 
 /************************* END OF FILE ***************************************/

@@ -31,7 +31,6 @@
 
 #include <wx/sstream.h>
 #include <wx/protocol/http.h>
-#include <wx/tokenzr.h>
 
 IMPLEMENT_DYNAMIC_CLASS(hoxHttpConnection, hoxThreadConnection)
 

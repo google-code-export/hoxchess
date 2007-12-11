@@ -116,7 +116,11 @@ enum hoxSiteType
 
     hoxSITE_TYPE_LOCAL,
     hoxSITE_TYPE_REMOTE,
-    hoxSITE_TYPE_HTTP
+    hoxSITE_TYPE_HTTP,
+
+	/* Other third-party sites */
+
+	hoxSITE_TYPE_CHESSCAPE    /* http://www.chesscape.com */
 };
 
 /**

@@ -184,7 +184,7 @@ MyFrame::OnClose(wxCloseEvent& event)
     /* Inform all sites about the CLOSING. */
     wxGetApp().OnSystemClose();
 
-    if ( ! wxGetApp().m_sites.empty() )
+	if ( hoxSiteManager::GetInstance()->GetNumberOfSites() > 0 )
     {
         // *** Postpone the shutdown until all sites are closed.
         return;
@@ -701,7 +701,7 @@ MyFrame::UpdateSiteTreeUI()
     m_sitesTree->DeleteChildren( rootId );
 
     /* Add new Sites */
-    const hoxSiteList& sites = wxGetApp().m_sites;
+	const hoxSiteList& sites = hoxSiteManager::GetInstance()->GetSites();
 
     for ( hoxSiteList::const_iterator it = sites.begin();
                                       it != sites.end(); ++it )
