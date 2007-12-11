@@ -813,6 +813,7 @@ hoxSiteManager::GetInstance()
 
 /* private */
 hoxSiteManager::hoxSiteManager()
+	: m_localSite( NULL )
 {
 
 }
@@ -833,6 +834,7 @@ hoxSiteManager::CreateSite( hoxSiteType             siteType,
 	case hoxSITE_TYPE_LOCAL:
 	{
         hoxLocalSite* localSite = new hoxLocalSite( address );
+		m_localSite = localSite;  // *** Save this local site.
 		site = localSite;
 		break;
 	}
@@ -896,6 +898,9 @@ hoxSiteManager::DeleteSite( hoxSite* site )
 
     delete site;
     m_sites.remove( site );
+
+    if ( site == m_localSite )
+        m_localSite = NULL;
 }
 
 void 

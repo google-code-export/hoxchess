@@ -97,8 +97,6 @@ private:
 
     MyFrame*            m_frame;  // The main frame.
 
-    hoxLocalSite*       m_localSite;  // "cache" variable for easy access.
-
 	bool                m_appClosing;    // The App is being closed?
 
     friend class MyFrame;

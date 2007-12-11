@@ -86,7 +86,6 @@ MyApp::OnInit()
     // created initially)
     m_frame->Show(true);
 
-    m_localSite = NULL;
 	m_appClosing = false;
 
     // Initialize socket so that secondary threads can use network-related API.
@@ -127,15 +126,17 @@ MyApp::OpenServer(int nPort)
     const char* FNAME = "MyApp::OpenServer";
     wxLogDebug("%s: ENTER.", FNAME);
 
-    if ( m_localSite == NULL )
+	hoxLocalSite* localSite = hoxSiteManager::GetInstance()->GetLocalSite();
+
+	if ( localSite == NULL )
     {
         hoxServerAddress address( "127.0.0.1", nPort ); 
-		m_localSite = static_cast<hoxLocalSite*>( 
+		localSite = static_cast<hoxLocalSite*>( 
 			hoxSiteManager::GetInstance()->CreateSite( hoxSITE_TYPE_LOCAL, 
 			                                           address ) );
     }
 
-    m_localSite->OpenServer();
+    localSite->OpenServer();
 
     m_frame->UpdateSiteTreeUI();
 }
@@ -210,9 +211,6 @@ MyApp::OnCloseReady_FromSite( wxCommandEvent&  event )
     wxCHECK_RET(site, "Site cannot be NULL.");
 
 	hoxSiteManager::GetInstance()->DeleteSite( site );
-
-    if ( site == m_localSite )
-        m_localSite = NULL;
 
 	m_frame->UpdateSiteTreeUI();
 
