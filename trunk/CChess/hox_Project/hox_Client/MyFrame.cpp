@@ -572,7 +572,7 @@ MyFrame::OnContextMenu( wxContextMenuEvent& event )
     bool remoteItemsInserted = false;
     bool tableItemsInserted = false;
 
-    if ( wxGetApp().m_localSite == NULL )
+	if ( hoxSiteManager::GetInstance()->GetLocalSite() == NULL )
     {
         menu.Append(MDI_OPEN_SERVER, _("&Open Server...\tCtrl-O"), 
                                      _("Open server for remote access"));

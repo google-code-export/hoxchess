@@ -222,12 +222,18 @@ public:
 	void Close();
 
 	const hoxSiteList& GetSites() const { return m_sites; }
+	hoxLocalSite* GetLocalSite() const { return m_localSite; }
 
 private:
     hoxSiteManager();
 	static hoxSiteManager* m_instance;
 
 	hoxSiteList     m_sites;
+	
+	hoxLocalSite*   m_localSite;  
+		/* The "cache" variable, pointing to the LOCAL site, for easy access. 
+		 * NOTE: Currently, we only allow to have AT MOST one local site.
+		 */
 };
 
 #endif /* __INCLUDED_HOX_SITE_H_ */
