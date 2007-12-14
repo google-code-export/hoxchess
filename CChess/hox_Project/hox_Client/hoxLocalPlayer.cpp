@@ -107,6 +107,7 @@ hoxLocalPlayer::JoinNetworkTable( const wxString& tableId,
 
     return hoxRESULT_OK;
 }
+
 hoxResult 
 hoxLocalPlayer::OpenNewNetworkTable( wxEvtHandler*   sender )
 {

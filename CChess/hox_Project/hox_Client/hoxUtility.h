@@ -39,20 +39,6 @@ namespace hoxUtility
 
     hoxResult LoadPieceImage(hoxPieceType type, hoxPieceColor color, wxImage& image);
 
-    /** 
-     * NOTE: I were thinking about deriving a class to handle the list of
-     *       tables (to avoid memory leak). However, it seems that we
-     *       should NOT derive from STD containers according the following:
-     *
-     *     + http://www.codeguru.com/forum/archive/index.php/t-267641.html
-     *     + http://www.codeguru.com/Cpp/Cpp/cpp_mfc/stl/article.php/c4143
-     *
-     *
-     *  Thus: [ class hoxNetworkTableInfoList : public std::list<hoxNetworkTableInfo*> ]
-     *  is a BAD IDEA.
-     */
-    void FreeNetworkTableInfoList( hoxNetworkTableInfoList& tableList );
-
     /**
      * A helper to generate a random string.
      */

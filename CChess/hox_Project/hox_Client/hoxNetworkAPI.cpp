@@ -234,7 +234,7 @@ hoxNetworkAPI::ParseNetworkTables( const wxString&          responseStr,
 
     wxStringTokenizer tkz( responseStr.substr(2), " \r\n" );
     int i = 0;
-    hoxNetworkTableInfo* tableInfo = NULL;
+    hoxNetworkTableInfo tableInfo;
 
     tableList.clear();
    
@@ -244,18 +244,24 @@ hoxNetworkAPI::ParseNetworkTables( const wxString&          responseStr,
         switch (i)
         {
             case 0: 
-                tableInfo = new hoxNetworkTableInfo();
-                tableInfo->id = token; 
-                tableList.push_back( tableInfo );
+                tableInfo.id = token; 
                 break;
             case 1: 
-                tableInfo->status = ::atoi( token.c_str() ); 
+                tableInfo.status = ::atoi( token.c_str() ); 
                 break;
             case 2: 
-                tableInfo->redId = token; 
+                tableInfo.redId = token; 
                 break;
             default:
-                tableInfo->blackId = token;
+                tableInfo.blackId = token;
+				// Push the previous table in the list.
+				// NOTE: We check for Id' s emptiness to avoid inserting the same
+				//       table twice.
+				if ( ! tableInfo.id.empty() )
+				{
+					tableList.push_back( tableInfo );
+					tableInfo.Clear();  // Clear out old information.
+				}
                 break;
         }
         if ( i == 3) i = 0;

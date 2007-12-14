@@ -101,6 +101,9 @@ public:
     int                GetScore() const    { return m_score; }
     void               SetScore(int score) { m_score = score; }
 
+    wxString GetPassword() const                   { return m_password; }
+    void     SetPassword(const wxString& password) { m_password = password; }
+
     void     SetSite(hoxSite* site) { m_site = site; }
     hoxSite* GetSite() const        { return m_site; }
     
@@ -191,6 +194,7 @@ private:
              */
 
     int            m_score;  // The player's Score.
+	wxString       m_password; // The player's login-password.
 
     int            m_nOutstandingRequests;
 

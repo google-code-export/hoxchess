@@ -55,6 +55,18 @@ hoxPlayerMgr::CreateHTTPPlayer( const wxString& name,
     return player;
 }
 
+hoxChesscapePlayer*
+hoxPlayerMgr::CreateChesscapePlayer( const wxString& name,
+                                     int             score /* = 1500 */)
+{
+    hoxChesscapePlayer* player 
+        = new hoxChesscapePlayer( name, hoxPLAYER_TYPE_LOCAL, score );
+    player->SetSite( m_site );
+    m_players.push_back( player );
+
+    return player;
+}
+
 hoxMyPlayer*
 hoxPlayerMgr::CreateMyPlayer( const wxString& name,
                               int             score /* = 1500 */)
