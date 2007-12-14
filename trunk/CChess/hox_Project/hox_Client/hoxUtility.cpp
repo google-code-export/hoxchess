@@ -108,16 +108,6 @@ hoxUtility::LoadPieceImage( hoxPieceType  type,
     return hoxRESULT_OK;
 }
 
-void
-hoxUtility::FreeNetworkTableInfoList( hoxNetworkTableInfoList& tableList )
-{
-    for ( hoxNetworkTableInfoList::iterator it = tableList.begin(); 
-                                            it != tableList.end(); ++it )
-    {
-        delete (*it);
-    }
-}
-
 wxString 
 hoxUtility::GenerateRandomString()
 {

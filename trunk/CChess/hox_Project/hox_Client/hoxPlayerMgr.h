@@ -31,6 +31,7 @@
 #include "hoxRemotePlayer.h"
 #include "hoxHttpPlayer.h"
 #include "hoxMyPlayer.h"
+#include "hoxChesscapePlayer.h"
 
 /* Forward declarations */
 class hoxSite;
@@ -46,6 +47,9 @@ public:
 
     hoxHttpPlayer* CreateHTTPPlayer( const wxString& name,
                                      int             score = 1500 );
+
+    hoxChesscapePlayer* CreateChesscapePlayer( const wxString& name,
+                                               int             score = 1500 );
 
     hoxMyPlayer* CreateMyPlayer( const wxString& name,
                                  int             score = 1500 );

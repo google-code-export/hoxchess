@@ -177,6 +177,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hoxChesscapeConnection.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\hoxChesscapePlayer.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\hoxConnection.cpp"
 				>
 			</File>
@@ -296,6 +304,14 @@
 			>
 			<File
 				RelativePath=".\hoxBoard.h"
+				>
+			</File>
+			<File
+				RelativePath=".\hoxChesscapeConnection.h"
+				>
+			</File>
+			<File
+				RelativePath=".\hoxChesscapePlayer.h"
 				>
 			</File>
 			<File

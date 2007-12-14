@@ -169,11 +169,22 @@ class hoxNetworkTableInfo
     int       status;     // table's Status.
     wxString  redId;      // RED player's Id.
     wxString  blackId;    // BLACK player's Id.
+	wxString  redScore;   // RED player's Score.
+	wxString  blackScore;   // BLACK player's Score.
 
-    hoxNetworkTableInfo() { }
-    hoxNetworkTableInfo(const wxString& a_id) { id = a_id; }
+	hoxNetworkTableInfo() : status(0) {}
+	hoxNetworkTableInfo(const wxString& a_id) : status(0) { id = a_id; }
+	void Clear()
+		{
+			id = "";
+			status = 0;
+			redId = "";
+			blackId = "";
+			redScore = "";
+			blackScore = "";
+		}
 };
-typedef std::list<hoxNetworkTableInfo*> hoxNetworkTableInfoList;
+typedef std::list<hoxNetworkTableInfo> hoxNetworkTableInfoList;
 
 /**
  * A network event.
@@ -196,6 +207,17 @@ typedef std::list<hoxNetworkEvent*> hoxNetworkEventList;
 // Data-types required for Connection Thread.
 //////////////////////////////////////////////////////////////////
 
+class hoxCommand : public wxObject
+{
+public:
+    typedef std::map<const wxString, wxString> Parameters;
+
+    hoxRequestType type;
+    Parameters     parameters;
+
+    hoxCommand() : type( hoxREQUEST_TYPE_UNKNOWN ) {}
+};
+
 class hoxRequest : public wxObject
 {
 public:
@@ -205,6 +227,7 @@ public:
     wxEvtHandler*   sender;
     wxSocketBase*   socket;  // TODO Put it here temporarily
     wxSocketNotify  socketEvent;
+	hoxCommand::Parameters parameters; // TODO: Re-consider this or other members?
 
     hoxRequest() : type( hoxREQUEST_TYPE_UNKNOWN )
                  , flags( hoxREQUEST_FLAG_NONE )
@@ -217,7 +240,7 @@ public:
                     , flags( hoxREQUEST_FLAG_NONE )
                     , sender( s )
                     , socket( NULL )
-                    , socketEvent( wxSOCKET_INPUT )  {}
+                    , socketEvent( wxSOCKET_INPUT ) {}
 };
 typedef std::list<hoxRequest*> hoxRequestList;
 
@@ -229,28 +252,22 @@ public:
     wxString         content;
     int              flags;
     wxEvtHandler*    sender;
+	void*            eventObject; // TODO: Re-consider this or other members?
 
     hoxResponse() : type( hoxREQUEST_TYPE_UNKNOWN )
                   , code( hoxRESULT_UNKNOWN )
                   , flags( hoxRESPONSE_FLAG_NONE )
-                  , sender( NULL ) {}
+                  , sender( NULL )
+	              , eventObject( NULL ) {}
     hoxResponse(hoxRequestType t, wxEvtHandler* s = NULL) 
                   : type( t )
                   , code( hoxRESULT_UNKNOWN )
                   , flags( hoxRESPONSE_FLAG_NONE )
-                  , sender( s ) {}
+                  , sender( s )
+	              , eventObject( NULL ) {}
 };
 
-class hoxCommand : public wxObject
-{
-public:
-    typedef std::map<const wxString, wxString> Parameters;
-
-    hoxRequestType type;
-    Parameters     parameters;
-
-    hoxCommand() : type( hoxREQUEST_TYPE_UNKNOWN ) {}
-};
+typedef std::auto_ptr<hoxResponse> hoxResponse_AutoPtr;
 
 /**
  * Representing a server address.

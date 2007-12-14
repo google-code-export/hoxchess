@@ -30,6 +30,8 @@
 #include "hoxUtility.h"
 #include "hoxSocketConnection.h"
 #include "hoxHttpConnection.h"
+#include "hoxChesscapeConnection.h"
+#include "hoxChesscapePlayer.h"
 #include "MyFrame.h"
 #include "MyChild.h"
 #include "hoxNetworkAPI.h"
@@ -63,12 +65,12 @@ hoxResponseHandler::OnConnectionResponse( wxCommandEvent& event )
     wxLogDebug("%s: ENTER.", FNAME);
 
     hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
-    std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
+    hoxResponse_AutoPtr response( response_raw ); // take care memory leak!
 
     if ( m_site->GetType() != hoxSITE_TYPE_LOCAL ) // remote site?
     {
         hoxRemoteSite* remoteSite = (hoxRemoteSite*) m_site;
-        remoteSite->Handle_ConnectionResponse( response.release() );
+        remoteSite->Handle_ConnectionResponse( response );
     }
 }
 
@@ -292,13 +294,11 @@ hoxRemoteSite::CreateLocalPlayer( const wxString& playerName )
 }
 
 void 
-hoxRemoteSite::Handle_ConnectionResponse( hoxResponse* pResponse )
+hoxRemoteSite::Handle_ConnectionResponse( hoxResponse_AutoPtr response )
 {
     const char* FNAME = "hoxRemoteSite::Handle_ConnectionResponse";
 
     wxLogDebug("%s: ENTER.", FNAME);
-
-    const std::auto_ptr<hoxResponse> response( pResponse ); // take care memory leak!
 
     if ( m_dlgProgress != NULL )
     {
@@ -320,7 +320,7 @@ hoxRemoteSite::Handle_ConnectionResponse( hoxResponse* pResponse )
     switch ( response->type )
     {
         case hoxREQUEST_TYPE_CONNECT:
-            this->OnResponse_Connect( response->content );
+            this->OnResponse_Connect( response );
             break;
 
         case hoxREQUEST_TYPE_NEW:
@@ -328,11 +328,11 @@ hoxRemoteSite::Handle_ConnectionResponse( hoxResponse* pResponse )
             break;
 
         case hoxREQUEST_TYPE_LIST:
-            this->OnResponse_List( response->content );
+            this->OnResponse_List( response );
             break;
 
         case hoxREQUEST_TYPE_JOIN:
-            this->OnResponse_Join( response->content );
+            this->OnResponse_Join( response );
             break;
 
         default:
@@ -343,7 +343,7 @@ hoxRemoteSite::Handle_ConnectionResponse( hoxResponse* pResponse )
 }
 
 void 
-hoxRemoteSite::OnResponse_Connect( const wxString& responseStr )
+hoxRemoteSite::OnResponse_Connect( const hoxResponse_AutoPtr& response )
 {
     const char* FNAME = "hoxRemoteSite::OnResponse_Connect";
     int        returnCode = -1;
@@ -352,6 +352,7 @@ hoxRemoteSite::OnResponse_Connect( const wxString& responseStr )
 
     wxLogDebug("%s: Parsing SEND-CONNECT's response...", FNAME);
 
+	const wxString& responseStr = response->content;
     result = hoxNetworkAPI::ParseSimpleResponse( responseStr,
                                                  returnCode,
                                                  returnMsg );
@@ -404,7 +405,7 @@ hoxRemoteSite::OnResponse_New( const wxString& responseStr )
 }
 
 void 
-hoxRemoteSite::OnResponse_List( const wxString& responseStr )
+hoxRemoteSite::OnResponse_List( const hoxResponse_AutoPtr& response )
 {
     const char* FNAME = "hoxRemoteSite::OnResponse_List";
     hoxNetworkTableInfoList tableList;
@@ -412,6 +413,7 @@ hoxRemoteSite::OnResponse_List( const wxString& responseStr )
 
     wxLogDebug("%s: ENTER.", FNAME);
 
+	const wxString& responseStr = response->content;
     result = hoxNetworkAPI::ParseNetworkTables( responseStr,
                                                 tableList );
     if ( result != hoxRESULT_OK )
@@ -460,12 +462,10 @@ hoxRemoteSite::OnResponse_List( const wxString& responseStr )
             wxLogDebug("%s: No command is selected. Fine.", FNAME);
             break;
     }
-
-    hoxUtility::FreeNetworkTableInfoList( tableList );
 }
 
 void 
-hoxRemoteSite::OnResponse_Join( const wxString& responseStr )
+hoxRemoteSite::OnResponse_Join( const hoxResponse_AutoPtr& response )
 {
     const char* FNAME = "hoxRemoteSite::OnResponse_Join";
     hoxNetworkTableInfo tableInfo;
@@ -473,6 +473,7 @@ hoxRemoteSite::OnResponse_Join( const wxString& responseStr )
 
     wxLogDebug("%s: ENTER.", FNAME);
 
+	const wxString& responseStr = response->content;
     result = hoxNetworkAPI::ParseJoinNetworkTable( responseStr,
                                                    tableInfo );
     if ( result != hoxRESULT_OK )
@@ -791,6 +792,176 @@ hoxHTTPSite::CreateLocalPlayer( const wxString& playerName )
 	return m_player;
 }
 
+// --------------------------------------------------------------------------
+// hoxChesscapeSite
+// --------------------------------------------------------------------------
+
+hoxChesscapeSite::hoxChesscapeSite( const hoxServerAddress& address )
+        : hoxRemoteSite( address, hoxSITE_TYPE_CHESSCAPE )
+{
+    const char* FNAME = "hoxChesscapeSite::hoxChesscapeSite";
+    wxLogDebug("%s: ENTER.", FNAME);
+}
+
+hoxChesscapeSite::~hoxChesscapeSite()
+{
+    const char* FNAME = "hoxChesscapeSite::~hoxChesscapeSite";
+    wxLogDebug("%s: ENTER.", FNAME);
+}
+
+hoxLocalPlayer* 
+hoxChesscapeSite::CreateLocalPlayer( const wxString& playerName )
+{
+	wxCHECK_MSG(m_player == NULL, NULL, "The player has already been set.");
+
+	m_player = m_playerMgr.CreateChesscapePlayer( playerName );
+	return m_player;
+}
+
+void 
+hoxChesscapeSite::OnResponse_Connect( const hoxResponse_AutoPtr& response )
+{
+    const char* FNAME = "hoxChesscapeSite::OnResponse_Connect";
+    wxLogDebug("%s: Parsing CONNECT's response...", FNAME);
+
+	/* Do nothing. */
+}
+
+void 
+hoxChesscapeSite::OnResponse_List( const hoxResponse_AutoPtr& response )
+{
+    const char* FNAME = "hoxChesscapeSite::OnResponse_List";
+    hoxResult               result;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+	hoxNetworkTableInfoList* pTableList = (hoxNetworkTableInfoList*) response->eventObject;
+	std::auto_ptr<hoxNetworkTableInfoList> autoPtr_tablelist( pTableList );  // prevent memory leak!
+	const hoxNetworkTableInfoList& tableList = *pTableList;
+
+    /* Show tables. */
+    MyFrame* frame = wxGetApp().GetFrame();
+    hoxTablesDialog tablesDlg( frame, wxID_ANY, "Tables", tableList);
+    tablesDlg.ShowModal();
+    hoxTablesDialog::CommandId selectedCommand = tablesDlg.GetSelectedCommand();
+    wxString selectedId = tablesDlg.GetSelectedId();
+
+    /* Find out which command the use wants to execute... */
+
+    switch( selectedCommand )
+    {
+        case hoxTablesDialog::COMMAND_ID_JOIN:
+        {
+            wxLogDebug("%s: Ask the server to allow me to JOIN table = [%s]", FNAME, selectedId.c_str());
+            hoxNetworkTableInfo tableInfo;
+            result = m_player->JoinNetworkTable( selectedId, m_responseHandler );
+            if ( result != hoxRESULT_OK )
+            {
+                wxLogError("%s: Failed to JOIN a network table [%s].", FNAME, selectedId.c_str());
+            }
+            break;
+        }
+
+        case hoxTablesDialog::COMMAND_ID_NEW:
+        {
+            wxLogDebug("%s: Ask the server to open a new table.", FNAME);
+            wxString newTableId;
+            result = m_player->OpenNewNetworkTable( m_responseHandler );
+            if ( result != hoxRESULT_OK )
+            {
+                wxLogError("%s: Failed to open a NEW network table.", FNAME);
+            }
+            break;
+        }
+
+        default:
+            wxLogDebug("%s: No command is selected. Fine.", FNAME);
+            break;
+    }
+}
+
+void 
+hoxChesscapeSite::OnResponse_Join( const hoxResponse_AutoPtr& response )
+{
+    const char* FNAME = "hoxChesscapeSite::OnResponse_Join";
+	hoxResult result;
+    wxLogDebug("%s: Parsing JOIN's response...", FNAME);
+
+	hoxNetworkTableInfo* pTableInfo = (hoxNetworkTableInfo*) response->eventObject;
+	std::auto_ptr<hoxNetworkTableInfo> tableInfo( pTableInfo );  // prevent memory leak!
+
+    /***********************/
+    /* Create a new table. */
+    /***********************/
+
+    wxLogDebug("%s: Creating a new table JOINING an existing network table...", FNAME);
+
+    hoxTable* table = NULL;
+    wxString  tableId = tableInfo->id;
+
+    /* Create a GUI Frame for the new Table. */
+    MyFrame* frame = wxGetApp().GetFrame();
+    MyChild* childFrame = frame->CreateFrameForTable( tableId );
+
+    /* Create a new table with newly created Frame. */
+    table = m_tableMgr.CreateTable( tableId, 
+                                    childFrame );
+    childFrame->SetTable( table );
+    childFrame->Show( true );
+
+    /***********************/
+    /* Setup players       */
+    /***********************/
+
+	// TODO: We only support 'observing' the table for now.'
+
+    hoxPlayer* red_player = NULL;
+    hoxPlayer* black_player = NULL;
+	long score = 0;
+
+	if ( ! tableInfo->redId.empty() )
+    {
+		tableInfo->redScore.ToLong(&score); 
+		red_player = m_playerMgr.CreateDummyPlayer( tableInfo->redId, (int)score);
+    }
+
+	if ( ! tableInfo->blackId.empty() )
+    {
+		tableInfo->blackScore.ToLong(&score); 
+		black_player = m_playerMgr.CreateDummyPlayer( tableInfo->blackId, (int)score);
+    }
+
+    /* Join the players at the table.
+     */
+
+    if ( red_player != NULL )
+    {
+        result = red_player->JoinTable( table );
+        wxASSERT( result == hoxRESULT_OK  );
+        wxASSERT_MSG( red_player->HasRole( hoxRole(table->GetId(), 
+                                                   hoxPIECE_COLOR_RED) ),
+                      _("Player must play RED"));
+    }
+
+    if ( black_player != NULL )
+    {
+        result = black_player->JoinTable( table );
+        wxASSERT( result == hoxRESULT_OK  );
+        wxASSERT_MSG( black_player->HasRole( hoxRole(table->GetId(), 
+                                                     hoxPIECE_COLOR_BLACK) ),
+                      _("Player must play BLACK"));
+    }
+
+	/* TODO: The local player is just observing for now. */
+    result = m_player->JoinTable( table );
+    wxASSERT( result == hoxRESULT_OK  );
+    wxASSERT_MSG( m_player->HasRole( hoxRole(table->GetId(), 
+                                             hoxPIECE_COLOR_NONE) ),
+                  _("Player must join as an OBSERVER"));
+
+	frame->UpdateSiteTreeUI();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 // --------------------------------------------------------------------------
@@ -823,10 +994,44 @@ hoxSiteManager::~hoxSiteManager()
 
 }
 
+hoxResult
+hoxSiteManager::_GetLoginInfoFromUser( wxString& login,
+						               wxString& password) const
+{
+    const char* FNAME = "hoxSiteManager::_GetLoginInfoFromUser";
+
+    const wxString defaultInput = "<username>/<password>";
+
+    wxString userText = wxGetTextFromUser( 
+		"Enter the login-info (in the format of 'username/password')",
+        "Login information",
+         defaultInput,
+		 wxGetApp().GetFrame() /* Parent */ );
+    if ( userText.empty() ) // user canceled?
+    {
+        wxLogDebug("%s: The user has canceled the connection.", FNAME);
+        return hoxRESULT_ERR;
+    }
+
+	/* Parse for login and password */
+    const char SEPARATOR = '/';
+
+    login = userText.BeforeFirst( SEPARATOR );
+    if ( login.empty() )
+        return hoxRESULT_ERR;
+
+    password = userText.AfterFirst( SEPARATOR );
+    if ( password.empty() )
+        return hoxRESULT_ERR;
+
+    return hoxRESULT_OK;
+}
+
 hoxSite* 
 hoxSiteManager::CreateSite( hoxSiteType             siteType,
 						    const hoxServerAddress& address )
 {
+	const char* FNAME = "hoxSiteManager::CreateSite";
 	hoxSite* site = NULL;
 
 	switch ( siteType )
@@ -858,6 +1063,29 @@ hoxSiteManager::CreateSite( hoxSiteType             siteType,
 		hoxLocalPlayer* localPlayer = remoteSite->CreateLocalPlayer( playerName );
         hoxConnection* connection = new hoxHttpConnection( address.name, 
                                                            address.port );
+		localPlayer->SetConnection( connection );
+		site = remoteSite;
+		break;
+	}
+	case hoxSITE_TYPE_CHESSCAPE:
+	{
+		hoxRemoteSite* remoteSite = new hoxChesscapeSite( address );
+		
+		/* Get login-name and password. */
+		wxString login;
+		wxString password;
+		hoxResult result;
+		result = _GetLoginInfoFromUser( login, password);
+		if ( result != hoxRESULT_OK )
+		{
+			wxLogDebug("%s: The user has canceled the login process.", FNAME);
+			break;
+		}
+		wxString playerName = login;
+		hoxLocalPlayer* localPlayer = remoteSite->CreateLocalPlayer( playerName );
+		localPlayer->SetPassword( password );
+        hoxConnection* connection = new hoxChesscapeConnection( address.name, 
+                                                                address.port );
 		localPlayer->SetConnection( connection );
 		site = remoteSite;
 		break;

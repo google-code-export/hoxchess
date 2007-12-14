@@ -53,21 +53,28 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*       parent,
                                   wxWindowID      id, 
                                   const wxString& title,
                                   const hoxNetworkTableInfoList& tableList)
-        : wxDialog(parent, id, title)
+        : wxDialog(parent, id, title, wxDefaultPosition, wxDefaultSize, 
+		           wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
         , m_selectedCommand( COMMAND_ID_UNKNOWN )
 {
     wxBoxSizer *topsizer = new wxBoxSizer( wxVERTICAL );
 
     m_tablesListBox = new wxListBox(this, wxID_ANY);
     wxString item;
+	wxString redId;
+	wxString blackId;
     for ( hoxNetworkTableInfoList::const_iterator it = tableList.begin(); 
                                                  it != tableList.end(); ++it )
     {
+		redId = (it->redId.empty() ? "0" : it->redId );
+		blackId = (it->blackId.empty() ? "0" : it->blackId );
+
         item = "";
-        item << "Table #" << (*it)->id 
-             << " (status: " << (*it)->status << ") "
-             << (*it)->redId << " vs. " << (*it)->blackId;
-        m_tablesListBox->Append( item, (*it) );
+        item << "Table #" << it->id 
+             << " (status: " << it->status << ") "
+			 << redId << "(" << it->redScore << ")" << " vs. " 
+			 << blackId << "(" << it->blackScore << ")";
+        m_tablesListBox->Append( item, const_cast<hoxNetworkTableInfo*>( &(*it) ) );
     }
     // Select the 1st table, if any.
     if ( m_tablesListBox->GetCount() > 0 )

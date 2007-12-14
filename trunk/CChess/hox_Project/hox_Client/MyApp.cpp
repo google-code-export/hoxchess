@@ -171,6 +171,13 @@ MyApp::ConnectRemoteServer( const hoxServerAddress& address )
 				hoxSiteManager::GetInstance()->CreateSite( hoxSITE_TYPE_HTTP, 
 														   address ) );
         }
+        else if (   address.name == "68.163.190.66" /* Chesscape server? */
+		  	     && address.port == 3534 )
+        {
+			remoteSite = static_cast<hoxChesscapeSite*>( 
+				hoxSiteManager::GetInstance()->CreateSite( hoxSITE_TYPE_CHESSCAPE, 
+														   address ) );
+        }
         else
         {
 			remoteSite = static_cast<hoxRemoteSite*>( 
@@ -178,6 +185,13 @@ MyApp::ConnectRemoteServer( const hoxServerAddress& address )
 														   address ) );
         }
     }
+
+	if ( remoteSite == NULL )
+	{
+        wxLogError("%s: Failed to create a site for the remote server [%s:%d].", 
+            FNAME, address.name.c_str(), address.port);
+		return;
+	}
 
     /* Connect to the Remote site. */
     if ( remoteSite->Connect() != hoxRESULT_OK )

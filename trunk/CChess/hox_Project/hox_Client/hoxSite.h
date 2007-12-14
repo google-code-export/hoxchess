@@ -171,12 +171,12 @@ public:
     virtual hoxLocalPlayer* CreateLocalPlayer(const wxString& playerName);
 
 protected:
-    virtual void Handle_ConnectionResponse( hoxResponse* pResponse );
+    virtual void Handle_ConnectionResponse( hoxResponse_AutoPtr response );
     
-    virtual void OnResponse_Connect( const wxString& responseStr );
+    virtual void OnResponse_Connect( const hoxResponse_AutoPtr& response );
     virtual void OnResponse_New( const wxString& responseStr );
-    virtual void OnResponse_List( const wxString& responseStr );
-    virtual void OnResponse_Join( const wxString& responseStr );
+    virtual void OnResponse_List( const hoxResponse_AutoPtr& response );
+    virtual void OnResponse_Join( const hoxResponse_AutoPtr& response );
 
 protected:
     hoxLocalPlayer*      m_player;
@@ -196,6 +196,24 @@ public:
 
 	/* TODO: Need to review this API... */
     virtual hoxLocalPlayer* CreateLocalPlayer(const wxString& playerName);
+};
+
+/**
+ * The Chesscape (remote) Site.
+ */
+class hoxChesscapeSite : public hoxRemoteSite
+{
+public:
+    hoxChesscapeSite(const hoxServerAddress& address);
+    virtual ~hoxChesscapeSite();
+
+	/* TODO: Need to review this API... */
+    virtual hoxLocalPlayer* CreateLocalPlayer(const wxString& playerName);
+
+protected:
+    virtual void OnResponse_Connect( const hoxResponse_AutoPtr& response );
+	virtual void OnResponse_List( const hoxResponse_AutoPtr& response );
+	virtual void OnResponse_Join( const hoxResponse_AutoPtr& response );
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -228,6 +246,10 @@ private:
     hoxSiteManager();
 	static hoxSiteManager* m_instance;
 
+	hoxResult _GetLoginInfoFromUser( wxString& login,
+			                         wxString& password) const;
+
+private:
 	hoxSiteList     m_sites;
 	
 	hoxLocalSite*   m_localSite;  
