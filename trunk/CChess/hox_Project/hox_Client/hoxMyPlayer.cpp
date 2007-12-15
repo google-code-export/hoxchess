@@ -31,8 +31,6 @@
 
 IMPLEMENT_DYNAMIC_CLASS(hoxMyPlayer, hoxLocalPlayer)
 
-DEFINE_EVENT_TYPE(hoxEVT_CONNECTION_RESPONSE)
-
 BEGIN_EVENT_TABLE(hoxMyPlayer, hoxLocalPlayer)
     EVT_SOCKET(CLIENT_SOCKET_ID,  hoxMyPlayer::OnIncomingNetworkData)
     EVT_COMMAND(hoxREQUEST_TYPE_PLAYER_DATA, hoxEVT_CONNECTION_RESPONSE, hoxMyPlayer::OnConnectionResponse_PlayerData)

@@ -50,6 +50,7 @@ public:
      *******************************/
 
 	virtual hoxResult ConnectToNetworkServer( wxEvtHandler* sender );
+	virtual hoxResult DisconnectFromNetworkServer( wxEvtHandler* sender );
 	virtual hoxResult QueryForNetworkTables( wxEvtHandler* sender );
     virtual hoxResult JoinNetworkTable( const wxString& tableId,
                                         wxEvtHandler*   sender );
@@ -64,7 +65,11 @@ public:
     void OnConnectionResponse( wxCommandEvent& event ); 
 
 private:
+	bool _ParseTableInfoString( const wxString&      tableStr,
+		                        hoxNetworkTableInfo& tableInfo ) const;
 	bool _AddTableToList( const wxString& tableStr ) const;
+	bool _RemoveTableFromList( const wxString& tableId ) const;
+	bool _UpdateTableInList( const wxString& tableStr ) const;
 
 private:
 	/* Chesscape server sends a list of tables upon login.

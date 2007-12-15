@@ -49,7 +49,7 @@ DEFINE_EVENT_TYPE(hoxEVT_FRAME_LOG_MSG)
 // constants
 // ----------------------------------------------------------------------------
 
-#define hoxVERSION_STRING  "0.2.0.1"
+#define hoxVERSION_STRING  "0.2.1.0"
 
 BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
     EVT_MENU(MDI_ABOUT, MyFrame::OnAbout)

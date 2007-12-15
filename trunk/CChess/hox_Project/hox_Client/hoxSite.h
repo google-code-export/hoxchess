@@ -174,6 +174,7 @@ protected:
     virtual void Handle_ConnectionResponse( hoxResponse_AutoPtr response );
     
     virtual void OnResponse_Connect( const hoxResponse_AutoPtr& response );
+	virtual void OnResponse_Disconnect( const hoxResponse_AutoPtr& response );
     virtual void OnResponse_New( const wxString& responseStr );
     virtual void OnResponse_List( const hoxResponse_AutoPtr& response );
     virtual void OnResponse_Join( const hoxResponse_AutoPtr& response );

@@ -249,7 +249,7 @@ hoxPlayer::LeaveAllTables()
     return bErrorFound ? hoxRESULT_ERR : hoxRESULT_OK;
 }
 
-void 
+bool 
 hoxPlayer::ResetConnection()
 { 
     const char* FNAME = "hoxPlayer::ResetConnection";
@@ -267,6 +267,8 @@ hoxPlayer::ResetConnection()
         delete m_connection; 
         m_connection = NULL; 
     }
+
+	return true;  // everything is fine.
 }
 
 void 

@@ -32,11 +32,6 @@
 #include "hoxEnums.h"
 #include "hoxTypes.h"
 
-/* 
- * Connection event-type for responses.
- */
-DECLARE_EVENT_TYPE(hoxEVT_CONNECTION_RESPONSE, wxID_ANY)
-
 /**
  * The MY player.
  */

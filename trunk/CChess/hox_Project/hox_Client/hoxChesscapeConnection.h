@@ -60,9 +60,10 @@ private:
                                                 wxString&         response );
     hoxResult   _Connect(const wxString& login, 
 		                 const wxString& password);
+    hoxResult   _Disconnect(const wxString& login);
     hoxResult   _Join(const wxString& tableId);
 	hoxResult   _Leave();
-    void        _Disconnect();
+    void        _DestroySocket();
     hoxResult _ReadLine( wxSocketBase* sock, 
                          wxString&     result );
 

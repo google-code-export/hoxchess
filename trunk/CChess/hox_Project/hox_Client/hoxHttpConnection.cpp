@@ -26,7 +26,7 @@
 
 #include "hoxHttpConnection.h"
 #include "hoxHttpPlayer.h"
-#include "hoxMyPlayer.h"
+#include "hoxLocalPlayer.h"
 #include "hoxUtility.h"
 
 #include <wx/sstream.h>
