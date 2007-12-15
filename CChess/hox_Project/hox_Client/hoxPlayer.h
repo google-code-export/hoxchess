@@ -147,7 +147,7 @@ public:
     /**
      * Reset connection to NULL.    
      */
-    virtual void ResetConnection();
+    virtual bool ResetConnection();
 
 protected:
     /**

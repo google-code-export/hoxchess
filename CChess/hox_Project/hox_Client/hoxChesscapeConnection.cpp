@@ -25,7 +25,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxChesscapeConnection.h"
-#include "hoxMyPlayer.h"
+#include "hoxLocalPlayer.h"
 #include "hoxUtility.h"
 #include "hoxNetworkAPI.h"
 
@@ -61,7 +61,7 @@ hoxChesscapeConnection::~hoxChesscapeConnection()
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    _Disconnect();
+    _DestroySocket();
 }
 
 void 
@@ -122,6 +122,13 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
             {
                 result = hoxRESULT_OK;  // Consider "success".
             }
+			break;
+		}
+
+        case hoxREQUEST_TYPE_DISCONNECT:
+		{
+			const wxString login = request->parameters["pid"]; 
+            result = _Disconnect(login);
 			break;
 		}
 
@@ -193,7 +200,7 @@ hoxChesscapeConnection::_CheckAndHandleSocketLostEvent(
     if ( request->socketEvent == wxSOCKET_LOST )
     {
         wxLogDebug("%s: Received socket-lost event. Deleting client socket.", FNAME);
-        _Disconnect();
+        _DestroySocket();
         result = hoxRESULT_HANDLED;
     }
 
@@ -265,6 +272,38 @@ hoxChesscapeConnection::_Connect( const wxString& login,
 }
 
 hoxResult
+hoxChesscapeConnection::_Disconnect( const wxString& login )
+{
+    const char* FNAME = "hoxChesscapeConnection::_Disconnect";
+
+    if ( ! this->IsConnected() )
+    {
+        // NOTE: The connection could have been closed if the server is down.
+        wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
+        return hoxRESULT_OK;   // *** Fine. Do nothing.
+    }
+
+    /* Send LOGOUT request. */
+
+	wxLogDebug("%s: Sending LOGOUT request for login [%s]...", FNAME, login.c_str());
+	wxString cmdRequest;
+	cmdRequest.Printf("\x02\x10%s\x10\x03", "logout?");
+
+	wxUint32 requestSize = (wxUint32) cmdRequest.size();
+	m_pSClient->Write( cmdRequest, requestSize );
+	wxUint32 nWrite = m_pSClient->LastCount();
+	if ( nWrite < requestSize )
+	{
+		wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
+			FNAME, cmdRequest.c_str(), nWrite, requestSize, 
+			hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
+		return hoxRESULT_ERR;
+	}
+
+    return hoxRESULT_OK;
+}
+
+hoxResult
 hoxChesscapeConnection::_Join( const wxString& tableId )
 {
     const char* FNAME = "hoxChesscapeConnection::_Join";
@@ -329,13 +368,13 @@ hoxChesscapeConnection::_Leave()
 }
 
 void
-hoxChesscapeConnection::_Disconnect()
+hoxChesscapeConnection::_DestroySocket()
 {
-    const char* FNAME = "hoxChesscapeConnection::_Disconnect";
+    const char* FNAME = "hoxChesscapeConnection::_DestroySocket";
 
     if ( m_pSClient != NULL )
     {
-        wxLogDebug("%s: Closing the client socket...", FNAME);
+        wxLogDebug("%s: Destroy the client socket...", FNAME);
         m_pSClient->Destroy();
         m_pSClient = NULL;
     }

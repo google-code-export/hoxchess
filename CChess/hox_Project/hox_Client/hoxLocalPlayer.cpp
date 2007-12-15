@@ -26,6 +26,8 @@
 
 #include "hoxLocalPlayer.h"
 
+DEFINE_EVENT_TYPE(hoxEVT_CONNECTION_RESPONSE)
+
 IMPLEMENT_ABSTRACT_CLASS(hoxLocalPlayer, hoxPlayer)
 
 //-----------------------------------------------------------------------------
@@ -81,7 +83,24 @@ hoxLocalPlayer::ConnectToNetworkServer( wxEvtHandler* sender )
 hoxResult 
 hoxLocalPlayer::DisconnectFromNetworkServer( wxEvtHandler* sender )
 {
-    this->ResetConnection();
+	const char* FNAME = "hoxLocalPlayer::DisconnectFromNetworkServer";
+
+	wxLogDebug("%s: ENTER. Do nothing. END.", FNAME);
+    
+	if ( sender != NULL )
+	{
+		/* Do nothing. Just return a response. */
+
+		hoxRequestType requestType = hoxREQUEST_TYPE_DISCONNECT;
+		std::auto_ptr<hoxResponse> response( new hoxResponse(requestType, 
+															 sender) );
+
+		wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, requestType );
+		response->code = hoxRESULT_OK;
+		event.SetEventObject( response.release() );  // Caller will de-allocate.
+		wxPostEvent( sender, event );
+	}
+
     return hoxRESULT_OK;
 }
 

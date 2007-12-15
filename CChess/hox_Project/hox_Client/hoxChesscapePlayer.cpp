@@ -78,6 +78,16 @@ hoxChesscapePlayer::ConnectToNetworkServer( wxEvtHandler* sender )
 }
 
 hoxResult 
+hoxChesscapePlayer::DisconnectFromNetworkServer( wxEvtHandler* sender )
+{
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_DISCONNECT, sender );
+	request->parameters["pid"] = this->GetName();
+	this->AddRequestToConnection( request );
+
+	return hoxRESULT_OK;
+}
+
+hoxResult 
 hoxChesscapePlayer::QueryForNetworkTables( wxEvtHandler* sender )
 {
 	const char* FNAME = "hoxChesscapePlayer::QueryForNetworkTables";
@@ -226,6 +236,29 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 				_AddTableToList( tableStr );
 			}
 		}
+		else if ( command == "unshow" )
+		{
+			const wxString tableId = paramsStr.BeforeFirst(0x10);
+			wxLogDebug("%s: Processing UNSHOW [%s] command...", FNAME, tableId.c_str());
+			if ( ! _RemoveTableFromList( tableId ) ) // not found?
+			{
+				wxLogDebug("%s: *** WARN *** Table [%s] to be deleted NOT FOUND.", FNAME, tableId.c_str());
+			}
+		}
+		else if ( command == "update" )
+		{
+			wxString updateCmd = paramsStr.BeforeFirst(0x10);
+			//wxLogDebug("%s: Checking UPDATE-cmd [%s]...", FNAME, updateCmd.c_str());
+
+			// It is a table update if the sub-command starts with a number.
+			long nTableId = 0;
+			if ( updateCmd.ToLong( &nTableId ) && nTableId > 0 )  // a table's update?
+			{
+				wxString tableStr = paramsStr;
+				wxLogDebug("%s: Processing UPDATE-(table) [%s] command...", FNAME, tableStr.c_str());
+				_UpdateTableInList( tableStr );
+			}
+		}
 		else if ( command == "tCmd" )
 		{
 			wxString tCmd = paramsStr.BeforeFirst(0x10);
@@ -251,7 +284,6 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 
 			if ( tCmd == "MvPts" )
 			{
-
 				wxString delims;
 				delims += 0x10;   // move-delimiter
 				// ... Do not return empty tokens
@@ -301,17 +333,19 @@ exit_label:
 }
 
 bool 
-hoxChesscapePlayer::_AddTableToList( const wxString& tableStr ) const
+hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
+	                                       hoxNetworkTableInfo& tableInfo ) const
 {
-	const char* FNAME = "hoxChesscapePlayer::_AddTableToList";
+	const char* FNAME = "hoxChesscapePlayer::_ParseTableInfoString";
 	wxString delims;
 	delims += 0x10;
 	// ... Do not return empty tokens
 	wxStringTokenizer tkz( tableStr, delims, wxTOKEN_STRTOK );
 	int tokenPosition = 0;
 	wxString token;
-	hoxNetworkTableInfo tableInfo;
 	wxString debugStr;  // For Debug purpose only!
+
+	tableInfo.Clear();
 
 	while ( tkz.HasMoreTokens() )
 	{
@@ -372,10 +406,88 @@ hoxChesscapePlayer::_AddTableToList( const wxString& tableStr ) const
 	}		
 	wxLogDebug("%s: ... %s", FNAME, debugStr.c_str());
 
+	return true;
+}
+
+bool 
+hoxChesscapePlayer::_AddTableToList( const wxString& tableStr ) const
+{
+	const char* FNAME = "hoxChesscapePlayer::_AddTableToList";
+	hoxNetworkTableInfo tableInfo;
+
+	if ( ! _ParseTableInfoString( tableStr,
+	                              tableInfo ) )  // failed to parse?
+	{
+		wxLogDebug("%s: Failed to parse table-string [%s].", FNAME, tableStr.c_str());
+		return false;
+	}
+
 	/* Insert into our list. */
 	m_networkTables.push_back( tableInfo );
 
 	return true;
+}
+
+bool 
+hoxChesscapePlayer::_RemoveTableFromList( const wxString& tableId ) const
+{
+	const char* FNAME = "hoxChesscapePlayer::_RemoveTableFromList";
+
+	for ( hoxNetworkTableInfoList::const_iterator it = m_networkTables.begin();
+		                                          it != m_networkTables.end(); 
+												++it )
+	{
+		if ( it->id == tableId )
+		{
+			m_networkTables.erase( it );
+			return true;
+		}
+	}
+
+	return false; // not found.
+}
+
+bool 
+hoxChesscapePlayer::_UpdateTableInList( const wxString& tableStr ) const
+{
+	const char* FNAME = "hoxChesscapePlayer::_UpdateTableInList";
+	hoxNetworkTableInfo tableInfo;
+
+	if ( ! _ParseTableInfoString( tableStr,
+	                              tableInfo ) )  // failed to parse?
+	{
+		wxLogDebug("%s: Failed to parse table-string [%s].", FNAME, tableStr.c_str());
+		return false;
+	}
+
+	/* Find the table from our list. */
+
+	hoxNetworkTableInfoList::iterator found_it = m_networkTables.end();
+
+	for ( hoxNetworkTableInfoList::iterator it = m_networkTables.begin();
+		                                    it != m_networkTables.end(); 
+								          ++it )
+	{
+		if ( it->id == tableInfo.id )
+		{
+			found_it = it;
+			break;
+		}
+	}
+
+	/* If the table is not found, insert into our list. */
+	if ( found_it == m_networkTables.end() ) // not found?
+	{
+		wxLogDebug("%s: Insert a new table [%s].", FNAME, tableInfo.id.c_str());
+		m_networkTables.push_back( tableInfo );
+	}
+	else // found?
+	{
+		wxLogDebug("%s: Update existing table [%s] with new info.", FNAME, tableInfo.id.c_str());
+		*found_it = tableInfo;
+	}
+
+	return true; // everything is fine.
 }
 
 void 
@@ -413,6 +525,12 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 		}
 		return;
 	}
+
+    //if ( response->type == hoxREQUEST_TYPE_DISCONNECT )
+    //{
+    //    wxLogDebug("%s: DISCONNECT (or LOGOUT) 's response received. END.", FNAME);
+    //    return;
+    //}
 
     if ( response->type == hoxREQUEST_TYPE_LEAVE )
     {

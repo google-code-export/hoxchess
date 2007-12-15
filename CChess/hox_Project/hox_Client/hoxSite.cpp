@@ -323,6 +323,10 @@ hoxRemoteSite::Handle_ConnectionResponse( hoxResponse_AutoPtr response )
             this->OnResponse_Connect( response );
             break;
 
+        case hoxREQUEST_TYPE_DISCONNECT:
+            this->OnResponse_Disconnect( response );
+            break;
+
         case hoxREQUEST_TYPE_NEW:
             this->OnResponse_New( response->content );
             break;
@@ -362,8 +366,18 @@ hoxRemoteSite::OnResponse_Connect( const hoxResponse_AutoPtr& response )
             FNAME, returnCode, returnMsg.c_str());
         return;
     }
+}
 
-	//wxGetApp().GetFrame()->UpdateSiteTreeUI();
+void 
+hoxRemoteSite::OnResponse_Disconnect( const hoxResponse_AutoPtr& response )
+{
+    const char* FNAME = "hoxRemoteSite::OnResponse_Disconnect";
+    wxLogDebug("%s: Parsing DISCONNECT's response...", FNAME);
+
+    wxCommandEvent event( hoxEVT_PLAYER_SITE_CLOSING );
+    event.SetString( "The site is being closed" );
+    event.SetEventObject( &(wxGetApp()) );
+    wxPostEvent( m_player , event );
 }
 
 void 
@@ -549,6 +563,7 @@ hoxResult
 hoxRemoteSite::Close()
 {
     const char* FNAME = "hoxRemoteSite::Close";
+	hoxResult result;
     wxLogDebug("%s: ENTER.", FNAME);
 
 	if ( m_siteClosing )
@@ -560,10 +575,14 @@ hoxRemoteSite::Close()
 
 	if ( m_player != NULL )
 	{
-        wxCommandEvent event( hoxEVT_PLAYER_SITE_CLOSING );
-        event.SetString( "The site is being closed" );
-        event.SetEventObject( &(wxGetApp()) );
-        wxPostEvent( m_player , event );
+		/* Inform the remote server that the player is loggin-out. 
+		 */
+		result = m_player->DisconnectFromNetworkServer( m_responseHandler );
+		if ( result != hoxRESULT_OK )
+		{
+			wxLogError("%s: Failed to connect to server.", FNAME);
+			return hoxRESULT_ERR;
+		}
 	}
 
     return hoxRESULT_OK;
@@ -753,10 +772,10 @@ hoxRemoteSite::Handle_ShutdownReadyFromPlayer( hoxPlayer* player )
 	hoxLocalPlayer* localPlayer = m_player;
 	m_player = NULL;
 
-	hoxResult result = localPlayer->DisconnectFromNetworkServer( NULL /*m_responseHandler*/ );
-	if ( result != hoxRESULT_OK )
+	bool bSuccess = localPlayer->ResetConnection();
+	if ( ! bSuccess )
 	{
-		wxLogError("%s: Failed to disconnect from remote server.", FNAME);
+		wxLogError("%s: Failed to reset the Connection to NULL.", FNAME);
 		return;
 	}
 
