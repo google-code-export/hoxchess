@@ -71,6 +71,11 @@ private:
 	bool _RemoveTableFromList( const wxString& tableId ) const;
 	bool _UpdateTableInList( const wxString& tableStr ) const;
 
+	bool _HandleTableCmd_PastMoves(hoxTable*       table,
+		                           const wxString& cmdStr);
+	bool _HandleTableCmd_Move(hoxTable*       table,
+		                      const wxString& cmdStr);
+
 private:
 	/* Chesscape server sends a list of tables upon login.
 	 * After that, it only sends updates for each tables.

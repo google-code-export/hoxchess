@@ -282,37 +282,19 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 				goto exit_label;
 			}
 
+			const wxString cmdStr = paramsStr.AfterFirst(0x10);
+
 			if ( tCmd == "MvPts" )
 			{
-				wxString delims;
-				delims += 0x10;   // move-delimiter
-				// ... Do not return empty tokens
-				wxStringTokenizer tkz( paramsStr.AfterFirst(0x10), delims, wxTOKEN_STRTOK );
-				wxString moveStr;
-				while ( tkz.HasMoreTokens() )
-				{
-					moveStr = tkz.GetNextToken();
-					wxLogDebug("%s: .... move-str=[%s].", FNAME, moveStr.c_str());
-					// Inform our table...
-					table->OnMove_FromNetwork( this, moveStr );
-				}
+				_HandleTableCmd_PastMoves( table, cmdStr );
 			}
 			else if ( tCmd == "Move" )
 			{
-				wxString delims;
-				delims += 0x10;   // move-delimiter
-				// ... Do not return empty tokens
-				wxStringTokenizer tkz( paramsStr.AfterFirst(0x10), delims, wxTOKEN_STRTOK );
-				wxString moveStr;
-				while ( tkz.HasMoreTokens() )
-				{
-					// Just get the 1st token (containing the Move) then get out.
-					moveStr = tkz.GetNextToken();
-					wxLogDebug("%s: .... [Update] Move =[%s].", FNAME, moveStr.c_str());
-					// Inform our table...
-					table->OnMove_FromNetwork( this, moveStr );
-					break;
-				}
+				_HandleTableCmd_Move( table, cmdStr );
+			}
+			else
+			{
+				wxLogDebug("%s: *** Ignore this Table-command = [%s].", FNAME, tCmd.c_str());
 			}
 		}
 		else
@@ -488,6 +470,68 @@ hoxChesscapePlayer::_UpdateTableInList( const wxString& tableStr ) const
 	}
 
 	return true; // everything is fine.
+}
+
+bool 
+hoxChesscapePlayer::_HandleTableCmd_PastMoves( hoxTable*       table,
+	                                           const wxString& cmdStr )
+{
+	const char* FNAME = "hoxChesscapePlayer::_HandleTableCmd_PastMoves";
+
+	wxString delims;
+	delims += 0x10;   // move-delimiter
+	wxStringTokenizer tkz( cmdStr, delims, wxTOKEN_STRTOK ); // No empty tokens
+	wxString moveStr;
+	while ( tkz.HasMoreTokens() )
+	{
+		moveStr = tkz.GetNextToken();
+		wxLogDebug("%s: .... move-str=[%s].", FNAME, moveStr.c_str());
+		// Inform our table...
+		table->OnMove_FromNetwork( this, moveStr );
+	}
+
+	return true;
+}
+
+bool 
+hoxChesscapePlayer::_HandleTableCmd_Move( hoxTable*       table,
+	                                      const wxString& cmdStr )
+{
+	const char* FNAME = "hoxChesscapePlayer::_HandleTableCmd_Move";
+	wxString moveStr;
+	wxString moveParam;
+
+	/* Parse the command-string for the new Move */
+
+	wxString delims;
+	delims += 0x10;   // move-delimiter
+	wxStringTokenizer tkz( cmdStr, delims, wxTOKEN_STRTOK ); // No empty tokens
+	int tokenPosition = 0;
+	wxString token;
+
+	while ( tkz.HasMoreTokens() )
+	{
+		token = tkz.GetNextToken();
+		switch ( tokenPosition++ )
+		{
+			case 0: /* Move-str */
+				moveStr = token; break;
+
+			case 1: /* Move-parameter */
+				moveParam = token;	break;
+
+			default: /* Ignore the rest. */ break;
+		}
+	}
+
+	/* Inform the table of the new Move 
+	 * NOTE: Regarding the Move- parameter, I do not know what it is yet.
+	 */
+
+	wxLogDebug("%s: Inform table of Move = [%s][%s].", FNAME, moveStr.c_str(), moveParam.c_str());
+	table->OnMove_FromNetwork( this, moveStr );
+
+	return true;
 }
 
 void 
