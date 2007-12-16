@@ -59,7 +59,8 @@ private:
     hoxResult   _CheckAndHandleSocketLostEvent( const hoxRequest* request, 
                                                 wxString&         response );
     hoxResult   _Connect(const wxString& login, 
-		                 const wxString& password);
+		                 const wxString& password,
+						 wxString&       responseStr);
     hoxResult   _Disconnect(const wxString& login);
     hoxResult   _Join(const wxString& tableId);
 	hoxResult   _Leave();

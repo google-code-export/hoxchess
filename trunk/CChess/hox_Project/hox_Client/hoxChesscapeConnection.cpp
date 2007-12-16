@@ -117,7 +117,7 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
 		{
 			const wxString login = request->parameters["pid"]; 
 		    const wxString password = request->parameters["password"];
-            result = _Connect(login, password);
+            result = _Connect(login, password, response->content);
             if ( result == hoxRESULT_HANDLED )
             {
                 result = hoxRESULT_OK;  // Consider "success".
@@ -209,7 +209,8 @@ hoxChesscapeConnection::_CheckAndHandleSocketLostEvent(
 
 hoxResult
 hoxChesscapeConnection::_Connect( const wxString& login, 
-		                          const wxString& password )
+		                          const wxString& password,
+								  wxString&       responseStr )
 {
     const char* FNAME = "hoxChesscapeConnection::_Connect";
 
@@ -260,7 +261,16 @@ hoxChesscapeConnection::_Connect( const wxString& login,
 		}
 	}
 	////////////////////////////
-
+	// Read the response.
+	{
+        hoxResult result = this->_ReadLine( m_pSClient, responseStr );
+        if ( result != hoxRESULT_OK )
+        {
+            wxLogDebug("%s: *** WARN *** Failed to read incoming command.", FNAME);
+            //return hoxRESULT_ERR;
+        }
+	}
+	//////////////////////////////
     wxCHECK_MSG(m_player, hoxRESULT_ERR, "The player is NULL.");
     wxLogDebug("%s: Let the connection's Player [%s] handle all socket events.", 
         FNAME, m_player->GetName());

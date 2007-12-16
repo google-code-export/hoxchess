@@ -311,11 +311,11 @@ hoxRemoteSite::Handle_ConnectionResponse( hoxResponse_AutoPtr response )
         }
     }
 
-    if ( response->code != hoxRESULT_OK )
-    {
-        wxLogDebug("%s: The response's code is ERROR. END.", FNAME);
-        return;
-    }
+    //if ( response->code != hoxRESULT_OK )
+    //{
+    //    wxLogDebug("%s: The response's code is ERROR. END.", FNAME);
+    //    return;
+    //}
 
     switch ( response->type )
     {
@@ -844,6 +844,11 @@ hoxChesscapeSite::OnResponse_Connect( const hoxResponse_AutoPtr& response )
     wxLogDebug("%s: Parsing CONNECT's response...", FNAME);
 
 	/* Do nothing. */
+    if ( response->code != hoxRESULT_OK )
+    {
+		wxLogWarning("Login failed with response = [%s].", response->content.c_str());
+        return;
+    }
 }
 
 void 
@@ -907,6 +912,12 @@ hoxChesscapeSite::OnResponse_Join( const hoxResponse_AutoPtr& response )
     wxLogDebug("%s: Parsing JOIN's response...", FNAME);
 
 	hoxNetworkTableInfo* pTableInfo = (hoxNetworkTableInfo*) response->eventObject;
+	if ( pTableInfo == NULL )
+	{
+		wxLogWarning("Failed to join the table.");
+		return;
+	}
+
 	std::auto_ptr<hoxNetworkTableInfo> tableInfo( pTableInfo );  // prevent memory leak!
 
     /***********************/
