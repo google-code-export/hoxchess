@@ -71,6 +71,13 @@ private:
 	bool _RemoveTableFromList( const wxString& tableId ) const;
 	bool _UpdateTableInList( const wxString& tableStr ) const;
 
+	bool _ParseIncomingCommand(const wxString& contentStr,
+		                       wxString&       command,
+							   wxString&       paramsStr) const;
+	bool _HandleLoginCmd(const wxString& cmdStr,
+                         wxString&       name,
+                         wxString&       score,
+                         wxString&       role) const;
 	bool _HandleTableCmd_PastMoves(hoxTable*       table,
 		                           const wxString& cmdStr);
 	bool _HandleTableCmd_Move(hoxTable*       table,

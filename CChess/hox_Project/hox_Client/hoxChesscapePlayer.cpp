@@ -125,8 +125,6 @@ hoxChesscapePlayer::JoinNetworkTable( const wxString& tableId,
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_JOIN, sender );
 	request->parameters["pid"] = this->GetName();
 	request->parameters["tid"] = tableId;
-    //request->content = 
-    //    wxString::Format("op=JOIN&tid=%s&pid=%s\r\n", tableId.c_str(), this->GetName().c_str());
     this->AddRequestToConnection( request );
 
     return hoxRESULT_OK;
@@ -171,57 +169,20 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
     }
     else
     {
-		wxString contentStr = response->content;
 		wxString command;
 		wxString paramsStr;
 
-		/* CHECK: The first character must be 0x10 */
-		if ( contentStr.empty() || contentStr[0] != 0x10 )
+		/* Parse for the command */
+
+		if ( ! _ParseIncomingCommand( response->content, command, paramsStr ) ) // failed?
 		{
-			wxLogDebug("%s: Invalid command = [%s].", FNAME, contentStr.c_str());
+			wxLogDebug("%s: *** WARN *** Failed to parse incoming command.", FNAME);
 			goto exit_label;
 		}
 
-		/* Chop off the 1st character */
-		contentStr = contentStr.Mid(1);
+		/* Processing the command... */
 
-		/* Extract the command and its parameters-string */
-		command = contentStr.BeforeFirst( '=' );
-		wxLogDebug("%s: Received the command = [%s].", FNAME, command.c_str());
-		
-		paramsStr = contentStr.AfterFirst('=');
-
-		if ( command == "login" )
-		{
-			wxLogDebug("%s: Processing LOGIN command...", FNAME);
-			/* Parse for login-info */
-			wxString name;
-			wxString score;
-			wxString role;
-
-			wxString delims;
-			delims += 0x10;
-			// ... Do not return empty tokens
-			wxStringTokenizer tkz( paramsStr, delims, wxTOKEN_STRTOK );
-			int tokenPosition = 0;
-			wxString token;
-			while ( tkz.HasMoreTokens() )
-			{
-				token = tkz.GetNextToken();
-				switch (tokenPosition)
-				{
-					case 0: name = token; break;
-					case 1: score = token; break;
-					case 2: role = token; break;
-					default: /* Ignore the rest. */ break;
-				}
-				++tokenPosition;
-			}		
-
-			wxLogDebug("%s: .... name=[%s], score=[%s], role=[%s].", 
-				FNAME, name.c_str(), score.c_str(), role.c_str());
-		}
-		else if ( command == "show" )
+		if ( command == "show" )
 		{
 			wxLogDebug("%s: Processing SHOW command...", FNAME);
 			wxString delims;
@@ -232,7 +193,6 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 			while ( tkz.HasMoreTokens() )
 			{
 				tableStr = tkz.GetNextToken();
-				//wxLogDebug("%s: .... table-str=[%s].", FNAME, tableStr.c_str());
 				_AddTableToList( tableStr );
 			}
 		}
@@ -248,14 +208,13 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 		else if ( command == "update" )
 		{
 			wxString updateCmd = paramsStr.BeforeFirst(0x10);
-			//wxLogDebug("%s: Checking UPDATE-cmd [%s]...", FNAME, updateCmd.c_str());
 
 			// It is a table update if the sub-command starts with a number.
 			long nTableId = 0;
 			if ( updateCmd.ToLong( &nTableId ) && nTableId > 0 )  // a table's update?
 			{
 				wxString tableStr = paramsStr;
-				wxLogDebug("%s: Processing UPDATE-(table) [%s] command...", FNAME, tableStr.c_str());
+				//wxLogDebug("%s: Processing UPDATE-(table) [%s] command...", FNAME, tableStr.c_str());
 				_UpdateTableInList( tableStr );
 			}
 		}
@@ -301,13 +260,6 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 		{
 			wxLogDebug("%s: Ignore other command = [%s] for now.", FNAME, command.c_str());
 		}
-
-        //result = this->HandleIncomingData( response->content );
-        //if ( result != hoxRESULT_OK )
-        //{
-        //    wxLogError("%s: Error occurred while handling incoming data.", FNAME);
-        //    return;
-        //}
     }
 
 exit_label:
@@ -473,6 +425,62 @@ hoxChesscapePlayer::_UpdateTableInList( const wxString& tableStr ) const
 }
 
 bool 
+hoxChesscapePlayer::_ParseIncomingCommand( const wxString& contentStr,
+										   wxString&       command,
+										   wxString&       paramsStr ) const
+{
+	const char* FNAME = "hoxChesscapePlayer::_ParseIncomingCommand";
+
+	/* CHECK: The first character must be 0x10 */
+	if ( contentStr.empty() || contentStr[0] != 0x10 )
+	{
+		wxLogDebug("%s: *** WARN *** Invalid command = [%s].", FNAME, contentStr.c_str());
+		return false;
+	}
+
+	/* Chop off the 1st character */
+	const wxString actualContent = contentStr.Mid(1);
+
+	/* Extract the command and its parameters-string */
+	command = actualContent.BeforeFirst( '=' );
+	paramsStr = actualContent.AfterFirst('=');
+
+	return true;  // success
+}
+
+bool 
+hoxChesscapePlayer::_HandleLoginCmd( const wxString& cmdStr,
+                                     wxString&       name,
+	                                 wxString&       score,
+	                                 wxString&       role ) const
+{
+    const char* FNAME = "hoxChesscapePlayer::_HandleLoginCmd";
+    wxLogDebug("%s: ENTER.", FNAME);
+
+	wxString delims;
+	delims += 0x10;
+	wxStringTokenizer tkz( cmdStr, delims, wxTOKEN_STRTOK ); // No empty tokens
+	int tokenPosition = 0;
+	wxString token;
+	while ( tkz.HasMoreTokens() )
+	{
+		token = tkz.GetNextToken();
+		switch (tokenPosition++)
+		{
+			case 0: name = token; break;
+			case 1: score = token; break;
+			case 2: role = token; break;
+			default: /* Ignore the rest. */ break;
+		}
+	}		
+
+	wxLogDebug("%s: .... name=[%s], score=[%s], role=[%s].", 
+		FNAME, name.c_str(), score.c_str(), role.c_str());
+
+	return true;
+}
+
+bool 
 hoxChesscapePlayer::_HandleTableCmd_PastMoves( hoxTable*       table,
 	                                           const wxString& cmdStr )
 {
@@ -538,10 +546,6 @@ void
 hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 {
     const char* FNAME = "hoxChesscapePlayer::OnConnectionResponse";
-    hoxResult     result;
-    int           returnCode = -1;
-    wxString      returnMsg;
-
     wxLogDebug("%s: ENTER.", FNAME);
 
     hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
@@ -550,61 +554,84 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
     /* Make a note to 'self' that one request has been serviced. */
     DecrementOutstandingRequests();
 
-	/* For JOIN, lookup the tableInfo and return it. */
-	if ( response->type == hoxREQUEST_TYPE_JOIN )
+	switch ( response->type )
 	{
-		const wxString tableId = response->content;
-		for ( hoxNetworkTableInfoList::const_iterator it = m_networkTables.begin();
-													  it != m_networkTables.end(); 
-													++it )
+		case hoxREQUEST_TYPE_CONNECT:
 		{
-			if ( it->id == tableId )
+			wxLogDebug("%s: CONNECT (or LOGIN) 's response received.", FNAME);
+			wxLogDebug("%s: ... response = [%s].", FNAME, response->content.c_str());
+
+			wxString command;
+			wxString paramsStr;
+
+			if ( ! _ParseIncomingCommand( response->content, command, paramsStr ) ) // failed?
 			{
-				response->eventObject = new hoxNetworkTableInfo( *it );
-				wxEvtHandler* sender = response->sender;
-				response.release();
-				wxPostEvent( sender, event );
+				wxLogDebug("%s: *** WARN *** Failed to parse incoming command.", FNAME);
+				response->code = hoxRESULT_ERR;
+				response->content = "Failed to parse incoming command.";
 				break;
 			}
+
+			if ( command == "code" )
+			{
+				wxLogDebug("%s: *** WARN *** LOGIN return code = [%s].", FNAME, paramsStr.c_str());
+				response->code = hoxRESULT_ERR;
+				response->content.Printf("LOGIN returns code = [%s].", paramsStr.c_str());
+			}
+			else
+			{
+				wxString       name;
+				wxString       score;
+				wxString       role;
+
+				this->_HandleLoginCmd( paramsStr, name, score, role );
+				response->code = hoxRESULT_OK;
+				response->content.Printf("LOGIN is OK. name=[%s], score=[%s], role=[%s]", 
+					name.c_str(), score.c_str(), role.c_str());
+			}
+			break;
 		}
-		return;
-	}
 
-    //if ( response->type == hoxREQUEST_TYPE_DISCONNECT )
-    //{
-    //    wxLogDebug("%s: DISCONNECT (or LOGOUT) 's response received. END.", FNAME);
-    //    return;
-    //}
+		/* For JOIN, lookup the tableInfo and return it. */
+		case hoxREQUEST_TYPE_JOIN:
+		{
+			const wxString tableId = response->content;
+			for ( hoxNetworkTableInfoList::const_iterator it = m_networkTables.begin();
+														  it != m_networkTables.end(); 
+														++it )
+			{
+				if ( it->id == tableId )
+				{
+					response->eventObject = new hoxNetworkTableInfo( *it );
+					break;
+				}
+			}
+			break;
+		}
 
-    if ( response->type == hoxREQUEST_TYPE_LEAVE )
-    {
-        wxLogDebug("%s: LEAVE (table) 's response received. END.", FNAME);
-        return;
-    }
+		case hoxREQUEST_TYPE_LEAVE:
+		{
+			wxLogDebug("%s: LEAVE (table) 's response received. END.", FNAME);
+			break;
+		}
+		case hoxREQUEST_TYPE_OUT_DATA:
+		{
+			wxLogDebug("%s: OUT_DATA 's response received. END.", FNAME);
+			break;
+		}
+		default:
+			wxLogDebug("%s: *** WARN *** Unsupported request-type [%d].", FNAME, response->type);
+			break;
+	} // switch
+
+
+	/* Post event to the sender if it is THIS player */
 
     if ( response->sender && response->sender != this )
     {
         wxEvtHandler* sender = response->sender;
         response.release();
         wxPostEvent( sender, event );
-        return;
-    }
-
-    if ( response->type == hoxREQUEST_TYPE_OUT_DATA )
-    {
-        wxLogDebug("%s: OUT_DATA 's response received. END.", FNAME);
-        return;
-    }
-
-    /* Parse the response */
-    result = hoxNetworkAPI::ParseSimpleResponse( response->content,
-                                                 returnCode,
-                                                 returnMsg );
-    if ( result != hoxRESULT_OK || returnCode != 0 )
-    {
-        wxLogDebug("%s: *** WARN *** Failed to parse the response. [%d] [%s]", 
-            FNAME,  returnCode, returnMsg.c_str());
-        return;
     }
 
     wxLogDebug("%s: The response is OK.", FNAME);
