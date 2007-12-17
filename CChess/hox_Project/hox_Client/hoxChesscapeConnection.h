@@ -62,8 +62,10 @@ private:
 		                 const wxString& password,
 						 wxString&       responseStr);
     hoxResult   _Disconnect(const wxString& login);
-    hoxResult   _Join(const wxString& tableId);
+    hoxResult   _Join(const wxString& tableId,
+		              const wxString& requestSeat);
 	hoxResult   _Leave();
+	hoxResult   _Move(const wxString& moveStr);
     void        _DestroySocket();
     hoxResult _ReadLine( wxSocketBase* sock, 
                          wxString&     result );

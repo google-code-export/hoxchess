@@ -651,7 +651,26 @@ void
 hoxTable::_AddPlayer( hoxPlayer*    player, 
                       hoxPieceColor role )
 {
-    m_players.push_back( hoxPlayerAndRole(player, role) );
+	/* Handle the case in which the player changes his role. */
+	hoxPlayerAndRoleList::iterator found_it = m_players.end();
+    for (hoxPlayerAndRoleList::iterator it = m_players.begin(); 
+                                        it != m_players.end(); ++it)
+    {
+        if ( it->player == player )
+        {
+			found_it = it;
+            break;
+        }
+    }
+
+	if ( found_it != m_players.end() )
+	{
+		found_it->role = role;  // Update role.
+	}
+	else
+	{
+		m_players.push_back( hoxPlayerAndRole(player, role) );
+	}
 
     // "Cache" the RED and BLACK players for easy access.
     if ( role == hoxPIECE_COLOR_RED )

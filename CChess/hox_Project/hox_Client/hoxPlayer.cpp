@@ -113,7 +113,17 @@ hoxPlayer::~hoxPlayer()
 void               
 hoxPlayer::AddRole( hoxRole role )
 {
-    // TODO: Check for duplicate!!! (join same table twice)
+    for ( hoxRoleList::iterator it = m_roles.begin();
+                                it != m_roles.end();
+                              ++it )
+    {
+        if ( it->tableId == role.tableId )
+        {
+			it->color = role.color;
+			return;  // *** DONE.
+        }
+    }
+
     m_roles.push_back( role );
 }
 

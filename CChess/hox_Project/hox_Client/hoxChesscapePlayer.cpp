@@ -123,11 +123,32 @@ hoxResult
 hoxChesscapePlayer::JoinNetworkTable( const wxString& tableId,
                                       wxEvtHandler*   sender )
 {
+	const char* FNAME = "hoxChesscapePlayer::JoinNetworkTable";
+
+	/* Lookup the table first. */
+	hoxNetworkTableInfo tableInfo;
+	if ( ! _FindTableById( tableId, tableInfo ) ) // not found?
+	{
+		wxLogDebug("%s: *** WARN *** Table [%s] not found.", FNAME, tableId.c_str());
+		return hoxRESULT_ERR;
+	}
+
+	/* Auto JOIN the table based on the seat availability. */
+	if ( tableInfo.blackId.empty() )
+	{
+		m_pendingRequestSeat = "BlkSeat";
+	}
+	else if ( tableInfo.redId.empty() )
+	{
+		m_pendingRequestSeat = "RedSeat";
+	}
+
 	m_pendingJoinTableId = tableId;
 
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_JOIN, sender );
 	request->parameters["pid"] = this->GetName();
 	request->parameters["tid"] = tableId;
+	request->parameters["seat"] = m_pendingRequestSeat;
     this->AddRequestToConnection( request );
 
     return hoxRESULT_OK;
@@ -329,8 +350,7 @@ hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
 				wxString playersInfo = token;
 				wxString delims;
 				delims += 0x20;
-				// ... Do not return empty tokens
-				wxStringTokenizer tkz( playersInfo, delims, wxTOKEN_STRTOK );
+				wxStringTokenizer tkz( playersInfo, delims/*, wxTOKEN_STRTOK*/ );
 				int pPosition = 0;
 				wxString ptoken;
 				while ( tkz.HasMoreTokens() )
@@ -339,7 +359,18 @@ hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
 					switch (pPosition)
 					{
 						case 0:	tableInfo.redId = token;   break;
-						case 1:	tableInfo.redScore = token; break;
+						case 1:	
+							tableInfo.redScore = token; 
+							// Note: Handle 'empty' RED-score.
+							if ( ::atoi( tableInfo.redScore.c_str() ) == 0 && !token.empty() )
+							{
+								// *** The current token must be a BLACK-ID.
+								//     Thus, let it 'fall-through'.
+								tableInfo.redScore = "0";
+								++pPosition;
+							} else {
+								break;
+							}
 						case 2:	tableInfo.blackId = token; break;
 						case 3:	tableInfo.blackScore = token; break;
 						default:                           break;
@@ -369,6 +400,24 @@ hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
 	}
 
 	return true;
+}
+
+bool 
+hoxChesscapePlayer::_FindTableById( const wxString&      tableId,
+		                            hoxNetworkTableInfo& tableInfo ) const
+{
+	for ( hoxNetworkTableInfoList::const_iterator it = m_networkTables.begin();
+		                                          it != m_networkTables.end(); 
+												++it )
+	{
+		if ( it->id == tableId )
+		{
+			tableInfo = ( *it );
+			return true;
+		}
+	}
+
+	return false; // not found.
 }
 
 bool 
@@ -410,7 +459,7 @@ hoxChesscapePlayer::_RemoveTableFromList( const wxString& tableId ) const
 }
 
 bool 
-hoxChesscapePlayer::_UpdateTableInList( const wxString& tableStr ) const
+hoxChesscapePlayer::_UpdateTableInList( const wxString& tableStr )
 {
 	const char* FNAME = "hoxChesscapePlayer::_UpdateTableInList";
 	hoxNetworkTableInfo tableInfo;
@@ -447,6 +496,29 @@ hoxChesscapePlayer::_UpdateTableInList( const wxString& tableStr ) const
 	{
 		wxLogDebug("%s: Update existing table [%s] with new info.", FNAME, tableInfo.id.c_str());
 		*found_it = tableInfo;
+	}
+
+	/* Check if this player is requesting to JOIN */
+	if ( ! m_pendingRequestSeat.empty() )
+	{
+		if (   tableInfo.redId == this->GetName() 
+			|| tableInfo.blackId == this->GetName() )
+		{
+			m_pendingRequestSeat = "";
+
+			hoxNetworkTableInfo* newTableInfo = new hoxNetworkTableInfo( tableInfo );
+
+			wxEvtHandler* sender = this->GetSite()->GetResponseHandler();
+			hoxRequestType requestType = hoxREQUEST_TYPE_JOIN;
+			hoxResponse_AutoPtr response( new hoxResponse(requestType, 
+														  sender) );
+			response->eventObject = newTableInfo;
+
+			wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, requestType );
+			response->code = hoxRESULT_OK;
+			event.SetEventObject( response.release() );  // Caller will de-allocate.
+			wxPostEvent( sender, event );
+		}
 	}
 
 	return true; // everything is fine.

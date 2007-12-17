@@ -67,9 +67,11 @@ public:
 private:
 	bool _ParseTableInfoString( const wxString&      tableStr,
 		                        hoxNetworkTableInfo& tableInfo ) const;
+	bool _FindTableById( const wxString&      tableId,
+		                 hoxNetworkTableInfo& tableInfo ) const;
 	bool _AddTableToList( const wxString& tableStr ) const;
 	bool _RemoveTableFromList( const wxString& tableId ) const;
-	bool _UpdateTableInList( const wxString& tableStr ) const;
+	bool _UpdateTableInList( const wxString& tableStr );
 
 	bool _ParseIncomingCommand(const wxString& contentStr,
 		                       wxString&       command,
@@ -94,7 +96,10 @@ private:
 	mutable hoxNetworkTableInfoList  m_networkTables;
 
 	wxString                         m_pendingJoinTableId;
-			/* The Id of the table that this play is requesting to join. */
+			/* The Id of the table that this player is requesting to join. */
+
+	wxString                         m_pendingRequestSeat;
+			/* The Seat (RED/BLACK) this player is requesting to play as. */
 
     DECLARE_DYNAMIC_CLASS(hoxChesscapePlayer)
     DECLARE_EVENT_TABLE()

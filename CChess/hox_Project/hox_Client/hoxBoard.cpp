@@ -682,6 +682,9 @@ hoxBoard::_AddPlayerToList( const wxString& playerId,
         return;
     }
 
+	/* Remove the old item, if any. */
+	_RemovePlayerFromList( playerId );
+
     const wxString info = wxString::Format("%s (%d)", playerId.c_str(), playerScore);
     m_playerListBox->Append( info );
 }

@@ -920,14 +920,46 @@ hoxChesscapeSite::OnResponse_Join( const hoxResponse_AutoPtr& response )
 
 	std::auto_ptr<hoxNetworkTableInfo> tableInfo( pTableInfo );  // prevent memory leak!
 
+    hoxTable* table = NULL;
+    wxString  tableId = tableInfo->id;
+	hoxPieceColor myColor = hoxPIECE_COLOR_NONE;
+
+	///////////////////// JOIN An EXISTING TABLE ////////////////////////
+	table = this->FindTable( tableId );
+	if ( table != NULL )
+	{
+		if ( tableInfo->redId == m_player->GetName() )
+		{
+			myColor = hoxPIECE_COLOR_RED;
+		}
+		else if ( tableInfo->blackId == m_player->GetName() )
+		{
+			myColor = hoxPIECE_COLOR_BLACK;
+		}
+
+		result = m_player->JoinTableAs( table, myColor );
+		wxASSERT( result == hoxRESULT_OK  );
+		wxASSERT_MSG( m_player->HasRole( hoxRole(table->GetId(), 
+												 myColor) ),
+					  _("Player must join as the specified role"));
+
+		// Toggle board if I play BLACK.
+		if ( myColor == hoxPIECE_COLOR_BLACK )
+		{
+			table->ToggleViewSide();
+		}
+
+		wxGetApp().GetFrame()->UpdateSiteTreeUI();
+		return;
+	}
+	
+	/////////////////////////////////////////////////////////////////////
+
     /***********************/
     /* Create a new table. */
     /***********************/
 
     wxLogDebug("%s: Creating a new table JOINING an existing network table...", FNAME);
-
-    hoxTable* table = NULL;
-    wxString  tableId = tableInfo->id;
 
     /* Create a GUI Frame for the new Table. */
     MyFrame* frame = wxGetApp().GetFrame();
@@ -945,30 +977,43 @@ hoxChesscapeSite::OnResponse_Join( const hoxResponse_AutoPtr& response )
     /* Setup players       */
     /***********************/
 
-	// TODO: We only support 'observing' the table for now.'
-
     hoxPlayer* red_player = NULL;
     hoxPlayer* black_player = NULL;
-	long score = 0;
+	int score = 0;
 
-	if ( ! tableInfo->redId.empty() )
-    {
-		tableInfo->redScore.ToLong(&score); 
-		red_player = m_playerMgr.CreateDummyPlayer( tableInfo->redId, (int)score);
-    }
-
-	if ( ! tableInfo->blackId.empty() )
-    {
-		tableInfo->blackScore.ToLong(&score); 
-		black_player = m_playerMgr.CreateDummyPlayer( tableInfo->blackId, (int)score);
-    }
+	// Which color should the player play?
+	if ( tableInfo->redId == m_player->GetName() )
+	{
+		myColor = hoxPIECE_COLOR_RED;
+		score = ::atoi( tableInfo->blackScore.c_str() ); 
+		black_player = m_playerMgr.CreateDummyPlayer( tableInfo->blackId, score);
+	}
+	else if ( tableInfo->blackId == m_player->GetName() )
+	{
+		myColor = hoxPIECE_COLOR_BLACK;
+		score = ::atoi( tableInfo->redScore.c_str() ); 
+		red_player = m_playerMgr.CreateDummyPlayer( tableInfo->redId, score);
+	}
+	else
+	{
+		if ( ! tableInfo->redId.empty() )
+		{
+			score = ::atoi( tableInfo->redScore.c_str() ); 
+			red_player = m_playerMgr.CreateDummyPlayer( tableInfo->redId, score);
+		}
+		if ( ! tableInfo->blackId.empty() )
+		{
+			score = ::atoi( tableInfo->blackScore.c_str() ); 
+			black_player = m_playerMgr.CreateDummyPlayer( tableInfo->blackId, score);
+		}
+	}
 
     /* Join the players at the table.
      */
 
     if ( red_player != NULL )
     {
-        result = red_player->JoinTable( table );
+        result = red_player->JoinTableAs( table, hoxPIECE_COLOR_RED );
         wxASSERT( result == hoxRESULT_OK  );
         wxASSERT_MSG( red_player->HasRole( hoxRole(table->GetId(), 
                                                    hoxPIECE_COLOR_RED) ),
@@ -977,7 +1022,7 @@ hoxChesscapeSite::OnResponse_Join( const hoxResponse_AutoPtr& response )
 
     if ( black_player != NULL )
     {
-        result = black_player->JoinTable( table );
+        result = black_player->JoinTableAs( table, hoxPIECE_COLOR_BLACK );
         wxASSERT( result == hoxRESULT_OK  );
         wxASSERT_MSG( black_player->HasRole( hoxRole(table->GetId(), 
                                                      hoxPIECE_COLOR_BLACK) ),
@@ -985,11 +1030,11 @@ hoxChesscapeSite::OnResponse_Join( const hoxResponse_AutoPtr& response )
     }
 
 	/* TODO: The local player is just observing for now. */
-    result = m_player->JoinTable( table );
+    result = m_player->JoinTableAs( table, myColor );
     wxASSERT( result == hoxRESULT_OK  );
     wxASSERT_MSG( m_player->HasRole( hoxRole(table->GetId(), 
-                                             hoxPIECE_COLOR_NONE) ),
-                  _("Player must join as an OBSERVER"));
+                                             myColor) ),
+                  _("Player must join as the specified role"));
 
 	frame->UpdateSiteTreeUI();
 }
