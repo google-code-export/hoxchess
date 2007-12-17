@@ -28,6 +28,7 @@
 #include "hoxNetworkAPI.h"
 #include "MyApp.h"      // wxGetApp()
 #include "MyFrame.h"
+#include "hoxUtility.h"
 #include <wx/tokenzr.h>
 
 IMPLEMENT_DYNAMIC_CLASS(hoxChesscapePlayer, hoxLocalPlayer)
@@ -122,6 +123,8 @@ hoxResult
 hoxChesscapePlayer::JoinNetworkTable( const wxString& tableId,
                                       wxEvtHandler*   sender )
 {
+	m_pendingJoinTableId = tableId;
+
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_JOIN, sender );
 	request->parameters["pid"] = this->GetName();
 	request->parameters["tid"] = tableId;
@@ -222,6 +225,14 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 		{
 			wxString tCmd = paramsStr.BeforeFirst(0x10);
 			wxLogDebug("%s: Processing tCmd=[%s] command...", FNAME, tCmd.c_str());
+			
+			const wxString cmdStr = paramsStr.AfterFirst(0x10);
+
+			if ( tCmd == "Settings" )
+			{
+				_HandleTableCmd_Settings( cmdStr );
+				goto exit_label;
+			}
 
 			/* TODO: Only support 1 table for now. */
 			const hoxRoleList roles = this->GetRoles();
@@ -240,8 +251,6 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 				wxLogDebug("%s: *** WARN *** Table [%s] not found.", FNAME, tableId.c_str());
 				goto exit_label;
 			}
-
-			const wxString cmdStr = paramsStr.AfterFirst(0x10);
 
 			if ( tCmd == "MvPts" )
 			{
@@ -300,13 +309,19 @@ hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
 					wxLogDebug("%s: *** WARN *** This token [%s] should be 'T].", FNAME, token.c_str());
 				break;
 
-			case 3: /* Timer: Game-time (in minutes) */
+			case 3: /* Timer: Game-time (in seconds) */
+				tableInfo.nInitialTime = ::atoi(token.c_str()) / 1000;
 				break;
 
 			case 4: /* Timer: Increment-time (in seconds) */
 				break;
 
-			case 5: /* Table-type: Rated / Nonrated / Solo */
+			case 5: /* Table-type: Rated / Nonrated / Solo-Black / Solo-Red */
+				if      ( token == "0" ) tableInfo.gameType = hoxGAME_TYPE_RATED;
+				else if ( token == "1" ) tableInfo.gameType = hoxGAME_TYPE_NONRATED;
+				else if ( token == "5" ) tableInfo.gameType = hoxGAME_TYPE_SOLO_BLACK;
+				else if ( token == "8" ) tableInfo.gameType = hoxGAME_TYPE_SOLO_RED;
+				else /* unknown */       tableInfo.gameType = hoxGAME_TYPE_UNKNOWN;
 				break;
 
 			case 6: /* Players-info */
@@ -339,6 +354,19 @@ hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
 		++tokenPosition;
 	}		
 	wxLogDebug("%s: ... %s", FNAME, debugStr.c_str());
+
+	/* Do special adjustment for Solo-typed games */
+	if ( tableInfo.gameType == hoxGAME_TYPE_SOLO_BLACK )
+	{
+		tableInfo.blackId = tableInfo.redId;
+		tableInfo.redId = "COMPUTER";
+		tableInfo.blackScore = tableInfo.redScore;
+		tableInfo.redScore = "0";
+	}
+	else if ( tableInfo.gameType == hoxGAME_TYPE_SOLO_RED )
+	{
+		tableInfo.blackId = "COMPUTER";
+	}
 
 	return true;
 }
@@ -481,6 +509,114 @@ hoxChesscapePlayer::_HandleLoginCmd( const wxString& cmdStr,
 }
 
 bool 
+hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
+{
+	const char* FNAME = "hoxChesscapePlayer::_HandleTableCmd_Settings";
+	wxString delims;
+	delims += 0x10;
+	wxStringTokenizer tkz( cmdStr, delims, wxTOKEN_STRTOK ); // No empty tokens
+	wxString token;
+	int tokenPosition = 0;
+	long nTotalGameTime = 0;
+	long nIncrementGameTime = 0;
+	long nRedGameTime = 0;
+	long nBlackGameTime = 0;
+
+	while ( tkz.HasMoreTokens() )
+	{
+		token = tkz.GetNextToken();
+
+		switch ( tokenPosition++ )
+		{
+			case 0: /* Ignore for now */ break;
+			case 1: /* Ignore for now */ break;
+			case 2:
+			{
+				if ( token != "T" )
+					wxLogDebug("%s: *** WARN *** This token [%s] should be 'T].", FNAME, token.c_str());
+				break;
+			}
+
+			case 3: /* Total game-time */
+			{
+				if ( ! token.ToLong( &nTotalGameTime ) || nTotalGameTime <= 0 )
+				{
+					wxLogDebug("%s: *** WARN *** Failed to parse TOTAL game-time [%s].", FNAME, token.c_str());
+				}
+				break;
+			}
+
+			case 4: /* Increment game-time */
+			{
+				// NOTE: Increment time can be 0.
+				if ( ! token.ToLong( &nIncrementGameTime ) /*|| nIncrementGameTime <= 0*/ )
+				{
+					wxLogDebug("%s: *** WARN *** Failed to parse INCREMENT game-time [%s].", FNAME, token.c_str());
+				}
+				break;
+			}
+			case 5: /* Ignore Red player's name */ break;
+			case 6:
+			{
+				if ( ! token.ToLong( &nRedGameTime ) || nRedGameTime <= 0 )
+				{
+					wxLogDebug("%s: *** WARN *** Failed to parse RED game-time [%s].", FNAME, token.c_str());
+				}
+				break;
+			}
+			case 7: /* Ignore Red player's name */ break;
+			case 8:
+			{
+				if ( ! token.ToLong( &nBlackGameTime ) || nBlackGameTime <= 0 )
+				{
+					wxLogDebug("%s: *** WARN *** Failed to parse BLACK game-time [%s].", FNAME, token.c_str());
+				}
+				break;
+			}
+
+			default:
+				/* Ignore the rest */ break;
+		};
+	}
+
+	wxLogDebug("%s: Game-times for table [%s] = [%ld][%ld][%ld][%ld].", 
+		FNAME, m_pendingJoinTableId.c_str(), nTotalGameTime, nIncrementGameTime,
+		nRedGameTime, nBlackGameTime);
+
+	/* Set the game times. 
+	 * TODO: Ignore INCREMENT game-time for now.
+	 */
+	if ( nRedGameTime > 0 && nBlackGameTime > 0 )
+	{
+		for ( hoxNetworkTableInfoList::const_iterator it = m_networkTables.begin();
+													  it != m_networkTables.end(); 
+													++it )
+		{
+			if ( it->id == this->m_pendingJoinTableId )
+			{
+				hoxNetworkTableInfo* tableInfo = new hoxNetworkTableInfo( *it );
+				tableInfo->nBlackGameTime = (int) (nBlackGameTime / 1000); // convert to seconds
+				tableInfo->nRedGameTime = (int) (nRedGameTime / 1000);
+
+				wxEvtHandler* sender = this->GetSite()->GetResponseHandler();
+				hoxRequestType requestType = hoxREQUEST_TYPE_JOIN;
+				hoxResponse_AutoPtr response( new hoxResponse(requestType, 
+															  sender) );
+				response->eventObject = tableInfo;
+
+				wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, requestType );
+				response->code = hoxRESULT_OK;
+				event.SetEventObject( response.release() );  // Caller will de-allocate.
+				wxPostEvent( sender, event );
+				break;
+			}
+		}
+	}
+
+	return true;
+}
+
+bool 
 hoxChesscapePlayer::_HandleTableCmd_PastMoves( hoxTable*       table,
 	                                           const wxString& cmdStr )
 {
@@ -551,13 +687,11 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
     hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
     std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
 
-    /* Make a note to 'self' that one request has been serviced. */
-    DecrementOutstandingRequests();
-
 	switch ( response->type )
 	{
 		case hoxREQUEST_TYPE_CONNECT:
 		{
+			this->DecrementOutstandingRequests();
 			wxLogDebug("%s: CONNECT (or LOGIN) 's response received.", FNAME);
 			wxLogDebug("%s: ... response = [%s].", FNAME, response->content.c_str());
 
@@ -595,32 +729,36 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 		/* For JOIN, lookup the tableInfo and return it. */
 		case hoxREQUEST_TYPE_JOIN:
 		{
+			/* NOTE: This command is not done yet. 
+			 * We still need to wait for server's response about the JOIN.
+			 */
 			const wxString tableId = response->content;
-			for ( hoxNetworkTableInfoList::const_iterator it = m_networkTables.begin();
-														  it != m_networkTables.end(); 
-														++it )
-			{
-				if ( it->id == tableId )
-				{
-					response->eventObject = new hoxNetworkTableInfo( *it );
-					break;
-				}
-			}
+			wxASSERT_MSG(tableId == this->m_pendingJoinTableId, "The table-Ids should match.");
 			break;
 		}
 
 		case hoxREQUEST_TYPE_LEAVE:
 		{
+			this->DecrementOutstandingRequests();
 			wxLogDebug("%s: LEAVE (table) 's response received. END.", FNAME);
 			break;
 		}
 		case hoxREQUEST_TYPE_OUT_DATA:
 		{
+			this->DecrementOutstandingRequests();
 			wxLogDebug("%s: OUT_DATA 's response received. END.", FNAME);
 			break;
 		}
+		case hoxREQUEST_TYPE_DISCONNECT:
+		{
+			this->DecrementOutstandingRequests();
+			wxLogDebug("%s: DISCONNECT 's response received. END.", FNAME);
+			break;
+		}
 		default:
-			wxLogDebug("%s: *** WARN *** Unsupported request-type [%d].", FNAME, response->type);
+			this->DecrementOutstandingRequests();
+			wxLogDebug("%s: *** WARN *** Unsupported request-type [%s].", 
+				FNAME, hoxUtility::RequestTypeToString(response->type));
 			break;
 	} // switch
 

@@ -171,9 +171,17 @@ class hoxNetworkTableInfo
     wxString  blackId;    // BLACK player's Id.
 	wxString  redScore;   // RED player's Score.
 	wxString  blackScore;   // BLACK player's Score.
+	int       nInitialTime;  // The initial allowed Game-Time.
+	int       nBlackGameTime;
+	int       nRedGameTime;
+	hoxGameType gameType;  // Rated/Unrated/Solo
 
-	hoxNetworkTableInfo() : status(0) {}
-	hoxNetworkTableInfo(const wxString& a_id) : status(0) { id = a_id; }
+	hoxNetworkTableInfo() 
+		: status(0), nInitialTime(0), nBlackGameTime(0), nRedGameTime(0)
+	      , gameType( hoxGAME_TYPE_UNKNOWN ) {}
+	hoxNetworkTableInfo(const wxString& a_id) 
+		: status(0), nInitialTime(0), nBlackGameTime(0), nRedGameTime(0)
+	    , gameType( hoxGAME_TYPE_UNKNOWN ) { id = a_id; }
 	void Clear()
 		{
 			id = "";
@@ -182,6 +190,10 @@ class hoxNetworkTableInfo
 			blackId = "";
 			redScore = "";
 			blackScore = "";
+			nInitialTime = 0;
+			nBlackGameTime = 0;
+			nRedGameTime = 0;
+			gameType = hoxGAME_TYPE_UNKNOWN;
 		}
 };
 typedef std::list<hoxNetworkTableInfo> hoxNetworkTableInfoList;

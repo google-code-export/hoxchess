@@ -44,6 +44,8 @@ hoxTable::hoxTable( hoxSite*         site,
         , m_board( board )
         , m_redPlayer( NULL )
         , m_blackPlayer( NULL )
+		, m_nBGameTime( hoxTIME_DEFAULT_GAME_TIME )
+		, m_nRGameTime( hoxTIME_DEFAULT_GAME_TIME )
 {
     const char* FNAME = "hoxTable::hoxTable";
     wxLogDebug("%s: ENTER.", FNAME);
@@ -175,6 +177,25 @@ hoxTable::SetBoard( hoxBoard* board )
         m_board->SetTable( this );
         m_board->Show( true );  // Display Board's GUI.
     }
+}
+
+void 
+hoxTable::ViewBoard( wxWindow* tableWindow )
+{
+	const char* FNAME = "hoxTable::ViewBoard";
+
+	wxCHECK_RET(tableWindow, "The Window is NULL.");
+	wxCHECK_RET( m_board == NULL, "The Board has already been set." );
+
+	wxLogDebug("%s: Creating a new Board...", FNAME);
+	m_board = new hoxBoard( tableWindow, 
+		                    PIECES_PATH, 
+		                    this->m_referee,
+        					wxDefaultPosition,
+							tableWindow->GetSize() );
+
+	m_board->SetTable( this );
+    m_board->Show( true );  // Display Board's GUI.
 }
 
 void 

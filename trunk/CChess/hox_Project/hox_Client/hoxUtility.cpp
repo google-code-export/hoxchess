@@ -165,11 +165,30 @@ hoxUtility::StringToRequestType( const wxString& input )
     if ( input == "NEW" )         return hoxREQUEST_TYPE_NEW;
     if ( input == "JOIN" )        return hoxREQUEST_TYPE_JOIN;
     if ( input == "LEAVE" )       return hoxREQUEST_TYPE_LEAVE;
-    if ( input == "NEW_JOIN" )       return hoxREQUEST_TYPE_NEW_JOIN;
+    if ( input == "NEW_JOIN" )    return hoxREQUEST_TYPE_NEW_JOIN;
     if ( input == "OUT_DATA" )    return hoxREQUEST_TYPE_OUT_DATA;
     if ( input == "WALL_MSG" )    return hoxREQUEST_TYPE_WALL_MSG;
 
     return hoxREQUEST_TYPE_UNKNOWN;
+}
+
+/**
+ * Convert a given game-type to a (human-readable) string.
+ */
+const wxString 
+hoxUtility::GameTypeToString( const hoxGameType gameType )
+{
+    switch( gameType )
+    {
+        case hoxGAME_TYPE_UNKNOWN:     return "UNKNOWN";
+
+        case hoxGAME_TYPE_RATED:       return "Rated";
+		case hoxGAME_TYPE_NONRATED:    return "Nonrated";
+		case hoxGAME_TYPE_SOLO_BLACK:  return "Solo-Black";
+		case hoxGAME_TYPE_SOLO_RED:    return "Solo-Red";
+
+        default:                       return "UNKNOWN";
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -227,6 +246,12 @@ hoxUtility::ParseServerAddress( const wxString&   input,
     }
     
     return true;
+}
+
+const wxString 
+hoxUtility::FormatTime( int nTime )
+{
+    return wxString::Format( "%d:%.02d", nTime / 60, nTime % 60 );
 }
 
 /************************* END OF FILE ***************************************/

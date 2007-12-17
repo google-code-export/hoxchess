@@ -54,6 +54,11 @@ namespace hoxUtility
      */
     hoxRequestType StringToRequestType( const wxString& input );
 
+	/**
+	 * Convert a given game-type to a (human-readable) string.
+	 */
+	const wxString GameTypeToString( const hoxGameType gameType );
+
     // ----------------------------------------------------------------------------
     // hoxURI - A simple wrapper for wxURI
     // ----------------------------------------------------------------------------
@@ -78,6 +83,11 @@ namespace hoxUtility
      */
     bool ParseServerAddress( const wxString&   input,
                              hoxServerAddress& serverAddress );
+
+    /**
+     * Format a given time (in seconds) into the "mm:ss" format.
+     */
+	const wxString FormatTime( int nTime );
 
 }
 

@@ -78,6 +78,9 @@ private:
                          wxString&       name,
                          wxString&       score,
                          wxString&       role) const;
+
+	bool _HandleTableCmd_Settings(const wxString& cmdStr);
+
 	bool _HandleTableCmd_PastMoves(hoxTable*       table,
 		                           const wxString& cmdStr);
 	bool _HandleTableCmd_Move(hoxTable*       table,
@@ -89,6 +92,9 @@ private:
 	 * Thus, this player needs to maintain a "cache" list of tables.
 	 */
 	mutable hoxNetworkTableInfoList  m_networkTables;
+
+	wxString                         m_pendingJoinTableId;
+			/* The Id of the table that this play is requesting to join. */
 
     DECLARE_DYNAMIC_CLASS(hoxChesscapePlayer)
     DECLARE_EVENT_TABLE()

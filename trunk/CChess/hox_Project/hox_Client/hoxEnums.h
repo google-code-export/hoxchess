@@ -147,6 +147,19 @@ enum hoxPlayerType
 };
 
 /**
+ * Game's type.
+ */
+enum hoxGameType
+{
+    hoxGAME_TYPE_UNKNOWN = -1,
+
+    hoxGAME_TYPE_RATED,
+    hoxGAME_TYPE_NONRATED,
+    hoxGAME_TYPE_SOLO_BLACK,  // Player = BLACK, computer = RED
+	hoxGAME_TYPE_SOLO_RED     // Player = RED, computer = BLACK
+};
+
+/**
  * Network constants.
  */
 enum hoxNetworkContant

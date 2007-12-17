@@ -95,14 +95,14 @@ hoxBoard::hoxBoard( wxWindow*       parent,
     m_coreBoard = new hoxCoreBoard( this, m_referee );
     m_coreBoard->SetBoardOwner( this );
     m_coreBoard->SetPiecesPath( piecesPath );
-
+#if 0
     /* A timer to keep track of the time. */
     m_timer = new wxTimer( this );
     m_timer->Start( hoxTIME_ONE_SECOND_INTERVAL );
 
     /* Set default game-times. */
     _ResetTimerUI();
-
+#endif
     // *** NOTE: By default, the Board is NOT visible.
     wxPanel::Show( false );  // invoke the parent's API.
 }
@@ -621,6 +621,13 @@ void
 hoxBoard::SetTable( hoxTable* table ) 
 { 
     m_table = table;
+
+    /* A timer to keep track of the time. */
+    m_timer = new wxTimer( this );
+    m_timer->Start( hoxTIME_ONE_SECOND_INTERVAL );
+
+    /* Set default game-times. */
+    _ResetTimerUI();
 }
 
 void 
@@ -740,8 +747,10 @@ hoxBoard::_ResetTimerUI()
 {
     /* Set default game-times. */
 
-    m_nBGameTime = hoxTIME_DEFAULT_GAME_TIME;
-    m_nRGameTime = m_nBGameTime;
+	m_nBGameTime = ( m_table ? m_table->GetBlackGameTime() 
+		                     : hoxTIME_DEFAULT_GAME_TIME);
+	m_nRGameTime = ( m_table ? m_table->GetRedGameTime() 
+		                     : hoxTIME_DEFAULT_GAME_TIME);
 
     m_nBMoveTime = hoxTIME_DEFAULT_MOVE_TIME;
     m_nRMoveTime = m_nBMoveTime;
@@ -754,22 +763,16 @@ void
 hoxBoard::_UpdateTimerUI()
 {
     // Game times.
-    m_blackGameTime->SetLabel( _FormatTime( m_nBGameTime ) );
-    m_redGameTime->SetLabel(   _FormatTime( m_nRGameTime ) );
+    m_blackGameTime->SetLabel( hoxUtility::FormatTime( m_nBGameTime ) );
+    m_redGameTime->SetLabel(   hoxUtility::FormatTime( m_nRGameTime ) );
 
     // Move times.
-    m_blackMoveTime->SetLabel( _FormatTime( m_nBMoveTime ) );
-    m_redMoveTime->SetLabel(   _FormatTime( m_nRMoveTime ) );
+    m_blackMoveTime->SetLabel( hoxUtility::FormatTime( m_nBMoveTime ) );
+    m_redMoveTime->SetLabel(   hoxUtility::FormatTime( m_nRMoveTime ) );
 
     // Free times.
-    m_blackFreeTime->SetLabel( _FormatTime( m_nBFreeTime ) );
-    m_redFreeTime->SetLabel(   _FormatTime( m_nRFreeTime ) );
-}
-
-const wxString 
-hoxBoard::_FormatTime( int nTime ) const
-{
-    return wxString::Format( "%d:%.02d", nTime / 60, nTime % 60 );
+    m_blackFreeTime->SetLabel( hoxUtility::FormatTime( m_nBFreeTime ) );
+    m_redFreeTime->SetLabel(   hoxUtility::FormatTime( m_nRFreeTime ) );
 }
 
 bool 
