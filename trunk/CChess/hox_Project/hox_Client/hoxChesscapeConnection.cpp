@@ -135,7 +135,8 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
         case hoxREQUEST_TYPE_JOIN:
 		{
 		    const wxString tableId = request->parameters["tid"];
-            result = _Join(tableId);
+			const wxString requestSeat = request->parameters["seat"];
+            result = _Join(tableId, requestSeat);
 			response->content = tableId;
             break;
 		}
@@ -146,7 +147,22 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
             break;
 		}
 
-        //case hoxREQUEST_TYPE_MOVE:     /* fall through */
+        case hoxREQUEST_TYPE_MOVE:
+		{
+			const wxString moveStart("move=");
+			int found_index = request->content.Find(moveStart);
+			if ( found_index == wxNOT_FOUND )
+			{
+				wxLogDebug("%s: *** ERROR *** Failed to find 'move=' in request [%s].", 
+					FNAME, request->content.c_str());
+				break;
+			}
+			wxString moveStr = request->content.substr( found_index + moveStart.size() );
+			moveStr.Trim();
+            result = _Move( moveStr );
+            break;
+		}
+
         //case hoxREQUEST_TYPE_LIST:     /* fall through */
         //case hoxREQUEST_TYPE_NEW:      /* fall through */
         //case hoxREQUEST_TYPE_WALL_MSG:
@@ -314,7 +330,8 @@ hoxChesscapeConnection::_Disconnect( const wxString& login )
 }
 
 hoxResult
-hoxChesscapeConnection::_Join( const wxString& tableId )
+hoxChesscapeConnection::_Join( const wxString& tableId,
+							   const wxString& requestSeat )
 {
     const char* FNAME = "hoxChesscapeConnection::_Join";
 
@@ -342,6 +359,26 @@ hoxChesscapeConnection::_Join( const wxString& tableId )
 		return hoxRESULT_ERR;
 	}
 
+    /* Send REQUEST-SEAT request, if asked. */
+
+	if ( ! requestSeat.empty() )
+	{
+		wxLogDebug("%s: Sending REQUEST-SEAT request with seat = [%s]...", FNAME, requestSeat.c_str());
+		wxString cmdRequest;
+		cmdRequest.Printf("\x02\x10tCmd?%s\x10\x03", requestSeat.c_str());
+
+		wxUint32 requestSize = (wxUint32) cmdRequest.size();
+		m_pSClient->Write( cmdRequest, requestSize );
+		wxUint32 nWrite = m_pSClient->LastCount();
+		if ( nWrite < requestSize )
+		{
+			wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
+				FNAME, cmdRequest.c_str(), nWrite, requestSize, 
+				hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
+			return hoxRESULT_ERR;
+		}
+	}
+
     return hoxRESULT_OK;
 }
 
@@ -362,6 +399,40 @@ hoxChesscapeConnection::_Leave()
 	wxLogDebug("%s: Sending LEAVE (the current table) request...", FNAME);
 	wxString cmdRequest;
 	cmdRequest.Printf("\x02\x10%s\x10\x03", "closeTable?");
+
+	wxUint32 requestSize = (wxUint32) cmdRequest.size();
+	m_pSClient->Write( cmdRequest, requestSize );
+	wxUint32 nWrite = m_pSClient->LastCount();
+	if ( nWrite < requestSize )
+	{
+		wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
+			FNAME, cmdRequest.c_str(), nWrite, requestSize, 
+			hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
+		return hoxRESULT_ERR;
+	}
+
+    return hoxRESULT_OK;
+}
+
+hoxResult   
+hoxChesscapeConnection::_Move(const wxString& moveStr)
+{
+    const char* FNAME = "hoxChesscapeConnection::_Move";
+
+    if ( ! this->IsConnected() )
+    {
+        // NOTE: The connection could have been closed if the server is down.
+        wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
+        return hoxRESULT_ERR;
+    }
+
+    /* Send MOVE request. */
+
+	wxLogDebug("%s: Sending MOVE [%s] request...", FNAME, moveStr.c_str());
+	wxString cmdRequest;
+	cmdRequest.Printf("\x02\x10tCmd?Move\x10%s\x10%s\x10\x03", 
+		moveStr.c_str(),
+		"900000" /* FIXME: Hard-code */);
 
 	wxUint32 requestSize = (wxUint32) cmdRequest.size();
 	m_pSClient->Write( cmdRequest, requestSize );
