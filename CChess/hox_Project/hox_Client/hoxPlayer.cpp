@@ -910,7 +910,7 @@ hoxPlayer::DecrementOutstandingRequests()
 
     if ( m_nOutstandingRequests == 0 )
     {
-        wxLogWarning("%s: No more outstanding requests to be decremented.", FNAME);
+        wxLogDebug("%s: *** WARN *** No more outstanding requests to be decremented.", FNAME);
         return;
     }
 

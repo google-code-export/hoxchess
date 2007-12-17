@@ -151,7 +151,6 @@ private:
 
     void           _ResetTimerUI();  // Reset times to start a new game.
     void           _UpdateTimerUI();
-    const wxString _FormatTime( int nTime ) const;
 
 	bool _ParseMoveString( const wxString& moveStr, 
 		                   hoxMove&        move ) const;

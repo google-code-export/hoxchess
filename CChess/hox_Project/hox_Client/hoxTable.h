@@ -110,6 +110,19 @@ public:
     void SetBoard( hoxBoard* board );
 
     /**
+     * View the table's Board (the Table's GUI) by creating a new
+	 * Board using the given 'tableWindow' parameter as the parent Window.
+	 *
+     */
+    void ViewBoard( wxWindow* tableWindow );
+
+	void SetBlackGameTime(int nSeconds) { m_nBGameTime = nSeconds; }
+	int  GetBlackGameTime() const { return m_nBGameTime; }
+	
+	void SetRedGameTime(int nSeconds)   { m_nRGameTime = nSeconds; }
+	int  GetRedGameTime() const { return m_nRGameTime; }
+
+    /**
      * Callback function from the Board to let this Table know about
      * physical (Board) Moves.
      *
@@ -297,6 +310,10 @@ private:
     hoxPlayerAndRoleList  m_players;
     hoxPlayer*            m_redPlayer;
     hoxPlayer*            m_blackPlayer;
+
+	// Timers
+    int               m_nBGameTime;  // Black's Game-time.
+    int               m_nRGameTime;  // Red's Game-time.
 };
 
 #endif /* __INCLUDED_HOX_TABLE_H_ */

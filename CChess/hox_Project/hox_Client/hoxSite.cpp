@@ -402,8 +402,8 @@ hoxRemoteSite::OnResponse_New( const wxString& responseStr )
     MyChild* childFrame = frame->CreateFrameForTable( newTableId );
 
     /* Create a new table with newly created Frame. */
-    newTable = m_tableMgr.CreateTable( newTableId, 
-                                       childFrame );
+    newTable = m_tableMgr.CreateTable( newTableId );
+	newTable->ViewBoard( childFrame );
     childFrame->SetTable( newTable );
     childFrame->Show( true );
 
@@ -680,8 +680,8 @@ hoxRemoteSite::JoinExistingTable( const hoxNetworkTableInfo& tableInfo )
     MyChild* childFrame = frame->CreateFrameForTable( tableId );
 
     /* Create a new table with newly created Frame. */
-    table = m_tableMgr.CreateTable( tableId, 
-                                    childFrame );
+    table = m_tableMgr.CreateTable( tableId );
+	table->ViewBoard( childFrame );
     childFrame->SetTable( table );
     childFrame->Show( true );
 
@@ -878,7 +878,7 @@ hoxChesscapeSite::OnResponse_List( const hoxResponse_AutoPtr& response )
         {
             wxLogDebug("%s: Ask the server to allow me to JOIN table = [%s]", FNAME, selectedId.c_str());
             hoxNetworkTableInfo tableInfo;
-            result = m_player->JoinNetworkTable( selectedId, m_responseHandler );
+            result = m_player->JoinNetworkTable( selectedId, NULL /*m_responseHandler*/ );
             if ( result != hoxRESULT_OK )
             {
                 wxLogError("%s: Failed to JOIN a network table [%s].", FNAME, selectedId.c_str());
@@ -934,8 +934,10 @@ hoxChesscapeSite::OnResponse_Join( const hoxResponse_AutoPtr& response )
     MyChild* childFrame = frame->CreateFrameForTable( tableId );
 
     /* Create a new table with newly created Frame. */
-    table = m_tableMgr.CreateTable( tableId, 
-                                    childFrame );
+    table = m_tableMgr.CreateTable( tableId );
+	table->SetBlackGameTime( tableInfo->nBlackGameTime );
+	table->SetRedGameTime( tableInfo->nRedGameTime );
+	table->ViewBoard( childFrame );
     childFrame->SetTable( table );
     childFrame->Show( true );
 

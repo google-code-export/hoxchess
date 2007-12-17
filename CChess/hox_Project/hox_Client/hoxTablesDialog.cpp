@@ -25,6 +25,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxTablesDialog.h"
+#include "hoxUtility.h"
 
 // ----------------------------------------------------------------------------
 // constants
@@ -70,8 +71,10 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*       parent,
 		blackId = (it->blackId.empty() ? "0" : it->blackId );
 
         item = "";
-        item << "Table #" << it->id 
-             << " (status: " << it->status << ") "
+        item << "#" << it->id 
+             << " [" << it->status << "] "
+			 << " [" << hoxUtility::FormatTime(it->nInitialTime) << "] "
+			 << " [" << hoxUtility::GameTypeToString(it->gameType) << "] "
 			 << redId << "(" << it->redScore << ")" << " vs. " 
 			 << blackId << "(" << it->blackScore << ")";
         m_tablesListBox->Append( item, const_cast<hoxNetworkTableInfo*>( &(*it) ) );

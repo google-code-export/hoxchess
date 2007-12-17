@@ -45,8 +45,7 @@ hoxTableMgr::~hoxTableMgr()
 }
 
 hoxTable*
-hoxTableMgr::CreateTable( const wxString& tableId,
-                          wxWindow*       tableWindow /* = NULL */ )
+hoxTableMgr::CreateTable( const wxString& tableId )
 {
     /* Create a Referee */
     hoxIReferee* referee = new hoxReferee();
@@ -57,19 +56,6 @@ hoxTableMgr::CreateTable( const wxString& tableId,
      *       to have a notion of a Table withOUT a Board (or Table's GUI).
      */
     hoxTable* table = new hoxTable( m_site, tableId, referee );
-
-    /* Create a Board if a table-window (or table-frame) is provided. */
-	if ( tableWindow != NULL )
-	{
-		hoxBoard* board = new hoxBoard( tableWindow, PIECES_PATH, referee,
-										wxDefaultPosition,
-										tableWindow->GetSize() );
-
-		/* Attach the Board to the Table to be served as a Table's GUI 
-		 * Also, trigger the Board to be displayed.
-		 */
-		table->SetBoard( board );
-	}
 
     /* Save this table to our list */
     m_tables.push_back( table);
