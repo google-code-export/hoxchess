@@ -76,13 +76,17 @@ private:
 	bool _ParseIncomingCommand(const wxString& contentStr,
 		                       wxString&       command,
 							   wxString&       paramsStr) const;
-	bool _HandleLoginCmd(const wxString& cmdStr,
-                         wxString&       name,
-                         wxString&       score,
-                         wxString&       role) const;
+	bool _HandleCmd_Login(const wxString& cmdStr,
+                          wxString&       name,
+                          wxString&       score,
+                          wxString&       role) const;
 
+	bool _HandleCmd_Show(const wxString& cmdStr);
+	bool _HandleCmd_Unshow(const wxString& cmdStr);
+	bool _HandleCmd_Update(const wxString& cmdStr);
+
+	bool _HandleTableCmd(const wxString& cmdStr);
 	bool _HandleTableCmd_Settings(const wxString& cmdStr);
-
 	bool _HandleTableCmd_PastMoves(hoxTable*       table,
 		                           const wxString& cmdStr);
 	bool _HandleTableCmd_Move(hoxTable*       table,

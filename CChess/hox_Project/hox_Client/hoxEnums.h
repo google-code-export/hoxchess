@@ -155,8 +155,7 @@ enum hoxGameType
 
     hoxGAME_TYPE_RATED,
     hoxGAME_TYPE_NONRATED,
-    hoxGAME_TYPE_SOLO_BLACK,  // Player = BLACK, computer = RED
-	hoxGAME_TYPE_SOLO_RED     // Player = RED, computer = BLACK
+    hoxGAME_TYPE_SOLO     // vs. COMPUTER
 };
 
 /**
