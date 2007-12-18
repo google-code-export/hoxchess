@@ -176,6 +176,8 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 
     hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
     const std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
+	wxString command;
+	wxString paramsStr;
 
     /* Make a note to 'self' that one request has been serviced. */
     DecrementOutstandingRequests();
@@ -190,107 +192,27 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
          * all tables.
          */
         this->LeaveAllTables();
+		goto exit_label;
     }
-    else
-    {
-		wxString command;
-		wxString paramsStr;
 
-		/* Parse for the command */
+	/* Parse for the command */
 
-		if ( ! _ParseIncomingCommand( response->content, command, paramsStr ) ) // failed?
-		{
-			wxLogDebug("%s: *** WARN *** Failed to parse incoming command.", FNAME);
-			goto exit_label;
-		}
+	if ( ! _ParseIncomingCommand( response->content, command, paramsStr ) ) // failed?
+	{
+		wxLogDebug("%s: *** WARN *** Failed to parse incoming command.", FNAME);
+		goto exit_label;
+	}
 
-		/* Processing the command... */
+	/* Processing the command... */
 
-		if ( command == "show" )
-		{
-			wxLogDebug("%s: Processing SHOW command...", FNAME);
-			wxString delims;
-			delims += 0x11;   // table-delimiter
-			// ... Do not return empty tokens
-			wxStringTokenizer tkz( paramsStr, delims, wxTOKEN_STRTOK );
-			wxString tableStr;
-			while ( tkz.HasMoreTokens() )
-			{
-				tableStr = tkz.GetNextToken();
-				_AddTableToList( tableStr );
-			}
-		}
-		else if ( command == "unshow" )
-		{
-			const wxString tableId = paramsStr.BeforeFirst(0x10);
-			wxLogDebug("%s: Processing UNSHOW [%s] command...", FNAME, tableId.c_str());
-			if ( ! _RemoveTableFromList( tableId ) ) // not found?
-			{
-				wxLogDebug("%s: *** WARN *** Table [%s] to be deleted NOT FOUND.", FNAME, tableId.c_str());
-			}
-		}
-		else if ( command == "update" )
-		{
-			wxString updateCmd = paramsStr.BeforeFirst(0x10);
-
-			// It is a table update if the sub-command starts with a number.
-			long nTableId = 0;
-			if ( updateCmd.ToLong( &nTableId ) && nTableId > 0 )  // a table's update?
-			{
-				wxString tableStr = paramsStr;
-				//wxLogDebug("%s: Processing UPDATE-(table) [%s] command...", FNAME, tableStr.c_str());
-				_UpdateTableInList( tableStr );
-			}
-		}
-		else if ( command == "tCmd" )
-		{
-			wxString tCmd = paramsStr.BeforeFirst(0x10);
-			wxLogDebug("%s: Processing tCmd=[%s] command...", FNAME, tCmd.c_str());
-			
-			const wxString cmdStr = paramsStr.AfterFirst(0x10);
-
-			if ( tCmd == "Settings" )
-			{
-				_HandleTableCmd_Settings( cmdStr );
-				goto exit_label;
-			}
-
-			/* TODO: Only support 1 table for now. */
-			const hoxRoleList roles = this->GetRoles();
-			if ( roles.empty() )
-			{
-				wxLogDebug("%s: *** WARN *** This player [%s] has not joined any table yet.", 
-					FNAME, this->GetName().c_str());
-				goto exit_label;
-			}
-			wxString tableId = roles.front().tableId;
-
-			// Find the table hosted on this system using the specified table-Id.
-			hoxTable* table = this->GetSite()->FindTable( tableId );
-			if ( table == NULL )
-			{
-				wxLogDebug("%s: *** WARN *** Table [%s] not found.", FNAME, tableId.c_str());
-				goto exit_label;
-			}
-
-			if ( tCmd == "MvPts" )
-			{
-				_HandleTableCmd_PastMoves( table, cmdStr );
-			}
-			else if ( tCmd == "Move" )
-			{
-				_HandleTableCmd_Move( table, cmdStr );
-			}
-			else
-			{
-				wxLogDebug("%s: *** Ignore this Table-command = [%s].", FNAME, tCmd.c_str());
-			}
-		}
-		else
-		{
-			wxLogDebug("%s: Ignore other command = [%s] for now.", FNAME, command.c_str());
-		}
-    }
+	if      ( command == "show" )    _HandleCmd_Show( paramsStr );
+	else if ( command == "unshow" )  _HandleCmd_Unshow( paramsStr );
+	else if ( command == "update" )  _HandleCmd_Update( paramsStr );
+	else if ( command == "tCmd" )	 _HandleTableCmd( paramsStr );
+	else
+	{
+		wxLogDebug("%s: Ignore other command = [%s].", FNAME, command.c_str());
+	}
 
 exit_label:
     wxLogDebug("%s: END.", FNAME);
@@ -340,8 +262,7 @@ hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
 			case 5: /* Table-type: Rated / Nonrated / Solo-Black / Solo-Red */
 				if      ( token == "0" ) tableInfo.gameType = hoxGAME_TYPE_RATED;
 				else if ( token == "1" ) tableInfo.gameType = hoxGAME_TYPE_NONRATED;
-				else if ( token == "5" ) tableInfo.gameType = hoxGAME_TYPE_SOLO_BLACK;
-				else if ( token == "8" ) tableInfo.gameType = hoxGAME_TYPE_SOLO_RED;
+				else if ( token == "5" ) tableInfo.gameType = hoxGAME_TYPE_SOLO;
 				else /* unknown */       tableInfo.gameType = hoxGAME_TYPE_UNKNOWN;
 				break;
 
@@ -386,17 +307,14 @@ hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
 	}		
 	wxLogDebug("%s: ... %s", FNAME, debugStr.c_str());
 
-	/* Do special adjustment for Solo-typed games */
-	if ( tableInfo.gameType == hoxGAME_TYPE_SOLO_BLACK )
-	{
-		tableInfo.blackId = tableInfo.redId;
-		tableInfo.redId = "COMPUTER";
-		tableInfo.blackScore = tableInfo.redScore;
-		tableInfo.redScore = "0";
-	}
-	else if ( tableInfo.gameType == hoxGAME_TYPE_SOLO_RED )
+	/* Do special adjustment for Solo-typed games.
+	 * At "this" time, we do not know whether we play BLACK or RED.
+	 * Default = play-RED  for now.
+	 */
+	if ( tableInfo.gameType == hoxGAME_TYPE_SOLO )
 	{
 		tableInfo.blackId = "COMPUTER";
+		tableInfo.blackScore = "0";
 	}
 
 	return true;
@@ -549,12 +467,12 @@ hoxChesscapePlayer::_ParseIncomingCommand( const wxString& contentStr,
 }
 
 bool 
-hoxChesscapePlayer::_HandleLoginCmd( const wxString& cmdStr,
-                                     wxString&       name,
-	                                 wxString&       score,
-	                                 wxString&       role ) const
+hoxChesscapePlayer::_HandleCmd_Login( const wxString& cmdStr,
+                                      wxString&       name,
+	                                  wxString&       score,
+	                                  wxString&       role ) const
 {
-    const char* FNAME = "hoxChesscapePlayer::_HandleLoginCmd";
+    const char* FNAME = "hoxChesscapePlayer::_HandleCmd_Login";
     wxLogDebug("%s: ENTER.", FNAME);
 
 	wxString delims;
@@ -576,6 +494,110 @@ hoxChesscapePlayer::_HandleLoginCmd( const wxString& cmdStr,
 
 	wxLogDebug("%s: .... name=[%s], score=[%s], role=[%s].", 
 		FNAME, name.c_str(), score.c_str(), role.c_str());
+
+	return true;
+}
+
+bool 
+hoxChesscapePlayer::_HandleCmd_Show(const wxString& cmdStr)
+{
+	const char* FNAME = "hoxChesscapePlayer::_HandleCmd_Show";
+	wxLogDebug("%s: ENTER.", FNAME);
+
+	wxString delims;
+	delims += 0x11;   // table-delimiter
+	wxStringTokenizer tkz( cmdStr, delims, wxTOKEN_STRTOK ); // No empty tokens
+	wxString token;
+	while ( tkz.HasMoreTokens() )
+	{
+		token = tkz.GetNextToken();
+		_AddTableToList( token );
+	}
+
+	return true;
+}
+
+bool 
+hoxChesscapePlayer::_HandleCmd_Unshow(const wxString& cmdStr)
+{
+	const char* FNAME = "hoxChesscapePlayer::_HandleCmd_Unshow";
+
+	const wxString tableId = cmdStr.BeforeFirst(0x10);
+	wxLogDebug("%s: Processing UNSHOW [%s] command...", FNAME, tableId.c_str());
+
+	if ( ! _RemoveTableFromList( tableId ) ) // not found?
+	{
+		wxLogDebug("%s: *** WARN *** Table [%s] to be deleted NOT FOUND.", 
+			FNAME, tableId.c_str());
+	}
+
+	return true;
+}
+
+bool 
+hoxChesscapePlayer::_HandleCmd_Update(const wxString& cmdStr)
+{
+	const char* FNAME = "hoxChesscapePlayer::_HandleCmd_Update";
+
+	wxString updateCmd = cmdStr.BeforeFirst(0x10);
+
+	// It is a table update if the sub-command starts with a number.
+	long nTableId = 0;
+	if ( updateCmd.ToLong( &nTableId ) && nTableId > 0 )  // a table's update?
+	{
+		wxString tableStr = cmdStr;
+		wxLogDebug("%s: Processing UPDATE-(table) [%ld] command...", FNAME, nTableId);
+		_UpdateTableInList( tableStr );
+	}
+
+	return true;
+}
+
+bool 
+hoxChesscapePlayer::_HandleTableCmd( const wxString& cmdStr )
+{
+	const char* FNAME = "hoxChesscapePlayer::_HandleTableCmd";
+
+	wxString tCmd = cmdStr.BeforeFirst(0x10);
+	const wxString subCmdStr = cmdStr.AfterFirst(0x10);
+	wxLogDebug("%s: Processing tCmd = [%s]...", FNAME, tCmd.c_str());
+	
+	if ( tCmd == "Settings" )
+	{
+		return _HandleTableCmd_Settings( subCmdStr );
+	}
+
+	/* NOTE: The Chesscape server only support 1 table for now. */
+
+	const hoxRoleList roles = this->GetRoles();
+	if ( roles.empty() )
+	{
+		wxLogDebug("%s: *** WARN *** This player [%s] has not joined any table yet.", 
+			FNAME, this->GetName().c_str());
+		return false;
+	}
+	wxString tableId = roles.front().tableId;
+
+	// Find the table hosted on this system using the specified table-Id.
+	hoxTable* table = this->GetSite()->FindTable( tableId );
+	if ( table == NULL )
+	{
+		wxLogDebug("%s: *** WARN *** Table [%s] not found.", FNAME, tableId.c_str());
+		return false;
+	}
+
+	if ( tCmd == "MvPts" )
+	{
+		_HandleTableCmd_PastMoves( table, subCmdStr );
+	}
+	else if ( tCmd == "Move" )
+	{
+		_HandleTableCmd_Move( table, subCmdStr );
+	}
+	else
+	{
+		wxLogDebug("%s: *** Ignore this Table-command = [%s].", FNAME, tCmd.c_str());
+	}
 
 	return true;
 }
@@ -790,7 +812,7 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 				wxString       score;
 				wxString       role;
 
-				this->_HandleLoginCmd( paramsStr, name, score, role );
+				this->_HandleCmd_Login( paramsStr, name, score, role );
 				response->code = hoxRESULT_OK;
 				response->content.Printf("LOGIN is OK. name=[%s], score=[%s], role=[%s]", 
 					name.c_str(), score.c_str(), role.c_str());

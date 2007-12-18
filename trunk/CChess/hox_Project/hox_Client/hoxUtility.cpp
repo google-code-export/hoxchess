@@ -184,8 +184,7 @@ hoxUtility::GameTypeToString( const hoxGameType gameType )
 
         case hoxGAME_TYPE_RATED:       return "Rated";
 		case hoxGAME_TYPE_NONRATED:    return "Nonrated";
-		case hoxGAME_TYPE_SOLO_BLACK:  return "Solo-Black";
-		case hoxGAME_TYPE_SOLO_RED:    return "Solo-Red";
+		case hoxGAME_TYPE_SOLO:        return "Solo";
 
         default:                       return "UNKNOWN";
     }
