@@ -199,7 +199,8 @@ hoxTable::ViewBoard( wxWindow* tableWindow )
 }
 
 void 
-hoxTable::OnMove_FromBoard( const hoxMove& move )
+hoxTable::OnMove_FromBoard( const hoxMove& move,
+						    hoxGameStatus  status )
 {
     const char* FNAME = "hoxTable::OnMove_FromBoard";
 
@@ -227,7 +228,7 @@ hoxTable::OnMove_FromBoard( const hoxMove& move )
     {
         wxLogDebug("%s: Inform player [%s] about the Board Move...", 
             FNAME, it->player->GetName().c_str());
-        _PostPlayer_MoveEvent( it->player, boardPlayer, moveStr );
+        _PostPlayer_MoveEvent( it->player, boardPlayer, moveStr, status );
     }
 }
 
@@ -252,6 +253,21 @@ hoxTable::OnMessage_FromBoard( const wxString& message )
      *       instead of skipping the sender + the Board player.
      */
     _PostAll_MessageEvent( boardPlayer, message, true /* fromBoard */ );
+}
+
+void
+hoxTable::OnJoinCommand_FromBoard()
+{
+    const char* FNAME = "hoxTable::OnJoinCommand_FromBoard";
+	wxLogDebug("%s: Received a JOIN request from Board's local-player.", FNAME);
+
+    /* Get the Board Player (or the Board's owner) because he is the
+     * one that sent the Message.
+     */
+    hoxPlayer* boardPlayer = _GetBoardPlayer();
+    wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
+
+	_PostPlayer_ActionEvent( boardPlayer, hoxEVT_PLAYER_JOIN_TABLE );
 }
 
 void 
@@ -359,6 +375,18 @@ hoxTable::ToggleViewSide()
 }
 
 void 
+hoxTable::_PostPlayer_ActionEvent( hoxPlayer*  player,
+								   wxEventType commandType ) const
+{
+    const char* FNAME = "hoxTable::_PostPlayer_ActionEvent";
+    wxCHECK_RET( player, "The player is NULL." );
+
+    wxCommandEvent event( commandType );
+	event.SetString( m_id );  // Attach this table-id.
+    wxPostEvent( player, event );
+}
+
+void 
 hoxTable::_PostPlayer_CloseEvent( hoxPlayer* player ) const
 {
     const char* FNAME = "hoxTable::_PostPlayer_CloseEvent";
@@ -414,18 +442,34 @@ hoxTable::_PostPlayer_JoinEvent( hoxPlayer*    player,
 void 
 hoxTable::_PostPlayer_MoveEvent( hoxPlayer*      player,
                                  hoxPlayer*      movePlayer,
-                                 const wxString& moveStr ) const
+                                 const wxString& moveStr,
+								 hoxGameStatus   status /* = hoxGAME_STATUS_IN_PROGRESS */) const
 {
     const char* FNAME = "hoxTable::_PostPlayer_MoveEvent";
 
     wxCHECK_RET( player, "The Player is NULL." );
     wxCHECK_RET( movePlayer, "The 'move' Player is NULL." );
 
+	/* Convert game's status into a string.
+	 * TODO: Temporarily do the conversion here.
+	 */
+	wxString statusStr;
+	switch ( status )
+	{
+		case hoxGAME_STATUS_OPEN:        statusStr = "open"; break;
+		case hoxGAME_STATUS_READY:       statusStr = "read"; break;
+		case hoxGAME_STATUS_IN_PROGRESS: statusStr = "in_progress"; break;
+		case hoxGAME_STATUS_RED_WIN:     statusStr = "red_win"; break;
+		case hoxGAME_STATUS_BLACK_WIN:   statusStr = "black_win"; break;
+		case hoxGAME_STATUS_DRAWN:       statusStr = "drawn"; break;
+		default:                         statusStr = "UNKNOWN"; break;
+	}
+
     wxLogDebug("%s: Informing player [%s] that [%s] just made a new Move [%s]...", 
         FNAME, player->GetName().c_str(), movePlayer->GetName().c_str(), moveStr.c_str());
     wxString commandStr;
-    commandStr.Printf("tid=%s&pid=%s&move=%s", 
-        m_id.c_str(), movePlayer->GetName().c_str(), moveStr.c_str());
+    commandStr.Printf("tid=%s&pid=%s&move=%s&status=%s", 
+        m_id.c_str(), movePlayer->GetName().c_str(), moveStr.c_str(), statusStr.c_str());
     wxCommandEvent event( hoxEVT_PLAYER_NEW_MOVE );
     event.SetString( commandStr );
     wxPostEvent( player, event );
@@ -631,6 +675,15 @@ hoxTable::_PostAll_LeaveEvent( hoxPlayer* player,
 hoxPlayer* 
 hoxTable::_GetBoardPlayer() const
 {
+    for (hoxPlayerAndRoleList::const_iterator it = m_players.begin(); 
+                                              it != m_players.end(); ++it)
+    {
+        if ( it->player->GetType() == hoxPLAYER_TYPE_LOCAL )
+        {
+            return it->player;
+        }
+    }
+#if 0
     hoxPlayerList players;
     players.push_back( m_redPlayer );
     players.push_back( m_blackPlayer );
@@ -643,7 +696,7 @@ hoxTable::_GetBoardPlayer() const
             return (*it);
         }
     }
-
+#endif
     return NULL;
 }
 

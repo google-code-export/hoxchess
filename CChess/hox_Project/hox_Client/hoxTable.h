@@ -129,13 +129,20 @@ public:
      * @param move The current design assumes that the Board has contacted
      *             the referee to validate the Move.
      */
-    void OnMove_FromBoard( const hoxMove& move );
+    void OnMove_FromBoard( const hoxMove& move,
+		                   hoxGameStatus  status );
 
     /**
      * Callback function from the Board to let this Table know about
      * new Wall-input messages.
      */
     void OnMessage_FromBoard( const wxString& message );
+
+    /**
+     * Callback function from the Board to let this Table know about
+     * JOIN-command button that has been pressed by the "local" player.
+     */
+    void OnJoinCommand_FromBoard();
 
     /**
      * Callback function from the NETWORK Player to let this Table know about
@@ -191,6 +198,13 @@ public:
 
 private:
     /**
+     * Post (inform) a player about the fact that a command button
+     * has been pressed.
+     */
+    void _PostPlayer_ActionEvent( hoxPlayer*  player,
+		                          wxEventType commandType ) const;
+
+    /**
      * Post (inform) a player about the fact that this table is 
      * about to be closed.
      */
@@ -222,10 +236,12 @@ private:
      * @param player    The Player to be informed.
      * @param movePlayer The Player that just made the Move.
      * @param moveStr  The string containing the new Move.
+	 * @param status  The game's status.
      */
     void _PostPlayer_MoveEvent( hoxPlayer*      player,
                                 hoxPlayer*      movePlayer,
-                                const wxString& moveStr ) const;
+                                const wxString& moveStr,
+								hoxGameStatus   status = hoxGAME_STATUS_IN_PROGRESS ) const;
 
     /**
      * Post (inform) a player that a new Message has just been sent.

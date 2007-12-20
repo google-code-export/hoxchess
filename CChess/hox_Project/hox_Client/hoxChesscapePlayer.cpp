@@ -34,6 +34,12 @@
 IMPLEMENT_DYNAMIC_CLASS(hoxChesscapePlayer, hoxLocalPlayer)
 
 BEGIN_EVENT_TABLE(hoxChesscapePlayer, hoxLocalPlayer)
+	// *** VIP-NOTES: According to http://www.wxwidgets.org//manuals/stable/wx_eventhandlingoverview.html#eventhandlingoverview
+	//     we must declare an entry in each derived-class's table-event (using virtual WILL NOT WORK)....
+	//     However, it seems here that I do not have to do it.
+	//     OnJoinCmd_FromTable() is overriden in this class to override the parent (hoxPlayer) behavior!!!!
+	//EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_JOIN_TABLE, hoxChesscapePlayer::OnJoinCmd_FromTable)
+
     EVT_SOCKET(CLIENT_SOCKET_ID,  hoxChesscapePlayer::OnIncomingNetworkData)
     EVT_COMMAND(hoxREQUEST_TYPE_PLAYER_DATA, hoxEVT_CONNECTION_RESPONSE, hoxChesscapePlayer::OnConnectionResponse_PlayerData)
     EVT_COMMAND(wxID_ANY, hoxEVT_CONNECTION_RESPONSE, hoxChesscapePlayer::OnConnectionResponse)
@@ -133,25 +139,66 @@ hoxChesscapePlayer::JoinNetworkTable( const wxString& tableId,
 		return hoxRESULT_ERR;
 	}
 
-	/* Auto JOIN the table based on the seat availability. */
-	if ( tableInfo.blackId.empty() )
-	{
-		m_pendingRequestSeat = "BlkSeat";
-	}
-	else if ( tableInfo.redId.empty() )
-	{
-		m_pendingRequestSeat = "RedSeat";
-	}
+	/* Lookup existing role at the table. */
+	hoxPieceColor assignedColor;
+	bool hasRole = this->FindRoleAtTable( tableId, assignedColor );
 
 	m_pendingJoinTableId = tableId;
 
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_JOIN, sender );
 	request->parameters["pid"] = this->GetName();
 	request->parameters["tid"] = tableId;
-	request->parameters["seat"] = m_pendingRequestSeat;
+	request->parameters["joined"] = hasRole ? "1" : "";
+	//request->parameters["seat"] = "";
     this->AddRequestToConnection( request );
 
     return hoxRESULT_OK;
+}
+
+void 
+hoxChesscapePlayer::OnJoinCmd_FromTable( wxCommandEvent&  event )
+{
+    const char* FNAME = "hoxChesscapePlayer::OnJoinCmd_FromTable";
+
+	wxLogDebug("%s: ENTER.", FNAME);
+
+	const wxString tableId = event.GetString();
+
+	/* Lookup the table first. */
+	hoxNetworkTableInfo tableInfo;
+	if ( ! _FindTableById( tableId, tableInfo ) ) // not found?
+	{
+		wxLogDebug("%s: *** WARN *** Table [%s] not found.", FNAME, tableId.c_str());
+		return;
+	}
+
+	/* Lookup existing role at the table. */
+	hoxPieceColor assignedColor;
+	bool hasRole = this->FindRoleAtTable( tableId, assignedColor );
+
+	/* Auto JOIN the table based on the seat availability. */
+
+	wxString requestSeat;
+
+	if ( tableInfo.blackId.empty() )
+	{
+		requestSeat = "BlkSeat";
+	}
+	else if ( tableInfo.redId.empty() )
+	{
+		requestSeat = "RedSeat";
+	}
+
+	// *** Save this info...
+	m_pendingJoinTableId = tableId;
+	m_pendingRequestSeat = requestSeat;
+
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_JOIN, this );
+	request->parameters["pid"] = this->GetName();
+	request->parameters["tid"] = tableId;
+	request->parameters["joined"] = hasRole ? "1" : "";
+	request->parameters["seat"] = requestSeat;
+    this->AddRequestToConnection( request );
 }
 
 void
@@ -686,8 +733,10 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 													  it != m_networkTables.end(); 
 													++it )
 		{
-			if ( it->id == this->m_pendingJoinTableId )
+			if ( it->id == m_pendingJoinTableId )
 			{
+				m_pendingJoinTableId = "";
+
 				hoxNetworkTableInfo* tableInfo = new hoxNetworkTableInfo( *it );
 				tableInfo->nBlackGameTime = (int) (nBlackGameTime / 1000); // convert to seconds
 				tableInfo->nRedGameTime = (int) (nRedGameTime / 1000);
@@ -823,11 +872,21 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 		/* For JOIN, lookup the tableInfo and return it. */
 		case hoxREQUEST_TYPE_JOIN:
 		{
+			this->DecrementOutstandingRequests();
+
+			const wxString tableId = response->content;
+			wxASSERT_MSG(tableId == m_pendingJoinTableId, "The table-Ids should match.");
+
 			/* NOTE: This command is not done yet. 
 			 * We still need to wait for server's response about the JOIN.
 			 */
-			const wxString tableId = response->content;
-			wxASSERT_MSG(tableId == this->m_pendingJoinTableId, "The table-Ids should match.");
+			if ( response->sender && response->sender != this )
+			{
+				wxLogDebug("%s: Delay informing sender about JOIN 's response on table [%s].", 
+					FNAME, tableId.c_str());
+				response->sender = NULL;  // TODO: Temporarily clear out sender to skip sending...
+			}
+
 			break;
 		}
 

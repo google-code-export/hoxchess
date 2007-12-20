@@ -549,6 +549,7 @@ hoxCoreBoard::_OnPieceMoved( hoxPiece*          piece,
                              const hoxPosition& newPos )
 {
     hoxMove move;   // Make a new Move
+    hoxGameStatus gameStatus = hoxGAME_STATUS_IN_PROGRESS;
 
     /* If there is no referee, always assume the move is valid.
      * Otherwise, ask the referee to check if the move is valid.
@@ -559,16 +560,17 @@ hoxCoreBoard::_OnPieceMoved( hoxPiece*          piece,
         move.piece       = piece->GetInfo();
         move.newPosition = newPos;
 
-        hoxGameStatus status;
-        if ( ! m_referee->ValidateMove( move, status ) )
+        if ( ! m_referee->ValidateMove( move, gameStatus ) )
         {
             _PrintDebug( "Move is not valid!!!" );
             this->Refresh();
             return;
         }
 
-        if ( status != hoxGAME_STATUS_IN_PROGRESS)
+        if ( gameStatus != hoxGAME_STATUS_IN_PROGRESS)
+		{
             _SetGameOver( true );
+		}
     }
 
     /* NOTE: Need to the following check. 
@@ -584,7 +586,9 @@ hoxCoreBoard::_OnPieceMoved( hoxPiece*          piece,
 
     /* Inform the Board's Owner of the new Move. */
     if ( m_owner != NULL )
-        m_owner->OnBoardMove( move );
+	{
+        m_owner->OnBoardMove( move, gameStatus );
+	}
 }
 
 bool 

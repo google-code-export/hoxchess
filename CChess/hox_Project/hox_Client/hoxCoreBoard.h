@@ -66,7 +66,8 @@ public:
     class BoardOwner
     {
     public:
-        virtual void OnBoardMove( const hoxMove& move ) = 0;
+        virtual void OnBoardMove( const hoxMove& move,
+			                      hoxGameStatus  status ) = 0;
         virtual void OnBoardMsg( const wxString& message ) = 0;
     };
 

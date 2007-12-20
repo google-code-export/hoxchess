@@ -45,7 +45,9 @@ enum
     ID_HISTORY_BEGIN,
     ID_HISTORY_PREV,
     ID_HISTORY_NEXT,
-    ID_HISTORY_END
+    ID_HISTORY_END,
+
+    ID_ACTION_JOIN
 };
 
 
@@ -66,6 +68,7 @@ BEGIN_EVENT_TABLE(hoxBoard, wxPanel)
     EVT_BUTTON(ID_HISTORY_PREV, hoxBoard::OnButtonHistory_PREV)
     EVT_BUTTON(ID_HISTORY_NEXT, hoxBoard::OnButtonHistory_NEXT)
     EVT_BUTTON(ID_HISTORY_END, hoxBoard::OnButtonHistory_END)
+	EVT_BUTTON(ID_ACTION_JOIN, hoxBoard::OnButtonJoin)
 
     EVT_TIMER(wxID_ANY, hoxBoard::OnTimer)    
 END_EVENT_TABLE()
@@ -88,6 +91,7 @@ hoxBoard::hoxBoard( wxWindow*       parent,
         , m_referee( referee )
         , m_table( NULL )
         , m_status( hoxGAME_STATUS_OPEN )
+		, m_timer( NULL )
 {
     wxCHECK_RET( m_referee != NULL, "A Referee must be set." );
 
@@ -95,15 +99,8 @@ hoxBoard::hoxBoard( wxWindow*       parent,
     m_coreBoard = new hoxCoreBoard( this, m_referee );
     m_coreBoard->SetBoardOwner( this );
     m_coreBoard->SetPiecesPath( piecesPath );
-#if 0
-    /* A timer to keep track of the time. */
-    m_timer = new wxTimer( this );
-    m_timer->Start( hoxTIME_ONE_SECOND_INTERVAL );
 
-    /* Set default game-times. */
-    _ResetTimerUI();
-#endif
-    // *** NOTE: By default, the Board is NOT visible.
+	// *** NOTE: By default, the Board is NOT visible.
     wxPanel::Show( false );  // invoke the parent's API.
 }
 
@@ -122,11 +119,12 @@ hoxBoard::~hoxBoard()
 }
 
 void 
-hoxBoard::OnBoardMove( const hoxMove& move )
+hoxBoard::OnBoardMove( const hoxMove& move,
+					   hoxGameStatus  status )
 {
     /* Inform the Table of the new move. */
     wxCHECK_RET(m_table, "The table is NULL." );
-    m_table->OnMove_FromBoard( move );
+    m_table->OnMove_FromBoard( move, status );
 
     _OnValidMove( move );
 }
@@ -294,6 +292,14 @@ hoxBoard::OnButtonHistory_END( wxCommandEvent &event )
 }
 
 void 
+hoxBoard::OnButtonJoin( wxCommandEvent &event )
+{
+    /* Let the table handle this action. */
+    wxCHECK_RET(m_table, "The table is NULL." );
+    m_table->OnJoinCommand_FromBoard();
+}
+
+void 
 hoxBoard::OnTimer(wxTimerEvent& event)
 {
     if ( m_status != hoxGAME_STATUS_IN_PROGRESS )
@@ -433,6 +439,27 @@ hoxBoard::_CreateBoardPanel()
                       wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
         0,    // Unstretchable
         wxALIGN_CENTER | wxFIXED_MINSIZE );
+
+    /*********************************
+     * Create Action's buttons.
+     *********************************/
+
+    m_actionSizer = new wxBoxSizer( wxHORIZONTAL );
+
+    m_actionSizer->Add( 
+        new wxButton( boardPanel, ID_ACTION_JOIN, "Join", 
+                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
+        0,    // Unstretchable
+        wxALIGN_LEFT | wxFIXED_MINSIZE );
+
+    /*********************************
+     * Create Command's buttons (History + Action).
+     *********************************/
+
+    m_commandSizer = new wxBoxSizer( wxHORIZONTAL );
+    m_commandSizer->Add( m_historySizer, wxSizerFlags().Border(1) );
+	m_commandSizer->AddStretchSpacer();
+    m_commandSizer->Add( m_actionSizer, wxSizerFlags().Border(1) );
 
     /*********************************
      * Create Wall's contents.
@@ -608,9 +635,9 @@ hoxBoard::_LayoutBoardPanel( bool viewInverted )
         wxRIGHT|wxLEFT,  // and make border
         1 );          // set border width
 
-    // Add the history-sizer...
+    // Add the command-sizer (History + Action)...
     m_boardSizer->Add(
-        m_historySizer,
+        m_commandSizer,
         0,            // fixed-size vertically
         wxEXPAND |    // make horizontally stretchable
         wxRIGHT|wxLEFT,  // and make border
@@ -658,7 +685,7 @@ hoxBoard::ToggleViewSide()
     wxASSERT( found );
     found = m_boardSizer->Detach( m_blackSizer );
     wxASSERT( found );
-    found = m_boardSizer->Detach( m_historySizer );
+    found = m_boardSizer->Detach( m_commandSizer );
     wxASSERT( found );
 
     /* Invert */
