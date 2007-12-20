@@ -39,6 +39,7 @@ class hoxConnection;
 /* 
  * New player-event based on wxCommandEvent.
  */
+DECLARE_EVENT_TYPE(hoxEVT_PLAYER_JOIN_TABLE, wxID_ANY)  // TODO: Confused with existing commands.
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_NEW_MOVE, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_NEW_JOIN, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_NEW_LEAVE, wxID_ANY)
@@ -76,6 +77,7 @@ public:
      * Event-handle API
      ***************************/
 
+	virtual void OnJoinCmd_FromTable( wxCommandEvent&  event );
     virtual void OnNewMove_FromTable( wxCommandEvent&  event );
     virtual void OnNewJoin_FromTable( wxCommandEvent&  event );
     virtual void OnNewLeave_FromTable( wxCommandEvent&  event );
@@ -97,6 +99,8 @@ public:
     void               RemoveRole( hoxRole role );
     bool               RemoveRoleAtTable( const wxString& tableId );
     bool               HasRole( hoxRole role );
+	bool               FindRoleAtTable( const wxString& tableId, 
+		                                hoxPieceColor&  assignedColor ) const;
 
     int                GetScore() const    { return m_score; }
     void               SetScore(int score) { m_score = score; }

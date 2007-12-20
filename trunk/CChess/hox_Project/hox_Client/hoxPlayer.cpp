@@ -41,6 +41,7 @@ IMPLEMENT_DYNAMIC_CLASS(hoxPlayer, wxEvtHandler)
 // Event types
 //----------------------------------------------------------------------------
 
+DEFINE_EVENT_TYPE( hoxEVT_PLAYER_JOIN_TABLE )
 DEFINE_EVENT_TYPE( hoxEVT_PLAYER_NEW_MOVE )
 DEFINE_EVENT_TYPE( hoxEVT_PLAYER_NEW_JOIN )
 DEFINE_EVENT_TYPE( hoxEVT_PLAYER_NEW_LEAVE )
@@ -49,6 +50,7 @@ DEFINE_EVENT_TYPE( hoxEVT_PLAYER_WALL_MSG )
 DEFINE_EVENT_TYPE( hoxEVT_PLAYER_SITE_CLOSING )
 
 BEGIN_EVENT_TABLE(hoxPlayer, wxEvtHandler)
+	EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_JOIN_TABLE, hoxPlayer::OnJoinCmd_FromTable)
     EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_NEW_MOVE, hoxPlayer::OnNewMove_FromTable)
     EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_NEW_JOIN, hoxPlayer::OnNewJoin_FromTable)
     EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_NEW_LEAVE, hoxPlayer::OnNewLeave_FromTable)
@@ -148,7 +150,6 @@ hoxPlayer::RemoveRoleAtTable( const wxString& tableId )
     {
         if ( it->tableId == tableId )
         {
-            //m_roles.remove( *it );
 			this->RemoveRole( *it );
             return true; // role found.
         }
@@ -163,6 +164,24 @@ hoxPlayer::HasRole( hoxRole role )
     hoxRoleList::iterator found 
         = std::find( m_roles.begin(), m_roles.end(), role );
     return ( found != m_roles.end() );
+}
+
+bool
+hoxPlayer::FindRoleAtTable( const wxString& tableId, 
+	                        hoxPieceColor&  assignedColor ) const
+{
+    for ( hoxRoleList::const_iterator it = m_roles.begin();
+                                      it != m_roles.end();
+                                    ++it )
+    {
+        if ( it->tableId == tableId )
+        {
+			assignedColor = it->color;
+            return true; // role found.
+        }
+    }
+
+	return false; // role not found.
 }
 
 /**
@@ -289,6 +308,14 @@ hoxPlayer::OnClose_FromTable( wxCommandEvent&  event )
     const wxString tableId  = event.GetString();
 
     this->RemoveRoleAtTable( tableId );
+}
+
+void 
+hoxPlayer::OnJoinCmd_FromTable( wxCommandEvent&  event )
+{
+    const char* FNAME = "hoxPlayer::OnJoinCmd_FromTable";
+
+	wxLogDebug("%s: ENTER. Do nothing. END.", FNAME);
 }
 
 void 

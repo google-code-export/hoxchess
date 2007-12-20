@@ -55,6 +55,12 @@ public:
     virtual hoxResult JoinNetworkTable( const wxString& tableId,
                                         wxEvtHandler*   sender );
 
+	/*******************************
+     * Table-event handlers
+     *******************************/
+
+	virtual void OnJoinCmd_FromTable( wxCommandEvent&  event );
+
     /*******************************
      * Socket-event handlers
      *******************************/

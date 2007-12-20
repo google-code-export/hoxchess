@@ -91,7 +91,8 @@ public:
      *
      * @note This Move has been validated by the Referee.
      */
-    virtual void OnBoardMove( const hoxMove& move );
+    virtual void OnBoardMove( const hoxMove& move,
+		                      hoxGameStatus  status );
 
     /**
      * A callback function invoked by the core Board when
@@ -114,6 +115,8 @@ public:
     void OnButtonHistory_PREV( wxCommandEvent &event );
     void OnButtonHistory_NEXT( wxCommandEvent &event );
     void OnButtonHistory_END( wxCommandEvent &event );
+
+	void OnButtonJoin( wxCommandEvent &event );
 
     void OnTimer( wxTimerEvent& event );
 
@@ -206,7 +209,9 @@ private:
     wxBoxSizer*       m_redSizer;
     wxBoxSizer*       m_blackSizer;
 
+	wxBoxSizer*       m_commandSizer; // (Move-History + Action) sizer.
     wxBoxSizer*       m_historySizer; // Move-History sizer.
+	wxBoxSizer*       m_actionSizer;  // Action (JOIN,...) sizer.
 
     DECLARE_EVENT_TABLE()
 };

@@ -878,7 +878,7 @@ hoxChesscapeSite::OnResponse_List( const hoxResponse_AutoPtr& response )
         {
             wxLogDebug("%s: Ask the server to allow me to JOIN table = [%s]", FNAME, selectedId.c_str());
             hoxNetworkTableInfo tableInfo;
-            result = m_player->JoinNetworkTable( selectedId, NULL /*m_responseHandler*/ );
+            result = m_player->JoinNetworkTable( selectedId, m_responseHandler );
             if ( result != hoxRESULT_OK )
             {
                 wxLogError("%s: Failed to JOIN a network table [%s].", FNAME, selectedId.c_str());
