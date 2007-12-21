@@ -967,8 +967,8 @@ hoxChesscapeSite::OnResponse_Join( const hoxResponse_AutoPtr& response )
 
     /* Create a new table with newly created Frame. */
     table = m_tableMgr.CreateTable( tableId );
-	table->SetBlackGameTime( tableInfo->nBlackGameTime );
-	table->SetRedGameTime( tableInfo->nRedGameTime );
+	table->SetBlackTime( tableInfo->blackTime );
+	table->SetRedTime( tableInfo->redTime );
 	table->ViewBoard( childFrame );
     childFrame->SetTable( table );
     childFrame->Show( true );

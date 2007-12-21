@@ -160,27 +160,46 @@ typedef std::list<hoxMove>    hoxMoveList;
 typedef std::vector<hoxMove>  hoxMoveVector;
 
 /**
+ * Game's Time-info.
+ */
+class hoxTimeInfo
+{
+  public:
+    int  nGame;  // Game-time.
+    int  nMove;  // Move-time.
+    int  nFree;  // Free-time.
+
+	hoxTimeInfo() : nGame(0), nMove(0), nFree(0) {}
+	void Clear()
+		{
+			nGame = 0;
+			nMove = 0;
+			nFree = 0;
+		}
+};
+
+/**
  * A network table.
  */
 class hoxNetworkTableInfo
 {
   public:
-    wxString  id;         // table-Id.
-    int       status;     // table's Status.
-    wxString  redId;      // RED player's Id.
-    wxString  blackId;    // BLACK player's Id.
-	wxString  redScore;   // RED player's Score.
-	wxString  blackScore;   // BLACK player's Score.
-	int       nInitialTime;  // The initial allowed Game-Time.
-	int       nBlackGameTime;
-	int       nRedGameTime;
-	hoxGameType gameType;  // Rated/Unrated/Solo
+    wxString      id;         // table-Id.
+    int           status;     // table's Status.
+    wxString      redId;      // RED player's Id.
+    wxString      blackId;    // BLACK player's Id.
+	wxString      redScore;   // RED player's Score.
+	wxString      blackScore;   // BLACK player's Score.
+	hoxTimeInfo   initialTime;  // The initial allowed Game-Time.
+	hoxTimeInfo   blackTime;
+	hoxTimeInfo   redTime;
+	hoxGameType   gameType;  // Rated/Unrated/Solo
 
 	hoxNetworkTableInfo() 
-		: status(0), nInitialTime(0), nBlackGameTime(0), nRedGameTime(0)
-	      , gameType( hoxGAME_TYPE_UNKNOWN ) {}
+		: status(0)
+	    , gameType( hoxGAME_TYPE_UNKNOWN ) {}
 	hoxNetworkTableInfo(const wxString& a_id) 
-		: status(0), nInitialTime(0), nBlackGameTime(0), nRedGameTime(0)
+		: status(0)
 	    , gameType( hoxGAME_TYPE_UNKNOWN ) { id = a_id; }
 	void Clear()
 		{
@@ -190,9 +209,9 @@ class hoxNetworkTableInfo
 			blackId = "";
 			redScore = "";
 			blackScore = "";
-			nInitialTime = 0;
-			nBlackGameTime = 0;
-			nRedGameTime = 0;
+			initialTime.Clear();
+			blackTime.Clear();
+			redTime.Clear();
 			gameType = hoxGAME_TYPE_UNKNOWN;
 		}
 };

@@ -176,12 +176,8 @@ private:
     /* Timers */
 
     wxTimer*          m_timer;       // To keep track of time.
-    int               m_nBGameTime;  // Black's Game-time.
-    int               m_nRGameTime;  // Red's Game-time.
-    int               m_nBMoveTime;  // Black's Move-time.
-    int               m_nRMoveTime;  // Red's Move-time.
-    int               m_nBFreeTime;  // Black's Free-time.
-    int               m_nRFreeTime;  // Red's Free-time.
+	hoxTimeInfo       m_blackTime;   // Black's time.
+	hoxTimeInfo       m_redTime;     // Red's time.
 
     /* Player Info(s) + timers UI */
 

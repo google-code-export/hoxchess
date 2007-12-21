@@ -44,11 +44,12 @@ hoxTable::hoxTable( hoxSite*         site,
         , m_board( board )
         , m_redPlayer( NULL )
         , m_blackPlayer( NULL )
-		, m_nBGameTime( hoxTIME_DEFAULT_GAME_TIME )
-		, m_nRGameTime( hoxTIME_DEFAULT_GAME_TIME )
 {
     const char* FNAME = "hoxTable::hoxTable";
     wxLogDebug("%s: ENTER.", FNAME);
+
+	m_blackTime.nGame = hoxTIME_DEFAULT_GAME_TIME;
+	m_redTime.nGame   = hoxTIME_DEFAULT_GAME_TIME;
 }
 
 hoxTable::~hoxTable()
@@ -204,7 +205,7 @@ hoxTable::OnMove_FromBoard( const hoxMove& move,
 {
     const char* FNAME = "hoxTable::OnMove_FromBoard";
 
-    wxLogDebug("%s: Receive new Move from Board.", FNAME);
+    wxLogDebug("%s: Received new Move from Board.", FNAME);
     if ( m_redPlayer == NULL || m_blackPlayer == NULL )
     {
         const wxString msg = "Not enough players. Ignore Move.";
@@ -220,16 +221,10 @@ hoxTable::OnMove_FromBoard( const hoxMove& move,
     wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
 
     /* Inform all players (including the Board's owner about the new Move */
-
-    wxString moveStr = move.ToString();
-
-    for ( hoxPlayerAndRoleList::const_iterator it = m_players.begin(); 
-                                               it != m_players.end(); ++it )
-    {
-        wxLogDebug("%s: Inform player [%s] about the Board Move...", 
-            FNAME, it->player->GetName().c_str());
-        _PostPlayer_MoveEvent( it->player, boardPlayer, moveStr, status );
-    }
+	_PostAll_MoveEvent( boardPlayer, 
+		                move.ToString(), 
+						false, /* coming from the Board, not network */
+						status );
 }
 
 void
@@ -280,7 +275,9 @@ hoxTable::OnMove_FromNetwork( hoxPlayer*         player,
 	_PostBoard_MoveEvent( moveStr );
 
     /* Inform other players about the new Player */
-    _PostAll_MoveEvent( player, moveStr );
+    _PostAll_MoveEvent( player, 
+		                moveStr,
+						true /* coming from the network, not from Board */ );
 }
 
 void 
@@ -566,7 +563,9 @@ hoxTable::_PostAll_JoinEvent( hoxPlayer*    newPlayer,
 
 void 
 hoxTable::_PostAll_MoveEvent( hoxPlayer*      player,
-                              const wxString& moveStr ) const
+                              const wxString& moveStr,
+							  bool            fromNetwork,
+							  hoxGameStatus   status /* = hoxGAME_STATUS_IN_PROGRESS */ ) const
 {
     const char* FNAME = "hoxTable::_PostAll_MoveEvent";
 
@@ -580,22 +579,39 @@ hoxTable::_PostAll_MoveEvent( hoxPlayer*      player,
     for (hoxPlayerAndRoleList::const_iterator it = m_players.begin(); 
                                               it != m_players.end(); ++it)
     {
-        if ( it->player == player )
-        {
-            wxLogDebug("%s: Skip this Player [%s] since he just made this new Move.", 
-                FNAME, player->GetName().c_str());
-            continue;
-        }
+		/* Skip the sender and the Board-player if the Move is coming 
+		 * from the network. 
+		 */
+		if ( fromNetwork )
+		{
+			if ( it->player == player )
+			{
+				//wxLogDebug("%s: Skip this Player [%s] since he just made this new Move.", 
+				//    FNAME, player->GetName().c_str());
+				continue;
+			}
 
-        if (   boardPlayer != NULL 
-            && it->player == boardPlayer )
-        {
-            wxLogDebug("%s: Skip this Player [%s] since he is Board player.", 
-                FNAME, boardPlayer->GetName().c_str() );
-            continue;
-        }
+			if (   boardPlayer != NULL 
+				&& it->player == boardPlayer )
+			{
+				//wxLogDebug("%s: Skip this Player [%s] since he is Board player.", 
+				//    FNAME, boardPlayer->GetName().c_str() );
+				continue;
+			}
+		}
 
-        _PostPlayer_MoveEvent( it->player, player, moveStr );
+		/* Skip dummy player.
+		 * Although this is not necesary but I do it here to avoid
+		 * seeing a lot of debug messages.
+		 */
+		if ( it->player->GetType() == hoxPLAYER_TYPE_DUMMY )
+		{
+            //wxLogDebug("%s: Skip this Player [%s] since he is a DUMMY player.", 
+            //    FNAME, it->player->GetName().c_str() );
+			continue;
+		}
+
+        _PostPlayer_MoveEvent( it->player, player, moveStr, status );
     }
 }
 
