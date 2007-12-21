@@ -309,13 +309,13 @@ hoxBoard::OnTimer(wxTimerEvent& event)
 
     if ( nextColor == hoxPIECE_COLOR_BLACK )
     {
-        --m_nBGameTime;
-        --m_nBMoveTime;
+		--m_blackTime.nGame;
+		--m_blackTime.nMove;
     }
     else
     {
-        --m_nRGameTime;
-        --m_nRMoveTime;
+		--m_redTime.nGame;
+		--m_redTime.nMove;
     }
 
     _UpdateTimerUI();
@@ -761,14 +761,14 @@ hoxBoard::_OnValidMove( const hoxMove& move )
          *       update the timer-related UI.
          */
     }
-    /* If the game is in progress, reset the Move-time. 
+    /* If the game is in progress, reset the Move-time after each Move.
      */
     else if ( m_status == hoxGAME_STATUS_IN_PROGRESS )
     {
         if ( move.piece.color == hoxPIECE_COLOR_BLACK )
-            m_nBMoveTime = hoxTIME_DEFAULT_MOVE_TIME;
+			m_blackTime.nMove = hoxTIME_DEFAULT_MOVE_TIME;
         else
-            m_nRMoveTime = hoxTIME_DEFAULT_MOVE_TIME;
+            m_redTime.nMove = hoxTIME_DEFAULT_MOVE_TIME;
     }
 }
 
@@ -777,32 +777,37 @@ hoxBoard::_ResetTimerUI()
 {
     /* Set default game-times. */
 
-	m_nBGameTime = ( m_table ? m_table->GetBlackGameTime() 
-		                     : hoxTIME_DEFAULT_GAME_TIME);
-	m_nRGameTime = ( m_table ? m_table->GetRedGameTime() 
-		                     : hoxTIME_DEFAULT_GAME_TIME);
+	if ( m_table != NULL )
+	{
+		m_blackTime = m_table->GetBlackTime();
+		m_redTime   = m_table->GetRedTime();
+	}
+	else
+	{
+		m_blackTime.nGame = hoxTIME_DEFAULT_GAME_TIME;
+		m_blackTime.nMove = hoxTIME_DEFAULT_MOVE_TIME;
+		m_blackTime.nFree = hoxTIME_DEFAULT_FREE_TIME;
 
-    m_nBMoveTime = hoxTIME_DEFAULT_MOVE_TIME;
-    m_nRMoveTime = m_nBMoveTime;
-
-    m_nBFreeTime = hoxTIME_DEFAULT_FREE_TIME;
-    m_nRFreeTime = m_nBFreeTime;
+		m_redTime.nGame = hoxTIME_DEFAULT_GAME_TIME;
+		m_redTime.nMove = hoxTIME_DEFAULT_MOVE_TIME;
+		m_redTime.nFree = hoxTIME_DEFAULT_FREE_TIME;
+	}
 }
 
 void 
 hoxBoard::_UpdateTimerUI()
 {
     // Game times.
-    m_blackGameTime->SetLabel( hoxUtility::FormatTime( m_nBGameTime ) );
-    m_redGameTime->SetLabel(   hoxUtility::FormatTime( m_nRGameTime ) );
+	m_blackGameTime->SetLabel( hoxUtility::FormatTime( m_blackTime.nGame ) );
+    m_redGameTime->SetLabel(   hoxUtility::FormatTime( m_redTime.nGame ) );
 
     // Move times.
-    m_blackMoveTime->SetLabel( hoxUtility::FormatTime( m_nBMoveTime ) );
-    m_redMoveTime->SetLabel(   hoxUtility::FormatTime( m_nRMoveTime ) );
+	m_blackMoveTime->SetLabel( hoxUtility::FormatTime( m_blackTime.nMove ) );
+	m_redMoveTime->SetLabel(   hoxUtility::FormatTime( m_redTime.nMove ) );
 
     // Free times.
-    m_blackFreeTime->SetLabel( hoxUtility::FormatTime( m_nBFreeTime ) );
-    m_redFreeTime->SetLabel(   hoxUtility::FormatTime( m_nRFreeTime ) );
+	m_blackFreeTime->SetLabel( hoxUtility::FormatTime( m_blackTime.nFree ) );
+	m_redFreeTime->SetLabel(   hoxUtility::FormatTime( m_redTime.nFree ) );
 }
 
 bool 

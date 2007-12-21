@@ -73,7 +73,7 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*       parent,
         item = "";
         item << "#" << it->id 
              << " [" << it->status << "] "
-			 << " [" << hoxUtility::FormatTime(it->nInitialTime) << "] "
+			 << " [" << hoxUtility::FormatTime(it->initialTime.nGame) << "] "
 			 << " [" << hoxUtility::GameTypeToString(it->gameType) << "] "
 			 << redId << "(" << it->redScore << ")" << " vs. " 
 			 << blackId << "(" << it->blackScore << ")";

@@ -116,11 +116,11 @@ public:
      */
     void ViewBoard( wxWindow* tableWindow );
 
-	void SetBlackGameTime(int nSeconds) { m_nBGameTime = nSeconds; }
-	int  GetBlackGameTime() const { return m_nBGameTime; }
-	
-	void SetRedGameTime(int nSeconds)   { m_nRGameTime = nSeconds; }
-	int  GetRedGameTime() const { return m_nRGameTime; }
+	void SetBlackTime(const hoxTimeInfo& timeInfo) { m_blackTime = timeInfo; }
+	const hoxTimeInfo GetBlackTime() const { return m_blackTime; }
+
+	void SetRedTime(const hoxTimeInfo& timeInfo) { m_redTime = timeInfo; }
+	const hoxTimeInfo GetRedTime() const { return m_redTime; }
 
     /**
      * Callback function from the Board to let this Table know about
@@ -277,9 +277,13 @@ private:
      *
      * @param player  The Player that just made the Move.
      * @param moveStr The string containing the new Move.
+	 * @param fromNetwork Indicating whether the Move is coming from the network.
+	 * @param status  The game's status.
      */
     void _PostAll_MoveEvent( hoxPlayer*      player,
-                             const wxString& moveStr ) const;
+                             const wxString& moveStr,
+							 bool            fromNetwork,
+							 hoxGameStatus   status = hoxGAME_STATUS_IN_PROGRESS ) const;
 
     /**
      * Inform other Players that a new Message was just sent.
@@ -328,8 +332,8 @@ private:
     hoxPlayer*            m_blackPlayer;
 
 	// Timers
-    int               m_nBGameTime;  // Black's Game-time.
-    int               m_nRGameTime;  // Red's Game-time.
+    hoxTimeInfo           m_blackTime;  // Black's time.
+	hoxTimeInfo           m_redTime;    // Red's time.
 };
 
 #endif /* __INCLUDED_HOX_TABLE_H_ */

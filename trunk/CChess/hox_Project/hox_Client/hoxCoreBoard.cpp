@@ -713,7 +713,7 @@ hoxCoreBoard::DoGameReview_PREV()
 
     if ( m_historyMoves.empty() )
     {
-        wxLogDebug("%s: No Moves made yet.", FNAME);
+        //wxLogDebug("%s: No Moves made yet.", FNAME);
         return false;
     }
 
@@ -724,7 +724,7 @@ hoxCoreBoard::DoGameReview_PREV()
     }
     else if ( m_historyIndex == HISTORY_INDEX_BEGIN )
     {
-        wxLogDebug("%s: The index is already at BEGIN. Do nothing. END.", FNAME);
+        //wxLogDebug("%s: The index is already at BEGIN. Do nothing. END.", FNAME);
         return false;
     }
 
@@ -777,18 +777,18 @@ hoxCoreBoard::DoGameReview_NEXT()
 
     if ( m_historyMoves.empty() )
     {
-        wxLogDebug("%s: No Moves made yet.", FNAME);
+        //wxLogDebug("%s: No Moves made yet.", FNAME);
         return false;
     }
 
     if ( m_historyIndex == HISTORY_INDEX_UNKNOWN ) // not yet set?
     {
-        wxLogDebug("%s: No PREV done. Do nothing. END.", FNAME);
+        //wxLogDebug("%s: No PREV done. Do nothing. END.", FNAME);
         return false;
     }
     else if ( m_historyIndex == (int)m_historyMoves.size() - 1 )
     {
-        wxLogDebug("%s: The index is already at END. Do nothing. END.", FNAME);
+        //wxLogDebug("%s: The index is already at END. Do nothing. END.", FNAME);
         return false;
     }
 

@@ -300,10 +300,11 @@ hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
 				break;
 
 			case 3: /* Timer: Game-time (in seconds) */
-				tableInfo.nInitialTime = ::atoi(token.c_str()) / 1000;
+				tableInfo.initialTime.nGame = ::atoi(token.c_str()) / 1000;
 				break;
 
 			case 4: /* Timer: Increment-time (in seconds) */
+				tableInfo.initialTime.nFree = ::atoi(token.c_str()) / 1000;
 				break;
 
 			case 5: /* Table-type: Rated / Nonrated / Solo-Black / Solo-Red */
@@ -738,8 +739,12 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 				m_pendingJoinTableId = "";
 
 				hoxNetworkTableInfo* tableInfo = new hoxNetworkTableInfo( *it );
-				tableInfo->nBlackGameTime = (int) (nBlackGameTime / 1000); // convert to seconds
-				tableInfo->nRedGameTime = (int) (nRedGameTime / 1000);
+				
+				tableInfo->blackTime.nGame = (int) (nBlackGameTime / 1000); // convert to seconds
+				tableInfo->redTime.nGame   = (int) (nRedGameTime / 1000);
+
+				tableInfo->blackTime.nFree = (int) (nIncrementGameTime / 1000);
+				tableInfo->redTime.nFree   = (int) (nIncrementGameTime / 1000);
 
 				wxEvtHandler* sender = this->GetSite()->GetResponseHandler();
 				hoxRequestType requestType = hoxREQUEST_TYPE_JOIN;
