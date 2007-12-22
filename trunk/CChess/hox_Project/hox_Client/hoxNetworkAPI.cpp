@@ -174,6 +174,7 @@ hoxNetworkAPI::ParseCommand( const wxString& commandStr,
         }
         else
         {
+			paramValue.Trim();
             command.parameters[paramName] = paramValue;
         }
     }

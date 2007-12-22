@@ -200,8 +200,9 @@ hoxTable::ViewBoard( wxWindow* tableWindow )
 }
 
 void 
-hoxTable::OnMove_FromBoard( const hoxMove& move,
-						    hoxGameStatus  status )
+hoxTable::OnMove_FromBoard( const hoxMove&     move,
+						    hoxGameStatus      status,
+							const hoxTimeInfo& playerTime )
 {
     const char* FNAME = "hoxTable::OnMove_FromBoard";
 
@@ -224,7 +225,8 @@ hoxTable::OnMove_FromBoard( const hoxMove& move,
 	_PostAll_MoveEvent( boardPlayer, 
 		                move.ToString(), 
 						false, /* coming from the Board, not network */
-						status );
+						status,
+						playerTime );
 }
 
 void
@@ -437,10 +439,11 @@ hoxTable::_PostPlayer_JoinEvent( hoxPlayer*    player,
 }
 
 void 
-hoxTable::_PostPlayer_MoveEvent( hoxPlayer*      player,
-                                 hoxPlayer*      movePlayer,
-                                 const wxString& moveStr,
-								 hoxGameStatus   status /* = hoxGAME_STATUS_IN_PROGRESS */) const
+hoxTable::_PostPlayer_MoveEvent( hoxPlayer*         player,
+                                 hoxPlayer*         movePlayer,
+                                 const wxString&    moveStr,
+								 hoxGameStatus      status /* = hoxGAME_STATUS_IN_PROGRESS */,
+								 const hoxTimeInfo& playerTime /* = hoxTimeInfo() */ ) const
 {
     const char* FNAME = "hoxTable::_PostPlayer_MoveEvent";
 
@@ -465,8 +468,9 @@ hoxTable::_PostPlayer_MoveEvent( hoxPlayer*      player,
     wxLogDebug("%s: Informing player [%s] that [%s] just made a new Move [%s]...", 
         FNAME, player->GetName().c_str(), movePlayer->GetName().c_str(), moveStr.c_str());
     wxString commandStr;
-    commandStr.Printf("tid=%s&pid=%s&move=%s&status=%s", 
-        m_id.c_str(), movePlayer->GetName().c_str(), moveStr.c_str(), statusStr.c_str());
+    commandStr.Printf("tid=%s&pid=%s&move=%s&status=%s&game_time=%d", 
+        m_id.c_str(), movePlayer->GetName().c_str(), moveStr.c_str(), statusStr.c_str(),
+		playerTime.nGame);
     wxCommandEvent event( hoxEVT_PLAYER_NEW_MOVE );
     event.SetString( commandStr );
     wxPostEvent( player, event );
@@ -562,10 +566,11 @@ hoxTable::_PostAll_JoinEvent( hoxPlayer*    newPlayer,
 }
 
 void 
-hoxTable::_PostAll_MoveEvent( hoxPlayer*      player,
-                              const wxString& moveStr,
-							  bool            fromNetwork,
-							  hoxGameStatus   status /* = hoxGAME_STATUS_IN_PROGRESS */ ) const
+hoxTable::_PostAll_MoveEvent( hoxPlayer*         player,
+                              const wxString&    moveStr,
+							  bool               fromNetwork,
+							  hoxGameStatus      status /* = hoxGAME_STATUS_IN_PROGRESS */,
+							  const hoxTimeInfo& playerTime /* = hoxTimeInfo() */ ) const
 {
     const char* FNAME = "hoxTable::_PostAll_MoveEvent";
 
@@ -611,7 +616,7 @@ hoxTable::_PostAll_MoveEvent( hoxPlayer*      player,
 			continue;
 		}
 
-        _PostPlayer_MoveEvent( it->player, player, moveStr, status );
+        _PostPlayer_MoveEvent( it->player, player, moveStr, status, playerTime );
     }
 }
 

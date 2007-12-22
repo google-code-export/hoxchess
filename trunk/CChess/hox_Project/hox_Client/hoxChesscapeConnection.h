@@ -66,8 +66,8 @@ private:
 		              const bool      hasRole, // already at table?
 		              const wxString& requestSeat);
 	hoxResult   _Leave();
-	hoxResult   _Move(const wxString& moveStr,
-		              const wxString& statusStr);
+	hoxResult   _Move(/*const wxString&   moveStr, */
+		              hoxCommand& command /*const wxString& statusStr*/);
     void        _DestroySocket();
     hoxResult _ReadLine( wxSocketBase* sock, 
                          wxString&     result );

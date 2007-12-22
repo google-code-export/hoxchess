@@ -74,7 +74,7 @@ private:
 	bool _ParseTableInfoString( const wxString&      tableStr,
 		                        hoxNetworkTableInfo& tableInfo ) const;
 	bool _FindTableById( const wxString&      tableId,
-		                 hoxNetworkTableInfo& tableInfo ) const;
+		                 hoxNetworkTableInfo*& pTableInfo ) const;
 	bool _AddTableToList( const wxString& tableStr ) const;
 	bool _RemoveTableFromList( const wxString& tableId ) const;
 	bool _UpdateTableInList( const wxString& tableStr );
