@@ -132,8 +132,8 @@ hoxChesscapePlayer::JoinNetworkTable( const wxString& tableId,
 	const char* FNAME = "hoxChesscapePlayer::JoinNetworkTable";
 
 	/* Lookup the table first. */
-	hoxNetworkTableInfo tableInfo;
-	if ( ! _FindTableById( tableId, tableInfo ) ) // not found?
+	hoxNetworkTableInfo* pTableInfo = NULL;
+	if ( ! _FindTableById( tableId, pTableInfo ) ) // not found?
 	{
 		wxLogDebug("%s: *** WARN *** Table [%s] not found.", FNAME, tableId.c_str());
 		return hoxRESULT_ERR;
@@ -165,8 +165,8 @@ hoxChesscapePlayer::OnJoinCmd_FromTable( wxCommandEvent&  event )
 	const wxString tableId = event.GetString();
 
 	/* Lookup the table first. */
-	hoxNetworkTableInfo tableInfo;
-	if ( ! _FindTableById( tableId, tableInfo ) ) // not found?
+	hoxNetworkTableInfo* pTableInfo = NULL;
+	if ( ! _FindTableById( tableId, pTableInfo ) ) // not found?
 	{
 		wxLogDebug("%s: *** WARN *** Table [%s] not found.", FNAME, tableId.c_str());
 		return;
@@ -180,11 +180,11 @@ hoxChesscapePlayer::OnJoinCmd_FromTable( wxCommandEvent&  event )
 
 	wxString requestSeat;
 
-	if ( tableInfo.blackId.empty() )
+	if ( pTableInfo->blackId.empty() )
 	{
 		requestSeat = "BlkSeat";
 	}
-	else if ( tableInfo.redId.empty() )
+	else if ( pTableInfo->redId.empty() )
 	{
 		requestSeat = "RedSeat";
 	}
@@ -310,7 +310,7 @@ hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
 			case 5: /* Table-type: Rated / Nonrated / Solo-Black / Solo-Red */
 				if      ( token == "0" ) tableInfo.gameType = hoxGAME_TYPE_RATED;
 				else if ( token == "1" ) tableInfo.gameType = hoxGAME_TYPE_NONRATED;
-				else if ( token == "5" ) tableInfo.gameType = hoxGAME_TYPE_SOLO;
+				else if ( token == "5" || token == "8" ) tableInfo.gameType = hoxGAME_TYPE_SOLO;
 				else /* unknown */       tableInfo.gameType = hoxGAME_TYPE_UNKNOWN;
 				break;
 
@@ -368,17 +368,17 @@ hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
 	return true;
 }
 
-bool 
-hoxChesscapePlayer::_FindTableById( const wxString&      tableId,
-		                            hoxNetworkTableInfo& tableInfo ) const
+bool
+hoxChesscapePlayer::_FindTableById( const wxString&       tableId,
+		                            hoxNetworkTableInfo*& pTableInfo ) const
 {
-	for ( hoxNetworkTableInfoList::const_iterator it = m_networkTables.begin();
-		                                          it != m_networkTables.end(); 
-												++it )
+	for ( hoxNetworkTableInfoList::iterator it = m_networkTables.begin();
+		                                    it != m_networkTables.end(); 
+								          ++it )
 	{
 		if ( it->id == tableId )
 		{
-			tableInfo = ( *it );
+			pTableInfo = &(*it);
 			return true;
 		}
 	}
@@ -661,6 +661,8 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 	int tokenPosition = 0;
 	long nTotalGameTime = 0;
 	long nIncrementGameTime = 0;
+	wxString redId;
+	wxString blackId;
 	long nRedGameTime = 0;
 	long nBlackGameTime = 0;
 
@@ -697,7 +699,10 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 				}
 				break;
 			}
-			case 5: /* Ignore Red player's name */ break;
+			case 5: /* Ignore Red player's name */ 
+				redId = token;
+				if ( redId == " " ) redId = "";
+				break;
 			case 6:
 			{
 				if ( ! token.ToLong( &nRedGameTime ) || nRedGameTime <= 0 )
@@ -706,7 +711,10 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 				}
 				break;
 			}
-			case 7: /* Ignore Red player's name */ break;
+			case 7: /* Ignore Black player's name */ 
+				blackId = token;
+				if ( blackId == " " ) blackId = "";
+				break;
 			case 8:
 			{
 				if ( ! token.ToLong( &nBlackGameTime ) || nBlackGameTime <= 0 )
@@ -730,35 +738,41 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 	 */
 	if ( nRedGameTime > 0 && nBlackGameTime > 0 )
 	{
-		for ( hoxNetworkTableInfoList::const_iterator it = m_networkTables.begin();
-													  it != m_networkTables.end(); 
-													++it )
+		hoxNetworkTableInfo* pTableInfo = NULL;
+		if ( ! _FindTableById( m_pendingJoinTableId, pTableInfo ) ) // not found?
 		{
-			if ( it->id == m_pendingJoinTableId )
-			{
-				m_pendingJoinTableId = "";
-
-				hoxNetworkTableInfo* tableInfo = new hoxNetworkTableInfo( *it );
-				
-				tableInfo->blackTime.nGame = (int) (nBlackGameTime / 1000); // convert to seconds
-				tableInfo->redTime.nGame   = (int) (nRedGameTime / 1000);
-
-				tableInfo->blackTime.nFree = (int) (nIncrementGameTime / 1000);
-				tableInfo->redTime.nFree   = (int) (nIncrementGameTime / 1000);
-
-				wxEvtHandler* sender = this->GetSite()->GetResponseHandler();
-				hoxRequestType requestType = hoxREQUEST_TYPE_JOIN;
-				hoxResponse_AutoPtr response( new hoxResponse(requestType, 
-															  sender) );
-				response->eventObject = tableInfo;
-
-				wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, requestType );
-				response->code = hoxRESULT_OK;
-				event.SetEventObject( response.release() );  // Caller will de-allocate.
-				wxPostEvent( sender, event );
-				break;
-			}
+			wxLogDebug("%s: *** WARN *** Table [%s] not found.", 
+				FNAME, m_pendingJoinTableId.c_str());
+			return false;
 		}
+
+		m_pendingJoinTableId = "";
+
+		pTableInfo->redId = redId;
+		pTableInfo->blackId = blackId;
+		if ( pTableInfo->gameType == hoxGAME_TYPE_SOLO )
+		{
+			if ( pTableInfo->blackId.empty() ) pTableInfo->blackId = "COMPUTER";
+			if ( pTableInfo->redId.empty() )   pTableInfo->redId = "COMPUTER";
+		}
+
+		pTableInfo->blackTime.nGame = (int) (nBlackGameTime / 1000); // convert to seconds
+		pTableInfo->redTime.nGame   = (int) (nRedGameTime / 1000);
+
+		pTableInfo->blackTime.nFree = (int) (nIncrementGameTime / 1000);
+		pTableInfo->redTime.nFree   = (int) (nIncrementGameTime / 1000);
+
+		wxEvtHandler* sender = this->GetSite()->GetResponseHandler();
+		hoxRequestType requestType = hoxREQUEST_TYPE_JOIN;
+		hoxResponse_AutoPtr response( new hoxResponse(requestType, 
+													  sender) );
+		hoxNetworkTableInfo* pClonedTableInfo = new hoxNetworkTableInfo( *pTableInfo );
+		response->eventObject = pClonedTableInfo;
+
+		wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, requestType );
+		response->code = hoxRESULT_OK;
+		event.SetEventObject( response.release() );  // Caller will de-allocate.
+		wxPostEvent( sender, event );
 	}
 
 	return true;

@@ -128,9 +128,12 @@ public:
      *
      * @param move The current design assumes that the Board has contacted
      *             the referee to validate the Move.
+	 * @param status The game's status.
+	 * @param playerTime The time of the Player that made the Move.
      */
-    void OnMove_FromBoard( const hoxMove& move,
-		                   hoxGameStatus  status );
+    void OnMove_FromBoard( const hoxMove&     move,
+		                   hoxGameStatus      status,
+						   const hoxTimeInfo& playerTime );
 
     /**
      * Callback function from the Board to let this Table know about
@@ -238,10 +241,11 @@ private:
      * @param moveStr  The string containing the new Move.
 	 * @param status  The game's status.
      */
-    void _PostPlayer_MoveEvent( hoxPlayer*      player,
-                                hoxPlayer*      movePlayer,
-                                const wxString& moveStr,
-								hoxGameStatus   status = hoxGAME_STATUS_IN_PROGRESS ) const;
+    void _PostPlayer_MoveEvent( hoxPlayer*         player,
+                                hoxPlayer*         movePlayer,
+                                const wxString&    moveStr,
+								hoxGameStatus      status = hoxGAME_STATUS_IN_PROGRESS,
+								const hoxTimeInfo& playerTime = hoxTimeInfo() ) const;
 
     /**
      * Post (inform) a player that a new Message has just been sent.
@@ -280,10 +284,11 @@ private:
 	 * @param fromNetwork Indicating whether the Move is coming from the network.
 	 * @param status  The game's status.
      */
-    void _PostAll_MoveEvent( hoxPlayer*      player,
-                             const wxString& moveStr,
-							 bool            fromNetwork,
-							 hoxGameStatus   status = hoxGAME_STATUS_IN_PROGRESS ) const;
+    void _PostAll_MoveEvent( hoxPlayer*         player,
+                             const wxString&    moveStr,
+							 bool               fromNetwork,
+							 hoxGameStatus      status = hoxGAME_STATUS_IN_PROGRESS,
+							 const hoxTimeInfo& playerTime = hoxTimeInfo() ) const;
 
     /**
      * Inform other Players that a new Message was just sent.

@@ -124,7 +124,12 @@ hoxBoard::OnBoardMove( const hoxMove& move,
 {
     /* Inform the Table of the new move. */
     wxCHECK_RET(m_table, "The table is NULL." );
-    m_table->OnMove_FromBoard( move, status );
+	const hoxTimeInfo playerTime = ( move.piece.color == hoxPIECE_COLOR_RED
+		                         ? m_redTime
+			    				 : m_blackTime );
+    m_table->OnMove_FromBoard( move, 
+		                       status,
+							   playerTime );
 
     _OnValidMove( move );
 }

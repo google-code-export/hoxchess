@@ -177,6 +177,16 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
 
         case hoxREQUEST_TYPE_MOVE:
 		{
+			const wxString commandStr = request->content;
+			hoxCommand command;
+			result = hoxNetworkAPI::ParseCommand( commandStr, command );
+			if ( result != hoxRESULT_OK )
+			{
+				wxLogDebug("%s: *** ERROR *** Failed to parse command-string [%s].", 
+					FNAME, commandStr.c_str());
+				break;
+			}
+#if 0
 			// Get Move-string.
 			const wxString moveStart("move=");
 			int found_index = request->content.Find(moveStart);
@@ -198,8 +208,8 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
 				statusStr = request->content.substr( found_index + statusStart.size() );
 				statusStr.Trim();
 			}
-
-            result = _Move( moveStr, statusStr );
+#endif
+            result = _Move( /*moveStr,*/ command /*statusStr*/ );
             break;
 		}
 
@@ -459,8 +469,8 @@ hoxChesscapeConnection::_Leave()
 }
 
 hoxResult   
-hoxChesscapeConnection::_Move( const wxString& moveStr,
-							   const wxString& statusStr )
+hoxChesscapeConnection::_Move( /*const wxString&   moveStr, */
+							   hoxCommand& command /*const wxString& statusStr*/ )
 {
     const char* FNAME = "hoxChesscapeConnection::_Move";
 
@@ -471,13 +481,18 @@ hoxChesscapeConnection::_Move( const wxString& moveStr,
         return hoxRESULT_ERR;
     }
 
+	/* Extract parameters. */
+	const wxString moveStr     = command.parameters["move"];
+	const wxString statusStr   = command.parameters["status"];
+	const wxString gameTimeStr = command.parameters["game_time"];
+	int gameTime = ::atoi( gameTimeStr.c_str() ) * 1000;  // convert to miliseconds
+
     /* Send MOVE request. */
 
 	wxLogDebug("%s: Sending MOVE [%s] request...", FNAME, moveStr.c_str());
 	wxString cmdRequest;
-	cmdRequest.Printf("\x02\x10tCmd?Move\x10%s\x10%s\x10\x03", 
-		moveStr.c_str(),
-		"900000" /* FIXME: Hard-code */);
+	cmdRequest.Printf("\x02\x10tCmd?Move\x10%s\x10%d\x10\x03", 
+		moveStr.c_str(), gameTime);
 
 	wxUint32 requestSize = (wxUint32) cmdRequest.size();
 	m_pSClient->Write( cmdRequest, requestSize );
