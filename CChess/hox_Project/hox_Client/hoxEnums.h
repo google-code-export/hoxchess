@@ -286,6 +286,16 @@ enum hoxResponseFlag
 };
 
 /**
+ * Action types coming from a Player.
+ */
+enum hoxActionType
+{
+    hoxACTION_TYPE_UNKNOWN = -1,
+
+	hoxACTION_TYPE_RESIGN
+};
+
+/**
  * Other constants.
  */
 enum

@@ -185,6 +185,16 @@ public:
                               hoxPlayer* informer );
 
     /**
+     * Callback function from the NETWORK Player to let this Table know about
+     * the newly-received Action.
+     *
+     * @param player The Player who generates the Action.
+     * @param message The message that are being sent from the network.
+     */
+    void OnAction_FromNetwork( hoxPlayer*     player,
+                               hoxActionType  action );
+
+    /**
      * Callback function from a player who is leaving the table.
      */
     void OnLeave_FromPlayer( hoxPlayer* player );
@@ -266,6 +276,9 @@ private:
                                   const wxString& message ) const;
 
     void _PostBoard_MoveEvent( const wxString& moveStr ) const;
+
+    void _PostBoard_ActionEvent( hoxPlayer*     player,
+                                 hoxActionType  action ) const;
 
     /**
      * Inform other Players that a new Player just joined the Table.

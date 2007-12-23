@@ -151,6 +151,7 @@ public:
 
     void ToggleViewSide();  // Toggle view side: Red/Black is at the bottom.
     bool IsViewInverted() const { return m_bViewInverted; }
+    void SetGameOver( bool isGameOver = true );
 
 protected:
     /**
@@ -228,7 +229,6 @@ private:
     hoxPosition _PointToPosition( const hoxPiece* piece, const wxPoint& p ) const;
 
     void      _RecordMove( const hoxMove& move );
-    void      _SetGameOver( bool isGameOver = true );
 
     /**
      * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

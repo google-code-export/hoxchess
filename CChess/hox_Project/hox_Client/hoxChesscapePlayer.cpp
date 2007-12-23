@@ -642,6 +642,10 @@ hoxChesscapePlayer::_HandleTableCmd( const wxString& cmdStr )
 	{
 		_HandleTableCmd_Move( table, subCmdStr );
 	}
+	else if ( tCmd == "GameOver" )
+	{
+		_HandleTableCmd_GameOver( table, subCmdStr );
+	}
 	else
 	{
 		wxLogDebug("%s: *** Ignore this Table-command = [%s].", FNAME, tCmd.c_str());
@@ -836,6 +840,39 @@ hoxChesscapePlayer::_HandleTableCmd_Move( hoxTable*       table,
 
 	wxLogDebug("%s: Inform table of Move = [%s][%s].", FNAME, moveStr.c_str(), moveParam.c_str());
 	table->OnMove_FromNetwork( this, moveStr );
+
+	return true;
+}
+
+bool 
+hoxChesscapePlayer::_HandleTableCmd_GameOver( hoxTable*       table,
+	                                          const wxString& cmdStr )
+{
+	const char* FNAME = "hoxChesscapePlayer::_HandleTableCmd_GameOver";
+	wxString moveStr;
+	wxString moveParam;
+	hoxPlayer* resignPlayer = NULL;
+
+	const wxString whoWins = cmdStr.BeforeFirst(0x10);
+
+	if ( whoWins == "RED_WINS" )
+	{
+		resignPlayer = table->GetBlackPlayer();
+	}
+	else if ( whoWins == "BLK_WINS" )
+	{
+		resignPlayer = table->GetRedPlayer();
+	}
+	else
+	{
+		wxLogDebug("%s: *** WARN *** Unknown Game-Over parameter [%s].", FNAME, whoWins);
+		return false;
+	}
+
+	wxCHECK_MSG(resignPlayer, false, "The resign Player must not be NULL.");
+	wxLogDebug("%s: Inform table of RESIGN Action from player [%s].", 
+		FNAME, resignPlayer->GetName().c_str());
+	table->OnAction_FromNetwork( resignPlayer, hoxACTION_TYPE_RESIGN );
 
 	return true;
 }

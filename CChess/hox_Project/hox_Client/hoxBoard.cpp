@@ -56,12 +56,14 @@ DEFINE_EVENT_TYPE( hoxEVT_BOARD_PLAYER_JOIN )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_PLAYER_LEAVE )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_WALL_OUTPUT )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_NEW_MOVE )
+DEFINE_EVENT_TYPE( hoxEVT_BOARD_PLAYER_ACTION )
 
 BEGIN_EVENT_TABLE(hoxBoard, wxPanel)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_JOIN, hoxBoard::OnPlayerJoin)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_LEAVE, hoxBoard::OnPlayerLeave)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_WALL_OUTPUT, hoxBoard::OnWallOutput)
 	EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_NEW_MOVE, hoxBoard::OnNewMove)
+	EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_ACTION, hoxBoard::OnPlayerAction)
 
     EVT_TEXT_ENTER(ID_BOARD_WALL_INPUT, hoxBoard::OnWallInputEnter)
     EVT_BUTTON(ID_HISTORY_BEGIN, hoxBoard::OnButtonHistory_BEGIN)
@@ -251,6 +253,33 @@ hoxBoard::OnNewMove( wxCommandEvent &event )
         return;
 
     _OnValidMove( move );
+}
+
+void 
+hoxBoard::OnPlayerAction( wxCommandEvent &event )
+{
+    const char* FNAME = "hoxBoard::OnPlayerAction";
+
+    hoxPlayer* player = wx_reinterpret_cast(hoxPlayer*, event.GetEventObject());
+    wxCHECK_RET(player, "Player cannot be NULL.");
+
+    const wxString playerId = player->GetName();
+	const hoxActionType action = (hoxActionType) event.GetInt();
+	
+	switch ( action )
+	{
+		case hoxACTION_TYPE_RESIGN:
+		{
+			const wxString message = playerId + " resigned."; 
+			this->OnBoardMsg( message );
+			m_coreBoard->SetGameOver( true );
+			m_status = ( playerId == m_redId ? hoxGAME_STATUS_BLACK_WIN 
+				                             : hoxGAME_STATUS_RED_WIN );
+			break;
+		}
+		default:
+			wxLogDebug("%s: Unsupported action [%d].", action );
+	}
 }
 
 void 
