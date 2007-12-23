@@ -631,6 +631,15 @@ bool
 hoxCoreBoard::DoMove( hoxMove& move )
 {
     const char* FNAME = "hoxCoreBoard::DoMove";
+
+    /* Since this Move comes in from an external source (i.e., not from
+     * the physical owner), make sure the Board is at the END state
+     * before attempting the Move.
+     */
+    this->DoGameReview_END();
+
+	/* Validate the Move */
+
     hoxPiece* piece = _FindPieceAt( move.piece.position );
     wxCHECK_MSG( piece != NULL, false, "Piece is not found." );
     
@@ -646,12 +655,6 @@ hoxCoreBoard::DoMove( hoxMove& move )
         if ( status != hoxGAME_STATUS_IN_PROGRESS)
             SetGameOver( true );
     }
-
-    /* Since this Move comes in from an external source (i.e., not from
-     * the physical owner), make sure the Board is at the END state
-     * before attempting the Move.
-     */
-    this->DoGameReview_END();
 
     /* Ask the core Board to perform the Move. */
     if ( ! this->_MovePieceTo( piece, move.newPosition ) )
