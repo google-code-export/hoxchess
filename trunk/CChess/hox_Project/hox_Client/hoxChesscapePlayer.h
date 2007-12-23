@@ -97,6 +97,8 @@ private:
 		                           const wxString& cmdStr);
 	bool _HandleTableCmd_Move(hoxTable*       table,
 		                      const wxString& cmdStr);
+	bool _HandleTableCmd_GameOver(hoxTable*       table,
+		                          const wxString& cmdStr);
 
 private:
 	/* Chesscape server sends a list of tables upon login.

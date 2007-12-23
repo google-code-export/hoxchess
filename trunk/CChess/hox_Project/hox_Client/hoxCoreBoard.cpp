@@ -359,7 +359,7 @@ hoxCoreBoard::StartGame()
     m_referee->Reset();
 
     /* Clear the Game-Over state in the last game, if any. */
-    _SetGameOver( false );
+    SetGameOver( false );
 }
 
 void 
@@ -569,7 +569,7 @@ hoxCoreBoard::_OnPieceMoved( hoxPiece*          piece,
 
         if ( gameStatus != hoxGAME_STATUS_IN_PROGRESS)
 		{
-            _SetGameOver( true );
+            SetGameOver( true );
 		}
     }
 
@@ -644,7 +644,7 @@ hoxCoreBoard::DoMove( hoxMove& move )
         }
 
         if ( status != hoxGAME_STATUS_IN_PROGRESS)
-            _SetGameOver( true );
+            SetGameOver( true );
     }
 
     /* Since this Move comes in from an external source (i.e., not from
@@ -1047,7 +1047,7 @@ hoxCoreBoard::_RecordMove( const hoxMove& move )
 }
 
 void      
-hoxCoreBoard::_SetGameOver( bool isGameOver /* = true */ )
+hoxCoreBoard::SetGameOver( bool isGameOver /* = true */ )
 {
     m_isGameOver = isGameOver;
     this->Refresh();

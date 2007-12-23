@@ -335,6 +335,21 @@ hoxTable::OnLeave_FromNetwork( hoxPlayer* leavePlayer,
 }
 
 void 
+hoxTable::OnAction_FromNetwork( hoxPlayer*     player,
+                                hoxActionType  action )
+{
+    const char* FNAME = "hoxTable::OnAction_FromNetwork";
+
+    /* Inform the Board about this Move. */
+	_PostBoard_ActionEvent( player, action );
+
+    /* Inform other players about the new Player */
+    //_PostAll_MoveEvent( player, 
+		  //              moveStr,
+				//		true /* coming from the network, not from Board */ );
+}
+
+void 
 hoxTable::OnLeave_FromPlayer( hoxPlayer* player )
 {
     const char* FNAME = "hoxTable::OnLeave_FromPlayer";
@@ -540,6 +555,19 @@ hoxTable::_PostBoard_MoveEvent( const wxString& moveStr ) const
 
     wxCommandEvent event( hoxEVT_BOARD_NEW_MOVE );
     event.SetString( moveStr );
+    wxPostEvent( m_board, event );
+}
+
+void 
+hoxTable::_PostBoard_ActionEvent( hoxPlayer*     player,
+                                  hoxActionType  action ) const
+{
+	if ( m_board == NULL )
+		return;
+
+    wxCommandEvent event( hoxEVT_BOARD_PLAYER_ACTION );
+	event.SetEventObject( player );
+    event.SetInt( (int) action );
     wxPostEvent( m_board, event );
 }
 

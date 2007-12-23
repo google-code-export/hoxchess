@@ -45,6 +45,7 @@ DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_JOIN, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_LEAVE, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_WALL_OUTPUT, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_NEW_MOVE, wxID_ANY)
+DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_ACTION, wxID_ANY)
 
 /** 
  * A full-featured Board acting as the Table's UI.
@@ -108,6 +109,7 @@ public:
     void OnPlayerLeave( wxCommandEvent &event );
     void OnWallOutput( wxCommandEvent &event );
 	void OnNewMove( wxCommandEvent &event );
+	void OnPlayerAction( wxCommandEvent &event );
 
     void OnWallInputEnter( wxCommandEvent &event );
 
