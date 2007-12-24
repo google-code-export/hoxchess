@@ -124,6 +124,8 @@ void
 hoxBoard::OnBoardMove( const hoxMove& move,
 					   hoxGameStatus  status )
 {
+    _OnValidMove( move );
+
     /* Inform the Table of the new move. */
     wxCHECK_RET(m_table, "The table is NULL." );
 	const hoxTimeInfo playerTime = ( move.piece.color == hoxPIECE_COLOR_RED
@@ -132,8 +134,6 @@ hoxBoard::OnBoardMove( const hoxMove& move,
     m_table->OnMove_FromBoard( move, 
 		                       status,
 							   playerTime );
-
-    _OnValidMove( move );
 }
 
 void 
@@ -238,6 +238,7 @@ hoxBoard::OnNewMove( wxCommandEvent &event )
     hoxMove  move;
 
     const wxString moveStr = event.GetString();
+	const bool bSetupMode = (event.GetInt() > 0);
 
     if ( ! _ParseMoveString( moveStr, move ) ) // failed?
     {
@@ -252,7 +253,7 @@ hoxBoard::OnNewMove( wxCommandEvent &event )
     if ( ! m_coreBoard->DoMove( move ) )  // failed?
         return;
 
-    _OnValidMove( move );
+    _OnValidMove( move, bSetupMode );
 }
 
 void 
@@ -343,13 +344,13 @@ hoxBoard::OnTimer(wxTimerEvent& event)
 
     if ( nextColor == hoxPIECE_COLOR_BLACK )
     {
-		--m_blackTime.nGame;
-		--m_blackTime.nMove;
+		if ( m_blackTime.nGame > 0 ) --m_blackTime.nGame;
+		if ( m_blackTime.nMove > 0 ) --m_blackTime.nMove;
     }
     else
     {
-		--m_redTime.nGame;
-		--m_redTime.nMove;
+		if ( m_redTime.nGame > 0 ) --m_redTime.nGame;
+		if ( m_redTime.nMove > 0 ) --m_redTime.nMove;
     }
 
     _UpdateTimerUI();
@@ -784,7 +785,8 @@ hoxBoard::_PostToWallOutput( const wxString& who,
 }
 
 void 
-hoxBoard::_OnValidMove( const hoxMove& move )
+hoxBoard::_OnValidMove( const hoxMove& move,
+					    bool           bSetupMode /* = false */ )
 {
     /* For the 1st move, change the game-status to 'in-progress'. 
      */
@@ -799,10 +801,28 @@ hoxBoard::_OnValidMove( const hoxMove& move )
      */
     else if ( m_status == hoxGAME_STATUS_IN_PROGRESS )
     {
+		if ( bSetupMode )
+		{
+			return;
+		}
+
+		// NOTE: For Chesscape server, the Free time is rewarded to the Player after
+		//       each Move.  Also, there is such thing as Move time in Chesscape.
+		//       Thus, we can detect whether Move time == 0 to indicate that this is
+		//       a Chesscape server.  If so, the Free time is added to the Game time.
+
+		bool bIsChesscape = (m_initialTime.nMove == 0);
+
         if ( move.piece.color == hoxPIECE_COLOR_BLACK )
-			m_blackTime.nMove = hoxTIME_DEFAULT_MOVE_TIME;
+		{
+			m_blackTime.nMove = m_initialTime.nMove;
+			if ( bIsChesscape ) m_blackTime.nGame += m_initialTime.nFree;
+		}
         else
-            m_redTime.nMove = hoxTIME_DEFAULT_MOVE_TIME;
+		{
+            m_redTime.nMove = m_initialTime.nMove;
+			if ( bIsChesscape ) m_redTime.nGame += m_initialTime.nFree;
+		}
     }
 }
 
@@ -813,18 +833,18 @@ hoxBoard::_ResetTimerUI()
 
 	if ( m_table != NULL )
 	{
-		m_blackTime = m_table->GetBlackTime();
-		m_redTime   = m_table->GetRedTime();
+		m_initialTime = m_table->GetInitialTime();
+		m_blackTime   = m_table->GetBlackTime();
+		m_redTime     = m_table->GetRedTime();
 	}
 	else
 	{
-		m_blackTime.nGame = hoxTIME_DEFAULT_GAME_TIME;
-		m_blackTime.nMove = hoxTIME_DEFAULT_MOVE_TIME;
-		m_blackTime.nFree = hoxTIME_DEFAULT_FREE_TIME;
+		m_initialTime.nGame = hoxTIME_DEFAULT_GAME_TIME;
+		m_initialTime.nMove = hoxTIME_DEFAULT_MOVE_TIME;
+		m_initialTime.nFree = hoxTIME_DEFAULT_FREE_TIME;
 
-		m_redTime.nGame = hoxTIME_DEFAULT_GAME_TIME;
-		m_redTime.nMove = hoxTIME_DEFAULT_MOVE_TIME;
-		m_redTime.nFree = hoxTIME_DEFAULT_FREE_TIME;
+		m_blackTime = m_initialTime;
+		m_redTime   = m_initialTime;
 	}
 }
 

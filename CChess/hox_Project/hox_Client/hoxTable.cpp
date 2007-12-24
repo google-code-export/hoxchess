@@ -268,18 +268,22 @@ hoxTable::OnJoinCommand_FromBoard()
 }
 
 void 
-hoxTable::OnMove_FromNetwork( hoxPlayer*         player,
-                              const wxString&    moveStr )
+hoxTable::OnMove_FromNetwork( hoxPlayer*       player,
+                              const wxString&  moveStr,
+							  bool             bSetupMode /* = false */ )
 {
     const char* FNAME = "hoxTable::OnMove_FromNetwork";
 
     /* Inform the Board about this Move. */
-	_PostBoard_MoveEvent( moveStr );
+	_PostBoard_MoveEvent( moveStr, bSetupMode );
 
     /* Inform other players about the new Player */
-    _PostAll_MoveEvent( player, 
-		                moveStr,
-						true /* coming from the network, not from Board */ );
+	if ( ! bSetupMode )
+	{
+		_PostAll_MoveEvent( player, 
+							moveStr,
+							true /* coming from the network, not from Board */ );
+	}
 }
 
 void 
@@ -548,13 +552,15 @@ hoxTable::_PostBoard_MessageEvent( hoxPlayer*      player,
 }
 
 void 
-hoxTable::_PostBoard_MoveEvent( const wxString& moveStr ) const
+hoxTable::_PostBoard_MoveEvent( const wxString& moveStr,
+							    bool            bSetupMode /* = false */ ) const
 {
 	if ( m_board == NULL )
 		return;
 
     wxCommandEvent event( hoxEVT_BOARD_NEW_MOVE );
     event.SetString( moveStr );
+	event.SetInt( bSetupMode ? 1 : 0 );
     wxPostEvent( m_board, event );
 }
 
