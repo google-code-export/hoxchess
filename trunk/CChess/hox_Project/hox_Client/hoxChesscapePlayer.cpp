@@ -663,10 +663,10 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 	wxStringTokenizer tkz( cmdStr, delims, wxTOKEN_STRTOK ); // No empty tokens
 	wxString token;
 	int tokenPosition = 0;
-	long nTotalGameTime = 0;
-	long nIncrementGameTime = 0;
 	wxString redId;
 	wxString blackId;
+	long nInitialGameTime = 0;
+	long nInitialFreeTime = 0;
 	long nRedGameTime = 0;
 	long nBlackGameTime = 0;
 
@@ -687,7 +687,7 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 
 			case 3: /* Total game-time */
 			{
-				if ( ! token.ToLong( &nTotalGameTime ) || nTotalGameTime <= 0 )
+				if ( ! token.ToLong( &nInitialGameTime ) || nInitialGameTime <= 0 )
 				{
 					wxLogDebug("%s: *** WARN *** Failed to parse TOTAL game-time [%s].", FNAME, token.c_str());
 				}
@@ -696,10 +696,10 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 
 			case 4: /* Increment game-time */
 			{
-				// NOTE: Increment time can be 0.
-				if ( ! token.ToLong( &nIncrementGameTime ) /*|| nIncrementGameTime <= 0*/ )
+				// NOTE: Free (or Increment) time can be 0.
+				if ( ! token.ToLong( &nInitialFreeTime ) )
 				{
-					wxLogDebug("%s: *** WARN *** Failed to parse INCREMENT game-time [%s].", FNAME, token.c_str());
+					wxLogDebug("%s: *** WARN *** Failed to parse Free game-time [%s].", FNAME, token.c_str());
 				}
 				break;
 			}
@@ -734,7 +734,7 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 	}
 
 	wxLogDebug("%s: Game-times for table [%s] = [%ld][%ld][%ld][%ld].", 
-		FNAME, m_pendingJoinTableId.c_str(), nTotalGameTime, nIncrementGameTime,
+		FNAME, m_pendingJoinTableId.c_str(), nInitialGameTime, nInitialFreeTime,
 		nRedGameTime, nBlackGameTime);
 
 	/* Set the game times. 
@@ -760,11 +760,14 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 			if ( pTableInfo->redId.empty() )   pTableInfo->redId = "COMPUTER";
 		}
 
+		pTableInfo->initialTime.nGame = (int) (nInitialGameTime / 1000 );
+		pTableInfo->initialTime.nFree = (int) (nInitialFreeTime / 1000);
+
 		pTableInfo->blackTime.nGame = (int) (nBlackGameTime / 1000); // convert to seconds
 		pTableInfo->redTime.nGame   = (int) (nRedGameTime / 1000);
 
-		pTableInfo->blackTime.nFree = (int) (nIncrementGameTime / 1000);
-		pTableInfo->redTime.nFree   = (int) (nIncrementGameTime / 1000);
+		pTableInfo->blackTime.nFree = pTableInfo->initialTime.nFree;
+		pTableInfo->redTime.nFree   = pTableInfo->initialTime.nFree;
 
 		wxEvtHandler* sender = this->GetSite()->GetResponseHandler();
 		hoxRequestType requestType = hoxREQUEST_TYPE_JOIN;
@@ -797,7 +800,7 @@ hoxChesscapePlayer::_HandleTableCmd_PastMoves( hoxTable*       table,
 		moveStr = tkz.GetNextToken();
 		wxLogDebug("%s: .... move-str=[%s].", FNAME, moveStr.c_str());
 		// Inform our table...
-		table->OnMove_FromNetwork( this, moveStr );
+		table->OnMove_FromNetwork( this, moveStr, true );
 	}
 
 	return true;

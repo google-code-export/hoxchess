@@ -116,6 +116,9 @@ public:
      */
     void ViewBoard( wxWindow* tableWindow );
 
+	void SetInitialTime(const hoxTimeInfo& timeInfo) { m_initialTime = timeInfo; }
+	const hoxTimeInfo GetInitialTime() const { return m_initialTime; }
+
 	void SetBlackTime(const hoxTimeInfo& timeInfo) { m_blackTime = timeInfo; }
 	const hoxTimeInfo GetBlackTime() const { return m_blackTime; }
 
@@ -156,9 +159,11 @@ public:
 	 *               TODO: We need to look at this 'dual-role' issue.
 	 *
      * @param moveStr The string containing the Move.
+	 * @param bSetupMode If true, then we are in SETUP-MODE.
      */
-    void OnMove_FromNetwork( hoxPlayer*         player,
-                             const wxString&    moveStr );
+    void OnMove_FromNetwork( hoxPlayer*       player,
+                             const wxString&  moveStr,
+							 bool             bSetupMode = false );
 
     /**
      * Callback function from the NETWORK Player to let this Table know about
@@ -275,7 +280,8 @@ private:
     void _PostBoard_MessageEvent( hoxPlayer*      player,
                                   const wxString& message ) const;
 
-    void _PostBoard_MoveEvent( const wxString& moveStr ) const;
+    void _PostBoard_MoveEvent( const wxString& moveStr,
+		                       bool            bSetupMode = false ) const;
 
     void _PostBoard_ActionEvent( hoxPlayer*     player,
                                  hoxActionType  action ) const;
@@ -350,8 +356,9 @@ private:
     hoxPlayer*            m_blackPlayer;
 
 	// Timers
-    hoxTimeInfo           m_blackTime;  // Black's time.
-	hoxTimeInfo           m_redTime;    // Red's time.
+	hoxTimeInfo           m_initialTime; // *** Initial time.
+    hoxTimeInfo           m_blackTime;   // Black's time.
+	hoxTimeInfo           m_redTime;     // Red's time.
 };
 
 #endif /* __INCLUDED_HOX_TABLE_H_ */

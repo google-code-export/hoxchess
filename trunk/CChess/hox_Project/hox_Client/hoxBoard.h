@@ -152,7 +152,8 @@ private:
     /**
      * A helper to do various task whenever a valid Move has been made.
      */
-    void _OnValidMove( const hoxMove& move );
+    void _OnValidMove( const hoxMove& move,
+		               bool           bSetupMode = false );
 
     void           _ResetTimerUI();  // Reset times to start a new game.
     void           _UpdateTimerUI();
@@ -178,6 +179,7 @@ private:
     /* Timers */
 
     wxTimer*          m_timer;       // To keep track of time.
+	hoxTimeInfo       m_initialTime; // *** Initial time.
 	hoxTimeInfo       m_blackTime;   // Black's time.
 	hoxTimeInfo       m_redTime;     // Red's time.
 
