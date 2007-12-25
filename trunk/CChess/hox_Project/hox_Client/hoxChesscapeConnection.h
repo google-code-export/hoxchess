@@ -67,8 +67,8 @@ private:
 		              const wxString& requestSeat);
     hoxResult   _UpdateStatus(const wxString& playerStatus);
 	hoxResult   _Leave();
-	hoxResult   _Move(/*const wxString&   moveStr, */
-		              hoxCommand& command /*const wxString& statusStr*/);
+	hoxResult   _Move(hoxCommand& command);
+    hoxResult   _New(wxString& responseStr);
     void        _DestroySocket();
     hoxResult _ReadLine( wxSocketBase* sock, 
                          wxString&     result );
