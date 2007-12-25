@@ -257,6 +257,9 @@ enum hoxRequestType
     hoxREQUEST_TYPE_NEW_JOIN,
         /* Event generated from a Table that a new Player just joined */
 
+    hoxREQUEST_TYPE_PLAYER_STATUS,
+        /* Event generated from a Player when his Status is changed. */
+
     hoxREQUEST_TYPE_OUT_DATA,
         /* Outgoing data to be sent out */
 

@@ -169,6 +169,13 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
             break;
 		}
 
+        case hoxREQUEST_TYPE_PLAYER_STATUS:
+		{
+		    const wxString playerStatus = request->parameters["status"];
+            result = _UpdateStatus( playerStatus );
+            break;
+		}
+
         case hoxREQUEST_TYPE_LEAVE:
 		{
             result = _Leave();
@@ -431,6 +438,39 @@ hoxChesscapeConnection::_Join( const wxString& tableId,
 				hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
 			return hoxRESULT_ERR;
 		}
+	}
+
+    return hoxRESULT_OK;
+}
+
+hoxResult
+hoxChesscapeConnection::_UpdateStatus( const wxString& playerStatus )
+{
+    const char* FNAME = "hoxChesscapeConnection::_UpdateStatus";
+
+    if ( ! this->IsConnected() )
+    {
+        // NOTE: The connection could have been closed if the server is down.
+        wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
+        return hoxRESULT_ERR;
+    }
+
+    /* Send UPDATE-STATUS request. */
+
+	wxLogDebug("%s: Sending UPDATE-STATUS request with status = [%s]...", 
+		FNAME, playerStatus.c_str());
+	wxString cmdRequest;
+	cmdRequest.Printf("\x02\x10updateStatus?%s\x10\x03", playerStatus.c_str());
+
+	wxUint32 requestSize = (wxUint32) cmdRequest.size();
+	m_pSClient->Write( cmdRequest, requestSize );
+	wxUint32 nWrite = m_pSClient->LastCount();
+	if ( nWrite < requestSize )
+	{
+		wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
+			FNAME, cmdRequest.c_str(), nWrite, requestSize, 
+			hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
+		return hoxRESULT_ERR;
 	}
 
     return hoxRESULT_OK;

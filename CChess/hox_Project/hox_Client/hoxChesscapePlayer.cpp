@@ -58,6 +58,7 @@ hoxChesscapePlayer::hoxChesscapePlayer( const wxString& name,
                           hoxPlayerType   type,
                           int             score )
             : hoxLocalPlayer( name, type, score )
+			, m_bSentMyFirstMove( false )
 { 
     const char* FNAME = "hoxChesscapePlayer::hoxChesscapePlayer";
     wxLogDebug("%s: ENTER.", FNAME);
@@ -153,6 +154,27 @@ hoxChesscapePlayer::JoinNetworkTable( const wxString& tableId,
     this->AddRequestToConnection( request );
 
     return hoxRESULT_OK;
+}
+
+void 
+hoxChesscapePlayer::OnNewMove_FromTable( wxCommandEvent&  event )
+{
+    const char* FNAME = "hoxChesscapePlayer::OnNewMove_FromTable";
+
+	/* If this Play is playing and this is his first Move, then
+	 * update his Status to "Playing".
+	 */
+	if ( ! m_bSentMyFirstMove )
+	{
+		m_bSentMyFirstMove = true;
+
+		wxLogDebug("%s: Sending Player-Status on the 1st Move...", FNAME);
+		hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_PLAYER_STATUS, this );
+		request->parameters["status"] = "P";
+		this->AddRequestToConnection( request );
+	}
+
+	this->hoxPlayer::OnNewMove_FromTable( event );
 }
 
 void 
@@ -471,6 +493,7 @@ hoxChesscapePlayer::_UpdateTableInList( const wxString& tableStr )
 			|| tableInfo.blackId == this->GetName() )
 		{
 			m_pendingRequestSeat = "";
+			m_bSentMyFirstMove = false;
 
 			hoxNetworkTableInfo* newTableInfo = new hoxNetworkTableInfo( tableInfo );
 
