@@ -139,6 +139,7 @@ hoxUtility::RequestTypeToString( const hoxRequestType requestType )
         case hoxREQUEST_TYPE_JOIN:        return "JOIN";
         case hoxREQUEST_TYPE_LEAVE:       return "LEAVE";
         case hoxREQUEST_TYPE_NEW_JOIN:    return "NEW_JOIN";
+		case hoxREQUEST_TYPE_PLAYER_STATUS: return "PLAYER_STATUS";
         case hoxREQUEST_TYPE_OUT_DATA:    return "OUT_DATA";
         case hoxREQUEST_TYPE_WALL_MSG:    return "WALL_MSG";
 
@@ -166,6 +167,7 @@ hoxUtility::StringToRequestType( const wxString& input )
     if ( input == "JOIN" )        return hoxREQUEST_TYPE_JOIN;
     if ( input == "LEAVE" )       return hoxREQUEST_TYPE_LEAVE;
     if ( input == "NEW_JOIN" )    return hoxREQUEST_TYPE_NEW_JOIN;
+	if ( input == "PLAYER_STATUS" ) return hoxREQUEST_TYPE_PLAYER_STATUS;
     if ( input == "OUT_DATA" )    return hoxREQUEST_TYPE_OUT_DATA;
     if ( input == "WALL_MSG" )    return hoxREQUEST_TYPE_WALL_MSG;
 

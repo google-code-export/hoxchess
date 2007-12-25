@@ -59,6 +59,7 @@ public:
      * Table-event handlers
      *******************************/
 
+	virtual void OnNewMove_FromTable( wxCommandEvent&  event );
 	virtual void OnJoinCmd_FromTable( wxCommandEvent&  event );
 
     /*******************************
@@ -112,6 +113,9 @@ private:
 
 	wxString                         m_pendingRequestSeat;
 			/* The Seat (RED/BLACK) this player is requesting to play as. */
+
+	bool                             m_bSentMyFirstMove;
+			/* Whether this Player has sent his first Move since JOINing the Table. */
 
     DECLARE_DYNAMIC_CLASS(hoxChesscapePlayer)
     DECLARE_EVENT_TABLE()
