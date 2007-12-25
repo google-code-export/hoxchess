@@ -156,6 +156,15 @@ hoxChesscapePlayer::JoinNetworkTable( const wxString& tableId,
     return hoxRESULT_OK;
 }
 
+hoxResult 
+hoxChesscapePlayer::OpenNewNetworkTable( wxEvtHandler*   sender )
+{
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_NEW, sender );
+    this->AddRequestToConnection( request );
+
+    return hoxRESULT_OK;
+}
+
 void 
 hoxChesscapePlayer::OnNewMove_FromTable( wxCommandEvent&  event )
 {
@@ -202,18 +211,20 @@ hoxChesscapePlayer::OnJoinCmd_FromTable( wxCommandEvent&  event )
 
 	wxString requestSeat;
 
-	if ( pTableInfo->blackId.empty() )
-	{
-		requestSeat = "BlkSeat";
-	}
-	else if ( pTableInfo->redId.empty() )
+	// NOTE: The order of checking is important.
+	//       We have to check for RED seat first...
+	if ( pTableInfo->redId.empty() )
 	{
 		requestSeat = "RedSeat";
 	}
+	else if ( pTableInfo->blackId.empty() )
+	{
+		requestSeat = "BlkSeat";
+	}
 
 	// *** Save this info...
-	m_pendingJoinTableId = tableId;
-	m_pendingRequestSeat = requestSeat;
+	//m_pendingJoinTableId = tableId;
+	//m_pendingRequestSeat = requestSeat;
 
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_JOIN, this );
 	request->parameters["pid"] = this->GetName();
@@ -447,7 +458,8 @@ hoxChesscapePlayer::_RemoveTableFromList( const wxString& tableId ) const
 }
 
 bool 
-hoxChesscapePlayer::_UpdateTableInList( const wxString& tableStr )
+hoxChesscapePlayer::_UpdateTableInList( const wxString&      tableStr,
+									    hoxNetworkTableInfo* pTableInfo /* = NULL */ )
 {
 	const char* FNAME = "hoxChesscapePlayer::_UpdateTableInList";
 	hoxNetworkTableInfo tableInfo;
@@ -457,6 +469,11 @@ hoxChesscapePlayer::_UpdateTableInList( const wxString& tableStr )
 	{
 		wxLogDebug("%s: Failed to parse table-string [%s].", FNAME, tableStr.c_str());
 		return false;
+	}
+
+	if ( pTableInfo != NULL )
+	{
+		*pTableInfo = tableInfo;  // Return a copy if requested.
 	}
 
 	/* Find the table from our list. */
@@ -486,29 +503,8 @@ hoxChesscapePlayer::_UpdateTableInList( const wxString& tableStr )
 		*found_it = tableInfo;
 	}
 
-	/* Check if this player is requesting to JOIN */
-	if ( ! m_pendingRequestSeat.empty() )
-	{
-		if (   tableInfo.redId == this->GetName() 
-			|| tableInfo.blackId == this->GetName() )
-		{
-			m_pendingRequestSeat = "";
-			m_bSentMyFirstMove = false;
-
-			hoxNetworkTableInfo* newTableInfo = new hoxNetworkTableInfo( tableInfo );
-
-			wxEvtHandler* sender = this->GetSite()->GetResponseHandler();
-			hoxRequestType requestType = hoxREQUEST_TYPE_JOIN;
-			hoxResponse_AutoPtr response( new hoxResponse(requestType, 
-														  sender) );
-			response->eventObject = newTableInfo;
-
-			wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, requestType );
-			response->code = hoxRESULT_OK;
-			event.SetEventObject( response.release() );  // Caller will de-allocate.
-			wxPostEvent( sender, event );
-		}
-	}
+	/* Trigger our own event-handler */ 
+	_OnTableUpdated( tableInfo );
 
 	return true; // everything is fine.
 }
@@ -606,7 +602,8 @@ hoxChesscapePlayer::_HandleCmd_Unshow(const wxString& cmdStr)
 }
 
 bool 
-hoxChesscapePlayer::_HandleCmd_Update(const wxString& cmdStr)
+hoxChesscapePlayer::_HandleCmd_Update( const wxString&      cmdStr,
+									   hoxNetworkTableInfo* pTableInfo /* = NULL */)
 {
 	const char* FNAME = "hoxChesscapePlayer::_HandleCmd_Update";
 
@@ -618,7 +615,7 @@ hoxChesscapePlayer::_HandleCmd_Update(const wxString& cmdStr)
 	{
 		wxString tableStr = cmdStr;
 		wxLogDebug("%s: Processing UPDATE-(table) [%ld] command...", FNAME, nTableId);
-		_UpdateTableInList( tableStr );
+		_UpdateTableInList( tableStr, pTableInfo );
 	}
 
 	return true;
@@ -763,7 +760,8 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 	/* Set the game times. 
 	 * TODO: Ignore INCREMENT game-time for now.
 	 */
-	if ( nRedGameTime > 0 && nBlackGameTime > 0 )
+	if (  ! m_pendingJoinTableId.empty()
+		 && nRedGameTime > 0 && nBlackGameTime > 0 )
 	{
 		hoxNetworkTableInfo* pTableInfo = NULL;
 		if ( ! _FindTableById( m_pendingJoinTableId, pTableInfo ) ) // not found?
@@ -904,6 +902,177 @@ hoxChesscapePlayer::_HandleTableCmd_GameOver( hoxTable*       table,
 }
 
 void 
+hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
+{
+	const char* FNAME = "hoxChesscapePlayer::_OnTableUpdated";
+	hoxResult result;
+
+	/* Check if this is MY table. */
+
+	hoxPieceColor myCurrentColor = hoxPIECE_COLOR_NONE;
+	hoxPieceColor myNewColor = hoxPIECE_COLOR_NONE;
+	hoxSite*       site = this->GetSite();
+	hoxTable*      table = NULL;
+	const wxString tableId = tableInfo.id;
+
+	if ( ! this->FindRoleAtTable( tableInfo.id, myCurrentColor ) ) // not found?
+	{
+		return;  // Not my table. Fine. Do nothing.
+	}
+
+	table = site->FindTable( tableId );
+	if ( table == NULL ) // not found?
+	{
+		wxLogDebug("%s: *** ERROR *** Table [%s] not found.", FNAME, tableId.c_str());
+		return;
+	}
+
+	/* Find out if any new Player just "sit" at the Table. */
+
+	hoxPlayer* currentRedPlayer = table->GetRedPlayer();
+	hoxPlayer* currentBlackPlayer = table->GetBlackPlayer();
+	const wxString currentRedId = currentRedPlayer ? currentRedPlayer->GetName() : "";
+	const wxString currentBlackId = currentBlackPlayer ? currentBlackPlayer->GetName() : "";
+	bool bNewRed   = false;  // A new Player just 'sit' as RED.
+	bool bNewBlack = false;  // A new Player just 'sit' as BLACK.
+
+	if (  ! tableInfo.redId.empty() && tableInfo.redId != currentRedId )
+	{
+		bNewRed = true;
+	}
+	else if (  ! tableInfo.blackId.empty() && tableInfo.blackId != currentBlackId )
+	{
+		bNewBlack = true;
+	}
+
+	/* Handle the new 'sitting' RED player */
+
+	hoxPlayer* newRedPlayer = NULL;
+
+	if ( bNewRed )
+	{
+		if ( tableInfo.redId == this->GetName() ) // this Player?
+		{
+			newRedPlayer = this;
+		}
+		else  // Other player?
+		{
+			newRedPlayer = site->CreateDummyPlayer( tableInfo.redId ); // TODO: should be "GetXXX" instead.
+		}
+
+		result = newRedPlayer->JoinTableAs( table, hoxPIECE_COLOR_RED );
+		wxASSERT( result == hoxRESULT_OK  );
+		wxASSERT_MSG( newRedPlayer->HasRole( hoxRole(table->GetId(), 
+											         hoxPIECE_COLOR_RED) ),
+					  _("Player must join as RED"));
+	}
+
+	/* Handle the new 'sitting' BLACK player */
+
+	hoxPlayer* newBlackPlayer = NULL;
+
+	if ( bNewBlack )
+	{
+		if ( tableInfo.blackId == this->GetName() ) // this Player?
+		{
+			newBlackPlayer = this;
+		}
+		else  // Other player?
+		{
+			newBlackPlayer = site->CreateDummyPlayer( tableInfo.blackId ); // TODO: should be "GetXXX" instead.
+		}
+
+		result = newBlackPlayer->JoinTableAs( table, hoxPIECE_COLOR_BLACK );
+		wxASSERT( result == hoxRESULT_OK  );
+		wxASSERT_MSG( newBlackPlayer->HasRole( hoxRole(table->GetId(), 
+											           hoxPIECE_COLOR_BLACK) ),
+					  _("Player must join as BLACK"));
+	}
+
+	/* Toggle board if this Player plays BLACK. */
+
+	if ( newBlackPlayer == this )
+	{
+		table->ToggleViewSide();
+	}
+
+#if 0
+	/* TODO: (removed later) Clear pending request seat */
+
+	if ( ! m_pendingRequestSeat.empty() )
+	{
+		if ( newRedPlayer == this || newBlackPlayer == this )
+		{
+			m_pendingRequestSeat = "";
+			m_bSentMyFirstMove = false;
+		}
+	}
+#endif
+
+	//////////////////////////
+#if 0
+	/* Check if this player is requesting to JOIN */
+	if ( ! m_pendingRequestSeat.empty() )
+	{
+		if (   tableInfo.redId == this->GetName() 
+			|| tableInfo.blackId == this->GetName() )
+		{
+			m_pendingRequestSeat = "";
+			m_bSentMyFirstMove = false;
+
+			hoxTable* table = NULL;
+			wxString  tableId = tableInfo.id;
+			hoxPieceColor myColor = hoxPIECE_COLOR_NONE;
+
+			///////////////////// JOIN An EXISTING TABLE ////////////////////////
+			table = site->FindTable( tableId );
+			if ( table != NULL )
+			{
+				if ( tableInfo.redId == this->GetName() )
+				{
+					myColor = hoxPIECE_COLOR_RED;
+				}
+				else if ( tableInfo.blackId == this->GetName() )
+				{
+					myColor = hoxPIECE_COLOR_BLACK;
+				}
+
+				hoxResult result = this->JoinTableAs( table, myColor );
+				wxASSERT( result == hoxRESULT_OK  );
+				wxASSERT_MSG( this->HasRole( hoxRole(table->GetId(), 
+													 myColor) ),
+							  _("Player must join as the specified role"));
+
+				// Toggle board if I play BLACK.
+				if ( myColor == hoxPIECE_COLOR_BLACK )
+				{
+					table->ToggleViewSide();
+				}
+
+				//wxGetApp().GetFrame()->UpdateSiteTreeUI();
+				//return;
+			}
+
+#if 0
+			hoxNetworkTableInfo* newTableInfo = new hoxNetworkTableInfo( tableInfo );
+
+			wxEvtHandler* sender = this->GetSite()->GetResponseHandler();
+			hoxRequestType requestType = hoxREQUEST_TYPE_JOIN;
+			hoxResponse_AutoPtr response( new hoxResponse(requestType, 
+														  sender) );
+			response->eventObject = newTableInfo;
+
+			wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, requestType );
+			response->code = hoxRESULT_OK;
+			event.SetEventObject( response.release() );  // Caller will de-allocate.
+			wxPostEvent( sender, event );
+#endif
+		}
+	}
+#endif
+}
+
+void 
 hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 {
     const char* FNAME = "hoxChesscapePlayer::OnConnectionResponse";
@@ -956,19 +1125,51 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 		{
 			this->DecrementOutstandingRequests();
 
-			const wxString tableId = response->content;
-			wxASSERT_MSG(tableId == m_pendingJoinTableId, "The table-Ids should match.");
-
 			/* NOTE: This command is not done yet. 
 			 * We still need to wait for server's response about the JOIN.
 			 */
 			if ( response->sender && response->sender != this )
 			{
+				const wxString tableId = response->content;
+				wxASSERT_MSG(tableId == m_pendingJoinTableId, "The table-Ids should match.");
+
 				wxLogDebug("%s: Delay informing sender about JOIN 's response on table [%s].", 
 					FNAME, tableId.c_str());
 				response->sender = NULL;  // TODO: Temporarily clear out sender to skip sending...
 			}
 
+			break;
+		}
+
+		case hoxREQUEST_TYPE_NEW:
+		{
+			this->DecrementOutstandingRequests();
+			wxString command;
+			wxString paramsStr;
+
+			if ( ! _ParseIncomingCommand( response->content, command, paramsStr ) ) // failed?
+			{
+				wxLogDebug("%s: *** WARN *** Failed to parse incoming command.", FNAME);
+				response->code = hoxRESULT_ERR;
+				response->content = "Failed to parse incoming command.";
+				break;
+			}
+
+			if ( command != "update" )
+			{
+				wxLogDebug("%s: *** WARN *** NEW (table) should have return 'update', not [%s].", 
+					FNAME, command.c_str());
+				response->code = hoxRESULT_ERR;
+				response->content.Printf("NEW (table) returns command = [%s].", command.c_str());
+			}
+			else
+			{
+				hoxNetworkTableInfo* pTableInfo = new hoxNetworkTableInfo; 
+				this->_HandleCmd_Update( paramsStr, pTableInfo );
+				response->code = hoxRESULT_OK;
+				response->content.Printf("NEW (table) is OK. New table-Id = [%s].", pTableInfo->id.c_str());
+				response->eventObject = pTableInfo;
+			}
 			break;
 		}
 

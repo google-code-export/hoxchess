@@ -193,35 +193,20 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
 					FNAME, commandStr.c_str());
 				break;
 			}
-#if 0
-			// Get Move-string.
-			const wxString moveStart("move=");
-			int found_index = request->content.Find(moveStart);
-			if ( found_index == wxNOT_FOUND )
-			{
-				wxLogDebug("%s: *** ERROR *** Failed to find 'move=' in request [%s].", 
-					FNAME, request->content.c_str());
-				break;
-			}
-			wxString moveStr = request->content.substr( found_index + moveStart.size(), 
-				                                        4 /* HARD-CODED */ );
+            result = _Move( command );
+            break;
+		}
 
-			// Get Status-string.
-			const wxString statusStart("status=");
-			wxString statusStr;  // The optional Status string.
-			found_index = request->content.Find(statusStart);
-			if ( found_index != wxNOT_FOUND )
-			{
-				statusStr = request->content.substr( found_index + statusStart.size() );
-				statusStr.Trim();
-			}
-#endif
-            result = _Move( /*moveStr,*/ command /*statusStr*/ );
+        case hoxREQUEST_TYPE_NEW:
+		{
+            // We disable input events until we are done...
+            hoxNetworkAPI::SocketInputLock socketLock( m_pSClient );
+
+            result = _New( response->content );
             break;
 		}
 
         //case hoxREQUEST_TYPE_LIST:     /* fall through */
-        //case hoxREQUEST_TYPE_NEW:      /* fall through */
         //case hoxREQUEST_TYPE_WALL_MSG:
         //    if ( ! this->IsConnected() )
         //    {
@@ -508,9 +493,53 @@ hoxChesscapeConnection::_Leave()
     return hoxRESULT_OK;
 }
 
+hoxResult
+hoxChesscapeConnection::_New( wxString& responseStr )
+{
+    const char* FNAME = "hoxChesscapeConnection::_New";
+
+    if ( ! this->IsConnected() )
+    {
+        // NOTE: The connection could have been closed if the server is down.
+        wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
+        return hoxRESULT_ERR;
+    }
+
+    /* Send NEW (table) request. */
+
+	wxLogDebug("%s: Sending NEW (the current table) request...", FNAME);
+	wxString cmdRequest;
+	cmdRequest.Printf("\x02\x10%s\x10%d\x10\x03", 
+		"create?com.chesscape.server.xiangqi.TableHandler",
+		0 /* Rated Table */ );
+
+	wxUint32 requestSize = (wxUint32) cmdRequest.size();
+	m_pSClient->Write( cmdRequest, requestSize );
+	wxUint32 nWrite = m_pSClient->LastCount();
+	if ( nWrite < requestSize )
+	{
+		wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
+			FNAME, cmdRequest.c_str(), nWrite, requestSize, 
+			hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
+		return hoxRESULT_ERR;
+	}
+
+	////////////////////////////
+	// Read the response.
+	{
+        hoxResult result = this->_ReadLine( m_pSClient, responseStr );
+        if ( result != hoxRESULT_OK )
+        {
+            wxLogDebug("%s: *** WARN *** Failed to read incoming command.", FNAME);
+            //return hoxRESULT_ERR;
+        }
+	}
+
+    return hoxRESULT_OK;
+}
+
 hoxResult   
-hoxChesscapeConnection::_Move( /*const wxString&   moveStr, */
-							   hoxCommand& command /*const wxString& statusStr*/ )
+hoxChesscapeConnection::_Move( hoxCommand& command )
 {
     const char* FNAME = "hoxChesscapeConnection::_Move";
 

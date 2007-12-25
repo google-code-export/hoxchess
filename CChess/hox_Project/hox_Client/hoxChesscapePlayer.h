@@ -54,6 +54,7 @@ public:
 	virtual hoxResult QueryForNetworkTables( wxEvtHandler* sender );
     virtual hoxResult JoinNetworkTable( const wxString& tableId,
                                         wxEvtHandler*   sender );
+	virtual hoxResult OpenNewNetworkTable( wxEvtHandler*   sender );
 
 	/*******************************
      * Table-event handlers
@@ -78,7 +79,8 @@ private:
 		                 hoxNetworkTableInfo*& pTableInfo ) const;
 	bool _AddTableToList( const wxString& tableStr ) const;
 	bool _RemoveTableFromList( const wxString& tableId ) const;
-	bool _UpdateTableInList( const wxString& tableStr );
+	bool _UpdateTableInList( const wxString& tableStr,
+		                     hoxNetworkTableInfo* pTableInfo = NULL );
 
 	bool _ParseIncomingCommand(const wxString& contentStr,
 		                       wxString&       command,
@@ -90,7 +92,8 @@ private:
 
 	bool _HandleCmd_Show(const wxString& cmdStr);
 	bool _HandleCmd_Unshow(const wxString& cmdStr);
-	bool _HandleCmd_Update(const wxString& cmdStr);
+	bool _HandleCmd_Update(const wxString& cmdStr,
+		                   hoxNetworkTableInfo* pTableInfo = NULL);
 
 	bool _HandleTableCmd(const wxString& cmdStr);
 	bool _HandleTableCmd_Settings(const wxString& cmdStr);
@@ -100,6 +103,11 @@ private:
 		                      const wxString& cmdStr);
 	bool _HandleTableCmd_GameOver(hoxTable*       table,
 		                          const wxString& cmdStr);
+
+	/* Private event-handlers */
+
+	void _OnTableUpdated( const hoxNetworkTableInfo& tableInfo );
+
 
 private:
 	/* Chesscape server sends a list of tables upon login.
