@@ -38,7 +38,7 @@
 /**
  * The default path of all the pieces' images.
  */
-#define PIECES_PATH "../pieces_5"
+#define PIECES_PATH "../pieces"
 
 /**
  * The default HTTP server (hostname and port).

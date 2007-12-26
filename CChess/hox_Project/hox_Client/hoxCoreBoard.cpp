@@ -435,7 +435,7 @@ hoxCoreBoard::_DrawPieceWithDC( wxDC&           dc,
     /* Highlight the piece if it is the latest piece that moves. */
     if ( piece->IsLatest() )
     {
-        int delta = 4;  // TODO: Hard-coded value.
+        int delta = 0;  // TODO: Hard-coded value.
         int x = pos.x + delta;
         int y = pos.y + delta;
         int w = bitmap.GetWidth() - 2*delta;

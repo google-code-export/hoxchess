@@ -1082,8 +1082,8 @@ hoxChesscapeSite::OnResponse_New( const hoxResponse_AutoPtr& response )
     /* Create a new table with newly created Frame. */
     table = m_tableMgr.CreateTable( tableId );
 	table->SetInitialTime( tableInfo->initialTime );
-	table->SetBlackTime( tableInfo->blackTime );
-	table->SetRedTime( tableInfo->redTime );
+	table->SetBlackTime( tableInfo->initialTime ); // Initial time.
+	table->SetRedTime( tableInfo->initialTime );   // Initial time.
 	table->ViewBoard( childFrame );
     childFrame->SetTable( table );
     childFrame->Show( true );
