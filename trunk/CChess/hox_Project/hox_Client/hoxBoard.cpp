@@ -367,11 +367,14 @@ hoxBoard::Show(bool show /* = true */)
         /* Create the whole panel with player-info + timers */
         _CreateBoardPanel();
 
-        // Set its background color.
+        /* Set its background color. */
         wxColour bgPanelCol = wxTheColourDatabase->Find(_T("SKY BLUE"));
         if ( bgPanelCol.Ok() ) {
             this->SetBackgroundColour(bgPanelCol);
         }
+
+		/* Display timer. */
+		_UpdateTimerUI();
     }
 
     return wxPanel::Show( show );  // invoke the parent's API.
