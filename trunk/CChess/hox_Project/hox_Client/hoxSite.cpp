@@ -1130,42 +1130,11 @@ hoxSiteManager::~hoxSiteManager()
 
 }
 
-hoxResult
-hoxSiteManager::_GetLoginInfoFromUser( wxString& login,
-						               wxString& password) const
-{
-    const char* FNAME = "hoxSiteManager::_GetLoginInfoFromUser";
-
-    const wxString defaultInput = "<username>/<password>";
-
-    wxString userText = wxGetTextFromUser( 
-		"Enter the login-info (in the format of 'username/password')",
-        "Login information",
-         defaultInput,
-		 wxGetApp().GetFrame() /* Parent */ );
-    if ( userText.empty() ) // user canceled?
-    {
-        wxLogDebug("%s: The user has canceled the connection.", FNAME);
-        return hoxRESULT_ERR;
-    }
-
-	/* Parse for login and password */
-    const char SEPARATOR = '/';
-
-    login = userText.BeforeFirst( SEPARATOR );
-    if ( login.empty() )
-        return hoxRESULT_ERR;
-
-    password = userText.AfterFirst( SEPARATOR );
-    if ( password.empty() )
-        return hoxRESULT_ERR;
-
-    return hoxRESULT_OK;
-}
-
 hoxSite* 
 hoxSiteManager::CreateSite( hoxSiteType             siteType,
-						    const hoxServerAddress& address )
+						    const hoxServerAddress& address,
+				            const wxString&         userName,
+						    const wxString&         password )
 {
 	const char* FNAME = "hoxSiteManager::CreateSite";
 	hoxSite* site = NULL;
@@ -1206,19 +1175,7 @@ hoxSiteManager::CreateSite( hoxSiteType             siteType,
 	case hoxSITE_TYPE_CHESSCAPE:
 	{
 		hoxRemoteSite* remoteSite = new hoxChesscapeSite( address );
-		
-		/* Get login-name and password. */
-		wxString login;
-		wxString password;
-		hoxResult result;
-		result = _GetLoginInfoFromUser( login, password);
-		if ( result != hoxRESULT_OK )
-		{
-			wxLogDebug("%s: The user has canceled the login process.", FNAME);
-			break;
-		}
-		wxString playerName = login;
-		hoxLocalPlayer* localPlayer = remoteSite->CreateLocalPlayer( playerName );
+		hoxLocalPlayer* localPlayer = remoteSite->CreateLocalPlayer( userName );
 		localPlayer->SetPassword( password );
         hoxConnection* connection = new hoxChesscapeConnection( address.name, 
                                                                 address.port );

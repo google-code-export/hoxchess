@@ -169,11 +169,6 @@ public:
     void UpdateSiteTreeUI();
 
 private:
-    hoxResult _GetServerAddressFromUser( const wxString&         message,
-                                         const wxString&         caption,
-                                         const hoxServerAddress& defaultAddress,
-                                         hoxServerAddress&       serverAddress );
-
     /**
      * Close all children (child-frame) of a specified Site.
      */

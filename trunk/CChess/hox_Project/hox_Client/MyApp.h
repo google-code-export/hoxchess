@@ -84,7 +84,10 @@ public:
     void OpenServer(int nPort);
     void CloseServer( hoxSite* site );
 
-    void ConnectRemoteServer(const hoxServerAddress& address);
+    void ConnectRemoteServer( const hoxSiteType       siteType,
+		                      const hoxServerAddress& address,
+							  const wxString&         userName,
+							  const wxString&         password );
 
     void OnSystemClose();
 	void OnCloseReady_FromSite( wxCommandEvent&  event ); 
