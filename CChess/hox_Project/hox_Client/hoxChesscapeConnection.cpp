@@ -206,19 +206,27 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
             break;
 		}
 
-        //case hoxREQUEST_TYPE_LIST:     /* fall through */
-        //case hoxREQUEST_TYPE_WALL_MSG:
-        //    if ( ! this->IsConnected() )
-        //    {
-        //        // NOTE: The connection could have been closed if the server is down.
-        //        wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
-        //        result = hoxRESULT_OK;  // Consider "success".
-        //        break;
-        //    }
-        //    result = hoxNetworkAPI::SendRequest( m_pSClient, 
-        //                                         request->content, 
-        //                                         response->content );
+        case hoxREQUEST_TYPE_WALL_MSG:
+		{
+			const wxString commandStr = request->content;
+			hoxCommand command;
+			result = hoxNetworkAPI::ParseCommand( commandStr, command );
+			if ( result != hoxRESULT_OK )
+			{
+				wxLogDebug("%s: *** ERROR *** Failed to parse command-string [%s].", 
+					FNAME, commandStr.c_str());
+				break;
+			}
+            result = _WallMessage( command );
             break;
+		}
+
+        case hoxREQUEST_TYPE_DRAW:
+		{
+			const wxString drawResponse = request->parameters["draw_response"];
+            result = _Draw( drawResponse );
+            break;
+		}
 
         default:
             wxLogError("%s: Unsupported request Type [%s].", 
@@ -591,6 +599,79 @@ hoxChesscapeConnection::_Move( hoxCommand& command )
 				hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
 			return hoxRESULT_ERR;
 		}
+	}
+
+    return hoxRESULT_OK;
+}
+
+hoxResult   
+hoxChesscapeConnection::_WallMessage( hoxCommand& command )
+{
+    const char* FNAME = "hoxChesscapeConnection::_WallMessage";
+
+    if ( ! this->IsConnected() )
+    {
+        // NOTE: The connection could have been closed if the server is down.
+        wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
+        return hoxRESULT_ERR;
+    }
+
+	/* Extract parameters. */
+	const wxString message = command.parameters["msg"];
+
+    /* Send MESSAGE request. */
+
+	wxLogDebug("%s: Sending MESSAGE [%s] request...", FNAME, message.c_str());
+	wxString cmdRequest;
+	cmdRequest.Printf("\x02\x10tMsg?%s\x10\x03", message.c_str());
+
+	wxUint32 requestSize = (wxUint32) cmdRequest.size();
+	m_pSClient->Write( cmdRequest, requestSize );
+	wxUint32 nWrite = m_pSClient->LastCount();
+	if ( nWrite < requestSize )
+	{
+		wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
+			FNAME, cmdRequest.c_str(), nWrite, requestSize, 
+			hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
+		return hoxRESULT_ERR;
+	}
+
+    return hoxRESULT_OK;
+}
+
+hoxResult   
+hoxChesscapeConnection::_Draw( const wxString& drawResponse )
+{
+    const char* FNAME = "hoxChesscapeConnection::_Draw";
+
+    if ( ! this->IsConnected() )
+    {
+        // NOTE: The connection could have been closed if the server is down.
+        wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
+        return hoxRESULT_ERR;
+    }
+
+	/* Send the response to a DRAW request, if asked.
+	 * Otherwise, send DRAW request. 
+	 */
+
+	const wxString drawCmd = ( drawResponse == "1" 
+							  ? "AcceptDraw"
+							  : "OfferDraw" );
+
+	wxLogDebug("%s: Sending DRAW command [%s]...", FNAME, drawCmd.c_str());
+	wxString cmdRequest;
+	cmdRequest.Printf("\x02\x10tCmd?%s\x10\x03", drawCmd.c_str());
+
+	wxUint32 requestSize = (wxUint32) cmdRequest.size();
+	m_pSClient->Write( cmdRequest, requestSize );
+	wxUint32 nWrite = m_pSClient->LastCount();
+	if ( nWrite < requestSize )
+	{
+		wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
+			FNAME, cmdRequest.c_str(), nWrite, requestSize, 
+			hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
+		return hoxRESULT_ERR;
 	}
 
     return hoxRESULT_OK;

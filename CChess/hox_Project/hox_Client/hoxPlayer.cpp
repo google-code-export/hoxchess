@@ -42,6 +42,7 @@ IMPLEMENT_DYNAMIC_CLASS(hoxPlayer, wxEvtHandler)
 //----------------------------------------------------------------------------
 
 DEFINE_EVENT_TYPE( hoxEVT_PLAYER_JOIN_TABLE )
+DEFINE_EVENT_TYPE( hoxEVT_PLAYER_DRAW_TABLE )
 DEFINE_EVENT_TYPE( hoxEVT_PLAYER_NEW_MOVE )
 DEFINE_EVENT_TYPE( hoxEVT_PLAYER_NEW_JOIN )
 DEFINE_EVENT_TYPE( hoxEVT_PLAYER_NEW_LEAVE )
@@ -51,6 +52,7 @@ DEFINE_EVENT_TYPE( hoxEVT_PLAYER_SITE_CLOSING )
 
 BEGIN_EVENT_TABLE(hoxPlayer, wxEvtHandler)
 	EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_JOIN_TABLE, hoxPlayer::OnJoinCmd_FromTable)
+	EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_DRAW_TABLE, hoxPlayer::OnDrawCmd_FromTable)
     EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_NEW_MOVE, hoxPlayer::OnNewMove_FromTable)
     EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_NEW_JOIN, hoxPlayer::OnNewJoin_FromTable)
     EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_NEW_LEAVE, hoxPlayer::OnNewLeave_FromTable)
@@ -314,6 +316,14 @@ void
 hoxPlayer::OnJoinCmd_FromTable( wxCommandEvent&  event )
 {
     const char* FNAME = "hoxPlayer::OnJoinCmd_FromTable";
+
+	wxLogDebug("%s: ENTER. Do nothing. END.", FNAME);
+}
+
+void 
+hoxPlayer::OnDrawCmd_FromTable( wxCommandEvent&  event )
+{
+    const char* FNAME = "hoxPlayer::OnDrawCmd_FromTable";
 
 	wxLogDebug("%s: ENTER. Do nothing. END.", FNAME);
 }

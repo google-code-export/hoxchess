@@ -69,6 +69,9 @@ private:
 	hoxResult   _Leave();
 	hoxResult   _Move(hoxCommand& command);
     hoxResult   _New(wxString& responseStr);
+	hoxResult   _WallMessage(hoxCommand& command);
+	hoxResult   _Draw( const wxString& drawResponse );
+
     void        _DestroySocket();
     hoxResult _ReadLine( wxSocketBase* sock, 
                          wxString&     result );

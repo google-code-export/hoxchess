@@ -46,6 +46,7 @@ DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_LEAVE, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_WALL_OUTPUT, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_NEW_MOVE, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_ACTION, wxID_ANY)
+DECLARE_EVENT_TYPE(hoxEVT_BOARD_GAME_OVER, wxID_ANY)
 
 /** 
  * A full-featured Board acting as the Table's UI.
@@ -110,6 +111,7 @@ public:
     void OnWallOutput( wxCommandEvent &event );
 	void OnNewMove( wxCommandEvent &event );
 	void OnPlayerAction( wxCommandEvent &event );
+	void OnGameOver( wxCommandEvent &event );
 
     void OnWallInputEnter( wxCommandEvent &event );
 
@@ -118,6 +120,7 @@ public:
     void OnButtonHistory_NEXT( wxCommandEvent &event );
     void OnButtonHistory_END( wxCommandEvent &event );
 
+	void OnButtonDraw( wxCommandEvent &event );
 	void OnButtonJoin( wxCommandEvent &event );
 
     void OnTimer( wxTimerEvent& event );

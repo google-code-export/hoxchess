@@ -62,6 +62,7 @@ public:
 
 	virtual void OnNewMove_FromTable( wxCommandEvent&  event );
 	virtual void OnJoinCmd_FromTable( wxCommandEvent&  event );
+	virtual void OnDrawCmd_FromTable( wxCommandEvent&  event );
 
     /*******************************
      * Socket-event handlers
@@ -103,6 +104,8 @@ private:
 		                      const wxString& cmdStr);
 	bool _HandleTableCmd_GameOver(hoxTable*       table,
 		                          const wxString& cmdStr);
+	bool _HandleTableCmd_OfferDraw(hoxTable* table);
+	bool _HandleTableMsg(const wxString& cmdStr);
 
 	/* Private event-handlers */
 
