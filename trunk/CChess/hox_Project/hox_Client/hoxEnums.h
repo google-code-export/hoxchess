@@ -254,6 +254,9 @@ enum hoxRequestType
     hoxREQUEST_TYPE_JOIN,
     hoxREQUEST_TYPE_LEAVE,
 
+    hoxREQUEST_TYPE_DRAW,
+        /* Draw request generated from a physical Table */
+
     hoxREQUEST_TYPE_NEW_JOIN,
         /* Event generated from a Table that a new Player just joined */
 
@@ -295,7 +298,7 @@ enum hoxActionType
 {
     hoxACTION_TYPE_UNKNOWN = -1,
 
-	hoxACTION_TYPE_RESIGN
+	hoxACTION_TYPE_OFFER_DRAW
 };
 
 /**

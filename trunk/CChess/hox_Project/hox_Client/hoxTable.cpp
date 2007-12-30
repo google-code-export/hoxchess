@@ -267,6 +267,37 @@ hoxTable::OnJoinCommand_FromBoard()
 	_PostPlayer_ActionEvent( boardPlayer, hoxEVT_PLAYER_JOIN_TABLE );
 }
 
+void
+hoxTable::OnDrawCommand_FromBoard()
+{
+    const char* FNAME = "hoxTable::OnDrawCommand_FromBoard";
+	wxLogDebug("%s: Received a DRAW request from Board's local-player.", FNAME);
+
+    /* Get the Board Player (or the Board's owner) because he is the
+     * one that sent the Message.
+     */
+    hoxPlayer* boardPlayer = _GetBoardPlayer();
+    wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
+
+	_PostPlayer_ActionEvent( boardPlayer, hoxEVT_PLAYER_DRAW_TABLE );
+}
+
+void 
+hoxTable::OnDrawResponse_FromBoard( bool bAcceptDraw )
+{
+    const char* FNAME = "hoxTable::OnDrawResponse_FromBoard";
+	wxLogDebug("%s: Received a DRAW response [%d] from Board's local-player.", FNAME, bAcceptDraw);
+
+    /* Get the Board Player (or the Board's owner) because he is the
+     * one that sent the Message.
+     */
+    hoxPlayer* boardPlayer = _GetBoardPlayer();
+    wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
+
+	_PostPlayer_ActionEvent( boardPlayer, hoxEVT_PLAYER_DRAW_TABLE,
+		                     bAcceptDraw ? 1 : 0 );
+}
+
 void 
 hoxTable::OnMove_FromNetwork( hoxPlayer*       player,
                               const wxString&  moveStr,
@@ -313,7 +344,7 @@ hoxTable::OnMessage_FromNetwork( const wxString&  playerId,
     hoxPlayer* foundPlayer = _FindPlayer( playerId );
     if ( foundPlayer == NULL )
     {
-        wxLogWarning("%s: Player with Id = [%s] not found.", FNAME, playerId.c_str());
+        wxLogDebug("%s: *** WARN *** Player with Id = [%s] not found.", FNAME, playerId.c_str());
         return;
     }
 
@@ -339,18 +370,19 @@ hoxTable::OnLeave_FromNetwork( hoxPlayer* leavePlayer,
 }
 
 void 
-hoxTable::OnAction_FromNetwork( hoxPlayer*     player,
-                                hoxActionType  action )
+hoxTable::OnAction_FromNetwork( hoxPlayer*    player,
+                                hoxActionType action )
 {
-    const char* FNAME = "hoxTable::OnAction_FromNetwork";
-
-    /* Inform the Board about this Move. */
+    /* Inform the Board about this Action. */
 	_PostBoard_ActionEvent( player, action );
+}
 
-    /* Inform other players about the new Player */
-    //_PostAll_MoveEvent( player, 
-		  //              moveStr,
-				//		true /* coming from the network, not from Board */ );
+void 
+hoxTable::OnGameOver_FromNetwork( hoxPlayer*    player,
+                                  hoxGameStatus gameStatus )
+{
+    /* Inform the Board about the status. */
+	_PostBoard_GameOverEvent( /*player,*/ gameStatus );
 }
 
 void 
@@ -394,13 +426,15 @@ hoxTable::ToggleViewSide()
 
 void 
 hoxTable::_PostPlayer_ActionEvent( hoxPlayer*  player,
-								   wxEventType commandType ) const
+								   wxEventType commandType,
+								   int         extraIntParam /* = -1 */ ) const
 {
     const char* FNAME = "hoxTable::_PostPlayer_ActionEvent";
     wxCHECK_RET( player, "The player is NULL." );
 
     wxCommandEvent event( commandType );
 	event.SetString( m_id );  // Attach this table-id.
+	event.SetInt( extraIntParam );
     wxPostEvent( player, event );
 }
 
@@ -565,8 +599,8 @@ hoxTable::_PostBoard_MoveEvent( const wxString& moveStr,
 }
 
 void 
-hoxTable::_PostBoard_ActionEvent( hoxPlayer*     player,
-                                  hoxActionType  action ) const
+hoxTable::_PostBoard_ActionEvent( hoxPlayer*    player,
+                                  hoxActionType action ) const
 {
 	if ( m_board == NULL )
 		return;
@@ -574,6 +608,17 @@ hoxTable::_PostBoard_ActionEvent( hoxPlayer*     player,
     wxCommandEvent event( hoxEVT_BOARD_PLAYER_ACTION );
 	event.SetEventObject( player );
     event.SetInt( (int) action );
+    wxPostEvent( m_board, event );
+}
+
+void 
+hoxTable::_PostBoard_GameOverEvent( const hoxGameStatus gameStatus ) const
+{
+	if ( m_board == NULL )
+		return;
+
+    wxCommandEvent event( hoxEVT_BOARD_GAME_OVER );
+    event.SetInt( (int) gameStatus );
     wxPostEvent( m_board, event );
 }
 

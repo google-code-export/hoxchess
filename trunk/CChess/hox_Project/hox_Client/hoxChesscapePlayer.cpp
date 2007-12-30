@@ -234,6 +234,49 @@ hoxChesscapePlayer::OnJoinCmd_FromTable( wxCommandEvent&  event )
     this->AddRequestToConnection( request );
 }
 
+void 
+hoxChesscapePlayer::OnDrawCmd_FromTable( wxCommandEvent&  event )
+{
+    const char* FNAME = "hoxChesscapePlayer::OnDrawCmd_FromTable";
+
+	wxLogDebug("%s: ENTER.", FNAME);
+
+	const wxString tableId = event.GetString();
+	const int drawResponse = event.GetInt();
+
+	if ( drawResponse == 0 )  // denied a draw request ?
+	{
+		// Do nothing.
+		wxLogDebug("%s: Draw request has been denied. END.", FNAME);
+		return;
+	}
+
+	/* Lookup the table first. */
+	hoxNetworkTableInfo* pTableInfo = NULL;
+	if ( ! _FindTableById( tableId, pTableInfo ) ) // not found?
+	{
+		wxLogDebug("%s: *** WARN *** Table [%s] not found.", FNAME, tableId.c_str());
+		return;
+	}
+
+	/* Lookup existing role at the table. */
+	hoxPieceColor assignedColor;
+	bool hasRole = this->FindRoleAtTable( tableId, assignedColor );
+
+	if (   assignedColor != hoxPIECE_COLOR_RED 
+		&& assignedColor != hoxPIECE_COLOR_BLACK )
+	{
+		wxLogDebug("%s: *** WARN *** Player [%s] is not playing.", FNAME, this->GetName().c_str());
+		return;
+	}
+
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_DRAW, this );
+	request->parameters["pid"] = this->GetName();
+	request->parameters["tid"] = tableId;
+	request->parameters["draw_response"] = (drawResponse == 1 ? "1" : "");
+    this->AddRequestToConnection( request );
+}
+
 void
 hoxChesscapePlayer::OnIncomingNetworkData( wxSocketEvent& event )
 {
@@ -289,6 +332,7 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 	else if ( command == "unshow" )  _HandleCmd_Unshow( paramsStr );
 	else if ( command == "update" )  _HandleCmd_Update( paramsStr );
 	else if ( command == "tCmd" )	 _HandleTableCmd( paramsStr );
+	else if ( command == "tMsg" )	 _HandleTableMsg( paramsStr );
 	else
 	{
 		wxLogDebug("%s: Ignore other command = [%s].", FNAME, command.c_str());
@@ -355,27 +399,25 @@ hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
 				wxStringTokenizer tkz( playersInfo, delims/*, wxTOKEN_STRTOK*/ );
 				int pPosition = 0;
 				wxString ptoken;
+
+				/* Special case: Check for the case in which the RED player is empty. */
+				if ( !playersInfo.empty() && playersInfo[0] == '0x20' )
+				{
+					tableInfo.redId = "";
+					tableInfo.redScore = "0";
+					pPosition = 2;  // Skip RED's Id and Score.
+				}
+
 				while ( tkz.HasMoreTokens() )
 				{
 					token = tkz.GetNextToken();
 					switch (pPosition)
 					{
-						case 0:	tableInfo.redId = token;   break;
-						case 1:	
-							tableInfo.redScore = token; 
-							// Note: Handle 'empty' RED-score.
-							if ( ::atoi( tableInfo.redScore.c_str() ) == 0 && !token.empty() )
-							{
-								// *** The current token must be a BLACK-ID.
-								//     Thus, let it 'fall-through'.
-								tableInfo.redScore = "0";
-								++pPosition;
-							} else {
-								break;
-							}
-						case 2:	tableInfo.blackId = token; break;
+						case 0:	tableInfo.redId      = token; break;
+						case 1:	tableInfo.redScore   = token; break;
+						case 2:	tableInfo.blackId    = token; break;
 						case 3:	tableInfo.blackScore = token; break;
-						default:                           break;
+						default:                              break;
 					}
 					++pPosition;
 				}
@@ -571,6 +613,13 @@ hoxChesscapePlayer::_HandleCmd_Show(const wxString& cmdStr)
 	const char* FNAME = "hoxChesscapePlayer::_HandleCmd_Show";
 	wxLogDebug("%s: ENTER.", FNAME);
 
+	/* Clear out the existing table-list. */
+	
+	wxLogDebug("%s: Clear out the existing table-list.", FNAME);
+	m_networkTables.clear();
+
+	/* Create a new table-list. */
+
 	wxString delims;
 	delims += 0x11;   // table-delimiter
 	wxStringTokenizer tkz( cmdStr, delims, wxTOKEN_STRTOK ); // No empty tokens
@@ -665,6 +714,10 @@ hoxChesscapePlayer::_HandleTableCmd( const wxString& cmdStr )
 	else if ( tCmd == "GameOver" )
 	{
 		_HandleTableCmd_GameOver( table, subCmdStr );
+	}
+	else if ( tCmd == "OfferDraw" )
+	{
+		_HandleTableCmd_OfferDraw( table );
 	}
 	else
 	{
@@ -873,30 +926,91 @@ hoxChesscapePlayer::_HandleTableCmd_GameOver( hoxTable*       table,
 	                                          const wxString& cmdStr )
 {
 	const char* FNAME = "hoxChesscapePlayer::_HandleTableCmd_GameOver";
-	wxString moveStr;
-	wxString moveParam;
-	hoxPlayer* resignPlayer = NULL;
+	hoxGameStatus gameStatus;
 
-	const wxString whoWins = cmdStr.BeforeFirst(0x10);
+	const wxString statusStr = cmdStr.BeforeFirst(0x10);
 
-	if ( whoWins == "RED_WINS" )
+	if ( statusStr == "RED_WINS" )
 	{
-		resignPlayer = table->GetBlackPlayer();
+		gameStatus = hoxGAME_STATUS_RED_WIN;
 	}
-	else if ( whoWins == "BLK_WINS" )
+	else if ( statusStr == "BLK_WINS" )
 	{
-		resignPlayer = table->GetRedPlayer();
+		gameStatus = hoxGAME_STATUS_BLACK_WIN;
+	}
+	else if ( statusStr == "DRAW" )
+	{
+		gameStatus = hoxGAME_STATUS_DRAWN;
 	}
 	else
 	{
-		wxLogDebug("%s: *** WARN *** Unknown Game-Over parameter [%s].", FNAME, whoWins);
+		wxLogDebug("%s: *** WARN *** Unknown Game-Over parameter [%s].", FNAME, statusStr);
 		return false;
 	}
 
-	wxCHECK_MSG(resignPlayer, false, "The resign Player must not be NULL.");
-	wxLogDebug("%s: Inform table of RESIGN Action from player [%s].", 
-		FNAME, resignPlayer->GetName().c_str());
-	table->OnAction_FromNetwork( resignPlayer, hoxACTION_TYPE_RESIGN );
+	wxLogDebug("%s: Inform table of Game-Status [%d].", FNAME, (int) gameStatus);
+	table->OnGameOver_FromNetwork( this, gameStatus );
+
+	return true;
+}
+
+bool 
+hoxChesscapePlayer::_HandleTableCmd_OfferDraw( hoxTable* table )
+{
+	const char* FNAME = "hoxChesscapePlayer::_HandleTableCmd_OfferDraw";
+
+	/* Make sure that this Player is playing... */
+
+	hoxPlayer* whoOffered = NULL;  // Who offered draw?
+	hoxPlayer* blackPlayer = table->GetBlackPlayer();
+	hoxPlayer* redPlayer = table->GetRedPlayer();
+
+	if      ( blackPlayer == this )  whoOffered = redPlayer;
+	else if ( redPlayer   == this )  whoOffered = blackPlayer;
+
+	if ( whoOffered == NULL )
+	{
+		wxLogDebug("%s: *** WARN *** No real Player is offering this Draw request.", FNAME);
+		return false;
+	}
+
+	wxLogDebug("%s: Inform table of player [%s] is offering Draw-Request.", 
+		FNAME, whoOffered->GetName().c_str());
+	table->OnAction_FromNetwork( whoOffered, hoxACTION_TYPE_OFFER_DRAW );
+
+	return true;
+}
+
+bool 
+hoxChesscapePlayer::_HandleTableMsg( const wxString& cmdStr )
+{
+	const char* FNAME = "hoxChesscapePlayer::_HandleTableMsg";
+
+	/* NOTE: The Chesscape server only support 1 table for now. */
+
+	const hoxRoleList roles = this->GetRoles();
+	if ( roles.empty() )
+	{
+		wxLogDebug("%s: *** WARN *** This player [%s] has not joined any table yet.", 
+			FNAME, this->GetName().c_str());
+		return false;
+	}
+	wxString tableId = roles.front().tableId;
+
+	// Find the table hosted on this system using the specified table-Id.
+	hoxTable* table = this->GetSite()->FindTable( tableId );
+	if ( table == NULL )
+	{
+		wxLogDebug("%s: *** WARN *** Table [%s] not found.", FNAME, tableId.c_str());
+		return false;
+	}
+
+	/* Inform the Table of the new message. */
+
+	const wxString whoSent = cmdStr.AfterFirst('<').BeforeFirst('>');
+	const wxString message = cmdStr.AfterFirst(' ').BeforeFirst(0x10);
+
+	table->OnMessage_FromNetwork( whoSent, message );
 
 	return true;
 }
@@ -957,7 +1071,8 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 		}
 		else  // Other player?
 		{
-			newRedPlayer = site->CreateDummyPlayer( tableInfo.redId ); // TODO: should be "GetXXX" instead.
+			newRedPlayer = site->CreateDummyPlayer( tableInfo.redId, // TODO: should be "GetXXX" instead.
+				                                    ::atoi( tableInfo.redScore.c_str() ) ); 
 		}
 
 		result = newRedPlayer->JoinTableAs( table, hoxPIECE_COLOR_RED );
@@ -979,7 +1094,8 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 		}
 		else  // Other player?
 		{
-			newBlackPlayer = site->CreateDummyPlayer( tableInfo.blackId ); // TODO: should be "GetXXX" instead.
+			newBlackPlayer = site->CreateDummyPlayer( tableInfo.blackId, // TODO: should be "GetXXX" instead.
+			                                          ::atoi( tableInfo.blackScore.c_str() ) );
 		}
 
 		result = newBlackPlayer->JoinTableAs( table, hoxPIECE_COLOR_BLACK );
@@ -995,81 +1111,6 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 	{
 		table->ToggleViewSide();
 	}
-
-#if 0
-	/* TODO: (removed later) Clear pending request seat */
-
-	if ( ! m_pendingRequestSeat.empty() )
-	{
-		if ( newRedPlayer == this || newBlackPlayer == this )
-		{
-			m_pendingRequestSeat = "";
-			m_bSentMyFirstMove = false;
-		}
-	}
-#endif
-
-	//////////////////////////
-#if 0
-	/* Check if this player is requesting to JOIN */
-	if ( ! m_pendingRequestSeat.empty() )
-	{
-		if (   tableInfo.redId == this->GetName() 
-			|| tableInfo.blackId == this->GetName() )
-		{
-			m_pendingRequestSeat = "";
-			m_bSentMyFirstMove = false;
-
-			hoxTable* table = NULL;
-			wxString  tableId = tableInfo.id;
-			hoxPieceColor myColor = hoxPIECE_COLOR_NONE;
-
-			///////////////////// JOIN An EXISTING TABLE ////////////////////////
-			table = site->FindTable( tableId );
-			if ( table != NULL )
-			{
-				if ( tableInfo.redId == this->GetName() )
-				{
-					myColor = hoxPIECE_COLOR_RED;
-				}
-				else if ( tableInfo.blackId == this->GetName() )
-				{
-					myColor = hoxPIECE_COLOR_BLACK;
-				}
-
-				hoxResult result = this->JoinTableAs( table, myColor );
-				wxASSERT( result == hoxRESULT_OK  );
-				wxASSERT_MSG( this->HasRole( hoxRole(table->GetId(), 
-													 myColor) ),
-							  _("Player must join as the specified role"));
-
-				// Toggle board if I play BLACK.
-				if ( myColor == hoxPIECE_COLOR_BLACK )
-				{
-					table->ToggleViewSide();
-				}
-
-				//wxGetApp().GetFrame()->UpdateSiteTreeUI();
-				//return;
-			}
-
-#if 0
-			hoxNetworkTableInfo* newTableInfo = new hoxNetworkTableInfo( tableInfo );
-
-			wxEvtHandler* sender = this->GetSite()->GetResponseHandler();
-			hoxRequestType requestType = hoxREQUEST_TYPE_JOIN;
-			hoxResponse_AutoPtr response( new hoxResponse(requestType, 
-														  sender) );
-			response->eventObject = newTableInfo;
-
-			wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, requestType );
-			response->code = hoxRESULT_OK;
-			event.SetEventObject( response.release() );  // Caller will de-allocate.
-			wxPostEvent( sender, event );
-#endif
-		}
-	}
-#endif
 }
 
 void 
@@ -1116,6 +1157,8 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 				response->code = hoxRESULT_OK;
 				response->content.Printf("LOGIN is OK. name=[%s], score=[%s], role=[%s]", 
 					name.c_str(), score.c_str(), role.c_str());
+				wxASSERT( name == this->GetName() );
+				this->SetScore( ::atoi( score.c_str() ) );
 			}
 			break;
 		}

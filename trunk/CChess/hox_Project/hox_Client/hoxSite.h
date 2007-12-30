@@ -85,8 +85,9 @@ public:
     hoxPlayer* FindPlayer( const wxString& playerId ) const
         { return m_playerMgr.FindPlayer( playerId ); }
 
-    hoxPlayer* CreateDummyPlayer( const wxString& playerId )
-        { return m_playerMgr.CreateDummyPlayer( playerId ); }
+    hoxPlayer* CreateDummyPlayer( const wxString& playerId,
+		                          int             score = 1500 )
+        { return m_playerMgr.CreateDummyPlayer( playerId, score ); }
 
     virtual void DeletePlayer( hoxPlayer* player );
 

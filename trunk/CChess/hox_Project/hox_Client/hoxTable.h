@@ -151,6 +151,18 @@ public:
     void OnJoinCommand_FromBoard();
 
     /**
+     * Callback function from the Board to let this Table know about
+     * DRAW-command button that has been pressed by the "local" player.
+     */
+    void OnDrawCommand_FromBoard();
+
+    /**
+     * Callback function from the Board to let this Table know about
+     * the response to a DRAW-request.
+     */
+    void OnDrawResponse_FromBoard( bool bAcceptDraw );
+
+    /**
      * Callback function from the NETWORK Player to let this Table know about
      * the newly-received "remote" Moves.
      *
@@ -193,11 +205,21 @@ public:
      * Callback function from the NETWORK Player to let this Table know about
      * the newly-received Action.
      *
-     * @param player The Player who generates the Action.
+     * @param player The Player who generated the Action.
+     * @param action The Action.
+     */
+    void OnAction_FromNetwork( hoxPlayer*    player,
+                               hoxActionType action );
+
+    /**
+     * Callback function from the NETWORK Player to let this Table know about
+     * the GameOver event.
+     *
+     * @param player The Player who informs the event.
      * @param message The message that are being sent from the network.
      */
-    void OnAction_FromNetwork( hoxPlayer*     player,
-                               hoxActionType  action );
+    void OnGameOver_FromNetwork( hoxPlayer*    player,
+                                 hoxGameStatus gameStatus );
 
     /**
      * Callback function from a player who is leaving the table.
@@ -220,7 +242,8 @@ private:
      * has been pressed.
      */
     void _PostPlayer_ActionEvent( hoxPlayer*  player,
-		                          wxEventType commandType ) const;
+		                          wxEventType commandType,
+								  int         extraIntParam = -1 ) const;
 
     /**
      * Post (inform) a player about the fact that this table is 
@@ -285,6 +308,8 @@ private:
 
     void _PostBoard_ActionEvent( hoxPlayer*     player,
                                  hoxActionType  action ) const;
+
+    void _PostBoard_GameOverEvent( const hoxGameStatus gameStatus ) const;
 
     /**
      * Inform other Players that a new Player just joined the Table.

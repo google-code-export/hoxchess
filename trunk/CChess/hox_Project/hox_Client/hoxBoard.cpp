@@ -47,7 +47,8 @@ enum
     ID_HISTORY_NEXT,
     ID_HISTORY_END,
 
-    ID_ACTION_JOIN
+	ID_ACTION_DRAW,
+	ID_ACTION_JOIN	
 };
 
 
@@ -57,6 +58,7 @@ DEFINE_EVENT_TYPE( hoxEVT_BOARD_PLAYER_LEAVE )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_WALL_OUTPUT )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_NEW_MOVE )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_PLAYER_ACTION )
+DEFINE_EVENT_TYPE( hoxEVT_BOARD_GAME_OVER )
 
 BEGIN_EVENT_TABLE(hoxBoard, wxPanel)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_JOIN, hoxBoard::OnPlayerJoin)
@@ -64,12 +66,14 @@ BEGIN_EVENT_TABLE(hoxBoard, wxPanel)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_WALL_OUTPUT, hoxBoard::OnWallOutput)
 	EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_NEW_MOVE, hoxBoard::OnNewMove)
 	EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_ACTION, hoxBoard::OnPlayerAction)
+	EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_GAME_OVER, hoxBoard::OnGameOver)
 
     EVT_TEXT_ENTER(ID_BOARD_WALL_INPUT, hoxBoard::OnWallInputEnter)
     EVT_BUTTON(ID_HISTORY_BEGIN, hoxBoard::OnButtonHistory_BEGIN)
     EVT_BUTTON(ID_HISTORY_PREV, hoxBoard::OnButtonHistory_PREV)
     EVT_BUTTON(ID_HISTORY_NEXT, hoxBoard::OnButtonHistory_NEXT)
     EVT_BUTTON(ID_HISTORY_END, hoxBoard::OnButtonHistory_END)
+	EVT_BUTTON(ID_ACTION_DRAW, hoxBoard::OnButtonDraw)
 	EVT_BUTTON(ID_ACTION_JOIN, hoxBoard::OnButtonJoin)
 
     EVT_TIMER(wxID_ANY, hoxBoard::OnTimer)    
@@ -269,18 +273,66 @@ hoxBoard::OnPlayerAction( wxCommandEvent &event )
 	
 	switch ( action )
 	{
-		case hoxACTION_TYPE_RESIGN:
+		case hoxACTION_TYPE_OFFER_DRAW:
 		{
-			const wxString message = playerId + " resigned."; 
-			this->OnBoardMsg( message );
-			m_coreBoard->SetGameOver( true );
-			m_status = ( playerId == m_redId ? hoxGAME_STATUS_BLACK_WIN 
-				                             : hoxGAME_STATUS_RED_WIN );
+			const wxString boardMessage = playerId + " is offering a DRAW."; 
+			this->OnBoardMsg( boardMessage );
+			const wxString confirmMessage = boardMessage + "\n" 
+				                          + "Do you want to accept a Draw?";
+			int answer = ::wxMessageBox(confirmMessage, "Confirmation",
+										wxYES_NO | wxCANCEL, this);
+			if ( answer == wxYES )
+			{
+				/* Inform the Table. */
+				wxCHECK_RET(m_table, "The table is NULL." );
+				m_table->OnDrawResponse_FromBoard( true );
+
+				/* Set Game's status to DRAW */
+				this->OnBoardMsg( "Accepted Draw request. Game drawn." ); 
+				m_coreBoard->SetGameOver( true );
+			}
 			break;
 		}
 		default:
-			wxLogDebug("%s: Unsupported action [%d].", action );
+			wxLogDebug("%s: Unsupported action [%d].", FNAME, action );
+			return;
 	}
+}
+
+void 
+hoxBoard::OnGameOver( wxCommandEvent &event )
+{
+    const char* FNAME = "hoxBoard::OnGameOver";
+
+	const int gameStatus = event.GetInt();
+	wxString boardMessage; 
+
+	switch ( gameStatus )
+	{
+		case hoxGAME_STATUS_RED_WIN:
+		{
+			boardMessage = "Game Over. " + m_redId + " won."; 
+			break;
+		}
+		case hoxGAME_STATUS_BLACK_WIN:
+		{
+			boardMessage = "Game Over. " + m_blackId + " won."; 
+			break;
+		}
+		case hoxGAME_STATUS_DRAWN:
+		{
+			boardMessage = "Game drawn."; 
+			break;
+		}
+		default:
+			wxLogDebug("%s: Unsupported game-status [%d].", gameStatus );
+			return;
+	}
+
+	/* Display the status */
+	m_status = (hoxGameStatus) gameStatus; // TODO: Force it!!!
+	this->OnBoardMsg( boardMessage );
+	m_coreBoard->SetGameOver( true );
 }
 
 void 
@@ -324,6 +376,14 @@ hoxBoard::OnButtonHistory_END( wxCommandEvent &event )
         return;
 
     m_coreBoard->DoGameReview_END();
+}
+
+void 
+hoxBoard::OnButtonDraw( wxCommandEvent &event )
+{
+    /* Let the table handle this action. */
+    wxCHECK_RET(m_table, "The table is NULL." );
+    m_table->OnDrawCommand_FromBoard();
 }
 
 void 
@@ -483,6 +543,12 @@ hoxBoard::_CreateBoardPanel()
      *********************************/
 
     m_actionSizer = new wxBoxSizer( wxHORIZONTAL );
+
+    m_actionSizer->Add( 
+        new wxButton( boardPanel, ID_ACTION_DRAW, "Draw", 
+                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
+        0,    // Unstretchable
+        wxALIGN_LEFT | wxFIXED_MINSIZE );
 
     m_actionSizer->Add( 
         new wxButton( boardPanel, ID_ACTION_JOIN, "Join", 
