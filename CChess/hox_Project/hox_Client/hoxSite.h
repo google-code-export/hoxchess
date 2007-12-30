@@ -231,7 +231,9 @@ public:
     ~hoxSiteManager();
 
 	hoxSite* CreateSite( hoxSiteType             siteType, 
-		                 const hoxServerAddress& address );
+		                 const hoxServerAddress& address,
+				         const wxString&         userName,
+						 const wxString&         password );
 
 	hoxRemoteSite* FindRemoteSite( const hoxServerAddress& address ) const;
 	
@@ -247,9 +249,6 @@ public:
 private:
     hoxSiteManager();
 	static hoxSiteManager* m_instance;
-
-	hoxResult _GetLoginInfoFromUser( wxString& login,
-			                         wxString& password) const;
 
 private:
 	hoxSiteList     m_sites;

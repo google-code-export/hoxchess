@@ -209,6 +209,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hoxLoginDialog.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\hoxMyPlayer.cpp"
 				>
 			</File>
@@ -344,6 +348,10 @@
 			</File>
 			<File
 				RelativePath=".\hoxLog.h"
+				>
+			</File>
+			<File
+				RelativePath=".\hoxLoginDialog.h"
 				>
 			</File>
 			<File

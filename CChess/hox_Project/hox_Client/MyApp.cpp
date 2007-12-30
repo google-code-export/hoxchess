@@ -133,7 +133,9 @@ MyApp::OpenServer(int nPort)
         hoxServerAddress address( "127.0.0.1", nPort ); 
 		localSite = static_cast<hoxLocalSite*>( 
 			hoxSiteManager::GetInstance()->CreateSite( hoxSITE_TYPE_LOCAL, 
-			                                           address ) );
+			                                           address,
+													   "" /* No Username */,
+													   "" /* No Password */) );
     }
 
     localSite->OpenServer();
@@ -152,7 +154,10 @@ MyApp::CloseServer( hoxSite* site )
 }
 
 void 
-MyApp::ConnectRemoteServer( const hoxServerAddress& address )
+MyApp::ConnectRemoteServer( const hoxSiteType       siteType,
+		                    const hoxServerAddress& address,
+					        const wxString&         userName,
+							const wxString&         password )
 {
     const char* FNAME = "MyApp::ConnectRemoteServer";
     hoxRemoteSite* remoteSite = NULL;
@@ -163,27 +168,35 @@ MyApp::ConnectRemoteServer( const hoxServerAddress& address )
     /* Create a new Remote site if necessary. */
     if ( remoteSite == NULL )
     {
-        // FIXME: Cheating here to create HTTP server based on port 80.
-        if (   address.name == HOX_HTTP_SERVER_HOSTNAME 
-			&& address.port == HOX_HTTP_SERVER_PORT )
-        {
-			remoteSite = static_cast<hoxHTTPSite*>( 
-				hoxSiteManager::GetInstance()->CreateSite( hoxSITE_TYPE_HTTP, 
-														   address ) );
-        }
-        else if (   address.name == "68.163.190.66" /* Chesscape server? */
-		  	     && address.port == 3534 )
-        {
-			remoteSite = static_cast<hoxChesscapeSite*>( 
-				hoxSiteManager::GetInstance()->CreateSite( hoxSITE_TYPE_CHESSCAPE, 
-														   address ) );
-        }
-        else
-        {
-			remoteSite = static_cast<hoxRemoteSite*>( 
-				hoxSiteManager::GetInstance()->CreateSite( hoxSITE_TYPE_REMOTE, 
-														   address ) );
-        }
+		switch ( siteType )
+		{
+			case hoxSITE_TYPE_HTTP:
+			{
+				wxASSERT(    address.name == HOX_HTTP_SERVER_HOSTNAME 
+			              && address.port == HOX_HTTP_SERVER_PORT );
+				break;
+			}
+			case hoxSITE_TYPE_CHESSCAPE:
+			{
+				wxASSERT(    address.name == "games.chesscape.com"
+		  	              && address.port == 3534 );
+				break;
+			}
+			case hoxSITE_TYPE_REMOTE:
+			{
+				break;
+			}
+			default:
+				wxLogError("Unsupported site-type [%d].", (int)siteType);
+				return;
+
+		} // switch ( siteType ) 
+
+		remoteSite = static_cast<hoxRemoteSite*>( 
+			hoxSiteManager::GetInstance()->CreateSite( siteType, 
+													   address,
+													   userName,
+													   password ) );
     }
 
 	if ( remoteSite == NULL )

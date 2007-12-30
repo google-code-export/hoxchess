@@ -30,6 +30,7 @@
 #include "MyApp.h"    // To access wxGetApp()
 #include "hoxTable.h"
 #include "hoxUtility.h"
+#include "hoxLoginDialog.h"
 
 #if !defined(__WXMSW__)
     #include "icons/hoxchess.xpm"
@@ -49,7 +50,7 @@ DEFINE_EVENT_TYPE(hoxEVT_FRAME_LOG_MSG)
 // constants
 // ----------------------------------------------------------------------------
 
-#define hoxVERSION_STRING  "0.2.1.0"
+#define hoxVERSION_STRING  "0.3.0.0"
 
 BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
     EVT_MENU(MDI_ABOUT, MyFrame::OnAbout)
@@ -356,24 +357,32 @@ void
 MyFrame::OnConnectServer( wxCommandEvent& event )
 {
     const char* FNAME = "MyFrame::OnConnectServer";
-    hoxResult result;
 
-    /* Ask the user for the server' address. */
+	/* Ask the user for the server' address and login-info. */
 
-    hoxServerAddress serverAddress;
+    hoxLoginDialog loginDlg( this, wxID_ANY, 
+                             "Connect to a remote server" );
+	loginDlg.ShowModal();
 
-    result = _GetServerAddressFromUser( 
-                    _("Enter the address of an HOXChess server:"),
-                    _("Connect to a server ..."),
-                    hoxServerAddress( "127.0.0.1", 
-                                      hoxNETWORK_DEFAULT_SERVER_PORT ),
-                    serverAddress );
+	if ( loginDlg.GetSelectedCommand() != hoxLoginDialog::COMMAND_ID_LOGIN )
+	{
+		wxLogDebug("%s: Login has been canceled.", FNAME);
+		return;
+	}
 
-    if ( result != hoxRESULT_OK )
-        return;
+	const hoxSiteType siteType = loginDlg.GetSelectedSiteType();
+	const hoxServerAddress serverAddress( loginDlg.GetSelectedAddress(),
+		                                  loginDlg.GetSelectedPort() );
+	const wxString userName = loginDlg.GetSelectedUserName();
+	const wxString password = loginDlg.GetSelectedPassword();
+
 
     /* Start connecting... */
-    wxGetApp().ConnectRemoteServer( serverAddress );
+    
+	wxGetApp().ConnectRemoteServer( siteType,
+		                            serverAddress,
+									userName,
+									password );
 }
 
 void 
@@ -625,39 +634,6 @@ MyFrame::OnContextMenu( wxContextMenuEvent& event )
     }
 
     PopupMenu(&menu, point.x, point.y);
-}
-
-hoxResult
-MyFrame::_GetServerAddressFromUser( 
-                        const wxString&         message,
-                        const wxString&         caption,
-                        const hoxServerAddress& defaultAddress,
-                        hoxServerAddress&       serverAddress )
-{
-    const char* FNAME = "MyFrame::_GetServerAddressFromUser";
-
-    const wxString defaultInput =
-        wxString::Format("%s:%d", defaultAddress.name.c_str(), 
-                                  defaultAddress.port);
-
-    wxString userText = wxGetTextFromUser( message,
-                                           caption,
-                                           defaultInput,
-                                           this /* Parent */ );
-    if ( userText.empty() ) // user canceled?
-    {
-        wxLogDebug("%s: The user has canceled the connection.", FNAME);
-        return hoxRESULT_ERR;
-    }
-
-    if ( ! hoxUtility::ParseServerAddress( userText,
-                                           serverAddress ) )
-    {
-        wxLogError("The server's address [%s] is invalid .", userText.c_str());
-        return hoxRESULT_ERR;
-    }
-
-    return hoxRESULT_OK;
 }
 
 MyChild* 
