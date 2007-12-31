@@ -27,7 +27,8 @@
 #ifndef __INCLUDED_HOX_TABLES_DIALOG_H_
 #define __INCLUDED_HOX_TABLES_DIALOG_H_
 
-#include "wx/wx.h"
+#include <wx/wx.h>
+#include <wx/listctrl.h>
 #include "hoxTypes.h"
 
 
@@ -37,6 +38,11 @@
 
 class hoxTablesDialog : public wxDialog
 {
+private:
+	/* Class members used to remember the list Position + Size */
+	static wxPoint s_lastPosition;
+	static wxSize  s_lastSize;
+
 public:
     enum CommandId
     {
@@ -55,14 +61,17 @@ public:
     void OnButtonNew(wxCommandEvent& event);
 	void OnButtonRefresh(wxCommandEvent& event);
 
+	void OnMove(wxMoveEvent& event);
+	void OnSize(wxSizeEvent& event);
+
     CommandId GetSelectedCommand() const { return m_selectedCommand; }
     wxString GetSelectedId() const { return m_selectId; }
 
 private:
-    CommandId  m_selectedCommand;
+	wxListCtrl* m_listCtrlTables;
 
-    wxListBox* m_tablesListBox;
-    wxString   m_selectId;
+    CommandId   m_selectedCommand;
+    wxString    m_selectId;
 
     DECLARE_EVENT_TABLE()
 };
