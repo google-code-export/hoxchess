@@ -45,12 +45,27 @@ BEGIN_EVENT_TABLE(hoxTablesDialog, wxDialog)
     EVT_BUTTON(ID_JOIN_TABLE, hoxTablesDialog::OnButtonJoin)
     EVT_BUTTON(ID_NEW_TABLE, hoxTablesDialog::OnButtonNew)
 	EVT_BUTTON(ID_REFRESH_LIST, hoxTablesDialog::OnButtonRefresh)
+
+	EVT_MOVE(hoxTablesDialog::OnMove)
+	EVT_SIZE(hoxTablesDialog::OnSize)
 END_EVENT_TABLE()
 
 //-----------------------------------------------------------------------------
 // hoxTablesDialog
 //-----------------------------------------------------------------------------
 
+/* Initialize class-member variables */
+wxPoint hoxTablesDialog::s_lastPosition(-1, -1);
+wxSize  hoxTablesDialog::s_lastSize(0, 0);
+
+int wxCALLBACK MyCompareFunction( long item1, 
+								  long item2, 
+								  long sortData /* not used */)
+{
+    if (item1 < item2)  return -1;
+    if (item1 > item2)  return 1;
+    return 0;
+}
 
 hoxTablesDialog::hoxTablesDialog( wxWindow*       parent, 
                                   wxWindowID      id, 
@@ -62,36 +77,83 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*       parent,
 {
     wxBoxSizer* topSizer = new wxBoxSizer( wxVERTICAL );
 
-    m_tablesListBox = new wxListBox(this, wxID_ANY);
-    wxString item;
+	/* Create a List-Control to display the table-list. */
+
+	m_listCtrlTables = new wxListCtrl(
+		this,
+		wxID_ANY,
+		wxDefaultPosition,
+		wxDefaultSize,
+		wxLC_REPORT | wxLC_SINGLE_SEL);
+
+    wxString columns[] =
+    {
+        "Table",
+        "Group",
+        "Timer",
+		"Type",
+		"Red Player",
+		"Black Player"
+    };
+
+	long     colIndex = 0;
+
+	for ( colIndex = 0; colIndex < WXSIZEOF( columns ); ++colIndex )
+	{
+		m_listCtrlTables->InsertColumn( colIndex, columns[colIndex] );
+	}
+
+	long     itemIndex = 0;
 	wxString redId;
 	wxString blackId;
-    for ( hoxNetworkTableInfoList::const_iterator it = tableList.begin(); 
-                                                 it != tableList.end(); ++it )
-    {
-		redId = (it->redId.empty() ? "0" : it->redId );
+
+	for ( hoxNetworkTableInfoList::const_iterator it = tableList.begin(); 
+												  it != tableList.end(); 
+												++it )
+	{
+		redId   = (it->redId.empty()   ? "0" : it->redId );
 		blackId = (it->blackId.empty() ? "0" : it->blackId );
 
-        item = "";
-        item << "#" << it->id 
-             << " [" << it->status << "] "
-			 << " [" << hoxUtility::FormatTime(it->initialTime.nGame) << "] "
-			 << " [" << hoxUtility::GameTypeToString(it->gameType) << "] "
-			 << redId << "(" << it->redScore << ")" << " vs. " 
-			 << blackId << "(" << it->blackScore << ")";
-        m_tablesListBox->Append( item, const_cast<hoxNetworkTableInfo*>( &(*it) ) );
-    }
-    // Select the 1st table, if any.
-    if ( m_tablesListBox->GetCount() > 0 )
+		colIndex = 0;
+		itemIndex = m_listCtrlTables->InsertItem(itemIndex, wxString::Format("#%s", it->id) );
+		m_listCtrlTables->SetItemData( itemIndex, ::atoi( it->id.c_str() ) );
+
+		m_listCtrlTables->SetItem(itemIndex, ++colIndex, wxString::Format("%d", it->status));
+		m_listCtrlTables->SetItem(itemIndex, ++colIndex, hoxUtility::FormatTime(it->initialTime.nGame));
+		m_listCtrlTables->SetItem(itemIndex, ++colIndex, hoxUtility::GameTypeToString(it->gameType));
+		m_listCtrlTables->SetItem(itemIndex, ++colIndex, (redId << " (" << it->redScore << ")") );
+		m_listCtrlTables->SetItem(itemIndex, ++colIndex, (blackId << " (" << it->blackScore << ")") );
+		
+		++itemIndex;
+	}
+
+	/* Set the columns' width. */
+
+	for ( colIndex = 0; colIndex < WXSIZEOF( columns ); ++colIndex )
+	{
+		m_listCtrlTables->SetColumnWidth( colIndex, wxLIST_AUTOSIZE_USEHEADER );
+	}
+	if ( m_listCtrlTables->GetItemCount() > 0 )
+	{
+		for ( colIndex = 2; colIndex < WXSIZEOF( columns ); ++colIndex )
+		{
+			m_listCtrlTables->SetColumnWidth( colIndex, wxLIST_AUTOSIZE );
+		}
+	}
+
+    /* Select the 1st table, if any. */
+
+    if ( m_listCtrlTables->GetItemCount() > 0 )
     {
-        m_tablesListBox->SetSelection( 0 );
+        m_listCtrlTables->SetItemState(0, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED );
     }
 
-    topSizer->Add( m_tablesListBox,
-         1,            // make vertically stretchable
-         wxEXPAND |    // make horizontally stretchable
-         wxALL,        //   and make border all around
-         10 );         // set border width to 10tBox );
+	/* Sort the list. */
+    m_listCtrlTables->SortItems(MyCompareFunction, 0);
+
+    topSizer->Add( 
+		m_listCtrlTables,
+		wxSizerFlags(1).Expand().Border(wxALL, 10));
 
     /* Buttons... */
 
@@ -99,46 +161,59 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*       parent,
 
     buttonSizer->Add( 
 		new wxButton(this, ID_REFRESH_LIST, _("&Refresh")),
-        0,                // make vertically unstretchable
-        wxALIGN_CENTER ); // no border and centre horizontally);
+		wxSizerFlags().Align(wxALIGN_CENTER));
 
     buttonSizer->Add( 
 		new wxButton(this, ID_NEW_TABLE, _("&New Table")),
-        0,                // make vertically unstretchable
-        wxALIGN_CENTER ); // no border and centre horizontally);
+		wxSizerFlags().Align(wxALIGN_CENTER));
 
     buttonSizer->AddSpacer(30);
 
     buttonSizer->Add( 
 		new wxButton(this, ID_JOIN_TABLE, _("&Join Table")),
-        0,                // make vertically unstretchable
-        wxALIGN_CENTER ); // no border and centre horizontally);
+		wxSizerFlags().Align(wxALIGN_CENTER));
 
     buttonSizer->Add( 
 		new wxButton(this, wxID_CANCEL, _("&Close")),
-        0,                // make vertically unstretchable
-        wxALIGN_CENTER ); // no border and centre horizontally);
+		wxSizerFlags().Align(wxALIGN_CENTER));
 
-    topSizer->Add(buttonSizer, 
-        0,                // make vertically unstretchable
-        wxALIGN_CENTER ); // no border and centre horizontally);
+    topSizer->Add(
+		buttonSizer, 
+		wxSizerFlags().Align(wxALIGN_CENTER));
 
     SetSizer( topSizer );      // use the sizer for layout
+
+	/* Use the last Position and Size, if available. */
+
+	if ( hoxTablesDialog::s_lastPosition.x >= 0 )
+	{
+		this->SetPosition( hoxTablesDialog::s_lastPosition );
+	}
+
+	if ( hoxTablesDialog::s_lastSize.x > 0 )
+	{
+		this->SetSize( hoxTablesDialog::s_lastSize );
+	}
 }
 
 void 
 hoxTablesDialog::OnButtonJoin(wxCommandEvent& event)
 {
     const char* FNAME = "hoxTablesDialog::OnButtonJoin";
-    int selection = m_tablesListBox->GetSelection();
-    if ( selection != wxNOT_FOUND )
-    {
-        hoxNetworkTableInfo* tableInfo  /* TODO: better way than reinterpret_cast? */
-            = wx_reinterpret_cast( hoxNetworkTableInfo*, 
-                                   m_tablesListBox->GetClientData( selection ) );
-        wxASSERT( tableInfo != NULL );
-        m_selectId = tableInfo->id;
-    }
+
+	/* Get the 1st selected item. */
+
+	long selectedIndex = m_listCtrlTables->GetNextItem( -1, 
+		                                                wxLIST_NEXT_ALL,
+                                                        wxLIST_STATE_SELECTED );
+	if ( selectedIndex == -1 ) // No selection?
+	{
+		wxLogWarning("You need to select a Table.");
+		return;
+	}
+
+	long selectedId = m_listCtrlTables->GetItemData( selectedIndex );
+	m_selectId.Printf("%ld", selectedId);
 
     m_selectedCommand = COMMAND_ID_JOIN;
     wxLogDebug("%s: Table-Id [%s] is selected to JOIN.", FNAME, m_selectId.c_str());
@@ -157,6 +232,20 @@ hoxTablesDialog::OnButtonRefresh(wxCommandEvent& event)
 {
     m_selectedCommand = COMMAND_ID_REFRESH;
     Close();
+}
+
+void 
+hoxTablesDialog::OnMove(wxMoveEvent& event)
+{
+	hoxTablesDialog::s_lastPosition = event.GetPosition();
+	event.Skip(); // Let the search for the event handler should continue.
+}
+
+void 
+hoxTablesDialog::OnSize(wxSizeEvent& event)
+{
+	hoxTablesDialog::s_lastSize = event.GetSize();
+	event.Skip(); // Let the search for the event handler should continue.
 }
 
 /************************* END OF FILE ***************************************/
