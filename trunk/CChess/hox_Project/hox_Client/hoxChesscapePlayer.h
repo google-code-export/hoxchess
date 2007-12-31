@@ -95,6 +95,7 @@ private:
 	bool _HandleCmd_Unshow(const wxString& cmdStr);
 	bool _HandleCmd_Update(const wxString& cmdStr,
 		                   hoxNetworkTableInfo* pTableInfo = NULL);
+	bool _HandleCmd_UpdateRating(const wxString& cmdStr);
 
 	bool _HandleTableCmd(const wxString& cmdStr);
 	bool _HandleTableCmd_Settings(const wxString& cmdStr);

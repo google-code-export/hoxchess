@@ -328,11 +328,12 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 
 	/* Processing the command... */
 
-	if      ( command == "show" )    _HandleCmd_Show( paramsStr );
-	else if ( command == "unshow" )  _HandleCmd_Unshow( paramsStr );
-	else if ( command == "update" )  _HandleCmd_Update( paramsStr );
-	else if ( command == "tCmd" )	 _HandleTableCmd( paramsStr );
-	else if ( command == "tMsg" )	 _HandleTableMsg( paramsStr );
+	if      ( command == "show" )          _HandleCmd_Show( paramsStr );
+	else if ( command == "unshow" )        _HandleCmd_Unshow( paramsStr );
+	else if ( command == "update" )        _HandleCmd_Update( paramsStr );
+	else if ( command == "updateRating" )  _HandleCmd_UpdateRating( paramsStr );
+	else if ( command == "tCmd" )	       _HandleTableCmd( paramsStr );
+	else if ( command == "tMsg" )	       _HandleTableMsg( paramsStr );
 	else
 	{
 		wxLogDebug("%s: Ignore other command = [%s].", FNAME, command.c_str());
@@ -1011,6 +1012,24 @@ hoxChesscapePlayer::_HandleTableMsg( const wxString& cmdStr )
 	const wxString message = cmdStr.AfterFirst(' ').BeforeFirst(0x10);
 
 	table->OnMessage_FromNetwork( whoSent, message );
+
+	return true;
+}
+
+bool 
+hoxChesscapePlayer::_HandleCmd_UpdateRating( const wxString& cmdStr )
+{
+	const char* FNAME = "hoxChesscapePlayer::_HandleCmd_UpdateRating";
+
+	/* TODO: Update this Player's rating only. */
+
+	const wxString who = cmdStr.BeforeFirst( 0x10 );
+	const wxString rating = cmdStr.AfterFirst( 0x10 ).BeforeLast( 0x10 );
+
+	if ( who == this->GetName() )
+	{
+		this->SetScore( ::atoi( rating.c_str() ) );
+	}
 
 	return true;
 }

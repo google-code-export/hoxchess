@@ -897,6 +897,17 @@ hoxChesscapeSite::OnResponse_List( const hoxResponse_AutoPtr& response )
             break;
         }
 
+		case hoxTablesDialog::COMMAND_ID_REFRESH:
+        {
+            wxLogDebug("%s: Get the latest list of tables...", FNAME);
+			result = this->QueryForNetworkTables();
+            if ( result != hoxRESULT_OK )
+            {
+                wxLogError("%s: Failed to get the list of tables.", FNAME);
+            }
+            break;
+        }
+
         default:
             wxLogDebug("%s: No command is selected. Fine.", FNAME);
             break;
@@ -929,31 +940,6 @@ hoxChesscapeSite::OnResponse_Join( const hoxResponse_AutoPtr& response )
 	{
 		wxLogWarning("This Site should only handle JOIN (NEW) table.");
 		return;
-#if 0
-		if ( tableInfo->redId == m_player->GetName() )
-		{
-			myColor = hoxPIECE_COLOR_RED;
-		}
-		else if ( tableInfo->blackId == m_player->GetName() )
-		{
-			myColor = hoxPIECE_COLOR_BLACK;
-		}
-
-		result = m_player->JoinTableAs( table, myColor );
-		wxASSERT( result == hoxRESULT_OK  );
-		wxASSERT_MSG( m_player->HasRole( hoxRole(table->GetId(), 
-												 myColor) ),
-					  _("Player must join as the specified role"));
-
-		// Toggle board if I play BLACK.
-		if ( myColor == hoxPIECE_COLOR_BLACK )
-		{
-			table->ToggleViewSide();
-		}
-
-		wxGetApp().GetFrame()->UpdateSiteTreeUI();
-		return;
-#endif
 	}
 	
 	/////////////////////////////////////////////////////////////////////

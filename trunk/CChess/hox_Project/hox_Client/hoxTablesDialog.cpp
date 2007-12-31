@@ -34,7 +34,8 @@
 enum
 {
     ID_JOIN_TABLE =  100,
-    ID_NEW_TABLE
+    ID_NEW_TABLE,
+	ID_REFRESH_LIST
 };
 
 // ----------------------------------------------------------------------------
@@ -43,6 +44,7 @@ enum
 BEGIN_EVENT_TABLE(hoxTablesDialog, wxDialog)
     EVT_BUTTON(ID_JOIN_TABLE, hoxTablesDialog::OnButtonJoin)
     EVT_BUTTON(ID_NEW_TABLE, hoxTablesDialog::OnButtonNew)
+	EVT_BUTTON(ID_REFRESH_LIST, hoxTablesDialog::OnButtonRefresh)
 END_EVENT_TABLE()
 
 //-----------------------------------------------------------------------------
@@ -58,7 +60,7 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*       parent,
 		           wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
         , m_selectedCommand( COMMAND_ID_UNKNOWN )
 {
-    wxBoxSizer *topsizer = new wxBoxSizer( wxVERTICAL );
+    wxBoxSizer* topSizer = new wxBoxSizer( wxVERTICAL );
 
     m_tablesListBox = new wxListBox(this, wxID_ANY);
     wxString item;
@@ -85,7 +87,7 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*       parent,
         m_tablesListBox->SetSelection( 0 );
     }
 
-    topsizer->Add( m_tablesListBox,
+    topSizer->Add( m_tablesListBox,
          1,            // make vertically stretchable
          wxEXPAND |    // make horizontally stretchable
          wxALL,        //   and make border all around
@@ -93,27 +95,35 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*       parent,
 
     /* Buttons... */
 
-    wxBoxSizer *buttonsizer = new wxBoxSizer( wxHORIZONTAL );
+    wxBoxSizer* buttonSizer = new wxBoxSizer( wxHORIZONTAL );
 
-    buttonsizer->Add( new wxButton(this, ID_NEW_TABLE, _("&New Table")),
+    buttonSizer->Add( 
+		new wxButton(this, ID_REFRESH_LIST, _("&Refresh")),
         0,                // make vertically unstretchable
         wxALIGN_CENTER ); // no border and centre horizontally);
 
-    buttonsizer->AddSpacer(30);
-
-    buttonsizer->Add( new wxButton(this, ID_JOIN_TABLE, _("&Join Table")),
+    buttonSizer->Add( 
+		new wxButton(this, ID_NEW_TABLE, _("&New Table")),
         0,                // make vertically unstretchable
         wxALIGN_CENTER ); // no border and centre horizontally);
 
-    buttonsizer->Add( new wxButton(this, wxID_CANCEL, _("&Close")),
+    buttonSizer->AddSpacer(30);
+
+    buttonSizer->Add( 
+		new wxButton(this, ID_JOIN_TABLE, _("&Join Table")),
         0,                // make vertically unstretchable
         wxALIGN_CENTER ); // no border and centre horizontally);
 
-    topsizer->Add(buttonsizer, 
+    buttonSizer->Add( 
+		new wxButton(this, wxID_CANCEL, _("&Close")),
         0,                // make vertically unstretchable
         wxALIGN_CENTER ); // no border and centre horizontally);
 
-    SetSizer( topsizer );      // use the sizer for layout
+    topSizer->Add(buttonSizer, 
+        0,                // make vertically unstretchable
+        wxALIGN_CENTER ); // no border and centre horizontally);
+
+    SetSizer( topSizer );      // use the sizer for layout
 }
 
 void 
@@ -131,17 +141,22 @@ hoxTablesDialog::OnButtonJoin(wxCommandEvent& event)
     }
 
     m_selectedCommand = COMMAND_ID_JOIN;
-    wxLogDebug(wxString::Format("%s: Table-Id [%s] is selected to JOIN.", FNAME, m_selectId.c_str()));
+    wxLogDebug("%s: Table-Id [%s] is selected to JOIN.", FNAME, m_selectId.c_str());
     Close();
 }
 
 void 
 hoxTablesDialog::OnButtonNew(wxCommandEvent& event)
 {
-    wxLogDebug("Return [NEW] as the selected command to the caller.");
     m_selectedCommand = COMMAND_ID_NEW;
     Close();
 }
 
+void 
+hoxTablesDialog::OnButtonRefresh(wxCommandEvent& event)
+{
+    m_selectedCommand = COMMAND_ID_REFRESH;
+    Close();
+}
 
 /************************* END OF FILE ***************************************/
