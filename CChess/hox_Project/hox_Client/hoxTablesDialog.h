@@ -42,7 +42,8 @@ public:
     {
         COMMAND_ID_UNKNOWN = -1,
         COMMAND_ID_JOIN,
-        COMMAND_ID_NEW
+        COMMAND_ID_NEW,
+		COMMAND_ID_REFRESH
     };
 
     hoxTablesDialog( wxWindow*                      parent, 
@@ -52,6 +53,7 @@ public:
 
     void OnButtonJoin(wxCommandEvent& event);
     void OnButtonNew(wxCommandEvent& event);
+	void OnButtonRefresh(wxCommandEvent& event);
 
     CommandId GetSelectedCommand() const { return m_selectedCommand; }
     wxString GetSelectedId() const { return m_selectId; }
