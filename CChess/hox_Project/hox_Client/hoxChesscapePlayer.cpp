@@ -369,7 +369,9 @@ hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
 				break;
 
 			case 1: /* Group: Public / Private */
-				tableInfo.status = (token == "0" ? 0 : 1); 
+				tableInfo.group = (  token == "0" 
+					               ? hoxGAME_GROUP_PUBLIC 
+								   : hoxGAME_GROUP_PRIVATE ); 
 				break;
 
 			case 2: /* Timer symbol 'T' */
@@ -388,7 +390,11 @@ hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
 			case 5: /* Table-type: Rated / Nonrated / Solo-Black / Solo-Red */
 				if      ( token == "0" ) tableInfo.gameType = hoxGAME_TYPE_RATED;
 				else if ( token == "1" ) tableInfo.gameType = hoxGAME_TYPE_NONRATED;
-				else if ( token == "5" || token == "8" ) tableInfo.gameType = hoxGAME_TYPE_SOLO;
+				else if ( token == "4"  /* This is the Depth (level of difficulty) */
+					   || token == "5"
+		               || token == "6"
+					   || token == "7"
+					   || token == "8" ) tableInfo.gameType = hoxGAME_TYPE_SOLO;
 				else /* unknown */       tableInfo.gameType = hoxGAME_TYPE_UNKNOWN;
 				break;
 
@@ -400,6 +406,7 @@ hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
 				wxStringTokenizer tkz( playersInfo, delims/*, wxTOKEN_STRTOK*/ );
 				int pPosition = 0;
 				wxString ptoken;
+				long score;
 
 				/* Special case: Check for the case in which the RED player is empty. */
 				if ( !playersInfo.empty() && playersInfo[0] == '0x20' )
@@ -415,9 +422,28 @@ hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
 					switch (pPosition)
 					{
 						case 0:	tableInfo.redId      = token; break;
-						case 1:	tableInfo.redScore   = token; break;
+						case 1:
+							if ( !token.empty() && ! token.ToLong( &score ) ) // not a number?
+							{
+								// The current token must be a part of the player's Id.
+								tableInfo.redId += " " + token;
+								--pPosition;
+								break;
+							}
+							tableInfo.redScore   = token; 
+							
+							break;
 						case 2:	tableInfo.blackId    = token; break;
-						case 3:	tableInfo.blackScore = token; break;
+						case 3:	
+							if ( !token.empty() && ! token.ToLong( &score ) ) // not a number?
+							{
+								// The current token must be a part of the player's Id.
+								tableInfo.blackId += " " + token;
+								--pPosition;
+								break;
+							}
+							tableInfo.blackScore = token; 
+							break;
 						default:                              break;
 					}
 					++pPosition;

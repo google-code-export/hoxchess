@@ -49,6 +49,7 @@
 #define __INCLUDED_MY_APP_H_
 
 #include <wx/wx.h>
+#include <wx/config.h>
 #include "hoxTypes.h"
 #include "hoxSite.h"
 #include "MyFrame.h"
@@ -93,8 +94,14 @@ public:
 	void OnCloseReady_FromSite( wxCommandEvent&  event ); 
 
     MyFrame*       GetFrame() const { return m_frame; }
+    wxConfig*      GetConfig() const { return m_config; }
+
+	bool GetDefaultFrameLayout( wxPoint& position, wxSize& size );
+	bool SaveDefaultFrameLayout( const wxPoint& position, const wxSize& size );
 
 private:
+	wxConfig*           m_config;
+
     hoxLog*             m_log;
     wxLog*              m_oldLog;    // the previous log target (to be restored later)
 

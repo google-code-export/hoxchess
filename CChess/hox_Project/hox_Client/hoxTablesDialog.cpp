@@ -26,6 +26,7 @@
 
 #include "hoxTablesDialog.h"
 #include "hoxUtility.h"
+#include "MyApp.h"    // wxGetApp()
 
 // ----------------------------------------------------------------------------
 // constants
@@ -33,7 +34,8 @@
 
 enum
 {
-    ID_JOIN_TABLE =  100,
+	ID_CLOSE_DIALOG = wxID_CANCEL,
+    ID_JOIN_TABLE   =  100,
     ID_NEW_TABLE,
 	ID_REFRESH_LIST
 };
@@ -45,18 +47,14 @@ BEGIN_EVENT_TABLE(hoxTablesDialog, wxDialog)
     EVT_BUTTON(ID_JOIN_TABLE, hoxTablesDialog::OnButtonJoin)
     EVT_BUTTON(ID_NEW_TABLE, hoxTablesDialog::OnButtonNew)
 	EVT_BUTTON(ID_REFRESH_LIST, hoxTablesDialog::OnButtonRefresh)
-
-	EVT_MOVE(hoxTablesDialog::OnMove)
-	EVT_SIZE(hoxTablesDialog::OnSize)
+	EVT_BUTTON(ID_CLOSE_DIALOG, hoxTablesDialog::OnButtonClose)
+	
+	EVT_CLOSE(hoxTablesDialog::OnClose)
 END_EVENT_TABLE()
 
 //-----------------------------------------------------------------------------
 // hoxTablesDialog
 //-----------------------------------------------------------------------------
-
-/* Initialize class-member variables */
-wxPoint hoxTablesDialog::s_lastPosition(-1, -1);
-wxSize  hoxTablesDialog::s_lastSize(0, 0);
 
 int wxCALLBACK MyCompareFunction( long item1, 
 								  long item2, 
@@ -91,6 +89,7 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*       parent,
         "Table",
         "Group",
         "Timer",
+		"Free",  // or Increment
 		"Type",
 		"Red Player",
 		"Black Player"
@@ -104,25 +103,36 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*       parent,
 	}
 
 	long     itemIndex = 0;
-	wxString redId;
-	wxString blackId;
+	wxString groupInfo;
+	wxString redInfo;
+	wxString blackInfo;
 
 	for ( hoxNetworkTableInfoList::const_iterator it = tableList.begin(); 
 												  it != tableList.end(); 
 												++it )
 	{
-		redId   = (it->redId.empty()   ? "0" : it->redId );
-		blackId = (it->blackId.empty() ? "0" : it->blackId );
+		groupInfo = ( it->group == hoxGAME_GROUP_PUBLIC
+			         ? "Public" 
+					 : "Private" );
+
+		redInfo = ( it->redId.empty()
+		           ? "*"
+		           : it->redId + " (" << it->redScore << ")" );
+
+		blackInfo = ( it->blackId.empty()
+		           ? "*"
+		           : it->blackId + " (" << it->blackScore << ")" );
 
 		colIndex = 0;
 		itemIndex = m_listCtrlTables->InsertItem(itemIndex, wxString::Format("#%s", it->id) );
 		m_listCtrlTables->SetItemData( itemIndex, ::atoi( it->id.c_str() ) );
 
-		m_listCtrlTables->SetItem(itemIndex, ++colIndex, wxString::Format("%d", it->status));
+		m_listCtrlTables->SetItem(itemIndex, ++colIndex, groupInfo);
 		m_listCtrlTables->SetItem(itemIndex, ++colIndex, hoxUtility::FormatTime(it->initialTime.nGame));
+		m_listCtrlTables->SetItem(itemIndex, ++colIndex, hoxUtility::FormatTime(it->initialTime.nFree));
 		m_listCtrlTables->SetItem(itemIndex, ++colIndex, hoxUtility::GameTypeToString(it->gameType));
-		m_listCtrlTables->SetItem(itemIndex, ++colIndex, (redId << " (" << it->redScore << ")") );
-		m_listCtrlTables->SetItem(itemIndex, ++colIndex, (blackId << " (" << it->blackScore << ")") );
+		m_listCtrlTables->SetItem(itemIndex, ++colIndex, redInfo );
+		m_listCtrlTables->SetItem(itemIndex, ++colIndex, blackInfo );
 		
 		++itemIndex;
 	}
@@ -174,7 +184,7 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*       parent,
 		wxSizerFlags().Align(wxALIGN_CENTER));
 
     buttonSizer->Add( 
-		new wxButton(this, wxID_CANCEL, _("&Close")),
+		new wxButton(this, ID_CLOSE_DIALOG, _("&Close")),
 		wxSizerFlags().Align(wxALIGN_CENTER));
 
     topSizer->Add(
@@ -185,14 +195,13 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*       parent,
 
 	/* Use the last Position and Size, if available. */
 
-	if ( hoxTablesDialog::s_lastPosition.x >= 0 )
-	{
-		this->SetPosition( hoxTablesDialog::s_lastPosition );
-	}
+	wxPoint lastPosition; 
+	wxSize  lastSize;
 
-	if ( hoxTablesDialog::s_lastSize.x > 0 )
+	if ( _GetDefaultLayout( lastPosition, lastSize ) )
 	{
-		this->SetSize( hoxTablesDialog::s_lastSize );
+		this->SetPosition( lastPosition );
+		this->SetSize( lastSize );
 	}
 }
 
@@ -235,17 +244,61 @@ hoxTablesDialog::OnButtonRefresh(wxCommandEvent& event)
 }
 
 void 
-hoxTablesDialog::OnMove(wxMoveEvent& event)
+hoxTablesDialog::OnButtonClose(wxCommandEvent& event)
 {
-	hoxTablesDialog::s_lastPosition = event.GetPosition();
+    Close();
 	event.Skip(); // Let the search for the event handler should continue.
 }
 
 void 
-hoxTablesDialog::OnSize(wxSizeEvent& event)
+hoxTablesDialog::OnClose(wxCloseEvent& event)
 {
-	hoxTablesDialog::s_lastSize = event.GetSize();
+	wxPoint position = this->GetPosition(); 
+	wxSize  size     = this->GetSize();
+
+	_SaveDefaultLayout( position, size );
 	event.Skip(); // Let the search for the event handler should continue.
+}
+
+bool 
+hoxTablesDialog::_GetDefaultLayout( wxPoint& position, 
+								    wxSize&  size )
+{
+	position = wxPoint( -1, -1 );
+	size = wxSize( 0, 0 );
+
+	// Read the existing layout from Configuration.
+	wxConfig* config = wxGetApp().GetConfig();
+
+	if ( ! config->Read("/Layout/TablesDialog/position/x", &position.x) )
+		return false;  // not found.
+
+	if ( ! config->Read("/Layout/TablesDialog/position/y", &position.y) )
+		return false;  // not found.
+
+	if ( ! config->Read("/Layout/TablesDialog/size/x", &size.x) )
+		return false;  // not found.
+
+	if ( ! config->Read("/Layout/TablesDialog/size/y", &size.y) )
+		return false;  // not found.
+
+	return true;   // found old layout?
+}
+
+bool 
+hoxTablesDialog::_SaveDefaultLayout( const wxPoint& position, 
+									 const wxSize&  size )
+{
+	// Write the current layout to Configuration.
+	wxConfig* config = wxGetApp().GetConfig();
+
+	config->Write("/Layout/TablesDialog/position/x", position.x);
+	config->Write("/Layout/TablesDialog/position/y", position.y);
+
+	config->Write("/Layout/TablesDialog/size/x", size.x);
+	config->Write("/Layout/TablesDialog/size/y", size.y);
+
+	return true;
 }
 
 /************************* END OF FILE ***************************************/

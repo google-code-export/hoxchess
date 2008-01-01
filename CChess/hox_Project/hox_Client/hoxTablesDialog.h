@@ -38,11 +38,6 @@
 
 class hoxTablesDialog : public wxDialog
 {
-private:
-	/* Class members used to remember the list Position + Size */
-	static wxPoint s_lastPosition;
-	static wxSize  s_lastSize;
-
 public:
     enum CommandId
     {
@@ -60,12 +55,16 @@ public:
     void OnButtonJoin(wxCommandEvent& event);
     void OnButtonNew(wxCommandEvent& event);
 	void OnButtonRefresh(wxCommandEvent& event);
+	void OnButtonClose(wxCommandEvent& event);
 
-	void OnMove(wxMoveEvent& event);
-	void OnSize(wxSizeEvent& event);
+	void OnClose(wxCloseEvent& event);
 
     CommandId GetSelectedCommand() const { return m_selectedCommand; }
     wxString GetSelectedId() const { return m_selectId; }
+
+private:
+	bool _GetDefaultLayout( wxPoint& position, wxSize& size );
+	bool _SaveDefaultLayout( const wxPoint& position, const wxSize& size );
 
 private:
 	wxListCtrl* m_listCtrlTables;

@@ -123,7 +123,7 @@ hoxHttpConnection::_SendRequest( const wxString& request,
     get.SetTimeout( hoxSOCKET_HTTP_TIMEOUT );
 
     get.SetHeader("Content-type", "text/plain; charset=utf-8");
-    get.SetHeader("User-Agent", "HOXChess");
+    get.SetHeader("User-Agent", HOX_APP_NAME);
  
     /* This will wait until the user connects to the internet. 
      * It is important in case of dialup (or ADSL) connections.

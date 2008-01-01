@@ -248,7 +248,9 @@ hoxNetworkAPI::ParseNetworkTables( const wxString&          responseStr,
                 tableInfo.id = token; 
                 break;
             case 1: 
-                tableInfo.status = ::atoi( token.c_str() ); 
+				tableInfo.group = (  token == "1" 
+					               ? hoxGAME_GROUP_PUBLIC 
+								   : hoxGAME_GROUP_PRIVATE ); 
                 break;
             case 2: 
                 tableInfo.redId = token; 
@@ -567,8 +569,10 @@ hoxNetworkAPI::_ParseNetworkTableInfoString( const wxString&      tableInfoStr,
             case 0:   // Table-Id
                 tableInfo.id = token;
                 break;
-            case 1:    // Table-Status
-                tableInfo.status = ::atoi( token.c_str() );
+            case 1:    // Table-Group
+				tableInfo.group = (  token == "1" 
+					               ? hoxGAME_GROUP_PUBLIC 
+								   : hoxGAME_GROUP_PRIVATE ); 
                 break;
             case 2:    // RED-player's Id.
                 tableInfo.redId = token;

@@ -27,7 +27,7 @@
 #ifndef __INCLUDED_HOX_LOGIN_DIALOG_H_
 #define __INCLUDED_HOX_LOGIN_DIALOG_H_
 
-#include "wx/wx.h"
+#include <wx/wx.h>
 #include "hoxTypes.h"
 
 

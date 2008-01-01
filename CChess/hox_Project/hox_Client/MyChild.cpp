@@ -56,12 +56,15 @@ END_EVENT_TABLE()
 // MyChild
 // ---------------------------------------------------------------------------
 
-MyChild::MyChild(wxMDIParentFrame *parent, const wxString& title)
+MyChild::MyChild( wxMDIParentFrame* parent, 
+				  const wxString&   title,
+                  const wxPoint&    pos /* = wxDefaultPosition */,
+			      const wxSize&     size /* = wxDefaultSize */ )
        : wxMDIChildFrame( parent, 
                           wxID_ANY, 
                           title, 
-                          wxDefaultPosition, 
-                          wxSize(666, 586),
+                          pos, 
+                          size,
                           wxDEFAULT_FRAME_STYLE | wxNO_FULL_REPAINT_ON_RESIZE )
         , m_table( NULL )
 {
