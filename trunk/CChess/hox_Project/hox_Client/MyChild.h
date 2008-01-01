@@ -42,7 +42,10 @@ class hoxTable;
 class MyChild: public wxMDIChildFrame
 {
 public:
-    MyChild(wxMDIParentFrame *parent, const wxString& title);
+    MyChild( wxMDIParentFrame* parent, 
+		     const wxString&   title,
+			 const wxPoint&    pos = wxDefaultPosition,
+			 const wxSize&     size = wxDefaultSize);
     ~MyChild();
 
     void OnToggle(wxCommandEvent& event);

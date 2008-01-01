@@ -40,7 +40,7 @@
 /* UI-related IDs. */
 enum
 {
-    ID_BOARD_WALL_INPUT = (wxID_HIGHEST+1),
+    ID_BOARD_WALL_INPUT = hoxUI_ID_RANGE_BOARD,
 
     ID_HISTORY_BEGIN,
     ID_HISTORY_PREV,

@@ -46,7 +46,7 @@ enum
     MDI_QUIT = wxID_EXIT,
     MDI_ABOUT = wxID_ABOUT,
 
-    MDI_NEW_TABLE = wxID_HIGHEST,
+    MDI_NEW_TABLE = hoxUI_ID_RANGE_FRAME,
     MDI_CLOSE_TABLE,
 
     MDI_OPEN_SERVER,    // Open server
@@ -113,6 +113,7 @@ public:
     void OnCloseServer(wxCommandEvent& event);
     void OnConnectServer(wxCommandEvent& event);
     void OnListTables(wxCommandEvent& event);
+	void OnUpdateListTables(wxUpdateUIEvent& event);
 
     void OnShowServersWindow(wxCommandEvent& event);
     void OnUpdateServersWindow(wxUpdateUIEvent& event);
@@ -175,6 +176,12 @@ private:
     void     _CloseChildrenOfSite(hoxSite* site);
 
     hoxSite* _GetSelectedSite(hoxTable*& selectedTable) const;
+
+	bool _GetDefaultSitesLayout( int& sizeX );
+	bool _SaveDefaultSitesLayout( const int sizeX );
+
+	bool _GetDefaultTableLayout( wxSize& size );
+	bool _SaveDefaultTableLayout( const wxSize& size );
 
 public: /* Static API */
     static wxMenuBar* Create_Menu_Bar( bool hasTable = false );

@@ -66,18 +66,26 @@ MyApp::OnInit()
     // Add PNG image-type handler since our pieces use this format.
     wxImage::AddHandler( new wxPNGHandler );
 
-    // Get display size and position.
-    int x, y, width, height;
-    ::wxClientDisplayRect( &x, &y, &width, &height );
-    wxSize displaySize( width/2 + 200, height - 150 );
-    wxPoint displayPosition( x, y );
+	m_config = new wxConfig( HOX_APP_NAME );
+
+    // Get default size and position.
+	wxPoint defaultPosition;
+	wxSize  defaultSize;
+
+	if ( ! this->GetDefaultFrameLayout( defaultPosition, defaultSize ) ) // not exists?
+	{
+		int x, y, width, height;
+		::wxClientDisplayRect( &x, &y, &width, &height );
+		defaultPosition = wxPoint( x, y );
+		defaultSize     = wxSize( width/2 + 200, height - 150 );
+	}
 
     // Create the main application window
     m_frame = new MyFrame( NULL, 
                            wxID_ANY, 
-                           _T("HOXChess"),
-                           displayPosition,
-                           displaySize,
+                           HOX_APP_NAME,
+                           defaultPosition,
+                           defaultSize,
                            wxDEFAULT_FRAME_STYLE | wxHSCROLL | wxVSCROLL );
 
     SetTopWindow( m_frame );
@@ -116,6 +124,9 @@ MyApp::OnExit()
 	delete hoxSiteManager::GetInstance();
 
     //delete wxLog::SetActiveTarget( m_oldLog );
+
+	// The changes will be written back automatically
+	delete m_config;
 
     return 0;
 }
@@ -248,6 +259,47 @@ MyApp::OnCloseReady_FromSite( wxCommandEvent&  event )
         wxLogDebug("%s: Trigger a Frame's Close event.", FNAME);
         m_frame->Close();  // NOTE: Is there a better way?
 	}
+}
+
+bool 
+MyApp::GetDefaultFrameLayout( wxPoint& position, 
+	                          wxSize&  size )
+{
+	position = wxPoint( -1, -1 );
+	size = wxSize( 0, 0 );
+
+	// Read the existing layout from Configuration.
+	wxConfig* config = this->GetConfig();
+
+	if ( ! config->Read("/Layout/Frame/position/x", &position.x) )
+		return false;  // not found.
+
+	if ( ! config->Read("/Layout/Frame/position/y", &position.y) )
+		return false;  // not found.
+
+	if ( ! config->Read("/Layout/Frame/size/x", &size.x) )
+		return false;  // not found.
+
+	if ( ! config->Read("/Layout/Frame/size/y", &size.y) )
+		return false;  // not found.
+
+	return true;   // found old layout?
+}
+
+bool 
+MyApp::SaveDefaultFrameLayout( const wxPoint& position, 
+	                           const wxSize&  size )
+{
+	// Write the current layout to Configuration.
+	wxConfig* config = this->GetConfig();
+
+	config->Write("/Layout/Frame/position/x", position.x);
+	config->Write("/Layout/Frame/position/y", position.y);
+
+	config->Write("/Layout/Frame/size/x", size.x);
+	config->Write("/Layout/Frame/size/y", size.y);
+
+	return true;
 }
 
 /************************* END OF FILE ***************************************/

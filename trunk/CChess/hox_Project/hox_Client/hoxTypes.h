@@ -185,26 +185,26 @@ class hoxNetworkTableInfo
 {
   public:
     wxString      id;         // table-Id.
-    int           status;     // table's Status.
+	hoxGameGroup  group;      // Public / Private
     wxString      redId;      // RED player's Id.
     wxString      blackId;    // BLACK player's Id.
 	wxString      redScore;   // RED player's Score.
-	wxString      blackScore;   // BLACK player's Score.
-	hoxTimeInfo   initialTime;  // The initial allowed Game-Time.
+	wxString      blackScore;  // BLACK player's Score.
+	hoxTimeInfo   initialTime; // The initial allowed Game-Time.
 	hoxTimeInfo   blackTime;
 	hoxTimeInfo   redTime;
-	hoxGameType   gameType;  // Rated/Unrated/Solo
+	hoxGameType   gameType;    // Rated / Unrated / Solo
 
 	hoxNetworkTableInfo() 
-		: status(0)
+		: group(hoxGAME_GROUP_PUBLIC)
 	    , gameType( hoxGAME_TYPE_UNKNOWN ) {}
 	hoxNetworkTableInfo(const wxString& a_id) 
-		: status(0)
+		: group(hoxGAME_GROUP_PUBLIC)
 	    , gameType( hoxGAME_TYPE_UNKNOWN ) { id = a_id; }
 	void Clear()
 		{
 			id = "";
-			status = 0;
+			group = hoxGAME_GROUP_PUBLIC;
 			redId = "";
 			blackId = "";
 			redScore = "";

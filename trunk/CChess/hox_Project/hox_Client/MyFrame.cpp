@@ -40,6 +40,7 @@
 #include "bitmaps/help.xpm"
 #include "bitmaps/quit.xpm"
 #include "bitmaps/delete.xpm"
+#include "bitmaps/folder_open.xpm"
 
 IMPLEMENT_DYNAMIC_CLASS(MyFrame, wxMDIParentFrame)
 
@@ -49,8 +50,6 @@ DEFINE_EVENT_TYPE(hoxEVT_FRAME_LOG_MSG)
 // ----------------------------------------------------------------------------
 // constants
 // ----------------------------------------------------------------------------
-
-#define hoxVERSION_STRING  "0.3.0.0"
 
 BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
     EVT_MENU(MDI_ABOUT, MyFrame::OnAbout)
@@ -63,6 +62,7 @@ BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
     EVT_MENU(MDI_CLOSE_SERVER, MyFrame::OnCloseServer)
     EVT_MENU(MDI_CONNECT_SERVER, MyFrame::OnConnectServer)
     EVT_MENU(MDI_LIST_TABLES, MyFrame::OnListTables)
+	EVT_UPDATE_UI(MDI_LIST_TABLES, MyFrame::OnUpdateListTables)
 
     EVT_MENU(MDI_SHOW_SERVERS_WINDOW, MyFrame::OnShowServersWindow)
     EVT_UPDATE_UI(MDI_SHOW_SERVERS_WINDOW, MyFrame::OnUpdateServersWindow)
@@ -100,16 +100,23 @@ MyFrame::MyFrame( wxWindow*        parent,
        : wxMDIParentFrame( parent, id, title, pos, size, style )
 {
     const char* FNAME = "MyFrame::MyFrame";
-
     wxLogDebug("%s: ENTER.", FNAME);
 
     SetIcon( wxICON(hoxchess) );
 
+	int defaultSizeX;
+	if ( ! _GetDefaultSitesLayout( defaultSizeX ) ) // not found?
+	{
+		defaultSizeX = 200;
+	}
+
     // A window to the left of the client window
-    m_sitesWindow = new wxSashLayoutWindow(this, ID_WINDOW_SITES,
-                               wxDefaultPosition, wxDefaultSize,
-                               wxNO_BORDER | wxSW_3D | wxCLIP_CHILDREN);
-    m_sitesWindow->SetDefaultSize(wxSize(200, -1));
+    m_sitesWindow = new wxSashLayoutWindow( this, 
+		                                    ID_WINDOW_SITES,
+                                            wxDefaultPosition, 
+											wxDefaultSize,
+                                            wxNO_BORDER | wxSW_3D | wxCLIP_CHILDREN);
+    m_sitesWindow->SetDefaultSize(wxSize(defaultSizeX, -1));
     m_sitesWindow->SetOrientation(wxLAYOUT_VERTICAL);
     m_sitesWindow->SetAlignment(wxLAYOUT_LEFT);
     m_sitesWindow->SetBackgroundColour(wxColour(0, 0, 255));
@@ -117,9 +124,9 @@ MyFrame::MyFrame( wxWindow*        parent,
     m_sitesWindow->SetExtraBorderSize(2);
 
     m_sitesTree = new wxTreeCtrl( m_sitesWindow, 
-                                    ID_TREE_SITES,
-                                    wxDefaultPosition, wxDefaultSize,
-                                    wxTR_DEFAULT_STYLE | wxNO_BORDER);
+                                  ID_TREE_SITES,
+                                  wxDefaultPosition, wxDefaultSize,
+                                  wxTR_DEFAULT_STYLE | wxNO_BORDER);
 
     wxTreeItemId root = m_sitesTree->AddRoot( "Sites" );
     this->UpdateSiteTreeUI();
@@ -161,7 +168,7 @@ MyFrame::MyFrame( wxWindow*        parent,
     this->SetupMenu();
     this->SetupStatusBar();
 
-    wxLogStatus(_("HOXChess is ready."));
+	wxLogStatus( wxString::Format("%s is ready.", HOX_APP_NAME) );
 }
 
 MyFrame::~MyFrame()
@@ -191,6 +198,11 @@ MyFrame::OnClose(wxCloseEvent& event)
         return;
     }
 
+	/* Save the current layout. */
+	wxGetApp().SaveDefaultFrameLayout( this->GetPosition(), 
+		                               this->GetSize() );
+	this->_SaveDefaultSitesLayout( m_sitesWindow->GetSize().x );
+
     /* Forward this Close event to let the App close the entire system. */
     event.Skip();
 }
@@ -205,14 +217,15 @@ void
 MyFrame::OnAbout( wxCommandEvent& event )
 {
     wxMessageBox( wxString::Format(
-                    _("HOXChess %s\n"
+                    _("%s %s\n"
                       "\n"
                       "Author: Huy Phan (c) 2007\n"
                       "Email: huyphan@playxiangqi.com\n"
                       "\n"
                       "This application is powered by %s, running under %s.\n"
                       "\n"),
-                    hoxVERSION_STRING,
+				    HOX_APP_NAME,
+                    HOX_VERSION,
                     wxVERSION_STRING,
                     wxGetOsDescription().c_str()
                  ),
@@ -276,6 +289,18 @@ MyFrame::OnUpdateCloseTable(wxUpdateUIEvent& event)
     event.Enable( this->GetActiveChild() != NULL );
 }
 
+void 
+MyFrame::OnUpdateListTables(wxUpdateUIEvent& event)
+{
+    hoxTable* selectedTable = NULL;
+    hoxSite*  selectedSite = _GetSelectedSite(selectedTable);
+
+	bool bEnabled = (    selectedSite != NULL 
+		              && selectedSite->GetType() != hoxSITE_TYPE_LOCAL );
+
+    event.Enable( bEnabled );
+}
+
 bool
 MyFrame::OnChildClose( MyChild* child, 
                        hoxTable* table )
@@ -285,6 +310,9 @@ MyFrame::OnChildClose( MyChild* child,
     wxLogDebug("%s: ENTER.", FNAME);
 
     wxCHECK_MSG( table != NULL, true, "The table is NULL." );
+
+	/* Save the layout. */
+	_SaveDefaultTableLayout( child->GetSize() );
 
     m_nChildren--;
     table->OnClose_FromSystem();
@@ -389,7 +417,7 @@ void
 MyFrame::OnShowServersWindow( wxCommandEvent& event )
 {
     m_sitesWindow->Show( ! m_sitesWindow->IsShown() );
-    m_sitesWindow->SetDefaultSize(wxSize(200, -1));
+    //m_sitesWindow->SetDefaultSize(wxSize(200, -1));
 
     wxLayoutAlgorithm layout;
     layout.LayoutMDIFrame(this);
@@ -488,18 +516,22 @@ MyFrame::OnLogSashDrag(wxSashEvent& event)
 void 
 MyFrame::InitToolBar(wxToolBar* toolBar)
 {
-    wxBitmap bitmaps[8];
+	toolBar->AddTool( MDI_LIST_TABLES, _("List"), 
+		              wxBitmap(folder_open_xpm), _("List Tables"));
 
-    bitmaps[0] = wxBitmap( new_xpm );
-    bitmaps[1] = wxBitmap( delete_xpm );
-    bitmaps[2] = wxBitmap( help_xpm );
-    bitmaps[3] = wxBitmap( quit_xpm );
+    toolBar->AddTool( MDI_NEW_TABLE, _("New"), 
+		              wxBitmap(new_xpm), _("Open Table"));
 
-    toolBar->AddTool(MDI_NEW_TABLE, _T("New"), bitmaps[0], _("Open Table"));
-    toolBar->AddTool(MDI_CLOSE_TABLE, _("Close"), bitmaps[1], _("Close Table"));
+    toolBar->AddTool( MDI_CLOSE_TABLE, _("Close"), 
+		              wxBitmap(delete_xpm), _("Close Table"));
+
     toolBar->AddSeparator();
-    toolBar->AddTool(MDI_ABOUT, _("About"), bitmaps[2], _("Help"));
-    toolBar->AddTool(MDI_QUIT, _("Exit"), bitmaps[3], _("Quit the Program"));
+
+    toolBar->AddTool( MDI_ABOUT, _("About"), 
+		              wxBitmap(help_xpm), _("Help"));
+
+    toolBar->AddTool( MDI_QUIT, _("Exit"), 
+		              wxBitmap(quit_xpm), _("Quit the Program"));
 
     toolBar->Realize();
 }
@@ -521,6 +553,7 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
     file_menu->Append(MDI_CONNECT_SERVER, _("Connect Server...\tCtrl-L"), _("Connect to remote server"));
     file_menu->Append(MDI_CLOSE_SERVER, _("&Close Server\tCtrl-D"), _("Close the server"));
     file_menu->AppendSeparator();
+	file_menu->Append(MDI_LIST_TABLES, _("List &Tables\tCtrl-T"), _("Get the list of tables"));
     file_menu->Append(MDI_NEW_TABLE, _("&New Table\tCtrl-N"), _("Create New Table"));
     file_menu->Append(MDI_CLOSE_TABLE, _("&Close Table\tCtrl-C"), _("Close Table"));
     file_menu->AppendSeparator();
@@ -614,9 +647,9 @@ MyFrame::OnContextMenu( wxContextMenuEvent& event )
             if ( remoteSite->IsConnected() )
             {
                 menu.Append(MDI_CLOSE_SERVER, _("&Disconnect Server\tCtrl-D"), 
-                                                   _("Disconnect from remote server"));
-                menu.Append(MDI_LIST_TABLES, _("&Query for Tables\tCtrl-Q"), 
-                                                   _("Query for the list of tables"));
+                                              _("Disconnect from remote server"));
+                menu.Append(MDI_LIST_TABLES, _("List &Tables\tCtrl-T"), 
+                                             _("Get the list of tables"));
                 remoteItemsInserted = true;
             }
 
@@ -660,7 +693,24 @@ MyFrame::CreateFrameForTable( wxString& requestTableId )
     /* Generate the Window's title for the new Table. */
     windowTitle.Printf("Table #%s", requestTableId.c_str());
 
-    childFrame = new MyChild( this, windowTitle );
+	/* Load the default layout. */
+	wxPoint defaultPosition = wxDefaultPosition;
+	wxSize  defaultSize;
+
+	if ( m_children.empty() )
+	{
+		defaultPosition = wxPoint(0, 0);
+	}
+
+	if ( ! _GetDefaultTableLayout( defaultSize ) ) // not exist?
+	{
+		defaultSize = wxSize(666, 586);
+	}
+
+    childFrame = new MyChild( this, 
+		                      windowTitle, 
+		                      defaultPosition, 
+							  defaultSize );
     m_children.push_back( childFrame );
 
     return childFrame;
@@ -774,6 +824,60 @@ MyFrame::_GetSelectedSite(hoxTable*& selectedTable) const
     }
 
     return selectedSite;
+}
+
+bool 
+MyFrame::_GetDefaultSitesLayout( int& sizeX )
+{
+	sizeX = 0;
+
+	// Read the existing layout from Configuration.
+	wxConfig* config = wxGetApp().GetConfig();
+
+	if ( ! config->Read("/Layout/Sites/size/x", &sizeX) )
+		return false;  // not found.
+
+	return true;   // found old layout?
+}
+
+bool 
+MyFrame::_SaveDefaultSitesLayout( const int sizeX )
+{
+	// Write the current layout to Configuration.
+	wxConfig* config = wxGetApp().GetConfig();
+
+	config->Write("/Layout/Sites/size/x", sizeX);
+
+	return true;
+}
+
+bool 
+MyFrame::_GetDefaultTableLayout( wxSize& size )
+{
+	size = wxSize( 0, 0 );
+
+	// Read the existing layout from Configuration.
+	wxConfig* config = wxGetApp().GetConfig();
+
+	if ( ! config->Read("/Layout/Table/size/x", &size.x) )
+		return false;  // not found.
+
+	if ( ! config->Read("/Layout/Table/size/y", &size.y) )
+		return false;  // not found.
+
+	return true;   // found old layout?
+}
+
+bool 
+MyFrame::_SaveDefaultTableLayout( const wxSize& size )
+{
+	// Write the current layout to Configuration.
+	wxConfig* config = wxGetApp().GetConfig();
+
+	config->Write("/Layout/Table/size/x", size.x);
+	config->Write("/Layout/Table/size/y", size.y);
+
+	return true;
 }
 
 /************************* END OF FILE ***************************************/

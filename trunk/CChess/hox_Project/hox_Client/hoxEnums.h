@@ -28,12 +28,20 @@
 #ifndef __INCLUDED_HOX_ENUMS_H_
 #define __INCLUDED_HOX_ENUMS_H_
 
+#include <wx/wx.h>
+
 /**
  * @file hoxEnums.h
  *
  * The file contains all basic constants commonly used through out 
  * the project.
  */
+
+/**
+ * The Application's Name and Version.
+ */
+#define HOX_APP_NAME  "HOXChess"
+#define HOX_VERSION   "0.3.0.0"
 
 /**
  * The default path of all the pieces' images.
@@ -147,7 +155,16 @@ enum hoxPlayerType
 };
 
 /**
- * Game's type.
+ * Game's Group.
+ */
+enum hoxGameGroup
+{
+    hoxGAME_GROUP_PUBLIC,
+    hoxGAME_GROUP_PRIVATE
+};
+
+/**
+ * Game's Type.
  */
 enum hoxGameType
 {
@@ -300,6 +317,16 @@ enum hoxActionType
 
 	hoxACTION_TYPE_OFFER_DRAW
 };
+
+/**
+ * Ranges for UI_IDs (in order to avoid conflict.)
+ */
+enum hoxUI_ID_Range
+{
+    hoxUI_ID_RANGE_FRAME = wxID_HIGHEST + 100,
+	hoxUI_ID_RANGE_BOARD = wxID_HIGHEST + 200
+};
+
 
 /**
  * Other constants.

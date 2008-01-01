@@ -26,6 +26,7 @@
 
 #include "hoxLoginDialog.h"
 #include "hoxUtility.h"
+#include "MyApp.h"    // wxGetApp()
 
 // ----------------------------------------------------------------------------
 // Constants
@@ -46,6 +47,13 @@ enum SiteTypeSelection
     SITETYPE_SELECTION_CHESSCAPE    = 0,
     SITETYPE_SELECTION_HOXCHESS     = 1,
     SITETYPE_SELECTION_HTTP_POLLING = 2
+};
+
+static wxString s_siteTypes[] =
+{
+    "Chesscape.com",
+    "HOXChess Server",
+    "HTTP Polling (experiment!!!)"
 };
 
 // ----------------------------------------------------------------------------
@@ -73,20 +81,13 @@ hoxLoginDialog::hoxLoginDialog( wxWindow*       parent,
 
     /* Site-Type. */
 
-    wxString siteTypes[] =
-    {
-        "Chesscape.com",
-        "HOXChess Server",
-        "HTTP Polling (experiment!!!)"
-    };
-
     m_radioSiteTypes = new wxRadioBox( this, 
 									   wxID_ANY, 
 									   _("Site T&ype"), 
 									   wxPoint(10,10), 
 									   wxDefaultSize, 
-									   WXSIZEOF(siteTypes), 
-									   siteTypes, 
+									   WXSIZEOF(s_siteTypes), 
+									   s_siteTypes, 
 									   1, 
 									   wxRA_SPECIFY_COLS );
     topSizer->Add( 
@@ -139,6 +140,14 @@ hoxLoginDialog::hoxLoginDialog( wxWindow*       parent,
 
 	/* User-Login. */
 
+	// Read existing login-info from Configuration.
+	wxConfig* config = wxGetApp().GetConfig();	
+	wxString userName;
+	wxString password;
+
+	config->Read("/Sites/Chesscape/username", &userName);
+	config->Read("/Sites/Chesscape/password", &password);
+
 	wxBoxSizer* loginSizer = new wxStaticBoxSizer(
 		new wxStaticBox(this, wxID_ANY, _T("Login &Info")), 
 		wxHORIZONTAL );
@@ -146,14 +155,14 @@ hoxLoginDialog::hoxLoginDialog( wxWindow*       parent,
     m_textCtrlUserName = new wxTextCtrl( 
 		this, 
 		wxID_ANY,
-        "",
+        userName,   // default value
         wxDefaultPosition,
         wxSize(130, wxDefaultCoord ));
 
 	m_textCtrlPassword = new wxTextCtrl(
 		this, 
 		wxID_ANY,
-        "",
+        password, // default value
         wxDefaultPosition,
         wxSize(100, wxDefaultCoord ),
 		wxTE_PASSWORD);
@@ -242,9 +251,16 @@ hoxLoginDialog::OnButtonLogin(wxCommandEvent& event)
 	m_selectedUserName = m_textCtrlUserName->GetValue();
 	m_selectedPassword = m_textCtrlPassword->GetValue();
 
-	/* Finally, return the LOGIN command. */
+	/* Return the LOGIN command. */
 
     m_selectedCommand = COMMAND_ID_LOGIN;
+
+	/* Save username + password for next-time use */
+	wxConfig* config = wxGetApp().GetConfig();	
+	config->Write("/Sites/Chesscape/username", m_selectedUserName);
+	config->Write("/Sites/Chesscape/password", m_selectedPassword);
+
+
     Close();
 }
 
