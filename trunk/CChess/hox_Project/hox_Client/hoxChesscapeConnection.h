@@ -68,7 +68,7 @@ private:
     hoxResult   _UpdateStatus(const wxString& playerStatus);
 	hoxResult   _Leave();
 	hoxResult   _Move(hoxCommand& command);
-    hoxResult   _New(wxString& responseStr);
+    hoxResult   _New();
 	hoxResult   _WallMessage(hoxCommand& command);
 	hoxResult   _Draw( const wxString& drawResponse );
 

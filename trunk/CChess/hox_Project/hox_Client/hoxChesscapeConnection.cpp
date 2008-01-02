@@ -135,11 +135,6 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
             break;
         }
 
-        //case hoxREQUEST_TYPE_OUT_DATA:
-        //    result = hoxNetworkAPI::SendOutData( m_pSClient, 
-        //                                         request->content );
-        //    break;
-
         case hoxREQUEST_TYPE_CONNECT:
 		{
 			const wxString login = request->parameters["pid"]; 
@@ -199,10 +194,7 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
 
         case hoxREQUEST_TYPE_NEW:
 		{
-            // We disable input events until we are done...
-            hoxNetworkAPI::SocketInputLock socketLock( m_pSClient );
-
-            result = _New( response->content );
+            result = _New();
             break;
 		}
 
@@ -502,7 +494,7 @@ hoxChesscapeConnection::_Leave()
 }
 
 hoxResult
-hoxChesscapeConnection::_New( wxString& responseStr )
+hoxChesscapeConnection::_New()
 {
     const char* FNAME = "hoxChesscapeConnection::_New";
 
@@ -530,17 +522,6 @@ hoxChesscapeConnection::_New( wxString& responseStr )
 			FNAME, cmdRequest.c_str(), nWrite, requestSize, 
 			hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
 		return hoxRESULT_ERR;
-	}
-
-	////////////////////////////
-	// Read the response.
-	{
-        hoxResult result = this->_ReadLine( m_pSClient, responseStr );
-        if ( result != hoxRESULT_OK )
-        {
-            wxLogDebug("%s: *** WARN *** Failed to read incoming command.", FNAME);
-            //return hoxRESULT_ERR;
-        }
 	}
 
     return hoxRESULT_OK;

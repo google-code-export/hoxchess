@@ -502,11 +502,11 @@ hoxCoreBoard::_PointToPosition( const hoxPiece* piece,
     p4.y = p3.y; 
 
     wxSize tolerance(m_cellS / 3, m_cellS / 3);
-    wxRect  r1(p1, tolerance);
-    wxRect  r2(wxPoint(p2.x - tolerance.GetWidth(), p2.y), tolerance);
-    wxRect  r3(wxPoint(p3.x - tolerance.GetWidth(), p3.y - tolerance.GetHeight()), tolerance);
-    wxRect  r4(wxPoint(p4.x, p4.y - tolerance.GetHeight()), tolerance);
-  
+    wxRect  r1(p1 - tolerance, tolerance*2);
+	wxRect  r2(p2 - tolerance, tolerance*2);
+	wxRect  r3(p3 - tolerance, tolerance*2);
+	wxRect  r4(p4 - tolerance, tolerance*2);
+
     if ( r1.Contains(point) ) {
         pos.x = (p1.x - m_borderX) / m_cellS;
         pos.y = (p1.y - m_borderY) / m_cellS;

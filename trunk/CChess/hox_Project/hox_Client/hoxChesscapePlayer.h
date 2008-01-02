@@ -126,6 +126,9 @@ private:
 	wxString                         m_pendingRequestSeat;
 			/* The Seat (RED/BLACK) this player is requesting to play as. */
 
+	bool                             m_bRequestingNewTable;
+			/* Whether this Player is requesting for a NEW Table. */
+
 	bool                             m_bSentMyFirstMove;
 			/* Whether this Player has sent his first Move since JOINing the Table. */
 
