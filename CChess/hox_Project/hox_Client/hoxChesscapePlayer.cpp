@@ -58,6 +58,7 @@ hoxChesscapePlayer::hoxChesscapePlayer( const wxString& name,
                           hoxPlayerType   type,
                           int             score )
             : hoxLocalPlayer( name, type, score )
+			, m_bRequestingNewTable( false )
 			, m_bSentMyFirstMove( false )
 { 
     const char* FNAME = "hoxChesscapePlayer::hoxChesscapePlayer";
@@ -159,6 +160,16 @@ hoxChesscapePlayer::JoinNetworkTable( const wxString& tableId,
 hoxResult 
 hoxChesscapePlayer::OpenNewNetworkTable( wxEvtHandler*   sender )
 {
+	const char* FNAME = "hoxChesscapePlayer::OpenNewNetworkTable";
+
+	if ( m_bRequestingNewTable )
+	{
+		wxLogDebug("%: *** WARN *** A new Table is already being requested.", FNAME); 
+		return hoxRESULT_ERR;
+	}
+
+	m_bRequestingNewTable = true;
+
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_NEW, sender );
     this->AddRequestToConnection( request );
 
@@ -1066,10 +1077,32 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 	const char* FNAME = "hoxChesscapePlayer::_OnTableUpdated";
 	hoxResult result;
 
+	/* If this Player is requesting for a NEW table, then check if the input
+	 * table is a "NEW-EMPTY" table.
+	 */
+	if (   m_bRequestingNewTable
+		&& tableInfo.redId.empty() && tableInfo.blackId.empty() )
+	{
+		wxLogDebug("%s: Received table [%s] as this Player's NEW table.", 
+			FNAME, tableInfo.id.c_str());
+		m_bRequestingNewTable = false;
+
+		// Inform the Site of the response.
+		hoxRequestType requestType = hoxREQUEST_TYPE_NEW;
+		hoxResponse_AutoPtr response( new hoxResponse(requestType) );
+		response->eventObject = new hoxNetworkTableInfo( tableInfo ); // return a cloned.
+
+		wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, requestType );
+		response->code = hoxRESULT_OK;
+		event.SetEventObject( response.release() );  // Caller will de-allocate.
+		wxPostEvent( this->GetSite()->GetResponseHandler(), event );
+
+		return;  // *** Done.
+	}
+
 	/* Check if this is MY table. */
 
 	hoxPieceColor myCurrentColor = hoxPIECE_COLOR_NONE;
-	hoxPieceColor myNewColor = hoxPIECE_COLOR_NONE;
 	hoxSite*       site = this->GetSite();
 	hoxTable*      table = NULL;
 	const wxString tableId = tableInfo.id;
@@ -1225,38 +1258,21 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 					FNAME, tableId.c_str());
 				response->sender = NULL;  // TODO: Temporarily clear out sender to skip sending...
 			}
-
 			break;
 		}
 
 		case hoxREQUEST_TYPE_NEW:
 		{
 			this->DecrementOutstandingRequests();
-			wxString command;
-			wxString paramsStr;
 
-			if ( ! _ParseIncomingCommand( response->content, command, paramsStr ) ) // failed?
+			/* NOTE: This command is not done yet. 
+			 * We still need to wait for server's response about the NEW.
+			 */
+			if ( response->sender && response->sender != this )
 			{
-				wxLogDebug("%s: *** WARN *** Failed to parse incoming command.", FNAME);
-				response->code = hoxRESULT_ERR;
-				response->content = "Failed to parse incoming command.";
-				break;
-			}
-
-			if ( command != "update" )
-			{
-				wxLogDebug("%s: *** WARN *** NEW (table) should have return 'update', not [%s].", 
-					FNAME, command.c_str());
-				response->code = hoxRESULT_ERR;
-				response->content.Printf("NEW (table) returns command = [%s].", command.c_str());
-			}
-			else
-			{
-				hoxNetworkTableInfo* pTableInfo = new hoxNetworkTableInfo; 
-				this->_HandleCmd_Update( paramsStr, pTableInfo );
-				response->code = hoxRESULT_OK;
-				response->content.Printf("NEW (table) is OK. New table-Id = [%s].", pTableInfo->id.c_str());
-				response->eventObject = pTableInfo;
+				wxLogDebug("%s: Delay informing sender about NEW 's response for a new table.", 
+					FNAME);
+				response->sender = NULL;  // TODO: Temporarily clear out sender to skip sending...
 			}
 			break;
 		}
