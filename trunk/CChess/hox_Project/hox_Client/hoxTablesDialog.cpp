@@ -65,12 +65,13 @@ int wxCALLBACK MyCompareFunction( long item1,
     return 0;
 }
 
-hoxTablesDialog::hoxTablesDialog( wxWindow*       parent, 
-                                  wxWindowID      id, 
-                                  const wxString& title,
-                                  const hoxNetworkTableInfoList& tableList)
-        : wxDialog(parent, id, title, wxDefaultPosition, wxDefaultSize, 
-		           wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
+hoxTablesDialog::hoxTablesDialog( wxWindow*                      parent, 
+                                  wxWindowID                     id, 
+                                  const wxString&                title,
+                                  const hoxNetworkTableInfoList& tableList,
+								  unsigned int                   actionFlags )
+        : wxDialog( parent, id, title, wxDefaultPosition, wxDefaultSize, 
+		            wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER )
         , m_selectedCommand( COMMAND_ID_UNKNOWN )
 {
     wxBoxSizer* topSizer = new wxBoxSizer( wxVERTICAL );
@@ -167,25 +168,30 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*       parent,
 
     /* Buttons... */
 
+	wxButton* buttonRefresh = new wxButton(this, ID_REFRESH_LIST, _("&Refresh"));
+	wxButton* buttonNew     = new wxButton(this, ID_NEW_TABLE,    _("&New Table"));
+	wxButton* buttonJoin    = new wxButton(this, ID_JOIN_TABLE,   _("&Join Table"));
+	wxButton* buttonClose   = new wxButton(this, ID_CLOSE_DIALOG, _("&Close"));
+
+	/* Disable certain buttons based on the input Action Flags. */
+	buttonNew->Enable(  (actionFlags & hoxSITE_ACTION_NEW)  != 0 );
+	buttonJoin->Enable( (actionFlags & hoxSITE_ACTION_JOIN) != 0 );
+
     wxBoxSizer* buttonSizer = new wxBoxSizer( wxHORIZONTAL );
 
-    buttonSizer->Add( 
-		new wxButton(this, ID_REFRESH_LIST, _("&Refresh")),
-		wxSizerFlags().Align(wxALIGN_CENTER));
+    buttonSizer->Add( buttonRefresh,
+		              wxSizerFlags().Align(wxALIGN_CENTER));
 
-    buttonSizer->Add( 
-		new wxButton(this, ID_NEW_TABLE, _("&New Table")),
-		wxSizerFlags().Align(wxALIGN_CENTER));
+    buttonSizer->Add( buttonNew,
+		              wxSizerFlags().Align(wxALIGN_CENTER));
 
     buttonSizer->AddSpacer(30);
 
-    buttonSizer->Add( 
-		new wxButton(this, ID_JOIN_TABLE, _("&Join Table")),
-		wxSizerFlags().Align(wxALIGN_CENTER));
+    buttonSizer->Add( buttonJoin,
+		              wxSizerFlags().Align(wxALIGN_CENTER));
 
-    buttonSizer->Add( 
-		new wxButton(this, ID_CLOSE_DIALOG, _("&Close")),
-		wxSizerFlags().Align(wxALIGN_CENTER));
+    buttonSizer->Add( buttonClose,
+		              wxSizerFlags().Align(wxALIGN_CENTER));
 
     topSizer->Add(
 		buttonSizer, 
