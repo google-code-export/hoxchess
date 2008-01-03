@@ -2,6 +2,18 @@
 
 _All releases can be found from_ [http://code.google.com/p/hoxchess/downloads/list this Downloads page]
 
+  * *January 03, 2008* 
+    * Released *HOXChess 0.3.0.0* of the _source_ code.
+    * The major change in this release is the ability to _connect to the free_ [http://www.chesscape.com Chesscape server]
+      * Support Join, Drawing, Resign (by closing the Table).
+      * Support Chat Message within a Table.
+      * Support Timer (both Game and Increment timers).
+      * Support Responding-to-Invite request.
+    * Other noticeable changes:
+      * Added a new Login Dialog.
+      * Redid the Tables Listing Dialog to make it user friendlier.
+      * Added Action-Buttons (*Draw*, *Join*) inside the _core_ Board.
+
   * *December 04, 2007* 
     * Released *HOXChess 0.2.0.0* of the _source_ code.
     * Here are some of the major changes:
