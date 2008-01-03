@@ -39,7 +39,7 @@ class hoxConnection;
 /* 
  * New player-event based on wxCommandEvent.
  */
-DECLARE_EVENT_TYPE(hoxEVT_PLAYER_JOIN_TABLE, wxID_ANY)  // TODO: Confused with existing commands.
+DECLARE_EVENT_TYPE(hoxEVT_PLAYER_JOIN_TABLE, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_DRAW_TABLE, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_NEW_MOVE, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_NEW_JOIN, wxID_ANY)

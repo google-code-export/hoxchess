@@ -216,7 +216,7 @@ public:
      * the GameOver event.
      *
      * @param player The Player who informs the event.
-     * @param message The message that are being sent from the network.
+     * @param gameStatus The game's status.
      */
     void OnGameOver_FromNetwork( hoxPlayer*    player,
                                  hoxGameStatus gameStatus );
