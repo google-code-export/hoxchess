@@ -274,10 +274,14 @@ MyFrame::OnUpdateNewTable(wxUpdateUIEvent& event)
     hoxTable* selectedTable = NULL;
     hoxSite* selectedSite = _GetSelectedSite(selectedTable);
 
-    if ( selectedSite != NULL 
+    if (   selectedSite != NULL 
 		&& selectedSite->GetType() != hoxSITE_TYPE_LOCAL )
 	{
-		enableMenu = true;
+		unsigned int actionFlags = selectedSite->GetCurrentActionFlags();
+		if ( (actionFlags & hoxSITE_ACTION_NEW) != 0 )
+		{
+			enableMenu = true;
+		}
 	}
 
     event.Enable( enableMenu );
@@ -610,24 +614,14 @@ MyFrame::OnContextMenu( wxContextMenuEvent& event )
     point = ScreenToClient(point);
     
     wxMenu menu;
-    bool serverItemsInserted = false;
-    bool remoteItemsInserted = false;
-    bool tableItemsInserted = false;
-
-	if ( hoxSiteManager::GetInstance()->GetLocalSite() == NULL )
-    {
-        menu.Append(MDI_OPEN_SERVER, _("&Open Server...\tCtrl-O"), 
-                                     _("Open server for remote access"));
-        serverItemsInserted = true;
-    }
 
     hoxTable* selectedTable = NULL;
     hoxSite* selectedSite = _GetSelectedSite(selectedTable);
 
     if ( selectedTable != NULL )
     {
-        menu.Append(MDI_CLOSE_TABLE, _("&Close Table\tCtrl-C"), _("Close Table"));
-        tableItemsInserted = true;
+        menu.Append(MDI_CLOSE_TABLE, _("&Close Table\tCtrl-C"), 
+			                         _("Close Table"));
     }
     else if ( selectedSite != NULL )
     {
@@ -638,33 +632,46 @@ MyFrame::OnContextMenu( wxContextMenuEvent& event )
             {
                 menu.Append(MDI_CLOSE_SERVER, _("&Close Server...\tCtrl-C"), 
                                               _("Close local server"));
-                serverItemsInserted = true;
             }
         }
         else /* Remote */
         {
             hoxRemoteSite* remoteSite = (hoxRemoteSite*) selectedSite;
-            if ( remoteSite->IsConnected() )
-            {
+			unsigned int actionFlags = remoteSite->GetCurrentActionFlags();
+
+			if ( (actionFlags & hoxSITE_ACTION_CONNECT) != 0 )
+			{
+				menu.Append(MDI_CONNECT_SERVER, _("Connect Remote Server...\tCtrl-L"), 
+					                            _("Connect to remote server"));
+			}
+			if ( (actionFlags & hoxSITE_ACTION_DISCONNECT) != 0 )
+			{
                 menu.Append(MDI_CLOSE_SERVER, _("&Disconnect Server\tCtrl-D"), 
                                               _("Disconnect from remote server"));
+			}
+			if ( (actionFlags & hoxSITE_ACTION_LIST) != 0 )
+			{
                 menu.Append(MDI_LIST_TABLES, _("List &Tables\tCtrl-T"), 
                                              _("Get the list of tables"));
-                remoteItemsInserted = true;
-            }
-
-            menu.Append(MDI_NEW_TABLE, _("&New Table\tCtrl-N"), _("Create New Table"));
+			}
+			if ( (actionFlags & hoxSITE_ACTION_NEW) != 0 )
+			{
+				menu.Append(MDI_NEW_TABLE, _("&New Table\tCtrl-N"), 
+					                       _("Create New Table"));
+			}
         }
     }
+	else
+	{
+		if ( hoxSiteManager::GetInstance()->GetLocalSite() == NULL )
+		{
+			menu.Append(MDI_OPEN_SERVER, _("&Open Server...\tCtrl-O"), 
+										 _("Open server for remote access"));
+		}
 
-    if ( ! tableItemsInserted )
-    {
-        if ( serverItemsInserted )
-            menu.AppendSeparator();
-
-        if ( !remoteItemsInserted )
-            menu.Append(MDI_CONNECT_SERVER, _("Connect Remote Server...\tCtrl-L"), _("Connect to remote server"));
-    }
+		menu.Append(MDI_CONNECT_SERVER, _("Connect Remote Server...\tCtrl-L"), 
+			                            _("Connect to remote server"));
+	}
 
     PopupMenu(&menu, point.x, point.y);
 }
