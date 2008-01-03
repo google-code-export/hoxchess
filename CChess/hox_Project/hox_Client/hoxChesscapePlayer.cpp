@@ -543,9 +543,9 @@ hoxChesscapePlayer::_RemoveTableFromList( const wxString& tableId ) const
 {
 	const char* FNAME = "hoxChesscapePlayer::_RemoveTableFromList";
 
-	for ( hoxNetworkTableInfoList::const_iterator it = m_networkTables.begin();
-		                                          it != m_networkTables.end(); 
-												++it )
+	for ( hoxNetworkTableInfoList::iterator it = m_networkTables.begin();
+		                                    it != m_networkTables.end(); 
+										  ++it )
 	{
 		if ( it->id == tableId )
 		{

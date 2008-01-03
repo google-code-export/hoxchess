@@ -8,6 +8,10 @@ hox_Client/MyFrame.cpp
 hox_Client/MyFrame.h
 hox_Client/hoxBoard.cpp
 hox_Client/hoxBoard.h
+hox_Client/hoxChesscapeConnection.cpp
+hox_Client/hoxChesscapeConnection.h
+hox_Client/hoxChesscapePlayer.cpp
+hox_Client/hoxChesscapePlayer.h
 hox_Client/hoxConnection.cpp
 hox_Client/hoxConnection.h
 hox_Client/hoxCoreBoard.cpp
@@ -22,6 +26,8 @@ hox_Client/hoxLocalPlayer.cpp
 hox_Client/hoxLocalPlayer.h
 hox_Client/hoxLog.cpp
 hox_Client/hoxLog.h
+hox_Client/hoxLoginDialog.cpp
+hox_Client/hoxLoginDialog.h
 hox_Client/hoxMyPlayer.cpp
 hox_Client/hoxMyPlayer.h
 hox_Client/hoxNaiveReferee.cpp
@@ -44,6 +50,8 @@ hox_Client/hoxRemotePlayer.cpp
 hox_Client/hoxRemotePlayer.h
 hox_Client/hoxServer.cpp
 hox_Client/hoxServer.h
+hox_Client/hoxSite.cpp
+hox_Client/hoxSite.h
 hox_Client/hoxSocketConnection.cpp
 hox_Client/hoxSocketConnection.h
 hox_Client/hoxSocketServer.cpp
