@@ -11,11 +11,14 @@ DEBUGFLAGS  = -g
 # Define our sources and object files
 SOURCES := \
 	hoxBoard.cpp \
+	hoxChesscapeConnection.cpp \
+	hoxChesscapePlayer.cpp \
 	hoxConnection.cpp \
 	hoxCoreBoard.cpp \
 	hoxHttpConnection.cpp \
 	hoxHttpPlayer.cpp \
 	hoxLocalPlayer.cpp \
+	hoxLoginDialog.cpp \
 	hoxMyPlayer.cpp \
 	hoxNaiveReferee.cpp \
 	hoxNetworkAPI.cpp \

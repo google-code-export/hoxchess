@@ -125,7 +125,7 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*                      parent,
 		           : it->blackId + " (" << it->blackScore << ")" );
 
 		colIndex = 0;
-		itemIndex = m_listCtrlTables->InsertItem(itemIndex, wxString::Format("#%s", it->id) );
+		itemIndex = m_listCtrlTables->InsertItem(itemIndex, wxString::Format("#%s", it->id.c_str()) );
 		m_listCtrlTables->SetItemData( itemIndex, ::atoi( it->id.c_str() ) );
 
 		m_listCtrlTables->SetItem(itemIndex, ++colIndex, groupInfo);
