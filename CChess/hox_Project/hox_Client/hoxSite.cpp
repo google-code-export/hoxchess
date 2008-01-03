@@ -785,6 +785,25 @@ hoxRemoteSite::Handle_ShutdownReadyFromPlayer( hoxPlayer* player )
     wxPostEvent( &(wxGetApp()), event );
 }
 
+unsigned int 
+hoxRemoteSite::GetCurrentActionFlags() const
+{
+	unsigned int flags = 0;
+
+    if ( ! this->IsConnected() )
+	{
+		flags |= hoxSITE_ACTION_CONNECT;
+	}
+	else
+    {
+		flags |= hoxSITE_ACTION_DISCONNECT;
+		flags |= hoxSITE_ACTION_LIST;
+		flags |= hoxSITE_ACTION_NEW;
+    }
+
+	return flags;
+}
+
 // --------------------------------------------------------------------------
 // hoxHTTPSite
 // --------------------------------------------------------------------------
@@ -1082,6 +1101,27 @@ hoxChesscapeSite::OnResponse_New( const hoxResponse_AutoPtr& response )
                   _("Player must join as the specified role"));
 
 	frame->UpdateSiteTreeUI();
+}
+
+unsigned int 
+hoxChesscapeSite::GetCurrentActionFlags() const
+{
+	unsigned int flags = 0;
+
+	/* Get flags from the parent-class. */
+	flags = this->hoxRemoteSite::GetCurrentActionFlags();
+
+    if ( this->IsConnected() )
+    {
+		// Chesscape can only support 1-table-at-a-time.
+		if ( ! this->GetTables().empty() )
+		{
+			unsigned int mask_NEW = ~hoxSITE_ACTION_NEW;
+			flags &= mask_NEW;
+		}
+    }
+
+	return flags;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

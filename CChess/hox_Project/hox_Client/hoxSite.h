@@ -38,6 +38,22 @@
 
 DECLARE_EVENT_TYPE(hoxEVT_SITE_PLAYER_SHUTDOWN_READY, wxID_ANY)
 
+/**
+ * The Site's Actions that are enabled at a given time.
+ */
+enum hoxSiteAction
+{
+	/* NOTE: The numeric values are of the 32-bitmap ones. */
+
+	hoxSITE_ACTION_CONNECT        = ( (unsigned int) 1 ),
+	hoxSITE_ACTION_DISCONNECT     = ( (unsigned int) 1 << 1 ),
+
+	hoxSITE_ACTION_LIST           = ( (unsigned int) 1 << 2 ),
+	hoxSITE_ACTION_NEW            = ( (unsigned int) 1 << 3 ),
+    hoxSITE_ACTION_JOIN           = ( (unsigned int) 1 << 4 ),
+	hoxSITE_ACTION_CLOSE          = ( (unsigned int) 1 << 5 )
+};
+
 /* Forward declarations */
 class hoxServer;
 class hoxSite;
@@ -95,6 +111,8 @@ public:
         { return m_responseHandler; }
 
 	virtual void Handle_ShutdownReadyFromPlayer( hoxPlayer* player );
+
+	virtual unsigned int GetCurrentActionFlags() const { return 0; }
 
 protected:
     const hoxSiteType  m_type;
@@ -171,6 +189,8 @@ public:
 	/* TODO: Need to review this API... */
     virtual hoxLocalPlayer* CreateLocalPlayer(const wxString& playerName);
 
+	virtual unsigned int GetCurrentActionFlags() const;
+
 protected:
     virtual void Handle_ConnectionResponse( hoxResponse_AutoPtr response );
     
@@ -211,6 +231,8 @@ public:
 
 	/* TODO: Need to review this API... */
     virtual hoxLocalPlayer* CreateLocalPlayer(const wxString& playerName);
+
+	virtual unsigned int GetCurrentActionFlags() const;
 
 protected:
     virtual void OnResponse_Connect( const hoxResponse_AutoPtr& response );
