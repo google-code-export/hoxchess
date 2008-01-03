@@ -411,54 +411,7 @@ hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
 
 			case 6: /* Players-info */
 			{
-				wxString playersInfo = token;
-				wxString delims;
-				delims += 0x20;
-				wxStringTokenizer tkz( playersInfo, delims/*, wxTOKEN_STRTOK*/ );
-				int pPosition = 0;
-				wxString ptoken;
-				long score;
-
-				/* Special case: Check for the case in which the RED player is empty. */
-				if ( !playersInfo.empty() && playersInfo[0] == '0x20' )
-				{
-					tableInfo.redId = "";
-					tableInfo.redScore = "0";
-					pPosition = 2;  // Skip RED's Id and Score.
-				}
-
-				while ( tkz.HasMoreTokens() )
-				{
-					token = tkz.GetNextToken();
-					switch (pPosition)
-					{
-						case 0:	tableInfo.redId      = token; break;
-						case 1:
-							if ( !token.empty() && ! token.ToLong( &score ) ) // not a number?
-							{
-								// The current token must be a part of the player's Id.
-								tableInfo.redId += " " + token;
-								--pPosition;
-								break;
-							}
-							tableInfo.redScore   = token; 
-							
-							break;
-						case 2:	tableInfo.blackId    = token; break;
-						case 3:	
-							if ( !token.empty() && ! token.ToLong( &score ) ) // not a number?
-							{
-								// The current token must be a part of the player's Id.
-								tableInfo.blackId += " " + token;
-								--pPosition;
-								break;
-							}
-							tableInfo.blackScore = token; 
-							break;
-						default:                              break;
-					}
-					++pPosition;
-				}
+				_ParsePlayersInfoString( token, tableInfo );
 				break;
 			}
 
@@ -469,13 +422,80 @@ hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
 	wxLogDebug("%s: ... %s", FNAME, debugStr.c_str());
 
 	/* Do special adjustment for Solo-typed games.
-	 * At "this" time, we do not know whether we play BLACK or RED.
-	 * Default = play-RED  for now.
 	 */
 	if ( tableInfo.gameType == hoxGAME_TYPE_SOLO )
 	{
-		tableInfo.blackId = "COMPUTER";
-		tableInfo.blackScore = "0";
+		if ( ! tableInfo.redId.empty() && tableInfo.blackId.empty() )
+		{
+			tableInfo.blackId = "COMPUTER";
+			tableInfo.blackScore = "0";
+		}
+		else if ( ! tableInfo.blackId.empty() && tableInfo.redId.empty() )
+		{
+			tableInfo.redId = "COMPUTER";
+			tableInfo.redScore = "0";
+		}
+	}
+
+	return true;
+}
+
+bool 
+hoxChesscapePlayer::_ParsePlayersInfoString( 
+								const wxString&      playersInfoStr,
+	                            hoxNetworkTableInfo& tableInfo ) const
+{
+	wxString delims( (wxChar) 0x20 );
+	wxStringTokenizer tkz( playersInfoStr, delims, wxTOKEN_RET_EMPTY );
+	
+	wxString token;
+	int      position = 0;
+	long     score;
+
+	while ( tkz.HasMoreTokens() )
+	{
+		token = tkz.GetNextToken();
+		switch ( position )
+		{
+			case 0:	
+				tableInfo.redId = token; 
+				if ( tableInfo.redId.empty() )
+				{
+					tableInfo.redScore = "0";
+					position = 1;  // Skip RED 's Score.
+				}
+				break;
+
+			case 1:
+				if ( !token.empty() && ! token.ToLong( &score ) ) // not a number?
+				{
+					// The current token must be a part of the player's Id.
+					tableInfo.redId += " " + token;
+					--position;
+					break;
+				}
+				tableInfo.redScore   = token; 
+				break;
+
+			case 2:	
+				tableInfo.blackId = token; 
+				break;
+
+			case 3:	
+				if ( !token.empty() && ! token.ToLong( &score ) ) // not a number?
+				{
+					// The current token must be a part of the player's Id.
+					tableInfo.blackId += " " + token;
+					--position;
+					break;
+				}
+				tableInfo.blackScore = token; 
+				break;
+
+			default:
+				break;
+		}
+		++position;
 	}
 
 	return true;

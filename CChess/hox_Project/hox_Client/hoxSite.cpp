@@ -440,7 +440,8 @@ hoxRemoteSite::OnResponse_List( const hoxResponse_AutoPtr& response )
 
     /* Show tables. */
     MyFrame* frame = wxGetApp().GetFrame();
-    hoxTablesDialog tablesDlg( frame, wxID_ANY, "Tables", tableList);
+	unsigned int actionFlags = this->GetCurrentActionFlags();
+    hoxTablesDialog tablesDlg( frame, wxID_ANY, "Tables", tableList, actionFlags );
     tablesDlg.ShowModal();
     hoxTablesDialog::CommandId selectedCommand = tablesDlg.GetSelectedCommand();
     wxString selectedId = tablesDlg.GetSelectedId();
@@ -799,6 +800,7 @@ hoxRemoteSite::GetCurrentActionFlags() const
 		flags |= hoxSITE_ACTION_DISCONNECT;
 		flags |= hoxSITE_ACTION_LIST;
 		flags |= hoxSITE_ACTION_NEW;
+		flags |= hoxSITE_ACTION_JOIN;
     }
 
 	return flags;
@@ -884,7 +886,8 @@ hoxChesscapeSite::OnResponse_List( const hoxResponse_AutoPtr& response )
 
     /* Show tables. */
     MyFrame* frame = wxGetApp().GetFrame();
-    hoxTablesDialog tablesDlg( frame, wxID_ANY, "Tables", tableList);
+	unsigned int actionFlags = this->GetCurrentActionFlags();
+    hoxTablesDialog tablesDlg( frame, wxID_ANY, "Tables", tableList, actionFlags );
     tablesDlg.ShowModal();
     hoxTablesDialog::CommandId selectedCommand = tablesDlg.GetSelectedCommand();
     wxString selectedId = tablesDlg.GetSelectedId();
@@ -1113,11 +1116,13 @@ hoxChesscapeSite::GetCurrentActionFlags() const
 
     if ( this->IsConnected() )
     {
-		// Chesscape can only support 1-table-at-a-time.
+		/* Chesscape can only support 1-table-at-a-time.
+		 * If there is alread a table, then disable NEW and JOIN actions.
+		 */
 		if ( ! this->GetTables().empty() )
 		{
-			unsigned int mask_NEW = ~hoxSITE_ACTION_NEW;
-			flags &= mask_NEW;
+			flags &= ~hoxSITE_ACTION_NEW;
+			flags &= ~hoxSITE_ACTION_JOIN;
 		}
     }
 

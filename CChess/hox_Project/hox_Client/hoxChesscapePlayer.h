@@ -76,6 +76,8 @@ public:
 private:
 	bool _ParseTableInfoString( const wxString&      tableStr,
 		                        hoxNetworkTableInfo& tableInfo ) const;
+	bool _ParsePlayersInfoString( const wxString&      playersInfoStr,
+		                          hoxNetworkTableInfo& tableInfo ) const;
 	bool _FindTableById( const wxString&      tableId,
 		                 hoxNetworkTableInfo*& pTableInfo ) const;
 	bool _AddTableToList( const wxString& tableStr ) const;

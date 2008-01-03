@@ -50,7 +50,8 @@ public:
     hoxTablesDialog( wxWindow*                      parent, 
                      wxWindowID                     id, 
                      const wxString&                title,
-                     const hoxNetworkTableInfoList& tableList );
+                     const hoxNetworkTableInfoList& tableList,
+					 unsigned int                   actionFlags );
 
     void OnButtonJoin(wxCommandEvent& event);
     void OnButtonNew(wxCommandEvent& event);
