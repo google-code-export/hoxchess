@@ -281,7 +281,7 @@ hoxServer::_HandleRequest( hoxRequest* request )
         case hoxREQUEST_TYPE_LEAVE: /* fall through */
         case hoxREQUEST_TYPE_WALL_MSG:
             result = hoxNetworkAPI::SendRequest( request->socket, 
-                                                 request->content,
+												 _RequestToString( *request ),
                                                  response->content );
             break;
 
@@ -329,6 +329,32 @@ exit_label:
         event.SetEventObject( response.release() );
         wxPostEvent( request->sender, event );
     }
+}
+
+const wxString 
+hoxServer::_RequestToString( const hoxRequest& request ) const
+{
+	wxString result;
+
+	if ( ! request.content.empty() ) // old way?
+	{
+		result = request.content;
+	}
+	else
+	{
+		result += "op=" + hoxUtility::RequestTypeToString( request.type );
+
+		hoxCommand::Parameters::const_iterator it;
+		for ( it = request.parameters.begin();
+			  it != request.parameters.end(); ++it )
+		{
+			result += "&" + it->first + "=" + it->second;
+		}
+
+		result += "\r\n";
+	}
+	
+	return result;
 }
 
 hoxResult 

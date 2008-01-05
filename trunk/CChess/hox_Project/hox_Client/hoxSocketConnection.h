@@ -56,6 +56,8 @@ protected:
     virtual void HandleRequest( hoxRequest* request );
 
 private:
+	const wxString _RequestToString( const hoxRequest& request ) const;
+
     hoxResult   _CheckAndHandleSocketLostEvent( const hoxRequest* request, 
                                                 wxString&         response );
     hoxResult   _Connect();

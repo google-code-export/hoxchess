@@ -246,7 +246,7 @@ public:
     hoxRequestType type;
     Parameters     parameters;
 
-    hoxCommand() : type( hoxREQUEST_TYPE_UNKNOWN ) {}
+    hoxCommand( hoxRequestType t = hoxREQUEST_TYPE_UNKNOWN ) : type( t ) {}
 };
 
 class hoxRequest : public wxObject

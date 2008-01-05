@@ -520,12 +520,16 @@ hoxTable::_PostPlayer_MoveEvent( hoxPlayer*         player,
 
     wxLogDebug("%s: Informing player [%s] that [%s] just made a new Move [%s]...", 
         FNAME, player->GetName().c_str(), movePlayer->GetName().c_str(), moveStr.c_str());
-    wxString commandStr;
-    commandStr.Printf("tid=%s&pid=%s&move=%s&status=%s&game_time=%d", 
-        m_id.c_str(), movePlayer->GetName().c_str(), moveStr.c_str(), statusStr.c_str(),
-		playerTime.nGame);
+	
+	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_TYPE_MOVE );
+	pCommand->parameters["tid"] = m_id;
+	pCommand->parameters["pid"] = movePlayer->GetName();
+	pCommand->parameters["move"] = moveStr;
+	pCommand->parameters["status"] = statusStr;
+	pCommand->parameters["game_time"] = wxString::Format("%d", playerTime.nGame);
+
     wxCommandEvent event( hoxEVT_PLAYER_NEW_MOVE );
-    event.SetString( commandStr );
+	event.SetEventObject( pCommand );
     wxPostEvent( player, event );
 }
 
@@ -541,12 +545,14 @@ hoxTable::_PostPlayer_MessageEvent( hoxPlayer*      player,
 
     wxLogDebug("%s: Informing player [%s] that [%s] just sent a Message [%s]...", 
         FNAME, player->GetName().c_str(), msgPlayer->GetName().c_str(), message.c_str());
-    wxString commandStr;
-    commandStr.Printf("tid=%s&pid=%s&msg=%s", 
-        m_id.c_str(), msgPlayer->GetName().c_str(), message.c_str());
-    wxCommandEvent event( hoxEVT_PLAYER_WALL_MSG );
-    event.SetEventObject( msgPlayer );
-    event.SetString( commandStr );
+
+	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_TYPE_WALL_MSG );
+	pCommand->parameters["tid"] = m_id;
+	pCommand->parameters["pid"] = msgPlayer->GetName();
+	pCommand->parameters["msg"] = message;
+    
+	wxCommandEvent event( hoxEVT_PLAYER_WALL_MSG );
+    event.SetEventObject( pCommand );
     wxPostEvent( player, event );
 }
 

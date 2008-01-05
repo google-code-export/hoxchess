@@ -49,8 +49,6 @@ public:
      * Override the parent's API
      *******************************/
 
-	virtual hoxResult ConnectToNetworkServer( wxEvtHandler* sender );
-	virtual hoxResult DisconnectFromNetworkServer( wxEvtHandler* sender );
 	virtual hoxResult QueryForNetworkTables( wxEvtHandler* sender );
     virtual hoxResult JoinNetworkTable( const wxString& tableId,
                                         wxEvtHandler*   sender );
@@ -78,6 +76,7 @@ private:
 		                        hoxNetworkTableInfo& tableInfo ) const;
 	bool _ParsePlayersInfoString( const wxString&      playersInfoStr,
 		                          hoxNetworkTableInfo& tableInfo ) const;
+	bool _DoesTableExist( const wxString& tableId ) const;
 	bool _FindTableById( const wxString&      tableId,
 		                 hoxNetworkTableInfo*& pTableInfo ) const;
 	bool _AddTableToList( const wxString& tableStr ) const;

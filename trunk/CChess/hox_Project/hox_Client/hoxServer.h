@@ -75,7 +75,10 @@ public:
 private:
     hoxRequest* _GetRequest();         
     void        _HandleRequest( hoxRequest* request );
-    hoxResult   _CheckAndHandleSocketLostEvent( const hoxRequest* request, 
+	
+	const wxString _RequestToString( const hoxRequest& request ) const;
+    
+	hoxResult   _CheckAndHandleSocketLostEvent( const hoxRequest* request, 
                                                 wxString&         response );
     hoxResult   _HandleRequest_Accept( hoxRequest* request );
 
