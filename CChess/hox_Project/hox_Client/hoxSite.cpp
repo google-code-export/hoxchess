@@ -372,7 +372,9 @@ void
 hoxRemoteSite::OnResponse_Disconnect( const hoxResponse_AutoPtr& response )
 {
     const char* FNAME = "hoxRemoteSite::OnResponse_Disconnect";
-    wxLogDebug("%s: Parsing DISCONNECT's response...", FNAME);
+
+	wxLogDebug("%s: Received DISCONNECT's response [%d: %s].", 
+		FNAME, response->code, response->content.c_str());
 
     wxCommandEvent event( hoxEVT_PLAYER_SITE_CLOSING );
     event.SetString( "The site is being closed" );
@@ -576,7 +578,7 @@ hoxRemoteSite::Close()
 
 	if ( m_player != NULL )
 	{
-		/* Inform the remote server that the player is loggin-out. 
+		/* Inform the remote server that the player is logging-out. 
 		 */
 		result = m_player->DisconnectFromNetworkServer( m_responseHandler );
 		if ( result != hoxRESULT_OK )

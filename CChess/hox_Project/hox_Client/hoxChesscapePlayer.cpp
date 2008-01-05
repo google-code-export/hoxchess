@@ -72,31 +72,6 @@ hoxChesscapePlayer::~hoxChesscapePlayer()
 }
 
 hoxResult 
-hoxChesscapePlayer::ConnectToNetworkServer( wxEvtHandler* sender )
-{
-    this->StartConnection();
-
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_CONNECT, sender );
-	request->parameters["pid"] = this->GetName();
-	request->parameters["password"] = this->GetPassword();
-    //request->content = 
-    //    wxString::Format("op=CONNECT&pid=%s\r\n", this->GetName().c_str());
-    this->AddRequestToConnection( request );
-
-    return hoxRESULT_OK;
-}
-
-hoxResult 
-hoxChesscapePlayer::DisconnectFromNetworkServer( wxEvtHandler* sender )
-{
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_DISCONNECT, sender );
-	request->parameters["pid"] = this->GetName();
-	this->AddRequestToConnection( request );
-
-	return hoxRESULT_OK;
-}
-
-hoxResult 
 hoxChesscapePlayer::QueryForNetworkTables( wxEvtHandler* sender )
 {
 	const char* FNAME = "hoxChesscapePlayer::QueryForNetworkTables";
@@ -131,49 +106,30 @@ hoxResult
 hoxChesscapePlayer::JoinNetworkTable( const wxString& tableId,
                                       wxEvtHandler*   sender )
 {
-	const char* FNAME = "hoxChesscapePlayer::JoinNetworkTable";
-
-	/* Lookup the table first. */
-	hoxNetworkTableInfo* pTableInfo = NULL;
-	if ( ! _FindTableById( tableId, pTableInfo ) ) // not found?
+	/* Make sure that the table is still there. */
+	if ( ! _DoesTableExist( tableId ) ) // not found?
 	{
-		wxLogDebug("%s: *** WARN *** Table [%s] not found.", FNAME, tableId.c_str());
-		return hoxRESULT_ERR;
+		wxLogWarning("Table [%s] not longer exist.", tableId.c_str());
+		return hoxRESULT_OK;  // *** Fine (due to time-delay).
 	}
-
-	/* Lookup existing role at the table. */
-	hoxPieceColor assignedColor;
-	bool hasRole = this->FindRoleAtTable( tableId, assignedColor );
 
 	m_pendingJoinTableId = tableId;
 
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_JOIN, sender );
-	request->parameters["pid"] = this->GetName();
-	request->parameters["tid"] = tableId;
-	request->parameters["joined"] = hasRole ? "1" : "";
-	//request->parameters["seat"] = "";
-    this->AddRequestToConnection( request );
-
-    return hoxRESULT_OK;
+	return this->hoxLocalPlayer::JoinNetworkTable( tableId, sender );
 }
 
 hoxResult 
 hoxChesscapePlayer::OpenNewNetworkTable( wxEvtHandler*   sender )
 {
-	const char* FNAME = "hoxChesscapePlayer::OpenNewNetworkTable";
-
 	if ( m_bRequestingNewTable )
 	{
-		wxLogDebug("%: *** WARN *** A new Table is already being requested.", FNAME); 
+		wxLogWarning("A new Table is already being requested."); 
 		return hoxRESULT_ERR;
 	}
 
 	m_bRequestingNewTable = true;
 
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_NEW, sender );
-    this->AddRequestToConnection( request );
-
-    return hoxRESULT_OK;
+	return this->hoxLocalPlayer::OpenNewNetworkTable( sender );
 }
 
 void 
@@ -477,7 +433,14 @@ hoxChesscapePlayer::_ParsePlayersInfoString(
 				tableInfo.redScore   = token; 
 				break;
 
-			case 2:	
+			case 2:
+				if (   token.empty()
+					&& !tableInfo.redId.empty() && tableInfo.redScore.empty() ) // RED is guest?
+				{
+					// Skip this empty token since it is a part of the RED Guest info.
+					--position;
+					break;
+				}
 				tableInfo.blackId = token; 
 				break;
 
@@ -499,6 +462,13 @@ hoxChesscapePlayer::_ParsePlayersInfoString(
 	}
 
 	return true;
+}
+
+bool 
+hoxChesscapePlayer::_DoesTableExist( const wxString& tableId ) const
+{
+	hoxNetworkTableInfo* pTableInfo = NULL;
+	return _FindTableById( tableId, pTableInfo );
 }
 
 bool

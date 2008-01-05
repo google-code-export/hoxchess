@@ -169,6 +169,13 @@ hoxPlayer::HasRole( hoxRole role )
 }
 
 bool
+hoxPlayer::HasRoleAtTable( const wxString& tableId ) const
+{
+	hoxPieceColor assignedColor;
+	return this->FindRoleAtTable( tableId, assignedColor );
+}
+
+bool
 hoxPlayer::FindRoleAtTable( const wxString& tableId, 
 	                        hoxPieceColor&  assignedColor ) const
 {
@@ -333,19 +340,17 @@ hoxPlayer::OnNewMove_FromTable( wxCommandEvent&  event )
 {
     const char* FNAME = "hoxPlayer::OnNewMove_FromTable";
 
+	hoxCommand* pCommand = wx_reinterpret_cast(hoxCommand*, event.GetEventObject()); 
+	const std::auto_ptr<hoxCommand> command( pCommand ); // take care memory leak!
+
     if ( m_connection == NULL )
     {
         wxLogDebug("%s: No connection. Fine. Ignore this Move.", FNAME);
         return;
     }
 
-    const wxString commandStr = event.GetString();
-
-    wxLogDebug("%s: ENTER. commandStr = [%s].", FNAME, commandStr.c_str());
-
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_MOVE, this );
-    request->content = wxString::Format("op=MOVE&%s\r\n", commandStr.c_str());
-
+	hoxRequest* request = new hoxRequest( command->type, this );
+	request->parameters = command->parameters;
     this->AddRequestToConnection( request );
 }
 
@@ -395,19 +400,18 @@ void
 hoxPlayer::OnWallMsg_FromTable( wxCommandEvent&  event )
 {
     const char* FNAME = "hoxPlayer::OnWallMsg_FromTable";
-    
+
+	hoxCommand* pCommand = wx_reinterpret_cast(hoxCommand*, event.GetEventObject()); 
+	const std::auto_ptr<hoxCommand> command( pCommand ); // take care memory leak!
+
     if ( m_connection == NULL )
     {
         wxLogDebug("%s: No connection. Fine. Ignore this Message.", FNAME);
         return;
     }
 
-    const wxString commandStr = event.GetString();
-    wxLogDebug("%s: ENTER. commandStr = [%s].", FNAME, commandStr.c_str());
-
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_WALL_MSG, this );
-    request->content = 
-        wxString::Format("op=WALL_MSG&%s\r\n", commandStr.c_str());
+    hoxRequest* request = new hoxRequest( command->type, this );
+	request->parameters = command->parameters;
     this->AddRequestToConnection( request );
 }
 
@@ -469,6 +473,10 @@ hoxPlayer::HandleIncomingData( const wxString& commandStr )
 
     switch ( command.type )
     {
+        case hoxREQUEST_TYPE_DISCONNECT:
+            result = this->HandleIncomingData_Disconnect( command, response );
+            break;
+
         case hoxREQUEST_TYPE_MOVE:
             result = this->HandleIncomingData_Move( command, response );
             break;
@@ -511,6 +519,39 @@ hoxPlayer::HandleIncomingData( const wxString& commandStr )
     request->content = response;
     this->AddRequestToConnection( request );
 
+    wxLogDebug("%s: END.", FNAME);
+    return result;
+}
+
+hoxResult 
+hoxPlayer::HandleIncomingData_Disconnect( hoxCommand& command,
+                                          wxString&   response )
+{
+    const char* FNAME = "hoxPlayer::HandleIncomingData_Disconnect";
+    hoxResult result = hoxRESULT_ERR;   // Assume: failure.
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    const wxString playerId = command.parameters["pid"];
+
+    /* Check the player-Id. */
+    if ( playerId != this->GetName() )
+    {
+        wxLogError("%s: No player-Id. (%s vs. %s)", FNAME, playerId.c_str(), this->GetName().c_str());
+        response << "1\r\n"  // code
+                 << "Wrong player-Id. " << playerId << " vs. " << this->GetName() << ".\r\n";
+        goto exit_label;
+    }
+
+    /* TODO: Perform the logout procedure for the player here ... */
+
+
+	/* Finally, return 'success'. */
+	response << "0\r\n"       // error-code = SUCCESS
+	         << "INFO: (DISCONNECT) OK\r\n";
+    result = hoxRESULT_OK;
+
+exit_label:
     wxLogDebug("%s: END.", FNAME);
     return result;
 }

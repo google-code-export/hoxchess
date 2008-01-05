@@ -73,8 +73,10 @@ hoxLocalPlayer::ConnectToNetworkServer( wxEvtHandler* sender )
     this->StartConnection();
 
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_CONNECT, sender );
-    request->content = 
-        wxString::Format("op=CONNECT&pid=%s\r\n", this->GetName().c_str());
+	request->parameters["pid"] = this->GetName();
+	request->parameters["password"] = this->GetPassword();
+    //request->content = 
+    //    wxString::Format("op=CONNECT&pid=%s\r\n", this->GetName().c_str());
     this->AddRequestToConnection( request );
 
     return hoxRESULT_OK;
@@ -83,23 +85,9 @@ hoxLocalPlayer::ConnectToNetworkServer( wxEvtHandler* sender )
 hoxResult 
 hoxLocalPlayer::DisconnectFromNetworkServer( wxEvtHandler* sender )
 {
-	const char* FNAME = "hoxLocalPlayer::DisconnectFromNetworkServer";
-
-	wxLogDebug("%s: ENTER. Do nothing. END.", FNAME);
-    
-	if ( sender != NULL )
-	{
-		/* Do nothing. Just return a response. */
-
-		hoxRequestType requestType = hoxREQUEST_TYPE_DISCONNECT;
-		std::auto_ptr<hoxResponse> response( new hoxResponse(requestType, 
-															 sender) );
-
-		wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, requestType );
-		response->code = hoxRESULT_OK;
-		event.SetEventObject( response.release() );  // Caller will de-allocate.
-		wxPostEvent( sender, event );
-	}
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_DISCONNECT, sender );
+	request->parameters["pid"] = this->GetName();
+	this->AddRequestToConnection( request );
 
     return hoxRESULT_OK;
 }
@@ -108,8 +96,9 @@ hoxResult
 hoxLocalPlayer::QueryForNetworkTables( wxEvtHandler* sender )
 {
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LIST, sender );
-    request->content = 
-        wxString::Format("op=LIST&pid=%s\r\n", this->GetName().c_str());
+	request->parameters["pid"] = this->GetName();
+    //request->content = 
+    //    wxString::Format("op=LIST&pid=%s\r\n", this->GetName().c_str());
     this->AddRequestToConnection( request );
 
     return hoxRESULT_OK;
@@ -119,9 +108,17 @@ hoxResult
 hoxLocalPlayer::JoinNetworkTable( const wxString& tableId,
                                   wxEvtHandler*   sender )
 {
+	/* Check if this Player is already AT the Table. */
+	bool hasRole = this->HasRoleAtTable( tableId );
+
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_JOIN, sender );
-    request->content = 
-        wxString::Format("op=JOIN&tid=%s&pid=%s\r\n", tableId.c_str(), this->GetName().c_str());
+	request->parameters["pid"] = this->GetName();
+	request->parameters["tid"] = tableId;
+	request->parameters["joined"] = hasRole ? "1" : "0";
+	//request->parameters["seat"] = "";
+
+    //request->content = 
+    //    wxString::Format("op=JOIN&tid=%s&pid=%s\r\n", tableId.c_str(), this->GetName().c_str());
     this->AddRequestToConnection( request );
 
     return hoxRESULT_OK;
@@ -131,8 +128,9 @@ hoxResult
 hoxLocalPlayer::OpenNewNetworkTable( wxEvtHandler*   sender )
 {
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_NEW, sender );
-    request->content = 
-        wxString::Format("op=NEW&pid=%s\r\n", this->GetName().c_str());
+	request->parameters["pid"] = this->GetName();
+    //request->content = 
+    //    wxString::Format("op=NEW&pid=%s\r\n", this->GetName().c_str());
     this->AddRequestToConnection( request );
 
     return hoxRESULT_OK;

@@ -127,6 +127,7 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
             }
             /* fall through */
 
+		case hoxREQUEST_TYPE_DISCONNECT: /* fall through */
         case hoxREQUEST_TYPE_MOVE:     /* fall through */
         case hoxREQUEST_TYPE_LIST:     /* fall through */
         case hoxREQUEST_TYPE_NEW:      /* fall through */
@@ -141,7 +142,7 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
                 break;
             }
             result = hoxNetworkAPI::SendRequest( m_pSClient, 
-                                                 request->content, 
+                                                 _RequestToString( *request ),
                                                  response->content );
             break;
 
@@ -166,6 +167,32 @@ exit_label:
     response->code = result;
     event.SetEventObject( response.release() );  // Caller will de-allocate.
     wxPostEvent( m_player, event );
+}
+
+const wxString 
+hoxSocketConnection::_RequestToString( const hoxRequest& request ) const
+{
+	wxString result;
+
+	if ( ! request.content.empty() ) // old way?
+	{
+		result = request.content;
+	}
+	else
+	{
+		result += "op=" + hoxUtility::RequestTypeToString( request.type );
+
+		hoxCommand::Parameters::const_iterator it;
+		for ( it = request.parameters.begin();
+			  it != request.parameters.end(); ++it )
+		{
+			result += "&" + it->first + "=" + it->second;
+		}
+
+		result += "\r\n";
+	}
+	
+	return result;
 }
 
 hoxResult 

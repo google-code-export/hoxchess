@@ -179,16 +179,7 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
 
         case hoxREQUEST_TYPE_MOVE:
 		{
-			const wxString commandStr = request->content;
-			hoxCommand command;
-			result = hoxNetworkAPI::ParseCommand( commandStr, command );
-			if ( result != hoxRESULT_OK )
-			{
-				wxLogDebug("%s: *** ERROR *** Failed to parse command-string [%s].", 
-					FNAME, commandStr.c_str());
-				break;
-			}
-            result = _Move( command );
+            result = _Move( request );
             break;
 		}
 
@@ -200,16 +191,7 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
 
         case hoxREQUEST_TYPE_WALL_MSG:
 		{
-			const wxString commandStr = request->content;
-			hoxCommand command;
-			result = hoxNetworkAPI::ParseCommand( commandStr, command );
-			if ( result != hoxRESULT_OK )
-			{
-				wxLogDebug("%s: *** ERROR *** Failed to parse command-string [%s].", 
-					FNAME, commandStr.c_str());
-				break;
-			}
-            result = _WallMessage( command );
+            result = _WallMessage( request );
             break;
 		}
 
@@ -528,7 +510,7 @@ hoxChesscapeConnection::_New()
 }
 
 hoxResult   
-hoxChesscapeConnection::_Move( hoxCommand& command )
+hoxChesscapeConnection::_Move( hoxRequest* request )
 {
     const char* FNAME = "hoxChesscapeConnection::_Move";
 
@@ -540,9 +522,9 @@ hoxChesscapeConnection::_Move( hoxCommand& command )
     }
 
 	/* Extract parameters. */
-	const wxString moveStr     = command.parameters["move"];
-	const wxString statusStr   = command.parameters["status"];
-	const wxString gameTimeStr = command.parameters["game_time"];
+	const wxString moveStr     = request->parameters["move"];
+	const wxString statusStr   = request->parameters["status"];
+	const wxString gameTimeStr = request->parameters["game_time"];
 	int gameTime = ::atoi( gameTimeStr.c_str() ) * 1000;  // convert to miliseconds
 
     /* Send MOVE request. */
@@ -586,7 +568,7 @@ hoxChesscapeConnection::_Move( hoxCommand& command )
 }
 
 hoxResult   
-hoxChesscapeConnection::_WallMessage( hoxCommand& command )
+hoxChesscapeConnection::_WallMessage( hoxRequest* request )
 {
     const char* FNAME = "hoxChesscapeConnection::_WallMessage";
 
@@ -598,7 +580,7 @@ hoxChesscapeConnection::_WallMessage( hoxCommand& command )
     }
 
 	/* Extract parameters. */
-	const wxString message = command.parameters["msg"];
+	const wxString message = request->parameters["msg"];
 
     /* Send MESSAGE request. */
 

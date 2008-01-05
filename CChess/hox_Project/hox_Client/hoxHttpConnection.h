@@ -55,6 +55,8 @@ protected:
     virtual void HandleRequest( hoxRequest* request );
 
 private:
+	const wxString _RequestToString( const hoxRequest& request ) const;
+
     hoxResult   _SendRequest( const wxString& request, wxString& response );
 
     DECLARE_DYNAMIC_CLASS(hoxHttpConnection)

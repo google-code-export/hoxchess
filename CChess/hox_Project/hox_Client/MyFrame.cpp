@@ -468,8 +468,7 @@ MyFrame::OnListTables( wxCommandEvent& event )
     {
         hoxRemoteSite* remoteSite = (hoxRemoteSite*) selectedSite;
 
-        /* Get the list of tables from the server */
-        hoxResult result = remoteSite->QueryForNetworkTables( /*this*/ );
+        hoxResult result = remoteSite->QueryForNetworkTables();
         if ( result != hoxRESULT_OK )
         {
             wxLogError("%s: Failed to query for LIST of tables from the server.", FNAME);

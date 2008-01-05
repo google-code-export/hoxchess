@@ -69,13 +69,15 @@ hoxHttpConnection::HandleRequest( hoxRequest* request )
         case hoxREQUEST_TYPE_POLL:     /* fall through */
         case hoxREQUEST_TYPE_MOVE:     /* fall through */
         case hoxREQUEST_TYPE_CONNECT:  /* fall through */
+		case hoxREQUEST_TYPE_DISCONNECT: /* fall through */
         case hoxREQUEST_TYPE_LIST:     /* fall through */
         case hoxREQUEST_TYPE_NEW:      /* fall through */
         case hoxREQUEST_TYPE_JOIN:     /* fall through */
         case hoxREQUEST_TYPE_LEAVE:    /* fall through */
         case hoxREQUEST_TYPE_WALL_MSG:
 
-            result = _SendRequest( request->content, response->content );
+            result = _SendRequest( _RequestToString( *request ),
+				                   response->content );
             this->SetConnected( result == hoxRESULT_OK );
             break;
 
@@ -100,6 +102,31 @@ hoxHttpConnection::HandleRequest( hoxRequest* request )
     response->code = result;
     event.SetEventObject( response.release() );  // Caller will de-allocate.
     wxPostEvent( m_player, event );
+}
+
+const wxString 
+hoxHttpConnection::_RequestToString( const hoxRequest& request ) const
+{
+	wxString result;
+
+	if ( ! request.content.empty() ) // old way?
+	{
+		result = request.content;
+	}
+	else
+	{
+		result += "op=" + hoxUtility::RequestTypeToString( request.type );
+
+		hoxCommand::Parameters::const_iterator it;
+		for ( it = request.parameters.begin();
+			  it != request.parameters.end(); ++it )
+		{
+			result += "&" + it->first + "=" + it->second;
+		}
+	}
+
+	//result += "\r\n";
+	return result;
 }
 
 hoxResult 
