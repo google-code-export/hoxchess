@@ -59,8 +59,6 @@ public:
      *******************************/
 
 	virtual void OnNewMove_FromTable( wxCommandEvent&  event );
-	virtual void OnJoinCmd_FromTable( wxCommandEvent&  event );
-	virtual void OnDrawCmd_FromTable( wxCommandEvent&  event );
 
     /*******************************
      * Socket-event handlers

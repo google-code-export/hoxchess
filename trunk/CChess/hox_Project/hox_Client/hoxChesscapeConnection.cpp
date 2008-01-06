@@ -158,8 +158,9 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
 		{
 		    const wxString tableId = request->parameters["tid"];
 			const bool hasRole = (request->parameters["joined"] == "1");
-			const wxString requestSeat = request->parameters["seat"];
-            result = _Join(tableId, hasRole, requestSeat);
+			const hoxPieceColor requestColor = 
+				hoxUtility::StringToColor( request->parameters["color"] );
+            result = _Join(tableId, hasRole, requestColor);
 			response->content = tableId;
             break;
 		}
@@ -356,7 +357,7 @@ hoxChesscapeConnection::_Disconnect( const wxString& login )
 hoxResult
 hoxChesscapeConnection::_Join( const wxString& tableId,
 							   const bool      hasRole,
-							   const wxString& requestSeat )
+							   hoxPieceColor   requestColor )
 {
     const char* FNAME = "hoxChesscapeConnection::_Join";
 
@@ -388,6 +389,9 @@ hoxChesscapeConnection::_Join( const wxString& tableId,
 	}
 
     /* Send REQUEST-SEAT request, if asked. */
+	wxString requestSeat;
+	if      ( requestColor == hoxPIECE_COLOR_RED )   requestSeat = "RedSeat";
+	else if ( requestColor == hoxPIECE_COLOR_BLACK ) requestSeat = "BlkSeat";
 
 	if ( ! requestSeat.empty() )
 	{
@@ -618,9 +622,16 @@ hoxChesscapeConnection::_Draw( const wxString& drawResponse )
 	 * Otherwise, send DRAW request. 
 	 */
 
-	const wxString drawCmd = ( drawResponse == "1" 
-							  ? "AcceptDraw"
-							  : "OfferDraw" );
+	wxString drawCmd;
+
+	if      ( drawResponse == "1" )   drawCmd = "AcceptDraw";
+	else if ( drawResponse.empty() )  drawCmd = "OfferDraw";
+	else /* ( drawResponse == "0" ) */
+	{
+		// Send nothing. Done.
+		wxLogDebug("%s: DRAW request is denied. Do nothing. END.", FNAME);
+		return hoxRESULT_OK;
+	}
 
 	wxLogDebug("%s: Sending DRAW command [%s]...", FNAME, drawCmd.c_str());
 	wxString cmdRequest;

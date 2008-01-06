@@ -243,7 +243,7 @@ private:
      */
     void _PostPlayer_ActionEvent( hoxPlayer*  player,
 		                          wxEventType commandType,
-								  int         extraIntParam = -1 ) const;
+								  hoxCommand* pCommand ) const;
 
     /**
      * Post (inform) a player about the fact that this table is 

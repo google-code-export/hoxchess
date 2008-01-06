@@ -324,7 +324,18 @@ hoxPlayer::OnJoinCmd_FromTable( wxCommandEvent&  event )
 {
     const char* FNAME = "hoxPlayer::OnJoinCmd_FromTable";
 
-	wxLogDebug("%s: ENTER. Do nothing. END.", FNAME);
+	hoxCommand* pCommand = wx_reinterpret_cast(hoxCommand*, event.GetEventObject()); 
+	const std::auto_ptr<hoxCommand> command( pCommand ); // take care memory leak!
+
+    if ( m_connection == NULL )
+    {
+        wxLogDebug("%s: No connection. Fine. Ignore this Command.", FNAME);
+        return;
+    }
+
+	hoxRequest* request = new hoxRequest( command->type, this );
+	request->parameters = command->parameters;
+    this->AddRequestToConnection( request );
 }
 
 void 
@@ -332,7 +343,18 @@ hoxPlayer::OnDrawCmd_FromTable( wxCommandEvent&  event )
 {
     const char* FNAME = "hoxPlayer::OnDrawCmd_FromTable";
 
-	wxLogDebug("%s: ENTER. Do nothing. END.", FNAME);
+	hoxCommand* pCommand = wx_reinterpret_cast(hoxCommand*, event.GetEventObject()); 
+	const std::auto_ptr<hoxCommand> command( pCommand ); // take care memory leak!
+
+    if ( m_connection == NULL )
+    {
+        wxLogDebug("%s: No connection. Fine. Ignore this Command.", FNAME);
+        return;
+    }
+
+	hoxRequest* request = new hoxRequest( command->type, this );
+	request->parameters = command->parameters;
+    this->AddRequestToConnection( request );
 }
 
 void 

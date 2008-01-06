@@ -194,6 +194,39 @@ hoxUtility::GameTypeToString( const hoxGameType gameType )
     }
 }
 
+/**
+ * Convert a given Color (Piece's Color or Role) to a (human-readable) string.
+ */
+const wxString 
+hoxUtility::ColorToString( const hoxPieceColor color )
+{
+    switch( color )
+    {
+		case hoxPIECE_COLOR_UNKNOWN:   return "UNKNOWN";
+
+        case hoxPIECE_COLOR_RED:       return "Red";
+		case hoxPIECE_COLOR_BLACK:     return "Black";
+		case hoxPIECE_COLOR_NONE:      return "None";
+
+        default:                       return "UNKNOWN";
+    }
+}
+
+/**
+ * Convert a given (human-readable) string to a Color (Piece's Color or Role).
+ */
+hoxPieceColor 
+hoxUtility::StringToColor( const wxString& input )
+{
+    if ( input == "UNKNOWN" ) return hoxPIECE_COLOR_UNKNOWN;
+
+	if ( input == "Red" )     return hoxPIECE_COLOR_RED;
+	if ( input == "Black" )   return hoxPIECE_COLOR_BLACK;
+	if ( input == "None" )    return hoxPIECE_COLOR_NONE;
+
+	return hoxPIECE_COLOR_UNKNOWN;
+}
+
 // ----------------------------------------------------------------------------
 // hoxURI
 // ----------------------------------------------------------------------------
