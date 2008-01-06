@@ -81,7 +81,7 @@ hoxHttpPlayer::OnTimer( wxTimerEvent& event )
 
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_POLL, this );
     request->content = 
-        wxString::Format("op=POLL&pid=%s\r\n", this->GetName().c_str());
+        wxString::Format("op=POLL&pid=%s", this->GetName().c_str());
     this->AddRequestToConnection( request );
 }
 

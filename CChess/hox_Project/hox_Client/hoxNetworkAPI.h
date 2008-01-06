@@ -80,6 +80,9 @@ namespace hoxNetworkAPI
     hoxResult ReadLine( wxSocketBase* sock, 
                         wxString&     result );
 
+    hoxResult WriteMsg( wxSocketBase*   sock,
+                        const wxString& message );
+
     hoxResult ReadMsg( wxSocketBase* sock,
                        wxString&     response );
 

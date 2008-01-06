@@ -72,6 +72,8 @@ public:
 
     hoxSite* GetSite() const { return m_site; }
 
+	bool     OnPlayerDisconnected( const wxString& playerId );
+
 private:
     hoxRequest* _GetRequest();         
     void        _HandleRequest( hoxRequest* request );
@@ -81,6 +83,7 @@ private:
 	hoxResult   _CheckAndHandleSocketLostEvent( const hoxRequest* request, 
                                                 wxString&         response );
     hoxResult   _HandleRequest_Accept( hoxRequest* request );
+    hoxResult   _HandleRequest_Disconnect( hoxRequest* request );
 
     void        _DestroyAllActiveSockets();
     void        _DestroyActiveSocket( wxSocketBase *sock );
@@ -88,6 +91,7 @@ private:
 
     class SocketInfo; // TODO: ...
     bool        _FindSocketInfo( const wxString& playerId, SocketInfo& socketInfo );
+	bool        _DeleteSocketInfo( const wxString& playerId );
 
 private:
 
@@ -95,6 +99,7 @@ private:
     public:
         wxString       playerId;
         wxSocketBase*  socket;
+
         SocketInfo() : socket(NULL) {}
         SocketInfo(const wxString& p, wxSocketBase* s) 
                     : playerId(p), socket(s) {}

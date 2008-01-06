@@ -70,7 +70,8 @@ public:
     hoxSite* GetSite() const { return m_site; }
 
 private:
-    void _DestroySocketServer();
+	hoxResult _HandleNewConnect( wxSocketBase* newSock );
+    void      _DestroySocketServer();
 
 private:
     int               m_nPort;       // The main server's port.

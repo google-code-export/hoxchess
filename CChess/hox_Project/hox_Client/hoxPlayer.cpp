@@ -91,19 +91,10 @@ hoxPlayer::~hoxPlayer()
     if ( m_connection == NULL )
         return;
 
-    /* Very important! Wait for all outstanding requests to be serviced
-     * before closing down the connection.
-     *
-     * NOTE: Currently, I am not sure if this loop works beccause any while
-     *       loop used so far results "bad" expericence such as high CPU 's 
-     *       usuage, low GUI responses, and network traffic failure.
-     */
-    while ( m_nOutstandingRequests > 0 )
+    if ( m_nOutstandingRequests > 0 )
     {
-        wxLogDebug("%s: Waiting for outstanding requests [%d] to be serviced...", 
+        wxLogDebug("%s: *** WARN *** There are still [%d] outstanding requests waiting to be serviced.", 
             FNAME, m_nOutstandingRequests);
-        wxSleep( 1 /* second */ );
-        wxGetApp().Yield();
     }
 
     this->ShutdownConnection();
@@ -393,7 +384,7 @@ hoxPlayer::OnNewJoin_FromTable( wxCommandEvent&  event )
 
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_NEW_JOIN, this );
     request->content =
-            wxString::Format("op=NEW_JOIN&%s\r\n", commandStr.c_str());
+            wxString::Format("op=NEW_JOIN&%s", commandStr.c_str());
     this->AddRequestToConnection( request );
 }
 
@@ -414,7 +405,7 @@ hoxPlayer::OnNewLeave_FromTable( wxCommandEvent&  event )
 
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LEAVE, this );
     request->content =
-            wxString::Format("op=LEAVE&%s\r\n", commandStr.c_str());
+            wxString::Format("op=LEAVE&%s", commandStr.c_str());
     this->AddRequestToConnection( request );
 }
 
@@ -496,7 +487,7 @@ hoxPlayer::HandleIncomingData( const wxString& commandStr )
     switch ( command.type )
     {
         case hoxREQUEST_TYPE_DISCONNECT:
-            result = this->HandleIncomingData_Disconnect( command, response );
+            result = this->HandleIncomingData_Disconnect( command );
             break;
 
         case hoxREQUEST_TYPE_MOVE:
@@ -528,26 +519,28 @@ hoxPlayer::HandleIncomingData( const wxString& commandStr )
             break;
 
         default:
-            wxLogError("%s: Unsupported Request-Type [%s].", 
-                FNAME, hoxUtility::RequestTypeToString(command.type).c_str());
+            wxLogDebug("%s: *** WARN *** Unsupported Request-Type [%s]. Command-Str = [%s].", 
+                FNAME, hoxUtility::RequestTypeToString(command.type).c_str(), commandStr.c_str());
             result = hoxRESULT_NOT_SUPPORTED;
-            response = "Not supported.";
+            //response = "Not supported.";
             break;
     }
 
     /* Send response back to the remote player 
      */
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_OUT_DATA, this );
-    request->content = response;
-    this->AddRequestToConnection( request );
+	if ( ! response.empty() )
+	{
+		hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_OUT_DATA, this );
+		request->content = response;
+		this->AddRequestToConnection( request );
+	}
 
     wxLogDebug("%s: END.", FNAME);
     return result;
 }
 
 hoxResult 
-hoxPlayer::HandleIncomingData_Disconnect( hoxCommand& command,
-                                          wxString&   response )
+hoxPlayer::HandleIncomingData_Disconnect( hoxCommand& command )
 {
     const char* FNAME = "hoxPlayer::HandleIncomingData_Disconnect";
     hoxResult result = hoxRESULT_ERR;   // Assume: failure.
@@ -560,17 +553,21 @@ hoxPlayer::HandleIncomingData_Disconnect( hoxCommand& command,
     if ( playerId != this->GetName() )
     {
         wxLogError("%s: No player-Id. (%s vs. %s)", FNAME, playerId.c_str(), this->GetName().c_str());
-        response << "1\r\n"  // code
-                 << "Wrong player-Id. " << playerId << " vs. " << this->GetName() << ".\r\n";
         goto exit_label;
     }
 
-    /* TODO: Perform the logout procedure for the player here ... */
+	/* Shutdown the connection. */
+	wxLogDebug("%s: Shutdown the connection for player [%s]...", FNAME, playerId.c_str());
+	this->ShutdownConnection();
 
+    /* Inform the site about this event. */
+	{
+		wxCommandEvent event( hoxEVT_SITE_PLAYER_DISCONNECT );
+		event.SetEventObject( this );
+		wxPostEvent( m_site->GetResponseHandler(), event );
+	}
 
 	/* Finally, return 'success'. */
-	response << "0\r\n"       // error-code = SUCCESS
-	         << "INFO: (DISCONNECT) OK\r\n";
     result = hoxRESULT_OK;
 
 exit_label:
@@ -1044,7 +1041,7 @@ hoxPlayer::_PostSite_ShutdownReady()
 	wxLogDebug("%s: ENTER.", FNAME);
 
     wxCommandEvent event( hoxEVT_SITE_PLAYER_SHUTDOWN_READY );
-    event.SetEventObject( this );
+    event.SetString( this->GetName() );
     wxPostEvent( m_site->GetResponseHandler(), event );
 }
 
