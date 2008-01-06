@@ -29,6 +29,7 @@
 #include "hoxPlayer.h"
 #include "hoxBoard.h"
 #include "hoxSite.h"
+#include "hoxUtility.h"
 
 // ----------------------------------------------------------------------------
 // hoxTable
@@ -264,7 +265,20 @@ hoxTable::OnJoinCommand_FromBoard()
     hoxPlayer* boardPlayer = _GetBoardPlayer();
     wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
 
-	_PostPlayer_ActionEvent( boardPlayer, hoxEVT_PLAYER_JOIN_TABLE );
+	/* Auto JOIN the table based on the seat availability. */
+
+	hoxPieceColor requestColor = hoxPIECE_COLOR_NONE; // Default: observer
+
+	if      ( m_redPlayer   == NULL ) requestColor = hoxPIECE_COLOR_RED;
+	else if ( m_blackPlayer == NULL ) requestColor = hoxPIECE_COLOR_BLACK;
+
+	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_TYPE_JOIN );
+	pCommand->parameters["tid"] = m_id;
+	pCommand->parameters["pid"] = boardPlayer->GetName();
+	pCommand->parameters["color"] = hoxUtility::ColorToString( requestColor );
+	pCommand->parameters["joined"] = "1";
+
+	_PostPlayer_ActionEvent( boardPlayer, hoxEVT_PLAYER_JOIN_TABLE, pCommand );
 }
 
 void
@@ -279,7 +293,23 @@ hoxTable::OnDrawCommand_FromBoard()
     hoxPlayer* boardPlayer = _GetBoardPlayer();
     wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
 
-	_PostPlayer_ActionEvent( boardPlayer, hoxEVT_PLAYER_DRAW_TABLE );
+	/* Make sure the board Player is actually playing. 
+	 * If not, ignore the request.
+	 */
+
+	if (   boardPlayer != m_redPlayer 
+		&& boardPlayer != m_blackPlayer )
+	{
+		wxLogWarning("The Player [%s] is not playing.", boardPlayer->GetName().c_str());
+		return;
+	}
+
+	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_TYPE_DRAW );
+	pCommand->parameters["tid"] = m_id;
+	pCommand->parameters["pid"] = boardPlayer->GetName();
+	pCommand->parameters["draw_response"] = "";
+
+	_PostPlayer_ActionEvent( boardPlayer, hoxEVT_PLAYER_DRAW_TABLE, pCommand );
 }
 
 void 
@@ -294,8 +324,23 @@ hoxTable::OnDrawResponse_FromBoard( bool bAcceptDraw )
     hoxPlayer* boardPlayer = _GetBoardPlayer();
     wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
 
-	_PostPlayer_ActionEvent( boardPlayer, hoxEVT_PLAYER_DRAW_TABLE,
-		                     bAcceptDraw ? 1 : 0 );
+	/* Make sure the board Player is actually playing. 
+	 * If not, ignore the request.
+	 */
+
+	if (   boardPlayer != m_redPlayer 
+		&& boardPlayer != m_blackPlayer )
+	{
+		wxLogWarning("The Player [%s] is not playing.", boardPlayer->GetName().c_str());
+		return;
+	}
+
+	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_TYPE_DRAW );
+	pCommand->parameters["tid"] = m_id;
+	pCommand->parameters["pid"] = boardPlayer->GetName();
+	pCommand->parameters["draw_response"] = (bAcceptDraw ? "1" : "0");
+
+	_PostPlayer_ActionEvent( boardPlayer, hoxEVT_PLAYER_DRAW_TABLE, pCommand );
 }
 
 void 
@@ -427,14 +472,12 @@ hoxTable::ToggleViewSide()
 void 
 hoxTable::_PostPlayer_ActionEvent( hoxPlayer*  player,
 								   wxEventType commandType,
-								   int         extraIntParam /* = -1 */ ) const
+								   hoxCommand* pCommand ) const
 {
-    const char* FNAME = "hoxTable::_PostPlayer_ActionEvent";
     wxCHECK_RET( player, "The player is NULL." );
 
     wxCommandEvent event( commandType );
-	event.SetString( m_id );  // Attach this table-id.
-	event.SetInt( extraIntParam );
+	event.SetEventObject( pCommand );
     wxPostEvent( player, event );
 }
 
@@ -789,21 +832,8 @@ hoxTable::_GetBoardPlayer() const
             return it->player;
         }
     }
-#if 0
-    hoxPlayerList players;
-    players.push_back( m_redPlayer );
-    players.push_back( m_blackPlayer );
 
-    for ( hoxPlayerList::iterator it = players.begin();
-                                  it != players.end(); ++it )
-    {
-        if ( (*it)->GetType() == hoxPLAYER_TYPE_LOCAL )
-        {
-            return (*it);
-        }
-    }
-#endif
-    return NULL;
+	return NULL;
 }
 
 void 

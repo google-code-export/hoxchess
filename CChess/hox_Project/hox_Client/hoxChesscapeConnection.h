@@ -64,7 +64,7 @@ private:
     hoxResult   _Disconnect(const wxString& login);
     hoxResult   _Join(const wxString& tableId,
 		              const bool      hasRole, // already at table?
-		              const wxString& requestSeat);
+		              hoxPieceColor   requestColor);
     hoxResult   _UpdateStatus(const wxString& playerStatus);
 	hoxResult   _Leave();
 	hoxResult   _Move(hoxRequest* request);

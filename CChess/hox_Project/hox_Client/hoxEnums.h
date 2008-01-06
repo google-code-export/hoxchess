@@ -91,12 +91,18 @@ enum hoxPieceType
  */
 enum hoxPieceColor
 {
+    hoxPIECE_COLOR_UNKNOWN = -1,
+        /* This type indicates the absense of color or role.
+		 * For example, it is used to indicate the player is not even
+		 * at the table.
+         */
+
     hoxPIECE_COLOR_RED,   // RED color.
     hoxPIECE_COLOR_BLACK, // BLACK color.
 
     hoxPIECE_COLOR_NONE 
         /* TODO: This type actually does not make sense for 'Piece',
-         *       only for "Player". It is used to indicated the role 
+         *       only for "Player". It is used to indicate the role 
          *       of a player who is currently only observe the game,
          *       not playing.
          */

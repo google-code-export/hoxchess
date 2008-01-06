@@ -59,6 +59,16 @@ namespace hoxUtility
 	 */
 	const wxString GameTypeToString( const hoxGameType gameType );
 
+    /**
+     * Convert a given Color (Piece's Color or Role) to a (human-readable) string.
+     */
+    const wxString ColorToString( const hoxPieceColor color );
+
+    /**
+     * Convert a given (human-readable) string to a Color (Piece's Color or Role).
+     */
+    hoxPieceColor StringToColor( const wxString& input );
+
     // ----------------------------------------------------------------------------
     // hoxURI - A simple wrapper for wxURI
     // ----------------------------------------------------------------------------
