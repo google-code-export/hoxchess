@@ -125,7 +125,6 @@ hoxHttpConnection::_RequestToString( const hoxRequest& request ) const
 		}
 	}
 
-	//result += "\r\n";
 	return result;
 }
 

@@ -96,6 +96,8 @@ hoxServer::CloseServer()
 {
 	const char* FNAME = "hoxServer::CloseServer";
 
+	wxLogDebug("%s: The number of remaining active sockets = [%d].", FNAME, m_activeSockets.size());
+
 	/* Close the socket-server thread */
 
 	if ( m_socketServer != NULL )
@@ -151,29 +153,43 @@ hoxServer::_DetachActiveSocket( wxSocketBase *sock )
     const char* FNAME = "hoxServer::_DetachActiveSocket";
     wxLogDebug("%s: ENTER.", FNAME);
 
+	SocketList::iterator found_it = m_activeSockets.end();
+
     for ( SocketList::iterator it = m_activeSockets.begin(); 
                                it != m_activeSockets.end(); ++it )
     {
         if ( it->socket == sock )
         {
-			hoxPlayer* player = m_site->FindPlayer( it->playerId );
-			if ( player != NULL )
-			{
-				hoxConnection* connection = player->GetConnection();
-				hoxRemoteConnection* remoteConnection = wxDynamicCast(connection, hoxRemoteConnection );
-				if ( remoteConnection )
-				{
-					wxLogDebug("%s: Clear call-backk socket for player [%s].", 
-						FNAME, player->GetName().c_str());
-					remoteConnection->SetCBSocket( NULL );
-				}
-			}
-            m_activeSockets.erase( it );
-            return true;
+			found_it = it;
+			break;
         }
     }
-    wxLogDebug("%s: Could NOT find the specified socket to detach.", FNAME);
-    return false;
+
+	if ( found_it == m_activeSockets.end() )
+	{
+		wxLogDebug("%s: Could NOT find the specified socket to detach.", FNAME);
+		return false;
+	}
+
+	const wxString playerId = found_it->playerId;
+	wxLogDebug("%s: Found socket with player-Id = [%s].", FNAME, playerId.c_str());
+	found_it->socket = NULL;
+	m_activeSockets.erase( found_it );
+
+	hoxPlayer* player = m_site->FindPlayer( playerId );
+	if ( player != NULL )
+	{
+		hoxConnection* connection = player->GetConnection();
+		hoxRemoteConnection* remoteConnection = wxDynamicCast(connection, hoxRemoteConnection );
+		if ( remoteConnection )
+		{
+			wxLogDebug("%s: Clear call-back socket for player [%s].", 
+				FNAME, player->GetName().c_str());
+			remoteConnection->SetCBSocket( NULL );
+		}
+	}
+    
+    return true;
 }
 
 bool
@@ -186,6 +202,22 @@ hoxServer::_FindSocketInfo( const wxString& playerId,
         if ( it->playerId == playerId )
         {
             socketInfo = (*it);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool
+hoxServer::_DeleteSocketInfo( const wxString& playerId )
+{
+    for ( SocketList::iterator it = m_activeSockets.begin(); 
+                               it != m_activeSockets.end(); ++it )
+    {
+        if ( it->playerId == playerId )
+        {
+			m_activeSockets.erase( it );
             return true;
         }
     }
@@ -240,6 +272,28 @@ hoxServer::AddRequest( hoxRequest* request )
 	return true;
 }
 
+bool     
+hoxServer::OnPlayerDisconnected( const wxString& playerId )
+{
+	const char* FNAME = "hoxServer::OnPlayerDisconnected";
+	SocketInfo socketInfo;
+
+	if ( ! _FindSocketInfo( playerId, socketInfo ) )
+	{
+		wxLogDebug("%s: *** INFO *** Player [%s] not found.", FNAME, playerId.c_str() );
+		return false;
+	}
+
+	if ( socketInfo.socket != NULL )
+	{
+		_DestroyActiveSocket( socketInfo.socket );
+		//socketInfo.socket->Destroy();
+	}
+
+	//return _DeleteSocketInfo( playerId );
+	return true;
+}
+
 void 
 hoxServer::_HandleRequest( hoxRequest* request )
 {
@@ -274,6 +328,10 @@ hoxServer::_HandleRequest( hoxRequest* request )
     {
         case hoxREQUEST_TYPE_ACCEPT:
             result = _HandleRequest_Accept( request );
+            break;
+
+        case hoxREQUEST_TYPE_DISCONNECT:
+            result = _HandleRequest_Disconnect( request );
             break;
 
         case hoxREQUEST_TYPE_MOVE: /* fall through */
@@ -350,8 +408,6 @@ hoxServer::_RequestToString( const hoxRequest& request ) const
 		{
 			result += "&" + it->first + "=" + it->second;
 		}
-
-		result += "\r\n";
 	}
 	
 	return result;
@@ -364,7 +420,7 @@ hoxServer::_CheckAndHandleSocketLostEvent( const hoxRequest* request,
     const char* FNAME = "hoxServer::_CheckAndHandleSocketLostEvent";
     hoxResult result = hoxRESULT_OK;
 
-    wxLogDebug("%s: ENTER.", FNAME);
+    //wxLogDebug("%s: ENTER.", FNAME);
 
     wxSocketBase* sock = request->socket;
     
@@ -396,6 +452,20 @@ hoxServer::_HandleRequest_Accept( hoxRequest* request )
     m_activeSockets.push_back( socketInfo );
 
     return hoxRESULT_OK;
+}
+
+hoxResult 
+hoxServer::_HandleRequest_Disconnect( hoxRequest* request ) 
+{
+    const char* FNAME = "hoxServer::_HandleRequest_Disconnect";  // function's name
+
+	const wxString playerId = request->content;
+	wxLogDebug("%s: Removing the active (socket) connection for player [%s].", 
+		FNAME, playerId.c_str());
+	
+	this->OnPlayerDisconnected( playerId );
+
+	return hoxRESULT_OK;
 }
 
 hoxRequest*

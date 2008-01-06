@@ -91,21 +91,20 @@ hoxSocketServer::Entry()
         FNAME, m_nPort, hoxSOCKET_SERVER_ACCEPT_TIMEOUT);
     ///////////////////////////////////
 
-    hoxRequest* request = NULL;
+    hoxRequest*   request = NULL;
+	wxSocketBase* newSock = NULL;
 
     while ( ! m_shutdownRequested )
     {
-        wxSocketBase* newSock = m_pSServer->Accept( true /* wait */ );
+        newSock = m_pSServer->Accept( true /* wait */ );
 
-        if ( newSock != NULL )
-        {
-            wxLogDebug("%s: New client connection accepted.", FNAME);
-        }
-        else
+        if ( newSock == NULL )
         {
             //wxLogDebug("%s: Timeout. No new connection.", FNAME);
             continue;  // *** Ignore the error
         }
+
+		wxLogDebug("%s: New client connection accepted.", FNAME);
 
         /************************************************************
          * Create a handler to handle this socket.
@@ -123,79 +122,11 @@ hoxSocketServer::Entry()
         // not being able to connect to the server.
         /////////////////////////////////////////////////////
 
-        wxLogDebug("%s: *** TODO: Temporarily handle CONNECT here..", FNAME);
-
-        wxLogDebug("%s: Turn OFF the socket-events until we finish handling CONNECT...", FNAME);
-        newSock->Notify( false );
-        wxString playerId;  // Who is sending this request?
-        {
-            /* Read the incoming command */
-            hoxCommand command;
-            hoxResult result = hoxNetworkAPI::ReadCommand( newSock, command );
-            if ( result != hoxRESULT_OK )
-            {
-                wxLogError("%s: Failed to read incoming command.", FNAME);
-                continue; // return hoxRESULT_ERR;
-            }
-
-            /* Process the command */
-            if ( command.type != hoxREQUEST_TYPE_CONNECT )
-            {
-                wxLogError("%s: Unsupported Request-Type [%s].", 
-                    FNAME, hoxUtility::RequestTypeToString(command.type).c_str());
-                continue;
-            }
-
-            playerId = command.parameters["pid"];
-
-            /////////////////////////////////////////
-            const int      playerScore = 1999;   // FIXME hard-coded player's score
-
-            /* Create a new player to represent this new remote player */
-            wxLogDebug("%s: Creating a remote player [%s]...", FNAME, playerId.c_str());
-            hoxRemotePlayer* newPlayer = 
-                m_site->m_playerMgr.CreateRemotePlayer( playerId, playerScore );
-
-            /* Create a connection for the new player. */
-            hoxRemoteConnection* connection = new hoxRemoteConnection();
-            connection->SetServer( m_server );
-            connection->SetCBSocket( newSock );
-            newPlayer->SetConnection( connection );
-
-            /* et the player handles all socket events. */
-            wxLogDebug("%s: Let this Remote player [%s] handle all socket events", 
-                FNAME, newPlayer->GetName().c_str());
-            newSock->SetEventHandler(*newPlayer, CLIENT_SOCKET_ID);
-            newSock->SetNotify(wxSOCKET_INPUT_FLAG | wxSOCKET_LOST_FLAG);
-            newSock->Notify(true);
-
-            // *** Save the connection so that later we can cleanup before closing.
-            wxLogDebug("%s: Posting ACCEPT request to save the new client connection.", FNAME);
-            request = new hoxRequest( hoxREQUEST_TYPE_ACCEPT );
-            request->content = playerId;
-            request->socket = newSock;
-            m_server->AddRequest( request );
-            /////////////////////////////////////////
-
-           /* Simply send back an OK response. */
-
-            wxUint32 nWrite;
-            wxString response;
-
-            response << "0\r\n"  // code
-                     << "OK - Accepted\r\n";  // message
-
-            nWrite = (wxUint32) response.size();
-            newSock->WriteMsg( response, nWrite );
-            if ( newSock->LastCount() != nWrite )
-            {
-                wxLogError("%s: Writing to socket failed. Error = [%s]", 
-                    FNAME, hoxNetworkAPI::SocketErrorToString(newSock->LastError()).c_str());
-                continue; //return;
-            }
-        }
-        ////// END OF CONNECT ////////////////
-        //////////////////////////////////////////////////
+		if ( hoxRESULT_OK != _HandleNewConnect( newSock ) )
+		{
+			wxLogDebug("%s: *** WARN *** Failed to handle new connection.", FNAME);
+			continue;
+		}
 
     } // while(...)
 
@@ -203,6 +134,81 @@ hoxSocketServer::Entry()
     _DestroySocketServer();
 
     return NULL;
+}
+
+hoxResult 
+hoxSocketServer::_HandleNewConnect( wxSocketBase* newSock )
+{
+	const char* FNAME = "hoxSocketServer::_HandleNewConnect";
+
+    wxLogDebug("%s: Turn OFF the socket-events until we finish handling CONNECT...", FNAME);
+    newSock->Notify( false );
+    wxString playerId;  // Who is sending this request?
+
+    /* Read the incoming command */
+    hoxCommand command;
+    hoxResult result = hoxNetworkAPI::ReadCommand( newSock, command );
+    if ( result != hoxRESULT_OK )
+    {
+        wxLogError("%s: Failed to read incoming command.", FNAME);
+        return hoxRESULT_ERR;
+    }
+
+    /* Process the command */
+    if ( command.type != hoxREQUEST_TYPE_CONNECT )
+    {
+        wxLogError("%s: Unsupported Request-Type [%s].", 
+            FNAME, hoxUtility::RequestTypeToString(command.type).c_str());
+        return hoxRESULT_ERR;
+    }
+
+    playerId = command.parameters["pid"];
+
+    const int playerScore = 1999;   // FIXME hard-coded player's score
+
+    /* Create a new player to represent this new remote player */
+    wxLogDebug("%s: Creating a remote player [%s]...", FNAME, playerId.c_str());
+    hoxRemotePlayer* newPlayer = 
+        m_site->m_playerMgr.CreateRemotePlayer( playerId, playerScore );
+
+    /* Create a connection for the new player. */
+    hoxRemoteConnection* connection = new hoxRemoteConnection();
+    connection->SetServer( m_server );
+    connection->SetCBSocket( newSock );
+    newPlayer->SetConnection( connection );
+
+    /* Let the player handles all socket events. */
+    wxLogDebug("%s: Let this Remote player [%s] handle all socket events", 
+        FNAME, newPlayer->GetName().c_str());
+    newSock->SetEventHandler(*newPlayer, CLIENT_SOCKET_ID);
+    newSock->SetNotify(wxSOCKET_INPUT_FLAG | wxSOCKET_LOST_FLAG);
+    newSock->Notify(true);
+
+    // *** Save the connection so that later we can cleanup before closing.
+    wxLogDebug("%s: Posting ACCEPT request to save the new client connection.", FNAME);
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_ACCEPT );
+    request->content = playerId;
+    request->socket = newSock;
+    m_server->AddRequest( request );
+
+   /* Simply send back an OK response. */
+
+    wxUint32 nWrite;
+    wxString response;
+
+    response << "0\r\n"  // code
+             << "OK - Accepted\r\n";  // message
+
+    nWrite = (wxUint32) response.size();
+    newSock->WriteMsg( response, nWrite );
+    if ( newSock->LastCount() != nWrite )
+    {
+        wxLogError("%s: Writing to socket failed. Error = [%s]", 
+            FNAME, hoxNetworkAPI::SocketErrorToString(newSock->LastError()).c_str());
+        return hoxRESULT_ERR;
+    }
+
+	return hoxRESULT_OK;
 }
 
 void 

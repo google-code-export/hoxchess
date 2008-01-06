@@ -161,7 +161,7 @@ protected:
      * Handle the incoming data from the connection.
      */
     virtual hoxResult HandleIncomingData( const wxString& commandStr );
-	virtual hoxResult HandleIncomingData_Disconnect( hoxCommand& command, wxString& response );
+	virtual hoxResult HandleIncomingData_Disconnect( hoxCommand& command );
     virtual hoxResult HandleIncomingData_Move( hoxCommand& command, wxString& response );
     virtual hoxResult HandleIncomingData_Leave( hoxCommand& command, wxString& response );
     virtual hoxResult HandleIncomingData_WallMsg( hoxCommand& command, wxString& response );

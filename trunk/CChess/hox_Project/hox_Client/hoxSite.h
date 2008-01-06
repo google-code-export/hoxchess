@@ -36,6 +36,7 @@
 #include "hoxMyPlayer.h"
 #include "hoxLocalPlayer.h"
 
+DECLARE_EVENT_TYPE(hoxEVT_SITE_PLAYER_DISCONNECT, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_SITE_PLAYER_SHUTDOWN_READY, wxID_ANY)
 
 /**
@@ -64,6 +65,7 @@ public:
     hoxResponseHandler(hoxSite* site) : m_site(site) {}
     virtual ~hoxResponseHandler() {}
 
+	void OnDisconnect_FromPlayer( wxCommandEvent& event ); 
 	void OnShutdownReady_FromPlayer( wxCommandEvent& event ); 
     void OnConnectionResponse( wxCommandEvent& event ); 
 
@@ -110,7 +112,8 @@ public:
     hoxResponseHandler*  GetResponseHandler() const 
         { return m_responseHandler; }
 
-	virtual void Handle_ShutdownReadyFromPlayer( hoxPlayer* player );
+	virtual void Handle_DisconnectFromPlayer( hoxPlayer* player );
+	virtual void Handle_ShutdownReadyFromPlayer( const wxString& playerId );
 
 	virtual unsigned int GetCurrentActionFlags() const { return 0; }
 
@@ -149,7 +152,8 @@ public:
 
     virtual hoxResult CreateNewTableAsPlayer(wxString& newTableId, hoxPlayer* player);
 	
-	virtual void Handle_ShutdownReadyFromPlayer( hoxPlayer* player );
+	virtual void Handle_DisconnectFromPlayer( hoxPlayer* player );
+	virtual void Handle_ShutdownReadyFromPlayer( const wxString& playerId );
 
 private:
 	void           _DoCloseSite();
@@ -184,7 +188,7 @@ public:
 
 	virtual void DeletePlayer( hoxPlayer* player );
 
-	virtual void Handle_ShutdownReadyFromPlayer( hoxPlayer* player );
+	virtual void Handle_ShutdownReadyFromPlayer( const wxString& playerId );
 
 	/* TODO: Need to review this API... */
     virtual hoxLocalPlayer* CreateLocalPlayer(const wxString& playerName);

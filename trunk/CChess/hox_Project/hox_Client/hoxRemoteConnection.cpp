@@ -74,10 +74,6 @@ hoxRemoteConnection::AddRequest( hoxRequest* request )
 
     wxCHECK_MSG( m_server, false, "The Server component must have been set." );
 
-    // *************************
-    // Simply forward to the server to handle...
-    // *************************
-
     /* This type of connection does not need to handle SHUTDOWN. */
     if ( request->type == hoxREQUEST_TYPE_SHUTDOWN )
     {
@@ -86,11 +82,23 @@ hoxRemoteConnection::AddRequest( hoxRequest* request )
         return false;
     }
 
+	if ( m_pCBSock == NULL )
+	{
+        wxLogDebug("%s: *** INFO *** The Callback socket is not set. Ignore this request.", FNAME);
+        delete request;
+        return false;
+	}
+
     // Perform sanity check if possible.
     if ( request->socket != NULL )
     {
         wxCHECK_MSG(m_pCBSock == request->socket, false, "The sockets must match.");
     }
+
+    // *************************
+    // Simply forward to the server to handle...
+    // *************************
+
     request->socket = m_pCBSock;
     return m_server->AddRequest( request );
 }
@@ -98,12 +106,10 @@ hoxRemoteConnection::AddRequest( hoxRequest* request )
 hoxResult 
 hoxRemoteConnection::SetCBSocket( wxSocketBase* socket )
 {
-    //const char* FNAME = "hoxRemoteConnection::SetCBSocket";
+	/* Note: This API can also be used to clear Callback-socket. 
+	 *       That is, the input socket can be NULL.
+	 */
 
-    //wxCHECK_MSG(m_pCBSock == NULL, hoxRESULT_ERR, "Callback socket already exists.");
-    //wxCHECK_MSG(socket != NULL, hoxRESULT_ERR, "The socket is NULL.");
-
-    //wxLogDebug("%s: Assign callback socket to this connection.", FNAME);
     m_pCBSock = socket;
 
     return hoxRESULT_OK;

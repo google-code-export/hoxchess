@@ -62,8 +62,8 @@ hoxNetworkAPI::SendRequest( wxSocketBase*   sock,
 {
     const char* FNAME = "hoxNetworkAPI::SendRequest";
     hoxResult     result;
-    wxUint32      requestSize;
-    wxUint32      nWrite;
+    //wxUint32      requestSize;
+    //wxUint32      nWrite;
 
     wxLogDebug("%s: ENTER.", FNAME);    
 
@@ -72,6 +72,17 @@ hoxNetworkAPI::SendRequest( wxSocketBase*   sock,
 
     // Send request.
     wxLogDebug("%s: Sending the request [%s] over the network...", FNAME, request.c_str());
+
+	result = hoxNetworkAPI::WriteMsg( sock, request );
+	if ( result != hoxRESULT_OK )
+	{
+        wxLogDebug("%s: *** WARN *** Failed to send request. Error = [%s].", 
+            FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
+		result = hoxRESULT_ERR;
+        goto exit_label;
+	}
+
+#if 0
     requestSize = (wxUint32) request.size();
     sock->Write( request, requestSize );
     nWrite = sock->LastCount();
@@ -83,15 +94,14 @@ hoxNetworkAPI::SendRequest( wxSocketBase*   sock,
         result = hoxRESULT_ERR;
         goto exit_label;
     }
+#endif
 
-#if 1
     // Wait until data available (will also return if the connection is lost)
     wxLogDebug("%s: Waiting for response from the network (timeout = 5 sec)...", FNAME);
     if ( ! sock->WaitForRead( 5 /* seconds */ ) )
     {
         wxLogDebug("%s: Timeout while waiting for read. However, we still continue...", FNAME);
     }
-#endif
 
     // Read back the response.
     wxLogDebug("%s: Reading back the response from the network...", FNAME);
@@ -116,26 +126,7 @@ hoxResult
 hoxNetworkAPI::SendOutData( wxSocketBase*   sock, 
                             const wxString& contentStr )
 {
-    const char* FNAME = "hoxNetworkAPI::SendOutData";
-    hoxResult      result = hoxRESULT_ERR;
-    wxUint32       nWrite;
-
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    nWrite = (wxUint32) contentStr.size();
-    sock->WriteMsg( contentStr, nWrite );
-    if ( sock->LastCount() != nWrite )
-    {
-        wxLogError("%s: Writing to socket failed. Error = [%s]", 
-            FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
-        goto exit_label;
-    }
-
-    result = hoxRESULT_OK;
-
-exit_label:
-    wxLogDebug("%s: END.", FNAME);
-    return result;
+	return hoxNetworkAPI::WriteMsg( sock, contentStr );
 }
 
 hoxResult
@@ -448,6 +439,9 @@ hoxResult
 hoxNetworkAPI::ReadLine( wxSocketBase* sock, 
                          wxString&     result )
 {
+	return hoxNetworkAPI::ReadMsg( sock, result );
+
+#if 0
     const char* FNAME = "hoxNetworkAPI::ReadLine";
     wxString commandStr;
 
@@ -491,6 +485,33 @@ hoxNetworkAPI::ReadLine( wxSocketBase* sock,
     }
 
     return hoxRESULT_ERR;
+#endif
+}
+
+hoxResult 
+hoxNetworkAPI::WriteMsg( wxSocketBase*   sock,
+                         const wxString& message )
+{
+    const char* FNAME = "hoxNetworkAPI::WriteMsg";
+    hoxResult      result = hoxRESULT_ERR;
+    wxUint32       nWrite;
+
+    wxLogDebug("%s: ENTER. Message = [%s].", FNAME, message.c_str());
+
+    nWrite = (wxUint32) message.size();
+    sock->WriteMsg( message, nWrite );
+    if ( sock->LastCount() != nWrite )
+    {
+        wxLogError("%s: Writing to socket failed. Error = [%s]", 
+            FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
+        goto exit_label;
+    }
+
+    result = hoxRESULT_OK;
+
+exit_label:
+    wxLogDebug("%s: END.", FNAME);
+    return result;
 }
 
 hoxResult

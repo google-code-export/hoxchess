@@ -108,9 +108,10 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
             break;
         }
 
+		case hoxREQUEST_TYPE_DISCONNECT: /* fall through */
         case hoxREQUEST_TYPE_OUT_DATA:
             result = hoxNetworkAPI::SendOutData( m_pSClient, 
-                                                 request->content );
+                                                 _RequestToString( *request ) );
             break;
 
         case hoxREQUEST_TYPE_CONNECT:
@@ -127,7 +128,6 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
             }
             /* fall through */
 
-		case hoxREQUEST_TYPE_DISCONNECT: /* fall through */
         case hoxREQUEST_TYPE_MOVE:     /* fall through */
         case hoxREQUEST_TYPE_LIST:     /* fall through */
         case hoxREQUEST_TYPE_NEW:      /* fall through */
@@ -188,8 +188,6 @@ hoxSocketConnection::_RequestToString( const hoxRequest& request ) const
 		{
 			result += "&" + it->first + "=" + it->second;
 		}
-
-		result += "\r\n";
 	}
 	
 	return result;

@@ -26,6 +26,7 @@
 
 #include "hoxLocalPlayer.h"
 #include "hoxNetworkAPI.h"
+#include "hoxUtility.h"
 
 DEFINE_EVENT_TYPE(hoxEVT_CONNECTION_RESPONSE)
 
@@ -137,7 +138,7 @@ hoxLocalPlayer::LeaveNetworkTable( const wxString& tableId,
 {
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LEAVE, sender );
     request->content = 
-            wxString::Format("op=LEAVE&tid=%s&pid=%s\r\n", 
+            wxString::Format("op=LEAVE&tid=%s&pid=%s", 
                 tableId.c_str(), this->GetName().c_str());
     this->AddRequestToConnection( request );
 
@@ -212,7 +213,8 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
 
     if ( response->type == hoxREQUEST_TYPE_OUT_DATA )
     {
-        wxLogDebug("%s: OUT_DATA 's response received. END.", FNAME);
+		wxLogDebug("%s: [%s] 's response received. END.", 
+			FNAME, hoxUtility::RequestTypeToString(response->type).c_str());
         return;
     }
 
