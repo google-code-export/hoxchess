@@ -72,9 +72,16 @@ public:
     virtual hoxResult LeaveNetworkTable( const wxString& tableId,
                                          wxEvtHandler*   sender );
 
+    /*******************************
+     * Event-handler API
+     *******************************/
+
+	virtual void OnConnectionResponse( wxCommandEvent& event ); 
+
 private:
 
     DECLARE_ABSTRACT_CLASS(hoxLocalPlayer)
+	DECLARE_EVENT_TABLE()
 };
 
 

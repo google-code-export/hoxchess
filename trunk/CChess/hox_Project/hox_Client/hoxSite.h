@@ -236,7 +236,6 @@ public:
 
 protected:
     virtual void OnResponse_Connect( const hoxResponse_AutoPtr& response );
-	virtual void OnResponse_List( const hoxResponse_AutoPtr& response );
 	virtual void OnResponse_Join( const hoxResponse_AutoPtr& response );
 	virtual void OnResponse_New( const hoxResponse_AutoPtr& response );
 };

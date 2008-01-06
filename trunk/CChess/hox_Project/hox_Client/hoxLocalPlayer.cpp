@@ -25,10 +25,15 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxLocalPlayer.h"
+#include "hoxNetworkAPI.h"
 
 DEFINE_EVENT_TYPE(hoxEVT_CONNECTION_RESPONSE)
 
 IMPLEMENT_ABSTRACT_CLASS(hoxLocalPlayer, hoxPlayer)
+
+BEGIN_EVENT_TABLE(hoxLocalPlayer, hoxPlayer)
+    EVT_COMMAND(wxID_ANY, hoxEVT_CONNECTION_RESPONSE, hoxLocalPlayer::OnConnectionResponse)
+END_EVENT_TABLE()
 
 //-----------------------------------------------------------------------------
 // hoxLocalPlayer
@@ -75,8 +80,6 @@ hoxLocalPlayer::ConnectToNetworkServer( wxEvtHandler* sender )
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_CONNECT, sender );
 	request->parameters["pid"] = this->GetName();
 	request->parameters["password"] = this->GetPassword();
-    //request->content = 
-    //    wxString::Format("op=CONNECT&pid=%s\r\n", this->GetName().c_str());
     this->AddRequestToConnection( request );
 
     return hoxRESULT_OK;
@@ -97,8 +100,6 @@ hoxLocalPlayer::QueryForNetworkTables( wxEvtHandler* sender )
 {
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LIST, sender );
 	request->parameters["pid"] = this->GetName();
-    //request->content = 
-    //    wxString::Format("op=LIST&pid=%s\r\n", this->GetName().c_str());
     this->AddRequestToConnection( request );
 
     return hoxRESULT_OK;
@@ -115,10 +116,6 @@ hoxLocalPlayer::JoinNetworkTable( const wxString& tableId,
 	request->parameters["pid"] = this->GetName();
 	request->parameters["tid"] = tableId;
 	request->parameters["joined"] = hasRole ? "1" : "0";
-	//request->parameters["seat"] = "";
-
-    //request->content = 
-    //    wxString::Format("op=JOIN&tid=%s&pid=%s\r\n", tableId.c_str(), this->GetName().c_str());
     this->AddRequestToConnection( request );
 
     return hoxRESULT_OK;
@@ -129,8 +126,6 @@ hoxLocalPlayer::OpenNewNetworkTable( wxEvtHandler*   sender )
 {
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_NEW, sender );
 	request->parameters["pid"] = this->GetName();
-    //request->content = 
-    //    wxString::Format("op=NEW&pid=%s\r\n", this->GetName().c_str());
     this->AddRequestToConnection( request );
 
     return hoxRESULT_OK;
@@ -147,6 +142,65 @@ hoxLocalPlayer::LeaveNetworkTable( const wxString& tableId,
     this->AddRequestToConnection( request );
 
     return hoxRESULT_OK;
+}
+
+void 
+hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
+{
+    const char* FNAME = "hoxLocalPlayer::OnConnectionResponse";
+    hoxResult     result;
+    int           returnCode = -1;
+    wxString      returnMsg;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
+    std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
+
+    /* Make a note to 'self' that one request has been serviced. */
+    DecrementOutstandingRequests();
+
+    if ( response->sender && response->sender != this )
+    {
+		if ( response->type == hoxREQUEST_TYPE_LIST )
+		{
+			hoxNetworkTableInfoList* pTableList = new hoxNetworkTableInfoList;
+			result = hoxNetworkAPI::ParseNetworkTables( response->content,
+														*pTableList );
+			if ( result != hoxRESULT_OK )
+			{
+				wxLogDebug("%s: *** WARN *** Failed to parse LIST's response [%s].", 
+					FNAME, response->content.c_str());
+				response->code = result;
+			}
+			response->content = "";
+			response->eventObject = pTableList;
+		}
+		
+        wxEvtHandler* sender = response->sender;
+        response.release();
+        wxPostEvent( sender, event );
+        return;
+    }
+
+    if ( response->type == hoxREQUEST_TYPE_OUT_DATA )
+    {
+        wxLogDebug("%s: OUT_DATA 's response received. END.", FNAME);
+        return;
+    }
+
+    /* Parse the response */
+    result = hoxNetworkAPI::ParseSimpleResponse( response->content,
+                                                 returnCode,
+                                                 returnMsg );
+    if ( result != hoxRESULT_OK || returnCode != 0 )
+    {
+        wxLogDebug("%s: *** WARN *** Failed to parse the response. [%d] [%s]", 
+            FNAME,  returnCode, returnMsg.c_str());
+        return;
+    }
+
+    wxLogDebug("%s: The response is OK.", FNAME);
 }
 
 /************************* END OF FILE ***************************************/
