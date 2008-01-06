@@ -54,7 +54,6 @@ public:
     void OnIncomingNetworkData( wxSocketEvent& event );
     
     void OnConnectionResponse_PlayerData( wxCommandEvent& event ); 
-    void OnConnectionResponse( wxCommandEvent& event ); 
 
 private:
 

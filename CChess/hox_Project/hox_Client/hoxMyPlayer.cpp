@@ -34,7 +34,6 @@ IMPLEMENT_DYNAMIC_CLASS(hoxMyPlayer, hoxLocalPlayer)
 BEGIN_EVENT_TABLE(hoxMyPlayer, hoxLocalPlayer)
     EVT_SOCKET(CLIENT_SOCKET_ID,  hoxMyPlayer::OnIncomingNetworkData)
     EVT_COMMAND(hoxREQUEST_TYPE_PLAYER_DATA, hoxEVT_CONNECTION_RESPONSE, hoxMyPlayer::OnConnectionResponse_PlayerData)
-    EVT_COMMAND(wxID_ANY, hoxEVT_CONNECTION_RESPONSE, hoxMyPlayer::OnConnectionResponse)
 END_EVENT_TABLE()
 
 //-----------------------------------------------------------------------------
@@ -111,50 +110,6 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
     }
 
     wxLogDebug("%s: END.", FNAME);
-}
-
-void 
-hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
-{
-    const char* FNAME = "hoxMyPlayer::OnConnectionResponse";
-    hoxResult     result;
-    int           returnCode = -1;
-    wxString      returnMsg;
-
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
-    std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
-
-    /* Make a note to 'self' that one request has been serviced. */
-    DecrementOutstandingRequests();
-
-    if ( response->sender && response->sender != this )
-    {
-        wxEvtHandler* sender = response->sender;
-        response.release();
-        wxPostEvent( sender, event );
-        return;
-    }
-
-    if ( response->type == hoxREQUEST_TYPE_OUT_DATA )
-    {
-        wxLogDebug("%s: OUT_DATA 's response received. END.", FNAME);
-        return;
-    }
-
-    /* Parse the response */
-    result = hoxNetworkAPI::ParseSimpleResponse( response->content,
-                                                 returnCode,
-                                                 returnMsg );
-    if ( result != hoxRESULT_OK || returnCode != 0 )
-    {
-        wxLogDebug("%s: *** WARN *** Failed to parse the response. [%d] [%s]", 
-            FNAME,  returnCode, returnMsg.c_str());
-        return;
-    }
-
-    wxLogDebug("%s: The response is OK.", FNAME);
 }
 
 /************************* END OF FILE ***************************************/

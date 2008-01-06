@@ -38,9 +38,8 @@ IMPLEMENT_DYNAMIC_CLASS(hoxHttpPlayer, hoxLocalPlayer)
 
 BEGIN_EVENT_TABLE(hoxHttpPlayer, hoxLocalPlayer)
     EVT_TIMER(wxID_ANY, hoxHttpPlayer::OnTimer)
-    EVT_COMMAND(hoxREQUEST_TYPE_POLL, hoxEVT_CONNECTION_RESPONSE, hoxHttpPlayer::OnHTTPResponse_Poll)
-    EVT_COMMAND(hoxREQUEST_TYPE_CONNECT, hoxEVT_CONNECTION_RESPONSE, hoxHttpPlayer::OnHTTPResponse_Connect)
-    EVT_COMMAND(wxID_ANY, hoxEVT_CONNECTION_RESPONSE, hoxHttpPlayer::OnHTTPResponse)
+    EVT_COMMAND(hoxREQUEST_TYPE_POLL, hoxEVT_CONNECTION_RESPONSE, hoxHttpPlayer::OnConnectionResponse_Poll)
+    EVT_COMMAND(hoxREQUEST_TYPE_CONNECT, hoxEVT_CONNECTION_RESPONSE, hoxHttpPlayer::OnConnectionResponse_Connect)
 END_EVENT_TABLE()
 
 //-----------------------------------------------------------------------------
@@ -87,9 +86,9 @@ hoxHttpPlayer::OnTimer( wxTimerEvent& event )
 }
 
 void 
-hoxHttpPlayer::OnHTTPResponse_Poll(wxCommandEvent& event) 
+hoxHttpPlayer::OnConnectionResponse_Poll(wxCommandEvent& event) 
 {
-    const char* FNAME = "hoxHttpPlayer::OnHTTPResponse_Poll";
+    const char* FNAME = "hoxHttpPlayer::OnConnectionResponse_Poll";
     hoxResult result;
 
     wxLogDebug("%s: ENTER.", FNAME);
@@ -142,9 +141,9 @@ hoxHttpPlayer::OnHTTPResponse_Poll(wxCommandEvent& event)
 }
 
 void 
-hoxHttpPlayer::OnHTTPResponse_Connect(wxCommandEvent& event) 
+hoxHttpPlayer::OnConnectionResponse_Connect(wxCommandEvent& event) 
 {
-    const char* FNAME = "hoxHttpPlayer::OnHTTPResponse_Connect";
+    const char* FNAME = "hoxHttpPlayer::OnConnectionResponse_Connect";
     hoxResult  result;
     int        returnCode = -1;
     wxString   returnMsg;
@@ -171,50 +170,6 @@ hoxHttpPlayer::OnHTTPResponse_Connect(wxCommandEvent& event)
 
     wxLogDebug("%s: Forward event to the default handler...", FNAME);
     event.Skip();
-}
-
-void 
-hoxHttpPlayer::OnHTTPResponse(wxCommandEvent& event) 
-{
-    const char* FNAME = "hoxHttpPlayer::OnHTTPResponse";
-    hoxResult result;
-
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
-    std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
-
-    /* Notice to 'self' that one request has been serviced. */
-    DecrementOutstandingRequests();
-
-    if ( response->sender && response->sender != this )
-    {
-        wxEvtHandler* sender = response->sender;
-        response.release();
-        wxPostEvent( sender, event );
-        return;
-    }
-
-    if ( response->type == hoxREQUEST_TYPE_OUT_DATA )
-    {
-        wxLogDebug("%s: OUT_DATA 's response received. END.", FNAME);
-        return;
-    }
-
-    /* Parse the response. */
-
-    int        returnCode = -1;
-    wxString   returnMsg;
-
-    result = hoxNetworkAPI::ParseSimpleResponse( response->content,
-                                                 returnCode,
-                                                 returnMsg );
-    if ( result != hoxRESULT_OK || returnCode != 0 )
-    {
-        wxLogError("%s: Failed to parse HTTP's response. [%d] [%s]", 
-            FNAME,  returnCode, returnMsg.c_str());
-        return;
-    }
 }
 
 void 

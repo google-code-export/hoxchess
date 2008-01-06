@@ -50,9 +50,8 @@ public:
      * Incoming-data event handlers
      *******************************/
 
-    void OnHTTPResponse_Poll(wxCommandEvent& event);
-    void OnHTTPResponse_Connect(wxCommandEvent& event);
-    void OnHTTPResponse(wxCommandEvent& event);
+    void OnConnectionResponse_Poll(wxCommandEvent& event);
+    void OnConnectionResponse_Connect(wxCommandEvent& event);
 
     /*******************************
      * Other API

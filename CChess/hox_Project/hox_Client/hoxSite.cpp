@@ -425,20 +425,13 @@ void
 hoxRemoteSite::OnResponse_List( const hoxResponse_AutoPtr& response )
 {
     const char* FNAME = "hoxRemoteSite::OnResponse_List";
-    hoxNetworkTableInfoList tableList;
     hoxResult               result;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-	const wxString& responseStr = response->content;
-    result = hoxNetworkAPI::ParseNetworkTables( responseStr,
-                                                tableList );
-    if ( result != hoxRESULT_OK )
-    {
-        wxLogError("%s: Failed to parse LIST's response [%s].", 
-            FNAME, responseStr.c_str());
-        return;
-    }
+	hoxNetworkTableInfoList* pTableList = (hoxNetworkTableInfoList*) response->eventObject;
+	std::auto_ptr<hoxNetworkTableInfoList> autoPtr_tablelist( pTableList );  // prevent memory leak!
+	const hoxNetworkTableInfoList& tableList = *pTableList;
 
     /* Show tables. */
     MyFrame* frame = wxGetApp().GetFrame();
@@ -455,7 +448,6 @@ hoxRemoteSite::OnResponse_List( const hoxResponse_AutoPtr& response )
         case hoxTablesDialog::COMMAND_ID_JOIN:
         {
             wxLogDebug("%s: Ask the server to allow me to JOIN table = [%s]", FNAME, selectedId.c_str());
-            hoxNetworkTableInfo tableInfo;
             result = m_player->JoinNetworkTable( selectedId, m_responseHandler );
             if ( result != hoxRESULT_OK )
             {
@@ -471,6 +463,17 @@ hoxRemoteSite::OnResponse_List( const hoxResponse_AutoPtr& response )
             if ( result != hoxRESULT_OK )
             {
                 wxLogError("%s: Failed to open a NEW network table.", FNAME);
+            }
+            break;
+        }
+
+		case hoxTablesDialog::COMMAND_ID_REFRESH:
+        {
+            wxLogDebug("%s: Get the latest list of tables...", FNAME);
+			result = this->QueryForNetworkTables();
+            if ( result != hoxRESULT_OK )
+            {
+                wxLogError("%s: Failed to get the list of tables.", FNAME);
             }
             break;
         }
@@ -871,70 +874,6 @@ hoxChesscapeSite::OnResponse_Connect( const hoxResponse_AutoPtr& response )
     {
 		wxLogWarning("Login failed with response = [%s].", response->content.c_str());
         return;
-    }
-}
-
-void 
-hoxChesscapeSite::OnResponse_List( const hoxResponse_AutoPtr& response )
-{
-    const char* FNAME = "hoxChesscapeSite::OnResponse_List";
-    hoxResult               result;
-
-    wxLogDebug("%s: ENTER.", FNAME);
-
-	hoxNetworkTableInfoList* pTableList = (hoxNetworkTableInfoList*) response->eventObject;
-	std::auto_ptr<hoxNetworkTableInfoList> autoPtr_tablelist( pTableList );  // prevent memory leak!
-	const hoxNetworkTableInfoList& tableList = *pTableList;
-
-    /* Show tables. */
-    MyFrame* frame = wxGetApp().GetFrame();
-	unsigned int actionFlags = this->GetCurrentActionFlags();
-    hoxTablesDialog tablesDlg( frame, wxID_ANY, "Tables", tableList, actionFlags );
-    tablesDlg.ShowModal();
-    hoxTablesDialog::CommandId selectedCommand = tablesDlg.GetSelectedCommand();
-    wxString selectedId = tablesDlg.GetSelectedId();
-
-    /* Find out which command the use wants to execute... */
-
-    switch( selectedCommand )
-    {
-        case hoxTablesDialog::COMMAND_ID_JOIN:
-        {
-            wxLogDebug("%s: Ask the server to allow me to JOIN table = [%s]", FNAME, selectedId.c_str());
-            hoxNetworkTableInfo tableInfo;
-            result = m_player->JoinNetworkTable( selectedId, m_responseHandler );
-            if ( result != hoxRESULT_OK )
-            {
-                wxLogError("%s: Failed to JOIN a network table [%s].", FNAME, selectedId.c_str());
-            }
-            break;
-        }
-
-        case hoxTablesDialog::COMMAND_ID_NEW:
-        {
-            wxLogDebug("%s: Ask the server to open a new table.", FNAME);
-            result = m_player->OpenNewNetworkTable( m_responseHandler );
-            if ( result != hoxRESULT_OK )
-            {
-                wxLogError("%s: Failed to open a NEW network table.", FNAME);
-            }
-            break;
-        }
-
-		case hoxTablesDialog::COMMAND_ID_REFRESH:
-        {
-            wxLogDebug("%s: Get the latest list of tables...", FNAME);
-			result = this->QueryForNetworkTables();
-            if ( result != hoxRESULT_OK )
-            {
-                wxLogError("%s: Failed to get the list of tables.", FNAME);
-            }
-            break;
-        }
-
-        default:
-            wxLogDebug("%s: No command is selected. Fine.", FNAME);
-            break;
     }
 }
 
