@@ -386,39 +386,66 @@ void
 hoxRemoteSite::OnResponse_New( const hoxResponse_AutoPtr& response )
 {
     const char* FNAME = "hoxRemoteSite::OnResponse_New";
-    wxString newTableId;
     hoxResult result;
-    
-	const wxString& responseStr = response->content;
-    result = hoxNetworkAPI::ParseNewNetworkTable( responseStr,
-                                                  newTableId );
-    if ( result != hoxRESULT_OK )
-    {
-        wxLogError("%s: Failed to parse for NEW's response.", FNAME);
-        return;
-    }
+    wxLogDebug("%s: Parsing NEW's response...", FNAME);
 
-    hoxTable* newTable = NULL;
+	hoxNetworkTableInfo* pTableInfo = (hoxNetworkTableInfo*) response->eventObject;
+	if ( pTableInfo == NULL )
+	{
+		wxLogWarning("Failed to create a NEW table.");
+		return;
+	}
+
+	std::auto_ptr<hoxNetworkTableInfo> tableInfo( pTableInfo );  // prevent memory leak!
+
+    hoxTable* table = NULL;
+    wxString  tableId = tableInfo->id;
+
+	/* Sanity check here. */
+	table = this->FindTable( tableId );
+	if ( table != NULL )
+	{
+		wxLogWarning("Some logic error. Table [%s] already exists.", tableId.c_str());
+		return;
+	}
+
+	/* Determine which color (or role) my player will have. */
+	
+	hoxPieceColor myColor = hoxPIECE_COLOR_NONE;
+
+	if ( tableInfo->redId == m_player->GetName() )
+	{
+		myColor = hoxPIECE_COLOR_RED;
+	}
+	else if ( tableInfo->blackId == m_player->GetName() )
+	{
+		myColor = hoxPIECE_COLOR_BLACK;
+	}
+
+	/***********************
+	 * Create a new Table. *
+     ***********************/
+
+    wxLogDebug("%s: Creating a brand NEW table...", FNAME);
 
     /* Create a GUI Frame for the new Table. */
     MyFrame* frame = wxGetApp().GetFrame();
-    MyChild* childFrame = frame->CreateFrameForTable( newTableId );
+    MyChild* childFrame = frame->CreateFrameForTable( tableId );
 
     /* Create a new table with newly created Frame. */
-    newTable = m_tableMgr.CreateTable( newTableId );
-	newTable->ViewBoard( childFrame );
-    childFrame->SetTable( newTable );
+    table = m_tableMgr.CreateTable( tableId );
+	table->SetInitialTime( tableInfo->initialTime );
+	table->SetBlackTime( tableInfo->initialTime ); // Initial time.
+	table->SetRedTime( tableInfo->initialTime );   // Initial time.
+	table->ViewBoard( childFrame );
+    childFrame->SetTable( table );
     childFrame->Show( true );
 
-    // Add the HOST player to the table.
-    result = m_player->JoinTable( newTable );
+	/* The local player is the only one at the Table. */
+    result = m_player->JoinTableAs( table, myColor );
     wxASSERT( result == hoxRESULT_OK  );
-    wxASSERT_MSG( m_player->HasRole( 
-                        hoxRole(newTable->GetId(), hoxPIECE_COLOR_RED) ),
-                  _("Player must play RED"));
 
-    // Update UI.
-    frame->UpdateSiteTreeUI();
+	frame->UpdateSiteTreeUI();
 }
 
 void 
@@ -488,26 +515,18 @@ void
 hoxRemoteSite::OnResponse_Join( const hoxResponse_AutoPtr& response )
 {
     const char* FNAME = "hoxRemoteSite::OnResponse_Join";
-    hoxNetworkTableInfo tableInfo;
-    hoxResult result;
-
     wxLogDebug("%s: ENTER.", FNAME);
 
-	const wxString& responseStr = response->content;
-    result = hoxNetworkAPI::ParseJoinNetworkTable( responseStr,
-                                                   tableInfo );
-    if ( result != hoxRESULT_OK )
-    {
-        wxLogError("%s: Failed to parse JOIN's response [%s].", 
-            FNAME, responseStr.c_str());
-        return;
-    }
-    else
-    {
-        wxLogDebug("Successfully joined the network table [%s].", 
-            tableInfo.id.c_str());
-        this->JoinExistingTable( tableInfo );
-    }
+	hoxNetworkTableInfo* pTableInfo = (hoxNetworkTableInfo*) response->eventObject;
+	if ( pTableInfo == NULL )
+	{
+		wxLogWarning("Failed to join the table.");
+		return;
+	}
+
+	std::auto_ptr<hoxNetworkTableInfo> tableInfo( pTableInfo );  // prevent memory leak!
+
+	this->JoinExistingTable( *(tableInfo.get()) );
 }
 
 const wxString 
@@ -641,45 +660,26 @@ hoxRemoteSite::CreateNewTable( wxString& newTableId )
 }
 
 hoxResult 
-hoxRemoteSite::JoinExistingTable( const hoxNetworkTableInfo& tableInfo )
+hoxRemoteSite::JoinExistingTable(const hoxNetworkTableInfo& tableInfo)
 {
     const char* FNAME = "hoxRemoteSite::JoinExistingTable";
-    hoxResult result;
+	hoxResult   result;
+    hoxTable*   table = NULL;
+    wxString    tableId = tableInfo.id;
 
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    /*******************************************************
-     * Check to see which side (RED or BLACK) we will play
-     * and who the other player, if any, is.
-     *******************************************************/
-
-    bool     playRed = false;   // Do I play RED?
-    wxString otherPlayerId;     // Who is the other player?
-
-    if ( tableInfo.redId == m_player->GetName() )
-    {
-        playRed = true;
-        otherPlayerId = tableInfo.blackId;
-    }
-    else if ( tableInfo.blackId == m_player->GetName() )
-    {
-        playRed = false;
-        otherPlayerId = tableInfo.redId;
-    }
-    else
-    {
-        wxLogError("%s: I should have secured a seat in table [%s].", FNAME, tableInfo.id.c_str());
-        return hoxRESULT_ERR;
-    }
-
+	/* Make sure that no Table with the specified Id is created yet. */
+	table = this->FindTable( tableId );
+	if ( table != NULL )
+	{
+		wxLogWarning("This Site should only handle JOIN (existing) table.");
+		return hoxRESULT_ERR;
+	}
+	
     /***********************/
     /* Create a new table. */
     /***********************/
 
-    wxLogDebug("%s: Creating a new table JOINING an existing network table...", FNAME);
-
-    hoxTable* table = NULL;
-    wxString  tableId = tableInfo.id;
+    wxLogDebug("%s: Creating a new table to JOIN an existing network table...", FNAME);
 
     /* Create a GUI Frame for the new Table. */
     MyFrame* frame = wxGetApp().GetFrame();
@@ -687,6 +687,9 @@ hoxRemoteSite::JoinExistingTable( const hoxNetworkTableInfo& tableInfo )
 
     /* Create a new table with newly created Frame. */
     table = m_tableMgr.CreateTable( tableId );
+	table->SetInitialTime( tableInfo.initialTime );
+	table->SetBlackTime( tableInfo.blackTime );
+	table->SetRedTime( tableInfo.redTime );
 	table->ViewBoard( childFrame );
     childFrame->SetTable( table );
     childFrame->Show( true );
@@ -695,58 +698,65 @@ hoxRemoteSite::JoinExistingTable( const hoxNetworkTableInfo& tableInfo )
     /* Setup players       */
     /***********************/
 
-    // The other player will be a DUMMY player.
+	hoxPieceColor myColor = hoxPIECE_COLOR_NONE;
+    hoxPlayer*    red_player = NULL;
+    hoxPlayer*    black_player = NULL;
+	int           score = 0;
 
-    hoxPlayer* red_player = NULL;
-    hoxPlayer* black_player = NULL;
-    hoxPlayer* other_player = NULL;
+	/* Determine which color my player should play (RED/BLACK/OBSERVER)? */
 
-    if ( ! otherPlayerId.empty() )
-    {
-        other_player = m_playerMgr.CreateDummyPlayer( otherPlayerId );
-    }
+	if ( tableInfo.redId == m_player->GetName() )
+	{
+		myColor = hoxPIECE_COLOR_RED;
+		red_player = m_player;
+	}
+	else if ( tableInfo.blackId == m_player->GetName() )
+	{
+		myColor = hoxPIECE_COLOR_BLACK;
+		black_player = m_player;
+	}
 
-    if ( playRed )  // Do I play RED?
-    {
-        red_player = m_player;
-        black_player = other_player;
-    }
-    else
-    {
-        black_player = m_player;
-        red_player = other_player;
-    }
+	/* Create additional Dummy player(s) as required. */
 
-    /* Join the players at the table.
-     */
+	if ( red_player == NULL && !tableInfo.redId.empty() )
+	{
+		score = ::atoi( tableInfo.redScore.c_str() ); 
+		red_player = m_playerMgr.CreateDummyPlayer( tableInfo.redId, score);
+	}
+	if ( black_player == NULL && !tableInfo.blackId.empty() )
+	{
+		score = ::atoi( tableInfo.blackScore.c_str() ); 
+		black_player = m_playerMgr.CreateDummyPlayer( tableInfo.blackId, score);
+	}
+
+    /* Join the players at the table. */
 
     if ( red_player != NULL )
     {
-        result = red_player->JoinTable( table );
+        result = red_player->JoinTableAs( table, hoxPIECE_COLOR_RED );
         wxASSERT( result == hoxRESULT_OK  );
-        wxASSERT_MSG( red_player->HasRole( hoxRole(table->GetId(), 
-                                                   hoxPIECE_COLOR_RED) ),
-                      _("Player must play RED"));
     }
-
     if ( black_player != NULL )
     {
-        result = black_player->JoinTable( table );
+        result = black_player->JoinTableAs( table, hoxPIECE_COLOR_BLACK );
         wxASSERT( result == hoxRESULT_OK  );
-        wxASSERT_MSG( black_player->HasRole( hoxRole(table->GetId(), 
-                                                     hoxPIECE_COLOR_BLACK) ),
-                      _("Player must play BLACK"));
     }
+	if ( myColor == hoxPIECE_COLOR_NONE )
+	{
+		result = m_player->JoinTableAs( table, myColor );
+		wxASSERT( result == hoxRESULT_OK  );
+	}
 
-    // Toggle board if I play BLACK.
-    if ( !playRed )
-    {
-        table->ToggleViewSide();
-    }
+	/* Toggle board if I play BLACK. */
+
+	if ( myColor == hoxPIECE_COLOR_BLACK )
+	{
+		table->ToggleViewSide();
+	}
 
 	frame->UpdateSiteTreeUI();
 
-    return hoxRESULT_OK;
+	return hoxRESULT_OK;
 }
 
 void 
@@ -875,176 +885,6 @@ hoxChesscapeSite::OnResponse_Connect( const hoxResponse_AutoPtr& response )
 		wxLogWarning("Login failed with response = [%s].", response->content.c_str());
         return;
     }
-}
-
-void 
-hoxChesscapeSite::OnResponse_Join( const hoxResponse_AutoPtr& response )
-{
-    const char* FNAME = "hoxChesscapeSite::OnResponse_Join";
-	hoxResult result;
-    wxLogDebug("%s: Parsing JOIN's response...", FNAME);
-
-	hoxNetworkTableInfo* pTableInfo = (hoxNetworkTableInfo*) response->eventObject;
-	if ( pTableInfo == NULL )
-	{
-		wxLogWarning("Failed to join the table.");
-		return;
-	}
-
-	std::auto_ptr<hoxNetworkTableInfo> tableInfo( pTableInfo );  // prevent memory leak!
-
-    hoxTable* table = NULL;
-    wxString  tableId = tableInfo->id;
-	hoxPieceColor myColor = hoxPIECE_COLOR_NONE;
-
-	///////////////////// JOIN An EXISTING TABLE ////////////////////////
-	table = this->FindTable( tableId );
-	if ( table != NULL )
-	{
-		wxLogWarning("This Site should only handle JOIN (NEW) table.");
-		return;
-	}
-	
-	/////////////////////////////////////////////////////////////////////
-
-    /***********************/
-    /* Create a new table. */
-    /***********************/
-
-    wxLogDebug("%s: Creating a new table JOINING an existing network table...", FNAME);
-
-    /* Create a GUI Frame for the new Table. */
-    MyFrame* frame = wxGetApp().GetFrame();
-    MyChild* childFrame = frame->CreateFrameForTable( tableId );
-
-    /* Create a new table with newly created Frame. */
-    table = m_tableMgr.CreateTable( tableId );
-	table->SetInitialTime( tableInfo->initialTime );
-	table->SetBlackTime( tableInfo->blackTime );
-	table->SetRedTime( tableInfo->redTime );
-	table->ViewBoard( childFrame );
-    childFrame->SetTable( table );
-    childFrame->Show( true );
-
-    /***********************/
-    /* Setup players       */
-    /***********************/
-
-    hoxPlayer* red_player = NULL;
-    hoxPlayer* black_player = NULL;
-	int score = 0;
-
-	// Which color should the player play?
-	if ( tableInfo->redId == m_player->GetName() )
-	{
-		myColor = hoxPIECE_COLOR_RED;
-		score = ::atoi( tableInfo->blackScore.c_str() ); 
-		black_player = m_playerMgr.CreateDummyPlayer( tableInfo->blackId, score);
-	}
-	else if ( tableInfo->blackId == m_player->GetName() )
-	{
-		myColor = hoxPIECE_COLOR_BLACK;
-		score = ::atoi( tableInfo->redScore.c_str() ); 
-		red_player = m_playerMgr.CreateDummyPlayer( tableInfo->redId, score);
-	}
-	else
-	{
-		if ( ! tableInfo->redId.empty() )
-		{
-			score = ::atoi( tableInfo->redScore.c_str() ); 
-			red_player = m_playerMgr.CreateDummyPlayer( tableInfo->redId, score);
-		}
-		if ( ! tableInfo->blackId.empty() )
-		{
-			score = ::atoi( tableInfo->blackScore.c_str() ); 
-			black_player = m_playerMgr.CreateDummyPlayer( tableInfo->blackId, score);
-		}
-	}
-
-    /* Join the players at the table.
-     */
-
-    if ( red_player != NULL )
-    {
-        result = red_player->JoinTableAs( table, hoxPIECE_COLOR_RED );
-        wxASSERT( result == hoxRESULT_OK  );
-        wxASSERT_MSG( red_player->HasRole( hoxRole(table->GetId(), 
-                                                   hoxPIECE_COLOR_RED) ),
-                      _("Player must play RED"));
-    }
-
-    if ( black_player != NULL )
-    {
-        result = black_player->JoinTableAs( table, hoxPIECE_COLOR_BLACK );
-        wxASSERT( result == hoxRESULT_OK  );
-        wxASSERT_MSG( black_player->HasRole( hoxRole(table->GetId(), 
-                                                     hoxPIECE_COLOR_BLACK) ),
-                      _("Player must play BLACK"));
-    }
-
-	/* TODO: The local player is just observing for now. */
-    result = m_player->JoinTableAs( table, myColor );
-    wxASSERT( result == hoxRESULT_OK  );
-    wxASSERT_MSG( m_player->HasRole( hoxRole(table->GetId(), 
-                                             myColor) ),
-                  _("Player must join as the specified role"));
-
-	frame->UpdateSiteTreeUI();
-}
-
-void 
-hoxChesscapeSite::OnResponse_New( const hoxResponse_AutoPtr& response )
-{
-    const char* FNAME = "hoxChesscapeSite::OnResponse_New";
-	hoxResult result;
-    wxLogDebug("%s: Parsing NEW's response...", FNAME);
-
-	hoxNetworkTableInfo* pTableInfo = (hoxNetworkTableInfo*) response->eventObject;
-	if ( pTableInfo == NULL )
-	{
-		wxLogWarning("Failed to create a NEW table.");
-		return;
-	}
-
-	std::auto_ptr<hoxNetworkTableInfo> tableInfo( pTableInfo );  // prevent memory leak!
-
-    hoxTable* table = NULL;
-    wxString  tableId = tableInfo->id;
-	hoxPieceColor myColor = hoxPIECE_COLOR_NONE;
-
-	/* Sanity check here. */
-	table = this->FindTable( tableId );
-	if ( table != NULL )
-	{
-		wxLogWarning("Some logic error. The new Table [%s] should not exist.", tableId.c_str());
-		return;
-	}
-
-	/* Create a new Table with this Player as an observer. */
-
-    wxLogDebug("%s: Creating a brand NEW table...", FNAME);
-
-    /* Create a GUI Frame for the new Table. */
-    MyFrame* frame = wxGetApp().GetFrame();
-    MyChild* childFrame = frame->CreateFrameForTable( tableId );
-
-    /* Create a new table with newly created Frame. */
-    table = m_tableMgr.CreateTable( tableId );
-	table->SetInitialTime( tableInfo->initialTime );
-	table->SetBlackTime( tableInfo->initialTime ); // Initial time.
-	table->SetRedTime( tableInfo->initialTime );   // Initial time.
-	table->ViewBoard( childFrame );
-    childFrame->SetTable( table );
-    childFrame->Show( true );
-
-	/* The local player is the only one at the Table and is observing it. */
-    result = m_player->JoinTableAs( table, myColor );
-    wxASSERT( result == hoxRESULT_OK  );
-    wxASSERT_MSG( m_player->HasRole( hoxRole(table->GetId(), 
-                                             myColor) ),
-                  _("Player must join as the specified role"));
-
-	frame->UpdateSiteTreeUI();
 }
 
 unsigned int 

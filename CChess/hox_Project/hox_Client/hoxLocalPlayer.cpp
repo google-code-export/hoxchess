@@ -173,8 +173,35 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
 					FNAME, response->content.c_str());
 				response->code = result;
 			}
-			response->content = "";
 			response->eventObject = pTableList;
+		}
+		else if ( response->type == hoxREQUEST_TYPE_JOIN )
+		{
+			hoxNetworkTableInfo* pTableInfo = new hoxNetworkTableInfo;
+			result = hoxNetworkAPI::ParseJoinNetworkTable( response->content,
+														   *pTableInfo );
+			if ( result != hoxRESULT_OK )
+			{
+				wxLogDebug("%s: *** WARN *** Failed to parse JOIN's response [%s].", 
+					FNAME, response->content.c_str());
+				response->code = result;
+			}
+			response->eventObject = pTableInfo;
+		}
+		else if ( response->type == hoxREQUEST_TYPE_NEW )
+		{
+			wxString newTableId;
+			result = hoxNetworkAPI::ParseNewNetworkTable( response->content,
+														  newTableId );
+			if ( result != hoxRESULT_OK )
+			{
+				wxLogDebug("%s: *** WARN *** Failed to parse NEW's response [%s].", 
+					FNAME, response->content.c_str());
+				response->code = result;
+			}
+			hoxNetworkTableInfo* pTableInfo = new hoxNetworkTableInfo( newTableId );
+			pTableInfo->redId = this->GetName();  // Default: Play RED.
+			response->eventObject = pTableInfo;
 		}
 		
         wxEvtHandler* sender = response->sender;
