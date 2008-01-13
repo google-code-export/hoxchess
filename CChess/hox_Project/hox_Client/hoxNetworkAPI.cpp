@@ -356,14 +356,18 @@ hoxNetworkAPI::ParseJoinNetworkTable( const wxString&      responseStr,
 }
 
 hoxResult 
-hoxNetworkAPI::ParseNetworkEvents( const wxString&      tablesStr,
+hoxNetworkAPI::ParseNetworkEvents( const wxString&      responseStr,
+                                   int&                 returnCode,
+                                   wxString&            returnMsg,
                                    hoxNetworkEventList& networkEvents )
 {
     const char* FNAME = "hoxNetworkAPI::ParseNetworkEvents";
     hoxResult result;
-    int returnCode = hoxRESULT_ERR;
 
-    wxStringTokenizer tkz( tablesStr, "\n" );
+    returnCode = -1;
+    returnMsg  = responseStr;
+
+    wxStringTokenizer tkz( responseStr, "\n" );
     int i = 0;
 
     while ( tkz.HasMoreTokens() )
@@ -373,13 +377,10 @@ hoxNetworkAPI::ParseNetworkEvents( const wxString&      tablesStr,
         {
             case 0:   // Return-code.
                 returnCode = ::atoi( token.c_str() );
-                if ( returnCode != 0 ) // failed?
-                {
-                    return hoxRESULT_ERR;
-                }
                 break;
             case 1:    // The additional informative message.
-                wxLogDebug("%s: Server's message = [%s].", FNAME, token.c_str()) ; 
+                returnMsg = token;
+                wxLogDebug("%s: Server's message = [%s].", FNAME, returnMsg.c_str()); 
                 break;
             default:
             {

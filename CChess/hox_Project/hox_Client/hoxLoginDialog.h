@@ -58,6 +58,19 @@ public:
 	const wxString GetSelectedPassword() const { return m_selectedPassword; }
 
 private:
+	bool _GetDefaultLoginInfo( int&      siteChoice,
+							   wxString& serverAddress,
+							   wxString& serverPort,
+							   wxString& userName,
+							   wxString& password );
+
+	bool _SaveDefaultLoginInfo( const int       siteChoice,
+							    const wxString& serverAddress,
+							    const wxString& serverPort,
+							    const wxString& userName,
+							    const wxString& password );
+
+private:
 	wxRadioBox*  m_radioSiteTypes;
 	wxTextCtrl*  m_textCtrlAddress;
 	wxTextCtrl*  m_textCtrlPort;

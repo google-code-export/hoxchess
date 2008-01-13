@@ -71,7 +71,9 @@ namespace hoxNetworkAPI
     hoxResult ParseJoinNetworkTable( const wxString&      responseStr,
                                      hoxNetworkTableInfo& tableInfo );
 
-    hoxResult ParseNetworkEvents( const wxString&      tablesStr,
+    hoxResult ParseNetworkEvents( const wxString&      responseStr,
+                                  int&                 returnCode,
+                                  wxString&            returnMsg,
                                   hoxNetworkEventList& networkEvents );
 
     hoxResult ReadCommand( wxSocketBase* sock, 

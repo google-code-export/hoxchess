@@ -137,9 +137,8 @@ hoxLocalPlayer::LeaveNetworkTable( const wxString& tableId,
                                    wxEvtHandler*   sender )
 {
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LEAVE, sender );
-    request->content = 
-            wxString::Format("op=LEAVE&tid=%s&pid=%s", 
-                tableId.c_str(), this->GetName().c_str());
+	request->parameters["pid"] = this->GetName();
+	request->parameters["tid"] = tableId;
     this->AddRequestToConnection( request );
 
     return hoxRESULT_OK;

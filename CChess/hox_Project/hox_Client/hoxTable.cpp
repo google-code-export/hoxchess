@@ -506,11 +506,13 @@ hoxTable::_PostPlayer_LeaveEvent( hoxPlayer* player,
 
     wxLogDebug("%s: Informing player [%s] about [%s] just left...", 
         FNAME, player->GetName().c_str(), leavePlayer->GetName().c_str());
-    wxString commandStr;
-    commandStr.Printf("tid=%s&pid=%s", 
-        m_id.c_str(), leavePlayer->GetName().c_str());
-    wxCommandEvent event( hoxEVT_PLAYER_NEW_LEAVE );
-    event.SetString( commandStr );
+
+	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_TYPE_LEAVE );
+	pCommand->parameters["tid"] = m_id;
+	pCommand->parameters["pid"] = leavePlayer->GetName();
+
+	wxCommandEvent event( hoxEVT_PLAYER_NEW_LEAVE );
+    event.SetEventObject( pCommand );
     wxPostEvent( player, event );
 }
 
@@ -526,11 +528,14 @@ hoxTable::_PostPlayer_JoinEvent( hoxPlayer*    player,
 
     wxLogDebug("%s: Informing player [%s] that a new Player [%s] just joined as [%d]...", 
         FNAME, player->GetName().c_str(), newPlayer->GetName().c_str(), newColor);
-    wxString commandStr;
-    commandStr.Printf("tid=%s&pid=%s&color=%d", 
-        m_id.c_str(), newPlayer->GetName().c_str(), newColor);
+
+	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_TYPE_NEW_JOIN );
+	pCommand->parameters["tid"] = m_id;
+	pCommand->parameters["pid"] = newPlayer->GetName();
+	pCommand->parameters["color"] = wxString::Format("%d", newColor);
+
     wxCommandEvent event( hoxEVT_PLAYER_NEW_JOIN );
-    event.SetString( commandStr );
+	event.SetEventObject( pCommand );
     wxPostEvent( player, event );
 }
 
