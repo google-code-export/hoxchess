@@ -372,19 +372,17 @@ hoxPlayer::OnNewJoin_FromTable( wxCommandEvent&  event )
 {
     const char* FNAME = "hoxPlayer::OnNewJoin_FromTable";
 
+	hoxCommand* pCommand = wx_reinterpret_cast(hoxCommand*, event.GetEventObject()); 
+	const std::auto_ptr<hoxCommand> command( pCommand ); // take care memory leak!
+
     if ( m_connection == NULL )
     {
         wxLogDebug("%s: No connection. Fine. Ignore the JOIN event.", FNAME);
         return;
     }
 
-    const wxString commandStr = event.GetString();
-
-    wxLogDebug("%s: ENTER. commandStr = [%s].", FNAME, commandStr.c_str());
-
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_NEW_JOIN, this );
-    request->content =
-            wxString::Format("op=NEW_JOIN&%s", commandStr.c_str());
+	hoxRequest* request = new hoxRequest( command->type, this );
+	request->parameters = command->parameters;
     this->AddRequestToConnection( request );
 }
 
@@ -393,19 +391,17 @@ hoxPlayer::OnNewLeave_FromTable( wxCommandEvent&  event )
 {
     const char* FNAME = "hoxPlayer::OnNewLeave_FromTable";
 
+	hoxCommand* pCommand = wx_reinterpret_cast(hoxCommand*, event.GetEventObject()); 
+	const std::auto_ptr<hoxCommand> command( pCommand ); // take care memory leak!
+
     if ( m_connection == NULL )
     {
         wxLogDebug("%s: No connection. Fine. Ignore the LEAVE event.", FNAME);
         return;
     }
 
-    const wxString commandStr = event.GetString();
-
-    wxLogDebug("%s: ENTER. commandStr = [%s].", FNAME, commandStr.c_str());
-
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LEAVE, this );
-    request->content =
-            wxString::Format("op=LEAVE&%s", commandStr.c_str());
+	hoxRequest* request = new hoxRequest( command->type, this );
+	request->parameters = command->parameters;
     this->AddRequestToConnection( request );
 }
 

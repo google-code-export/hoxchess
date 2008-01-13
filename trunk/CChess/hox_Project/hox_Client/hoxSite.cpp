@@ -1012,9 +1012,8 @@ hoxSiteManager::CreateSite( hoxSiteType             siteType,
 	case hoxSITE_TYPE_REMOTE:
 	{
 		hoxRemoteSite* remoteSite = new hoxRemoteSite( address );
-
-		wxString playerName = hoxUtility::GenerateRandomString();
-		hoxLocalPlayer* localPlayer = remoteSite->CreateLocalPlayer( playerName );
+		hoxLocalPlayer* localPlayer = remoteSite->CreateLocalPlayer( userName );
+		localPlayer->SetPassword( password );
         hoxConnection* connection = new hoxSocketConnection( address.name, 
                                                              address.port );
 		localPlayer->SetConnection( connection );
@@ -1024,9 +1023,8 @@ hoxSiteManager::CreateSite( hoxSiteType             siteType,
 	case hoxSITE_TYPE_HTTP:
 	{
 		hoxRemoteSite* remoteSite = new hoxHTTPSite( address );
-
-		wxString playerName = hoxUtility::GenerateRandomString();
-		hoxLocalPlayer* localPlayer = remoteSite->CreateLocalPlayer( playerName );
+		hoxLocalPlayer* localPlayer = remoteSite->CreateLocalPlayer( userName );
+		localPlayer->SetPassword( password );
         hoxConnection* connection = new hoxHttpConnection( address.name, 
                                                            address.port );
 		localPlayer->SetConnection( connection );

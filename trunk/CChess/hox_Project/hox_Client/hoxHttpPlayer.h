@@ -46,6 +46,13 @@ public:
     virtual ~hoxHttpPlayer();
 
 public:
+
+    /*******************************
+     * Override parent-API
+     *******************************/
+
+	virtual void AddRequestToConnection( hoxRequest* request );
+
     /*******************************
      * Incoming-data event handlers
      *******************************/
@@ -63,7 +70,8 @@ private:
     void _HandleEventFromNetwork( const hoxNetworkEvent& networkEvent );
 
 private:
-    wxTimer        m_timer;    // to poll the HTTP server to events.
+    wxTimer        m_timer;      // to poll the HTTP server to events.
+	wxString       m_sessionId;  // Session-Id (i.e., auth-token)
 
     DECLARE_DYNAMIC_CLASS(hoxHttpPlayer)
     DECLARE_EVENT_TABLE()

@@ -181,9 +181,9 @@ hoxHttpConnection::_SendRequest( const wxString& request,
 
     if ( httpStream == NULL )
     {
-        wxLogError("%s: GetInputStream is NULL. Response-code = [%d]. Protocol-error = [%d].",
+        wxLogDebug("%s: *** ERROR *** GetInputStream is NULL. Response-code = [%d]. Protocol-error = [%d].",
             FNAME, get.GetResponse(), (int) get.GetError() );
-        wxLogError("%s: Failed to connect to server [%s:%d].", FNAME, m_sHostname.c_str(), m_nPort);
+        wxLogDebug("%s: *** ERROR *** Failed to connect to server [%s:%d].", FNAME, m_sHostname.c_str(), m_nPort);
     }
     else if (get.GetError() == wxPROTO_NOERR)
     {

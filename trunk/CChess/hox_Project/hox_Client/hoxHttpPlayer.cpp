@@ -24,15 +24,9 @@
 // Description:     The HTTP Player.
 /////////////////////////////////////////////////////////////////////////////
 
-#include "hoxHttpPlayer.h"
-#include "hoxHttpConnection.h"
 #include "hoxTable.h"
-#include "hoxTableMgr.h"
 #include "hoxNetworkAPI.h"
-#include "hoxUtility.h"
-#include "hoxPlayerMgr.h"
 #include "MyApp.h"      // wxGetApp()
-#include "MyFrame.h"
 
 IMPLEMENT_DYNAMIC_CLASS(hoxHttpPlayer, hoxLocalPlayer)
 
@@ -74,14 +68,24 @@ hoxHttpPlayer::~hoxHttpPlayer()
 }
 
 void 
+hoxHttpPlayer::AddRequestToConnection( hoxRequest* request )
+{ 
+    const char* FNAME = "hoxHttpPlayer::AddRequestToConnection";
+
+	wxCHECK_RET(request != NULL, "Request cannot be NULL.");
+
+	request->parameters["sid"] = m_sessionId;
+	this->hoxPlayer::AddRequestToConnection( request );
+}
+
+void 
 hoxHttpPlayer::OnTimer( wxTimerEvent& event )
 {
     const char* FNAME = "hoxHttpPlayer::OnTimer";
     wxLogDebug("%s: ENTER.", FNAME);
 
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_POLL, this );
-    request->content = 
-        wxString::Format("op=POLL&pid=%s", this->GetName().c_str());
+	request->parameters["pid"] = this->GetName();
     this->AddRequestToConnection( request );
 }
 
@@ -103,17 +107,22 @@ hoxHttpPlayer::OnConnectionResponse_Poll(wxCommandEvent& event)
      *       because the response's content would be an empty string anyway.
      */
 
+	int                 returnCode = 0;
+	wxString            returnMsg;
     hoxNetworkEventList networkEvents;
 
     result = hoxNetworkAPI::ParseNetworkEvents( response->content,
+												returnCode,
+												returnMsg,
                                                 networkEvents );
 
     // Re-start the timer before checking for the result.
     m_timer.Start( -1 /* Use the previous interval */, wxTIMER_ONE_SHOT );
 
-    if ( result != hoxRESULT_OK )
+	if ( result != hoxRESULT_OK || returnCode != 0 )
     {
-        wxLogError("%s: Parse table events failed.", FNAME);
+        wxLogDebug("%s: *** WARN *** Failed to parse network events. [%d] [%s]", 
+            FNAME, returnCode, returnMsg.c_str());
         return;
     }
 
@@ -159,7 +168,9 @@ hoxHttpPlayer::OnConnectionResponse_Connect(wxCommandEvent& event)
                                                  returnMsg );
     if ( result == hoxRESULT_OK && returnCode == 0 )
     {
-        wxLogDebug("%s: Connection established. Start timer...", FNAME);
+		m_sessionId = returnMsg; // Extract the session-Id.
+		wxLogDebug("%s: Connection established. Session-Id = [%s].", FNAME, m_sessionId.c_str());
+
         /* NOTE: Only enable 1-short at a time to be sure that the timer-handler
          *       is only entered ONE at at time.
          */

@@ -77,6 +77,25 @@ hoxLoginDialog::hoxLoginDialog( wxWindow*       parent,
 		, m_selectedSiteType( hoxSITE_TYPE_UNKNOWN )
 		, m_selectedPort( 0 )
 {
+	/* Read existing login-info from Configuration. */
+
+	wxConfig* config = wxGetApp().GetConfig();
+	int      siteChoice    = SITETYPE_SELECTION_CHESSCAPE;
+	wxString serverAddress = "games.chesscape.com";
+	wxString serverPort    = "3534";
+	wxString userName;
+	wxString password;
+
+	config->Read("/Sites/Chesscape/username", &userName);
+	config->Read("/Sites/Chesscape/password", &password);
+	_GetDefaultLoginInfo( siteChoice,
+						  serverAddress,
+						  serverPort,
+						  userName,
+						  password );
+
+	/* Create a layout. */
+
     wxBoxSizer* topSizer = new wxBoxSizer( wxVERTICAL );
 
     /* Site-Type. */
@@ -94,7 +113,7 @@ hoxLoginDialog::hoxLoginDialog( wxWindow*       parent,
 		m_radioSiteTypes,
 		wxSizerFlags().Border(wxALL, 10).Align(wxALIGN_LEFT).Expand());
 
-	m_radioSiteTypes->SetSelection( SITETYPE_SELECTION_CHESSCAPE );
+	m_radioSiteTypes->SetSelection( siteChoice );
 
 	/* Server-Address. */
 
@@ -105,14 +124,14 @@ hoxLoginDialog::hoxLoginDialog( wxWindow*       parent,
     m_textCtrlAddress = new wxTextCtrl( 
 		this, 
 		wxID_ANY,
-        "games.chesscape.com",
+        serverAddress,
         wxDefaultPosition,
         wxSize(200, wxDefaultCoord ));
 
 	m_textCtrlPort = new wxTextCtrl(
 		this, 
 		wxID_ANY,
-        "3534",
+        serverPort,
         wxDefaultPosition,
         wxSize(50, wxDefaultCoord ));
 
@@ -139,14 +158,6 @@ hoxLoginDialog::hoxLoginDialog( wxWindow*       parent,
 		wxSizerFlags().Border(wxALL, 10).Align(wxALIGN_LEFT).Expand());
 
 	/* User-Login. */
-
-	// Read existing login-info from Configuration.
-	wxConfig* config = wxGetApp().GetConfig();	
-	wxString userName;
-	wxString password;
-
-	config->Read("/Sites/Chesscape/username", &userName);
-	config->Read("/Sites/Chesscape/password", &password);
 
 	wxBoxSizer* loginSizer = new wxStaticBoxSizer(
 		new wxStaticBox(this, wxID_ANY, _T("Login &Info")), 
@@ -255,13 +266,99 @@ hoxLoginDialog::OnButtonLogin(wxCommandEvent& event)
 
     m_selectedCommand = COMMAND_ID_LOGIN;
 
-	/* Save username + password for next-time use */
-	wxConfig* config = wxGetApp().GetConfig();	
-	config->Write("/Sites/Chesscape/username", m_selectedUserName);
-	config->Write("/Sites/Chesscape/password", m_selectedPassword);
+	/* Save login-info for next-time use */
 
+	_SaveDefaultLoginInfo( m_radioSiteTypes->GetSelection(),
+						   m_selectedAddress,
+						   m_textCtrlPort->GetValue(),
+						   m_selectedUserName,
+						   m_selectedPassword );
 
     Close();
+}
+
+bool 
+hoxLoginDialog::_GetDefaultLoginInfo( int&      siteChoice,
+									  wxString& serverAddress,
+									  wxString& serverPort,
+									  wxString& userName,
+									  wxString& password )
+{
+	const char* FNAME = "hoxLoginDialog::_GetDefaultLoginInfo";
+
+	/* Read the existing settings from Configuration. */
+	wxConfig* config = wxGetApp().GetConfig();
+
+	if ( ! config->Read( "/Sites/siteChoice", &siteChoice) )
+		return false;  // not found.
+
+	/* Based on the choice, read the server-info + user-Info. */
+
+	wxString siteKey;
+
+    switch ( siteChoice )
+    {
+        case SITETYPE_SELECTION_CHESSCAPE:    siteKey = "Chesscape";   break;
+        case SITETYPE_SELECTION_HOXCHESS:     siteKey = "HOXChess";    break;
+        case SITETYPE_SELECTION_HTTP_POLLING: siteKey = "HttpPolling"; break;
+        default:
+			wxLogDebug("%s: Unknown site choice [%d].", FNAME, siteChoice);
+			return false;
+    }
+
+	config->SetPath( "/Sites/" + siteKey );
+
+	if ( ! config->Read("serverAddress", &serverAddress) )
+		return false;  // not found.
+
+	if ( ! config->Read("serverPort", &serverPort) )
+		return false;  // not found.
+
+	if ( ! config->Read("username", &userName) )
+		return false;  // not found.
+
+	if ( ! config->Read("password", &password) )
+		return false;  // not found.
+
+	return true;   // found old settings?
+}
+
+bool 
+hoxLoginDialog::_SaveDefaultLoginInfo( const int       siteChoice,
+									   const wxString& serverAddress,
+									   const wxString& serverPort,
+									   const wxString& userName,
+									   const wxString& password )
+{
+	const char* FNAME = "hoxLoginDialog::_SaveDefaultLoginInfo";
+
+	/* Read the existing settings from Configuration. */
+	wxConfig* config = wxGetApp().GetConfig();
+
+	config->Write("/Sites/siteChoice", siteChoice);
+
+	/* Based on the choice, read the server-info + user-Info. */
+
+	wxString siteKey;
+
+    switch ( siteChoice )
+    {
+        case SITETYPE_SELECTION_CHESSCAPE:    siteKey = "Chesscape";   break;
+        case SITETYPE_SELECTION_HOXCHESS:     siteKey = "HOXChess";    break;
+        case SITETYPE_SELECTION_HTTP_POLLING: siteKey = "HttpPolling"; break;
+        default:
+			wxLogDebug("%s: Unknown site choice [%d].", FNAME, siteChoice);
+			return false;
+    }
+
+	config->SetPath( "/Sites/" + siteKey );
+
+	config->Write("serverAddress", serverAddress);
+	config->Write("serverPort", serverPort);
+	config->Write("username", userName);
+	config->Write("password", password);
+
+	return true;   // found old settings?
 }
 
 /************************* END OF FILE ***************************************/
