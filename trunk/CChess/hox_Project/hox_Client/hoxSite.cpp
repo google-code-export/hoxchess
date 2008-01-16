@@ -216,8 +216,9 @@ hoxLocalSite::Close()
 }
 
 hoxResult 
-hoxLocalSite::CreateNewTableAsPlayer( wxString&  newTableId, 
-                                      hoxPlayer* player )
+hoxLocalSite::CreateNewTableAsPlayer( wxString&          newTableId, 
+                                      hoxPlayer*         player,
+									  const hoxTimeInfo& initialTime )
 {
     const char* FNAME = "hoxLocalSite::CreateNewTableAsPlayer";
     hoxTable* newTable = NULL;
@@ -229,6 +230,7 @@ hoxLocalSite::CreateNewTableAsPlayer( wxString&  newTableId,
 
     /* Create a new table without a frame. */
     newTable = m_tableMgr.CreateTable( newTableId );
+	newTable->SetInitialTime( initialTime );
 
     /* Add the specified player to the table. */
     hoxResult result = player->JoinTable( newTable );

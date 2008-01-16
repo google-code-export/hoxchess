@@ -89,8 +89,9 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*                      parent,
     {
         "Table",
         "Group",
-        "Timer",
-		"Free",  // or Increment
+        "Timer", // Game Time
+		"Move",  // Move Time
+		"Free",  // Free Time (or Increment Time)
 		"Type",
 		"Red Player",
 		"Black Player"
@@ -130,6 +131,7 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*                      parent,
 
 		m_listCtrlTables->SetItem(itemIndex, ++colIndex, groupInfo);
 		m_listCtrlTables->SetItem(itemIndex, ++colIndex, hoxUtility::FormatTime(it->initialTime.nGame));
+		m_listCtrlTables->SetItem(itemIndex, ++colIndex, hoxUtility::FormatTime(it->initialTime.nMove));
 		m_listCtrlTables->SetItem(itemIndex, ++colIndex, hoxUtility::FormatTime(it->initialTime.nFree));
 		m_listCtrlTables->SetItem(itemIndex, ++colIndex, hoxUtility::GameTypeToString(it->gameType));
 		m_listCtrlTables->SetItem(itemIndex, ++colIndex, redInfo );

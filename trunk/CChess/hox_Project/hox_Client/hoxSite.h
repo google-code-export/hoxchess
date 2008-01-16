@@ -92,7 +92,9 @@ public:
     virtual hoxResult Close() = 0;
 
     virtual hoxResult CreateNewTable(wxString& newTableId) { return hoxRESULT_ERR; }
-    virtual hoxResult CreateNewTableAsPlayer(wxString& newTableId, hoxPlayer* player) 
+    virtual hoxResult CreateNewTableAsPlayer(wxString&          newTableId, 
+		                                     hoxPlayer*         player,
+											 const hoxTimeInfo& initialTime) 
         { return hoxRESULT_ERR; }
 
     virtual hoxResult CloseTable(hoxTable* table);
@@ -150,7 +152,9 @@ public:
     virtual hoxResult Close();
     bool IsOpened() const { return m_isOpened; }
 
-    virtual hoxResult CreateNewTableAsPlayer(wxString& newTableId, hoxPlayer* player);
+    virtual hoxResult CreateNewTableAsPlayer(wxString&          newTableId, 
+		                                     hoxPlayer*         player,
+		                                     const hoxTimeInfo& initialTime);
 	
 	virtual void Handle_DisconnectFromPlayer( hoxPlayer* player );
 	virtual void Handle_ShutdownReadyFromPlayer( const wxString& playerId );

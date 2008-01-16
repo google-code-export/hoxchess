@@ -761,8 +761,7 @@ hoxPlayer::HandleIncomingData_List( hoxCommand& command,
     wxLogDebug("%s: ... We have [%d] tables.", FNAME, tableCount);
 
     response << "0\r\n"  // code
-             //<< "We have " << tableCount << " tables\r\n";  // message
-             ;
+		     << "INFO: We have " << tableCount << " tables\r\n";  // message
 
     // Return the info of tables.
     for ( hoxTableList::const_iterator it = tables.begin(); 
@@ -770,11 +769,14 @@ hoxPlayer::HandleIncomingData_List( hoxCommand& command,
     {
         hoxPlayer* redPlayer   = (*it)->GetRedPlayer();
         hoxPlayer* blackPlayer = (*it)->GetBlackPlayer();
+		wxString iTimes = hoxUtility::TimeInfoToString( (*it)->GetInitialTime() );
 
-        response << (*it)->GetId() << " "
-                 << "1 "   // TODO: Hard-coded for table-status
-                 << (redPlayer != NULL ? redPlayer->GetName() : "0") << " "
-                 << (blackPlayer != NULL ? blackPlayer->GetName() : "0") << " "
+        response << (*it)->GetId() << ";"
+                 << "0" << ";"  // TODO: Hard-coded for Group
+				 << "0" << ";"  // TODO: Hard-coded for Type
+				 << iTimes << ";"
+                 << (redPlayer != NULL ? redPlayer->GetName() : "") << ";"
+                 << (blackPlayer != NULL ? blackPlayer->GetName() : "") << ";"
                  << "\r\n";
     }
 
@@ -924,6 +926,8 @@ hoxPlayer::HandleIncomingData_New( hoxCommand& command,
     wxLogDebug("%s: ENTER.", FNAME);
 
     const wxString playerId = command.parameters["pid"];
+	const wxString itimes = command.parameters["itimes"];
+	const hoxTimeInfo initialTime = hoxUtility::StringToTimeInfo( itimes );
 
     /* Check the player-Id. */
     if ( playerId != this->GetName() )
@@ -935,7 +939,7 @@ hoxPlayer::HandleIncomingData_New( hoxCommand& command,
     }
 
     /* Create a new Table. */
-    result = m_site->CreateNewTableAsPlayer( newTableId, this );
+    result = m_site->CreateNewTableAsPlayer( newTableId, this, initialTime );
     if ( result != hoxRESULT_OK )
     {
         wxLogError("%s: Failed to create a new table.", FNAME);
@@ -947,7 +951,9 @@ hoxPlayer::HandleIncomingData_New( hoxCommand& command,
 	/* Finally, return 'success'. */
 	response << "0\r\n"       // error-code = SUCCESS
 	         << "INFO: (NEW) The new table-Id = [" << newTableId << "]\r\n"
-	         << newTableId << "\r\n";
+	         << newTableId << ";"
+			 << itimes << ";"
+			 << "\r\n";
     result = hoxRESULT_OK;
 
 exit_label:
