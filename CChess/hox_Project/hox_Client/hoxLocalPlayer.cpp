@@ -127,6 +127,7 @@ hoxLocalPlayer::OpenNewNetworkTable( wxEvtHandler*   sender )
 {
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_NEW, sender );
 	request->parameters["pid"] = this->GetName();
+	request->parameters["itimes"] = "25/300/20"; // TODO: Hard-coded initial times.
     this->AddRequestToConnection( request );
 
     return hoxRESULT_OK;
@@ -190,16 +191,15 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
 		}
 		else if ( response->type == hoxREQUEST_TYPE_NEW )
 		{
-			wxString newTableId;
+			hoxNetworkTableInfo* pTableInfo = new hoxNetworkTableInfo();
 			result = hoxNetworkAPI::ParseNewNetworkTable( response->content,
-														  newTableId );
+														  *pTableInfo );
 			if ( result != hoxRESULT_OK )
 			{
 				wxLogDebug("%s: *** WARN *** Failed to parse NEW's response [%s].", 
 					FNAME, response->content.c_str());
 				response->code = result;
 			}
-			hoxNetworkTableInfo* pTableInfo = new hoxNetworkTableInfo( newTableId );
 			pTableInfo->redId = this->GetName();  // Default: Play RED.
 			response->eventObject = pTableInfo;
 		}

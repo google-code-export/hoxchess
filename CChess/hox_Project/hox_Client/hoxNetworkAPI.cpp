@@ -215,51 +215,91 @@ hoxNetworkAPI::ParseNetworkTables( const wxString&          responseStr,
 {
     const char* FNAME = "hoxNetworkAPI::ParseNetworkTables";
     hoxResult  result = hoxRESULT_ERR;
+	int      returnCode = -1;
+	wxString returnMsg;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    if ( responseStr.size() < 2 )
-        return hoxRESULT_ERR;
-
-    // Get the return-code.
-    int returnCode = ::atoi( responseStr.c_str() );
-
-    wxStringTokenizer tkz( responseStr.substr(2), " \r\n" );
+	wxStringTokenizer tkz( responseStr, "\r\n" );
     int i = 0;
     hoxNetworkTableInfo tableInfo;
 
     tableList.clear();
    
+	while ( tkz.HasMoreTokens() )
+	{
+        wxString token = tkz.GetNextToken();
+        switch (i++)
+        {
+            case 0:   // Return-code.
+                returnCode = ::atoi( token.c_str() );
+                break;
+
+            case 1:    // The additional informative message.
+				returnMsg = token;
+                wxLogDebug("%s: Server's message = [%s].", FNAME, returnMsg.c_str()) ; 
+                break;
+
+            default:
+				hoxNetworkAPI::ParseOneNetworkTable(token, tableInfo);
+				tableList.push_back( tableInfo );
+                break;
+        }
+    }
+
+	return ( returnCode == 0 ? hoxRESULT_OK : hoxRESULT_ERR );
+}
+
+hoxResult 
+hoxNetworkAPI::ParseOneNetworkTable( const wxString&      tableStr,
+                                     hoxNetworkTableInfo &tableInfo )
+{
+    const char* FNAME = "hoxNetworkAPI::ParseOneNetworkTable";
+    hoxResult  result = hoxRESULT_ERR;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+	tableInfo.Clear();
+
+	wxStringTokenizer tkz( tableStr, ";" );
+    int i = 0;
+
     while ( tkz.HasMoreTokens() )
     {
         wxString token = tkz.GetNextToken();
-        switch (i)
+        switch (i++)
         {
-            case 0: 
+            case 0:  // Id
                 tableInfo.id = token; 
                 break;
-            case 1: 
-				tableInfo.group = (  token == "1" 
+
+            case 1:  // Group
+				tableInfo.group = (  token == "0" 
 					               ? hoxGAME_GROUP_PUBLIC 
 								   : hoxGAME_GROUP_PRIVATE ); 
                 break;
-            case 2: 
+
+            case 2:  // Type
+				tableInfo.gameType = (  token == "0" 
+					               ? hoxGAME_TYPE_RATED 
+								   : hoxGAME_TYPE_NONRATED ); 
+                break;
+
+            case 3:  // Initial-Time
+				tableInfo.initialTime = hoxUtility::StringToTimeInfo( token );
+                break;
+
+            case 4:  // RED-Id
                 tableInfo.redId = token; 
                 break;
-            default:
+
+            case 5:  // BLACK-Id
                 tableInfo.blackId = token;
-				// Push the previous table in the list.
-				// NOTE: We check for Id' s emptiness to avoid inserting the same
-				//       table twice.
-				if ( ! tableInfo.id.empty() )
-				{
-					tableList.push_back( tableInfo );
-					tableInfo.Clear();  // Clear out old information.
-				}
                 break;
+
+			default:
+				// Ignore the rest
+				break;
         }
-        if ( i == 3) i = 0;
-        else ++i;
     }
 
     return hoxRESULT_OK;
@@ -267,12 +307,15 @@ hoxNetworkAPI::ParseNetworkTables( const wxString&          responseStr,
 
 hoxResult 
 hoxNetworkAPI::ParseNewNetworkTable( const wxString&  responseStr,
-                                     wxString&        newTableId )
+                                     hoxNetworkTableInfo &tableInfo )
 {
     const char* FNAME = "hoxNetworkAPI::ParseNewNetworkTable";
-    int returnCode = hoxRESULT_ERR;
+    int returnCode = -1;
+	wxString returnMsg;
 
     wxLogDebug("%s: ENTER.", FNAME);
+
+	tableInfo.Clear();
 
     wxStringTokenizer tkz( responseStr, wxT("\r\n") );
     int i = 0;
@@ -280,30 +323,29 @@ hoxNetworkAPI::ParseNewNetworkTable( const wxString&  responseStr,
     while ( tkz.HasMoreTokens() )
     {
         wxString token = tkz.GetNextToken();
-        switch (i)
+        switch (i++)
         {
             case 0:   // Return-code.
                 returnCode = ::atoi( token.c_str() );
-                if ( returnCode != 0 ) // failed?
-                {
-                    return hoxRESULT_ERR;
-                }
                 break;
             case 1:    // The additional informative message.
-                wxLogDebug("%s: Server's message = [%s].", FNAME, token.c_str()) ; 
+				returnMsg = token;
+                wxLogDebug("%s: Server's message = [%s].", FNAME, returnMsg.c_str()) ; 
                 break;
             case 2:    // The ID of the new table.
-                newTableId = token; 
-                wxLogDebug("%s: New Table-Id = [%s].", FNAME, token.c_str()) ; 
+			{
+				wxStringTokenizer tkz( token, wxT(";") );
+				tableInfo.id = tkz.GetNextToken();    // TODO: Quick hack!
+				tableInfo.initialTime = hoxUtility::StringToTimeInfo( tkz.GetNextToken() ); 
                 break;
+			}
             default:
-                wxLogError("%s: Ignore the rest...", FNAME);
+                // Ignore the rest.
                 break;
         }
-        ++i;
     }
 
-    return hoxRESULT_OK;
+	return (returnCode == 0 ? hoxRESULT_OK : hoxRESULT_ERR);
 }
 
 hoxResult 
@@ -336,13 +378,9 @@ hoxNetworkAPI::ParseJoinNetworkTable( const wxString&      responseStr,
                 break;
             case 2:    // The returned info of the requested table.
             {
-                wxString tableInfoStr = token;
-                if ( hoxRESULT_OK != _ParseNetworkTableInfoString( tableInfoStr, tableInfo ) )
-                {
-                    wxLogError("%s: Failed to parse the Table Info String [%s].", 
-                        FNAME, tableInfoStr.c_str()); 
-                    return hoxRESULT_ERR;
-                }
+				hoxNetworkAPI::ParseOneNetworkTable(token, tableInfo);
+				tableInfo.redTime = tableInfo.initialTime; // FIXME: shoud be Current-Time
+				tableInfo.blackTime = tableInfo.initialTime; // FIXME: shoud be Current-Time
                 break;
             }
             default:
@@ -569,47 +607,6 @@ exit_label:
     
     wxLogDebug("%s: END.", FNAME);
     return result;
-}
-
-/* PRIVATE */
-hoxResult
-hoxNetworkAPI::_ParseNetworkTableInfoString( const wxString&      tableInfoStr,
-                                             hoxNetworkTableInfo& tableInfo )
-{
-    const char* FNAME = "hoxNetworkAPI::_ParseNetworkTableInfoString";
-
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    wxStringTokenizer tkz( tableInfoStr, wxT(" ") );
-    int i = 0;
-
-    while ( tkz.HasMoreTokens() )
-    {
-        wxString token = tkz.GetNextToken();
-        switch (i)
-        {
-            case 0:   // Table-Id
-                tableInfo.id = token;
-                break;
-            case 1:    // Table-Group
-				tableInfo.group = (  token == "1" 
-					               ? hoxGAME_GROUP_PUBLIC 
-								   : hoxGAME_GROUP_PRIVATE ); 
-                break;
-            case 2:    // RED-player's Id.
-                tableInfo.redId = token;
-                break;
-            case 3:    // BLACK-player's Id.
-                tableInfo.blackId = token;
-                break;
-            default:
-                wxLogError("%s: Ignore the rest...", FNAME);
-                break;
-        }
-        ++i;
-    }
-
-    return hoxRESULT_OK;
 }
 
 /* PRIVATE */

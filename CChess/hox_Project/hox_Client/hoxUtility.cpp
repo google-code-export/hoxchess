@@ -25,6 +25,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxUtility.h"
+#include <wx/tokenzr.h>
 
 using namespace hoxUtility;
 
@@ -288,6 +289,51 @@ const wxString
 hoxUtility::FormatTime( int nTime )
 {
     return wxString::Format( "%d:%.02d", nTime / 60, nTime % 60 );
+}
+
+hoxTimeInfo 
+hoxUtility::StringToTimeInfo( const wxString& input )
+{
+	hoxTimeInfo timeInfo;
+
+	wxStringTokenizer tkz( input, wxT("/") );
+    int i = 0;
+
+    while ( tkz.HasMoreTokens() )
+    {
+        wxString token = tkz.GetNextToken();
+        switch (i++)
+        {
+			case 0:   // Game-Time
+				timeInfo.nGame = ::atoi(token.c_str());
+				timeInfo.nGame *= 60;  // Convert to seconds
+				break;
+
+			case 1:   // Move-Time
+				timeInfo.nMove = ::atoi(token.c_str());
+				break;
+
+			case 2:   // Free-Time
+				timeInfo.nFree = ::atoi(token.c_str());
+				break;
+
+			default:
+				// Ignore the rest.
+				break;
+		}
+	}
+
+	return timeInfo;
+}
+
+const wxString 
+hoxUtility::TimeInfoToString( const hoxTimeInfo timeInfo )
+{
+	wxString result = 
+		wxString::Format("%d/%d/%d", timeInfo.nGame, 
+		                             timeInfo.nMove, 
+		                             timeInfo.nFree);
+	return result;
 }
 
 /************************* END OF FILE ***************************************/

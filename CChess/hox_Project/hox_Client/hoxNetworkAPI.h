@@ -64,9 +64,11 @@ namespace hoxNetworkAPI
 
     hoxResult ParseNetworkTables( const wxString&          responseStr,
                                   hoxNetworkTableInfoList& tableList );
+    hoxResult ParseOneNetworkTable( const wxString&      tableStr,
+                                    hoxNetworkTableInfo &tableInfo );
 
     hoxResult ParseNewNetworkTable( const wxString&  responseStr,
-                                    wxString&        newTableId );
+		                            hoxNetworkTableInfo &tableInfo );
 
     hoxResult ParseJoinNetworkTable( const wxString&      responseStr,
                                      hoxNetworkTableInfo& tableInfo );
@@ -88,10 +90,6 @@ namespace hoxNetworkAPI
     hoxResult ReadMsg( wxSocketBase* sock,
                        wxString&     response );
 
-
-    /* PRIVATE */
-    hoxResult _ParseNetworkTableInfoString( const wxString&      tableInfoStr,
-                                            hoxNetworkTableInfo& tableInfo );
 
     /* PRIVATE */
     hoxResult _ParseNetworkEventString( const wxString&  eventStr,
