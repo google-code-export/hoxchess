@@ -378,16 +378,8 @@ hoxRemoteSite::Handle_ConnectionResponse( hoxResponse_AutoPtr response )
             this->OnResponse_Disconnect( response );
             break;
 
-        case hoxREQUEST_TYPE_NEW:
-            this->OnResponse_New( response );
-            break;
-
         case hoxREQUEST_TYPE_LIST:
             this->OnResponse_List( response );
-            break;
-
-        case hoxREQUEST_TYPE_JOIN:
-            this->OnResponse_Join( response );
             break;
 
         default:
@@ -433,42 +425,31 @@ hoxRemoteSite::OnResponse_Disconnect( const hoxResponse_AutoPtr& response )
     wxPostEvent( m_player , event );
 }
 
-void 
-hoxRemoteSite::OnResponse_New( const hoxResponse_AutoPtr& response )
+hoxResult 
+hoxRemoteSite::JoinNewTable(const hoxNetworkTableInfo& tableInfo)
 {
-    const char* FNAME = "hoxRemoteSite::OnResponse_New";
+	const char* FNAME = "hoxRemoteSite::JoinNewTable";
     hoxResult result;
-    wxLogDebug("%s: Parsing NEW's response...", FNAME);
-
-	hoxNetworkTableInfo* pTableInfo = (hoxNetworkTableInfo*) response->eventObject;
-	if ( pTableInfo == NULL )
-	{
-		wxLogWarning("Failed to create a NEW table.");
-		return;
-	}
-
-	std::auto_ptr<hoxNetworkTableInfo> tableInfo( pTableInfo );  // prevent memory leak!
-
     hoxTable* table = NULL;
-    wxString  tableId = tableInfo->id;
+    wxString  tableId = tableInfo.id;
 
 	/* Sanity check here. */
 	table = this->FindTable( tableId );
 	if ( table != NULL )
 	{
 		wxLogWarning("Some logic error. Table [%s] already exists.", tableId.c_str());
-		return;
+		return hoxRESULT_ERR;
 	}
 
 	/* Determine which color (or role) my player will have. */
 	
 	hoxPieceColor myColor = hoxPIECE_COLOR_NONE;
 
-	if ( tableInfo->redId == m_player->GetName() )
+	if ( tableInfo.redId == m_player->GetName() )
 	{
 		myColor = hoxPIECE_COLOR_RED;
 	}
-	else if ( tableInfo->blackId == m_player->GetName() )
+	else if ( tableInfo.blackId == m_player->GetName() )
 	{
 		myColor = hoxPIECE_COLOR_BLACK;
 	}
@@ -485,9 +466,9 @@ hoxRemoteSite::OnResponse_New( const hoxResponse_AutoPtr& response )
 
     /* Create a new table with newly created Frame. */
     table = m_tableMgr.CreateTable( tableId );
-	table->SetInitialTime( tableInfo->initialTime );
-	table->SetBlackTime( tableInfo->initialTime ); // Initial time.
-	table->SetRedTime( tableInfo->initialTime );   // Initial time.
+	table->SetInitialTime( tableInfo.initialTime );
+	table->SetBlackTime( tableInfo.initialTime ); // Initial time.
+	table->SetRedTime( tableInfo.initialTime );   // Initial time.
 	table->ViewBoard( childFrame );
     childFrame->SetTable( table );
     childFrame->Show( true );
@@ -497,6 +478,8 @@ hoxRemoteSite::OnResponse_New( const hoxResponse_AutoPtr& response )
     wxASSERT( result == hoxRESULT_OK  );
 
 	frame->UpdateSiteTreeUI();
+
+	return hoxRESULT_OK;
 }
 
 void 
@@ -560,24 +543,6 @@ hoxRemoteSite::OnResponse_List( const hoxResponse_AutoPtr& response )
             wxLogDebug("%s: No command is selected. Fine.", FNAME);
             break;
     }
-}
-
-void 
-hoxRemoteSite::OnResponse_Join( const hoxResponse_AutoPtr& response )
-{
-    const char* FNAME = "hoxRemoteSite::OnResponse_Join";
-    wxLogDebug("%s: ENTER.", FNAME);
-
-	hoxNetworkTableInfo* pTableInfo = (hoxNetworkTableInfo*) response->eventObject;
-	if ( pTableInfo == NULL )
-	{
-		wxLogWarning("Failed to join the table.");
-		return;
-	}
-
-	std::auto_ptr<hoxNetworkTableInfo> tableInfo( pTableInfo );  // prevent memory leak!
-
-	this->JoinExistingTable( *(tableInfo.get()) );
 }
 
 const wxString 

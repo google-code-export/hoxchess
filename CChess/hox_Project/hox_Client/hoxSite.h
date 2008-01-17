@@ -188,6 +188,7 @@ public:
     virtual bool IsConnected() const;
     virtual hoxResult QueryForNetworkTables();
     virtual hoxResult CreateNewTable(wxString& newTableId);
+	virtual hoxResult JoinNewTable(const hoxNetworkTableInfo& tableInfo);
     virtual hoxResult JoinExistingTable(const hoxNetworkTableInfo& tableInfo);
 
 	virtual void DeletePlayer( hoxPlayer* player );
@@ -204,9 +205,7 @@ protected:
     
     virtual void OnResponse_Connect( const hoxResponse_AutoPtr& response );
 	virtual void OnResponse_Disconnect( const hoxResponse_AutoPtr& response );
-    virtual void OnResponse_New( const hoxResponse_AutoPtr& response );
     virtual void OnResponse_List( const hoxResponse_AutoPtr& response );
-    virtual void OnResponse_Join( const hoxResponse_AutoPtr& response );
 
 protected:
     hoxLocalPlayer*      m_player;
