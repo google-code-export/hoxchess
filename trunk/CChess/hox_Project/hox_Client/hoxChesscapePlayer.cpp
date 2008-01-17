@@ -780,17 +780,9 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 		pTableInfo->blackTime.nFree = pTableInfo->initialTime.nFree;
 		pTableInfo->redTime.nFree   = pTableInfo->initialTime.nFree;
 
-		wxEvtHandler* sender = this->GetSite()->GetResponseHandler();
-		hoxRequestType requestType = hoxREQUEST_TYPE_JOIN;
-		hoxResponse_AutoPtr response( new hoxResponse(requestType, 
-													  sender) );
-		hoxNetworkTableInfo* pClonedTableInfo = new hoxNetworkTableInfo( *pTableInfo );
-		response->eventObject = pClonedTableInfo;
-
-		wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, requestType );
-		response->code = hoxRESULT_OK;
-		event.SetEventObject( response.release() );  // Caller will de-allocate.
-		wxPostEvent( sender, event );
+		// Inform the site.
+		hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
+		remoteSite->JoinExistingTable( *pTableInfo );
 	}
 
 	return true;
@@ -987,15 +979,8 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 		m_bRequestingNewTable = false;
 
 		// Inform the Site of the response.
-		hoxRequestType requestType = hoxREQUEST_TYPE_NEW;
-		hoxResponse_AutoPtr response( new hoxResponse(requestType) );
-		response->eventObject = new hoxNetworkTableInfo( tableInfo ); // return a cloned.
-
-		wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, requestType );
-		response->code = hoxRESULT_OK;
-		event.SetEventObject( response.release() );  // Caller will de-allocate.
-		wxPostEvent( this->GetSite()->GetResponseHandler(), event );
-
+		hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
+		remoteSite->JoinNewTable( tableInfo );
 		return;  // *** Done.
 	}
 

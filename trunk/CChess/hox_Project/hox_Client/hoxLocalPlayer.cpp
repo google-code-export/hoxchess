@@ -27,6 +27,7 @@
 #include "hoxLocalPlayer.h"
 #include "hoxNetworkAPI.h"
 #include "hoxUtility.h"
+#include "hoxSite.h"
 
 DEFINE_EVENT_TYPE(hoxEVT_CONNECTION_RESPONSE)
 
@@ -178,7 +179,7 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
 		}
 		else if ( response->type == hoxREQUEST_TYPE_JOIN )
 		{
-			hoxNetworkTableInfo* pTableInfo = new hoxNetworkTableInfo;
+			std::auto_ptr<hoxNetworkTableInfo> pTableInfo( new hoxNetworkTableInfo() );
 			result = hoxNetworkAPI::ParseJoinNetworkTable( response->content,
 														   *pTableInfo );
 			if ( result != hoxRESULT_OK )
@@ -187,11 +188,13 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
 					FNAME, response->content.c_str());
 				response->code = result;
 			}
-			response->eventObject = pTableInfo;
+			hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
+			remoteSite->JoinExistingTable( *pTableInfo );
+			return;
 		}
 		else if ( response->type == hoxREQUEST_TYPE_NEW )
 		{
-			hoxNetworkTableInfo* pTableInfo = new hoxNetworkTableInfo();
+			std::auto_ptr<hoxNetworkTableInfo> pTableInfo( new hoxNetworkTableInfo() );
 			result = hoxNetworkAPI::ParseNewNetworkTable( response->content,
 														  *pTableInfo );
 			if ( result != hoxRESULT_OK )
@@ -201,7 +204,10 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
 				response->code = result;
 			}
 			pTableInfo->redId = this->GetName();  // Default: Play RED.
-			response->eventObject = pTableInfo;
+
+			hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
+			remoteSite->JoinNewTable( *pTableInfo );
+			return;
 		}
 		
         wxEvtHandler* sender = response->sender;
