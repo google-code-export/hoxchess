@@ -128,7 +128,7 @@ hoxLocalPlayer::OpenNewNetworkTable( wxEvtHandler*   sender )
 {
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_NEW, sender );
 	request->parameters["pid"] = this->GetName();
-	request->parameters["itimes"] = "25/300/20"; // TODO: Hard-coded initial times.
+	request->parameters["itimes"] = "1500/300/20"; // TODO: Hard-coded initial times.
     this->AddRequestToConnection( request );
 
     return hoxRESULT_OK;
