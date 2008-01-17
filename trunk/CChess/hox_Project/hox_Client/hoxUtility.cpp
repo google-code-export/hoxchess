@@ -296,7 +296,7 @@ hoxUtility::StringToTimeInfo( const wxString& input )
 {
 	hoxTimeInfo timeInfo;
 
-	wxStringTokenizer tkz( input, wxT("/") );
+	wxStringTokenizer tkz( input, "/" );
     int i = 0;
 
     while ( tkz.HasMoreTokens() )
@@ -306,7 +306,6 @@ hoxUtility::StringToTimeInfo( const wxString& input )
         {
 			case 0:   // Game-Time
 				timeInfo.nGame = ::atoi(token.c_str());
-				timeInfo.nGame *= 60;  // Convert to seconds
 				break;
 
 			case 1:   // Move-Time

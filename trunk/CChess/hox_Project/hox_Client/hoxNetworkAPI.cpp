@@ -288,11 +288,19 @@ hoxNetworkAPI::ParseOneNetworkTable( const wxString&      tableStr,
 				tableInfo.initialTime = hoxUtility::StringToTimeInfo( token );
                 break;
 
-            case 4:  // RED-Id
+            case 4:  // RED-Time
+				tableInfo.redTime = hoxUtility::StringToTimeInfo( token );
+                break;
+
+            case 5:  // BLACK-Time
+				tableInfo.blackTime = hoxUtility::StringToTimeInfo( token );
+                break;
+
+            case 6:  // RED-Id
                 tableInfo.redId = token; 
                 break;
 
-            case 5:  // BLACK-Id
+            case 7:  // BLACK-Id
                 tableInfo.blackId = token;
                 break;
 
@@ -353,8 +361,8 @@ hoxNetworkAPI::ParseJoinNetworkTable( const wxString&      responseStr,
                                       hoxNetworkTableInfo& tableInfo )
 {
     const char* FNAME = "hoxNetworkAPI::ParseJoinNetworkTable";
-    hoxResult  result     = hoxRESULT_ERR;
-    int        returnCode = hoxRESULT_ERR;
+    int        returnCode = -1;
+	wxString   returnMsg;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -364,33 +372,27 @@ hoxNetworkAPI::ParseJoinNetworkTable( const wxString&      responseStr,
     while ( tkz.HasMoreTokens() )
     {
         wxString token = tkz.GetNextToken();
-        switch (i)
+        switch (i++)
         {
             case 0:   // Return-code.
                 returnCode = ::atoi( token.c_str() );
-                if ( returnCode != 0 ) // failed?
-                {
-                    return hoxRESULT_ERR;
-                }
                 break;
             case 1:    // The additional informative message.
-                wxLogDebug("%s: Server's message = [%s].", FNAME, token.c_str()) ; 
+				returnMsg = token;
+                wxLogDebug("%s: Server's message = [%s].", FNAME, returnMsg.c_str()) ; 
                 break;
             case 2:    // The returned info of the requested table.
             {
 				hoxNetworkAPI::ParseOneNetworkTable(token, tableInfo);
-				tableInfo.redTime = tableInfo.initialTime; // FIXME: shoud be Current-Time
-				tableInfo.blackTime = tableInfo.initialTime; // FIXME: shoud be Current-Time
                 break;
             }
             default:
-                wxLogError("%s: Ignore the rest...", FNAME);
+                // Ignore the rest.
                 break;
         }
-        ++i;
     }
 
-    return hoxRESULT_OK;
+	return ( returnCode == 0 ? hoxRESULT_OK : hoxRESULT_ERR );
 }
 
 hoxResult 
