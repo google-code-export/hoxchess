@@ -62,6 +62,12 @@ namespace hoxNetworkAPI
                                    int&            returnCode,
                                    wxString&       returnMsg );
 
+	hoxResult ParseConnectResponse( const wxString& responseStr,
+                                    int&            returnCode,
+                                    wxString&       returnMsg,
+									wxString&       sessionId,
+									int&            nScore );
+
     hoxResult ParseNetworkTables( const wxString&          responseStr,
                                   hoxNetworkTableInfoList& tableList );
     hoxResult ParseOneNetworkTable( const wxString&      tableStr,

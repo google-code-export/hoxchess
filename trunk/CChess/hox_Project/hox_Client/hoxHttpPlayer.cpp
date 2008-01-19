@@ -163,13 +163,22 @@ hoxHttpPlayer::OnConnectionResponse_Connect(wxCommandEvent& event)
 
     /* Start the polling timer if the CONNECT's response is OK. */
 
-    result = hoxNetworkAPI::ParseSimpleResponse( response->content,
-                                                 returnCode,
-                                                 returnMsg );
+	wxString    sessionId;
+	int         nScore = 0;
+
+    result = hoxNetworkAPI::ParseConnectResponse( response->content,
+                                                  returnCode,
+                                                  returnMsg,
+												  sessionId,
+												  nScore );
     if ( result == hoxRESULT_OK && returnCode == 0 )
     {
-		m_sessionId = returnMsg; // Extract the session-Id.
+		m_sessionId = sessionId; // Extract the session-Id.
+		this->SetScore( nScore );
 		wxLogDebug("%s: Connection established. Session-Id = [%s].", FNAME, m_sessionId.c_str());
+
+		/* Return the error-message to the default (parent) handler. */
+		response->content = returnMsg;
 
         /* NOTE: Only enable 1-short at a time to be sure that the timer-handler
          *       is only entered ONE at at time.
@@ -213,8 +222,10 @@ hoxHttpPlayer::_HandleEventFromNetwork( const hoxNetworkEvent& networkEvent )
                       ? hoxPIECE_COLOR_RED
                       : hoxPIECE_COLOR_BLACK );
 
-            wxString otherPlayerId = networkEvent.content;
-            hoxPlayer* newPlayer = site->CreateDummyPlayer( otherPlayerId );
+			wxChar separator = ';';
+			wxString otherPlayerId = networkEvent.content.BeforeFirst(separator);
+			int otherPlayerScore = ::atoi(networkEvent.content.AfterFirst(separator));
+            hoxPlayer* newPlayer = site->CreateDummyPlayer( otherPlayerId, otherPlayerScore );
             
             hoxResult result = table->AssignPlayerAs( newPlayer,
                                                       requestColor );
