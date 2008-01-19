@@ -124,7 +124,8 @@ hoxTable::AssignPlayerAs( hoxPlayer*     player,
     }
     else
     {
-        wxLogWarning("%s: Failed to handle request-to-join from player.", FNAME);
+        wxLogDebug("%s: *** WARN *** Failed to handle request-to-join from player [%s].", 
+            FNAME, player->GetName().c_str());
         return hoxRESULT_ERR;
     }
 

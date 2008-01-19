@@ -188,6 +188,13 @@ public:
     virtual bool IsConnected() const;
     virtual hoxResult QueryForNetworkTables();
     virtual hoxResult CreateNewTable(wxString& newTableId);
+
+	// Handle event in which a Player just joins an EXISTING Table.
+	virtual hoxResult OnPlayerJoined(const wxString&     tableId,
+		                             const wxString&     playerId,
+                                     const int           playerScore,
+									 const hoxPieceColor requestColor);
+
 	virtual hoxResult JoinNewTable(const hoxNetworkTableInfo& tableInfo);
     virtual hoxResult JoinExistingTable(const hoxNetworkTableInfo& tableInfo);
 

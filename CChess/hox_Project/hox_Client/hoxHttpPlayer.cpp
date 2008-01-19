@@ -201,13 +201,14 @@ hoxHttpPlayer::_HandleEventFromNetwork( const hoxNetworkEvent& networkEvent )
 
     wxLogDebug("%s: ENTER.", FNAME);
 
+    const wxString tableId = networkEvent.tid;
     site = this->GetSite();
 
     /* Lookup table */
-    table = site->FindTable( networkEvent.tid );
+    table = site->FindTable( tableId );
     if ( table == NULL )
     {
-        wxLogError("%s: Failed to find table = [%s].", FNAME, networkEvent.tid.c_str());
+        wxLogDebug("%s: *** ERROR *** Failed to find table = [%s].", FNAME, tableId.c_str());
         return;
     }
 
@@ -215,24 +216,36 @@ hoxHttpPlayer::_HandleEventFromNetwork( const hoxNetworkEvent& networkEvent )
     {
         case hoxNETWORK_EVENT_TYPE_NEW_PLAYER_RED:    // NEW PLAYER (RED)
             /* fall through */
-        case hoxNETWORK_EVENT_TYPE_NEW_PLAYER_BLACK:    // NEW PLAYER (BLACK)
+        case hoxNETWORK_EVENT_TYPE_NEW_PLAYER_BLACK:  // NEW PLAYER (BLACK)
+            /* fall through */
+        case hoxNETWORK_EVENT_TYPE_NEW_PLAYER_NONE:    // NEW PLAYER (OBSERVER)
         {
-            hoxPieceColor requestColor = 
-                    ( networkEvent.type == hoxNETWORK_EVENT_TYPE_NEW_PLAYER_RED
-                      ? hoxPIECE_COLOR_RED
-                      : hoxPIECE_COLOR_BLACK );
+            hoxPieceColor requestColor;
+			switch ( networkEvent.type )
+			{
+				case hoxNETWORK_EVENT_TYPE_NEW_PLAYER_RED:
+					requestColor = hoxPIECE_COLOR_RED;
+					break;
+				case hoxNETWORK_EVENT_TYPE_NEW_PLAYER_BLACK:
+					requestColor = hoxPIECE_COLOR_BLACK;
+					break;
+				default:
+					requestColor = hoxPIECE_COLOR_NONE;  // Observer.
+					break;
+			}
 
-			wxChar separator = ';';
-			wxString otherPlayerId = networkEvent.content.BeforeFirst(separator);
-			int otherPlayerScore = ::atoi(networkEvent.content.AfterFirst(separator));
-            hoxPlayer* newPlayer = site->CreateDummyPlayer( otherPlayerId, otherPlayerScore );
-            
-            hoxResult result = table->AssignPlayerAs( newPlayer,
-                                                      requestColor );
+			const wxChar   separator = ';';
+			const wxString playerId = networkEvent.content.BeforeFirst(separator);
+			const int      playerScore = ::atoi(networkEvent.content.AfterFirst(separator));
+
+            hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
+            hoxResult result = remoteSite->OnPlayerJoined( tableId, 
+                                                           playerId, 
+                                                           playerScore,
+                                                           requestColor );
             if ( result != hoxRESULT_OK )
             {
-                wxLogError("%s: Failed to ask table to join as color [%d].", FNAME, requestColor);
-                site->DeletePlayer( newPlayer );
+                wxLogDebug("%s: *** ERROR *** Failed to ask table to join as color [%d].", FNAME, requestColor);
                 break;
             }
             break;
