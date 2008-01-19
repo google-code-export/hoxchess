@@ -203,8 +203,6 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
 					FNAME, response->content.c_str());
 				response->code = result;
 			}
-			pTableInfo->redId = this->GetName();  // Default: Play RED.
-
 			hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
 			remoteSite->JoinNewTable( *pTableInfo );
 			return;

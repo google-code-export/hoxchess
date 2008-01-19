@@ -209,6 +209,53 @@ hoxNetworkAPI::ParseSimpleResponse( const wxString& responseStr,
     return hoxRESULT_OK;
 }
 
+hoxResult 
+hoxNetworkAPI::ParseConnectResponse( const wxString& responseStr,
+ 									 int&            returnCode,
+									 wxString&       returnMsg,
+									 wxString&       sessionId,
+									 int&            nScore )
+{
+    const char* FNAME = "hoxNetworkAPI::ParseSimpleResponse";
+    int      i = 0;
+    wxString token;
+
+    returnCode = -1;
+    returnMsg  = responseStr;
+
+    wxStringTokenizer tkz( responseStr, "\r\n" );
+
+    while ( tkz.HasMoreTokens() )
+    {
+        token = tkz.GetNextToken();
+        switch (i++)
+        {
+            case 0:   // Return-code.
+                returnCode = ::atoi( token.c_str() );
+                break;
+
+            case 1:    // The additional informative message.
+                returnMsg = token;
+                wxLogDebug("%s: Server's message = [%s].", FNAME, returnMsg.c_str()); 
+                break;
+
+            case 2:    // Session-Id
+                sessionId = token;
+                break;
+
+            case 3:   // Playe-Score
+                nScore = ::atoi( token.c_str() );
+                break;
+
+			default:
+                // Ignore the rest.
+                break;
+        }
+    }
+
+    return hoxRESULT_OK;
+}
+
 hoxResult
 hoxNetworkAPI::ParseNetworkTables( const wxString&          responseStr,
                                    hoxNetworkTableInfoList& tableList )
@@ -300,8 +347,16 @@ hoxNetworkAPI::ParseOneNetworkTable( const wxString&      tableStr,
                 tableInfo.redId = token; 
                 break;
 
-            case 7:  // BLACK-Id
+            case 7:  // RED-Score
+				tableInfo.redScore = token; 
+                break;
+
+            case 8:  // BLACK-Id
                 tableInfo.blackId = token;
+                break;
+
+            case 9:  // BLACK-Score
+				tableInfo.blackScore = token;
                 break;
 
 			default:
@@ -342,9 +397,7 @@ hoxNetworkAPI::ParseNewNetworkTable( const wxString&  responseStr,
                 break;
             case 2:    // The ID of the new table.
 			{
-				wxStringTokenizer tkz( token, wxT(";") );
-				tableInfo.id = tkz.GetNextToken();    // TODO: Quick hack!
-				tableInfo.initialTime = hoxUtility::StringToTimeInfo( tkz.GetNextToken() ); 
+				hoxNetworkAPI::ParseOneNetworkTable(token, tableInfo);
                 break;
 			}
             default:
