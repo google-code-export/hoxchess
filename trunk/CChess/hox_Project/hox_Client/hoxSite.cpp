@@ -425,6 +425,60 @@ hoxRemoteSite::OnResponse_Disconnect( const hoxResponse_AutoPtr& response )
     wxPostEvent( m_player , event );
 }
 
+hoxResult
+hoxRemoteSite::OnPlayerJoined( const wxString&     tableId,
+                               const wxString&     playerId,
+                               const int           playerScore,
+				 			   const hoxPieceColor requestColor)
+{
+    const char* FNAME = "hoxRemoteSite::OnPlayerJoined";
+	hoxResult   result;
+    hoxTable*   table = NULL;
+    hoxPlayer*  player = NULL;
+
+	/* Lookup the Table.
+     * Make sure that it must be already created.
+     */
+	table = this->FindTable( tableId );
+	if ( table == NULL )
+	{
+        wxLogDebug("%s: *** WARN *** The table [%s] does NOT exist.", FNAME, tableId.c_str());
+		return hoxRESULT_ERR;
+	}
+
+	/* Lookup the Player.
+     * If not found, then create a new "dummy" player.
+     */
+    player = this->FindPlayer( playerId );
+	if ( player == NULL )
+	{
+        player = this->CreateDummyPlayer( playerId, playerScore );
+	}
+
+    /* Attempt to join the table with the requested color.
+     */
+    result = table->AssignPlayerAs( player, requestColor );
+    if ( result != hoxRESULT_OK )
+    {
+        wxLogDebug("%s: *** ERROR *** Failed to ask table to join [%s] as color [%d].", 
+            FNAME, playerId.c_str(), requestColor);
+        // NOTE: If a new player was created, just leave it as is.
+        return hoxRESULT_ERR;
+    }
+
+	/* Toggle board if the new joined Player is I (this site's player) 
+     * and I play BLACK.
+     */
+
+    if (    player == this->m_player 
+         && requestColor == hoxPIECE_COLOR_BLACK )
+	{
+		table->ToggleViewSide();
+	}
+
+	return hoxRESULT_OK;
+}
+
 hoxResult 
 hoxRemoteSite::JoinNewTable(const hoxNetworkTableInfo& tableInfo)
 {
