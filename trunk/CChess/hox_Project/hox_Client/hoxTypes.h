@@ -255,12 +255,11 @@ class hoxRequest : public wxObject
 {
 public:
     hoxRequestType  type;
-    wxString        content;
     int             flags;
     wxEvtHandler*   sender;
     wxSocketBase*   socket;  // TODO Put it here temporarily
     wxSocketNotify  socketEvent;
-	hoxCommand::Parameters parameters; // TODO: Re-consider this or other members?
+	hoxCommand::Parameters parameters;
 
     hoxRequest() : type( hoxREQUEST_TYPE_UNKNOWN )
                  , flags( hoxREQUEST_FLAG_NONE )
