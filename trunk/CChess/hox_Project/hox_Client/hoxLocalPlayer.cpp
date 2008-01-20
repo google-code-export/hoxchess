@@ -164,7 +164,17 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
 
     if ( response->sender && response->sender != this )
     {
-		if ( response->type == hoxREQUEST_TYPE_LIST )
+		if ( response->type == hoxREQUEST_TYPE_CONNECT )
+		{
+            result = this->HandleResponseEvent_Connect(event);
+			if ( result != hoxRESULT_OK )
+			{
+				wxLogDebug("%s: *** WARN *** Failed to handle CONNECT's response [%s].", 
+					FNAME, response->content.c_str());
+				response->code = result;
+			}
+        }
+		else if ( response->type == hoxREQUEST_TYPE_LIST )
 		{
 			hoxNetworkTableInfoList* pTableList = new hoxNetworkTableInfoList;
 			result = hoxNetworkAPI::ParseNetworkTables( response->content,
@@ -202,6 +212,7 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
 				wxLogDebug("%s: *** WARN *** Failed to parse NEW's response [%s].", 
 					FNAME, response->content.c_str());
 				response->code = result;
+                return;
 			}
 			hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
 			remoteSite->JoinNewTable( *pTableInfo );
@@ -233,6 +244,42 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
     }
 
     wxLogDebug("%s: The response is OK.", FNAME);
+}
+
+hoxResult 
+hoxLocalPlayer::HandleResponseEvent_Connect( wxCommandEvent& event )
+{
+    const char* FNAME = "hoxLocalPlayer::HandleResponseEvent_Connect";
+    hoxResult   result;
+    int         returnCode = -1;
+    wxString    returnMsg;
+	wxString    sessionId;
+	int         nScore = 0;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    hoxResponse* response = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
+
+    result = hoxNetworkAPI::ParseConnectResponse( response->content,
+                                                  returnCode,
+                                                  returnMsg,
+												  sessionId,
+												  nScore );
+    if ( result != hoxRESULT_OK || returnCode != 0 )
+    {
+        wxLogDebug("%s: *** WARN *** Connection ERROR. Error = [%d: %d].", 
+            FNAME, result, returnCode);
+        return hoxRESULT_ERR;
+    }
+
+	m_sessionId = sessionId; // Extract the session-Id.
+	this->SetScore( nScore );
+	wxLogDebug("%s: Connection OK. Session-Id = [%s].", FNAME, m_sessionId.c_str());
+
+	/* Return the error-message to the default (parent) handler. */
+	response->content = returnMsg;
+
+    return hoxRESULT_OK;
 }
 
 /************************* END OF FILE ***************************************/

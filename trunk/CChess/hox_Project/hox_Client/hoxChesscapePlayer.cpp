@@ -980,7 +980,10 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 
 		// Inform the Site of the response.
 		hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
-		remoteSite->JoinNewTable( tableInfo );
+        hoxNetworkTableInfo newInfo( tableInfo );
+        if ( newInfo.redTime.IsEmpty() ) newInfo.redTime = newInfo.initialTime;
+        if ( newInfo.blackTime.IsEmpty() ) newInfo.blackTime = newInfo.initialTime;
+		remoteSite->JoinNewTable( newInfo );
 		return;  // *** Done.
 	}
 

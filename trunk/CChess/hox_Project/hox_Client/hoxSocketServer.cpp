@@ -150,14 +150,14 @@ hoxSocketServer::_HandleNewConnect( wxSocketBase* newSock )
     hoxResult result = hoxNetworkAPI::ReadCommand( newSock, command );
     if ( result != hoxRESULT_OK )
     {
-        wxLogError("%s: Failed to read incoming command.", FNAME);
+        wxLogDebug("%s: *** ERROR *** Failed to read incoming command.", FNAME);
         return hoxRESULT_ERR;
     }
 
     /* Process the command */
     if ( command.type != hoxREQUEST_TYPE_CONNECT )
     {
-        wxLogError("%s: Unsupported Request-Type [%s].", 
+        wxLogDebug("%s: *** ERROR *** Unsupported Request-Type [%s].", 
             FNAME, hoxUtility::RequestTypeToString(command.type).c_str());
         return hoxRESULT_ERR;
     }
@@ -197,13 +197,16 @@ hoxSocketServer::_HandleNewConnect( wxSocketBase* newSock )
     wxString response;
 
     response << "0\r\n"  // code
-             << "OK - Accepted\r\n";  // message
+             << "OK - Accepted\r\n"  // message
+             << "sessionId-" << playerId << "\r\n"  // Session-Id
+             << playerScore << "\r\n"   // Player-Score
+             ;
 
     nWrite = (wxUint32) response.size();
     newSock->WriteMsg( response, nWrite );
     if ( newSock->LastCount() != nWrite )
     {
-        wxLogError("%s: Writing to socket failed. Error = [%s]", 
+        wxLogDebug("%s: *** ERROR *** Writing to socket failed. Error = [%s]", 
             FNAME, hoxNetworkAPI::SocketErrorToString(newSock->LastError()).c_str());
         return hoxRESULT_ERR;
     }

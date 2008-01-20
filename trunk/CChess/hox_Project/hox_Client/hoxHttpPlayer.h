@@ -58,7 +58,6 @@ public:
      *******************************/
 
     void OnConnectionResponse_Poll(wxCommandEvent& event);
-    void OnConnectionResponse_Connect(wxCommandEvent& event);
 
     /*******************************
      * Other API
@@ -66,12 +65,19 @@ public:
 
     void OnTimer( wxTimerEvent& event );
 
+protected:
+
+    /*******************************
+     * Override parent-API
+     *******************************/
+
+    virtual hoxResult HandleResponseEvent_Connect( wxCommandEvent& event );
+
 private:
     void _HandleEventFromNetwork( const hoxNetworkEvent& networkEvent );
 
 private:
     wxTimer        m_timer;      // to poll the HTTP server to events.
-	wxString       m_sessionId;  // Session-Id (i.e., auth-token)
 
     DECLARE_DYNAMIC_CLASS(hoxHttpPlayer)
     DECLARE_EVENT_TABLE()
