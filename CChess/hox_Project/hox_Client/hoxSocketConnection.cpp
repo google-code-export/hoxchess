@@ -174,20 +174,13 @@ hoxSocketConnection::_RequestToString( const hoxRequest& request ) const
 {
 	wxString result;
 
-	if ( ! request.content.empty() ) // old way?
-	{
-		result = request.content;
-	}
-	else
-	{
-		result += "op=" + hoxUtility::RequestTypeToString( request.type );
+	result += "op=" + hoxUtility::RequestTypeToString( request.type );
 
-		hoxCommand::Parameters::const_iterator it;
-		for ( it = request.parameters.begin();
-			  it != request.parameters.end(); ++it )
-		{
-			result += "&" + it->first + "=" + it->second;
-		}
+	hoxCommand::Parameters::const_iterator it;
+	for ( it = request.parameters.begin();
+		  it != request.parameters.end(); ++it )
+	{
+		result += "&" + it->first + "=" + it->second;
 	}
 	
 	return result;

@@ -358,9 +358,12 @@ hoxServer::_HandleRequest( hoxRequest* request )
         }
 
         case hoxREQUEST_TYPE_OUT_DATA:
+        {
+            const wxString data = request->parameters["data"];
             result = hoxNetworkAPI::SendOutData( request->socket, 
-                                                 request->content );
+                                                 data );
             break;
+        }
 
         default:
             wxLogError("%s: Unsupported Request-Type [%s].", 
@@ -394,20 +397,13 @@ hoxServer::_RequestToString( const hoxRequest& request ) const
 {
 	wxString result;
 
-	if ( ! request.content.empty() ) // old way?
-	{
-		result = request.content;
-	}
-	else
-	{
-		result += "op=" + hoxUtility::RequestTypeToString( request.type );
+	result += "op=" + hoxUtility::RequestTypeToString( request.type );
 
-		hoxCommand::Parameters::const_iterator it;
-		for ( it = request.parameters.begin();
-			  it != request.parameters.end(); ++it )
-		{
-			result += "&" + it->first + "=" + it->second;
-		}
+	hoxCommand::Parameters::const_iterator it;
+	for ( it = request.parameters.begin();
+		  it != request.parameters.end(); ++it )
+	{
+		result += "&" + it->first + "=" + it->second;
 	}
 	
 	return result;
@@ -439,7 +435,7 @@ hoxResult
 hoxServer::_HandleRequest_Accept( hoxRequest* request ) 
 {
     const char* FNAME = "hoxServer::_HandleRequest_Accept";  // function's name
-    const wxString playerId = request->content;
+    const wxString playerId = request->parameters["pid"];
     wxSocketBase* socket = request->socket;
 
     wxLogDebug("%s: Saving an active (socket) connection.", FNAME);
@@ -459,7 +455,7 @@ hoxServer::_HandleRequest_Disconnect( hoxRequest* request )
 {
     const char* FNAME = "hoxServer::_HandleRequest_Disconnect";  // function's name
 
-	const wxString playerId = request->content;
+    const wxString playerId = request->parameters["pid"];
 	wxLogDebug("%s: Removing the active (socket) connection for player [%s].", 
 		FNAME, playerId.c_str());
 	

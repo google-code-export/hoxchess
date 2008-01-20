@@ -187,7 +187,7 @@ hoxSocketServer::_HandleNewConnect( wxSocketBase* newSock )
     // *** Save the connection so that later we can cleanup before closing.
     wxLogDebug("%s: Posting ACCEPT request to save the new client connection.", FNAME);
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_ACCEPT );
-    request->content = playerId;
+    request->parameters["pid"] = playerId;
     request->socket = newSock;
     m_server->AddRequest( request );
 

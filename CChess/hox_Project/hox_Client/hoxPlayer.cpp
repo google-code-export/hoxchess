@@ -527,7 +527,7 @@ hoxPlayer::HandleIncomingData( const wxString& commandStr )
 	if ( ! response.empty() )
 	{
 		hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_OUT_DATA, this );
-		request->content = response;
+        request->parameters["data"] = response;
 		this->AddRequestToConnection( request );
 	}
 
