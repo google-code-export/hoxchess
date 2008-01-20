@@ -78,6 +78,12 @@ public:
 
 	virtual void OnConnectionResponse( wxCommandEvent& event ); 
 
+protected:
+    virtual hoxResult HandleResponseEvent_Connect( wxCommandEvent& event );
+
+protected:
+	wxString    m_sessionId;  // Session-Id (i.e., auth-token)
+
 private:
 
     DECLARE_ABSTRACT_CLASS(hoxLocalPlayer)

@@ -207,6 +207,8 @@ public:
 
 	virtual unsigned int GetCurrentActionFlags() const;
 
+    virtual hoxTable* CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo);
+
 protected:
     virtual void Handle_ConnectionResponse( hoxResponse_AutoPtr response );
     

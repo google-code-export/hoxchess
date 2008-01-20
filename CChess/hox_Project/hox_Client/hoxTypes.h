@@ -176,6 +176,8 @@ class hoxTimeInfo
 			nMove = 0;
 			nFree = 0;
 		}
+    bool IsEmpty() const 
+        { return (nGame == 0) && (nMove == 0) && (nFree == 0); }
 };
 
 /**

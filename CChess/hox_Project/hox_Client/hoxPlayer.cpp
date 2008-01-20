@@ -764,19 +764,42 @@ hoxPlayer::HandleIncomingData_List( hoxCommand& command,
 		     << "INFO: We have " << tableCount << " tables\r\n";  // message
 
     // Return the info of tables.
+    wxString iTimes, rTimes, bTimes;
+    wxString rid, rscore;
+    wxString bid, bscore;
     for ( hoxTableList::const_iterator it = tables.begin(); 
                                        it != tables.end(); ++it )
     {
         hoxPlayer* redPlayer   = (*it)->GetRedPlayer();
         hoxPlayer* blackPlayer = (*it)->GetBlackPlayer();
-		wxString iTimes = hoxUtility::TimeInfoToString( (*it)->GetInitialTime() );
+		iTimes = hoxUtility::TimeInfoToString( (*it)->GetInitialTime() );
+		rTimes = hoxUtility::TimeInfoToString( (*it)->GetRedTime() );
+		bTimes = hoxUtility::TimeInfoToString( (*it)->GetBlackTime() );
+        if ( redPlayer != NULL ) {
+            rid = redPlayer->GetName();
+            rscore = wxString::Format("%d", redPlayer->GetScore());
+        } else {
+            rid = "";
+            rscore = "";
+        }
+        if ( blackPlayer != NULL ) {
+            bid = blackPlayer->GetName();
+            bscore = wxString::Format("%d", blackPlayer->GetScore());
+        } else {
+            bid = "";
+            bscore = "";
+        }
 
         response << (*it)->GetId() << ";"
                  << "0" << ";"  // TODO: Hard-coded for Group
 				 << "0" << ";"  // TODO: Hard-coded for Type
 				 << iTimes << ";"
-                 << (redPlayer != NULL ? redPlayer->GetName() : "") << ";"
-                 << (blackPlayer != NULL ? blackPlayer->GetName() : "") << ";"
+				 << rTimes << ";"
+				 << bTimes << ";"
+                 << rid << ";"
+                 << rscore << ";"
+                 << bid << ";"
+                 << bscore << ";"
                  << "\r\n";
     }
 
@@ -789,9 +812,13 @@ hoxPlayer::HandleIncomingData_Join( hoxCommand& command,
                                     wxString&   response )
 {
     const char* FNAME = "hoxPlayer::HandleIncomingData_Join";
-    hoxResult result = hoxRESULT_ERR;
-    hoxTable* table = NULL;
-    wxString  existingPlayerId;
+    hoxResult  result = hoxRESULT_ERR;
+    hoxTable*  table = NULL;
+    hoxPlayer* redPlayer = NULL;
+    hoxPlayer* blackPlayer = NULL;
+    wxString   iTimes, rTimes, bTimes;
+    wxString   rid, rscore;
+    wxString   bid, bscore;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -807,24 +834,6 @@ hoxPlayer::HandleIncomingData_Join( hoxCommand& command,
         goto exit_label;
     }
 
-    /* Get the ID of the existing player */
-
-    if ( table->GetRedPlayer() != NULL )
-    {
-        existingPlayerId = table->GetRedPlayer()->GetName();
-    }
-    else if ( table->GetBlackPlayer() != NULL )
-    {
-        existingPlayerId = table->GetBlackPlayer()->GetName();
-    }
-    else
-    {
-        wxLogError("%s: No one is at the table [%s] not found.", FNAME, tableId.c_str());
-        response << "2\r\n"  // code
-                 << "Not one is at the table " << tableId << ".\r\n";
-        goto exit_label;
-    }
-
     /***********************/
     /* Setup players       */
     /***********************/
@@ -833,15 +842,46 @@ hoxPlayer::HandleIncomingData_Join( hoxCommand& command,
     if ( result != hoxRESULT_OK  )
     {
         wxLogError("%s: Failed to ask Table [%s] to join.", FNAME, tableId.c_str());
-        response << "3\r\n"  // code
+        response << "2\r\n"  // code
                  << "JOIN failed at table " << tableId << ".\r\n";
         goto exit_label;
     }
 
 	// Finally, return 'success'.
+
+    redPlayer = table->GetRedPlayer();
+    blackPlayer = table->GetBlackPlayer();
+	iTimes = hoxUtility::TimeInfoToString( table->GetInitialTime() );
+	rTimes = hoxUtility::TimeInfoToString( table->GetRedTime() );
+	bTimes = hoxUtility::TimeInfoToString( table->GetBlackTime() );
+    if ( redPlayer != NULL ) {
+        rid = redPlayer->GetName();
+        rscore = wxString::Format("%d", redPlayer->GetScore());
+    } else {
+        rid = "";
+        rscore = "";
+    }
+    if ( blackPlayer != NULL ) {
+        bid = blackPlayer->GetName();
+        bscore = wxString::Format("%d", blackPlayer->GetScore());
+    } else {
+        bid = "";
+        bscore = "";
+    }
+
 	response << "0\r\n"       // error-code = SUCCESS
 	         << "INFO: (JOIN) Join Table [" << tableId << "] OK\r\n"
-	         << tableId << " " << "1 " << existingPlayerId << " " << this->GetName() << "\r\n";
+             << tableId << ";"
+             << "0" << ";"  // TODO: Hard-coded for Group
+			 << "0" << ";"  // TODO: Hard-coded for Type
+			 << iTimes << ";"
+			 << rTimes << ";"
+			 << bTimes << ";"
+             << rid << ";"
+             << rscore << ";"
+             << bid << ";"
+             << bscore << ";"
+             << "\r\n";
 
     result = hoxRESULT_OK;
 
@@ -932,7 +972,8 @@ hoxPlayer::HandleIncomingData_New( hoxCommand& command,
     /* Check the player-Id. */
     if ( playerId != this->GetName() )
     {
-        wxLogError("%s: No player-Id. (%s vs. %s)", FNAME, playerId.c_str(), this->GetName().c_str());
+        wxLogDebug("%s: *** ERROR *** No player-Id. (%s vs. %s)", 
+            FNAME, playerId.c_str(), this->GetName().c_str());
         response << "1\r\n"  // code
                  << "Wrong player-Id. " << playerId << " vs. " << this->GetName() << ".\r\n";
         goto exit_label;
@@ -952,7 +993,15 @@ hoxPlayer::HandleIncomingData_New( hoxCommand& command,
 	response << "0\r\n"       // error-code = SUCCESS
 	         << "INFO: (NEW) The new table-Id = [" << newTableId << "]\r\n"
 	         << newTableId << ";"
+	         << "0" << ";"   // TODO: Hard-coded Group.
+	         << "0" << ";"   // TODO: Hard-coded Type.
 			 << itimes << ";"
+			 << itimes << ";"  // RED-time = Initial-time
+			 << itimes << ";"  // BLACK-time = Initial-time
+             << this->GetName() << ";"   // RED-Id
+             << this->GetScore() << ";"  // RED-Score
+             << "" << ";"       // BLACK-Id
+             << "" << ";"       // BLACK-Score
 			 << "\r\n";
     result = hoxRESULT_OK;
 

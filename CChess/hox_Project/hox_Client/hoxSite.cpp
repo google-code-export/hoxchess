@@ -231,13 +231,12 @@ hoxLocalSite::CreateNewTableAsPlayer( wxString&          newTableId,
     /* Create a new table without a frame. */
     newTable = m_tableMgr.CreateTable( newTableId );
 	newTable->SetInitialTime( initialTime );
+    newTable->SetRedTime( initialTime );
+	newTable->SetBlackTime( initialTime );
 
     /* Add the specified player to the table. */
-    hoxResult result = player->JoinTable( newTable );
+    hoxResult result = player->JoinTableAs( newTable, hoxPIECE_COLOR_RED );
     wxASSERT( result == hoxRESULT_OK  );
-    wxASSERT_MSG( player->HasRole( 
-                            hoxRole(newTable->GetId(), hoxPIECE_COLOR_RED) ),
-                  _("Player must play RED"));
 
     /* Update UI. */
     wxGetApp().GetFrame()->UpdateSiteTreeUI();
@@ -512,26 +511,13 @@ hoxRemoteSite::JoinNewTable(const hoxNetworkTableInfo& tableInfo)
 	 * Create a new Table. *
      ***********************/
 
-    wxLogDebug("%s: Creating a brand NEW table...", FNAME);
-
-    /* Create a GUI Frame for the new Table. */
-    MyFrame* frame = wxGetApp().GetFrame();
-    MyChild* childFrame = frame->CreateFrameForTable( tableId );
-
-    /* Create a new table with newly created Frame. */
-    table = m_tableMgr.CreateTable( tableId );
-	table->SetInitialTime( tableInfo.initialTime );
-	table->SetBlackTime( tableInfo.initialTime ); // Initial time.
-	table->SetRedTime( tableInfo.initialTime );   // Initial time.
-	table->ViewBoard( childFrame );
-    childFrame->SetTable( table );
-    childFrame->Show( true );
+    table = this->CreateNewTableWithGUI( tableInfo );
 
 	/* The local player is the only one at the Table. */
     result = m_player->JoinTableAs( table, myColor );
     wxASSERT( result == hoxRESULT_OK  );
 
-	frame->UpdateSiteTreeUI();
+	wxGetApp().GetFrame()->UpdateSiteTreeUI();
 
 	return hoxRESULT_OK;
 }
@@ -749,20 +735,7 @@ hoxRemoteSite::JoinExistingTable(const hoxNetworkTableInfo& tableInfo)
     /* Create a new table. */
     /***********************/
 
-    wxLogDebug("%s: Creating a new table to JOIN an existing network table...", FNAME);
-
-    /* Create a GUI Frame for the new Table. */
-    MyFrame* frame = wxGetApp().GetFrame();
-    MyChild* childFrame = frame->CreateFrameForTable( tableId );
-
-    /* Create a new table with newly created Frame. */
-    table = m_tableMgr.CreateTable( tableId );
-	table->SetInitialTime( tableInfo.initialTime );
-	table->SetBlackTime( tableInfo.blackTime );
-	table->SetRedTime( tableInfo.redTime );
-	table->ViewBoard( childFrame );
-    childFrame->SetTable( table );
-    childFrame->Show( true );
+    table = this->CreateNewTableWithGUI( tableInfo );
 
     /***********************/
     /* Setup players       */
@@ -824,7 +797,7 @@ hoxRemoteSite::JoinExistingTable(const hoxNetworkTableInfo& tableInfo)
 		table->ToggleViewSide();
 	}
 
-	frame->UpdateSiteTreeUI();
+	wxGetApp().GetFrame()->UpdateSiteTreeUI();
 
 	return hoxRESULT_OK;
 }
@@ -889,6 +862,27 @@ hoxRemoteSite::GetCurrentActionFlags() const
     }
 
 	return flags;
+}
+
+hoxTable* 
+hoxRemoteSite::CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo)
+{
+    hoxTable* table = NULL;
+    wxString tableId = tableInfo.id;
+
+    /* Create a GUI Frame for the new Table. */
+    MyChild* childFrame = wxGetApp().GetFrame()->CreateFrameForTable( tableId );
+
+    /* Create a new table with newly created Frame. */
+    table = m_tableMgr.CreateTable( tableId );
+	table->SetInitialTime( tableInfo.initialTime );
+    table->SetBlackTime( tableInfo.blackTime );
+    table->SetRedTime( tableInfo.redTime );
+	table->ViewBoard( childFrame );
+    childFrame->SetTable( table );
+    childFrame->Show( true );
+
+    return table;
 }
 
 // --------------------------------------------------------------------------

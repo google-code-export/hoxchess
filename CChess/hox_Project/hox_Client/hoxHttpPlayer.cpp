@@ -33,7 +33,6 @@ IMPLEMENT_DYNAMIC_CLASS(hoxHttpPlayer, hoxLocalPlayer)
 BEGIN_EVENT_TABLE(hoxHttpPlayer, hoxLocalPlayer)
     EVT_TIMER(wxID_ANY, hoxHttpPlayer::OnTimer)
     EVT_COMMAND(hoxREQUEST_TYPE_POLL, hoxEVT_CONNECTION_RESPONSE, hoxHttpPlayer::OnConnectionResponse_Poll)
-    EVT_COMMAND(hoxREQUEST_TYPE_CONNECT, hoxEVT_CONNECTION_RESPONSE, hoxHttpPlayer::OnConnectionResponse_Connect)
 END_EVENT_TABLE()
 
 //-----------------------------------------------------------------------------
@@ -149,37 +148,20 @@ hoxHttpPlayer::OnConnectionResponse_Poll(wxCommandEvent& event)
     }
 }
 
-void 
-hoxHttpPlayer::OnConnectionResponse_Connect(wxCommandEvent& event) 
+hoxResult 
+hoxHttpPlayer::HandleResponseEvent_Connect( wxCommandEvent& event )
 {
-    const char* FNAME = "hoxHttpPlayer::OnConnectionResponse_Connect";
-    hoxResult  result;
-    int        returnCode = -1;
-    wxString   returnMsg;
+    const char* FNAME = "hoxHttpPlayer::HandleResponseEvent_Connect";
+    hoxResult   result;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    hoxResponse* response = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
+    // Invoke the parent-API.
 
-    /* Start the polling timer if the CONNECT's response is OK. */
+    result = this->hoxLocalPlayer::HandleResponseEvent_Connect(event);
 
-	wxString    sessionId;
-	int         nScore = 0;
-
-    result = hoxNetworkAPI::ParseConnectResponse( response->content,
-                                                  returnCode,
-                                                  returnMsg,
-												  sessionId,
-												  nScore );
-    if ( result == hoxRESULT_OK && returnCode == 0 )
+    if ( result == hoxRESULT_OK )
     {
-		m_sessionId = sessionId; // Extract the session-Id.
-		this->SetScore( nScore );
-		wxLogDebug("%s: Connection established. Session-Id = [%s].", FNAME, m_sessionId.c_str());
-
-		/* Return the error-message to the default (parent) handler. */
-		response->content = returnMsg;
-
         /* NOTE: Only enable 1-short at a time to be sure that the timer-handler
          *       is only entered ONE at at time.
          */
@@ -188,9 +170,9 @@ hoxHttpPlayer::OnConnectionResponse_Connect(wxCommandEvent& event)
                        wxTIMER_ONE_SHOT );
     }
 
-    wxLogDebug("%s: Forward event to the default handler...", FNAME);
-    event.Skip();
+    return result;
 }
+
 
 void 
 hoxHttpPlayer::_HandleEventFromNetwork( const hoxNetworkEvent& networkEvent )
