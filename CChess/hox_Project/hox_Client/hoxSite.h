@@ -197,6 +197,7 @@ public:
 
 	virtual hoxResult JoinNewTable(const hoxNetworkTableInfo& tableInfo);
     virtual hoxResult JoinExistingTable(const hoxNetworkTableInfo& tableInfo);
+    virtual hoxResult DisplayListOfTables(const hoxNetworkTableInfoList& tableList);
 
 	virtual void DeletePlayer( hoxPlayer* player );
 

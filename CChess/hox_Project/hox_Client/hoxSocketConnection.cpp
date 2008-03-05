@@ -99,7 +99,7 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
             wxASSERT_MSG( request->socket == m_pSClient, "Sockets should match." );
             // We disable input events until we are done processing the current command.
             hoxNetworkAPI::SocketInputLock socketLock( m_pSClient );
-            result = hoxNetworkAPI::ReadLine( m_pSClient, response->content );
+            result = _ReadLine( m_pSClient, response->content );
             if ( result != hoxRESULT_OK )
             {
                 wxLogError("%s: Failed to read incoming command.", FNAME);
@@ -108,14 +108,15 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
             break;
         }
 
-		case hoxREQUEST_TYPE_DISCONNECT: /* fall through */
+		case hoxREQUEST_TYPE_LOGOUT: /* fall through */
         case hoxREQUEST_TYPE_OUT_DATA:
-            result = hoxNetworkAPI::SendOutData( m_pSClient, 
-                                                 _RequestToString( *request ) );
+            result = _WriteLine( m_pSClient, 
+                                 _RequestToString( *request ) );
             break;
 
-        case hoxREQUEST_TYPE_CONNECT:
-            result = _Connect();
+        case hoxREQUEST_TYPE_LOGIN:
+            result = _Connect( _RequestToString( *request ),
+                               response->content );
             if ( result == hoxRESULT_HANDLED )
             {
                 result = hoxRESULT_OK;  // Consider "success".
@@ -126,7 +127,7 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
                 wxLogError("%s: Failed to connect to server.", FNAME);
                 break;
             }
-            /* fall through */
+            break;
 
         case hoxREQUEST_TYPE_MOVE:     /* fall through */
         case hoxREQUEST_TYPE_LIST:     /* fall through */
@@ -141,9 +142,8 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
                 result = hoxRESULT_OK;  // Consider "success".
                 break;
             }
-            result = hoxNetworkAPI::SendRequest( m_pSClient, 
-                                                 _RequestToString( *request ),
-                                                 response->content );
+            result = _WriteLine( m_pSClient, 
+                                 _RequestToString( *request ) );
             break;
 
         default:
@@ -210,7 +210,8 @@ hoxSocketConnection::_CheckAndHandleSocketLostEvent(
 }
 
 hoxResult
-hoxSocketConnection::_Connect()
+hoxSocketConnection::_Connect( const wxString& request,
+                               wxString&       response )
 {
     const char* FNAME = "hoxSocketConnection::_Connect";
 
@@ -242,6 +243,36 @@ hoxSocketConnection::_Connect()
     wxLogDebug("%s: Succeeded! Connection established with the server.", FNAME);
     this->SetConnected( true );
 
+	////////////////////////////
+    // Send LOGIN request.
+	{
+		wxLogDebug("%s: Sending LOGIN request over the network...", FNAME);
+		wxString loginRequest;
+		loginRequest.Printf("%s\n", request.c_str());
+
+		wxUint32 requestSize = (wxUint32) loginRequest.size();
+		m_pSClient->Write( loginRequest, requestSize );
+		wxUint32 nWrite = m_pSClient->LastCount();
+		if ( nWrite < requestSize )
+		{
+			wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
+				FNAME, loginRequest.c_str(), nWrite, requestSize, 
+				hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
+			return hoxRESULT_ERR;
+		}
+	}
+	////////////////////////////
+	// Read the response.
+	{
+        hoxResult result = this->_ReadLine( m_pSClient, response );
+        if ( result != hoxRESULT_OK )
+        {
+            wxLogDebug("%s: *** WARN *** Failed to read incoming command.", FNAME);
+            //return hoxRESULT_ERR;
+        }
+	}
+	//////////////////////////////
+
     wxCHECK_MSG(m_player, hoxRESULT_ERR, "The player is NULL.");
     wxLogDebug("%s: Let the connection's Player [%s] handle all socket events.", 
         FNAME, m_player->GetName());
@@ -264,6 +295,84 @@ hoxSocketConnection::_Disconnect()
         m_pSClient = NULL;
     }
     this->SetConnected( false );
+}
+
+hoxResult
+hoxSocketConnection::_ReadLine( wxSocketBase* sock, 
+                                wxString&     result )
+{
+    const char* FNAME = "hoxSocketConnection::_ReadLine";
+    wxString commandStr;
+
+	/* Read a line until "\n\n" */
+
+	bool   bSawOne = false;
+    wxChar c;
+
+    for (;;)
+    {
+        sock->Read( &c, 1 );
+        if ( sock->LastCount() == 1 )
+        {
+			if ( !bSawOne && c == '\n' )
+			{
+				bSawOne = true;
+			}
+			else if ( bSawOne && c == '\n' )
+			{
+				result = commandStr;
+				return hoxRESULT_OK;  // Done.
+			}
+            else
+            {
+                bSawOne = false;
+                commandStr += c;
+
+                // Impose some limit.
+                if ( commandStr.size() >= hoxNETWORK_MAX_MSG_SIZE )
+                {
+                    wxLogError("%s: Maximum message's size [%d] reached. Likely to be an error.", 
+                        FNAME, hoxNETWORK_MAX_MSG_SIZE);
+                    wxLogError("%s: Partial read message (64 bytes) = [%s ...].", 
+                        FNAME, commandStr.substr(0, 64).c_str());
+                    break;
+                }
+            }
+        }
+        else if ( sock->Error() )
+        {
+            wxLogWarning("%s: Fail to read 1 byte from the network. Error = [%s].", 
+                FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
+            wxLogWarning("%s: Result message accumulated so far = [%s].", FNAME, commandStr.c_str());
+            break;
+        }
+    }
+
+    return hoxRESULT_ERR;
+}
+
+hoxResult
+hoxSocketConnection::_WriteLine( wxSocketBase*   sock, 
+                                 const wxString& contentStr )
+{
+    const char* FNAME = "hoxSocketConnection::_WriteLine";
+
+	wxLogDebug("%s: Sending a request over the network...", FNAME);
+	wxString sRequest;
+	sRequest.Printf("%s\n", contentStr.c_str());
+
+	wxUint32 requestSize = (wxUint32) sRequest.size();
+	m_pSClient->Write( sRequest, requestSize );
+	wxUint32 nWrite = m_pSClient->LastCount();
+	if ( nWrite < requestSize )
+	{
+		wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
+			FNAME, sRequest.c_str(), nWrite, requestSize, 
+			hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
+		return hoxRESULT_ERR;
+	}
+
+    return hoxRESULT_OK;
 }
 
 /************************* END OF FILE ***************************************/

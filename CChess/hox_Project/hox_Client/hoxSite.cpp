@@ -252,7 +252,7 @@ hoxLocalSite::Handle_DisconnectFromPlayer( hoxPlayer* player )
 
 	/* Inform the server. */
     wxLogDebug("%s: Posting DISCONNECT request to remove the new client connection.", FNAME);
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_DISCONNECT );
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LOGOUT );
     request->parameters["pid"] = player->GetName();
     m_server->AddRequest( request );
 
@@ -365,11 +365,11 @@ hoxRemoteSite::Handle_ConnectionResponse( hoxResponse_AutoPtr response )
 
     switch ( response->type )
     {
-        case hoxREQUEST_TYPE_CONNECT:
+        case hoxREQUEST_TYPE_LOGIN:
             this->OnResponse_Connect( response );
             break;
 
-        case hoxREQUEST_TYPE_DISCONNECT:
+        case hoxREQUEST_TYPE_LOGOUT:
             this->OnResponse_Disconnect( response );
             break;
 
@@ -522,13 +522,23 @@ void
 hoxRemoteSite::OnResponse_List( const hoxResponse_AutoPtr& response )
 {
     const char* FNAME = "hoxRemoteSite::OnResponse_List";
-    hoxResult               result;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
 	hoxNetworkTableInfoList* pTableList = (hoxNetworkTableInfoList*) response->eventObject;
 	std::auto_ptr<hoxNetworkTableInfoList> autoPtr_tablelist( pTableList );  // prevent memory leak!
 	const hoxNetworkTableInfoList& tableList = *pTableList;
+
+    this->DisplayListOfTables( tableList );
+}
+
+hoxResult
+hoxRemoteSite::DisplayListOfTables( const hoxNetworkTableInfoList& tableList )
+{
+    const char* FNAME = "hoxRemoteSite::DisplayListOfTables";
+    hoxResult   result;
+
+    wxLogDebug("%s: ENTER.", FNAME);
 
     /* Show tables. */
     MyFrame* frame = wxGetApp().GetFrame();
@@ -579,6 +589,8 @@ hoxRemoteSite::OnResponse_List( const hoxResponse_AutoPtr& response )
             wxLogDebug("%s: No command is selected. Fine.", FNAME);
             break;
     }
+
+    return hoxRESULT_OK;
 }
 
 const wxString 

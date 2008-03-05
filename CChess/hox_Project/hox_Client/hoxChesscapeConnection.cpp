@@ -135,7 +135,7 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
             break;
         }
 
-        case hoxREQUEST_TYPE_CONNECT:
+        case hoxREQUEST_TYPE_LOGIN:
 		{
 			const wxString login = request->parameters["pid"]; 
 		    const wxString password = request->parameters["password"];
@@ -147,7 +147,7 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
 			break;
 		}
 
-        case hoxREQUEST_TYPE_DISCONNECT:
+        case hoxREQUEST_TYPE_LOGOUT:
 		{
 			const wxString login = request->parameters["pid"]; 
             result = _Disconnect(login);

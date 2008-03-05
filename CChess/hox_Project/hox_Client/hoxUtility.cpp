@@ -130,8 +130,8 @@ hoxUtility::RequestTypeToString( const hoxRequestType requestType )
 
         case hoxREQUEST_TYPE_ACCEPT:      return "ACCEPT";
         case hoxREQUEST_TYPE_PLAYER_DATA: return "PLAYER_DATA";
-        case hoxREQUEST_TYPE_CONNECT:     return "CONNECT";
-        case hoxREQUEST_TYPE_DISCONNECT:  return "DISCONNECT";
+        case hoxREQUEST_TYPE_LOGIN:       return "LOGIN";
+        case hoxREQUEST_TYPE_LOGOUT:      return "LOGOUT";
         case hoxREQUEST_TYPE_SHUTDOWN:    return "SHUTDOWN";
         case hoxREQUEST_TYPE_POLL:        return "POLL";
         case hoxREQUEST_TYPE_MOVE:        return "MOVE";
@@ -159,8 +159,8 @@ hoxUtility::StringToRequestType( const wxString& input )
 
     if ( input == "ACCEPT" )      return hoxREQUEST_TYPE_ACCEPT;
     if ( input == "PLAYER_DATA" ) return hoxREQUEST_TYPE_PLAYER_DATA;
-    if ( input == "CONNECT" )     return hoxREQUEST_TYPE_CONNECT;
-    if ( input == "DISCONNECT" )  return hoxREQUEST_TYPE_DISCONNECT;
+    if ( input == "LOGIN" )       return hoxREQUEST_TYPE_LOGIN;
+    if ( input == "LOGOUT" )      return hoxREQUEST_TYPE_LOGOUT;
     if ( input == "SHUTDOWN" )    return hoxREQUEST_TYPE_SHUTDOWN;
     if ( input == "POLL" )        return hoxREQUEST_TYPE_POLL;
     if ( input == "MOVE" )        return hoxREQUEST_TYPE_MOVE;

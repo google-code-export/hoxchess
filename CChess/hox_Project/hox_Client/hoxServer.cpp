@@ -330,7 +330,7 @@ hoxServer::_HandleRequest( hoxRequest* request )
             result = _HandleRequest_Accept( request );
             break;
 
-        case hoxREQUEST_TYPE_DISCONNECT:
+        case hoxREQUEST_TYPE_LOGOUT:
             result = _HandleRequest_Disconnect( request );
             break;
 

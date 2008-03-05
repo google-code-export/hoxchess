@@ -155,7 +155,7 @@ hoxSocketServer::_HandleNewConnect( wxSocketBase* newSock )
     }
 
     /* Process the command */
-    if ( command.type != hoxREQUEST_TYPE_CONNECT )
+    if ( command.type != hoxREQUEST_TYPE_LOGIN )
     {
         wxLogDebug("%s: *** ERROR *** Unsupported Request-Type [%s].", 
             FNAME, hoxUtility::RequestTypeToString(command.type).c_str());
