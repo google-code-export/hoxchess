@@ -79,7 +79,7 @@ hoxLocalPlayer::ConnectToNetworkServer( wxEvtHandler* sender )
 {
     this->StartConnection();
 
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_CONNECT, sender );
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LOGIN, sender );
 	request->parameters["pid"] = this->GetName();
 	request->parameters["password"] = this->GetPassword();
     this->AddRequestToConnection( request );
@@ -90,7 +90,7 @@ hoxLocalPlayer::ConnectToNetworkServer( wxEvtHandler* sender )
 hoxResult 
 hoxLocalPlayer::DisconnectFromNetworkServer( wxEvtHandler* sender )
 {
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_DISCONNECT, sender );
+    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LOGOUT, sender );
 	request->parameters["pid"] = this->GetName();
 	this->AddRequestToConnection( request );
 
@@ -164,7 +164,7 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
 
     if ( response->sender && response->sender != this )
     {
-		if ( response->type == hoxREQUEST_TYPE_CONNECT )
+		if ( response->type == hoxREQUEST_TYPE_LOGIN )
 		{
             result = this->HandleResponseEvent_Connect(event);
 			if ( result != hoxRESULT_OK )

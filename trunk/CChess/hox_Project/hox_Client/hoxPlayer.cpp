@@ -482,7 +482,7 @@ hoxPlayer::HandleIncomingData( const wxString& commandStr )
 
     switch ( command.type )
     {
-        case hoxREQUEST_TYPE_DISCONNECT:
+        case hoxREQUEST_TYPE_LOGOUT:
             result = this->HandleIncomingData_Disconnect( command );
             break;
 
@@ -543,7 +543,8 @@ hoxPlayer::HandleIncomingData_Disconnect( hoxCommand& command )
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    const wxString playerId = command.parameters["pid"];
+    const wxString content = command.parameters["content"];
+    const wxString playerId = content;
 
     /* Check the player-Id. */
     if ( playerId != this->GetName() )

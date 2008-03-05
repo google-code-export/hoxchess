@@ -90,8 +90,11 @@ hoxThreadConnection::Shutdown()
 
     wxLogDebug("%s: Request the Connection thread to be shutdowned...", FNAME);
     m_shutdownRequested = true;
-    wxThread::ExitCode exitCode = this->GetThread()->Wait();
-    wxLogDebug("%s: The Connection thread was shutdowned with exit-code = [%d].", FNAME, exitCode);
+    if ( this->GetThread()->IsRunning() )  // TODO: Is it a good way to test?
+    {
+        wxThread::ExitCode exitCode = this->GetThread()->Wait();
+        wxLogDebug("%s: The Connection thread was shutdowned with exit-code = [%d].", FNAME, exitCode);
+    }
 }
 
 void*

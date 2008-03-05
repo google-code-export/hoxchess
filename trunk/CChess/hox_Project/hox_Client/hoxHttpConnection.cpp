@@ -68,8 +68,8 @@ hoxHttpConnection::HandleRequest( hoxRequest* request )
     {
         case hoxREQUEST_TYPE_POLL:     /* fall through */
         case hoxREQUEST_TYPE_MOVE:     /* fall through */
-        case hoxREQUEST_TYPE_CONNECT:  /* fall through */
-		case hoxREQUEST_TYPE_DISCONNECT: /* fall through */
+        case hoxREQUEST_TYPE_LOGIN:    /* fall through */
+		case hoxREQUEST_TYPE_LOGOUT:   /* fall through */
         case hoxREQUEST_TYPE_LIST:     /* fall through */
         case hoxREQUEST_TYPE_NEW:      /* fall through */
         case hoxREQUEST_TYPE_JOIN:     /* fall through */

@@ -1089,7 +1089,7 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 
 	switch ( response->type )
 	{
-		case hoxREQUEST_TYPE_CONNECT:
+		case hoxREQUEST_TYPE_LOGIN:
 		{
 			this->DecrementOutstandingRequests();
 			wxLogDebug("%s: CONNECT (or LOGIN) 's response received.", FNAME);
@@ -1176,7 +1176,7 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 			wxLogDebug("%s: OUT_DATA 's response received. END.", FNAME);
 			break;
 		}
-		case hoxREQUEST_TYPE_DISCONNECT:
+		case hoxREQUEST_TYPE_LOGOUT:
 		{
 			this->DecrementOutstandingRequests();
 			wxLogDebug("%s: DISCONNECT 's response received. END.", FNAME);

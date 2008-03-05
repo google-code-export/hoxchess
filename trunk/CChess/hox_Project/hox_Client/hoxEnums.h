@@ -65,6 +65,7 @@ enum hoxResult
     hoxRESULT_ERR,   // A generic error.
 
     hoxRESULT_HANDLED,   // something (request, event,...) has been handled.
+    hoxRESULT_NOT_FOUND, // Something is not found.
     hoxRESULT_NOT_SUPPORTED
 };
 
@@ -269,8 +270,8 @@ enum hoxRequestType
     hoxREQUEST_TYPE_PLAYER_DATA,
         /* Network data incoming from a remote player */
 
-    hoxREQUEST_TYPE_CONNECT,
-    hoxREQUEST_TYPE_DISCONNECT,
+    hoxREQUEST_TYPE_LOGIN,
+    hoxREQUEST_TYPE_LOGOUT,
     hoxREQUEST_TYPE_SHUTDOWN,
     hoxREQUEST_TYPE_POLL,
     hoxREQUEST_TYPE_MOVE,

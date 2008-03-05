@@ -60,8 +60,13 @@ private:
 
     hoxResult   _CheckAndHandleSocketLostEvent( const hoxRequest* request, 
                                                 wxString&         response );
-    hoxResult   _Connect();
+    hoxResult   _Connect( const wxString& request,
+                          wxString&       response );
     void        _Disconnect();
+    hoxResult _ReadLine( wxSocketBase* sock, 
+                         wxString&     result );
+    hoxResult _WriteLine( wxSocketBase*   sock, 
+                          const wxString& contentStr );
 
 private:
     wxSocketClient*       m_pSClient;
