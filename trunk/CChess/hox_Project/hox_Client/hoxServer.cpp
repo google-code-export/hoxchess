@@ -335,7 +335,7 @@ hoxServer::_HandleRequest( hoxRequest* request )
             break;
 
         case hoxREQUEST_TYPE_MOVE: /* fall through */
-        case hoxREQUEST_TYPE_NEW_JOIN: /* fall through */
+        case hoxREQUEST_TYPE_E_JOIN: /* fall through */
         case hoxREQUEST_TYPE_LEAVE: /* fall through */
         case hoxREQUEST_TYPE_WALL_MSG:
             result = hoxNetworkAPI::SendRequest( request->socket, 

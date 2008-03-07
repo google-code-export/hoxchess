@@ -62,7 +62,13 @@ private:
 
     hoxResult _ParsePlayerLeaveEvent( const wxString& sContent,
                                       hoxTable*&      table,
-                                      hoxPlayer*      player );
+                                      hoxPlayer*&     player );
+
+    hoxResult _ParsePlayerJoinEvent( const wxString& sContent,
+                                     wxString&       tableId,
+                                     wxString&       playerId,
+                                     int&            nPlayerScore,
+                                     hoxPieceColor&  color);
 
 private:
 

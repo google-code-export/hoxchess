@@ -117,6 +117,7 @@ hoxLocalPlayer::JoinNetworkTable( const wxString& tableId,
     hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_JOIN, sender );
 	request->parameters["pid"] = this->GetName();
 	request->parameters["tid"] = tableId;
+    request->parameters["color"] = hoxUtility::ColorToString( hoxPIECE_COLOR_NONE ); // Observer.
 	request->parameters["joined"] = hasRole ? "1" : "0";
     this->AddRequestToConnection( request );
 

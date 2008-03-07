@@ -196,6 +196,15 @@ hoxSocketConnection::_CheckAndHandleSocketLostEvent(
 
     wxLogDebug("%s: ENTER.", FNAME);
 
+    // TODO: This is "weird" that we need to this checking.
+    //       Need to review code-logic!
+    if ( m_pSClient == NULL )
+    {
+        wxLogDebug("%s: *** INFO *** This client socket is already disconnected.", FNAME);
+        result = hoxRESULT_HANDLED;
+        return result;
+    }
+
     wxASSERT_MSG( request->socket == m_pSClient, "Sockets should match." );
 
     if ( request->socketEvent == wxSOCKET_LOST )
