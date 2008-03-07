@@ -530,7 +530,7 @@ hoxTable::_PostPlayer_JoinEvent( hoxPlayer*    player,
     wxLogDebug("%s: Informing player [%s] that a new Player [%s] just joined as [%d]...", 
         FNAME, player->GetName().c_str(), newPlayer->GetName().c_str(), newColor);
 
-	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_TYPE_NEW_JOIN );
+	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_TYPE_E_JOIN );
 	pCommand->parameters["tid"] = m_id;
 	pCommand->parameters["pid"] = newPlayer->GetName();
 	pCommand->parameters["color"] = wxString::Format("%d", newColor);

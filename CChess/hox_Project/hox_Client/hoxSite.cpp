@@ -509,9 +509,34 @@ hoxRemoteSite::JoinNewTable(const hoxNetworkTableInfo& tableInfo)
 
     table = this->CreateNewTableWithGUI( tableInfo );
 
-	/* The local player is the only one at the Table. */
     result = m_player->JoinTableAs( table, myColor );
     wxASSERT( result == hoxRESULT_OK  );
+
+	/* Create additional "dummy" player(s) if required.
+     */
+
+    const wxString redId = tableInfo.redId;
+    const wxString blackId = tableInfo.blackId;
+    hoxPlayer* player = NULL;  // Just a player holder.
+
+    if ( !redId.empty() && table->GetRedPlayer() == NULL )
+    {
+	    if ( NULL == (player = this->FindPlayer( redId )) )
+	    {
+            player = this->CreateDummyPlayer( redId, ::atoi(tableInfo.redScore) );
+            result = player->JoinTableAs( table, hoxPIECE_COLOR_RED );
+            wxASSERT( result == hoxRESULT_OK  );
+	    }
+    }
+    if ( !blackId.empty() && table->GetBlackPlayer() == NULL )
+    {
+	    if ( NULL == (player = this->FindPlayer( blackId )) )
+	    {
+            player = this->CreateDummyPlayer( blackId, ::atoi(tableInfo.blackScore) );
+            result = player->JoinTableAs( table, hoxPIECE_COLOR_BLACK );
+            wxASSERT( result == hoxRESULT_OK  );
+	    }
+    }
 
 	wxGetApp().GetFrame()->UpdateSiteTreeUI();
 

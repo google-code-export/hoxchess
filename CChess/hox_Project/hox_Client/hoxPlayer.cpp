@@ -506,7 +506,7 @@ hoxPlayer::HandleIncomingData( const wxString& commandStr )
             result = this->HandleIncomingData_Join( command, response ); 
             break;
 
-        case hoxREQUEST_TYPE_NEW_JOIN:
+        case hoxREQUEST_TYPE_E_JOIN:
             result = this->HandleIncomingData_NewJoin( command, response ); 
             break;
 

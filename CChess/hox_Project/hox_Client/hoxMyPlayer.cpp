@@ -180,6 +180,50 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
             table->OnLeave_FromNetwork( leavePlayer, this );
             break;
         }
+        case hoxREQUEST_TYPE_JOIN:
+        {
+		    std::auto_ptr<hoxNetworkTableInfo> pTableInfo( new hoxNetworkTableInfo() );
+		    result = hoxNetworkAPI::ParseOneNetworkTable( sContent,
+													      *pTableInfo );
+		    if ( result != hoxRESULT_OK )
+		    {
+			    wxLogDebug("%s: *** WARN *** Failed to parse JOIN's event [%s].", 
+				    FNAME, sContent.c_str());
+                break;
+		    }
+		    hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
+		    remoteSite->JoinNewTable( *pTableInfo );
+		    break;
+        }
+        case hoxREQUEST_TYPE_E_JOIN:
+        {
+            wxString      tableId;
+            wxString      playerId;
+            int           nPlayerScore = 0;
+            hoxPieceColor joinColor  = hoxPIECE_COLOR_NONE; // Default = observer.
+
+		    result = _ParsePlayerJoinEvent( sContent,
+									        tableId, playerId, nPlayerScore, joinColor );
+		    if ( result != hoxRESULT_OK )
+		    {
+			    wxLogDebug("%s: Failed to parse E_JOIN's event [%s] ignored.",
+                    FNAME, sContent.c_str());
+                break;
+		    }
+            wxLogDebug("%s: Player [%s] joined Table [%s] as [%d].", FNAME, 
+                playerId.c_str(), tableId.c_str(), joinColor);
+            hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
+            result = remoteSite->OnPlayerJoined( tableId, 
+                                                 playerId, 
+                                                 nPlayerScore,
+                                                 joinColor );
+            if ( result != hoxRESULT_OK )
+            {
+                wxLogDebug("%s: *** ERROR *** Failed to ask table to join as color [%d].", FNAME, joinColor);
+                break;
+            }
+            break;
+        }
         default:
 		    wxLogDebug("%s: *** WARN *** Unsupported command-type [%s].", 
 			    FNAME, hoxUtility::RequestTypeToString(command.type));
@@ -219,10 +263,15 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
 			}
             break;
         }
-
-        case hoxREQUEST_TYPE_LIST:  /* fall-through */
-        case hoxREQUEST_TYPE_NEW:   /* fall-through */
-        case hoxREQUEST_TYPE_LEAVE:
+        case hoxREQUEST_TYPE_LOGOUT:
+        {
+            wxLogDebug("%s: Informing the sender about [%s] 's event.", FNAME, sType.c_str());
+            break;
+        }
+        case hoxREQUEST_TYPE_LIST:    /* fall-through */
+        case hoxREQUEST_TYPE_NEW:     /* fall-through */
+        case hoxREQUEST_TYPE_LEAVE:   /* fall-through */
+        case hoxREQUEST_TYPE_JOIN:
 		{
 			/* NOTE: This command is not done yet. 
 			 * We still need to wait for server's response...
@@ -241,7 +290,7 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
 	} // switch
 
 
-	/* Post event to the sender if it is THIS player */
+	/* Post event to the sender if it is not THIS player */
 
     if ( response->sender && response->sender != this )
     {
@@ -281,7 +330,7 @@ hoxMyPlayer::_ParseNetworkTables( const wxString&          responseStr,
 hoxResult
 hoxMyPlayer::_ParsePlayerLeaveEvent( const wxString& sContent,
                                      hoxTable*&      table,
-                                     hoxPlayer*      player )
+                                     hoxPlayer*&     player )
 {
     const char* FNAME = "hoxMyPlayer::_ParsePlayerLeaveEvent";
     const wxString tableId = sContent.BeforeFirst(';');
@@ -305,6 +354,41 @@ hoxMyPlayer::_ParsePlayerLeaveEvent( const wxString& sContent,
         wxLogDebug("%s: Player [%s] not found.", FNAME, playerId.c_str());
         return hoxRESULT_NOT_FOUND;
     }
+
+	return hoxRESULT_OK;
+}
+
+hoxResult
+hoxMyPlayer::_ParsePlayerJoinEvent( const wxString& sContent,
+                                    wxString&       tableId,
+                                    wxString&       playerId,
+                                    int&            nPlayerScore,
+                                    hoxPieceColor&  color)
+{
+    const char* FNAME = "hoxMyPlayer::_ParsePlayerJoinEvent";
+
+    nPlayerScore = 0;
+    color        = hoxPIECE_COLOR_NONE; // Default = observer.
+
+    /* Parse the input string. */
+
+	// ... Do not return empty tokens
+	wxStringTokenizer tkz( sContent, ";", wxTOKEN_STRTOK );
+	int tokenPosition = 0;
+	wxString token;
+
+	while ( tkz.HasMoreTokens() )
+	{
+		token = tkz.GetNextToken();
+		switch ( tokenPosition++ )
+		{
+			case 0: tableId = token;  break;
+			case 1: playerId = token;  break;
+            case 2: nPlayerScore = ::atoi( token.c_str() ); break; 
+            case 3: color = hoxUtility::StringToColor( token ); break;
+			default: /* Ignore the rest. */ break;
+		}
+	}		
 
 	return hoxRESULT_OK;
 }
