@@ -376,14 +376,14 @@ private:
     hoxBoard*        m_board;    // The (OPTIONAL) Board.
 
     // Players
-    hoxPlayerAndRoleList  m_players;
-    hoxPlayer*            m_redPlayer;
-    hoxPlayer*            m_blackPlayer;
+    hoxPlayerList    m_players;
+    hoxPlayer*       m_redPlayer;
+    hoxPlayer*       m_blackPlayer;
 
 	// Timers
-	hoxTimeInfo           m_initialTime; // *** Initial time.
-    hoxTimeInfo           m_blackTime;   // Black's time.
-	hoxTimeInfo           m_redTime;     // Red's time.
+	hoxTimeInfo      m_initialTime; // *** Initial time.
+    hoxTimeInfo      m_blackTime;   // Black's time.
+	hoxTimeInfo      m_redTime;     // Red's time.
 };
 
 #endif /* __INCLUDED_HOX_TABLE_H_ */
