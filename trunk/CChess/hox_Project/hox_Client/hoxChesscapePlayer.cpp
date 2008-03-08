@@ -37,8 +37,6 @@ BEGIN_EVENT_TABLE(hoxChesscapePlayer, hoxLocalPlayer)
 	// *** VIP-NOTES: According to http://www.wxwidgets.org//manuals/stable/wx_eventhandlingoverview.html#eventhandlingoverview
 	//     we must declare an entry in each derived-class's table-event (using virtual WILL NOT WORK)....
 	//     However, it seems here that I do not have to do it.
-	//     OnJoinCmd_FromTable() is overriden in this class to override the parent (hoxPlayer) behavior!!!!
-	//EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_JOIN_TABLE, hoxChesscapePlayer::OnJoinCmd_FromTable)
 
     EVT_SOCKET(CLIENT_SOCKET_ID,  hoxChesscapePlayer::OnIncomingNetworkData)
     EVT_COMMAND(hoxREQUEST_TYPE_PLAYER_DATA, hoxEVT_CONNECTION_RESPONSE, hoxChesscapePlayer::OnConnectionResponse_PlayerData)

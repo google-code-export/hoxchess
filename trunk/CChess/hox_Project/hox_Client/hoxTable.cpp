@@ -30,6 +30,7 @@
 #include "hoxBoard.h"
 #include "hoxSite.h"
 #include "hoxUtility.h"
+#include <algorithm>
 
 // ----------------------------------------------------------------------------
 // hoxTable
@@ -105,32 +106,20 @@ hoxTable::AssignPlayerAs( hoxPlayer*     player,
 
     wxCHECK_MSG( player != NULL, hoxRESULT_ERR, "The player is NULL." );
 
-    hoxPieceColor assignedColor = hoxPIECE_COLOR_NONE;
+    bool bRequestOK =
+           ( requestColor == hoxPIECE_COLOR_RED   && m_redPlayer == NULL )
+        || ( requestColor == hoxPIECE_COLOR_BLACK && m_blackPlayer == NULL )
+        || ( requestColor == hoxPIECE_COLOR_NONE );
 
-    /* Assign to play RED if possible. */
-    if ( requestColor == hoxPIECE_COLOR_RED && m_redPlayer == NULL )
+    if ( ! bRequestOK )
     {
-        assignedColor = hoxPIECE_COLOR_RED;
-    }
-    /* Assign to play BLACK if possible. */
-    else if ( requestColor == hoxPIECE_COLOR_BLACK && m_blackPlayer == NULL )
-    {
-        assignedColor = hoxPIECE_COLOR_BLACK;
-    }
-    /* Assign to be an observer */
-    else if ( requestColor == hoxPIECE_COLOR_NONE )
-    {
-        assignedColor = hoxPIECE_COLOR_NONE;
-    }
-    else
-    {
-        wxLogDebug("%s: *** WARN *** Failed to handle request-to-join from player [%s].", 
+        wxLogDebug("%s: *** WARN *** Failed to handle request-to-join from [%s].", 
             FNAME, player->GetName().c_str());
         return hoxRESULT_ERR;
     }
 
     /* Update our player-list */
-    _AddPlayer( player, assignedColor );
+    _AddPlayer( player, requestColor );
 
     /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
      * NOTE: Unlike the other call, we will NOT inform other players about 
@@ -450,7 +439,7 @@ hoxTable::OnClose_FromSystem()
 
     while ( ! m_players.empty() )
     {
-        player = m_players.front().player;
+        player = m_players.front();
 
         _PostPlayer_CloseEvent( player );
         _RemovePlayer( player );
@@ -685,17 +674,16 @@ hoxTable::_PostAll_JoinEvent( hoxPlayer*    newPlayer,
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    for (hoxPlayerAndRoleList::const_iterator it = m_players.begin(); 
-                                              it != m_players.end(); ++it)
+    for (hoxPlayerList::const_iterator it = m_players.begin(); 
+                                       it != m_players.end(); ++it)
     {
-        if ( it->player == newPlayer )
+        if ( (*it) == newPlayer )
         {
-            wxASSERT_MSG(it->role == newColor, "The colors are not matched."); 
             wxLogDebug("%s: Skip this Player since he is the new Player.", FNAME);
             continue;
         }
 
-        _PostPlayer_JoinEvent( it->player, newPlayer, newColor );
+        _PostPlayer_JoinEvent( (*it), newPlayer, newColor );
     }
 }
 
@@ -715,15 +703,15 @@ hoxTable::_PostAll_MoveEvent( hoxPlayer*         player,
      */
     hoxPlayer* boardPlayer = _GetBoardPlayer();
 
-    for (hoxPlayerAndRoleList::const_iterator it = m_players.begin(); 
-                                              it != m_players.end(); ++it)
+    for (hoxPlayerList::const_iterator it = m_players.begin(); 
+                                       it != m_players.end(); ++it)
     {
 		/* Skip the sender and the Board-player if the Move is coming 
 		 * from the network. 
 		 */
 		if ( fromNetwork )
 		{
-			if ( it->player == player )
+			if ( (*it) == player )
 			{
 				//wxLogDebug("%s: Skip this Player [%s] since he just made this new Move.", 
 				//    FNAME, player->GetName().c_str());
@@ -731,7 +719,7 @@ hoxTable::_PostAll_MoveEvent( hoxPlayer*         player,
 			}
 
 			if (   boardPlayer != NULL 
-				&& it->player == boardPlayer )
+				&& (*it) == boardPlayer )
 			{
 				//wxLogDebug("%s: Skip this Player [%s] since he is Board player.", 
 				//    FNAME, boardPlayer->GetName().c_str() );
@@ -743,14 +731,14 @@ hoxTable::_PostAll_MoveEvent( hoxPlayer*         player,
 		 * Although this is not necesary but I do it here to avoid
 		 * seeing a lot of debug messages.
 		 */
-		if ( it->player->GetType() == hoxPLAYER_TYPE_DUMMY )
+		if ( (*it)->GetType() == hoxPLAYER_TYPE_DUMMY )
 		{
             //wxLogDebug("%s: Skip this Player [%s] since he is a DUMMY player.", 
             //    FNAME, it->player->GetName().c_str() );
 			continue;
 		}
 
-        _PostPlayer_MoveEvent( it->player, player, moveStr, status, playerTime );
+        _PostPlayer_MoveEvent( (*it), player, moveStr, status, playerTime );
     }
 }
 
@@ -774,12 +762,12 @@ hoxTable::_PostAll_MessageEvent( hoxPlayer*      player,
                      "The sender should be the Board player.");
     }
 
-    for (hoxPlayerAndRoleList::const_iterator it = m_players.begin(); 
-                                              it != m_players.end(); ++it)
+    for (hoxPlayerList::const_iterator it = m_players.begin(); 
+                                       it != m_players.end(); ++it)
     {
         if ( ! fromBoard )
         {
-            if ( it->player == player )
+            if ( (*it) == player )
             {
                 wxLogDebug("%s: Skip this Player [%s] since he just sent this new Message.", 
                     FNAME, player->GetName().c_str());
@@ -787,7 +775,7 @@ hoxTable::_PostAll_MessageEvent( hoxPlayer*      player,
             }
 
             if (   boardPlayer != NULL 
-                && it->player == boardPlayer )
+                && (*it) == boardPlayer )
             {
                 wxLogDebug("%s: Skip this Player [%s] since he is Board player.", 
                     FNAME, boardPlayer->GetName().c_str() );
@@ -795,7 +783,7 @@ hoxTable::_PostAll_MessageEvent( hoxPlayer*      player,
             }
         }
 
-        _PostPlayer_MessageEvent( it->player, player, message );
+        _PostPlayer_MessageEvent( (*it), player, message );
     }
 }
 
@@ -805,10 +793,10 @@ hoxTable::_PostAll_LeaveEvent( hoxPlayer* player,
 {
     const char* FNAME = "hoxTable::_PostAll_LeaveEvent";
 
-    for (hoxPlayerAndRoleList::const_iterator it = m_players.begin(); 
-                                              it != m_players.end(); ++it)
+    for (hoxPlayerList::const_iterator it = m_players.begin(); 
+                                       it != m_players.end(); ++it)
     {
-        if ( it->player == player )
+        if ( (*it) == player )
         {
             wxLogDebug("%s: Skip this Player [%s] since he already left the Table.", 
                 FNAME, player->GetName().c_str());
@@ -816,26 +804,26 @@ hoxTable::_PostAll_LeaveEvent( hoxPlayer* player,
         }
 
         if (   informer != NULL 
-            && it->player == informer )
+            && (*it) == informer )
         {
             wxLogDebug("%s: Skip this Player [%s] since he is the event's informer.", 
                 FNAME, informer->GetName().c_str() );
             continue;
         }
 
-        _PostPlayer_LeaveEvent( it->player, player );
+        _PostPlayer_LeaveEvent( (*it), player );
     }
 }
 
 hoxPlayer* 
 hoxTable::_GetBoardPlayer() const
 {
-    for (hoxPlayerAndRoleList::const_iterator it = m_players.begin(); 
-                                              it != m_players.end(); ++it)
+    for (hoxPlayerList::const_iterator it = m_players.begin(); 
+                                       it != m_players.end(); ++it)
     {
-        if ( it->player->GetType() == hoxPLAYER_TYPE_LOCAL )
+        if ( (*it)->GetType() == hoxPLAYER_TYPE_LOCAL )
         {
-            return it->player;
+            return (*it);
         }
     }
 
@@ -846,35 +834,29 @@ void
 hoxTable::_AddPlayer( hoxPlayer*    player, 
                       hoxPieceColor role )
 {
-	/* Handle the case in which the player changes his role. */
-	hoxPlayerAndRoleList::iterator found_it = m_players.end();
-    for (hoxPlayerAndRoleList::iterator it = m_players.begin(); 
-                                        it != m_players.end(); ++it)
-    {
-        if ( it->player == player )
-        {
-			found_it = it;
-            break;
-        }
-    }
+    hoxPlayerList::iterator found_it = 
+        std::find( m_players.begin(), m_players.end(), player );
 
-	if ( found_it != m_players.end() )
+    if ( found_it == m_players.end() )  // not found?
 	{
-		found_it->role = role;  // Update role.
-	}
-	else
-	{
-		m_players.push_back( hoxPlayerAndRole(player, role) );
+		m_players.push_back( player );
 	}
 
     // "Cache" the RED and BLACK players for easy access.
     if ( role == hoxPIECE_COLOR_RED )
     {
         m_redPlayer = player;
+        if ( m_blackPlayer == player ) m_blackPlayer = NULL;
     }
     else if ( role == hoxPIECE_COLOR_BLACK )
     {
         m_blackPlayer = player;
+        if ( m_redPlayer == player ) m_redPlayer = NULL;
+    }
+    else
+    {
+        if ( m_redPlayer   == player ) m_redPlayer = NULL;
+        if ( m_blackPlayer == player ) m_blackPlayer = NULL;
     }
 
     // Inform the Board.
@@ -890,15 +872,13 @@ hoxTable::_RemovePlayer( hoxPlayer* player )
     wxCHECK_RET(player != NULL, "Play cannot be NULL.");
     wxLogDebug("%s: ENTER. [%s]", FNAME, player->GetName().c_str());
 
-    hoxPlayerAndRole foundItem;
-    for (hoxPlayerAndRoleList::iterator it = m_players.begin(); 
-                                        it != m_players.end(); ++it)
+    hoxPlayer* foundItem = NULL;
+    for (hoxPlayerList::iterator it = m_players.begin(); 
+                                 it != m_players.end(); ++it)
     {
-        if ( it->player == player )
+        if ( (*it) == player )
         {
             foundItem = *it;
-            //hoxPlayerAndRoleList::iterator foundIt = m_players.erase( it );
-            //wxASSERT( foundIt != m_players.end() );
             bFound = true;
             break;
         }
@@ -926,12 +906,12 @@ hoxTable::_RemovePlayer( hoxPlayer* player )
 hoxPlayer* 
 hoxTable::_FindPlayer( const wxString& playerId )
 {
-    for (hoxPlayerAndRoleList::iterator it = m_players.begin(); 
-                                        it != m_players.end(); ++it)
+    for (hoxPlayerList::iterator it = m_players.begin(); 
+                                 it != m_players.end(); ++it)
     {
-        if ( it->player->GetName() == playerId )
+        if ( (*it)->GetName() == playerId )
         {
-            return it->player;
+            return (*it);
         }
     }
 

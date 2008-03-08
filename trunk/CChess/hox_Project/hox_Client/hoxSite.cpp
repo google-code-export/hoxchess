@@ -478,65 +478,66 @@ hoxResult
 hoxRemoteSite::JoinNewTable(const hoxNetworkTableInfo& tableInfo)
 {
 	const char* FNAME = "hoxRemoteSite::JoinNewTable";
-    hoxResult result;
-    hoxTable* table = NULL;
-    wxString  tableId = tableInfo.id;
+    hoxResult      result;
+    hoxTable*      table   = NULL;
+    const wxString tableId = tableInfo.id;
+    const wxString redId   = tableInfo.redId;
+    const wxString blackId = tableInfo.blackId;
+    hoxPlayer*     player  = NULL;  // Just a player holder.
 
-	/* Sanity check here. */
-	table = this->FindTable( tableId );
-	if ( table != NULL )
+	/* Create a table if necessary. */
+
+    table = this->FindTable( tableId );
+	if ( table == NULL )
 	{
-		wxLogWarning("Some logic error. Table [%s] already exists.", tableId.c_str());
-		return hoxRESULT_ERR;
+        wxLogDebug("%s: Create a new Table [%s].", FNAME, tableId.c_str());
+        table = this->CreateNewTableWithGUI( tableInfo );
 	}
 
 	/* Determine which color (or role) my player will have. */
 	
-	hoxPieceColor myColor = hoxPIECE_COLOR_NONE;
+	hoxPieceColor myColor = hoxPIECE_COLOR_UNKNOWN;
 
-	if ( tableInfo.redId == m_player->GetName() )
-	{
-		myColor = hoxPIECE_COLOR_RED;
-	}
-	else if ( tableInfo.blackId == m_player->GetName() )
-	{
-		myColor = hoxPIECE_COLOR_BLACK;
-	}
+	if      ( redId == m_player->GetName() )   myColor = hoxPIECE_COLOR_RED;
+	else if ( blackId == m_player->GetName() ) myColor = hoxPIECE_COLOR_BLACK;
+    else 	                                   myColor = hoxPIECE_COLOR_NONE;
 
-	/***********************
-	 * Create a new Table. *
-     ***********************/
-
-    table = this->CreateNewTableWithGUI( tableInfo );
+	/****************************
+	 * Assign players to table.
+     ****************************/
 
     result = m_player->JoinTableAs( table, myColor );
-    wxASSERT( result == hoxRESULT_OK  );
+    wxCHECK( result == hoxRESULT_OK, hoxRESULT_ERR  );
 
 	/* Create additional "dummy" player(s) if required.
      */
-
-    const wxString redId = tableInfo.redId;
-    const wxString blackId = tableInfo.blackId;
-    hoxPlayer* player = NULL;  // Just a player holder.
 
     if ( !redId.empty() && table->GetRedPlayer() == NULL )
     {
 	    if ( NULL == (player = this->FindPlayer( redId )) )
 	    {
             player = this->CreateDummyPlayer( redId, ::atoi(tableInfo.redScore) );
-            result = player->JoinTableAs( table, hoxPIECE_COLOR_RED );
-            wxASSERT( result == hoxRESULT_OK  );
 	    }
+        result = player->JoinTableAs( table, hoxPIECE_COLOR_RED );
+        wxCHECK( result == hoxRESULT_OK, hoxRESULT_ERR  );
     }
     if ( !blackId.empty() && table->GetBlackPlayer() == NULL )
     {
 	    if ( NULL == (player = this->FindPlayer( blackId )) )
 	    {
             player = this->CreateDummyPlayer( blackId, ::atoi(tableInfo.blackScore) );
-            result = player->JoinTableAs( table, hoxPIECE_COLOR_BLACK );
-            wxASSERT( result == hoxRESULT_OK  );
 	    }
+        result = player->JoinTableAs( table, hoxPIECE_COLOR_BLACK );
+        wxCHECK( result == hoxRESULT_OK, hoxRESULT_ERR  );
     }
+
+	/* Toggle board if I play BLACK.
+     */
+
+    if ( myColor == hoxPIECE_COLOR_BLACK )
+	{
+		table->ToggleViewSide();
+	}
 
 	wxGetApp().GetFrame()->UpdateSiteTreeUI();
 
