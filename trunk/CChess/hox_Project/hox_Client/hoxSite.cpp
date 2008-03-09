@@ -235,7 +235,7 @@ hoxLocalSite::CreateNewTableAsPlayer( wxString&          newTableId,
 	newTable->SetBlackTime( initialTime );
 
     /* Add the specified player to the table. */
-    hoxResult result = player->JoinTableAs( newTable, hoxPIECE_COLOR_RED );
+    hoxResult result = player->JoinTableAs( newTable, hoxCOLOR_RED );
     wxASSERT( result == hoxRESULT_OK  );
 
     /* Update UI. */
@@ -252,7 +252,7 @@ hoxLocalSite::Handle_DisconnectFromPlayer( hoxPlayer* player )
 
 	/* Inform the server. */
     wxLogDebug("%s: Posting DISCONNECT request to remove the new client connection.", FNAME);
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LOGOUT );
+    hoxRequest* request = new hoxRequest( hoxREQUEST_LOGOUT );
     request->parameters["pid"] = player->GetName();
     m_server->AddRequest( request );
 
@@ -365,15 +365,15 @@ hoxRemoteSite::Handle_ConnectionResponse( hoxResponse_AutoPtr response )
 
     switch ( response->type )
     {
-        case hoxREQUEST_TYPE_LOGIN:
+        case hoxREQUEST_LOGIN:
             this->OnResponse_Connect( response );
             break;
 
-        case hoxREQUEST_TYPE_LOGOUT:
+        case hoxREQUEST_LOGOUT:
             this->OnResponse_Disconnect( response );
             break;
 
-        case hoxREQUEST_TYPE_LIST:
+        case hoxREQUEST_LIST:
             this->OnResponse_List( response );
             break;
 
@@ -424,7 +424,7 @@ hoxResult
 hoxRemoteSite::OnPlayerJoined( const wxString&     tableId,
                                const wxString&     playerId,
                                const int           playerScore,
-				 			   const hoxPieceColor requestColor)
+				 			   const hoxColor requestColor)
 {
     const char* FNAME = "hoxRemoteSite::OnPlayerJoined";
 	hoxResult   result;
@@ -466,7 +466,7 @@ hoxRemoteSite::OnPlayerJoined( const wxString&     tableId,
      */
 
     if (    player == this->m_player 
-         && requestColor == hoxPIECE_COLOR_BLACK )
+         && requestColor == hoxCOLOR_BLACK )
 	{
 		table->ToggleViewSide();
 	}
@@ -496,11 +496,11 @@ hoxRemoteSite::JoinNewTable(const hoxNetworkTableInfo& tableInfo)
 
 	/* Determine which color (or role) my player will have. */
 	
-	hoxPieceColor myColor = hoxPIECE_COLOR_UNKNOWN;
+	hoxColor myColor = hoxCOLOR_UNKNOWN;
 
-	if      ( redId == m_player->GetName() )   myColor = hoxPIECE_COLOR_RED;
-	else if ( blackId == m_player->GetName() ) myColor = hoxPIECE_COLOR_BLACK;
-    else 	                                   myColor = hoxPIECE_COLOR_NONE;
+	if      ( redId == m_player->GetName() )   myColor = hoxCOLOR_RED;
+	else if ( blackId == m_player->GetName() ) myColor = hoxCOLOR_BLACK;
+    else 	                                   myColor = hoxCOLOR_NONE;
 
 	/****************************
 	 * Assign players to table.
@@ -518,7 +518,7 @@ hoxRemoteSite::JoinNewTable(const hoxNetworkTableInfo& tableInfo)
 	    {
             player = this->CreateDummyPlayer( redId, ::atoi(tableInfo.redScore) );
 	    }
-        result = player->JoinTableAs( table, hoxPIECE_COLOR_RED );
+        result = player->JoinTableAs( table, hoxCOLOR_RED );
         wxCHECK( result == hoxRESULT_OK, hoxRESULT_ERR  );
     }
     if ( !blackId.empty() && table->GetBlackPlayer() == NULL )
@@ -527,14 +527,14 @@ hoxRemoteSite::JoinNewTable(const hoxNetworkTableInfo& tableInfo)
 	    {
             player = this->CreateDummyPlayer( blackId, ::atoi(tableInfo.blackScore) );
 	    }
-        result = player->JoinTableAs( table, hoxPIECE_COLOR_BLACK );
+        result = player->JoinTableAs( table, hoxCOLOR_BLACK );
         wxCHECK( result == hoxRESULT_OK, hoxRESULT_ERR  );
     }
 
 	/* Toggle board if I play BLACK.
      */
 
-    if ( myColor == hoxPIECE_COLOR_BLACK )
+    if ( myColor == hoxCOLOR_BLACK )
 	{
 		table->ToggleViewSide();
 	}
@@ -775,7 +775,7 @@ hoxRemoteSite::JoinExistingTable(const hoxNetworkTableInfo& tableInfo)
     /* Setup players       */
     /***********************/
 
-	hoxPieceColor myColor = hoxPIECE_COLOR_NONE;
+	hoxColor myColor = hoxCOLOR_NONE;
     hoxPlayer*    red_player = NULL;
     hoxPlayer*    black_player = NULL;
 	int           score = 0;
@@ -784,12 +784,12 @@ hoxRemoteSite::JoinExistingTable(const hoxNetworkTableInfo& tableInfo)
 
 	if ( tableInfo.redId == m_player->GetName() )
 	{
-		myColor = hoxPIECE_COLOR_RED;
+		myColor = hoxCOLOR_RED;
 		red_player = m_player;
 	}
 	else if ( tableInfo.blackId == m_player->GetName() )
 	{
-		myColor = hoxPIECE_COLOR_BLACK;
+		myColor = hoxCOLOR_BLACK;
 		black_player = m_player;
 	}
 
@@ -810,15 +810,15 @@ hoxRemoteSite::JoinExistingTable(const hoxNetworkTableInfo& tableInfo)
 
     if ( red_player != NULL )
     {
-        result = red_player->JoinTableAs( table, hoxPIECE_COLOR_RED );
+        result = red_player->JoinTableAs( table, hoxCOLOR_RED );
         wxASSERT( result == hoxRESULT_OK  );
     }
     if ( black_player != NULL )
     {
-        result = black_player->JoinTableAs( table, hoxPIECE_COLOR_BLACK );
+        result = black_player->JoinTableAs( table, hoxCOLOR_BLACK );
         wxASSERT( result == hoxRESULT_OK  );
     }
-	if ( myColor == hoxPIECE_COLOR_NONE )
+	if ( myColor == hoxCOLOR_NONE )
 	{
 		result = m_player->JoinTableAs( table, myColor );
 		wxASSERT( result == hoxRESULT_OK  );
@@ -826,7 +826,7 @@ hoxRemoteSite::JoinExistingTable(const hoxNetworkTableInfo& tableInfo)
 
 	/* Toggle board if I play BLACK. */
 
-	if ( myColor == hoxPIECE_COLOR_BLACK )
+	if ( myColor == hoxCOLOR_BLACK )
 	{
 		table->ToggleViewSide();
 	}

@@ -47,8 +47,8 @@ public:
     bool operator!=(const hoxPosition& pos) const;
 
     bool IsValid() const;
-    bool IsInsidePalace(hoxPieceColor color) const;
-    bool IsInsideCountry(hoxPieceColor color) const;
+    bool IsInsidePalace(hoxColor color) const;
+    bool IsInsideCountry(hoxColor color) const;
 };
 
 #endif /* __INCLUDED_HOX_POSITION_H_ */

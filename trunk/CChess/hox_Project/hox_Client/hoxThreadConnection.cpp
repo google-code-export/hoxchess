@@ -166,7 +166,7 @@ hoxThreadConnection::GetRequest()
      *       because the "mutex-lock" is still being held.
      */
 
-    if ( request->type == hoxREQUEST_TYPE_SHUTDOWN )
+    if ( request->type == hoxREQUEST_SHUTDOWN )
     {
         wxLogDebug("%s: A SHUTDOWN requested just received.", FNAME);
         m_shutdownRequested = true;

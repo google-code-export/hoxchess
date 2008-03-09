@@ -193,7 +193,7 @@ public:
 	virtual hoxResult OnPlayerJoined(const wxString&     tableId,
 		                             const wxString&     playerId,
                                      const int           playerScore,
-									 const hoxPieceColor requestColor);
+									 const hoxColor requestColor);
 
 	virtual hoxResult JoinNewTable(const hoxNetworkTableInfo& tableInfo);
     virtual hoxResult JoinExistingTable(const hoxNetworkTableInfo& tableInfo);

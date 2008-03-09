@@ -132,7 +132,7 @@ hoxBoard::OnBoardMove( const hoxMove& move,
 
     /* Inform the Table of the new move. */
     wxCHECK_RET(m_table, "The table is NULL." );
-	const hoxTimeInfo playerTime = ( move.piece.color == hoxPIECE_COLOR_RED
+	const hoxTimeInfo playerTime = ( move.piece.color == hoxCOLOR_RED
 		                         ? m_redTime
 			    				 : m_blackTime );
     m_table->OnMove_FromBoard( move, 
@@ -156,16 +156,16 @@ hoxBoard::OnPlayerJoin( wxCommandEvent &event )
     hoxPlayer* player = wx_reinterpret_cast(hoxPlayer*, event.GetEventObject());
     wxCHECK_RET(player, "Player cannot be NULL.");
 
-    hoxPieceColor playerColor = hoxPIECE_COLOR_NONE;
+    hoxColor playerColor = hoxCOLOR_NONE;
 
-    if ( event.GetInt() == hoxPIECE_COLOR_RED )
+    if ( event.GetInt() == hoxCOLOR_RED )
     {
-        playerColor = hoxPIECE_COLOR_RED;
+        playerColor = hoxCOLOR_RED;
         _SetRedInfo( player );
     } 
-    else if ( event.GetInt() == hoxPIECE_COLOR_BLACK )
+    else if ( event.GetInt() == hoxCOLOR_BLACK )
     {
-        playerColor = hoxPIECE_COLOR_BLACK;
+        playerColor = hoxCOLOR_BLACK;
         _SetBlackInfo( player );
     }
 
@@ -400,9 +400,9 @@ hoxBoard::OnTimer(wxTimerEvent& event)
     if ( m_status != hoxGAME_STATUS_IN_PROGRESS )
         return;
 
-    hoxPieceColor nextColor = m_referee->GetNextColor();
+    hoxColor nextColor = m_referee->GetNextColor();
 
-    if ( nextColor == hoxPIECE_COLOR_BLACK )
+    if ( nextColor == hoxCOLOR_BLACK )
     {
 		if ( m_blackTime.nGame > 0 ) --m_blackTime.nGame;
 		if ( m_blackTime.nMove > 0 ) --m_blackTime.nMove;
@@ -882,7 +882,7 @@ hoxBoard::_OnValidMove( const hoxMove& move,
 
 		bool bIsChesscape = (m_initialTime.nMove == 0);
 
-        if ( move.piece.color == hoxPIECE_COLOR_BLACK )
+        if ( move.piece.color == hoxCOLOR_BLACK )
 		{
 			m_blackTime.nMove = m_initialTime.nMove;
 			if ( bIsChesscape ) m_blackTime.nGame += m_initialTime.nFree;

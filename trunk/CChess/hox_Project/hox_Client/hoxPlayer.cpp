@@ -47,7 +47,7 @@ DEFINE_EVENT_TYPE( hoxEVT_PLAYER_NEW_MOVE )
 DEFINE_EVENT_TYPE( hoxEVT_PLAYER_NEW_JOIN )
 DEFINE_EVENT_TYPE( hoxEVT_PLAYER_NEW_LEAVE )
 DEFINE_EVENT_TYPE( hoxEVT_PLAYER_TABLE_CLOSE )
-DEFINE_EVENT_TYPE( hoxEVT_PLAYER_WALL_MSG )
+DEFINE_EVENT_TYPE( hoxEVT_PLAYER_MSG )
 DEFINE_EVENT_TYPE( hoxEVT_PLAYER_SITE_CLOSING )
 
 BEGIN_EVENT_TABLE(hoxPlayer, wxEvtHandler)
@@ -57,7 +57,7 @@ BEGIN_EVENT_TABLE(hoxPlayer, wxEvtHandler)
     EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_NEW_JOIN, hoxPlayer::OnNewJoin_FromTable)
     EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_NEW_LEAVE, hoxPlayer::OnNewLeave_FromTable)
     EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_TABLE_CLOSE, hoxPlayer::OnClose_FromTable)
-    EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_WALL_MSG, hoxPlayer::OnWallMsg_FromTable)
+    EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_MSG, hoxPlayer::OnMsg_FromTable)
 	EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_SITE_CLOSING, hoxPlayer::OnClosing_FromSite)
 END_EVENT_TABLE()
 
@@ -162,13 +162,13 @@ hoxPlayer::HasRole( hoxRole role )
 bool
 hoxPlayer::HasRoleAtTable( const wxString& tableId ) const
 {
-	hoxPieceColor assignedColor;
+	hoxColor assignedColor;
 	return this->FindRoleAtTable( tableId, assignedColor );
 }
 
 bool
 hoxPlayer::FindRoleAtTable( const wxString& tableId, 
-	                        hoxPieceColor&  assignedColor ) const
+	                        hoxColor&  assignedColor ) const
 {
     for ( hoxRoleList::const_iterator it = m_roles.begin();
                                       it != m_roles.end();
@@ -195,7 +195,7 @@ hoxPlayer::JoinTable( hoxTable* table )
 
     wxCHECK_MSG( table != NULL, hoxRESULT_ERR, "The table is NULL." );
     // TODO: Check for duplicate!!! (join same table twice)
-    hoxPieceColor assignedColor;
+    hoxColor assignedColor;
     bool          informOthers = true;
 
     /* NOTE: Except for dummy players, this player will inform other
@@ -221,7 +221,7 @@ hoxPlayer::JoinTable( hoxTable* table )
 
 hoxResult 
 hoxPlayer::JoinTableAs( hoxTable*     table,
-                        hoxPieceColor requestColor )
+                        hoxColor requestColor )
 {
     wxCHECK_MSG( table != NULL, hoxRESULT_ERR, "The table is NULL." );
 
@@ -288,7 +288,7 @@ hoxPlayer::ResetConnection()
     if ( m_connection != NULL )
     {
         wxLogDebug("%s: Request the Connection thread to be shutdowned...", FNAME);
-        hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_SHUTDOWN, NULL );
+        hoxRequest* request = new hoxRequest( hoxREQUEST_SHUTDOWN, NULL );
         m_connection->AddRequest( request );
 
         m_connection->Shutdown();
@@ -406,9 +406,9 @@ hoxPlayer::OnNewLeave_FromTable( wxCommandEvent&  event )
 }
 
 void 
-hoxPlayer::OnWallMsg_FromTable( wxCommandEvent&  event )
+hoxPlayer::OnMsg_FromTable( wxCommandEvent&  event )
 {
-    const char* FNAME = "hoxPlayer::OnWallMsg_FromTable";
+    const char* FNAME = "hoxPlayer::OnMsg_FromTable";
 
 	hoxCommand* pCommand = wx_reinterpret_cast(hoxCommand*, event.GetEventObject()); 
 	const std::auto_ptr<hoxCommand> command( pCommand ); // take care memory leak!
@@ -482,35 +482,35 @@ hoxPlayer::HandleIncomingData( const wxString& commandStr )
 
     switch ( command.type )
     {
-        case hoxREQUEST_TYPE_LOGOUT:
+        case hoxREQUEST_LOGOUT:
             result = this->HandleIncomingData_Disconnect( command );
             break;
 
-        case hoxREQUEST_TYPE_MOVE:
+        case hoxREQUEST_MOVE:
             result = this->HandleIncomingData_Move( command, response );
             break;
 
-        case hoxREQUEST_TYPE_LEAVE:
+        case hoxREQUEST_LEAVE:
             result = this->HandleIncomingData_Leave( command, response );
             break;
 
-        case hoxREQUEST_TYPE_WALL_MSG:
+        case hoxREQUEST_MSG:
             result = this->HandleIncomingData_WallMsg( command, response );
             break;
 
-        case hoxREQUEST_TYPE_LIST:
+        case hoxREQUEST_LIST:
             result = this->HandleIncomingData_List( command, response ); 
             break;
 
-        case hoxREQUEST_TYPE_JOIN:
+        case hoxREQUEST_JOIN:
             result = this->HandleIncomingData_Join( command, response ); 
             break;
 
-        case hoxREQUEST_TYPE_E_JOIN:
+        case hoxREQUEST_E_JOIN:
             result = this->HandleIncomingData_NewJoin( command, response ); 
             break;
 
-        case hoxREQUEST_TYPE_NEW:
+        case hoxREQUEST_NEW:
             result = this->HandleIncomingData_New( command, response ); 
             break;
 
@@ -526,7 +526,7 @@ hoxPlayer::HandleIncomingData( const wxString& commandStr )
      */
 	if ( ! response.empty() )
 	{
-		hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_OUT_DATA, this );
+		hoxRequest* request = new hoxRequest( hoxREQUEST_OUT_DATA, this );
         request->parameters["data"] = response;
 		this->AddRequestToConnection( request );
 	}
@@ -904,8 +904,8 @@ hoxPlayer::HandleIncomingData_NewJoin( hoxCommand& command,
 
     const wxString tableId = command.parameters["tid"];
     const wxString playerId = command.parameters["pid"];
-    const hoxPieceColor requestColor = 
-        (hoxPieceColor) ::atoi(command.parameters["color"]); // FIXME: Force it!!!
+    const hoxColor requestColor = 
+        (hoxColor) ::atoi(command.parameters["color"]); // FIXME: Force it!!!
 
     /* Lookup Table. */
 
@@ -1028,7 +1028,7 @@ hoxPlayer::ShutdownConnection()
 
     wxLogDebug("%s: Player [%s] requesting the Connection to be shutdowned...", 
         FNAME, this->GetName().c_str());
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_SHUTDOWN, NULL );
+    hoxRequest* request = new hoxRequest( hoxREQUEST_SHUTDOWN, NULL );
     this->AddRequestToConnection( request );
 }
 
@@ -1055,7 +1055,7 @@ hoxPlayer::AddRequestToConnection( hoxRequest* request )
 		}
 	}
 
-    if ( request->type == hoxREQUEST_TYPE_SHUTDOWN )
+    if ( request->type == hoxREQUEST_SHUTDOWN )
     {
         wxLogDebug("%s: Request the Connection thread to be shutdowned...", FNAME);
         m_connection->Shutdown();

@@ -77,7 +77,7 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
      *     Handle the "special" request: Socket-Lost event,
      *     which is applicable to some requests.
      */
-    if ( request->type == hoxREQUEST_TYPE_PLAYER_DATA )
+    if ( request->type == hoxREQUEST_PLAYER_DATA )
     {
         result = _CheckAndHandleSocketLostEvent( request, response->content );
         if ( result == hoxRESULT_HANDLED )
@@ -94,7 +94,7 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
      */
     switch( request->type )
     {
-        case hoxREQUEST_TYPE_PLAYER_DATA: // Incoming data from remote player.
+        case hoxREQUEST_PLAYER_DATA: // Incoming data from remote player.
         {
             wxASSERT_MSG( request->socket == m_pSClient, "Sockets should match." );
             // We disable input events until we are done processing the current command.
@@ -135,7 +135,7 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
             break;
         }
 
-        case hoxREQUEST_TYPE_LOGIN:
+        case hoxREQUEST_LOGIN:
 		{
 			const wxString login = request->parameters["pid"]; 
 		    const wxString password = request->parameters["password"];
@@ -147,56 +147,56 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
 			break;
 		}
 
-        case hoxREQUEST_TYPE_LOGOUT:
+        case hoxREQUEST_LOGOUT:
 		{
 			const wxString login = request->parameters["pid"]; 
             result = _Disconnect(login);
 			break;
 		}
 
-        case hoxREQUEST_TYPE_JOIN:
+        case hoxREQUEST_JOIN:
 		{
 		    const wxString tableId = request->parameters["tid"];
 			const bool hasRole = (request->parameters["joined"] == "1");
-			const hoxPieceColor requestColor = 
+			const hoxColor requestColor = 
 				hoxUtility::StringToColor( request->parameters["color"] );
             result = _Join(tableId, hasRole, requestColor);
 			response->content = tableId;
             break;
 		}
 
-        case hoxREQUEST_TYPE_PLAYER_STATUS:
+        case hoxREQUEST_PLAYER_STATUS:
 		{
 		    const wxString playerStatus = request->parameters["status"];
             result = _UpdateStatus( playerStatus );
             break;
 		}
 
-        case hoxREQUEST_TYPE_LEAVE:
+        case hoxREQUEST_LEAVE:
 		{
             result = _Leave();
             break;
 		}
 
-        case hoxREQUEST_TYPE_MOVE:
+        case hoxREQUEST_MOVE:
 		{
             result = _Move( request );
             break;
 		}
 
-        case hoxREQUEST_TYPE_NEW:
+        case hoxREQUEST_NEW:
 		{
             result = _New();
             break;
 		}
 
-        case hoxREQUEST_TYPE_WALL_MSG:
+        case hoxREQUEST_MSG:
 		{
             result = _WallMessage( request );
             break;
 		}
 
-        case hoxREQUEST_TYPE_DRAW:
+        case hoxREQUEST_DRAW:
 		{
 			const wxString drawResponse = request->parameters["draw_response"];
             result = _Draw( drawResponse );
@@ -357,7 +357,7 @@ hoxChesscapeConnection::_Disconnect( const wxString& login )
 hoxResult
 hoxChesscapeConnection::_Join( const wxString& tableId,
 							   const bool      hasRole,
-							   hoxPieceColor   requestColor )
+							   hoxColor   requestColor )
 {
     const char* FNAME = "hoxChesscapeConnection::_Join";
 
@@ -390,8 +390,8 @@ hoxChesscapeConnection::_Join( const wxString& tableId,
 
     /* Send REQUEST-SEAT request, if asked. */
 	wxString requestSeat;
-	if      ( requestColor == hoxPIECE_COLOR_RED )   requestSeat = "RedSeat";
-	else if ( requestColor == hoxPIECE_COLOR_BLACK ) requestSeat = "BlkSeat";
+	if      ( requestColor == hoxCOLOR_RED )   requestSeat = "RedSeat";
+	else if ( requestColor == hoxCOLOR_BLACK ) requestSeat = "BlkSeat";
 
 	if ( ! requestSeat.empty() )
 	{

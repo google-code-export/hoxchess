@@ -68,7 +68,12 @@ private:
                                      wxString&       tableId,
                                      wxString&       playerId,
                                      int&            nPlayerScore,
-                                     hoxPieceColor&  color);
+                                     hoxColor&  color);
+
+    hoxResult _ParsePlayerMsgEvent( const wxString& sContent,
+                                    hoxTable*&      table,
+                                    wxString&       playerId,
+                                    wxString&       message );
 
 private:
 

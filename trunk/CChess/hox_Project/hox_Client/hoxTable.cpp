@@ -65,24 +65,24 @@ hoxTable::~hoxTable()
 
 hoxResult 
 hoxTable::AssignPlayer( hoxPlayer*     player,
-                        hoxPieceColor& assignedColor,
+                        hoxColor& assignedColor,
                         bool           informOthers /* = true */)
 {
     hoxResult result = hoxRESULT_OK;
 
     wxCHECK_MSG( player != NULL, hoxRESULT_ERR, "The player is NULL." );
 
-    assignedColor = hoxPIECE_COLOR_NONE; // Default: Observer's Role.
+    assignedColor = hoxCOLOR_NONE; // Default: Observer's Role.
 
     /* Assign to play RED if possible. */
     if ( m_redPlayer == NULL )
     {
-        assignedColor = hoxPIECE_COLOR_RED;
+        assignedColor = hoxCOLOR_RED;
     }
     /* Assign to play BLACK if possible. */
     else if ( m_blackPlayer == NULL )
     {
-        assignedColor = hoxPIECE_COLOR_BLACK;
+        assignedColor = hoxCOLOR_BLACK;
     }
     /* Default: ... The player will join as an Observer. */
 
@@ -100,16 +100,16 @@ hoxTable::AssignPlayer( hoxPlayer*     player,
 
 hoxResult 
 hoxTable::AssignPlayerAs( hoxPlayer*     player,
-                          hoxPieceColor  requestColor )
+                          hoxColor  requestColor )
 {
     const char* FNAME = "hoxTable::AssignPlayerAs";
 
     wxCHECK_MSG( player != NULL, hoxRESULT_ERR, "The player is NULL." );
 
     bool bRequestOK =
-           ( requestColor == hoxPIECE_COLOR_RED   && m_redPlayer == NULL )
-        || ( requestColor == hoxPIECE_COLOR_BLACK && m_blackPlayer == NULL )
-        || ( requestColor == hoxPIECE_COLOR_NONE );
+           ( requestColor == hoxCOLOR_RED   && m_redPlayer == NULL )
+        || ( requestColor == hoxCOLOR_BLACK && m_blackPlayer == NULL )
+        || ( requestColor == hoxCOLOR_NONE );
 
     if ( ! bRequestOK )
     {
@@ -257,12 +257,12 @@ hoxTable::OnJoinCommand_FromBoard()
 
 	/* Auto JOIN the table based on the seat availability. */
 
-	hoxPieceColor requestColor = hoxPIECE_COLOR_NONE; // Default: observer
+	hoxColor requestColor = hoxCOLOR_NONE; // Default: observer
 
-	if      ( m_redPlayer   == NULL ) requestColor = hoxPIECE_COLOR_RED;
-	else if ( m_blackPlayer == NULL ) requestColor = hoxPIECE_COLOR_BLACK;
+	if      ( m_redPlayer   == NULL ) requestColor = hoxCOLOR_RED;
+	else if ( m_blackPlayer == NULL ) requestColor = hoxCOLOR_BLACK;
 
-	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_TYPE_JOIN );
+	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_JOIN );
 	pCommand->parameters["tid"] = m_id;
 	pCommand->parameters["pid"] = boardPlayer->GetName();
 	pCommand->parameters["color"] = hoxUtility::ColorToString( requestColor );
@@ -294,7 +294,7 @@ hoxTable::OnDrawCommand_FromBoard()
 		return;
 	}
 
-	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_TYPE_DRAW );
+	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_DRAW );
 	pCommand->parameters["tid"] = m_id;
 	pCommand->parameters["pid"] = boardPlayer->GetName();
 	pCommand->parameters["draw_response"] = "";
@@ -325,7 +325,7 @@ hoxTable::OnDrawResponse_FromBoard( bool bAcceptDraw )
 		return;
 	}
 
-	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_TYPE_DRAW );
+	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_DRAW );
 	pCommand->parameters["tid"] = m_id;
 	pCommand->parameters["pid"] = boardPlayer->GetName();
 	pCommand->parameters["draw_response"] = (bAcceptDraw ? "1" : "0");
@@ -497,7 +497,7 @@ hoxTable::_PostPlayer_LeaveEvent( hoxPlayer* player,
     wxLogDebug("%s: Informing player [%s] about [%s] just left...", 
         FNAME, player->GetName().c_str(), leavePlayer->GetName().c_str());
 
-	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_TYPE_LEAVE );
+	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_LEAVE );
 	pCommand->parameters["tid"] = m_id;
 	pCommand->parameters["pid"] = leavePlayer->GetName();
 
@@ -509,7 +509,7 @@ hoxTable::_PostPlayer_LeaveEvent( hoxPlayer* player,
 void 
 hoxTable::_PostPlayer_JoinEvent( hoxPlayer*    player,
                                  hoxPlayer*    newPlayer,
-                                 hoxPieceColor newColor ) const
+                                 hoxColor newColor ) const
 {
     const char* FNAME = "hoxTable::_PostPlayer_JoinEvent";
 
@@ -519,7 +519,7 @@ hoxTable::_PostPlayer_JoinEvent( hoxPlayer*    player,
     wxLogDebug("%s: Informing player [%s] that a new Player [%s] just joined as [%d]...", 
         FNAME, player->GetName().c_str(), newPlayer->GetName().c_str(), newColor);
 
-	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_TYPE_E_JOIN );
+	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_E_JOIN );
 	pCommand->parameters["tid"] = m_id;
 	pCommand->parameters["pid"] = newPlayer->GetName();
 	pCommand->parameters["color"] = wxString::Format("%d", newColor);
@@ -559,7 +559,7 @@ hoxTable::_PostPlayer_MoveEvent( hoxPlayer*         player,
     wxLogDebug("%s: Informing player [%s] that [%s] just made a new Move [%s]...", 
         FNAME, player->GetName().c_str(), movePlayer->GetName().c_str(), moveStr.c_str());
 	
-	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_TYPE_MOVE );
+	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_MOVE );
 	pCommand->parameters["tid"] = m_id;
 	pCommand->parameters["pid"] = movePlayer->GetName();
 	pCommand->parameters["move"] = moveStr;
@@ -584,12 +584,12 @@ hoxTable::_PostPlayer_MessageEvent( hoxPlayer*      player,
     wxLogDebug("%s: Informing player [%s] that [%s] just sent a Message [%s]...", 
         FNAME, player->GetName().c_str(), msgPlayer->GetName().c_str(), message.c_str());
 
-	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_TYPE_WALL_MSG );
+	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_MSG );
 	pCommand->parameters["tid"] = m_id;
 	pCommand->parameters["pid"] = msgPlayer->GetName();
 	pCommand->parameters["msg"] = message;
     
-	wxCommandEvent event( hoxEVT_PLAYER_WALL_MSG );
+	wxCommandEvent event( hoxEVT_PLAYER_MSG );
     event.SetEventObject( pCommand );
     wxPostEvent( player, event );
 }
@@ -668,7 +668,7 @@ hoxTable::_PostBoard_GameOverEvent( const hoxGameStatus gameStatus ) const
 
 void 
 hoxTable::_PostAll_JoinEvent( hoxPlayer*    newPlayer,
-                              hoxPieceColor newColor ) const
+                              hoxColor newColor ) const
 {
     const char* FNAME = "hoxTable::_PostAll_JoinEvent";
 
@@ -832,7 +832,7 @@ hoxTable::_GetBoardPlayer() const
 
 void 
 hoxTable::_AddPlayer( hoxPlayer*    player, 
-                      hoxPieceColor role )
+                      hoxColor role )
 {
     hoxPlayerList::iterator found_it = 
         std::find( m_players.begin(), m_players.end(), player );
@@ -843,12 +843,12 @@ hoxTable::_AddPlayer( hoxPlayer*    player,
 	}
 
     // "Cache" the RED and BLACK players for easy access.
-    if ( role == hoxPIECE_COLOR_RED )
+    if ( role == hoxCOLOR_RED )
     {
         m_redPlayer = player;
         if ( m_blackPlayer == player ) m_blackPlayer = NULL;
     }
-    else if ( role == hoxPIECE_COLOR_BLACK )
+    else if ( role == hoxCOLOR_BLACK )
     {
         m_blackPlayer = player;
         if ( m_redPlayer == player ) m_redPlayer = NULL;

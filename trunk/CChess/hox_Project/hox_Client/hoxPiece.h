@@ -64,8 +64,8 @@ public:
     hoxPieceType GetType() const { return m_info.type; }
     void SetType(hoxPieceType type) { m_info.type = type; }
 
-    hoxPieceColor GetColor() const { return m_info.color; }
-    void SetColor(hoxPieceColor color) { m_info.color = color; }
+    hoxColor GetColor() const { return m_info.color; }
+    void SetColor(hoxColor color) { m_info.color = color; }
 
     bool IsLatest() const { return m_latest; }
     void SetLatest(bool latest) { m_latest = latest; }

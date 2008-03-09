@@ -79,20 +79,20 @@ namespace BoardInfoAPI
     class Piece
     {
     public:
-        Piece() : m_info( hoxPIECE_TYPE_INVALID, hoxPIECE_COLOR_NONE,
+        Piece() : m_info( hoxPIECE_TYPE_INVALID, hoxCOLOR_NONE,
                           hoxPosition(-1, -1) ) { }
-        Piece(hoxPieceType t) : m_info( t, hoxPIECE_COLOR_NONE, 
+        Piece(hoxPieceType t) : m_info( t, hoxCOLOR_NONE, 
                                         hoxPosition(-1, -1) ) { }
-        Piece(hoxPieceType t, hoxPieceColor c) 
+        Piece(hoxPieceType t, hoxColor c) 
                               : m_info( t, c, hoxPosition(-1, -1) ) { }
-        Piece(hoxPieceType t, hoxPieceColor c, const hoxPosition& p)
+        Piece(hoxPieceType t, hoxColor c, const hoxPosition& p)
                               : m_info( t, c, p ) { }
         virtual ~Piece() {}
 
         hoxPieceInfo  GetInfo()     const { return m_info; }
 
         hoxPieceType  GetType()     const { return m_info.type; }
-        hoxPieceColor GetColor()    const { return m_info.color; }
+        hoxColor GetColor()    const { return m_info.color; }
         hoxPosition   GetPosition() const { return m_info.position; }
 
         void SetPosition( const hoxPosition& pos ) { m_info.position = pos; }
@@ -101,7 +101,7 @@ namespace BoardInfoAPI
         virtual bool IsValidMove(const hoxPosition& newPos) const;
         virtual bool DoesNextMoveExist() const;
 
-        bool HasColor( hoxPieceColor c ) const { return (m_info.color == c); }
+        bool HasColor( hoxColor c ) const { return (m_info.color == c); }
         bool HasType(  hoxPieceType  t ) const { return (m_info.type  == t); }
         bool HasSameColumnAs( const Piece& other ) const
             { return (m_info.position.x == other.m_info.position.x); }
@@ -111,7 +111,7 @@ namespace BoardInfoAPI
         virtual void GetPotentialNextPositions(PositionList& positions) const {} // FIXME
 
     public: /* Static Public API */ 
-        static bool Is_Inside_Palace( hoxPieceColor color, const hoxPosition& position );
+        static bool Is_Inside_Palace( hoxColor color, const hoxPosition& position );
 
     protected:
         hoxPieceInfo  m_info;
@@ -124,7 +124,7 @@ namespace BoardInfoAPI
     class KingPiece : public Piece
     {
     public:
-        KingPiece(hoxPieceColor c, const hoxPosition& p) 
+        KingPiece(hoxColor c, const hoxPosition& p) 
             : Piece(hoxPIECE_TYPE_KING, c, p) {}
         virtual bool CanMoveTo(const hoxPosition& newPos) const;
         virtual void GetPotentialNextPositions(PositionList& positions) const;
@@ -136,7 +136,7 @@ namespace BoardInfoAPI
     class AdvisorPiece : public Piece
     {
     public:
-        AdvisorPiece(hoxPieceColor c, const hoxPosition& p) 
+        AdvisorPiece(hoxColor c, const hoxPosition& p) 
             : Piece(hoxPIECE_TYPE_ADVISOR, c, p) {}
         virtual bool CanMoveTo(const hoxPosition& newPos) const;
         virtual void GetPotentialNextPositions(PositionList& positions) const;
@@ -148,7 +148,7 @@ namespace BoardInfoAPI
     class ElephantPiece : public Piece
     {
     public:
-        ElephantPiece(hoxPieceColor c, const hoxPosition& p) 
+        ElephantPiece(hoxColor c, const hoxPosition& p) 
             : Piece(hoxPIECE_TYPE_ELEPHANT, c, p) {}
         virtual bool CanMoveTo(const hoxPosition& newPos) const;
         virtual void GetPotentialNextPositions(PositionList& positions) const;
@@ -160,7 +160,7 @@ namespace BoardInfoAPI
     class ChariotPiece : public Piece
     {
     public:
-        ChariotPiece(hoxPieceColor c, const hoxPosition& p) 
+        ChariotPiece(hoxColor c, const hoxPosition& p) 
             : Piece(hoxPIECE_TYPE_CHARIOT, c, p) {}
         virtual bool CanMoveTo(const hoxPosition& newPos) const;
         virtual void GetPotentialNextPositions(PositionList& positions) const;
@@ -172,7 +172,7 @@ namespace BoardInfoAPI
     class HorsePiece : public Piece
     {
     public:
-        HorsePiece(hoxPieceColor c, const hoxPosition& p) 
+        HorsePiece(hoxColor c, const hoxPosition& p) 
             : Piece(hoxPIECE_TYPE_HORSE, c, p) {}
         virtual bool CanMoveTo(const hoxPosition& newPos) const;
         virtual void GetPotentialNextPositions(PositionList& positions) const;
@@ -184,7 +184,7 @@ namespace BoardInfoAPI
     class CannonPiece : public Piece
     {
     public:
-        CannonPiece(hoxPieceColor c, const hoxPosition& p) 
+        CannonPiece(hoxColor c, const hoxPosition& p) 
             : Piece(hoxPIECE_TYPE_CANNON, c, p) {}
         virtual bool CanMoveTo(const hoxPosition& newPos) const;
         virtual void GetPotentialNextPositions(PositionList& positions) const;
@@ -196,7 +196,7 @@ namespace BoardInfoAPI
     class PawnPiece : public Piece
     {
     public:
-        PawnPiece(hoxPieceColor c, const hoxPosition& p) 
+        PawnPiece(hoxColor c, const hoxPosition& p) 
             : Piece(hoxPIECE_TYPE_PAWN, c, p) {}
         virtual bool CanMoveTo(const hoxPosition& newPos) const;
         virtual void GetPotentialNextPositions(PositionList& positions) const;
@@ -225,7 +225,7 @@ namespace BoardInfoAPI
     class Board
     {
     public:
-        Board( hoxPieceColor nextColor = hoxPIECE_COLOR_NONE );
+        Board( hoxColor nextColor = hoxCOLOR_NONE );
         virtual ~Board();
 
         // ------------ Main Public API -------
@@ -233,9 +233,9 @@ namespace BoardInfoAPI
                            hoxGameStatus& status );
 
         void GetGameState( hoxPieceInfoList& pieceInfoList,
-                           hoxPieceColor&    nextColor );
+                           hoxColor&    nextColor );
 
-        hoxPieceColor GetNextColor() const { return m_nextColor; }
+        hoxColor GetNextColor() const { return m_nextColor; }
 
         bool GetPieceAtPosition( const hoxPosition& position, 
                                  hoxPieceInfo&      pieceInfo ) const;
@@ -260,8 +260,8 @@ namespace BoardInfoAPI
         Piece*       _RecordMove(const hoxMove& move);
         void         _UndoMove( const hoxMove& move, Piece* pCaptured );
 
-        const Piece* _GetKing(hoxPieceColor color) const;
-        bool         _IsKingBeingChecked(hoxPieceColor color) const;
+        const Piece* _GetKing(hoxColor color) const;
+        bool         _IsKingBeingChecked(hoxColor color) const;
         bool         _IsKingFaceKing() const;
 
         bool         _DoesNextMoveExist() const;
@@ -271,7 +271,7 @@ namespace BoardInfoAPI
         PieceList      m_deadPieces;   // INACTIVE (dead) pieces
         Cell           m_cells[9][10];
 
-        hoxPieceColor  m_nextColor;
+        hoxColor  m_nextColor;
             /* Which side (RED or BLACK) will move next? */
     };
 
@@ -300,7 +300,7 @@ using namespace BoardInfoAPI;
 //-----------------------------------------------------------------------------
 
 
-Board::Board( hoxPieceColor nextColor /* = hoxPIECE_COLOR_NONE */ )
+Board::Board( hoxColor nextColor /* = hoxCOLOR_NONE */ )
         : m_nextColor( nextColor )
 {
     /* Initialize Piece-Cells. */
@@ -338,12 +338,12 @@ Board::~Board()
 void
 Board::_CreateNewGame()
 {
-    hoxPieceColor color;        // The current color.
+    hoxColor color;        // The current color.
     int           i;
 
     // --------- BLACK
 
-    color = hoxPIECE_COLOR_BLACK;
+    color = hoxCOLOR_BLACK;
 
     _AddNewPiece( new KingPiece(     color, hoxPosition(4, 0) ) );
     _AddNewPiece( new AdvisorPiece(  color, hoxPosition(3, 0) ) );
@@ -363,7 +363,7 @@ Board::_CreateNewGame()
 
     // --------- RED
 
-    color = hoxPIECE_COLOR_RED;
+    color = hoxCOLOR_RED;
 
     _AddNewPiece( new KingPiece(     color, hoxPosition(4, 9) ) );
     _AddNewPiece( new AdvisorPiece(  color, hoxPosition(3, 9) ) );
@@ -384,7 +384,7 @@ Board::_CreateNewGame()
 
 void 
 Board::GetGameState( hoxPieceInfoList& pieceInfoList,
-                     hoxPieceColor&    nextColor )
+                     hoxColor&    nextColor )
 {
     pieceInfoList.clear();    // Clear the old info, if exists.
 
@@ -589,7 +589,7 @@ Board::_UndoMove( const hoxMove& move,
 
 // Get the King of a given color.
 const Piece*
-Board::_GetKing( hoxPieceColor color ) const
+Board::_GetKing( hoxColor color ) const
 {
     for ( PieceList::const_iterator it = m_pieces.begin(); 
                                     it != m_pieces.end(); 
@@ -610,7 +610,7 @@ Board::_GetKing( hoxPieceColor color ) const
 // @return true if the King is being checked.
 //         false, otherwise.
 bool 
-Board::_IsKingBeingChecked( hoxPieceColor color ) const
+Board::_IsKingBeingChecked( hoxColor color ) const
 {
     /* Check if this move results in one's own-checkmate.
      * This is done as follows:
@@ -638,10 +638,10 @@ Board::_IsKingBeingChecked( hoxPieceColor color ) const
 bool 
 Board::_IsKingFaceKing() const
 {
-    const Piece* blackKing = _GetKing( hoxPIECE_COLOR_BLACK );
+    const Piece* blackKing = _GetKing( hoxCOLOR_BLACK );
     wxASSERT_MSG( blackKing != NULL, "Black King must not be NULL" );
 
-    const Piece* redKing = _GetKing( hoxPIECE_COLOR_RED );
+    const Piece* redKing = _GetKing( hoxCOLOR_RED );
     wxASSERT_MSG( redKing != NULL, "Red King must not be NULL" );
 
     if ( ! blackKing->HasSameColumnAs( *redKing ) ) // not the same column.
@@ -704,9 +704,9 @@ Board::ValidateMove( hoxMove&       move,
                                              : hoxPieceInfo() /* 'Empty' piece */ );
 
     /* Set the next-turn. */
-    m_nextColor = ( m_nextColor == hoxPIECE_COLOR_RED 
-                   ? hoxPIECE_COLOR_BLACK
-                   : hoxPIECE_COLOR_RED);
+    m_nextColor = ( m_nextColor == hoxCOLOR_RED 
+                   ? hoxCOLOR_BLACK
+                   : hoxCOLOR_RED);
 
     /* Check for end game:
      * ------------------
@@ -719,7 +719,7 @@ Board::ValidateMove( hoxMove&       move,
     if ( ! _DoesNextMoveExist() )
     {
         wxLogDebug("%s: The game is over.", FNAME);
-        status = (  m_nextColor == hoxPIECE_COLOR_BLACK 
+        status = (  m_nextColor == hoxCOLOR_BLACK 
                   ? hoxGAME_STATUS_RED_WIN
                   : hoxGAME_STATUS_BLACK_WIN );
     }
@@ -849,7 +849,7 @@ Piece::DoesNextMoveExist() const
 bool 
 KingPiece::CanMoveTo( const hoxPosition& newPos ) const
 {
-    const hoxPieceColor myColor = m_info.color;
+    const hoxColor myColor = m_info.color;
     const hoxPosition   curPos = m_info.position;
 
     // Within the palace...?
@@ -889,7 +889,7 @@ KingPiece::GetPotentialNextPositions(PositionList& positions) const
 bool 
 AdvisorPiece::CanMoveTo( const hoxPosition& newPos ) const
 {
-    const hoxPieceColor myColor = m_info.color;
+    const hoxColor myColor = m_info.color;
     const hoxPosition   curPos = m_info.position;
 
     // Within the palace...?
@@ -927,7 +927,7 @@ AdvisorPiece::GetPotentialNextPositions(PositionList& positions) const
 bool 
 ElephantPiece::CanMoveTo( const hoxPosition& newPos ) const
 {
-    const hoxPieceColor myColor = m_info.color;
+    const hoxColor myColor = m_info.color;
     const hoxPosition   curPos = m_info.position;
 
     // Within the country...?
@@ -969,7 +969,7 @@ ElephantPiece::GetPotentialNextPositions(PositionList& positions) const
 bool 
 ChariotPiece::CanMoveTo( const hoxPosition& newPos ) const
 {
-    const hoxPieceColor myColor = m_info.color;
+    const hoxColor myColor = m_info.color;
     const hoxPosition   curPos = m_info.position;
 
     bool bIsValidMove = false;
@@ -1087,7 +1087,7 @@ ChariotPiece::GetPotentialNextPositions(PositionList& positions) const
 bool 
 HorsePiece::CanMoveTo( const hoxPosition& newPos ) const
 {
-    const hoxPieceColor myColor = m_info.color;
+    const hoxColor myColor = m_info.color;
     const hoxPosition   curPos = m_info.position;
 
     bool bMoveValid = false;
@@ -1167,7 +1167,7 @@ HorsePiece::GetPotentialNextPositions(PositionList& positions) const
 bool 
 CannonPiece::CanMoveTo( const hoxPosition& newPos ) const
 {
-    const hoxPieceColor myColor = m_info.color;
+    const hoxColor myColor = m_info.color;
     const hoxPosition   curPos = m_info.position;
 
     bool bIsValidMove = false;
@@ -1305,7 +1305,7 @@ CannonPiece::GetPotentialNextPositions(PositionList& positions) const
 bool 
 PawnPiece::CanMoveTo( const hoxPosition& newPos ) const
 {
-    const hoxPieceColor myColor = m_info.color;
+    const hoxColor myColor = m_info.color;
     const hoxPosition   curPos = m_info.position;
 
     bool bMoveValid = false;
@@ -1315,8 +1315,8 @@ PawnPiece::CanMoveTo( const hoxPosition& newPos ) const
     {
         // Can only move up.
         if ( newPos.x == curPos.x && 
-           (   (myColor == hoxPIECE_COLOR_BLACK && newPos.y == curPos.y+1)
-             || myColor == hoxPIECE_COLOR_RED && newPos.y == curPos.y-1) )
+           (   (myColor == hoxCOLOR_BLACK && newPos.y == curPos.y+1)
+             || myColor == hoxCOLOR_RED && newPos.y == curPos.y-1) )
         {
             bMoveValid = true;
         }
@@ -1329,8 +1329,8 @@ PawnPiece::CanMoveTo( const hoxPosition& newPos ) const
         if ( ( newPos.y == curPos.y 
                     && abs(newPos.x - curPos.x) == 1 )
             || (newPos.x == curPos.x
-                  && ( myColor == hoxPIECE_COLOR_BLACK && newPos.y == curPos.y+1
-                    || myColor == hoxPIECE_COLOR_RED && newPos.y == curPos.y-1)) )
+                  && ( myColor == hoxCOLOR_BLACK && newPos.y == curPos.y+1
+                    || myColor == hoxCOLOR_RED && newPos.y == curPos.y-1)) )
         {
             bMoveValid = true;
         }
@@ -1395,7 +1395,7 @@ hoxReferee::Reset()
 {
     delete m_board;   // Delete the old Board, if exists.
 
-    m_board = new Board( hoxPIECE_COLOR_RED /* next-color */ );
+    m_board = new Board( hoxCOLOR_RED /* next-color */ );
 }
 
 bool 
@@ -1408,13 +1408,13 @@ hoxReferee::ValidateMove( hoxMove&      move,
 
 void 
 hoxReferee::GetGameState( hoxPieceInfoList& pieceInfoList,
-                          hoxPieceColor&    nextColor )
+                          hoxColor&    nextColor )
 {
     wxCHECK_RET(m_board, "The Board is NULL.");
     return m_board->GetGameState( pieceInfoList, nextColor );
 }
 
-hoxPieceColor 
+hoxColor 
 hoxReferee::GetNextColor()
 {
     return m_board->GetNextColor();

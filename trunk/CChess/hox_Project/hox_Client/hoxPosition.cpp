@@ -72,9 +72,9 @@ hoxPosition::IsValid() const
 }
 
 bool 
-hoxPosition::IsInsidePalace(hoxPieceColor color) const 
+hoxPosition::IsInsidePalace(hoxColor color) const 
 { 
-    if (color == hoxPIECE_COLOR_BLACK)
+    if (color == hoxCOLOR_BLACK)
     {
         return (x >= 3 && x <= 5 && y >= 0 && y <= 2); 
     }
@@ -86,9 +86,9 @@ hoxPosition::IsInsidePalace(hoxPieceColor color) const
 
 // Is inside one's country (not yet cross the river)?
 bool 
-hoxPosition::IsInsideCountry(hoxPieceColor color) const 
+hoxPosition::IsInsideCountry(hoxColor color) const 
 { 
-    if (color == hoxPIECE_COLOR_BLACK)
+    if (color == hoxCOLOR_BLACK)
     {
         return (y >= 0 && y <= 4);
     }

@@ -36,12 +36,12 @@ static wxString gPiecePath = "";
  */
 static wxString
 _get_piece_image_path( hoxPieceType  type, 
-                       hoxPieceColor color )
+                       hoxColor color )
 {
     wxString filename;
     wxChar cColor;
 
-    cColor = ( color == hoxPIECE_COLOR_RED ? 'r' : 'b' );
+    cColor = ( color == hoxCOLOR_RED ? 'r' : 'b' );
 
     switch ( type )
     {
@@ -93,7 +93,7 @@ hoxUtility::SetPiecesPath(const wxString& piecesPath)
 
 hoxResult 
 hoxUtility::LoadPieceImage( hoxPieceType  type, 
-                            hoxPieceColor color, 
+                            hoxColor color, 
                             wxImage&      image)
 {
     const char* FNAME = "hoxUtility::LoadPieceImage";
@@ -126,24 +126,24 @@ hoxUtility::RequestTypeToString( const hoxRequestType requestType )
 {
     switch( requestType )
     {
-        case hoxREQUEST_TYPE_UNKNOWN:     return "UNKNOWN";
+        case hoxREQUEST_UNKNOWN:     return "UNKNOWN";
 
-        case hoxREQUEST_TYPE_ACCEPT:      return "ACCEPT";
-        case hoxREQUEST_TYPE_PLAYER_DATA: return "PLAYER_DATA";
-        case hoxREQUEST_TYPE_LOGIN:       return "LOGIN";
-        case hoxREQUEST_TYPE_LOGOUT:      return "LOGOUT";
-        case hoxREQUEST_TYPE_SHUTDOWN:    return "SHUTDOWN";
-        case hoxREQUEST_TYPE_POLL:        return "POLL";
-        case hoxREQUEST_TYPE_MOVE:        return "MOVE";
-        case hoxREQUEST_TYPE_LIST:        return "LIST";
-        case hoxREQUEST_TYPE_NEW:         return "NEW";
-        case hoxREQUEST_TYPE_JOIN:        return "JOIN";
-        case hoxREQUEST_TYPE_LEAVE:       return "LEAVE";
-		case hoxREQUEST_TYPE_DRAW:        return "DRAW";
-        case hoxREQUEST_TYPE_E_JOIN:      return "E_JOIN";
-		case hoxREQUEST_TYPE_PLAYER_STATUS: return "PLAYER_STATUS";
-        case hoxREQUEST_TYPE_OUT_DATA:    return "OUT_DATA";
-        case hoxREQUEST_TYPE_WALL_MSG:    return "WALL_MSG";
+        case hoxREQUEST_ACCEPT:      return "ACCEPT";
+        case hoxREQUEST_PLAYER_DATA: return "PLAYER_DATA";
+        case hoxREQUEST_LOGIN:       return "LOGIN";
+        case hoxREQUEST_LOGOUT:      return "LOGOUT";
+        case hoxREQUEST_SHUTDOWN:    return "SHUTDOWN";
+        case hoxREQUEST_POLL:        return "POLL";
+        case hoxREQUEST_MOVE:        return "MOVE";
+        case hoxREQUEST_LIST:        return "LIST";
+        case hoxREQUEST_NEW:         return "NEW";
+        case hoxREQUEST_JOIN:        return "JOIN";
+        case hoxREQUEST_LEAVE:       return "LEAVE";
+		case hoxREQUEST_DRAW:        return "DRAW";
+        case hoxREQUEST_E_JOIN:      return "E_JOIN";
+		case hoxREQUEST_PLAYER_STATUS: return "PLAYER_STATUS";
+        case hoxREQUEST_OUT_DATA:    return "OUT_DATA";
+        case hoxREQUEST_MSG:         return "MSG";
 
         default:                          return "UNKNOWN";
     }
@@ -155,26 +155,26 @@ hoxUtility::RequestTypeToString( const hoxRequestType requestType )
 hoxRequestType
 hoxUtility::StringToRequestType( const wxString& input )
 {
-    if ( input == "UNKNOWN" )     return hoxREQUEST_TYPE_UNKNOWN;
+    if ( input == "UNKNOWN" )     return hoxREQUEST_UNKNOWN;
 
-    if ( input == "ACCEPT" )      return hoxREQUEST_TYPE_ACCEPT;
-    if ( input == "PLAYER_DATA" ) return hoxREQUEST_TYPE_PLAYER_DATA;
-    if ( input == "LOGIN" )       return hoxREQUEST_TYPE_LOGIN;
-    if ( input == "LOGOUT" )      return hoxREQUEST_TYPE_LOGOUT;
-    if ( input == "SHUTDOWN" )    return hoxREQUEST_TYPE_SHUTDOWN;
-    if ( input == "POLL" )        return hoxREQUEST_TYPE_POLL;
-    if ( input == "MOVE" )        return hoxREQUEST_TYPE_MOVE;
-    if ( input == "LIST" )        return hoxREQUEST_TYPE_LIST;
-    if ( input == "NEW" )         return hoxREQUEST_TYPE_NEW;
-    if ( input == "JOIN" )        return hoxREQUEST_TYPE_JOIN;
-    if ( input == "LEAVE" )       return hoxREQUEST_TYPE_LEAVE;
-	if ( input == "DRAW" )        return hoxREQUEST_TYPE_DRAW;
-    if ( input == "E_JOIN" )      return hoxREQUEST_TYPE_E_JOIN;
-	if ( input == "PLAYER_STATUS" ) return hoxREQUEST_TYPE_PLAYER_STATUS;
-    if ( input == "OUT_DATA" )    return hoxREQUEST_TYPE_OUT_DATA;
-    if ( input == "WALL_MSG" )    return hoxREQUEST_TYPE_WALL_MSG;
+    if ( input == "ACCEPT" )      return hoxREQUEST_ACCEPT;
+    if ( input == "PLAYER_DATA" ) return hoxREQUEST_PLAYER_DATA;
+    if ( input == "LOGIN" )       return hoxREQUEST_LOGIN;
+    if ( input == "LOGOUT" )      return hoxREQUEST_LOGOUT;
+    if ( input == "SHUTDOWN" )    return hoxREQUEST_SHUTDOWN;
+    if ( input == "POLL" )        return hoxREQUEST_POLL;
+    if ( input == "MOVE" )        return hoxREQUEST_MOVE;
+    if ( input == "LIST" )        return hoxREQUEST_LIST;
+    if ( input == "NEW" )         return hoxREQUEST_NEW;
+    if ( input == "JOIN" )        return hoxREQUEST_JOIN;
+    if ( input == "LEAVE" )       return hoxREQUEST_LEAVE;
+	if ( input == "DRAW" )        return hoxREQUEST_DRAW;
+    if ( input == "E_JOIN" )      return hoxREQUEST_E_JOIN;
+	if ( input == "PLAYER_STATUS" ) return hoxREQUEST_PLAYER_STATUS;
+    if ( input == "OUT_DATA" )    return hoxREQUEST_OUT_DATA;
+    if ( input == "MSG" )         return hoxREQUEST_MSG;
 
-    return hoxREQUEST_TYPE_UNKNOWN;
+    return hoxREQUEST_UNKNOWN;
 }
 
 /**
@@ -199,15 +199,15 @@ hoxUtility::GameTypeToString( const hoxGameType gameType )
  * Convert a given Color (Piece's Color or Role) to a (human-readable) string.
  */
 const wxString 
-hoxUtility::ColorToString( const hoxPieceColor color )
+hoxUtility::ColorToString( const hoxColor color )
 {
     switch( color )
     {
-		case hoxPIECE_COLOR_UNKNOWN:   return "UNKNOWN";
+		case hoxCOLOR_UNKNOWN:   return "UNKNOWN";
 
-        case hoxPIECE_COLOR_RED:       return "Red";
-		case hoxPIECE_COLOR_BLACK:     return "Black";
-		case hoxPIECE_COLOR_NONE:      return "None";
+        case hoxCOLOR_RED:       return "Red";
+		case hoxCOLOR_BLACK:     return "Black";
+		case hoxCOLOR_NONE:      return "None";
 
         default:                       return "UNKNOWN";
     }
@@ -216,16 +216,16 @@ hoxUtility::ColorToString( const hoxPieceColor color )
 /**
  * Convert a given (human-readable) string to a Color (Piece's Color or Role).
  */
-hoxPieceColor 
+hoxColor 
 hoxUtility::StringToColor( const wxString& input )
 {
-    if ( input == "UNKNOWN" ) return hoxPIECE_COLOR_UNKNOWN;
+    if ( input == "UNKNOWN" ) return hoxCOLOR_UNKNOWN;
 
-	if ( input == "Red" )     return hoxPIECE_COLOR_RED;
-	if ( input == "Black" )   return hoxPIECE_COLOR_BLACK;
-	if ( input == "None" )    return hoxPIECE_COLOR_NONE;
+	if ( input == "Red" )     return hoxCOLOR_RED;
+	if ( input == "Black" )   return hoxCOLOR_BLACK;
+	if ( input == "None" )    return hoxCOLOR_NONE;
 
-	return hoxPIECE_COLOR_UNKNOWN;
+	return hoxCOLOR_UNKNOWN;
 }
 
 // ----------------------------------------------------------------------------

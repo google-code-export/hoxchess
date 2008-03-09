@@ -47,13 +47,13 @@ class hoxNaiveReferee : public hoxIReferee
     virtual bool ValidateMove( hoxMove&       move,
                                hoxGameStatus& status );
     virtual void GetGameState( hoxPieceInfoList& pieceInfoList,
-                               hoxPieceColor&    nextColor );
-    virtual hoxPieceColor GetNextColor();
+                               hoxColor&    nextColor );
+    virtual hoxColor GetNextColor();
     virtual bool GetPieceAtPosition( const hoxPosition& position, 
                                      hoxPieceInfo&      pieceInfo ) const;
 
   private:
-    hoxPieceColor    _nextColor;
+    hoxColor    _nextColor;
         /* Whose's turn (RED or BLACK) is it to move? */
 };
 

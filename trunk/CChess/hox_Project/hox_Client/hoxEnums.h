@@ -88,20 +88,20 @@ enum hoxPieceType
 };
 
 /**
- * Piece's color.
+ * Color for both Piece and Role.
  */
-enum hoxPieceColor
+enum hoxColor
 {
-    hoxPIECE_COLOR_UNKNOWN = -1,
+    hoxCOLOR_UNKNOWN = -1,
         /* This type indicates the absense of color or role.
 		 * For example, it is used to indicate the player is not even
 		 * at the table.
          */
 
-    hoxPIECE_COLOR_RED,   // RED color.
-    hoxPIECE_COLOR_BLACK, // BLACK color.
+    hoxCOLOR_RED,   // RED color.
+    hoxCOLOR_BLACK, // BLACK color.
 
-    hoxPIECE_COLOR_NONE 
+    hoxCOLOR_NONE 
         /* TODO: This type actually does not make sense for 'Piece',
          *       only for "Player". It is used to indicate the role 
          *       of a player who is currently only observe the game,
@@ -263,36 +263,36 @@ enum hoxNetworkEvenType
  */
 enum hoxRequestType
 {
-    hoxREQUEST_TYPE_UNKNOWN = -1,
+    hoxREQUEST_UNKNOWN = -1,
 
-    hoxREQUEST_TYPE_ACCEPT,
+    hoxREQUEST_ACCEPT,
 
-    hoxREQUEST_TYPE_PLAYER_DATA,
+    hoxREQUEST_PLAYER_DATA,
         /* Network data incoming from a remote player */
 
-    hoxREQUEST_TYPE_LOGIN,
-    hoxREQUEST_TYPE_LOGOUT,
-    hoxREQUEST_TYPE_SHUTDOWN,
-    hoxREQUEST_TYPE_POLL,
-    hoxREQUEST_TYPE_MOVE,
-    hoxREQUEST_TYPE_LIST,
-    hoxREQUEST_TYPE_NEW,
-    hoxREQUEST_TYPE_JOIN,
-    hoxREQUEST_TYPE_LEAVE,
+    hoxREQUEST_LOGIN,
+    hoxREQUEST_LOGOUT,
+    hoxREQUEST_SHUTDOWN,
+    hoxREQUEST_POLL,
+    hoxREQUEST_MOVE,
+    hoxREQUEST_LIST,
+    hoxREQUEST_NEW,
+    hoxREQUEST_JOIN,
+    hoxREQUEST_LEAVE,
 
-    hoxREQUEST_TYPE_DRAW,
+    hoxREQUEST_DRAW,
         /* Draw request generated from a physical Table */
 
-    hoxREQUEST_TYPE_E_JOIN,
+    hoxREQUEST_E_JOIN,
         /* Event generated from a Table that a new Player just joined */
 
-    hoxREQUEST_TYPE_PLAYER_STATUS,
+    hoxREQUEST_PLAYER_STATUS,
         /* Event generated from a Player when his Status is changed. */
 
-    hoxREQUEST_TYPE_OUT_DATA,
+    hoxREQUEST_OUT_DATA,
         /* Outgoing data to be sent out */
 
-    hoxREQUEST_TYPE_WALL_MSG
+    hoxREQUEST_MSG
         /* Message generated (incoming) from a physical Table */
 };
 

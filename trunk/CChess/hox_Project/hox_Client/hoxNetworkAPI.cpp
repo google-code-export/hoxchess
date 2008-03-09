@@ -157,7 +157,7 @@ hoxNetworkAPI::ParseCommand( const wxString& commandStr,
         {
             command.type = hoxUtility::StringToRequestType( paramValue );
 
-            if ( command.type == hoxREQUEST_TYPE_UNKNOWN )
+            if ( command.type == hoxREQUEST_UNKNOWN )
             {
                 wxLogError("%s: Unsupported command-type = [%s].", FNAME, paramValue.c_str());
                 return hoxRESULT_NOT_SUPPORTED;

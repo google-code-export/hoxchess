@@ -116,7 +116,7 @@ public:
      * Basically, this color decides if (or which color) the physical 
      * player can use the machine's mouse the move the Pieces.
      */
-    void SetLocalColor( hoxPieceColor color ) { m_localColor = color; }
+    void SetLocalColor( hoxColor color ) { m_localColor = color; }
 
     /**
      * This API is called by Table.
@@ -250,7 +250,7 @@ private:
     hoxIReferee*    m_referee; // The Referee of the game.
     BoardOwner*     m_owner;   // This Board's owner.
 
-    hoxPieceColor   m_localColor;
+    hoxColor   m_localColor;
             /* The color (player-role) of the "local" player. */
 
     /* Variables used when a piece is dragged by the mouse. */

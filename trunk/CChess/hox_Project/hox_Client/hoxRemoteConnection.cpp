@@ -75,7 +75,7 @@ hoxRemoteConnection::AddRequest( hoxRequest* request )
     wxCHECK_MSG( m_server, false, "The Server component must have been set." );
 
     /* This type of connection does not need to handle SHUTDOWN. */
-    if ( request->type == hoxREQUEST_TYPE_SHUTDOWN )
+    if ( request->type == hoxREQUEST_SHUTDOWN )
     {
         wxLogDebug("%s: Ignore this shutdown request.", FNAME);
         delete request;

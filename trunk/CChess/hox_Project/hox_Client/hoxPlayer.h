@@ -45,7 +45,7 @@ DECLARE_EVENT_TYPE(hoxEVT_PLAYER_NEW_MOVE, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_NEW_JOIN, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_NEW_LEAVE, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_TABLE_CLOSE, wxID_ANY)
-DECLARE_EVENT_TYPE(hoxEVT_PLAYER_WALL_MSG, wxID_ANY)
+DECLARE_EVENT_TYPE(hoxEVT_PLAYER_MSG, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_SITE_CLOSING, wxID_ANY)
 
 // ----------------------------------------------------------------------------
@@ -84,7 +84,7 @@ public:
     virtual void OnNewJoin_FromTable( wxCommandEvent&  event );
     virtual void OnNewLeave_FromTable( wxCommandEvent&  event );
     virtual void OnClose_FromTable( wxCommandEvent&  event );
-    virtual void OnWallMsg_FromTable( wxCommandEvent&  event );
+    virtual void OnMsg_FromTable( wxCommandEvent&  event );
 	virtual void OnClosing_FromSite( wxCommandEvent&  event );
 
     /***************************
@@ -103,7 +103,7 @@ public:
     bool               HasRole( hoxRole role );
 	bool               HasRoleAtTable( const wxString& tableId ) const;
 	bool               FindRoleAtTable( const wxString& tableId, 
-		                                hoxPieceColor&  assignedColor ) const;
+		                                hoxColor&  assignedColor ) const;
 
     int                GetScore() const    { return m_score; }
     void               SetScore(int score) { m_score = score; }
@@ -133,7 +133,7 @@ public:
      * @param requestColor The request role (color).
      */
     virtual hoxResult JoinTableAs( hoxTable*     table,
-                                   hoxPieceColor requestColor );
+                                   hoxColor requestColor );
 
     virtual hoxResult LeaveTable( hoxTable* table );
     virtual hoxResult LeaveAllTables();
