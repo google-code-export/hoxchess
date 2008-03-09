@@ -243,6 +243,25 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
             table->OnMessage_FromNetwork( playerId, message );
             break;
         }
+        case hoxREQUEST_MOVE:
+        {
+            hoxTable*     table = NULL;
+            hoxPlayer*    movePlayer = NULL;
+            wxString      sMove;
+
+		    result = _ParsePlayerMoveEvent( sContent,
+									       table, movePlayer, sMove );
+		    if ( result != hoxRESULT_OK )
+		    {
+			    wxLogDebug("%s: Failed to parse MOVE's event [%s] ignored.",
+                    FNAME, sContent.c_str());
+                break;
+		    }
+            wxLogDebug("%s: Player [%s] sent move [%s] in Table [%s].", FNAME, 
+                movePlayer->GetName().c_str(), sMove.c_str(), table->GetId().c_str());
+            table->OnMove_FromNetwork( movePlayer, sMove );
+            break;
+        }
         default:
         {
 		    wxLogDebug("%s: *** WARN *** Unsupported command-type [%s].", 
@@ -287,7 +306,8 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
             wxLogDebug("%s: Informing the sender about [%s] 's event.", FNAME, sType.c_str());
             break;
         }
-        case hoxREQUEST_MSG:
+        case hoxREQUEST_MSG:    /* fall-through */
+        case hoxREQUEST_MOVE:
         {
             wxLogDebug("%s: Received [%s] 's event. Do nothing.", FNAME, sType.c_str());
             break;
@@ -454,6 +474,58 @@ hoxMyPlayer::_ParsePlayerMsgEvent( const wxString& sContent,
     if ( table == NULL )
     {
         wxLogDebug("%s: Table [%s] not found.", FNAME, tableId.c_str());
+        return hoxRESULT_NOT_FOUND;
+    }
+
+	return hoxRESULT_OK;
+}
+
+hoxResult
+hoxMyPlayer::_ParsePlayerMoveEvent( const wxString& sContent,
+                                    hoxTable*&      table,
+                                    hoxPlayer*&     player,
+                                    wxString&       sMove )
+{
+    const char* FNAME = "hoxMyPlayer::_ParsePlayerMoveEvent";
+    wxString tableId;
+    wxString playerId;
+
+    table   = NULL;
+    player  = NULL;
+    sMove   = "";
+
+    /* Parse the input string. */
+
+	// ... Do not return empty tokens
+	wxStringTokenizer tkz( sContent, ";", wxTOKEN_STRTOK );
+	int tokenPosition = 0;
+	wxString token;
+
+	while ( tkz.HasMoreTokens() )
+	{
+		token = tkz.GetNextToken();
+		switch ( tokenPosition++ )
+		{
+			case 0: tableId  = token;  break;
+			case 1: playerId = token;  break;
+            case 2: sMove    = token;  break; 
+			default: /* Ignore the rest. */ break;
+		}
+	}		
+
+    /* Lookup Table. */
+    table = this->GetSite()->FindTable( tableId );
+    if ( table == NULL )
+    {
+        wxLogDebug("%s: Table [%s] not found.", FNAME, tableId.c_str());
+        return hoxRESULT_NOT_FOUND;
+    }
+
+    /* Lookup Player. */
+    player = this->GetSite()->FindPlayer( playerId );
+    if ( player == NULL ) 
+    {
+        wxLogDebug("%s: Player [%s] not found.", FNAME, playerId.c_str());
         return hoxRESULT_NOT_FOUND;
     }
 
