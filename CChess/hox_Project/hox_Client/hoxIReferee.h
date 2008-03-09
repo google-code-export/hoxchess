@@ -58,13 +58,13 @@ class hoxIReferee
      *   + Which side (RED or BLACK) should move next.
      */
     virtual void GetGameState( hoxPieceInfoList& pieceInfoList,
-                               hoxPieceColor&    nextColor ) = 0;
+                               hoxColor&    nextColor ) = 0;
 
     /**
      * Get the NEXT color, which specifies who (RED or BLACK) should
      * move next.
      */
-    virtual hoxPieceColor GetNextColor() = 0;
+    virtual hoxColor GetNextColor() = 0;
 
     /**
      * Lookup a piece-info at a specified position.

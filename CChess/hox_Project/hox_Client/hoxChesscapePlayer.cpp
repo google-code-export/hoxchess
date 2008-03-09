@@ -39,7 +39,7 @@ BEGIN_EVENT_TABLE(hoxChesscapePlayer, hoxLocalPlayer)
 	//     However, it seems here that I do not have to do it.
 
     EVT_SOCKET(CLIENT_SOCKET_ID,  hoxChesscapePlayer::OnIncomingNetworkData)
-    EVT_COMMAND(hoxREQUEST_TYPE_PLAYER_DATA, hoxEVT_CONNECTION_RESPONSE, hoxChesscapePlayer::OnConnectionResponse_PlayerData)
+    EVT_COMMAND(hoxREQUEST_PLAYER_DATA, hoxEVT_CONNECTION_RESPONSE, hoxChesscapePlayer::OnConnectionResponse_PlayerData)
     EVT_COMMAND(wxID_ANY, hoxEVT_CONNECTION_RESPONSE, hoxChesscapePlayer::OnConnectionResponse)
 END_EVENT_TABLE()
 
@@ -77,7 +77,7 @@ hoxChesscapePlayer::QueryForNetworkTables( wxEvtHandler* sender )
 
 	/* Just return the "cache" list. */
 
-	hoxRequestType requestType = hoxREQUEST_TYPE_LIST;
+	hoxRequestType requestType = hoxREQUEST_LIST;
     hoxResponse_AutoPtr response( new hoxResponse(requestType, 
                                                   sender) );
 	/* Clone the "cache" list and return the cloned */
@@ -143,7 +143,7 @@ hoxChesscapePlayer::OnNewMove_FromTable( wxCommandEvent&  event )
 		m_bSentMyFirstMove = true;
 
 		wxLogDebug("%s: Sending Player-Status on the 1st Move...", FNAME);
-		hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_PLAYER_STATUS, this );
+		hoxRequest* request = new hoxRequest( hoxREQUEST_PLAYER_STATUS, this );
 		request->parameters["status"] = "P";
 		this->AddRequestToConnection( request );
 	}
@@ -157,7 +157,7 @@ hoxChesscapePlayer::OnIncomingNetworkData( wxSocketEvent& event )
     const char* FNAME = "hoxChesscapePlayer::OnIncomingNetworkData";
     wxLogDebug("%s: ENTER.", FNAME);
 
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_PLAYER_DATA, this );
+    hoxRequest* request = new hoxRequest( hoxREQUEST_PLAYER_DATA, this );
     request->socket      = event.GetSocket();
     request->socketEvent = event.GetSocketEvent();
     this->AddRequestToConnection( request );
@@ -987,7 +987,7 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 
 	/* Check if this is MY table. */
 
-	hoxPieceColor myCurrentColor = hoxPIECE_COLOR_NONE;
+	hoxColor myCurrentColor = hoxCOLOR_NONE;
 	hoxSite*       site = this->GetSite();
 	hoxTable*      table = NULL;
 	const wxString tableId = tableInfo.id;
@@ -1038,10 +1038,10 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 				                                    ::atoi( tableInfo.redScore.c_str() ) ); 
 		}
 
-		result = newRedPlayer->JoinTableAs( table, hoxPIECE_COLOR_RED );
+		result = newRedPlayer->JoinTableAs( table, hoxCOLOR_RED );
 		wxASSERT( result == hoxRESULT_OK  );
 		wxASSERT_MSG( newRedPlayer->HasRole( hoxRole(table->GetId(), 
-											         hoxPIECE_COLOR_RED) ),
+											         hoxCOLOR_RED) ),
 					  _("Player must join as RED"));
 	}
 
@@ -1061,10 +1061,10 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 			                                          ::atoi( tableInfo.blackScore.c_str() ) );
 		}
 
-		result = newBlackPlayer->JoinTableAs( table, hoxPIECE_COLOR_BLACK );
+		result = newBlackPlayer->JoinTableAs( table, hoxCOLOR_BLACK );
 		wxASSERT( result == hoxRESULT_OK  );
 		wxASSERT_MSG( newBlackPlayer->HasRole( hoxRole(table->GetId(), 
-											           hoxPIECE_COLOR_BLACK) ),
+											           hoxCOLOR_BLACK) ),
 					  _("Player must join as BLACK"));
 	}
 
@@ -1087,7 +1087,7 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 
 	switch ( response->type )
 	{
-		case hoxREQUEST_TYPE_LOGIN:
+		case hoxREQUEST_LOGIN:
 		{
 			this->DecrementOutstandingRequests();
 			wxLogDebug("%s: CONNECT (or LOGIN) 's response received.", FNAME);
@@ -1127,7 +1127,7 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 		}
 
 		/* For JOIN, lookup the tableInfo and return it. */
-		case hoxREQUEST_TYPE_JOIN:
+		case hoxREQUEST_JOIN:
 		{
 			this->DecrementOutstandingRequests();
 
@@ -1146,7 +1146,7 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 			break;
 		}
 
-		case hoxREQUEST_TYPE_NEW:
+		case hoxREQUEST_NEW:
 		{
 			this->DecrementOutstandingRequests();
 
@@ -1162,19 +1162,19 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 			break;
 		}
 
-		case hoxREQUEST_TYPE_LEAVE:
+		case hoxREQUEST_LEAVE:
 		{
 			this->DecrementOutstandingRequests();
 			wxLogDebug("%s: LEAVE (table) 's response received. END.", FNAME);
 			break;
 		}
-		case hoxREQUEST_TYPE_OUT_DATA:
+		case hoxREQUEST_OUT_DATA:
 		{
 			this->DecrementOutstandingRequests();
 			wxLogDebug("%s: OUT_DATA 's response received. END.", FNAME);
 			break;
 		}
-		case hoxREQUEST_TYPE_LOGOUT:
+		case hoxREQUEST_LOGOUT:
 		{
 			this->DecrementOutstandingRequests();
 			wxLogDebug("%s: DISCONNECT 's response received. END.", FNAME);

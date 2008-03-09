@@ -37,7 +37,7 @@ namespace hoxUtility
 {
     void SetPiecesPath(const wxString& piecesPath);
 
-    hoxResult LoadPieceImage(hoxPieceType type, hoxPieceColor color, wxImage& image);
+    hoxResult LoadPieceImage(hoxPieceType type, hoxColor color, wxImage& image);
 
     /**
      * A helper to generate a random string.
@@ -62,12 +62,12 @@ namespace hoxUtility
     /**
      * Convert a given Color (Piece's Color or Role) to a (human-readable) string.
      */
-    const wxString ColorToString( const hoxPieceColor color );
+    const wxString ColorToString( const hoxColor color );
 
     /**
      * Convert a given (human-readable) string to a Color (Piece's Color or Role).
      */
-    hoxPieceColor StringToColor( const wxString& input );
+    hoxColor StringToColor( const wxString& input );
 
     // ----------------------------------------------------------------------------
     // hoxURI - A simple wrapper for wxURI

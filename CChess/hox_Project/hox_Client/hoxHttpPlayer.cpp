@@ -32,7 +32,7 @@ IMPLEMENT_DYNAMIC_CLASS(hoxHttpPlayer, hoxLocalPlayer)
 
 BEGIN_EVENT_TABLE(hoxHttpPlayer, hoxLocalPlayer)
     EVT_TIMER(wxID_ANY, hoxHttpPlayer::OnTimer)
-    EVT_COMMAND(hoxREQUEST_TYPE_POLL, hoxEVT_CONNECTION_RESPONSE, hoxHttpPlayer::OnConnectionResponse_Poll)
+    EVT_COMMAND(hoxREQUEST_POLL, hoxEVT_CONNECTION_RESPONSE, hoxHttpPlayer::OnConnectionResponse_Poll)
 END_EVENT_TABLE()
 
 //-----------------------------------------------------------------------------
@@ -83,7 +83,7 @@ hoxHttpPlayer::OnTimer( wxTimerEvent& event )
     const char* FNAME = "hoxHttpPlayer::OnTimer";
     wxLogDebug("%s: ENTER.", FNAME);
 
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_POLL, this );
+    hoxRequest* request = new hoxRequest( hoxREQUEST_POLL, this );
 	request->parameters["pid"] = this->GetName();
     this->AddRequestToConnection( request );
 }
@@ -202,17 +202,17 @@ hoxHttpPlayer::_HandleEventFromNetwork( const hoxNetworkEvent& networkEvent )
             /* fall through */
         case hoxNETWORK_EVENT_TYPE_NEW_PLAYER_NONE:    // NEW PLAYER (OBSERVER)
         {
-            hoxPieceColor requestColor;
+            hoxColor requestColor;
 			switch ( networkEvent.type )
 			{
 				case hoxNETWORK_EVENT_TYPE_NEW_PLAYER_RED:
-					requestColor = hoxPIECE_COLOR_RED;
+					requestColor = hoxCOLOR_RED;
 					break;
 				case hoxNETWORK_EVENT_TYPE_NEW_PLAYER_BLACK:
-					requestColor = hoxPIECE_COLOR_BLACK;
+					requestColor = hoxCOLOR_BLACK;
 					break;
 				default:
-					requestColor = hoxPIECE_COLOR_NONE;  // Observer.
+					requestColor = hoxCOLOR_NONE;  // Observer.
 					break;
 			}
 

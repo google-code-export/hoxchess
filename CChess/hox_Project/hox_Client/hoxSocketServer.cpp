@@ -155,7 +155,7 @@ hoxSocketServer::_HandleNewConnect( wxSocketBase* newSock )
     }
 
     /* Process the command */
-    if ( command.type != hoxREQUEST_TYPE_LOGIN )
+    if ( command.type != hoxREQUEST_LOGIN )
     {
         wxLogDebug("%s: *** ERROR *** Unsupported Request-Type [%s].", 
             FNAME, hoxUtility::RequestTypeToString(command.type).c_str());
@@ -186,7 +186,7 @@ hoxSocketServer::_HandleNewConnect( wxSocketBase* newSock )
 
     // *** Save the connection so that later we can cleanup before closing.
     wxLogDebug("%s: Posting ACCEPT request to save the new client connection.", FNAME);
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_ACCEPT );
+    hoxRequest* request = new hoxRequest( hoxREQUEST_ACCEPT );
     request->parameters["pid"] = playerId;
     request->socket = newSock;
     m_server->AddRequest( request );

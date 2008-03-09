@@ -87,7 +87,7 @@ hoxCoreBoard::hoxCoreBoard( wxWindow*      parent,
         , m_bViewInverted( false )  // Normal view: RED is at bottom of the screen
         , m_referee( referee )
         , m_owner( NULL )
-        , m_localColor( hoxPIECE_COLOR_NONE )
+        , m_localColor( hoxCOLOR_NONE )
         , m_dragMode( DRAG_MODE_NONE )
         , m_draggedPiece( NULL )
         , m_dragImage( NULL )
@@ -327,7 +327,7 @@ hoxCoreBoard::LoadPieces()
     wxASSERT_MSG( m_referee != NULL, _("The referee must have been set") );
 
     hoxPieceInfoList pieceInfoList;
-    hoxPieceColor    nextColor;  // obtained but not used now!
+    hoxColor    nextColor;  // obtained but not used now!
     
     m_referee->GetGameState( pieceInfoList, nextColor );
 

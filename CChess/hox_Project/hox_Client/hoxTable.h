@@ -76,7 +76,7 @@ public:
      *                     this new event.
      */
     hoxResult AssignPlayer( hoxPlayer*     player,
-                            hoxPieceColor& assignedColor,
+                            hoxColor& assignedColor,
                             bool           informOthers = true );
 
     /**
@@ -88,7 +88,7 @@ public:
      * @param requestColor The requested Color the Player wants to join as.
      */
     hoxResult AssignPlayerAs( hoxPlayer*     player,
-                              hoxPieceColor  requestColor );
+                              hoxColor  requestColor );
 
     /**
      * Unseat a given player from this table.
@@ -269,7 +269,7 @@ private:
      */
     void _PostPlayer_JoinEvent( hoxPlayer*    player,
                                 hoxPlayer*    newPlayer,
-                                hoxPieceColor newColor ) const;
+                                hoxColor newColor ) const;
 
     /**
      * Post (inform) a player that a new Move has just been made.
@@ -318,7 +318,7 @@ private:
      * @param newColor  The color (role) that the new Play will have.
      */
     void _PostAll_JoinEvent( hoxPlayer*    newPlayer,
-                             hoxPieceColor newColor ) const;
+                             hoxColor newColor ) const;
 
     /**
      * Inform other Players that a new Move was just made.
@@ -363,7 +363,7 @@ private:
      */
     hoxPlayer* _GetBoardPlayer() const;
 
-    void       _AddPlayer( hoxPlayer* player, hoxPieceColor role );
+    void       _AddPlayer( hoxPlayer* player, hoxColor role );
     void       _RemovePlayer( hoxPlayer* player );
     hoxPlayer* _FindPlayer( const wxString& playerId );
 

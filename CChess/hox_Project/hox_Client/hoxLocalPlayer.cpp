@@ -79,7 +79,7 @@ hoxLocalPlayer::ConnectToNetworkServer( wxEvtHandler* sender )
 {
     this->StartConnection();
 
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LOGIN, sender );
+    hoxRequest* request = new hoxRequest( hoxREQUEST_LOGIN, sender );
 	request->parameters["pid"] = this->GetName();
 	request->parameters["password"] = this->GetPassword();
     this->AddRequestToConnection( request );
@@ -90,7 +90,7 @@ hoxLocalPlayer::ConnectToNetworkServer( wxEvtHandler* sender )
 hoxResult 
 hoxLocalPlayer::DisconnectFromNetworkServer( wxEvtHandler* sender )
 {
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LOGOUT, sender );
+    hoxRequest* request = new hoxRequest( hoxREQUEST_LOGOUT, sender );
 	request->parameters["pid"] = this->GetName();
 	this->AddRequestToConnection( request );
 
@@ -100,7 +100,7 @@ hoxLocalPlayer::DisconnectFromNetworkServer( wxEvtHandler* sender )
 hoxResult 
 hoxLocalPlayer::QueryForNetworkTables( wxEvtHandler* sender )
 {
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LIST, sender );
+    hoxRequest* request = new hoxRequest( hoxREQUEST_LIST, sender );
 	request->parameters["pid"] = this->GetName();
     this->AddRequestToConnection( request );
 
@@ -114,10 +114,10 @@ hoxLocalPlayer::JoinNetworkTable( const wxString& tableId,
 	/* Check if this Player is already AT the Table. */
 	bool hasRole = this->HasRoleAtTable( tableId );
 
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_JOIN, sender );
+    hoxRequest* request = new hoxRequest( hoxREQUEST_JOIN, sender );
 	request->parameters["pid"] = this->GetName();
 	request->parameters["tid"] = tableId;
-    request->parameters["color"] = hoxUtility::ColorToString( hoxPIECE_COLOR_NONE ); // Observer.
+    request->parameters["color"] = hoxUtility::ColorToString( hoxCOLOR_NONE ); // Observer.
 	request->parameters["joined"] = hasRole ? "1" : "0";
     this->AddRequestToConnection( request );
 
@@ -127,7 +127,7 @@ hoxLocalPlayer::JoinNetworkTable( const wxString& tableId,
 hoxResult 
 hoxLocalPlayer::OpenNewNetworkTable( wxEvtHandler*   sender )
 {
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_NEW, sender );
+    hoxRequest* request = new hoxRequest( hoxREQUEST_NEW, sender );
 	request->parameters["pid"] = this->GetName();
 	request->parameters["itimes"] = "1500/300/20"; // TODO: Hard-coded initial times.
     this->AddRequestToConnection( request );
@@ -139,7 +139,7 @@ hoxResult
 hoxLocalPlayer::LeaveNetworkTable( const wxString& tableId,
                                    wxEvtHandler*   sender )
 {
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_LEAVE, sender );
+    hoxRequest* request = new hoxRequest( hoxREQUEST_LEAVE, sender );
 	request->parameters["pid"] = this->GetName();
 	request->parameters["tid"] = tableId;
     this->AddRequestToConnection( request );
@@ -165,7 +165,7 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
 
     if ( response->sender && response->sender != this )
     {
-		if ( response->type == hoxREQUEST_TYPE_LOGIN )
+		if ( response->type == hoxREQUEST_LOGIN )
 		{
             result = this->HandleResponseEvent_Connect(event);
 			if ( result != hoxRESULT_OK )
@@ -175,7 +175,7 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
 				response->code = result;
 			}
         }
-		else if ( response->type == hoxREQUEST_TYPE_LIST )
+		else if ( response->type == hoxREQUEST_LIST )
 		{
 			hoxNetworkTableInfoList* pTableList = new hoxNetworkTableInfoList;
 			result = hoxNetworkAPI::ParseNetworkTables( response->content,
@@ -188,7 +188,7 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
 			}
 			response->eventObject = pTableList;
 		}
-		else if ( response->type == hoxREQUEST_TYPE_JOIN )
+		else if ( response->type == hoxREQUEST_JOIN )
 		{
 			std::auto_ptr<hoxNetworkTableInfo> pTableInfo( new hoxNetworkTableInfo() );
 			result = hoxNetworkAPI::ParseJoinNetworkTable( response->content,
@@ -203,7 +203,7 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
 			remoteSite->JoinExistingTable( *pTableInfo );
 			return;
 		}
-		else if ( response->type == hoxREQUEST_TYPE_NEW )
+		else if ( response->type == hoxREQUEST_NEW )
 		{
 			std::auto_ptr<hoxNetworkTableInfo> pTableInfo( new hoxNetworkTableInfo() );
 			result = hoxNetworkAPI::ParseNewNetworkTable( response->content,
@@ -226,7 +226,7 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
         return;
     }
 
-    if ( response->type == hoxREQUEST_TYPE_OUT_DATA )
+    if ( response->type == hoxREQUEST_OUT_DATA )
     {
 		wxLogDebug("%s: [%s] 's response received. END.", 
 			FNAME, hoxUtility::RequestTypeToString(response->type).c_str());

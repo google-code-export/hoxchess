@@ -36,7 +36,7 @@ IMPLEMENT_DYNAMIC_CLASS(hoxMyPlayer, hoxLocalPlayer)
 
 BEGIN_EVENT_TABLE(hoxMyPlayer, hoxLocalPlayer)
     EVT_SOCKET(CLIENT_SOCKET_ID,  hoxMyPlayer::OnIncomingNetworkData)
-    EVT_COMMAND(hoxREQUEST_TYPE_PLAYER_DATA, hoxEVT_CONNECTION_RESPONSE, hoxMyPlayer::OnConnectionResponse_PlayerData)
+    EVT_COMMAND(hoxREQUEST_PLAYER_DATA, hoxEVT_CONNECTION_RESPONSE, hoxMyPlayer::OnConnectionResponse_PlayerData)
     EVT_COMMAND(wxID_ANY, hoxEVT_CONNECTION_RESPONSE, hoxMyPlayer::OnConnectionResponse)
 END_EVENT_TABLE()
 
@@ -70,7 +70,7 @@ hoxMyPlayer::OnIncomingNetworkData( wxSocketEvent& event )
     const char* FNAME = "hoxMyPlayer::OnIncomingNetworkData";
     wxLogDebug("%s: ENTER.", FNAME);
 
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_PLAYER_DATA, this );
+    hoxRequest* request = new hoxRequest( hoxREQUEST_PLAYER_DATA, this );
     request->socket      = event.GetSocket();
     request->socketEvent = event.GetSocketEvent();
     this->AddRequestToConnection( request );
@@ -122,14 +122,14 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 
     switch ( command.type )
     {
-        case hoxREQUEST_TYPE_LOGOUT:
+        case hoxREQUEST_LOGOUT:
         {
             // TODO: Ignore this event for now.
 		    wxLogDebug("%s: *** TODO *** Ignore this LOGOUT's event [%s] for now.", 
 			    FNAME, sContent.c_str());
             break;
         }
-        case hoxREQUEST_TYPE_LIST:
+        case hoxREQUEST_LIST:
         {
 		    hoxNetworkTableInfoList* pTableList = new hoxNetworkTableInfoList;
 		    result = _ParseNetworkTables( sContent,
@@ -147,7 +147,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 	        remoteSite->DisplayListOfTables( *pTableList );
             break;
         }
-        case hoxREQUEST_TYPE_NEW:
+        case hoxREQUEST_NEW:
         {
 		    std::auto_ptr<hoxNetworkTableInfo> pTableInfo( new hoxNetworkTableInfo() );
 		    result = hoxNetworkAPI::ParseOneNetworkTable( sContent,
@@ -162,7 +162,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 		    remoteSite->JoinNewTable( *pTableInfo );
 		    break;
         }
-        case hoxREQUEST_TYPE_LEAVE:
+        case hoxREQUEST_LEAVE:
         {
             hoxTable*  table       = NULL;
             hoxPlayer* leavePlayer = NULL;
@@ -180,7 +180,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
             table->OnLeave_FromNetwork( leavePlayer, this );
             break;
         }
-        case hoxREQUEST_TYPE_JOIN:
+        case hoxREQUEST_JOIN:
         {
 		    std::auto_ptr<hoxNetworkTableInfo> pTableInfo( new hoxNetworkTableInfo() );
 		    result = hoxNetworkAPI::ParseOneNetworkTable( sContent,
@@ -195,12 +195,12 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 		    remoteSite->JoinNewTable( *pTableInfo );
 		    break;
         }
-        case hoxREQUEST_TYPE_E_JOIN:
+        case hoxREQUEST_E_JOIN:
         {
             wxString      tableId;
             wxString      playerId;
             int           nPlayerScore = 0;
-            hoxPieceColor joinColor  = hoxPIECE_COLOR_NONE; // Default = observer.
+            hoxColor joinColor  = hoxCOLOR_NONE; // Default = observer.
 
 		    result = _ParsePlayerJoinEvent( sContent,
 									        tableId, playerId, nPlayerScore, joinColor );
@@ -224,9 +224,30 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
             }
             break;
         }
+        case hoxREQUEST_MSG:
+        {
+            hoxTable*     table = NULL;
+            wxString      playerId;  // Who sent the message?
+            wxString      message;
+
+		    result = _ParsePlayerMsgEvent( sContent,
+									       table, playerId, message );
+		    if ( result != hoxRESULT_OK )
+		    {
+			    wxLogDebug("%s: Failed to parse MSG's event [%s] ignored.",
+                    FNAME, sContent.c_str());
+                break;
+		    }
+            wxLogDebug("%s: Player [%s] sent msg [%s] in Table [%s].", FNAME, 
+                playerId.c_str(), message.c_str(), table->GetId().c_str());
+            table->OnMessage_FromNetwork( playerId, message );
+            break;
+        }
         default:
+        {
 		    wxLogDebug("%s: *** WARN *** Unsupported command-type [%s].", 
 			    FNAME, hoxUtility::RequestTypeToString(command.type));
+        }
     } // switch()
 
     wxLogDebug("%s: END.", FNAME);
@@ -236,9 +257,7 @@ void
 hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
 {
     const char* FNAME = "hoxMyPlayer::OnConnectionResponse";
-    hoxResult     result;
-    int           returnCode = -1;
-    wxString      returnMsg;
+    hoxResult   result;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -252,7 +271,7 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
 
 	switch ( response->type )
 	{
-        case hoxREQUEST_TYPE_LOGIN:
+        case hoxREQUEST_LOGIN:
 		{
             result = this->HandleResponseEvent_Connect(event);
 			if ( result != hoxRESULT_OK )
@@ -263,22 +282,27 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
 			}
             break;
         }
-        case hoxREQUEST_TYPE_LOGOUT:
+        case hoxREQUEST_LOGOUT:
         {
             wxLogDebug("%s: Informing the sender about [%s] 's event.", FNAME, sType.c_str());
             break;
         }
-        case hoxREQUEST_TYPE_LIST:    /* fall-through */
-        case hoxREQUEST_TYPE_NEW:     /* fall-through */
-        case hoxREQUEST_TYPE_LEAVE:   /* fall-through */
-        case hoxREQUEST_TYPE_JOIN:
+        case hoxREQUEST_MSG:
+        {
+            wxLogDebug("%s: Received [%s] 's event. Do nothing.", FNAME, sType.c_str());
+            break;
+        }
+        case hoxREQUEST_LIST:    /* fall-through */
+        case hoxREQUEST_NEW:     /* fall-through */
+        case hoxREQUEST_LEAVE:   /* fall-through */
+        case hoxREQUEST_JOIN:
 		{
 			/* NOTE: This command is not done yet. 
 			 * We still need to wait for server's response...
 			 */
 			if ( response->sender && response->sender != this )
 			{
-				wxLogDebug("%s: Delay informing sender about [%s] 's response.", FNAME, sType.c_str());
+				wxLogDebug("%s: Delay informing sender of [%s] 's response.", FNAME, sType.c_str());
 				response->sender = NULL;  // TODO: Temporarily clear out sender to skip sending...
 			}
 			break;
@@ -363,12 +387,12 @@ hoxMyPlayer::_ParsePlayerJoinEvent( const wxString& sContent,
                                     wxString&       tableId,
                                     wxString&       playerId,
                                     int&            nPlayerScore,
-                                    hoxPieceColor&  color)
+                                    hoxColor&  color)
 {
     const char* FNAME = "hoxMyPlayer::_ParsePlayerJoinEvent";
 
     nPlayerScore = 0;
-    color        = hoxPIECE_COLOR_NONE; // Default = observer.
+    color        = hoxCOLOR_NONE; // Default = observer.
 
     /* Parse the input string. */
 
@@ -389,6 +413,49 @@ hoxMyPlayer::_ParsePlayerJoinEvent( const wxString& sContent,
 			default: /* Ignore the rest. */ break;
 		}
 	}		
+
+	return hoxRESULT_OK;
+}
+
+hoxResult
+hoxMyPlayer::_ParsePlayerMsgEvent( const wxString& sContent,
+                                   hoxTable*&      table,
+                                   wxString&       playerId,
+                                   wxString&       message )
+{
+    const char* FNAME = "hoxMyPlayer::_ParsePlayerMsgEvent";
+    wxString tableId;
+
+    table    = NULL;
+    playerId = "";
+    message  = "";
+
+    /* Parse the input string. */
+
+	// ... Do not return empty tokens
+	wxStringTokenizer tkz( sContent, ";", wxTOKEN_STRTOK );
+	int tokenPosition = 0;
+	wxString token;
+
+	while ( tkz.HasMoreTokens() )
+	{
+		token = tkz.GetNextToken();
+		switch ( tokenPosition++ )
+		{
+			case 0: tableId  = token;  break;
+			case 1: playerId = token;  break;
+            case 2: message  = token;  break; 
+			default: /* Ignore the rest. */ break;
+		}
+	}		
+
+    /* Lookup Table. */
+    table = this->GetSite()->FindTable( tableId );
+    if ( table == NULL )
+    {
+        wxLogDebug("%s: Table [%s] not found.", FNAME, tableId.c_str());
+        return hoxRESULT_NOT_FOUND;
+    }
 
 	return hoxRESULT_OK;
 }

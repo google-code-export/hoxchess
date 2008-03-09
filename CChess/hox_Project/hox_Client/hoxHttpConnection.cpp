@@ -66,15 +66,15 @@ hoxHttpConnection::HandleRequest( hoxRequest* request )
 
     switch( request->type )
     {
-        case hoxREQUEST_TYPE_POLL:     /* fall through */
-        case hoxREQUEST_TYPE_MOVE:     /* fall through */
-        case hoxREQUEST_TYPE_LOGIN:    /* fall through */
-		case hoxREQUEST_TYPE_LOGOUT:   /* fall through */
-        case hoxREQUEST_TYPE_LIST:     /* fall through */
-        case hoxREQUEST_TYPE_NEW:      /* fall through */
-        case hoxREQUEST_TYPE_JOIN:     /* fall through */
-        case hoxREQUEST_TYPE_LEAVE:    /* fall through */
-        case hoxREQUEST_TYPE_WALL_MSG:
+        case hoxREQUEST_POLL:     /* fall through */
+        case hoxREQUEST_MOVE:     /* fall through */
+        case hoxREQUEST_LOGIN:    /* fall through */
+		case hoxREQUEST_LOGOUT:   /* fall through */
+        case hoxREQUEST_LIST:     /* fall through */
+        case hoxREQUEST_NEW:      /* fall through */
+        case hoxREQUEST_JOIN:     /* fall through */
+        case hoxREQUEST_LEAVE:    /* fall through */
+        case hoxREQUEST_MSG:
 
             result = _SendRequest( _RequestToString( *request ),
 				                   response->content );

@@ -77,7 +77,7 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
      *     Handle the "special" request: Socket-Lost event,
      *     which is applicable to some requests.
      */
-    if ( request->type == hoxREQUEST_TYPE_PLAYER_DATA )
+    if ( request->type == hoxREQUEST_PLAYER_DATA )
     {
         result = _CheckAndHandleSocketLostEvent( request, response->content );
         if ( result == hoxRESULT_HANDLED )
@@ -94,7 +94,7 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
      */
     switch( request->type )
     {
-        case hoxREQUEST_TYPE_PLAYER_DATA: // Incoming data from remote player.
+        case hoxREQUEST_PLAYER_DATA: // Incoming data from remote player.
         {
             wxASSERT_MSG( request->socket == m_pSClient, "Sockets should match." );
             // We disable input events until we are done processing the current command.
@@ -108,13 +108,13 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
             break;
         }
 
-		case hoxREQUEST_TYPE_LOGOUT: /* fall through */
-        case hoxREQUEST_TYPE_OUT_DATA:
+		case hoxREQUEST_LOGOUT: /* fall through */
+        case hoxREQUEST_OUT_DATA:
             result = _WriteLine( m_pSClient, 
                                  _RequestToString( *request ) );
             break;
 
-        case hoxREQUEST_TYPE_LOGIN:
+        case hoxREQUEST_LOGIN:
             result = _Connect( _RequestToString( *request ),
                                response->content );
             if ( result == hoxRESULT_HANDLED )
@@ -129,12 +129,12 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
             }
             break;
 
-        case hoxREQUEST_TYPE_MOVE:     /* fall through */
-        case hoxREQUEST_TYPE_LIST:     /* fall through */
-        case hoxREQUEST_TYPE_NEW:      /* fall through */
-        case hoxREQUEST_TYPE_JOIN:     /* fall through */
-        case hoxREQUEST_TYPE_LEAVE:    /* fall through */
-        case hoxREQUEST_TYPE_WALL_MSG:
+        case hoxREQUEST_MOVE:     /* fall through */
+        case hoxREQUEST_LIST:     /* fall through */
+        case hoxREQUEST_NEW:      /* fall through */
+        case hoxREQUEST_JOIN:     /* fall through */
+        case hoxREQUEST_LEAVE:    /* fall through */
+        case hoxREQUEST_MSG:
             if ( ! this->IsConnected() )
             {
                 // NOTE: The connection could have been closed if the server is down.

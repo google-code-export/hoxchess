@@ -115,7 +115,7 @@ hoxServer::CloseServer()
 	if ( this->GetThread()->IsRunning() )
 	{
 		wxLogDebug("%s: Request the Server thread to be shutdowned...", FNAME);
-		hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_SHUTDOWN, NULL );
+		hoxRequest* request = new hoxRequest( hoxREQUEST_SHUTDOWN, NULL );
 		this->AddRequest( request );
 		wxThread::ExitCode exitCode = this->GetThread()->Wait();
 		wxLogDebug("%s: The Server thread was shutdowned with exit-code = [%d].", FNAME, exitCode);
@@ -308,7 +308,7 @@ hoxServer::_HandleRequest( hoxRequest* request )
      *     Handle the "special" request: Socket-Lost event,
      *     which is applicable to any request.
      */
-    if (    request->type == hoxREQUEST_TYPE_PLAYER_DATA
+    if (    request->type == hoxREQUEST_PLAYER_DATA
        )
     {
         result = _CheckAndHandleSocketLostEvent( request, response->content );
@@ -326,24 +326,24 @@ hoxServer::_HandleRequest( hoxRequest* request )
      */
     switch( request->type )
     {
-        case hoxREQUEST_TYPE_ACCEPT:
+        case hoxREQUEST_ACCEPT:
             result = _HandleRequest_Accept( request );
             break;
 
-        case hoxREQUEST_TYPE_LOGOUT:
+        case hoxREQUEST_LOGOUT:
             result = _HandleRequest_Disconnect( request );
             break;
 
-        case hoxREQUEST_TYPE_MOVE: /* fall through */
-        case hoxREQUEST_TYPE_E_JOIN: /* fall through */
-        case hoxREQUEST_TYPE_LEAVE: /* fall through */
-        case hoxREQUEST_TYPE_WALL_MSG:
+        case hoxREQUEST_MOVE: /* fall through */
+        case hoxREQUEST_E_JOIN: /* fall through */
+        case hoxREQUEST_LEAVE: /* fall through */
+        case hoxREQUEST_MSG:
             result = hoxNetworkAPI::SendRequest( request->socket, 
 												 _RequestToString( *request ),
                                                  response->content );
             break;
 
-        case hoxREQUEST_TYPE_PLAYER_DATA: // Incoming data from remote player.
+        case hoxREQUEST_PLAYER_DATA: // Incoming data from remote player.
         {
             wxSocketBase* sock = request->socket;
             // We disable input events until we are done processing the current command.
@@ -357,7 +357,7 @@ hoxServer::_HandleRequest( hoxRequest* request )
             break;
         }
 
-        case hoxREQUEST_TYPE_OUT_DATA:
+        case hoxREQUEST_OUT_DATA:
         {
             const wxString data = request->parameters["data"];
             result = hoxNetworkAPI::SendOutData( request->socket, 
@@ -484,7 +484,7 @@ hoxServer::_GetRequest()
      *       because the "mutex-lock" is still being held.
      */
 
-    if ( request->type == hoxREQUEST_TYPE_SHUTDOWN )
+    if ( request->type == hoxREQUEST_SHUTDOWN )
     {
         wxLogDebug("%s: Shutting down this thread...", FNAME);
         m_shutdownRequested = true;

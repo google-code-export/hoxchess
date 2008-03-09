@@ -57,9 +57,9 @@ class hoxRole
 {
   public:
     wxString          tableId;
-    hoxPieceColor     color;  // RED, BLACK, or NONE (OBSERVER)
+    hoxColor          color;  // RED, BLACK, or NONE (OBSERVER)
 
-    hoxRole( const wxString& id, hoxPieceColor c) : tableId( id ), color( c )
+    hoxRole( const wxString& id, hoxColor c) : tableId( id ), color( c )
         { }
 
     bool operator==(const hoxRole& other) const
@@ -77,10 +77,10 @@ class hoxPlayerAndRole
 {
 public:
     hoxPlayer*    player;
-    hoxPieceColor role;
+    hoxColor      role;
 
-    hoxPlayerAndRole() : player(NULL), role(hoxPIECE_COLOR_NONE) {}
-    hoxPlayerAndRole(hoxPlayer* p, hoxPieceColor r) : player(p), role(r) {}
+    hoxPlayerAndRole() : player(NULL), role(hoxCOLOR_NONE) {}
+    hoxPlayerAndRole(hoxPlayer* p, hoxColor r) : player(p), role(r) {}
     bool operator==(const hoxPlayerAndRole& other) const
     {
         return ( (player == other.player) && (role == other.role) );
@@ -95,7 +95,7 @@ class hoxPieceInfo
 {
   public:
     hoxPieceType   type;       // What type? (Canon, Soldier, ...)
-    hoxPieceColor  color;      // What color? (RED or BLACK)
+    hoxColor       color;      // What color? (RED or BLACK)
     hoxPosition    position;   // Position on the Board.
 
     /**
@@ -105,12 +105,12 @@ class hoxPieceInfo
 
     hoxPieceInfo()
          : type( hoxPIECE_TYPE_INVALID )
-         , color( hoxPIECE_COLOR_NONE )
+         , color( hoxCOLOR_NONE )
          , position( -1, -1 )
         { }
 
     hoxPieceInfo(hoxPieceType  t,
-                 hoxPieceColor c,
+                 hoxColor c,
                  hoxPosition   p)
          : type( t )
          , color( c )
@@ -248,7 +248,7 @@ public:
     hoxRequestType type;
     Parameters     parameters;
 
-    hoxCommand( hoxRequestType t = hoxREQUEST_TYPE_UNKNOWN ) : type( t ) {}
+    hoxCommand( hoxRequestType t = hoxREQUEST_UNKNOWN ) : type( t ) {}
 };
 
 class hoxRequest : public wxObject
@@ -261,7 +261,7 @@ public:
     wxSocketNotify  socketEvent;
 	hoxCommand::Parameters parameters;
 
-    hoxRequest() : type( hoxREQUEST_TYPE_UNKNOWN )
+    hoxRequest() : type( hoxREQUEST_UNKNOWN )
                  , flags( hoxREQUEST_FLAG_NONE )
                  , sender( NULL )
                  , socket( NULL )
@@ -286,7 +286,7 @@ public:
     wxEvtHandler*    sender;
 	void*            eventObject; // TODO: Re-consider this or other members?
 
-    hoxResponse() : type( hoxREQUEST_TYPE_UNKNOWN )
+    hoxResponse() : type( hoxREQUEST_UNKNOWN )
                   , code( hoxRESULT_UNKNOWN )
                   , flags( hoxRESPONSE_FLAG_NONE )
                   , sender( NULL )

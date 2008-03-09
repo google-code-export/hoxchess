@@ -33,7 +33,7 @@ IMPLEMENT_DYNAMIC_CLASS(hoxRemotePlayer, hoxPlayer)
 
 BEGIN_EVENT_TABLE(hoxRemotePlayer, hoxPlayer)
     EVT_SOCKET(CLIENT_SOCKET_ID,  hoxRemotePlayer::OnIncomingNetworkData)
-    EVT_COMMAND(hoxREQUEST_TYPE_PLAYER_DATA, hoxEVT_SERVER_RESPONSE, hoxRemotePlayer::OnConnectionResponse_PlayerData)
+    EVT_COMMAND(hoxREQUEST_PLAYER_DATA, hoxEVT_SERVER_RESPONSE, hoxRemotePlayer::OnConnectionResponse_PlayerData)
     EVT_COMMAND(wxID_ANY, hoxEVT_SERVER_RESPONSE, hoxRemotePlayer::OnServerResponse)
 END_EVENT_TABLE()
 
@@ -64,7 +64,7 @@ hoxRemotePlayer::OnIncomingNetworkData( wxSocketEvent& event )
     const char* FNAME = "hoxRemotePlayer::OnIncomingNetworkData";
     wxLogDebug("%s: ENTER.", FNAME);
 
-    hoxRequest* request = new hoxRequest( hoxREQUEST_TYPE_PLAYER_DATA, this );
+    hoxRequest* request = new hoxRequest( hoxREQUEST_PLAYER_DATA, this );
     request->socket      = event.GetSocket();
         /* Set the socket here so that the connection can perform 
          * sanity check to make sure the socket matches.

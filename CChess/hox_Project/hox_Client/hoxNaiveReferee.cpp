@@ -39,7 +39,7 @@ hoxNaiveReferee::~hoxNaiveReferee()
 void
 hoxNaiveReferee::Reset()
 {
-    _nextColor = hoxPIECE_COLOR_RED;
+    _nextColor = hoxCOLOR_RED;
 }
 
 bool 
@@ -59,9 +59,9 @@ hoxNaiveReferee::ValidateMove( hoxMove&       move,
 
     /* Set the next-turn. */
 
-    _nextColor = ( _nextColor == hoxPIECE_COLOR_RED 
-                   ? hoxPIECE_COLOR_BLACK
-                   : hoxPIECE_COLOR_RED);
+    _nextColor = ( _nextColor == hoxCOLOR_RED 
+                   ? hoxCOLOR_BLACK
+                   : hoxCOLOR_RED);
 
     status = hoxGAME_STATUS_IN_PROGRESS;
 
@@ -70,12 +70,12 @@ hoxNaiveReferee::ValidateMove( hoxMove&       move,
 
 void 
 hoxNaiveReferee::GetGameState( hoxPieceInfoList& pieceInfoList,
-                               hoxPieceColor&    nextColor )
+                               hoxColor&    nextColor )
 {
     wxLogError(_("Not yet implemented."));
 }
 
-hoxPieceColor
+hoxColor
 hoxNaiveReferee::GetNextColor()
 {
     return _nextColor;
