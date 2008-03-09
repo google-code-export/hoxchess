@@ -75,6 +75,11 @@ private:
                                     wxString&       playerId,
                                     wxString&       message );
 
+    hoxResult _ParsePlayerMoveEvent( const wxString& sContent,
+                                     hoxTable*&      table,
+                                     hoxPlayer*&     player,
+                                     wxString&       sMove );
+
 private:
 
     DECLARE_DYNAMIC_CLASS(hoxMyPlayer)
