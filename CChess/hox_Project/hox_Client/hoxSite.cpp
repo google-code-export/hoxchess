@@ -421,10 +421,10 @@ hoxRemoteSite::OnResponse_Disconnect( const hoxResponse_AutoPtr& response )
 }
 
 hoxResult
-hoxRemoteSite::OnPlayerJoined( const wxString&     tableId,
-                               const wxString&     playerId,
-                               const int           playerScore,
-				 			   const hoxColor requestColor)
+hoxRemoteSite::OnPlayerJoined( const wxString&  tableId,
+                               const wxString&  playerId,
+                               const int        playerScore,
+				 			   const hoxColor   requestColor)
 {
     const char* FNAME = "hoxRemoteSite::OnPlayerJoined";
 	hoxResult   result;
@@ -452,7 +452,7 @@ hoxRemoteSite::OnPlayerJoined( const wxString&     tableId,
 
     /* Attempt to join the table with the requested color.
      */
-    result = table->AssignPlayerAs( player, requestColor );
+    result = player->JoinTableAs( table, requestColor );
     if ( result != hoxRESULT_OK )
     {
         wxLogDebug("%s: *** ERROR *** Failed to ask table to join [%s] as color [%d].", 

@@ -153,23 +153,32 @@ hoxBoard::OnPlayerJoin( wxCommandEvent &event )
 {
     const char* FNAME = "hoxBoard::OnPlayerJoin";
 
-    hoxPlayer* player = wx_reinterpret_cast(hoxPlayer*, event.GetEventObject());
+    hoxPlayer* player = wxDynamicCast(event.GetEventObject(), hoxPlayer);
     wxCHECK_RET(player, "Player cannot be NULL.");
 
-    hoxColor playerColor = hoxCOLOR_NONE;
+    const wxString playerId = player->GetName();
+    hoxColor       playerColor = hoxCOLOR_UNKNOWN;
 
     if ( event.GetInt() == hoxCOLOR_RED )
     {
         playerColor = hoxCOLOR_RED;
         _SetRedInfo( player );
+        if ( playerId == m_blackId ) _SetBlackInfo( NULL );
     } 
     else if ( event.GetInt() == hoxCOLOR_BLACK )
     {
         playerColor = hoxCOLOR_BLACK;
         _SetBlackInfo( player );
+        if ( playerId == m_redId ) _SetRedInfo( NULL );
+    }
+    else
+    {
+        playerColor = hoxCOLOR_NONE;
+        if ( playerId == m_redId )   _SetRedInfo( NULL );
+        if ( playerId == m_blackId ) _SetBlackInfo( NULL );
     }
 
-    _AddPlayerToList( player->GetName(), player->GetScore() );
+    _AddPlayerToList( playerId, player->GetScore() );
 
     wxCHECK_RET( m_coreBoard != NULL, "The core Board is NULL." );
 
@@ -204,18 +213,18 @@ hoxBoard::OnPlayerLeave( wxCommandEvent &event )
 {
     const char* FNAME = "hoxBoard::OnPlayerLeave";
 
-    hoxPlayer* player = wx_reinterpret_cast(hoxPlayer*, event.GetEventObject());
+    hoxPlayer* player = wxDynamicCast(event.GetEventObject(), hoxPlayer);
     wxCHECK_RET(player, "Player cannot be NULL.");
 
     const wxString playerId = player->GetName();
 
     if ( playerId == m_redId )     // Check RED
     {
-        m_redInfo->SetLabel( "*" );
+        _SetRedInfo( NULL );
     }
     else if ( playerId == m_blackId ) // Check BLACK
     {
-        m_blackInfo->SetLabel( "*" ); // Check Observers
+        _SetBlackInfo( NULL );
     }
     else
     {
@@ -265,7 +274,7 @@ hoxBoard::OnPlayerAction( wxCommandEvent &event )
 {
     const char* FNAME = "hoxBoard::OnPlayerAction";
 
-    hoxPlayer* player = wx_reinterpret_cast(hoxPlayer*, event.GetEventObject());
+    hoxPlayer* player = wxDynamicCast(event.GetEventObject(), hoxPlayer);
     wxCHECK_RET(player, "Player cannot be NULL.");
 
     const wxString playerId = player->GetName();
@@ -443,27 +452,45 @@ hoxBoard::Show(bool show /* = true */)
 void 
 hoxBoard::_SetRedInfo( const hoxPlayer* player )
 {
-    m_redId = player->GetName();
+    if ( ! this->IsShown() ) return; // Do nothing if not visible.
 
-    if ( this->IsShown() )
+    wxString info;
+
+    if ( player != NULL )
     {
-        const wxString info = wxString::Format("%s (%d)", 
-                player->GetName().c_str(), player->GetScore());
-        m_redInfo->SetLabel( info );
+        m_redId = player->GetName();
+        info = wxString::Format("%s (%d)", 
+            player->GetName().c_str(), player->GetScore());
     }
+    else
+    {
+        m_redId = "";
+        info = "*";
+    }
+
+    m_redInfo->SetLabel( info );
 }
 
 void 
 hoxBoard::_SetBlackInfo( const hoxPlayer* player )
 {
-    m_blackId = player->GetName();
+    if ( ! this->IsShown() ) return; // Do nothing if not visible.
 
-    if ( this->IsShown() )
+    wxString info;
+
+    if ( player != NULL )
     {
-        const wxString info = wxString::Format("%s (%d)", 
-                player->GetName().c_str(), player->GetScore());
-        m_blackInfo->SetLabel( info );
+        m_blackId = player->GetName();
+        info = wxString::Format("%s (%d)", 
+            player->GetName().c_str(), player->GetScore());
     }
+    else
+    {
+        m_blackId = "";
+        info = "*";
+    }
+
+    m_blackInfo->SetLabel( info );
 }
 
 /*
@@ -831,7 +858,7 @@ hoxBoard::_RemovePlayerFromList( const wxString& playerId )
         return;
     }
 
-    int idCount = m_playerListBox->GetCount();
+    const int idCount = m_playerListBox->GetCount();
 
     for ( int i = 0; i < idCount; ++i )
     {

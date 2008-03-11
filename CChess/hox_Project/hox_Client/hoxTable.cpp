@@ -261,6 +261,7 @@ hoxTable::OnJoinCommand_FromBoard()
 
 	if      ( m_redPlayer   == NULL ) requestColor = hoxCOLOR_RED;
 	else if ( m_blackPlayer == NULL ) requestColor = hoxCOLOR_BLACK;
+    else                              requestColor = hoxCOLOR_NONE;
 
 	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_JOIN );
 	pCommand->parameters["tid"] = m_id;
