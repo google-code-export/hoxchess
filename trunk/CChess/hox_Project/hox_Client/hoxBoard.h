@@ -158,8 +158,8 @@ private:
     void _OnValidMove( const hoxMove& move,
 		               bool           bSetupMode = false );
 
-    void           _ResetTimerUI();  // Reset times to start a new game.
-    void           _UpdateTimerUI();
+    void _ResetTimerUI();  // Reset times to start a new game.
+    void _UpdateTimerUI();
 
 	bool _ParseMoveString( const wxString& moveStr, 
 		                   hoxMove&        move ) const;
