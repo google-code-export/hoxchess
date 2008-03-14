@@ -209,7 +209,7 @@ hoxUtility::ColorToString( const hoxColor color )
 		case hoxCOLOR_BLACK:     return "Black";
 		case hoxCOLOR_NONE:      return "None";
 
-        default:                       return "UNKNOWN";
+        default:                 return "UNKNOWN";
     }
 }
 
@@ -333,6 +333,39 @@ hoxUtility::TimeInfoToString( const hoxTimeInfo timeInfo )
 		                             timeInfo.nMove, 
 		                             timeInfo.nFree);
 	return result;
+}
+
+const wxString
+hoxUtility::GameStatusToString( const hoxGameStatus gameStatus )
+{
+    switch( gameStatus )
+    {
+        case hoxGAME_STATUS_UNKNOWN:     return "UNKNOWN";
+
+		case hoxGAME_STATUS_OPEN:        return "open";
+		case hoxGAME_STATUS_READY:       return "ready";
+		case hoxGAME_STATUS_IN_PROGRESS: return "in_progress";
+		case hoxGAME_STATUS_RED_WIN:     return "red_win";
+		case hoxGAME_STATUS_BLACK_WIN:   return "black_win";
+		case hoxGAME_STATUS_DRAWN:       return "drawn";
+
+		default:                         return "UNKNOWN";
+    }
+}
+
+hoxGameStatus
+hoxUtility::StringToGameStatus( const wxString& input )
+{
+    if ( input == "UNKNOWN" )     return hoxGAME_STATUS_UNKNOWN;
+
+    if ( input == "open" )        return hoxGAME_STATUS_OPEN;
+    if ( input == "ready" )       return hoxGAME_STATUS_READY;
+    if ( input == "in_progress" ) return hoxGAME_STATUS_IN_PROGRESS;
+    if ( input == "red_win" )     return hoxGAME_STATUS_RED_WIN;
+    if ( input == "black_win" )   return hoxGAME_STATUS_BLACK_WIN;
+    if ( input == "drawn" )       return hoxGAME_STATUS_DRAWN;
+
+    return hoxGAME_STATUS_UNKNOWN;
 }
 
 /************************* END OF FILE ***************************************/

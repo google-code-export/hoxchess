@@ -100,7 +100,7 @@ namespace hoxUtility
 	const wxString FormatTime( int nTime );
 
     /**
-     * Convert a given (human-readable) string to a Time-Info\ of
+     * Convert a given (human-readable) string to a Time-Info of
 	 * of the format "nGame/nMove/nFree".
      */
     hoxTimeInfo StringToTimeInfo( const wxString& input );
@@ -109,6 +109,16 @@ namespace hoxUtility
 	 * Convert a given Time-Info to a (human-readable) string.
 	 */
 	const wxString TimeInfoToString( const hoxTimeInfo timeInfo );
+
+	/**
+	 * Convert a given Game-Status to a (human-readable) string.
+	 */
+	const wxString GameStatusToString( const hoxGameStatus gameStatus );
+
+    /**
+     * Convert a given (human-readable) string to a Game-Status.
+     */
+    hoxGameStatus StringToGameStatus( const wxString& input );
 
 }
 

@@ -550,7 +550,11 @@ hoxChesscapeConnection::_Move( hoxRequest* request )
 	}
 
 	/* Send GAME-STATUS request */
-	if ( statusStr == "red_win" || statusStr == "black_win" )
+    const hoxGameStatus gameStatus = 
+        hoxUtility::StringToGameStatus( statusStr );
+
+	if (   gameStatus == hoxGAME_STATUS_RED_WIN 
+        || gameStatus == hoxGAME_STATUS_BLACK_WIN )
 	{
 		wxLogDebug("%s: Sending GAME-STATUS [%s] request...", FNAME, statusStr.c_str());
 		cmdRequest.Printf("\x02\x10tCmd?%s\x10\x03",

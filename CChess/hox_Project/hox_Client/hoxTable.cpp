@@ -542,20 +542,8 @@ hoxTable::_PostPlayer_MoveEvent( hoxPlayer*         player,
     wxCHECK_RET( player, "The Player is NULL." );
     wxCHECK_RET( movePlayer, "The 'move' Player is NULL." );
 
-	/* Convert game's status into a string.
-	 * TODO: Temporarily do the conversion here.
-	 */
-	wxString statusStr;
-	switch ( status )
-	{
-		case hoxGAME_STATUS_OPEN:        statusStr = "open"; break;
-		case hoxGAME_STATUS_READY:       statusStr = "read"; break;
-		case hoxGAME_STATUS_IN_PROGRESS: statusStr = "in_progress"; break;
-		case hoxGAME_STATUS_RED_WIN:     statusStr = "red_win"; break;
-		case hoxGAME_STATUS_BLACK_WIN:   statusStr = "black_win"; break;
-		case hoxGAME_STATUS_DRAWN:       statusStr = "drawn"; break;
-		default:                         statusStr = "UNKNOWN"; break;
-	}
+	/* Convert game's status into a string. */
+    const wxString statusStr = hoxUtility::GameStatusToString( status );
 
     wxLogDebug("%s: Informing player [%s] that [%s] just made a new Move [%s]...", 
         FNAME, player->GetName().c_str(), movePlayer->GetName().c_str(), moveStr.c_str());
