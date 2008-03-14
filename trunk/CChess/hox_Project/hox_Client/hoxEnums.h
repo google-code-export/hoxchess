@@ -114,6 +114,8 @@ enum hoxColor
  */
 enum hoxGameStatus
 {
+    hoxGAME_STATUS_UNKNOWN = -1,
+
     hoxGAME_STATUS_OPEN = 0,    // Open but not enough Player.
     hoxGAME_STATUS_READY,       // Enough (2) players, waiting for 1st Move.
     hoxGAME_STATUS_IN_PROGRESS, // At least 1 Move has been made.
