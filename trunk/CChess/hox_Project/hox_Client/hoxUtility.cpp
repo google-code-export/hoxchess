@@ -141,6 +141,7 @@ hoxUtility::RequestTypeToString( const hoxRequestType requestType )
         case hoxREQUEST_LEAVE:       return "LEAVE";
 		case hoxREQUEST_DRAW:        return "DRAW";
         case hoxREQUEST_E_JOIN:      return "E_JOIN";
+        case hoxREQUEST_E_END:       return "E_END";
 		case hoxREQUEST_PLAYER_STATUS: return "PLAYER_STATUS";
         case hoxREQUEST_OUT_DATA:    return "OUT_DATA";
         case hoxREQUEST_MSG:         return "MSG";
@@ -170,6 +171,7 @@ hoxUtility::StringToRequestType( const wxString& input )
     if ( input == "LEAVE" )       return hoxREQUEST_LEAVE;
 	if ( input == "DRAW" )        return hoxREQUEST_DRAW;
     if ( input == "E_JOIN" )      return hoxREQUEST_E_JOIN;
+    if ( input == "E_END" )       return hoxREQUEST_E_END;
 	if ( input == "PLAYER_STATUS" ) return hoxREQUEST_PLAYER_STATUS;
     if ( input == "OUT_DATA" )    return hoxREQUEST_OUT_DATA;
     if ( input == "MSG" )         return hoxREQUEST_MSG;

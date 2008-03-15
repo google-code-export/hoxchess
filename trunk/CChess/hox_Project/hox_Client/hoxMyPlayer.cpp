@@ -118,6 +118,8 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
     wxLogDebug("%s: Received a command [%s].", FNAME, 
         hoxUtility::RequestTypeToString(command.type).c_str());
 
+    const wxString sType    = hoxUtility::RequestTypeToString(command.type);
+    const wxString sCode    = command.parameters["code"];
     const wxString sContent = command.parameters["content"];
 
     switch ( command.type )
@@ -206,7 +208,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 									        tableId, playerId, nPlayerScore, joinColor );
 		    if ( result != hoxRESULT_OK )
 		    {
-			    wxLogDebug("%s: Failed to parse E_JOIN's event [%s] ignored.",
+			    wxLogDebug("%s: Failed to parse E_JOIN's event [%s].",
                     FNAME, sContent.c_str());
                 break;
 		    }
@@ -219,7 +221,8 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
                                                  joinColor );
             if ( result != hoxRESULT_OK )
             {
-                wxLogDebug("%s: *** ERROR *** Failed to ask table to join as color [%d].", FNAME, joinColor);
+                wxLogDebug("%s: *** ERROR *** Failed to ask table to join as color [%d].", 
+                    FNAME, joinColor);
                 break;
             }
             break;
@@ -234,7 +237,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 									       table, playerId, message );
 		    if ( result != hoxRESULT_OK )
 		    {
-			    wxLogDebug("%s: Failed to parse MSG's event [%s] ignored.",
+			    wxLogDebug("%s: Failed to parse MSG's event [%s].",
                     FNAME, sContent.c_str());
                 break;
 		    }
@@ -250,10 +253,10 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
             wxString      sMove;
 
 		    result = _ParsePlayerMoveEvent( sContent,
-									       table, movePlayer, sMove );
+									        table, movePlayer, sMove );
 		    if ( result != hoxRESULT_OK )
 		    {
-			    wxLogDebug("%s: Failed to parse MOVE's event [%s] ignored.",
+			    wxLogDebug("%s: Failed to parse MOVE's event [%s].",
                     FNAME, sContent.c_str());
                 break;
 		    }
@@ -262,10 +265,61 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
             table->OnMove_FromNetwork( movePlayer, sMove );
             break;
         }
+        case hoxREQUEST_DRAW:
+        {
+            hoxTable*     table = NULL;
+            hoxPlayer*    offerPlayer = NULL;
+
+		    result = _ParsePlayerDrawEvent( sContent,
+									        table, offerPlayer );
+		    if ( result != hoxRESULT_OK )
+		    {
+			    wxLogDebug("%s: Failed to parse DRAW's event [%s].",
+                    FNAME, sContent.c_str());
+                break;
+		    }
+
+            if ( sCode != "0" ) // failed?
+            {
+                wxLogDebug("%s: Request [%s] failed with error [%s].", 
+                    FNAME, sType.c_str(), sCode.c_str());
+
+                // Post the error on the Board.
+                const wxString sMessage = "Draw Request failed with code = " + sCode;
+                table->PostSystemMessage( sMessage );
+            }
+            else // Offer to Draw?
+            {
+                wxLogDebug("%s: Inform table of player [%s] offering Draw-Request.", 
+	                FNAME, offerPlayer->GetName().c_str());
+                table->OnDrawRequest_FromNetwork( offerPlayer );
+            }
+            break;
+        }
+        case hoxREQUEST_E_END:
+        {
+            hoxTable*     table = NULL;
+            hoxGameStatus gameStatus = hoxGAME_STATUS_UNKNOWN;
+            wxString      sReason;
+
+		    result = _ParsePlayerEndEvent( sContent,
+									       table, gameStatus, sReason );
+		    if ( result != hoxRESULT_OK )
+		    {
+			    wxLogDebug("%s: Failed to parse E_END's event [%s].",
+                    FNAME, sContent.c_str());
+                break;
+		    }
+
+            wxLogDebug("%s: The game has ended. Status = [%s]. Reason = [%s]",
+                FNAME, hoxUtility::GameStatusToString( gameStatus ).c_str(), sReason.c_str());
+            table->OnGameOver_FromNetwork( this, gameStatus );
+            break;
+        }
         default:
         {
 		    wxLogDebug("%s: *** WARN *** Unsupported command-type [%s].", 
-			    FNAME, hoxUtility::RequestTypeToString(command.type));
+			    FNAME, sType.c_str());
         }
     } // switch()
 
@@ -307,7 +361,8 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
             break;
         }
         case hoxREQUEST_MSG:    /* fall-through */
-        case hoxREQUEST_MOVE:
+        case hoxREQUEST_MOVE:   /* fall-through */
+        case hoxREQUEST_DRAW:
         {
             wxLogDebug("%s: Received [%s] 's event. Do nothing.", FNAME, sType.c_str());
             break;
@@ -528,6 +583,102 @@ hoxMyPlayer::_ParsePlayerMoveEvent( const wxString& sContent,
         wxLogDebug("%s: Player [%s] not found.", FNAME, playerId.c_str());
         return hoxRESULT_NOT_FOUND;
     }
+
+	return hoxRESULT_OK;
+}
+
+hoxResult
+hoxMyPlayer::_ParsePlayerDrawEvent( const wxString& sContent,
+                                    hoxTable*&      table,
+                                    hoxPlayer*&     player )
+{
+    const char* FNAME = "hoxMyPlayer::_ParsePlayerDrawEvent";
+    wxString tableId;
+    wxString playerId;
+
+    table   = NULL;
+    player  = NULL;
+
+    /* Parse the input string. */
+
+	// ... Do not return empty tokens
+	wxStringTokenizer tkz( sContent, ";", wxTOKEN_STRTOK );
+	int tokenPosition = 0;
+	wxString token;
+
+	while ( tkz.HasMoreTokens() )
+	{
+		token = tkz.GetNextToken();
+		switch ( tokenPosition++ )
+		{
+			case 0: tableId    = token;  break;
+            case 1: playerId   = token;  break;
+			default: /* Ignore the rest. */ break;
+		}
+	}		
+
+    /* Lookup Table. */
+    table = this->GetSite()->FindTable( tableId );
+    if ( table == NULL )
+    {
+        wxLogDebug("%s: Table [%s] not found.", FNAME, tableId.c_str());
+        return hoxRESULT_NOT_FOUND;
+    }
+
+    /* Lookup Player. */
+    player = this->GetSite()->FindPlayer( playerId );
+    if ( player == NULL ) 
+    {
+        wxLogDebug("%s: Player [%s] not found.", FNAME, playerId.c_str());
+        return hoxRESULT_NOT_FOUND;
+    }
+
+	return hoxRESULT_OK;
+}
+
+hoxResult
+hoxMyPlayer::_ParsePlayerEndEvent( const wxString& sContent,
+                                   hoxTable*&      table,
+                                   hoxGameStatus&  gameStatus,
+                                   wxString&       sReason )
+{
+    const char* FNAME = "hoxMyPlayer::_ParsePlayerEndEvent";
+    wxString tableId;
+    wxString sStatus;  // Game-status.
+
+    table      = NULL;
+    gameStatus = hoxGAME_STATUS_UNKNOWN;
+    sReason    = "";
+
+    /* Parse the input string. */
+
+	// ... Do not return empty tokens
+	wxStringTokenizer tkz( sContent, ";", wxTOKEN_STRTOK );
+	int tokenPosition = 0;
+	wxString token;
+
+	while ( tkz.HasMoreTokens() )
+	{
+		token = tkz.GetNextToken();
+		switch ( tokenPosition++ )
+		{
+			case 0: tableId  = token;  break;
+            case 1: sStatus  = token;  break;
+            case 2: sReason  = token;  break; 
+			default: /* Ignore the rest. */ break;
+		}
+	}		
+
+    /* Lookup Table. */
+    table = this->GetSite()->FindTable( tableId );
+    if ( table == NULL )
+    {
+        wxLogDebug("%s: Table [%s] not found.", FNAME, tableId.c_str());
+        return hoxRESULT_NOT_FOUND;
+    }
+
+    /* Convert game-status from the string ... */
+    gameStatus = hoxUtility::StringToGameStatus( sStatus );
 
 	return hoxRESULT_OK;
 }

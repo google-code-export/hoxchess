@@ -203,13 +203,11 @@ public:
 
     /**
      * Callback function from the NETWORK Player to let this Table know about
-     * the newly-received Action.
+     * the newly-received Draw request.
      *
-     * @param player The Player who generated the Action.
-     * @param action The Action.
+     * @param fromPlayer The Player who generated the request.
      */
-    void OnAction_FromNetwork( hoxPlayer*    player,
-                               hoxActionType action );
+    void OnDrawRequest_FromNetwork( hoxPlayer* fromPlayer );
 
     /**
      * Callback function from the NETWORK Player to let this Table know about
@@ -231,6 +229,13 @@ public:
      * to close.
      */
     void OnClose_FromSystem();
+
+    /**
+     * Post a sytem message to the Board..
+     *
+     * @param message The message that are being sent.
+     */
+    void PostSystemMessage( const wxString&  message );
 
     void ToggleViewSide();
 
@@ -306,8 +311,8 @@ private:
     void _PostBoard_MoveEvent( const wxString& moveStr,
 		                       bool            bSetupMode = false ) const;
 
-    void _PostBoard_ActionEvent( hoxPlayer*     player,
-                                 hoxActionType  action ) const;
+    void _PostBoard_DrawRequestEvent( hoxPlayer* fromPlayer,
+                                      bool       bPopupRequest ) const;
 
     void _PostBoard_GameOverEvent( const hoxGameStatus gameStatus ) const;
 

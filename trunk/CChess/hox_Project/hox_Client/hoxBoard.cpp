@@ -57,7 +57,7 @@ DEFINE_EVENT_TYPE( hoxEVT_BOARD_PLAYER_JOIN )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_PLAYER_LEAVE )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_WALL_OUTPUT )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_NEW_MOVE )
-DEFINE_EVENT_TYPE( hoxEVT_BOARD_PLAYER_ACTION )
+DEFINE_EVENT_TYPE( hoxEVT_BOARD_DRAW_REQUEST )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_GAME_OVER )
 
 BEGIN_EVENT_TABLE(hoxBoard, wxPanel)
@@ -65,7 +65,7 @@ BEGIN_EVENT_TABLE(hoxBoard, wxPanel)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_LEAVE, hoxBoard::OnPlayerLeave)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_WALL_OUTPUT, hoxBoard::OnWallOutput)
 	EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_NEW_MOVE, hoxBoard::OnNewMove)
-	EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_ACTION, hoxBoard::OnPlayerAction)
+	EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_DRAW_REQUEST, hoxBoard::OnDrawRequest)
 	EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_GAME_OVER, hoxBoard::OnGameOver)
 
     EVT_TEXT_ENTER(ID_BOARD_WALL_INPUT, hoxBoard::OnWallInputEnter)
@@ -270,42 +270,39 @@ hoxBoard::OnNewMove( wxCommandEvent &event )
 }
 
 void 
-hoxBoard::OnPlayerAction( wxCommandEvent &event )
+hoxBoard::OnDrawRequest( wxCommandEvent &event )
 {
-    const char* FNAME = "hoxBoard::OnPlayerAction";
+    const char* FNAME = "hoxBoard::OnDrawRequest";
 
     hoxPlayer* player = wxDynamicCast(event.GetEventObject(), hoxPlayer);
     wxCHECK_RET(player, "Player cannot be NULL.");
 
     const wxString playerId = player->GetName();
-	const hoxActionType action = (hoxActionType) event.GetInt();
-	
-	switch ( action )
-	{
-		case hoxACTION_TYPE_OFFER_DRAW:
-		{
-			const wxString boardMessage = playerId + " is offering a DRAW."; 
-			this->OnBoardMsg( boardMessage );
-			const wxString confirmMessage = boardMessage + "\n" 
-				                          + "Do you want to accept a Draw?";
-			int answer = ::wxMessageBox(confirmMessage, "Confirmation",
-										wxYES_NO | wxCANCEL, this);
-			if ( answer == wxYES )
-			{
-				/* Inform the Table. */
-				wxCHECK_RET(m_table, "The table is NULL." );
-				m_table->OnDrawResponse_FromBoard( true );
+	const int bPopupRequest = event.GetInt(); // NOTE: force to boolean!
 
-				/* Set Game's status to DRAW */
-				this->OnBoardMsg( "Accepted Draw request. Game drawn." ); 
-				m_coreBoard->SetGameOver( true );
-			}
-			break;
-		}
-		default:
-			wxLogDebug("%s: Unsupported action [%d].", FNAME, action );
-			return;
-	}
+    const wxString boardMessage = playerId + " is offering a DRAW."; 
+    this->OnBoardMsg( boardMessage );
+
+    /* For observers, display the above Board message is enough. */
+    if ( ! bPopupRequest )
+        return;
+
+    /* For the other player, popup the request... */
+
+    const wxString confirmMessage = boardMessage + "\n" 
+	                              + "Do you want to accept a Draw?";
+    int answer = ::wxMessageBox(confirmMessage, "Confirmation",
+							    wxYES_NO | wxCANCEL, this);
+    if ( answer == wxYES )
+    {
+	    /* Inform the Table. */
+	    wxCHECK_RET(m_table, "The table is NULL." );
+	    m_table->OnDrawResponse_FromBoard( true );
+
+	    /* Set Game's status to DRAW */
+	    this->OnBoardMsg( "Accepted Draw request. Game drawn." ); 
+	    m_coreBoard->SetGameOver( true );
+    }
 }
 
 void 

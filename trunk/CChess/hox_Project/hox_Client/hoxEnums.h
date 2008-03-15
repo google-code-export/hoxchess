@@ -288,6 +288,9 @@ enum hoxRequestType
     hoxREQUEST_E_JOIN,
         /* Event generated from a Table that a new Player just joined */
 
+    hoxREQUEST_E_END,
+        /* Event generated from a Table that the game has ended. */
+
     hoxREQUEST_PLAYER_STATUS,
         /* Event generated from a Player when his Status is changed. */
 
@@ -317,16 +320,6 @@ enum hoxResponseFlag
     hoxRESPONSE_FLAG_CONNECTION_LOST  = 1 
         /* To signal that the connection to the server has been lost. */
 
-};
-
-/**
- * Action types coming from a Player.
- */
-enum hoxActionType
-{
-    hoxACTION_TYPE_UNKNOWN = -1,
-
-	hoxACTION_TYPE_OFFER_DRAW
 };
 
 /**
