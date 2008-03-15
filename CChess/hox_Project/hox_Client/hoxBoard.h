@@ -45,7 +45,7 @@ DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_JOIN, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_LEAVE, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_WALL_OUTPUT, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_NEW_MOVE, wxID_ANY)
-DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_ACTION, wxID_ANY)
+DECLARE_EVENT_TYPE(hoxEVT_BOARD_DRAW_REQUEST, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_GAME_OVER, wxID_ANY)
 
 /** 
@@ -110,7 +110,7 @@ public:
     void OnPlayerLeave( wxCommandEvent &event );
     void OnWallOutput( wxCommandEvent &event );
 	void OnNewMove( wxCommandEvent &event );
-	void OnPlayerAction( wxCommandEvent &event );
+	void OnDrawRequest( wxCommandEvent &event );
 	void OnGameOver( wxCommandEvent &event );
 
     void OnWallInputEnter( wxCommandEvent &event );

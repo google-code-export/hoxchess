@@ -903,7 +903,7 @@ hoxChesscapePlayer::_HandleTableCmd_OfferDraw( hoxTable* table )
 
 	wxLogDebug("%s: Inform table of player [%s] is offering Draw-Request.", 
 		FNAME, whoOffered->GetName().c_str());
-	table->OnAction_FromNetwork( whoOffered, hoxACTION_TYPE_OFFER_DRAW );
+	table->OnDrawRequest_FromNetwork( whoOffered );
 
 	return true;
 }

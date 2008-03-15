@@ -406,11 +406,20 @@ hoxTable::OnLeave_FromNetwork( hoxPlayer* leavePlayer,
 }
 
 void 
-hoxTable::OnAction_FromNetwork( hoxPlayer*    player,
-                                hoxActionType action )
+hoxTable::OnDrawRequest_FromNetwork( hoxPlayer* fromPlayer )
 {
-    /* Inform the Board about this Action. */
-	_PostBoard_ActionEvent( player, action );
+    /* Find out to whom this request is targeting to.
+     * If this player is the Board's owner, then popup the request.
+     */
+    hoxPlayer* toPlayer = ( fromPlayer == m_redPlayer
+                           ? m_blackPlayer
+                           : m_redPlayer );
+    wxCHECK_RET(toPlayer, "There is no TO-player for Draw-request");
+
+    bool bPopupRequest = ( toPlayer->GetType() == hoxPLAYER_TYPE_LOCAL );
+
+    /* Inform the Board about this request. */
+	_PostBoard_DrawRequestEvent( fromPlayer, bPopupRequest );
 }
 
 void 
@@ -451,6 +460,12 @@ hoxTable::OnClose_FromSystem()
 
     delete m_referee;
     m_referee = NULL;
+}
+
+void
+hoxTable::PostSystemMessage( const wxString&  message )
+{
+    _PostBoard_MessageEvent( NULL /* System */, message );
 }
 
 void 
@@ -632,15 +647,15 @@ hoxTable::_PostBoard_MoveEvent( const wxString& moveStr,
 }
 
 void 
-hoxTable::_PostBoard_ActionEvent( hoxPlayer*    player,
-                                  hoxActionType action ) const
+hoxTable::_PostBoard_DrawRequestEvent( hoxPlayer* fromPlayer,
+                                       bool       bPopupRequest) const
 {
 	if ( m_board == NULL )
 		return;
 
-    wxCommandEvent event( hoxEVT_BOARD_PLAYER_ACTION );
-	event.SetEventObject( player );
-    event.SetInt( (int) action );
+    wxCommandEvent event( hoxEVT_BOARD_DRAW_REQUEST );
+	event.SetEventObject( fromPlayer );
+    event.SetInt( (int) bPopupRequest );
     wxPostEvent( m_board, event );
 }
 

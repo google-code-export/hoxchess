@@ -80,6 +80,15 @@ private:
                                      hoxPlayer*&     player,
                                      wxString&       sMove );
 
+    hoxResult _ParsePlayerDrawEvent( const wxString& sContent,
+                                     hoxTable*&      table,
+                                     hoxPlayer*&     player );
+
+    hoxResult _ParsePlayerEndEvent( const wxString& sContent,
+                                    hoxTable*&      table,
+                                    hoxGameStatus&  gameStatus,
+                                    wxString&       sReason );
+
 private:
 
     DECLARE_DYNAMIC_CLASS(hoxMyPlayer)
