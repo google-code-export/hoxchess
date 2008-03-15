@@ -120,7 +120,27 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 
     const wxString sType    = hoxUtility::RequestTypeToString(command.type);
     const wxString sCode    = command.parameters["code"];
+    const wxString sTableId = command.parameters["tid"];
     const wxString sContent = command.parameters["content"];
+
+    /* Handle the error-code. */
+    if ( sCode != "0" ) // failed?
+    {
+        const wxString sMessage = "Request " + sType + " failed with code = " + sCode;
+        wxLogDebug("%s: %s.", FNAME, sMessage.c_str());
+
+        hoxTable* table = this->GetSite()->FindTable( sTableId );
+        if ( table == NULL )
+        {
+            wxLogDebug("%s: Table [%s] not found.", FNAME, sTableId.c_str());
+        }
+        else
+        {
+            // Post the error on the Board.
+            table->PostSystemMessage( sMessage );
+        }
+        return;  // *** Exit immediately.
+    }
 
     switch ( command.type )
     {
@@ -278,22 +298,9 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
                     FNAME, sContent.c_str());
                 break;
 		    }
-
-            if ( sCode != "0" ) // failed?
-            {
-                wxLogDebug("%s: Request [%s] failed with error [%s].", 
-                    FNAME, sType.c_str(), sCode.c_str());
-
-                // Post the error on the Board.
-                const wxString sMessage = "Draw Request failed with code = " + sCode;
-                table->PostSystemMessage( sMessage );
-            }
-            else // Offer to Draw?
-            {
-                wxLogDebug("%s: Inform table of player [%s] offering Draw-Request.", 
-	                FNAME, offerPlayer->GetName().c_str());
-                table->OnDrawRequest_FromNetwork( offerPlayer );
-            }
+            wxLogDebug("%s: Inform table of player [%s] offering Draw-Request.", 
+                FNAME, offerPlayer->GetName().c_str());
+            table->OnDrawRequest_FromNetwork( offerPlayer );
             break;
         }
         case hoxREQUEST_E_END:
@@ -346,11 +353,27 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
 	{
         case hoxREQUEST_LOGIN:
 		{
-            result = this->HandleResponseEvent_Connect(event);
+            const wxString commandStr = response->content;
+            hoxCommand  command;
+
+            result = hoxNetworkAPI::ParseCommand( commandStr, command );
+            if ( result != hoxRESULT_OK )
+            {
+                wxLogError("%s: Failed to parse command-string [%s].", FNAME, commandStr.c_str());
+                break;
+            }
+            wxLogDebug("%s: Received a command [%s].", FNAME, 
+                hoxUtility::RequestTypeToString(command.type).c_str());
+
+            const wxString sType    = hoxUtility::RequestTypeToString(command.type);
+            //const wxString sCode    = command.parameters["code"];
+            const wxString sContent = command.parameters["content"];
+
+            result = _HandleResponseEvent_LOGIN( sContent );
 			if ( result != hoxRESULT_OK )
 			{
 				wxLogDebug("%s: *** WARN *** Failed to handle [%s] 's response [%s].", 
-                    FNAME, sType.c_str(), response->content.c_str());
+                    FNAME, sType.c_str(), sContent.c_str());
 				response->code = result;
 			}
             break;
@@ -399,6 +422,74 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
     }
 
     wxLogDebug("%s: The response is OK.", FNAME);
+}
+
+hoxResult 
+hoxMyPlayer::_HandleResponseEvent_LOGIN( const wxString& sContent )
+{
+    const char* FNAME = "hoxMyPlayer::_HandleResponseEvent_LOGIN";
+    hoxResult   result;
+    wxString    playerId;
+	int         nScore = 0;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    result = _ParsePlayerLoginEvent( sContent,
+									 playerId,
+								     nScore );
+    if ( result != hoxRESULT_OK )
+    {
+        wxLogDebug("%s: *** WARN *** Failed to parse LOGIN event [%s]. (%d)", 
+            FNAME, sContent.c_str(), result);
+        return hoxRESULT_ERR;
+    }
+
+    wxLogDebug("%s: LOGIN event: Player Id = [%s], Score = [%d].",
+        FNAME, playerId.c_str(), nScore);
+
+    if ( playerId == this->GetName() )
+    {
+        wxLogDebug("%s: Set my score = [%d].", FNAME, nScore);
+        this->SetScore( nScore );
+    }
+    else
+    {
+        wxLogDebug("%s: Got LOGIN event from other player [%s].", FNAME, playerId.c_str());
+        // NOTE: Do nothing.
+    }
+
+    return hoxRESULT_OK;
+}
+
+hoxResult
+hoxMyPlayer::_ParsePlayerLoginEvent( const wxString& sContent,
+                                     wxString&       playerId,
+                                     int&            nPlayerScore )
+{
+    const char* FNAME = "hoxMyPlayer::_ParsePlayerLoginEvent";
+
+    playerId     = "";
+    nPlayerScore = 0;
+
+    /* Parse the input string. */
+
+	// ... Do not return empty tokens
+	wxStringTokenizer tkz( sContent, ";", wxTOKEN_STRTOK );
+	int tokenPosition = 0;
+	wxString token;
+
+	while ( tkz.HasMoreTokens() )
+	{
+		token = tkz.GetNextToken();
+		switch ( tokenPosition++ )
+		{
+			case 0: playerId     = token;  break;
+            case 1: nPlayerScore = ::atoi( token.c_str() ); break; 
+			default: /* Ignore the rest. */ break;
+		}
+	}		
+
+	return hoxRESULT_OK;
 }
 
 hoxResult
