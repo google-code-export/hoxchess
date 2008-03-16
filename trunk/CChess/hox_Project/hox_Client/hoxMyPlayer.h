@@ -95,6 +95,9 @@ private:
                                     hoxGameStatus&  gameStatus,
                                     wxString&       sReason );
 
+    hoxResult _ParsePlayerResetEvent( const wxString& sContent,
+                                      hoxTable*&      table );
+
 private:
 
     DECLARE_DYNAMIC_CLASS(hoxMyPlayer)

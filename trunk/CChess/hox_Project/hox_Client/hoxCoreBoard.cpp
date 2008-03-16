@@ -163,10 +163,12 @@ hoxCoreBoard::_ErasePieceWithDC( hoxPiece* piece,
 void 
 hoxCoreBoard::_ClearPieces()
 {
-    hoxPieceList::const_iterator it;
-    for (it = m_pieces.begin(); it != m_pieces.end(); ++it)
+    hoxPiece* piece = NULL;
+    while ( ! m_pieces.empty() )
     {
-        delete *it;
+        piece = m_pieces.front();
+        m_pieces.pop_front();
+        delete piece;
     }
 }
 
@@ -326,8 +328,13 @@ hoxCoreBoard::LoadPieces()
 {
     wxASSERT_MSG( m_referee != NULL, _("The referee must have been set") );
 
+    /* Clear old pieces. */
+    _ClearPieces();
+
+    /* Load new pices. */
+
     hoxPieceInfoList pieceInfoList;
-    hoxColor    nextColor;  // obtained but not used now!
+    hoxColor         nextColor;  // obtained but not used now!
     
     m_referee->GetGameState( pieceInfoList, nextColor );
 
@@ -359,7 +366,17 @@ hoxCoreBoard::StartGame()
     m_referee->Reset();
 
     /* Clear the Game-Over state in the last game, if any. */
-    SetGameOver( false );
+    if ( m_isGameOver )
+    {
+        m_isGameOver = false;
+
+        this->LoadPieces();
+
+         wxClientDC dc(this);
+        _DrawWorkSpace( dc );
+        _DrawBoard( dc );
+        _DrawAllPieces( dc );
+    }
 }
 
 void 

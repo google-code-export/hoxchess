@@ -42,6 +42,7 @@ class hoxConnection;
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_JOIN_TABLE, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_RESIGN_TABLE, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_DRAW_TABLE, wxID_ANY)
+DECLARE_EVENT_TYPE(hoxEVT_PLAYER_RESET_TABLE, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_NEW_MOVE, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_NEW_JOIN, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_NEW_LEAVE, wxID_ANY)
@@ -82,6 +83,7 @@ public:
 	virtual void OnJoinCmd_FromTable( wxCommandEvent&  event );
     virtual void OnResignCmd_FromTable( wxCommandEvent&  event );
 	virtual void OnDrawCmd_FromTable( wxCommandEvent&  event );
+    virtual void OnResetCmd_FromTable( wxCommandEvent&  event );
     virtual void OnNewMove_FromTable( wxCommandEvent&  event );
     virtual void OnNewJoin_FromTable( wxCommandEvent&  event );
     virtual void OnNewLeave_FromTable( wxCommandEvent&  event );

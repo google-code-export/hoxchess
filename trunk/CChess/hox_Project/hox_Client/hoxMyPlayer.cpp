@@ -303,6 +303,23 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
             table->OnDrawRequest_FromNetwork( offerPlayer );
             break;
         }
+        case hoxREQUEST_RESET:
+        {
+            hoxTable*     table = NULL;
+
+		    result = _ParsePlayerResetEvent( sContent,
+									         table );
+		    if ( result != hoxRC_OK )
+		    {
+			    wxLogDebug("%s: Table not found. RESET's event [%s] ignored.", 
+				    FNAME, sContent.c_str());
+                break;
+		    }
+
+		    wxLogDebug("%s: Received RESET's event [%s].", FNAME, sContent.c_str());
+            table->OnGameReset_FromNetwork();
+            break;
+        }
         case hoxREQUEST_E_END:
         {
             hoxTable*     table = NULL;
@@ -386,7 +403,8 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
         case hoxREQUEST_MSG:    /* fall-through */
         case hoxREQUEST_MOVE:   /* fall-through */
         case hoxREQUEST_RESIGN: /* fall-through */
-        case hoxREQUEST_DRAW:
+        case hoxREQUEST_DRAW:   /* fall-through */
+        case hoxREQUEST_RESET:
         {
             wxLogDebug("%s: Received [%s] 's event. Do nothing.", FNAME, sType.c_str());
             break;
@@ -771,6 +789,43 @@ hoxMyPlayer::_ParsePlayerEndEvent( const wxString& sContent,
 
     /* Convert game-status from the string ... */
     gameStatus = hoxUtil::StringToGameStatus( sStatus );
+
+	return hoxRC_OK;
+}
+
+hoxResult
+hoxMyPlayer::_ParsePlayerResetEvent( const wxString& sContent,
+                                     hoxTable*&      table )
+{
+    const char* FNAME = "hoxMyPlayer::_ParsePlayerResetEvent";
+    wxString tableId;
+
+    table  = NULL;
+
+    /* Parse the input string. */
+
+	// ... Do not return empty tokens
+	wxStringTokenizer tkz( sContent, ";", wxTOKEN_STRTOK );
+	int tokenPosition = 0;
+	wxString token;
+
+	while ( tkz.HasMoreTokens() )
+	{
+		token = tkz.GetNextToken();
+		switch ( tokenPosition++ )
+		{
+			case 0: tableId  = token;  break;
+			default: /* Ignore the rest. */ break;
+		}
+	}		
+
+    /* Lookup Table. */
+    table = this->GetSite()->FindTable( tableId );
+    if ( table == NULL )
+    {
+        wxLogDebug("%s: Table [%s] not found.", FNAME, tableId.c_str());
+        return hoxRC_NOT_FOUND;
+    }
 
 	return hoxRC_OK;
 }

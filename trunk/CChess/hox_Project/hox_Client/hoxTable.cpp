@@ -333,6 +333,36 @@ hoxTable::OnDrawCommand_FromBoard()
 	_PostPlayer_ActionEvent( boardPlayer, hoxEVT_PLAYER_DRAW_TABLE, pCommand );
 }
 
+void
+hoxTable::OnResetCommand_FromBoard()
+{
+    const char* FNAME = "hoxTable::OnResetCommand_FromBoard";
+	wxLogDebug("%s: Received a RESET request from Board's local-player.", FNAME);
+
+    /* Get the Board Player (or the Board's owner) because he is the
+     * one that sent the Message.
+     */
+    hoxPlayer* boardPlayer = _GetBoardPlayer();
+    wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
+
+	/* Make sure the board Player is actually playing. 
+	 * If not, ignore the request.
+	 */
+
+	if (   boardPlayer != m_redPlayer 
+		&& boardPlayer != m_blackPlayer )
+	{
+		wxLogWarning("The Player [%s] is not playing.", boardPlayer->GetName().c_str());
+		return;
+	}
+
+	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_RESET );
+	pCommand->parameters["tid"] = m_id;
+	pCommand->parameters["pid"] = boardPlayer->GetName();
+
+	_PostPlayer_ActionEvent( boardPlayer, hoxEVT_PLAYER_RESET_TABLE, pCommand );
+}
+
 void 
 hoxTable::OnDrawResponse_FromBoard( bool bAcceptDraw )
 {
@@ -458,6 +488,18 @@ hoxTable::OnGameOver_FromNetwork( hoxPlayer*    player,
 {
     /* Inform the Board about the status. */
 	_PostBoard_GameOverEvent( /*player,*/ gameStatus );
+}
+
+void 
+hoxTable::OnGameReset_FromNetwork()
+{
+    const char* FNAME = "hoxTable::OnGameReset_FromNetwork";
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    _ResetGame();
+
+    /* Inform the Board about the status. */
+	_PostBoard_GameResetEvent();
 }
 
 void 
@@ -697,6 +739,16 @@ hoxTable::_PostBoard_GameOverEvent( const hoxGameStatus gameStatus ) const
 
     wxCommandEvent event( hoxEVT_BOARD_GAME_OVER );
     event.SetInt( (int) gameStatus );
+    wxPostEvent( m_board, event );
+}
+
+void 
+hoxTable::_PostBoard_GameResetEvent() const
+{
+	if ( m_board == NULL )
+		return;
+
+    wxCommandEvent event( hoxEVT_BOARD_GAME_RESET );
     wxPostEvent( m_board, event );
 }
 
@@ -952,4 +1004,12 @@ hoxTable::_FindPlayer( const wxString& playerId )
     return NULL;
 }
 
+void
+hoxTable::_ResetGame()
+{
+    m_redTime   = m_initialTime;
+    m_blackTime = m_initialTime;
+
+    //m_referee->Reset();
+}
 /************************* END OF FILE ***************************************/

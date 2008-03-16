@@ -164,6 +164,12 @@ public:
 
     /**
      * Callback function from the Board to let this Table know about
+     * RESET-command button that has been pressed by the "local" player.
+     */
+    void OnResetCommand_FromBoard();
+
+    /**
+     * Callback function from the Board to let this Table know about
      * the response to a DRAW-request.
      */
     void OnDrawResponse_FromBoard( bool bAcceptDraw );
@@ -224,6 +230,12 @@ public:
      */
     void OnGameOver_FromNetwork( hoxPlayer*    player,
                                  hoxGameStatus gameStatus );
+
+    /**
+     * Callback function from the NETWORK Player to let this Table know about
+     * the newly-received Reset request.
+     */
+    void OnGameReset_FromNetwork();
 
     /**
      * Callback function from a player who is leaving the table.
@@ -322,6 +334,8 @@ private:
 
     void _PostBoard_GameOverEvent( const hoxGameStatus gameStatus ) const;
 
+    void _PostBoard_GameResetEvent() const;
+
     /**
      * Inform other Players that a new Player just joined the Table.
      *
@@ -377,6 +391,8 @@ private:
     void       _AddPlayer( hoxPlayer* player, hoxColor role );
     void       _RemovePlayer( hoxPlayer* player );
     hoxPlayer* _FindPlayer( const wxString& playerId );
+
+    void       _ResetGame();
 
 private:
     hoxSite*         m_site;
