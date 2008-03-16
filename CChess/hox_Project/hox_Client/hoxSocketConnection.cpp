@@ -26,7 +26,7 @@
 
 #include "hoxSocketConnection.h"
 #include "hoxMyPlayer.h"
-#include "hoxUtility.h"
+#include "hoxUtil.h"
 #include "hoxNetworkAPI.h"
 
 IMPLEMENT_DYNAMIC_CLASS(hoxSocketConnection, hoxThreadConnection)
@@ -68,7 +68,7 @@ void
 hoxSocketConnection::HandleRequest( hoxRequest* request )
 {
     const char* FNAME = "hoxSocketConnection::HandleRequest";
-    hoxResult    result = hoxRESULT_ERR;
+    hoxResult    result = hoxRC_ERR;
     std::auto_ptr<hoxResponse> response( new hoxResponse(request->type, 
                                                          request->sender) );
 
@@ -80,10 +80,10 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
     if ( request->type == hoxREQUEST_PLAYER_DATA )
     {
         result = _CheckAndHandleSocketLostEvent( request, response->content );
-        if ( result == hoxRESULT_HANDLED )
+        if ( result == hoxRC_HANDLED )
         {
             response->flags |= hoxRESPONSE_FLAG_CONNECTION_LOST;
-            result = hoxRESULT_OK;  // Consider "success".
+            result = hoxRC_OK;  // Consider "success".
             goto exit_label;
         }
     }
@@ -100,7 +100,7 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
             // We disable input events until we are done processing the current command.
             hoxNetworkAPI::SocketInputLock socketLock( m_pSClient );
             result = _ReadLine( m_pSClient, response->content );
-            if ( result != hoxRESULT_OK )
+            if ( result != hoxRC_OK )
             {
                 wxLogError("%s: Failed to read incoming command.", FNAME);
                 goto exit_label;
@@ -117,12 +117,12 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
         case hoxREQUEST_LOGIN:
             result = _Connect( _RequestToString( *request ),
                                response->content );
-            if ( result == hoxRESULT_HANDLED )
+            if ( result == hoxRC_HANDLED )
             {
-                result = hoxRESULT_OK;  // Consider "success".
+                result = hoxRC_OK;  // Consider "success".
                 break;
             }
-            else if ( result != hoxRESULT_OK )
+            else if ( result != hoxRC_OK )
             {
                 wxLogError("%s: Failed to connect to server.", FNAME);
                 break;
@@ -140,7 +140,7 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
             {
                 // NOTE: The connection could have been closed if the server is down.
                 wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
-                result = hoxRESULT_OK;  // Consider "success".
+                result = hoxRC_OK;  // Consider "success".
                 break;
             }
             result = _WriteLine( m_pSClient, 
@@ -149,16 +149,16 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
 
         default:
             wxLogError("%s: Unsupported request Type [%s].", 
-                FNAME, hoxUtility::RequestTypeToString(request->type).c_str());
-            result = hoxRESULT_NOT_SUPPORTED;
+                FNAME, hoxUtil::RequestTypeToString(request->type).c_str());
+            result = hoxRC_NOT_SUPPORTED;
             break;
     }
 
 exit_label:
-    if ( result != hoxRESULT_OK )
+    if ( result != hoxRC_OK )
     {
         wxLogDebug("%s: *** WARN *** Error occurred while handling request [%s].", 
-            FNAME, hoxUtility::RequestTypeToString(request->type).c_str());
+            FNAME, hoxUtil::RequestTypeToString(request->type).c_str());
         response->content = "!Error_Result!";
     }
 
@@ -175,7 +175,7 @@ hoxSocketConnection::_RequestToString( const hoxRequest& request ) const
 {
 	wxString result;
 
-	result += "op=" + hoxUtility::RequestTypeToString( request.type );
+	result += "op=" + hoxUtil::RequestTypeToString( request.type );
 
 	hoxCommand::Parameters::const_iterator it;
 	for ( it = request.parameters.begin();
@@ -193,16 +193,14 @@ hoxSocketConnection::_CheckAndHandleSocketLostEvent(
                                 wxString&         response )
 {
     const char* FNAME = "hoxSocketConnection::_CheckAndHandleSocketLostEvent";
-    hoxResult result = hoxRESULT_OK;
-
-    wxLogDebug("%s: ENTER.", FNAME);
+    hoxResult result = hoxRC_OK;
 
     // TODO: This is "weird" that we need to this checking.
     //       Need to review code-logic!
     if ( m_pSClient == NULL )
     {
         wxLogDebug("%s: *** INFO *** This client socket is already disconnected.", FNAME);
-        result = hoxRESULT_HANDLED;
+        result = hoxRC_HANDLED;
         return result;
     }
 
@@ -212,10 +210,9 @@ hoxSocketConnection::_CheckAndHandleSocketLostEvent(
     {
         wxLogDebug("%s: Received socket-lost event. Deleting client socket.", FNAME);
         _Disconnect();
-        result = hoxRESULT_HANDLED;
+        result = hoxRC_HANDLED;
     }
 
-    //wxLogDebug("%s: Not a socket-lost event. Fine - Do nothing. END.", FNAME);
     return result;
 }
 
@@ -228,7 +225,7 @@ hoxSocketConnection::_Connect( const wxString& request,
     if ( this->IsConnected() )
     {
         wxLogDebug("%s: The connection already established. END.", FNAME);
-        return hoxRESULT_HANDLED;
+        return hoxRC_HANDLED;
     }
 
     /* Get the server address. */
@@ -247,7 +244,7 @@ hoxSocketConnection::_Connect( const wxString& request,
         wxLogError("%s: Failed to connect to the server [%s:%d]. Error = [%s].",
             FNAME, addr.Hostname().c_str(), addr.Service(), 
             hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
-        return hoxRESULT_ERR;
+        return hoxRC_ERR;
     }
 
     wxLogDebug("%s: Succeeded! Connection established with the server.", FNAME);
@@ -268,29 +265,29 @@ hoxSocketConnection::_Connect( const wxString& request,
 			wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
 				FNAME, loginRequest.c_str(), nWrite, requestSize, 
 				hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
-			return hoxRESULT_ERR;
+			return hoxRC_ERR;
 		}
 	}
 	////////////////////////////
 	// Read the response.
 	{
         hoxResult result = this->_ReadLine( m_pSClient, response );
-        if ( result != hoxRESULT_OK )
+        if ( result != hoxRC_OK )
         {
             wxLogDebug("%s: *** WARN *** Failed to read incoming command.", FNAME);
-            //return hoxRESULT_ERR;
+            //return hoxRC_ERR;
         }
 	}
 	//////////////////////////////
 
-    wxCHECK_MSG(m_player, hoxRESULT_ERR, "The player is NULL.");
+    wxCHECK_MSG(m_player, hoxRC_ERR, "The player is NULL.");
     wxLogDebug("%s: Let the connection's Player [%s] handle all socket events.", 
         FNAME, m_player->GetName());
     m_pSClient->SetEventHandler( *m_player, CLIENT_SOCKET_ID );
     m_pSClient->SetNotify(wxSOCKET_INPUT_FLAG | wxSOCKET_LOST_FLAG);
     m_pSClient->Notify(true);
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 void
@@ -331,7 +328,7 @@ hoxSocketConnection::_ReadLine( wxSocketBase* sock,
 			else if ( bSawOne && c == '\n' )
 			{
 				result = commandStr;
-				return hoxRESULT_OK;  // Done.
+				return hoxRC_OK;  // Done.
 			}
             else
             {
@@ -358,7 +355,7 @@ hoxSocketConnection::_ReadLine( wxSocketBase* sock,
         }
     }
 
-    return hoxRESULT_ERR;
+    return hoxRC_ERR;
 }
 
 hoxResult
@@ -379,10 +376,10 @@ hoxSocketConnection::_WriteLine( wxSocketBase*   sock,
 		wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
 			FNAME, sRequest.c_str(), nWrite, requestSize, 
 			hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
-		return hoxRESULT_ERR;
+		return hoxRC_ERR;
 	}
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 /************************* END OF FILE ***************************************/

@@ -27,7 +27,7 @@
 #include "hoxSite.h"
 #include "MyApp.h"
 #include "hoxServer.h"
-#include "hoxUtility.h"
+#include "hoxUtil.h"
 #include "hoxSocketConnection.h"
 #include "hoxHttpConnection.h"
 #include "hoxChesscapeConnection.h"
@@ -123,7 +123,7 @@ hoxResult
 hoxSite::CloseTable(hoxTable* table)
 {
     m_tableMgr.RemoveTable( table );
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 void 
@@ -177,20 +177,20 @@ hoxLocalSite::OpenServer()
     if ( m_server != NULL )
     {
         wxLogDebug("%s: The server have been created. END.", FNAME);
-        return hoxRESULT_OK;
+        return hoxRC_OK;
     }
 
     m_server = new hoxServer( this );
 
-	if ( hoxRESULT_OK !=  m_server->StartServer( m_address.port ) )
+	if ( hoxRC_OK !=  m_server->StartServer( m_address.port ) )
 	{
         wxLogError("%s: Failed to start socker-server thread.", FNAME);
-        return hoxRESULT_ERR;
+        return hoxRC_ERR;
 	}
 
     m_isOpened = true;
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 hoxResult
@@ -201,7 +201,7 @@ hoxLocalSite::Close()
 	if ( m_siteClosing )
 	{
 		wxLogDebug("%s: Site [%s] is already being closed. END.", FNAME, this->GetName().c_str());
-		return hoxRESULT_OK;
+		return hoxRC_OK;
 	}
 	m_siteClosing = true;
 
@@ -212,7 +212,7 @@ hoxLocalSite::Close()
 		_DoCloseSite();
 	}
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 hoxResult 
@@ -236,12 +236,12 @@ hoxLocalSite::CreateNewTableAsPlayer( wxString&          newTableId,
 
     /* Add the specified player to the table. */
     hoxResult result = player->JoinTableAs( newTable, hoxCOLOR_RED );
-    wxASSERT( result == hoxRESULT_OK  );
+    wxASSERT( result == hoxRC_OK  );
 
     /* Update UI. */
     wxGetApp().GetFrame()->UpdateSiteTreeUI();
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 void 
@@ -357,7 +357,7 @@ hoxRemoteSite::Handle_ConnectionResponse( hoxResponse_AutoPtr response )
         }
     }
 
-    //if ( response->code != hoxRESULT_OK )
+    //if ( response->code != hoxRC_OK )
     //{
     //    wxLogDebug("%s: The response's code is ERROR. END.", FNAME);
     //    return;
@@ -379,7 +379,7 @@ hoxRemoteSite::Handle_ConnectionResponse( hoxResponse_AutoPtr response )
 
         default:
             wxLogError("%s: Unknown type [%s].", 
-                FNAME, hoxUtility::RequestTypeToString(response->type).c_str() );
+                FNAME, hoxUtil::RequestTypeToString(response->type).c_str() );
             break;
     }
 }
@@ -398,7 +398,7 @@ hoxRemoteSite::OnResponse_Connect( const hoxResponse_AutoPtr& response )
     result = hoxNetworkAPI::ParseSimpleResponse( responseStr,
                                                  returnCode,
                                                  returnMsg );
-    if ( result != hoxRESULT_OK || returnCode != 0 )
+    if ( result != hoxRC_OK || returnCode != 0 )
     {
         wxLogError("%s: Failed to parse CONNECT's response. [%d] [%s]", 
             FNAME, returnCode, returnMsg.c_str());
@@ -438,7 +438,7 @@ hoxRemoteSite::OnPlayerJoined( const wxString&  tableId,
 	if ( table == NULL )
 	{
         wxLogDebug("%s: *** WARN *** The table [%s] does NOT exist.", FNAME, tableId.c_str());
-		return hoxRESULT_ERR;
+		return hoxRC_ERR;
 	}
 
 	/* Lookup the Player.
@@ -453,12 +453,12 @@ hoxRemoteSite::OnPlayerJoined( const wxString&  tableId,
     /* Attempt to join the table with the requested color.
      */
     result = player->JoinTableAs( table, requestColor );
-    if ( result != hoxRESULT_OK )
+    if ( result != hoxRC_OK )
     {
         wxLogDebug("%s: *** ERROR *** Failed to ask table to join [%s] as color [%d].", 
             FNAME, playerId.c_str(), requestColor);
         // NOTE: If a new player was created, just leave it as is.
-        return hoxRESULT_ERR;
+        return hoxRC_ERR;
     }
 
 	/* Toggle board if the new joined Player is I (this site's player) 
@@ -471,7 +471,7 @@ hoxRemoteSite::OnPlayerJoined( const wxString&  tableId,
 		table->ToggleViewSide();
 	}
 
-	return hoxRESULT_OK;
+	return hoxRC_OK;
 }
 
 hoxResult 
@@ -507,7 +507,7 @@ hoxRemoteSite::JoinNewTable(const hoxNetworkTableInfo& tableInfo)
      ****************************/
 
     result = m_player->JoinTableAs( table, myColor );
-    wxCHECK( result == hoxRESULT_OK, hoxRESULT_ERR  );
+    wxCHECK( result == hoxRC_OK, hoxRC_ERR  );
 
 	/* Create additional "dummy" player(s) if required.
      */
@@ -519,7 +519,7 @@ hoxRemoteSite::JoinNewTable(const hoxNetworkTableInfo& tableInfo)
             player = this->CreateDummyPlayer( redId, ::atoi(tableInfo.redScore) );
 	    }
         result = player->JoinTableAs( table, hoxCOLOR_RED );
-        wxCHECK( result == hoxRESULT_OK, hoxRESULT_ERR  );
+        wxCHECK( result == hoxRC_OK, hoxRC_ERR  );
     }
     if ( !blackId.empty() && table->GetBlackPlayer() == NULL )
     {
@@ -528,7 +528,7 @@ hoxRemoteSite::JoinNewTable(const hoxNetworkTableInfo& tableInfo)
             player = this->CreateDummyPlayer( blackId, ::atoi(tableInfo.blackScore) );
 	    }
         result = player->JoinTableAs( table, hoxCOLOR_BLACK );
-        wxCHECK( result == hoxRESULT_OK, hoxRESULT_ERR  );
+        wxCHECK( result == hoxRC_OK, hoxRC_ERR  );
     }
 
 	/* Toggle board if I play BLACK.
@@ -541,7 +541,7 @@ hoxRemoteSite::JoinNewTable(const hoxNetworkTableInfo& tableInfo)
 
 	wxGetApp().GetFrame()->UpdateSiteTreeUI();
 
-	return hoxRESULT_OK;
+	return hoxRC_OK;
 }
 
 void 
@@ -582,7 +582,7 @@ hoxRemoteSite::DisplayListOfTables( const hoxNetworkTableInfoList& tableList )
         {
             wxLogDebug("%s: Ask the server to allow me to JOIN table = [%s]", FNAME, selectedId.c_str());
             result = m_player->JoinNetworkTable( selectedId, m_responseHandler );
-            if ( result != hoxRESULT_OK )
+            if ( result != hoxRC_OK )
             {
                 wxLogError("%s: Failed to JOIN a network table [%s].", FNAME, selectedId.c_str());
             }
@@ -593,7 +593,7 @@ hoxRemoteSite::DisplayListOfTables( const hoxNetworkTableInfoList& tableList )
         {
             wxLogDebug("%s: Ask the server to open a new table.", FNAME);
             result = m_player->OpenNewNetworkTable( m_responseHandler );
-            if ( result != hoxRESULT_OK )
+            if ( result != hoxRC_OK )
             {
                 wxLogError("%s: Failed to open a NEW network table.", FNAME);
             }
@@ -604,7 +604,7 @@ hoxRemoteSite::DisplayListOfTables( const hoxNetworkTableInfoList& tableList )
         {
             wxLogDebug("%s: Get the latest list of tables...", FNAME);
 			result = this->QueryForNetworkTables();
-            if ( result != hoxRESULT_OK )
+            if ( result != hoxRC_OK )
             {
                 wxLogError("%s: Failed to get the list of tables.", FNAME);
             }
@@ -616,7 +616,7 @@ hoxRemoteSite::DisplayListOfTables( const hoxNetworkTableInfoList& tableList )
             break;
     }
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 const wxString 
@@ -643,7 +643,7 @@ hoxRemoteSite::Connect()
     if ( this->IsConnected() )
     {
         wxLogDebug("%s: This site has been connected. END.", FNAME);
-        return hoxRESULT_OK;
+        return hoxRC_OK;
     }
 
     /* Start connecting... */
@@ -665,13 +665,13 @@ hoxRemoteSite::Connect()
     m_dlgProgress->Pulse();
 
     result = m_player->ConnectToNetworkServer( m_responseHandler );
-    if ( result != hoxRESULT_OK )
+    if ( result != hoxRC_OK )
     {
         wxLogError("%s: Failed to connect to server.", FNAME);
-        return hoxRESULT_ERR;
+        return hoxRC_ERR;
     }
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 hoxResult 
@@ -684,7 +684,7 @@ hoxRemoteSite::Close()
 	if ( m_siteClosing )
 	{
 		wxLogDebug("%s: Site [%s] is already being closed. END.", FNAME, this->GetName().c_str());
-		return hoxRESULT_OK;
+		return hoxRC_OK;
 	}
 	m_siteClosing = true;
 
@@ -693,14 +693,14 @@ hoxRemoteSite::Close()
 		/* Inform the remote server that the player is logging-out. 
 		 */
 		result = m_player->DisconnectFromNetworkServer( m_responseHandler );
-		if ( result != hoxRESULT_OK )
+		if ( result != hoxRC_OK )
 		{
 			wxLogError("%s: Failed to connect to server.", FNAME);
-			return hoxRESULT_ERR;
+			return hoxRC_ERR;
 		}
 	}
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 hoxResult 
@@ -712,17 +712,17 @@ hoxRemoteSite::QueryForNetworkTables()
     if ( ! this->IsConnected() )
     {
         wxLogDebug("%s: This site has NOT been connected.", FNAME);
-        return hoxRESULT_ERR;
+        return hoxRC_ERR;
     }
 
     result = m_player->QueryForNetworkTables( m_responseHandler );
-    if ( result != hoxRESULT_OK )
+    if ( result != hoxRC_OK )
     {
         wxLogError("%s: Failed to query for tables.", FNAME);
-        return hoxRESULT_ERR;
+        return hoxRC_ERR;
     }
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 bool 
@@ -740,13 +740,13 @@ hoxRemoteSite::CreateNewTable( wxString& newTableId )
     hoxResult result;
 
     result = m_player->OpenNewNetworkTable( m_responseHandler );
-    if ( result != hoxRESULT_OK )
+    if ( result != hoxRC_OK )
     {
         wxLogError("%s: Failed to open a new Table on the remote server.", FNAME);
-        return hoxRESULT_ERR;
+        return hoxRC_ERR;
     }
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 hoxResult 
@@ -762,7 +762,7 @@ hoxRemoteSite::JoinExistingTable(const hoxNetworkTableInfo& tableInfo)
 	if ( table != NULL )
 	{
 		wxLogWarning("This Site should only handle JOIN (existing) table.");
-		return hoxRESULT_ERR;
+		return hoxRC_ERR;
 	}
 	
     /***********************/
@@ -811,17 +811,17 @@ hoxRemoteSite::JoinExistingTable(const hoxNetworkTableInfo& tableInfo)
     if ( red_player != NULL )
     {
         result = red_player->JoinTableAs( table, hoxCOLOR_RED );
-        wxASSERT( result == hoxRESULT_OK  );
+        wxASSERT( result == hoxRC_OK  );
     }
     if ( black_player != NULL )
     {
         result = black_player->JoinTableAs( table, hoxCOLOR_BLACK );
-        wxASSERT( result == hoxRESULT_OK  );
+        wxASSERT( result == hoxRC_OK  );
     }
 	if ( myColor == hoxCOLOR_NONE )
 	{
 		result = m_player->JoinTableAs( table, myColor );
-		wxASSERT( result == hoxRESULT_OK  );
+		wxASSERT( result == hoxRC_OK  );
 	}
 
 	/* Toggle board if I play BLACK. */
@@ -833,7 +833,7 @@ hoxRemoteSite::JoinExistingTable(const hoxNetworkTableInfo& tableInfo)
 
 	wxGetApp().GetFrame()->UpdateSiteTreeUI();
 
-	return hoxRESULT_OK;
+	return hoxRC_OK;
 }
 
 void 
@@ -978,7 +978,7 @@ hoxChesscapeSite::OnResponse_Connect( const hoxResponse_AutoPtr& response )
     wxLogDebug("%s: Parsing CONNECT's response...", FNAME);
 
 	/* Do nothing. */
-    if ( response->code != hoxRESULT_OK )
+    if ( response->code != hoxRC_OK )
     {
 		wxLogWarning("Login failed with response = [%s].", response->content.c_str());
         return;

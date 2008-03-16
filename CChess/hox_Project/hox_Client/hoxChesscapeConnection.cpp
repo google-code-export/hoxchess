@@ -26,7 +26,7 @@
 
 #include "hoxChesscapeConnection.h"
 #include "hoxLocalPlayer.h"
-#include "hoxUtility.h"
+#include "hoxUtil.h"
 #include "hoxNetworkAPI.h"
 
 IMPLEMENT_DYNAMIC_CLASS(hoxChesscapeConnection, hoxThreadConnection)
@@ -68,7 +68,7 @@ void
 hoxChesscapeConnection::HandleRequest( hoxRequest* request )
 {
     const char* FNAME = "hoxChesscapeConnection::HandleRequest";
-    hoxResult    result = hoxRESULT_ERR;
+    hoxResult    result = hoxRC_ERR;
     std::auto_ptr<hoxResponse> response( new hoxResponse(request->type, 
                                                          request->sender) );
 
@@ -80,10 +80,10 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
     if ( request->type == hoxREQUEST_PLAYER_DATA )
     {
         result = _CheckAndHandleSocketLostEvent( request, response->content );
-        if ( result == hoxRESULT_HANDLED )
+        if ( result == hoxRC_HANDLED )
         {
             response->flags |= hoxRESPONSE_FLAG_CONNECTION_LOST;
-            result = hoxRESULT_OK;  // Consider "success".
+            result = hoxRC_OK;  // Consider "success".
             goto exit_label;
         }
     }
@@ -104,7 +104,7 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
 			{
 				m_pSClient->SetFlags( savedFlags ); // Make sure to read data in the ORIGINAL mode.
 				result = this->_ReadLine( m_pSClient, response->content );
-				if ( result != hoxRESULT_OK )
+				if ( result != hoxRC_OK )
 				{
 					wxLogError("%s: Failed to read incoming command.", FNAME);
 					break; //goto exit_label;
@@ -140,9 +140,9 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
 			const wxString login = request->parameters["pid"]; 
 		    const wxString password = request->parameters["password"];
             result = _Connect(login, password, response->content);
-            if ( result == hoxRESULT_HANDLED )
+            if ( result == hoxRC_HANDLED )
             {
-                result = hoxRESULT_OK;  // Consider "success".
+                result = hoxRC_OK;  // Consider "success".
             }
 			break;
 		}
@@ -159,7 +159,7 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
 		    const wxString tableId = request->parameters["tid"];
 			const bool hasRole = (request->parameters["joined"] == "1");
 			const hoxColor requestColor = 
-				hoxUtility::StringToColor( request->parameters["color"] );
+				hoxUtil::StringToColor( request->parameters["color"] );
             result = _Join(tableId, hasRole, requestColor);
 			response->content = tableId;
             break;
@@ -205,16 +205,16 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
 
         default:
             wxLogError("%s: Unsupported request Type [%s].", 
-                FNAME, hoxUtility::RequestTypeToString(request->type).c_str());
-            result = hoxRESULT_NOT_SUPPORTED;
+                FNAME, hoxUtil::RequestTypeToString(request->type).c_str());
+            result = hoxRC_NOT_SUPPORTED;
             break;
     }
 
 exit_label:
-    if ( result != hoxRESULT_OK )
+    if ( result != hoxRC_OK )
     {
         wxLogDebug("%s: *** WARN *** Error occurred while handling request [%s].", 
-            FNAME, hoxUtility::RequestTypeToString(request->type).c_str());
+            FNAME, hoxUtil::RequestTypeToString(request->type).c_str());
         response->content = "!Error_Result!";
     }
 
@@ -232,7 +232,7 @@ hoxChesscapeConnection::_CheckAndHandleSocketLostEvent(
                                 wxString&         response )
 {
     const char* FNAME = "hoxChesscapeConnection::_CheckAndHandleSocketLostEvent";
-    hoxResult result = hoxRESULT_OK;
+    hoxResult result = hoxRC_OK;
 
     //wxLogDebug("%s: ENTER.", FNAME);
 
@@ -242,7 +242,7 @@ hoxChesscapeConnection::_CheckAndHandleSocketLostEvent(
     {
         wxLogDebug("%s: Received socket-lost event. Deleting client socket.", FNAME);
         _DestroySocket();
-        result = hoxRESULT_HANDLED;
+        result = hoxRC_HANDLED;
     }
 
     return result;
@@ -258,7 +258,7 @@ hoxChesscapeConnection::_Connect( const wxString& login,
     if ( this->IsConnected() )
     {
         wxLogDebug("%s: The connection already established. END.", FNAME);
-        return hoxRESULT_HANDLED;
+        return hoxRC_HANDLED;
     }
 
     /* Get the server address. */
@@ -277,7 +277,7 @@ hoxChesscapeConnection::_Connect( const wxString& login,
         wxLogError("%s: Failed to connect to the server [%s:%d]. Error = [%s].",
             FNAME, addr.Hostname().c_str(), addr.Service(), 
             hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
-        return hoxRESULT_ERR;
+        return hoxRC_ERR;
     }
 
     wxLogDebug("%s: Succeeded! Connection established with the server.", FNAME);
@@ -298,28 +298,28 @@ hoxChesscapeConnection::_Connect( const wxString& login,
 			wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
 				FNAME, loginRequest.c_str(), nWrite, requestSize, 
 				hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
-			return hoxRESULT_ERR;
+			return hoxRC_ERR;
 		}
 	}
 	////////////////////////////
 	// Read the response.
 	{
         hoxResult result = this->_ReadLine( m_pSClient, responseStr );
-        if ( result != hoxRESULT_OK )
+        if ( result != hoxRC_OK )
         {
             wxLogDebug("%s: *** WARN *** Failed to read incoming command.", FNAME);
-            //return hoxRESULT_ERR;
+            //return hoxRC_ERR;
         }
 	}
 	//////////////////////////////
-    wxCHECK_MSG(m_player, hoxRESULT_ERR, "The player is NULL.");
+    wxCHECK_MSG(m_player, hoxRC_ERR, "The player is NULL.");
     wxLogDebug("%s: Let the connection's Player [%s] handle all socket events.", 
         FNAME, m_player->GetName());
     m_pSClient->SetEventHandler( *m_player, CLIENT_SOCKET_ID );
     m_pSClient->SetNotify(wxSOCKET_INPUT_FLAG | wxSOCKET_LOST_FLAG);
     m_pSClient->Notify(true);
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 hoxResult
@@ -331,7 +331,7 @@ hoxChesscapeConnection::_Disconnect( const wxString& login )
     {
         // NOTE: The connection could have been closed if the server is down.
         wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
-        return hoxRESULT_OK;   // *** Fine. Do nothing.
+        return hoxRC_OK;   // *** Fine. Do nothing.
     }
 
     /* Send LOGOUT request. */
@@ -348,10 +348,10 @@ hoxChesscapeConnection::_Disconnect( const wxString& login )
 		wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
 			FNAME, cmdRequest.c_str(), nWrite, requestSize, 
 			hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
-		return hoxRESULT_ERR;
+		return hoxRC_ERR;
 	}
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 hoxResult
@@ -365,7 +365,7 @@ hoxChesscapeConnection::_Join( const wxString& tableId,
     {
         // NOTE: The connection could have been closed if the server is down.
         wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
-        return hoxRESULT_ERR;
+        return hoxRC_ERR;
     }
 
     /* Send JOIN request if the player is NOT in the table. */
@@ -384,7 +384,7 @@ hoxChesscapeConnection::_Join( const wxString& tableId,
 			wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
 				FNAME, cmdRequest.c_str(), nWrite, requestSize, 
 				hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
-			return hoxRESULT_ERR;
+			return hoxRC_ERR;
 		}
 	}
 
@@ -407,11 +407,11 @@ hoxChesscapeConnection::_Join( const wxString& tableId,
 			wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
 				FNAME, cmdRequest.c_str(), nWrite, requestSize, 
 				hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
-			return hoxRESULT_ERR;
+			return hoxRC_ERR;
 		}
 	}
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 hoxResult
@@ -423,7 +423,7 @@ hoxChesscapeConnection::_UpdateStatus( const wxString& playerStatus )
     {
         // NOTE: The connection could have been closed if the server is down.
         wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
-        return hoxRESULT_ERR;
+        return hoxRC_ERR;
     }
 
     /* Send UPDATE-STATUS request. */
@@ -441,10 +441,10 @@ hoxChesscapeConnection::_UpdateStatus( const wxString& playerStatus )
 		wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
 			FNAME, cmdRequest.c_str(), nWrite, requestSize, 
 			hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
-		return hoxRESULT_ERR;
+		return hoxRC_ERR;
 	}
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 hoxResult
@@ -456,7 +456,7 @@ hoxChesscapeConnection::_Leave()
     {
         // NOTE: The connection could have been closed if the server is down.
         wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
-        return hoxRESULT_ERR;
+        return hoxRC_ERR;
     }
 
     /* Send LEAVE (table) request. */
@@ -473,10 +473,10 @@ hoxChesscapeConnection::_Leave()
 		wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
 			FNAME, cmdRequest.c_str(), nWrite, requestSize, 
 			hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
-		return hoxRESULT_ERR;
+		return hoxRC_ERR;
 	}
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 hoxResult
@@ -488,7 +488,7 @@ hoxChesscapeConnection::_New()
     {
         // NOTE: The connection could have been closed if the server is down.
         wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
-        return hoxRESULT_ERR;
+        return hoxRC_ERR;
     }
 
     /* Send NEW (table) request. */
@@ -507,10 +507,10 @@ hoxChesscapeConnection::_New()
 		wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
 			FNAME, cmdRequest.c_str(), nWrite, requestSize, 
 			hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
-		return hoxRESULT_ERR;
+		return hoxRC_ERR;
 	}
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 hoxResult   
@@ -522,7 +522,7 @@ hoxChesscapeConnection::_Move( hoxRequest* request )
     {
         // NOTE: The connection could have been closed if the server is down.
         wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
-        return hoxRESULT_ERR;
+        return hoxRC_ERR;
     }
 
 	/* Extract parameters. */
@@ -546,12 +546,12 @@ hoxChesscapeConnection::_Move( hoxRequest* request )
 		wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
 			FNAME, cmdRequest.c_str(), nWrite, requestSize, 
 			hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
-		return hoxRESULT_ERR;
+		return hoxRC_ERR;
 	}
 
 	/* Send GAME-STATUS request */
     const hoxGameStatus gameStatus = 
-        hoxUtility::StringToGameStatus( statusStr );
+        hoxUtil::StringToGameStatus( statusStr );
 
 	if (   gameStatus == hoxGAME_STATUS_RED_WIN 
         || gameStatus == hoxGAME_STATUS_BLACK_WIN )
@@ -568,11 +568,11 @@ hoxChesscapeConnection::_Move( hoxRequest* request )
 			wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
 				FNAME, cmdRequest.c_str(), nWrite, requestSize, 
 				hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
-			return hoxRESULT_ERR;
+			return hoxRC_ERR;
 		}
 	}
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 hoxResult   
@@ -584,7 +584,7 @@ hoxChesscapeConnection::_WallMessage( hoxRequest* request )
     {
         // NOTE: The connection could have been closed if the server is down.
         wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
-        return hoxRESULT_ERR;
+        return hoxRC_ERR;
     }
 
 	/* Extract parameters. */
@@ -604,10 +604,10 @@ hoxChesscapeConnection::_WallMessage( hoxRequest* request )
 		wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
 			FNAME, cmdRequest.c_str(), nWrite, requestSize, 
 			hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
-		return hoxRESULT_ERR;
+		return hoxRC_ERR;
 	}
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 hoxResult   
@@ -619,7 +619,7 @@ hoxChesscapeConnection::_Draw( const wxString& drawResponse )
     {
         // NOTE: The connection could have been closed if the server is down.
         wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
-        return hoxRESULT_ERR;
+        return hoxRC_ERR;
     }
 
 	/* Send the response to a DRAW request, if asked.
@@ -634,7 +634,7 @@ hoxChesscapeConnection::_Draw( const wxString& drawResponse )
 	{
 		// Send nothing. Done.
 		wxLogDebug("%s: DRAW request is denied. Do nothing. END.", FNAME);
-		return hoxRESULT_OK;
+		return hoxRC_OK;
 	}
 
 	wxLogDebug("%s: Sending DRAW command [%s]...", FNAME, drawCmd.c_str());
@@ -649,10 +649,10 @@ hoxChesscapeConnection::_Draw( const wxString& drawResponse )
 		wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
 			FNAME, cmdRequest.c_str(), nWrite, requestSize, 
 			hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
-		return hoxRESULT_ERR;
+		return hoxRC_ERR;
 	}
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 void
@@ -695,7 +695,7 @@ hoxChesscapeConnection::_ReadLine( wxSocketBase* sock,
 			else if ( bStart && c == END_CHAR )
 			{
 				result = commandStr;
-				return hoxRESULT_OK;  // Done.
+				return hoxRC_OK;  // Done.
 			}
             else
             {
@@ -721,7 +721,7 @@ hoxChesscapeConnection::_ReadLine( wxSocketBase* sock,
         }
     }
 
-    return hoxRESULT_ERR;
+    return hoxRC_ERR;
 }
 
 /************************* END OF FILE ***************************************/

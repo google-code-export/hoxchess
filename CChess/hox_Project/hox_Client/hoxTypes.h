@@ -287,13 +287,13 @@ public:
 	void*            eventObject; // TODO: Re-consider this or other members?
 
     hoxResponse() : type( hoxREQUEST_UNKNOWN )
-                  , code( hoxRESULT_UNKNOWN )
+                  , code( hoxRC_UNKNOWN )
                   , flags( hoxRESPONSE_FLAG_NONE )
                   , sender( NULL )
 	              , eventObject( NULL ) {}
     hoxResponse(hoxRequestType t, wxEvtHandler* s = NULL) 
                   : type( t )
-                  , code( hoxRESULT_UNKNOWN )
+                  , code( hoxRC_UNKNOWN )
                   , flags( hoxRESPONSE_FLAG_NONE )
                   , sender( s )
 	              , eventObject( NULL ) {}

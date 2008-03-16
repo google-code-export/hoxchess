@@ -25,7 +25,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxThreadConnection.h"
-#include "hoxUtility.h"
+#include "hoxUtil.h"
 
 IMPLEMENT_ABSTRACT_CLASS(hoxThreadConnection, hoxConnection)
 
@@ -115,7 +115,7 @@ hoxThreadConnection::Entry()
             break;  // Exit the thread.
         }
         wxLogDebug("%s: Processing request Type = [%s]...", 
-            FNAME, hoxUtility::RequestTypeToString(request->type).c_str());
+            FNAME, hoxUtil::RequestTypeToString(request->type).c_str());
 
         this->HandleRequest( request );
         delete request;
@@ -135,7 +135,7 @@ hoxThreadConnection::AddRequest( hoxRequest* request )
     if ( m_shutdownRequested )
     {
         wxLogDebug("%s: *** WARN*** Deny request [%s]. The thread is shutdowning.", 
-            FNAME, hoxUtility::RequestTypeToString(request->type).c_str());
+            FNAME, hoxUtil::RequestTypeToString(request->type).c_str());
         delete request;
         return false;
     }

@@ -118,7 +118,7 @@ hoxHttpPlayer::OnConnectionResponse_Poll(wxCommandEvent& event)
     // Re-start the timer before checking for the result.
     m_timer.Start( -1 /* Use the previous interval */, wxTIMER_ONE_SHOT );
 
-	if ( result != hoxRESULT_OK || returnCode != 0 )
+	if ( result != hoxRC_OK || returnCode != 0 )
     {
         wxLogDebug("%s: *** WARN *** Failed to parse network events. [%d] [%s]", 
             FNAME, returnCode, returnMsg.c_str());
@@ -160,7 +160,7 @@ hoxHttpPlayer::HandleResponseEvent_Connect( wxCommandEvent& event )
 
     result = this->hoxLocalPlayer::HandleResponseEvent_Connect(event);
 
-    if ( result == hoxRESULT_OK )
+    if ( result == hoxRC_OK )
     {
         /* NOTE: Only enable 1-short at a time to be sure that the timer-handler
          *       is only entered ONE at at time.
@@ -225,7 +225,7 @@ hoxHttpPlayer::_HandleEventFromNetwork( const hoxNetworkEvent& networkEvent )
                                                            playerId, 
                                                            playerScore,
                                                            requestColor );
-            if ( result != hoxRESULT_OK )
+            if ( result != hoxRC_OK )
             {
                 wxLogDebug("%s: *** ERROR *** Failed to ask table to join as color [%d].", FNAME, requestColor);
                 break;

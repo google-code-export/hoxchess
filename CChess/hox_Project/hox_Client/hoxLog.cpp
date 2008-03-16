@@ -28,7 +28,7 @@
 #include <wx/filename.h>
 
 #include "hoxLog.h"
-#include "hoxUtility.h"
+#include "hoxUtil.h"
 
 /**
  * The default constructor.
@@ -39,7 +39,7 @@ hoxLog::hoxLog()
     const char* FNAME = "hoxLog::hoxLog";
 
     m_filename = wxFileName::GetTempDir() + "/CChess_"
-               + hoxUtility::GenerateRandomString() + ".log";
+               + hoxUtil::GenerateRandomString() + ".log";
     wxLogDebug("%s: Opened the log file [%s].", FNAME, m_filename.c_str());
 }
 

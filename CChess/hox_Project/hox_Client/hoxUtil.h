@@ -18,14 +18,14 @@
  ***************************************************************************/
 
 /////////////////////////////////////////////////////////////////////////////
-// Name:            hoxUtility.h
+// Name:            hoxUtil.h
 // Created:         09/28/2007
 //
 // Description:     Containing various helper API used in the project.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_UTILITY_H_
-#define __INCLUDED_HOX_UTILITY_H_
+#ifndef __INCLUDED_HOX_UTIL_H_
+#define __INCLUDED_HOX_UTIL_H_
 
 #include <wx/wx.h>
 #include <wx/image.h>
@@ -33,7 +33,7 @@
 #include "hoxEnums.h"
 #include "hoxTypes.h"
 
-namespace hoxUtility
+namespace hoxUtil
 {
     void SetPiecesPath(const wxString& piecesPath);
 
@@ -122,4 +122,4 @@ namespace hoxUtility
 
 }
 
-#endif /* __INCLUDED_HOX_UTILITY_H_ */
+#endif /* __INCLUDED_HOX_UTIL_H_ */

@@ -28,7 +28,7 @@
 #include "hoxNetworkAPI.h"
 #include "MyApp.h"      // wxGetApp()
 #include "MyFrame.h"
-#include "hoxUtility.h"
+#include "hoxUtil.h"
 
 #include <wx/tokenzr.h>
 
@@ -80,7 +80,7 @@ void
 hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 {
     const char* FNAME = "hoxMyPlayer::OnConnectionResponse_PlayerData";
-    hoxResult result = hoxRESULT_OK;
+    hoxResult result = hoxRC_OK;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -110,15 +110,15 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
     hoxCommand  command;
 
     result = hoxNetworkAPI::ParseCommand( commandStr, command );
-    if ( result != hoxRESULT_OK )
+    if ( result != hoxRC_OK )
     {
         wxLogError("%s: Failed to parse command-string [%s].", FNAME, commandStr.c_str());
         return;
     }
     wxLogDebug("%s: Received a command [%s].", FNAME, 
-        hoxUtility::RequestTypeToString(command.type).c_str());
+        hoxUtil::RequestTypeToString(command.type).c_str());
 
-    const wxString sType    = hoxUtility::RequestTypeToString(command.type);
+    const wxString sType    = hoxUtil::RequestTypeToString(command.type);
     const wxString sCode    = command.parameters["code"];
     const wxString sTableId = command.parameters["tid"];
     const wxString sContent = command.parameters["content"];
@@ -156,7 +156,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 		    hoxNetworkTableInfoList* pTableList = new hoxNetworkTableInfoList;
 		    result = _ParseNetworkTables( sContent,
 					                      *pTableList );
-		    if ( result != hoxRESULT_OK )
+		    if ( result != hoxRC_OK )
 		    {
 			    wxLogDebug("%s: *** WARN *** Failed to parse LIST's response [%s].", 
 				    FNAME, sContent.c_str());
@@ -174,7 +174,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 		    std::auto_ptr<hoxNetworkTableInfo> pTableInfo( new hoxNetworkTableInfo() );
 		    result = hoxNetworkAPI::ParseOneNetworkTable( sContent,
 													      *pTableInfo );
-		    if ( result != hoxRESULT_OK )
+		    if ( result != hoxRC_OK )
 		    {
 			    wxLogDebug("%s: *** WARN *** Failed to parse NEW's event [%s].", 
 				    FNAME, sContent.c_str());
@@ -191,7 +191,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 
 		    result = _ParsePlayerLeaveEvent( sContent,
 										     table, leavePlayer );
-		    if ( result != hoxRESULT_OK )
+		    if ( result != hoxRC_OK )
 		    {
 			    wxLogDebug("%s: Table/Player not found. LEAVE's event [%s] ignored.", 
 				    FNAME, sContent.c_str());
@@ -207,7 +207,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 		    std::auto_ptr<hoxNetworkTableInfo> pTableInfo( new hoxNetworkTableInfo() );
 		    result = hoxNetworkAPI::ParseOneNetworkTable( sContent,
 													      *pTableInfo );
-		    if ( result != hoxRESULT_OK )
+		    if ( result != hoxRC_OK )
 		    {
 			    wxLogDebug("%s: *** WARN *** Failed to parse JOIN's event [%s].", 
 				    FNAME, sContent.c_str());
@@ -226,7 +226,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 
 		    result = _ParsePlayerJoinEvent( sContent,
 									        tableId, playerId, nPlayerScore, joinColor );
-		    if ( result != hoxRESULT_OK )
+		    if ( result != hoxRC_OK )
 		    {
 			    wxLogDebug("%s: Failed to parse E_JOIN's event [%s].",
                     FNAME, sContent.c_str());
@@ -239,7 +239,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
                                                  playerId, 
                                                  nPlayerScore,
                                                  joinColor );
-            if ( result != hoxRESULT_OK )
+            if ( result != hoxRC_OK )
             {
                 wxLogDebug("%s: *** ERROR *** Failed to ask table to join as color [%d].", 
                     FNAME, joinColor);
@@ -255,7 +255,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 
 		    result = _ParsePlayerMsgEvent( sContent,
 									       table, playerId, message );
-		    if ( result != hoxRESULT_OK )
+		    if ( result != hoxRC_OK )
 		    {
 			    wxLogDebug("%s: Failed to parse MSG's event [%s].",
                     FNAME, sContent.c_str());
@@ -274,7 +274,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 
 		    result = _ParsePlayerMoveEvent( sContent,
 									        table, movePlayer, sMove );
-		    if ( result != hoxRESULT_OK )
+		    if ( result != hoxRC_OK )
 		    {
 			    wxLogDebug("%s: Failed to parse MOVE's event [%s].",
                     FNAME, sContent.c_str());
@@ -292,7 +292,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 
 		    result = _ParsePlayerDrawEvent( sContent,
 									        table, offerPlayer );
-		    if ( result != hoxRESULT_OK )
+		    if ( result != hoxRC_OK )
 		    {
 			    wxLogDebug("%s: Failed to parse DRAW's event [%s].",
                     FNAME, sContent.c_str());
@@ -311,15 +311,15 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 
 		    result = _ParsePlayerEndEvent( sContent,
 									       table, gameStatus, sReason );
-		    if ( result != hoxRESULT_OK )
+		    if ( result != hoxRC_OK )
 		    {
-			    wxLogDebug("%s: Failed to parse E_END's event [%s].",
-                    FNAME, sContent.c_str());
+			    wxLogDebug("%s: Table not found. E_END's event [%s] ignored.", 
+				    FNAME, sContent.c_str());
                 break;
 		    }
 
             wxLogDebug("%s: The game has ended. Status = [%s]. Reason = [%s]",
-                FNAME, hoxUtility::GameStatusToString( gameStatus ).c_str(), sReason.c_str());
+                FNAME, hoxUtil::GameStatusToString( gameStatus ).c_str(), sReason.c_str());
             table->OnGameOver_FromNetwork( this, gameStatus );
             break;
         }
@@ -347,7 +347,7 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
     /* Make a note to 'self' that one request has been serviced. */
     DecrementOutstandingRequests();
 
-    const wxString sType = hoxUtility::RequestTypeToString(response->type);
+    const wxString sType = hoxUtil::RequestTypeToString(response->type);
 
 	switch ( response->type )
 	{
@@ -357,20 +357,20 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
             hoxCommand  command;
 
             result = hoxNetworkAPI::ParseCommand( commandStr, command );
-            if ( result != hoxRESULT_OK )
+            if ( result != hoxRC_OK )
             {
                 wxLogError("%s: Failed to parse command-string [%s].", FNAME, commandStr.c_str());
                 break;
             }
             wxLogDebug("%s: Received a command [%s].", FNAME, 
-                hoxUtility::RequestTypeToString(command.type).c_str());
+                hoxUtil::RequestTypeToString(command.type).c_str());
 
-            const wxString sType    = hoxUtility::RequestTypeToString(command.type);
+            const wxString sType    = hoxUtil::RequestTypeToString(command.type);
             //const wxString sCode    = command.parameters["code"];
             const wxString sContent = command.parameters["content"];
 
             result = _HandleResponseEvent_LOGIN( sContent );
-			if ( result != hoxRESULT_OK )
+			if ( result != hoxRC_OK )
 			{
 				wxLogDebug("%s: *** WARN *** Failed to handle [%s] 's response [%s].", 
                     FNAME, sType.c_str(), sContent.c_str());
@@ -407,7 +407,7 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
         }
 		default:
 			wxLogDebug("%s: *** WARN *** Unsupported request-type [%s].", 
-				FNAME, hoxUtility::RequestTypeToString(response->type));
+				FNAME, hoxUtil::RequestTypeToString(response->type));
 			break;
 	} // switch
 
@@ -437,11 +437,11 @@ hoxMyPlayer::_HandleResponseEvent_LOGIN( const wxString& sContent )
     result = _ParsePlayerLoginEvent( sContent,
 									 playerId,
 								     nScore );
-    if ( result != hoxRESULT_OK )
+    if ( result != hoxRC_OK )
     {
         wxLogDebug("%s: *** WARN *** Failed to parse LOGIN event [%s]. (%d)", 
             FNAME, sContent.c_str(), result);
-        return hoxRESULT_ERR;
+        return hoxRC_ERR;
     }
 
     wxLogDebug("%s: LOGIN event: Player Id = [%s], Score = [%d].",
@@ -458,7 +458,7 @@ hoxMyPlayer::_HandleResponseEvent_LOGIN( const wxString& sContent )
         // NOTE: Do nothing.
     }
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 hoxResult
@@ -489,7 +489,7 @@ hoxMyPlayer::_ParsePlayerLoginEvent( const wxString& sContent,
 		}
 	}		
 
-	return hoxRESULT_OK;
+	return hoxRC_OK;
 }
 
 hoxResult
@@ -497,7 +497,7 @@ hoxMyPlayer::_ParseNetworkTables( const wxString&          responseStr,
                                    hoxNetworkTableInfoList& tableList )
 {
     const char* FNAME = "hoxMyPlayer::_ParseNetworkTables";
-    hoxResult  result = hoxRESULT_ERR;
+    hoxResult  result = hoxRC_ERR;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -514,7 +514,7 @@ hoxMyPlayer::_ParseNetworkTables( const wxString&          responseStr,
 		tableList.push_back( tableInfo );
     }
 
-	return hoxRESULT_OK;
+	return hoxRC_OK;
 }
 
 hoxResult
@@ -534,7 +534,7 @@ hoxMyPlayer::_ParsePlayerLeaveEvent( const wxString& sContent,
     if ( table == NULL )
     {
         wxLogDebug("%s: Table [%s] not found.", FNAME, tableId.c_str());
-        return hoxRESULT_NOT_FOUND;
+        return hoxRC_NOT_FOUND;
     }
 
     /* Lookup Player. */
@@ -542,10 +542,10 @@ hoxMyPlayer::_ParsePlayerLeaveEvent( const wxString& sContent,
     if ( player == NULL ) 
     {
         wxLogDebug("%s: Player [%s] not found.", FNAME, playerId.c_str());
-        return hoxRESULT_NOT_FOUND;
+        return hoxRC_NOT_FOUND;
     }
 
-	return hoxRESULT_OK;
+	return hoxRC_OK;
 }
 
 hoxResult
@@ -575,12 +575,12 @@ hoxMyPlayer::_ParsePlayerJoinEvent( const wxString& sContent,
 			case 0: tableId = token;  break;
 			case 1: playerId = token;  break;
             case 2: nPlayerScore = ::atoi( token.c_str() ); break; 
-            case 3: color = hoxUtility::StringToColor( token ); break;
+            case 3: color = hoxUtil::StringToColor( token ); break;
 			default: /* Ignore the rest. */ break;
 		}
 	}		
 
-	return hoxRESULT_OK;
+	return hoxRC_OK;
 }
 
 hoxResult
@@ -620,10 +620,10 @@ hoxMyPlayer::_ParsePlayerMsgEvent( const wxString& sContent,
     if ( table == NULL )
     {
         wxLogDebug("%s: Table [%s] not found.", FNAME, tableId.c_str());
-        return hoxRESULT_NOT_FOUND;
+        return hoxRC_NOT_FOUND;
     }
 
-	return hoxRESULT_OK;
+	return hoxRC_OK;
 }
 
 hoxResult
@@ -664,7 +664,7 @@ hoxMyPlayer::_ParsePlayerMoveEvent( const wxString& sContent,
     if ( table == NULL )
     {
         wxLogDebug("%s: Table [%s] not found.", FNAME, tableId.c_str());
-        return hoxRESULT_NOT_FOUND;
+        return hoxRC_NOT_FOUND;
     }
 
     /* Lookup Player. */
@@ -672,10 +672,10 @@ hoxMyPlayer::_ParsePlayerMoveEvent( const wxString& sContent,
     if ( player == NULL ) 
     {
         wxLogDebug("%s: Player [%s] not found.", FNAME, playerId.c_str());
-        return hoxRESULT_NOT_FOUND;
+        return hoxRC_NOT_FOUND;
     }
 
-	return hoxRESULT_OK;
+	return hoxRC_OK;
 }
 
 hoxResult
@@ -713,7 +713,7 @@ hoxMyPlayer::_ParsePlayerDrawEvent( const wxString& sContent,
     if ( table == NULL )
     {
         wxLogDebug("%s: Table [%s] not found.", FNAME, tableId.c_str());
-        return hoxRESULT_NOT_FOUND;
+        return hoxRC_NOT_FOUND;
     }
 
     /* Lookup Player. */
@@ -721,10 +721,10 @@ hoxMyPlayer::_ParsePlayerDrawEvent( const wxString& sContent,
     if ( player == NULL ) 
     {
         wxLogDebug("%s: Player [%s] not found.", FNAME, playerId.c_str());
-        return hoxRESULT_NOT_FOUND;
+        return hoxRC_NOT_FOUND;
     }
 
-	return hoxRESULT_OK;
+	return hoxRC_OK;
 }
 
 hoxResult
@@ -765,13 +765,13 @@ hoxMyPlayer::_ParsePlayerEndEvent( const wxString& sContent,
     if ( table == NULL )
     {
         wxLogDebug("%s: Table [%s] not found.", FNAME, tableId.c_str());
-        return hoxRESULT_NOT_FOUND;
+        return hoxRC_NOT_FOUND;
     }
 
     /* Convert game-status from the string ... */
-    gameStatus = hoxUtility::StringToGameStatus( sStatus );
+    gameStatus = hoxUtil::StringToGameStatus( sStatus );
 
-	return hoxRESULT_OK;
+	return hoxRC_OK;
 }
 
 /************************* END OF FILE ***************************************/

@@ -29,7 +29,7 @@
 #include "hoxPlayer.h"
 #include "hoxBoard.h"
 #include "hoxSite.h"
-#include "hoxUtility.h"
+#include "hoxUtil.h"
 #include <algorithm>
 
 // ----------------------------------------------------------------------------
@@ -68,9 +68,9 @@ hoxTable::AssignPlayer( hoxPlayer*     player,
                         hoxColor& assignedColor,
                         bool           informOthers /* = true */)
 {
-    hoxResult result = hoxRESULT_OK;
+    hoxResult result = hoxRC_OK;
 
-    wxCHECK_MSG( player != NULL, hoxRESULT_ERR, "The player is NULL." );
+    wxCHECK_MSG( player != NULL, hoxRC_ERR, "The player is NULL." );
 
     assignedColor = hoxCOLOR_NONE; // Default: Observer's Role.
 
@@ -95,7 +95,7 @@ hoxTable::AssignPlayer( hoxPlayer*     player,
         _PostAll_JoinEvent( player, assignedColor );
     }
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 hoxResult 
@@ -104,7 +104,7 @@ hoxTable::AssignPlayerAs( hoxPlayer*     player,
 {
     const char* FNAME = "hoxTable::AssignPlayerAs";
 
-    wxCHECK_MSG( player != NULL, hoxRESULT_ERR, "The player is NULL." );
+    wxCHECK_MSG( player != NULL, hoxRC_ERR, "The player is NULL." );
 
     bool bRequestOK =
            ( requestColor == hoxCOLOR_RED   && m_redPlayer == NULL )
@@ -115,7 +115,7 @@ hoxTable::AssignPlayerAs( hoxPlayer*     player,
     {
         wxLogDebug("%s: *** WARN *** Failed to handle request-to-join from [%s].", 
             FNAME, player->GetName().c_str());
-        return hoxRESULT_ERR;
+        return hoxRC_ERR;
     }
 
     /* Update our player-list */
@@ -126,7 +126,7 @@ hoxTable::AssignPlayerAs( hoxPlayer*     player,
      * the new Player 
      * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 hoxResult 
@@ -137,7 +137,7 @@ hoxTable::UnassignPlayer( hoxPlayer* player,
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    wxCHECK_MSG( player, hoxRESULT_ERR, "The player is NULL." );
+    wxCHECK_MSG( player, hoxRC_ERR, "The player is NULL." );
 
     /* Inform other players about this event. 
      * NOTE: This should be done BEFORE the player is removed
@@ -148,7 +148,7 @@ hoxTable::UnassignPlayer( hoxPlayer* player,
     /* Update our player-list */
     _RemovePlayer( player );
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 void 
@@ -266,7 +266,7 @@ hoxTable::OnJoinCommand_FromBoard()
 	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_JOIN );
 	pCommand->parameters["tid"] = m_id;
 	pCommand->parameters["pid"] = boardPlayer->GetName();
-	pCommand->parameters["color"] = hoxUtility::ColorToString( requestColor );
+	pCommand->parameters["color"] = hoxUtil::ColorToString( requestColor );
 	pCommand->parameters["joined"] = "1";
 
 	_PostPlayer_ActionEvent( boardPlayer, hoxEVT_PLAYER_JOIN_TABLE, pCommand );
@@ -558,7 +558,7 @@ hoxTable::_PostPlayer_MoveEvent( hoxPlayer*         player,
     wxCHECK_RET( movePlayer, "The 'move' Player is NULL." );
 
 	/* Convert game's status into a string. */
-    const wxString statusStr = hoxUtility::GameStatusToString( status );
+    const wxString statusStr = hoxUtil::GameStatusToString( status );
 
     wxLogDebug("%s: Informing player [%s] that [%s] just made a new Move [%s]...", 
         FNAME, player->GetName().c_str(), movePlayer->GetName().c_str(), moveStr.c_str());

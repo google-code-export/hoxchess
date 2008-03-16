@@ -91,11 +91,11 @@ public:
     virtual const wxString GetName() const { return "_Unknown_"; }
     virtual hoxResult Close() = 0;
 
-    virtual hoxResult CreateNewTable(wxString& newTableId) { return hoxRESULT_ERR; }
+    virtual hoxResult CreateNewTable(wxString& newTableId) { return hoxRC_ERR; }
     virtual hoxResult CreateNewTableAsPlayer(wxString&          newTableId, 
 		                                     hoxPlayer*         player,
 											 const hoxTimeInfo& initialTime) 
-        { return hoxRESULT_ERR; }
+        { return hoxRC_ERR; }
 
     virtual hoxResult CloseTable(hoxTable* table);
     const hoxTableList& GetTables() const { return m_tableMgr.GetTables(); } 
