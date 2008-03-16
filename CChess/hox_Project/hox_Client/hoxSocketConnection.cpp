@@ -136,6 +136,7 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
         case hoxREQUEST_LEAVE:    /* fall through */
         case hoxREQUEST_RESIGN:   /* fall through */
         case hoxREQUEST_DRAW:     /* fall through */
+        case hoxREQUEST_RESET:    /* fall through */
         case hoxREQUEST_MSG:
             if ( ! this->IsConnected() )
             {

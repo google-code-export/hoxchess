@@ -47,6 +47,7 @@ DECLARE_EVENT_TYPE(hoxEVT_BOARD_WALL_OUTPUT, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_NEW_MOVE, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_DRAW_REQUEST, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_GAME_OVER, wxID_ANY)
+DECLARE_EVENT_TYPE(hoxEVT_BOARD_GAME_RESET, wxID_ANY)
 
 /** 
  * A full-featured Board acting as the Table's UI.
@@ -112,6 +113,7 @@ public:
 	void OnNewMove( wxCommandEvent &event );
 	void OnDrawRequest( wxCommandEvent &event );
 	void OnGameOver( wxCommandEvent &event );
+    void OnGameReset( wxCommandEvent &event );
 
     void OnWallInputEnter( wxCommandEvent &event );
 
@@ -122,6 +124,7 @@ public:
 
 	void OnButtonResign( wxCommandEvent &event );
     void OnButtonDraw( wxCommandEvent &event );
+    void OnButtonReset( wxCommandEvent &event );
 	void OnButtonJoin( wxCommandEvent &event );
 
     void OnTimer( wxTimerEvent& event );
@@ -158,6 +161,8 @@ private:
      */
     void _OnValidMove( const hoxMove& move,
 		               bool           bSetupMode = false );
+
+    void _updateStatus();
 
     void _ResetTimerUI();  // Reset times to start a new game.
     void _UpdateTimerUI();

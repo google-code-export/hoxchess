@@ -141,6 +141,7 @@ hoxUtil::RequestTypeToString( const hoxRequestType requestType )
         case hoxREQUEST_LEAVE:       return "LEAVE";
         case hoxREQUEST_RESIGN:      return "RESIGN";
 		case hoxREQUEST_DRAW:        return "DRAW";
+        case hoxREQUEST_RESET:       return "RESET";
         case hoxREQUEST_E_JOIN:      return "E_JOIN";
         case hoxREQUEST_E_END:       return "E_END";
 		case hoxREQUEST_PLAYER_STATUS: return "PLAYER_STATUS";
@@ -172,6 +173,7 @@ hoxUtil::StringToRequestType( const wxString& input )
     if ( input == "LEAVE" )       return hoxREQUEST_LEAVE;
     if ( input == "RESIGN" )      return hoxREQUEST_RESIGN;
 	if ( input == "DRAW" )        return hoxREQUEST_DRAW;
+    if ( input == "RESET" )       return hoxREQUEST_RESET;
     if ( input == "E_JOIN" )      return hoxREQUEST_E_JOIN;
     if ( input == "E_END" )       return hoxREQUEST_E_END;
 	if ( input == "PLAYER_STATUS" ) return hoxREQUEST_PLAYER_STATUS;

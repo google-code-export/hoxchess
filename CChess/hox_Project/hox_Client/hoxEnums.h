@@ -288,6 +288,9 @@ enum hoxRequestType
     hoxREQUEST_DRAW,
         /* Draw request generated from a physical Table */
 
+    hoxREQUEST_RESET,
+        /* Reset request generated from a physical Table */
+
     hoxREQUEST_E_JOIN,
         /* Event generated from a Table that a new Player just joined */
 

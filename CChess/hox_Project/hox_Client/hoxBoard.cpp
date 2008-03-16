@@ -49,6 +49,7 @@ enum
 
     ID_ACTION_RESIGN,
 	ID_ACTION_DRAW,
+	ID_ACTION_RESET,
 	ID_ACTION_JOIN	
 };
 
@@ -60,6 +61,7 @@ DEFINE_EVENT_TYPE( hoxEVT_BOARD_WALL_OUTPUT )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_NEW_MOVE )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_DRAW_REQUEST )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_GAME_OVER )
+DEFINE_EVENT_TYPE( hoxEVT_BOARD_GAME_RESET )
 
 BEGIN_EVENT_TABLE(hoxBoard, wxPanel)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_JOIN, hoxBoard::OnPlayerJoin)
@@ -68,6 +70,7 @@ BEGIN_EVENT_TABLE(hoxBoard, wxPanel)
 	EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_NEW_MOVE, hoxBoard::OnNewMove)
 	EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_DRAW_REQUEST, hoxBoard::OnDrawRequest)
 	EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_GAME_OVER, hoxBoard::OnGameOver)
+    EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_GAME_RESET, hoxBoard::OnGameReset)
 
     EVT_TEXT_ENTER(ID_BOARD_WALL_INPUT, hoxBoard::OnWallInputEnter)
     EVT_BUTTON(ID_HISTORY_BEGIN, hoxBoard::OnButtonHistory_BEGIN)
@@ -76,6 +79,7 @@ BEGIN_EVENT_TABLE(hoxBoard, wxPanel)
     EVT_BUTTON(ID_HISTORY_END, hoxBoard::OnButtonHistory_END)
     EVT_BUTTON(ID_ACTION_RESIGN, hoxBoard::OnButtonResign)
 	EVT_BUTTON(ID_ACTION_DRAW, hoxBoard::OnButtonDraw)
+    EVT_BUTTON(ID_ACTION_RESET, hoxBoard::OnButtonReset)
 	EVT_BUTTON(ID_ACTION_JOIN, hoxBoard::OnButtonJoin)
 
     EVT_TIMER(wxID_ANY, hoxBoard::OnTimer)    
@@ -196,18 +200,11 @@ hoxBoard::OnPlayerJoin( wxCommandEvent &event )
         m_coreBoard->SetLocalColor( playerColor );
     }
 
-    /* Start the game if there are a RED and a BLACK players */
+    /* Update the game-status.
+     * Also, start the game if there are a RED and a BLACK players.
+     */
 
-    if (  !m_redId.empty() && !m_blackId.empty()
-        && m_status == hoxGAME_STATUS_OPEN )
-    {
-        m_status = hoxGAME_STATUS_READY;
-
-        _ResetTimerUI();
-        _UpdateTimerUI();
-
-        m_coreBoard->StartGame();
-    }
+    _updateStatus();
 }
 
 void 
@@ -344,6 +341,17 @@ hoxBoard::OnGameOver( wxCommandEvent &event )
 }
 
 void 
+hoxBoard::OnGameReset( wxCommandEvent &event )
+{
+    m_status = hoxGAME_STATUS_OPEN;
+	_updateStatus();
+
+	/* Display the "reset" message. */
+    const wxString boardMessage = "Game Reset"; 
+	this->OnBoardMsg( boardMessage );
+}
+
+void 
 hoxBoard::OnWallInputEnter( wxCommandEvent &event )
 {
     m_wallInput->Clear();
@@ -400,6 +408,14 @@ hoxBoard::OnButtonDraw( wxCommandEvent &event )
     /* Let the table handle this action. */
     wxCHECK_RET(m_table, "The table is NULL." );
     m_table->OnDrawCommand_FromBoard();
+}
+
+void 
+hoxBoard::OnButtonReset( wxCommandEvent &event )
+{
+    /* Let the table handle this action. */
+    wxCHECK_RET(m_table, "The table is NULL." );
+    m_table->OnResetCommand_FromBoard();
 }
 
 void 
@@ -586,6 +602,12 @@ hoxBoard::_CreateBoardPanel()
 
     m_actionSizer->Add( 
         new wxButton( boardPanel, ID_ACTION_DRAW, "Draw", 
+                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
+        0,    // Unstretchable
+        wxALIGN_LEFT | wxFIXED_MINSIZE );
+
+    m_actionSizer->Add( 
+        new wxButton( boardPanel, ID_ACTION_RESET, "Reset", 
                       wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
         0,    // Unstretchable
         wxALIGN_LEFT | wxFIXED_MINSIZE );
@@ -932,6 +954,30 @@ hoxBoard::_OnValidMove( const hoxMove& move,
             m_redTime.nMove = m_initialTime.nMove;
 			if ( bIsChesscape ) m_redTime.nGame += m_initialTime.nFree;
 		}
+    }
+}
+
+void
+hoxBoard::_updateStatus()
+{
+    /* Start the game if there are a RED and a BLACK players */
+
+    if ( m_status == hoxGAME_STATUS_OPEN )
+    {
+        if ( !m_redId.empty() && !m_blackId.empty() )
+        {
+            m_status = hoxGAME_STATUS_READY;
+            _ResetTimerUI();
+            _UpdateTimerUI();
+            m_coreBoard->StartGame();
+        }
+    }
+    else if ( m_status == hoxGAME_STATUS_READY )
+    {
+        if ( m_redId.empty() || m_blackId.empty() )
+        {
+            m_status = hoxGAME_STATUS_OPEN;
+        }
     }
 }
 
