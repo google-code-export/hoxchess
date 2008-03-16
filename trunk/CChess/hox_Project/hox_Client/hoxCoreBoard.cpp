@@ -28,7 +28,7 @@
 #include "hoxEnums.h"
 #include "hoxPosition.h"
 #include "hoxPiece.h"
-#include "hoxUtility.h"
+#include "hoxUtil.h"
 #include "hoxReferee.h"
 
 // ----------------------------------------------------------------------------
@@ -318,7 +318,7 @@ hoxCoreBoard::OnIdle( wxIdleEvent& event )
 void
 hoxCoreBoard::SetPiecesPath(const wxString& piecesPath)
 {
-    hoxUtility::SetPiecesPath( piecesPath );
+    hoxUtil::SetPiecesPath( piecesPath );
 }
 
 void 

@@ -29,7 +29,7 @@
 #include "MyChild.h"
 #include "MyApp.h"    // To access wxGetApp()
 #include "hoxTable.h"
-#include "hoxUtility.h"
+#include "hoxUtil.h"
 #include "hoxLoginDialog.h"
 
 #if !defined(__WXMSW__)
@@ -246,7 +246,7 @@ MyFrame::OnNewTable( wxCommandEvent& event )
         return;
 
     wxString newTableId;
-    if ( hoxRESULT_OK != selectedSite->CreateNewTable( newTableId ) )
+    if ( hoxRC_OK != selectedSite->CreateNewTable( newTableId ) )
     {
         wxLogError("%s: Failed to create a new Table.", FNAME);
     }
@@ -469,7 +469,7 @@ MyFrame::OnListTables( wxCommandEvent& event )
         hoxRemoteSite* remoteSite = (hoxRemoteSite*) selectedSite;
 
         hoxResult result = remoteSite->QueryForNetworkTables();
-        if ( result != hoxRESULT_OK )
+        if ( result != hoxRC_OK )
         {
             wxLogError("%s: Failed to query for LIST of tables from the server.", FNAME);
             return;

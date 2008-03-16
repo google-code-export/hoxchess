@@ -25,7 +25,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxNetworkAPI.h"
-#include "hoxUtility.h"
+#include "hoxUtil.h"
 #include "hoxPlayer.h"
 #include "MyApp.h"
 
@@ -74,11 +74,11 @@ hoxNetworkAPI::SendRequest( wxSocketBase*   sock,
     wxLogDebug("%s: Sending the request [%s] over the network...", FNAME, request.c_str());
 
 	result = hoxNetworkAPI::WriteMsg( sock, request );
-	if ( result != hoxRESULT_OK )
+	if ( result != hoxRC_OK )
 	{
         wxLogDebug("%s: *** WARN *** Failed to send request. Error = [%s].", 
             FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
-		result = hoxRESULT_ERR;
+		result = hoxRC_ERR;
         goto exit_label;
 	}
 
@@ -91,7 +91,7 @@ hoxNetworkAPI::SendRequest( wxSocketBase*   sock,
         wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
             FNAME, request.c_str(), nWrite, requestSize, 
             hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
-        result = hoxRESULT_ERR;
+        result = hoxRC_ERR;
         goto exit_label;
     }
 #endif
@@ -107,7 +107,7 @@ hoxNetworkAPI::SendRequest( wxSocketBase*   sock,
     wxLogDebug("%s: Reading back the response from the network...", FNAME);
 
     result = hoxNetworkAPI::ReadMsg( sock, response );
-    if ( result != hoxRESULT_OK )
+    if ( result != hoxRC_OK )
     {
         wxLogDebug("%s: *** WARN *** Failed to read response. Error = [%s].", 
             FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
@@ -115,7 +115,7 @@ hoxNetworkAPI::SendRequest( wxSocketBase*   sock,
     }
     
     // Finally, successful.
-    result = hoxRESULT_OK;
+    result = hoxRC_OK;
 
 exit_label:
     wxLogDebug("%s: END.", FNAME);
@@ -155,12 +155,12 @@ hoxNetworkAPI::ParseCommand( const wxString& commandStr,
         // Special case for "op" param-name.
         if ( paramName == "op" )
         {
-            command.type = hoxUtility::StringToRequestType( paramValue );
+            command.type = hoxUtil::StringToRequestType( paramValue );
 
             if ( command.type == hoxREQUEST_UNKNOWN )
             {
                 wxLogError("%s: Unsupported command-type = [%s].", FNAME, paramValue.c_str());
-                return hoxRESULT_NOT_SUPPORTED;
+                return hoxRC_NOT_SUPPORTED;
             }
         }
         else
@@ -170,7 +170,7 @@ hoxNetworkAPI::ParseCommand( const wxString& commandStr,
         }
     }
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 hoxResult 
@@ -206,7 +206,7 @@ hoxNetworkAPI::ParseSimpleResponse( const wxString& responseStr,
         ++i;
     }
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 hoxResult 
@@ -253,7 +253,7 @@ hoxNetworkAPI::ParseConnectResponse( const wxString& responseStr,
         }
     }
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 hoxResult
@@ -261,7 +261,7 @@ hoxNetworkAPI::ParseNetworkTables( const wxString&          responseStr,
                                    hoxNetworkTableInfoList& tableList )
 {
     const char* FNAME = "hoxNetworkAPI::ParseNetworkTables";
-    hoxResult  result = hoxRESULT_ERR;
+    hoxResult  result = hoxRC_ERR;
 	int      returnCode = -1;
 	wxString returnMsg;
 
@@ -294,7 +294,7 @@ hoxNetworkAPI::ParseNetworkTables( const wxString&          responseStr,
         }
     }
 
-	return ( returnCode == 0 ? hoxRESULT_OK : hoxRESULT_ERR );
+	return ( returnCode == 0 ? hoxRC_OK : hoxRC_ERR );
 }
 
 hoxResult 
@@ -302,7 +302,7 @@ hoxNetworkAPI::ParseOneNetworkTable( const wxString&      tableStr,
                                      hoxNetworkTableInfo &tableInfo )
 {
     const char* FNAME = "hoxNetworkAPI::ParseOneNetworkTable";
-    hoxResult  result = hoxRESULT_ERR;
+    hoxResult  result = hoxRC_ERR;
 
     wxLogDebug("%s: ENTER.", FNAME);
 	tableInfo.Clear();
@@ -332,15 +332,15 @@ hoxNetworkAPI::ParseOneNetworkTable( const wxString&      tableStr,
                 break;
 
             case 3:  // Initial-Time
-				tableInfo.initialTime = hoxUtility::StringToTimeInfo( token );
+				tableInfo.initialTime = hoxUtil::StringToTimeInfo( token );
                 break;
 
             case 4:  // RED-Time
-				tableInfo.redTime = hoxUtility::StringToTimeInfo( token );
+				tableInfo.redTime = hoxUtil::StringToTimeInfo( token );
                 break;
 
             case 5:  // BLACK-Time
-				tableInfo.blackTime = hoxUtility::StringToTimeInfo( token );
+				tableInfo.blackTime = hoxUtil::StringToTimeInfo( token );
                 break;
 
             case 6:  // RED-Id
@@ -365,7 +365,7 @@ hoxNetworkAPI::ParseOneNetworkTable( const wxString&      tableStr,
         }
     }
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 hoxResult 
@@ -406,7 +406,7 @@ hoxNetworkAPI::ParseNewNetworkTable( const wxString&  responseStr,
         }
     }
 
-	return (returnCode == 0 ? hoxRESULT_OK : hoxRESULT_ERR);
+	return (returnCode == 0 ? hoxRC_OK : hoxRC_ERR);
 }
 
 hoxResult 
@@ -445,7 +445,7 @@ hoxNetworkAPI::ParseJoinNetworkTable( const wxString&      responseStr,
         }
     }
 
-	return ( returnCode == 0 ? hoxRESULT_OK : hoxRESULT_ERR );
+	return ( returnCode == 0 ? hoxRC_OK : hoxRC_ERR );
 }
 
 hoxResult 
@@ -481,7 +481,7 @@ hoxNetworkAPI::ParseNetworkEvents( const wxString&      responseStr,
                 const wxString eventStr = token;
                 hoxNetworkEvent networkEvent;
                 result = _ParseNetworkEventString( eventStr, networkEvent );
-                if ( result != hoxRESULT_OK ) // failed?
+                if ( result != hoxRC_OK ) // failed?
                 {
                     wxLogError("%s: Failed to parse network events [%s].", FNAME, eventStr.c_str());
                     return result;
@@ -493,7 +493,7 @@ hoxNetworkAPI::ParseNetworkEvents( const wxString&      responseStr,
         ++i;
     }
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 hoxResult 
@@ -501,7 +501,7 @@ hoxNetworkAPI::ReadCommand( wxSocketBase* sock,
                             hoxCommand&   command )
 {
     const char* FNAME = "hoxNetworkAPI::ReadCommand";
-    hoxResult   result = hoxRESULT_OK;
+    hoxResult   result = hoxRC_OK;
     wxString    commandStr;
 
     wxLogDebug("%s: ENTER.", FNAME);
@@ -511,21 +511,21 @@ hoxNetworkAPI::ReadCommand( wxSocketBase* sock,
 
     wxLogDebug("%s: Reading incoming command from the network...", FNAME);
     result = hoxNetworkAPI::ReadLine( sock, commandStr );
-    if ( result != hoxRESULT_OK )
+    if ( result != hoxRC_OK )
     {
         wxLogError("%s: Failed to read incoming command.", FNAME);
-        return hoxRESULT_ERR;
+        return hoxRC_ERR;
     }
     wxLogDebug("%s: Received command [%s].", FNAME, commandStr.c_str());
 
     result = hoxNetworkAPI::ParseCommand( commandStr, command );
-    if ( result != hoxRESULT_OK )
+    if ( result != hoxRC_OK )
     {
         wxLogError("%s: Failed to parse command-string [%s].", FNAME, commandStr.c_str());
-        return hoxRESULT_ERR;
+        return hoxRC_ERR;
     }
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 
@@ -551,7 +551,7 @@ hoxNetworkAPI::ReadLine( wxSocketBase* sock,
                 if ( !commandStr.empty() && commandStr[ commandStr.size()-1 ] == '\r' )
                 {
                     result = commandStr.substr(0, commandStr.size()-1);
-                    return hoxRESULT_OK;
+                    return hoxRC_OK;
                 }
             }
             else
@@ -578,7 +578,7 @@ hoxNetworkAPI::ReadLine( wxSocketBase* sock,
         }
     }
 
-    return hoxRESULT_ERR;
+    return hoxRC_ERR;
 #endif
 }
 
@@ -587,7 +587,7 @@ hoxNetworkAPI::WriteMsg( wxSocketBase*   sock,
                          const wxString& message )
 {
     const char* FNAME = "hoxNetworkAPI::WriteMsg";
-    hoxResult      result = hoxRESULT_ERR;
+    hoxResult      result = hoxRC_ERR;
     wxUint32       nWrite;
 
     wxLogDebug("%s: ENTER. Message = [%s].", FNAME, message.c_str());
@@ -601,7 +601,7 @@ hoxNetworkAPI::WriteMsg( wxSocketBase*   sock,
         goto exit_label;
     }
 
-    result = hoxRESULT_OK;
+    result = hoxRC_OK;
 
 exit_label:
     wxLogDebug("%s: END.", FNAME);
@@ -613,7 +613,7 @@ hoxNetworkAPI::ReadMsg( wxSocketBase* sock,
                         wxString&     response )
 {
     const char* FNAME = "hoxNetworkAPI::ReadMsg";
-    hoxResult result = hoxRESULT_ERR;  // Assume: failure.
+    hoxResult result = hoxRC_ERR;  // Assume: failure.
     wxChar*   buf = NULL;
     wxUint32  nRead = 0;
 
@@ -655,7 +655,7 @@ hoxNetworkAPI::ReadMsg( wxSocketBase* sock,
     }
 
     response.assign( buf, nRead );
-    result = hoxRESULT_OK;  // Finally, success.
+    result = hoxRC_OK;  // Finally, success.
 
 exit_label:
     delete[] buf;
@@ -695,7 +695,7 @@ hoxNetworkAPI::_ParseNetworkEventString( const wxString&  eventStr,
                  *       rest of the "content" right here.
                  */
                 networkEvent.content = tkz.GetString(); // Get the rest of ...
-                return hoxRESULT_OK;  // *** DONE.
+                return hoxRC_OK;  // *** DONE.
 
             default:
                 wxLogError("%s: Ignore the rest...", FNAME);
@@ -704,7 +704,7 @@ hoxNetworkAPI::_ParseNetworkEventString( const wxString&  eventStr,
         ++i;
     }
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 const wxString 

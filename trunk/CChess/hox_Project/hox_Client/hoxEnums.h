@@ -55,18 +55,18 @@
 #define HOX_HTTP_SERVER_PORT      80
 
 /**
- * Results
+ * Results (... Return-Code)
  */
 enum hoxResult
 {
-    hoxRESULT_UNKNOWN = -1,
+    hoxRC_UNKNOWN = -1,
 
-    hoxRESULT_OK = 0,
-    hoxRESULT_ERR,   // A generic error.
+    hoxRC_OK = 0,
+    hoxRC_ERR,   // A generic error.
 
-    hoxRESULT_HANDLED,   // something (request, event,...) has been handled.
-    hoxRESULT_NOT_FOUND, // Something is not found.
-    hoxRESULT_NOT_SUPPORTED
+    hoxRC_HANDLED,   // something (request, event,...) has been handled.
+    hoxRC_NOT_FOUND, // Something is not found.
+    hoxRC_NOT_SUPPORTED
 };
 
 /**

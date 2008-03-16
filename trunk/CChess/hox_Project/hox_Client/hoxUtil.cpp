@@ -18,16 +18,16 @@
  ***************************************************************************/
 
 /////////////////////////////////////////////////////////////////////////////
-// Name:            hoxUtility.cpp
+// Name:            hoxUtil.cpp
 // Created:         09/28/2007
 //
 // Description:     Containing various helper API in the project.
 /////////////////////////////////////////////////////////////////////////////
 
-#include "hoxUtility.h"
+#include "hoxUtil.h"
 #include <wx/tokenzr.h>
 
-using namespace hoxUtility;
+using namespace hoxUtil;
 
 static wxString gPiecePath = "";
 
@@ -82,35 +82,35 @@ _get_piece_image_path( hoxPieceType  type,
 
 
 //
-// hoxUtility
+// hoxUtil
 //
 
 void 
-hoxUtility::SetPiecesPath(const wxString& piecesPath)
+hoxUtil::SetPiecesPath(const wxString& piecesPath)
 {
     gPiecePath = piecesPath;
 }
 
 hoxResult 
-hoxUtility::LoadPieceImage( hoxPieceType  type, 
+hoxUtil::LoadPieceImage( hoxPieceType  type, 
                             hoxColor color, 
                             wxImage&      image)
 {
-    const char* FNAME = "hoxUtility::LoadPieceImage";
+    const char* FNAME = "hoxUtil::LoadPieceImage";
     wxString filename;
 
     filename = _get_piece_image_path( type, color );
     if ( ! image.LoadFile(filename, wxBITMAP_TYPE_PNG) ) 
     {
         wxLogError("%s: Failed to load piece-image from path [%s].", FNAME, filename.c_str());
-        return hoxRESULT_ERR;
+        return hoxRC_ERR;
     }
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 wxString 
-hoxUtility::GenerateRandomString()
+hoxUtil::GenerateRandomString()
 {
     ::srand( ::time(NULL) );
     int someNumber = ::rand();
@@ -122,7 +122,7 @@ hoxUtility::GenerateRandomString()
  * Convert a given request-type to a (human-readable) string.
  */
 const wxString 
-hoxUtility::RequestTypeToString( const hoxRequestType requestType )
+hoxUtil::RequestTypeToString( const hoxRequestType requestType )
 {
     switch( requestType )
     {
@@ -154,7 +154,7 @@ hoxUtility::RequestTypeToString( const hoxRequestType requestType )
  * Convert a given (human-readable) string to a request-type.
  */
 hoxRequestType
-hoxUtility::StringToRequestType( const wxString& input )
+hoxUtil::StringToRequestType( const wxString& input )
 {
     if ( input == "UNKNOWN" )     return hoxREQUEST_UNKNOWN;
 
@@ -183,7 +183,7 @@ hoxUtility::StringToRequestType( const wxString& input )
  * Convert a given game-type to a (human-readable) string.
  */
 const wxString 
-hoxUtility::GameTypeToString( const hoxGameType gameType )
+hoxUtil::GameTypeToString( const hoxGameType gameType )
 {
     switch( gameType )
     {
@@ -201,7 +201,7 @@ hoxUtility::GameTypeToString( const hoxGameType gameType )
  * Convert a given Color (Piece's Color or Role) to a (human-readable) string.
  */
 const wxString 
-hoxUtility::ColorToString( const hoxColor color )
+hoxUtil::ColorToString( const hoxColor color )
 {
     switch( color )
     {
@@ -219,7 +219,7 @@ hoxUtility::ColorToString( const hoxColor color )
  * Convert a given (human-readable) string to a Color (Piece's Color or Role).
  */
 hoxColor 
-hoxUtility::StringToColor( const wxString& input )
+hoxUtil::StringToColor( const wxString& input )
 {
     if ( input == "UNKNOWN" ) return hoxCOLOR_UNKNOWN;
 
@@ -265,7 +265,7 @@ hoxURI::Escape_String(const wxString& str)
  * @return true if everything is fine. Otherwise, return false.
  */
 bool 
-hoxUtility::ParseServerAddress( const wxString&   input,
+hoxUtil::ParseServerAddress( const wxString&   input,
                                 hoxServerAddress& serverAddress )
 {
     const char SEPARATOR = ':';
@@ -288,13 +288,13 @@ hoxUtility::ParseServerAddress( const wxString&   input,
 }
 
 const wxString 
-hoxUtility::FormatTime( int nTime )
+hoxUtil::FormatTime( int nTime )
 {
     return wxString::Format( "%d:%.02d", nTime / 60, nTime % 60 );
 }
 
 hoxTimeInfo 
-hoxUtility::StringToTimeInfo( const wxString& input )
+hoxUtil::StringToTimeInfo( const wxString& input )
 {
 	hoxTimeInfo timeInfo;
 
@@ -328,7 +328,7 @@ hoxUtility::StringToTimeInfo( const wxString& input )
 }
 
 const wxString 
-hoxUtility::TimeInfoToString( const hoxTimeInfo timeInfo )
+hoxUtil::TimeInfoToString( const hoxTimeInfo timeInfo )
 {
 	wxString result = 
 		wxString::Format("%d/%d/%d", timeInfo.nGame, 
@@ -338,7 +338,7 @@ hoxUtility::TimeInfoToString( const hoxTimeInfo timeInfo )
 }
 
 const wxString
-hoxUtility::GameStatusToString( const hoxGameStatus gameStatus )
+hoxUtil::GameStatusToString( const hoxGameStatus gameStatus )
 {
     switch( gameStatus )
     {
@@ -356,7 +356,7 @@ hoxUtility::GameStatusToString( const hoxGameStatus gameStatus )
 }
 
 hoxGameStatus
-hoxUtility::StringToGameStatus( const wxString& input )
+hoxUtil::StringToGameStatus( const wxString& input )
 {
     if ( input == "UNKNOWN" )     return hoxGAME_STATUS_UNKNOWN;
 

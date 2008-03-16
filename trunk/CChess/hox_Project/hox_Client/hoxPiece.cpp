@@ -29,7 +29,7 @@
 
 #include "hoxPiece.h"
 #include "hoxEnums.h"
-#include "hoxUtility.h"
+#include "hoxUtil.h"
 #include "hoxPosition.h"
 
 // -----------------------------------------------------------------------
@@ -44,7 +44,7 @@ hoxPiece::hoxPiece( const hoxPieceInfo& info )
 {
     wxImage image;
 
-    if ( hoxRESULT_OK == hoxUtility::LoadPieceImage( m_info.type, 
+    if ( hoxRC_OK == hoxUtil::LoadPieceImage( m_info.type, 
                                                      m_info.color, 
                                                      image ) )
     {

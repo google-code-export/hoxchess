@@ -78,7 +78,7 @@ void
 hoxRemotePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 {
     const char* FNAME = "hoxRemotePlayer::OnConnectionResponse_PlayerData";
-    hoxResult result = hoxRESULT_OK;
+    hoxResult result = hoxRC_OK;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -104,7 +104,7 @@ hoxRemotePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
         /* Handle other type of data. */
 
         result = this->HandleIncomingData( response->content );
-        if ( result != hoxRESULT_OK )
+        if ( result != hoxRC_OK )
         {
             wxLogDebug("%s: *** WARN *** Error occurred while handling incoming data [%s].", 
                 FNAME, response->content.c_str());
@@ -120,7 +120,7 @@ void
 hoxRemotePlayer::OnServerResponse( wxCommandEvent& event )
 {
     const char* FNAME = "hoxRemotePlayer::OnServerResponse";
-    hoxResult result = hoxRESULT_OK;
+    hoxResult result = hoxRC_OK;
 
     wxLogDebug("%s: ENTER.", FNAME);
 

@@ -32,7 +32,7 @@
 #include "hoxTable.h"
 #include "hoxPlayerMgr.h"
 #include "hoxTableMgr.h"
-#include "hoxUtility.h"
+#include "hoxUtil.h"
 
 // Create a new application object: this macro will allow wxWidgets to create
 // the application object during program execution (it's better than using a
@@ -218,7 +218,7 @@ MyApp::ConnectRemoteServer( const hoxSiteType       siteType,
 	}
 
     /* Connect to the Remote site. */
-    if ( remoteSite->Connect() != hoxRESULT_OK )
+    if ( remoteSite->Connect() != hoxRC_OK )
     {
         wxLogError("%s: Failed to connect to the remote server [%s:%d].", 
             FNAME, address.name.c_str(), address.port);

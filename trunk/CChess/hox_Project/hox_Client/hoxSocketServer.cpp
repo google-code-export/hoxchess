@@ -30,7 +30,7 @@
 #include "MyApp.h"    // To access wxGetApp()
 #include "hoxServer.h"
 #include "hoxNetworkAPI.h"
-#include "hoxUtility.h"
+#include "hoxUtil.h"
 #include "hoxRemotePlayer.h"
 #include "hoxRemoteConnection.h"
 #include "hoxPlayerMgr.h"
@@ -122,7 +122,7 @@ hoxSocketServer::Entry()
         // not being able to connect to the server.
         /////////////////////////////////////////////////////
 
-		if ( hoxRESULT_OK != _HandleNewConnect( newSock ) )
+		if ( hoxRC_OK != _HandleNewConnect( newSock ) )
 		{
 			wxLogDebug("%s: *** WARN *** Failed to handle new connection.", FNAME);
 			continue;
@@ -148,18 +148,18 @@ hoxSocketServer::_HandleNewConnect( wxSocketBase* newSock )
     /* Read the incoming command */
     hoxCommand command;
     hoxResult result = hoxNetworkAPI::ReadCommand( newSock, command );
-    if ( result != hoxRESULT_OK )
+    if ( result != hoxRC_OK )
     {
         wxLogDebug("%s: *** ERROR *** Failed to read incoming command.", FNAME);
-        return hoxRESULT_ERR;
+        return hoxRC_ERR;
     }
 
     /* Process the command */
     if ( command.type != hoxREQUEST_LOGIN )
     {
         wxLogDebug("%s: *** ERROR *** Unsupported Request-Type [%s].", 
-            FNAME, hoxUtility::RequestTypeToString(command.type).c_str());
-        return hoxRESULT_ERR;
+            FNAME, hoxUtil::RequestTypeToString(command.type).c_str());
+        return hoxRC_ERR;
     }
 
     playerId = command.parameters["pid"];
@@ -208,10 +208,10 @@ hoxSocketServer::_HandleNewConnect( wxSocketBase* newSock )
     {
         wxLogDebug("%s: *** ERROR *** Writing to socket failed. Error = [%s]", 
             FNAME, hoxNetworkAPI::SocketErrorToString(newSock->LastError()).c_str());
-        return hoxRESULT_ERR;
+        return hoxRC_ERR;
     }
 
-	return hoxRESULT_OK;
+	return hoxRC_OK;
 }
 
 void 

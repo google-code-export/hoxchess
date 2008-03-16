@@ -29,7 +29,7 @@
 #include "hoxConnection.h"
 #include "hoxTableMgr.h"
 #include "hoxPlayerMgr.h"
-#include "hoxUtility.h"
+#include "hoxUtil.h"
 #include "hoxNetworkAPI.h"
 #include "MyApp.h"
 
@@ -193,7 +193,7 @@ hoxPlayer::JoinTable( hoxTable* table )
 {
     const char* FNAME = "hoxPlayer::JoinTable";
 
-    wxCHECK_MSG( table != NULL, hoxRESULT_ERR, "The table is NULL." );
+    wxCHECK_MSG( table != NULL, hoxRC_ERR, "The table is NULL." );
     // TODO: Check for duplicate!!! (join same table twice)
     hoxColor assignedColor;
     bool          informOthers = true;
@@ -211,7 +211,7 @@ hoxPlayer::JoinTable( hoxTable* table )
     hoxResult result = table->AssignPlayer( this, 
                                             assignedColor, 
                                             informOthers );
-    if ( result == hoxRESULT_OK )
+    if ( result == hoxRC_OK )
     {
         this->AddRole( hoxRole( table->GetId(), assignedColor ) );
     }
@@ -223,10 +223,10 @@ hoxResult
 hoxPlayer::JoinTableAs( hoxTable*     table,
                         hoxColor requestColor )
 {
-    wxCHECK_MSG( table != NULL, hoxRESULT_ERR, "The table is NULL." );
+    wxCHECK_MSG( table != NULL, hoxRC_ERR, "The table is NULL." );
 
     hoxResult result = table->AssignPlayerAs( this, requestColor );
-    if ( result == hoxRESULT_OK )
+    if ( result == hoxRC_OK )
     {
         this->AddRole( hoxRole( table->GetId(), requestColor ) );
     }
@@ -238,7 +238,7 @@ hoxPlayer::LeaveTable( hoxTable* table )
 {
     const char* FNAME = "hoxPlayer::LeaveTable";
 
-    wxCHECK_MSG(table != NULL, hoxRESULT_ERR, "The table is NULL." );
+    wxCHECK_MSG(table != NULL, hoxRC_ERR, "The table is NULL." );
 
     wxLogDebug("%s: Player [%s] is leaving table [%s]...", 
         FNAME, this->GetName().c_str(), table->GetId().c_str());
@@ -246,7 +246,7 @@ hoxPlayer::LeaveTable( hoxTable* table )
     table->OnLeave_FromPlayer( this );
     this->RemoveRoleAtTable( table->GetId() );
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 hoxResult 
@@ -275,7 +275,7 @@ hoxPlayer::LeaveAllTables()
         this->LeaveTable( table );
     }
 
-    return bErrorFound ? hoxRESULT_ERR : hoxRESULT_OK;
+    return bErrorFound ? hoxRC_ERR : hoxRC_OK;
 }
 
 bool 
@@ -465,20 +465,20 @@ hoxResult
 hoxPlayer::HandleIncomingData( const wxString& commandStr )
 {
     const char* FNAME = "hoxPlayer::HandleIncomingData";
-    hoxResult   result = hoxRESULT_OK;
+    hoxResult   result = hoxRC_OK;
     hoxCommand  command;
     wxString    response;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
     result = hoxNetworkAPI::ParseCommand( commandStr, command );
-    if ( result != hoxRESULT_OK )
+    if ( result != hoxRC_OK )
     {
         wxLogError("%s: Failed to parse command-string [%s].", FNAME, commandStr.c_str());
-        return hoxRESULT_ERR;
+        return hoxRC_ERR;
     }
     wxLogDebug("%s: Received a command [%s].", FNAME, 
-        hoxUtility::RequestTypeToString(command.type).c_str());
+        hoxUtil::RequestTypeToString(command.type).c_str());
 
     switch ( command.type )
     {
@@ -516,8 +516,8 @@ hoxPlayer::HandleIncomingData( const wxString& commandStr )
 
         default:
             wxLogDebug("%s: *** WARN *** Unsupported Request-Type [%s]. Command-Str = [%s].", 
-                FNAME, hoxUtility::RequestTypeToString(command.type).c_str(), commandStr.c_str());
-            result = hoxRESULT_NOT_SUPPORTED;
+                FNAME, hoxUtil::RequestTypeToString(command.type).c_str(), commandStr.c_str());
+            result = hoxRC_NOT_SUPPORTED;
             //response = "Not supported.";
             break;
     }
@@ -539,7 +539,7 @@ hoxResult
 hoxPlayer::HandleIncomingData_Disconnect( hoxCommand& command )
 {
     const char* FNAME = "hoxPlayer::HandleIncomingData_Disconnect";
-    hoxResult result = hoxRESULT_ERR;   // Assume: failure.
+    hoxResult result = hoxRC_ERR;   // Assume: failure.
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -565,7 +565,7 @@ hoxPlayer::HandleIncomingData_Disconnect( hoxCommand& command )
 	}
 
 	/* Finally, return 'success'. */
-    result = hoxRESULT_OK;
+    result = hoxRC_OK;
 
 exit_label:
     wxLogDebug("%s: END.", FNAME);
@@ -577,7 +577,7 @@ hoxPlayer::HandleIncomingData_Move( hoxCommand& command,
                                     wxString&   response )
 {
     const char* FNAME = "hoxPlayer::HandleIncomingData_Move";
-    hoxResult       result = hoxRESULT_ERR;   // Assume: failure.
+    hoxResult       result = hoxRC_ERR;   // Assume: failure.
 
     wxString moveStr = command.parameters["move"];
     wxString tableId = command.parameters["tid"];
@@ -623,7 +623,7 @@ hoxPlayer::HandleIncomingData_Move( hoxCommand& command,
     response << "0\r\n"       // error-code = SUCCESS
              << "INFO: (MOVE) Move at Table [" << tableId << "] OK\r\n";
 
-    result = hoxRESULT_OK;
+    result = hoxRC_OK;
 
 exit_label:
     wxLogDebug("%s: END.", FNAME);
@@ -635,7 +635,7 @@ hoxPlayer::HandleIncomingData_Leave( hoxCommand& command,
                                      wxString&   response )
 {
     const char* FNAME = "hoxPlayer::HandleIncomingData_Leave";
-    hoxResult       result = hoxRESULT_ERR;   // Assume: failure.
+    hoxResult       result = hoxRC_ERR;   // Assume: failure.
     wxString        tableId;
     wxString        requesterId;
     hoxPlayer*      player = NULL;
@@ -688,7 +688,7 @@ hoxPlayer::HandleIncomingData_Leave( hoxCommand& command,
 	response << "0\r\n"       // error-code = SUCCESS
 	         << "INFO: (LEAVE) Leave Table [" << tableId << "] OK\r\n";
 
-    result = hoxRESULT_OK;
+    result = hoxRC_OK;
 
 exit_label:
     wxLogDebug("%s: END.", FNAME);
@@ -700,7 +700,7 @@ hoxPlayer::HandleIncomingData_WallMsg( hoxCommand& command,
                                        wxString&   response )
 {
     const char* FNAME = "hoxPlayer::HandleIncomingData_WallMsg";
-    hoxResult   result = hoxRESULT_ERR;
+    hoxResult   result = hoxRC_ERR;
     hoxTable*   table = NULL;
     hoxPlayer*  player = NULL;
 
@@ -739,7 +739,7 @@ hoxPlayer::HandleIncomingData_WallMsg( hoxCommand& command,
     response << "0\r\n"       // error-code = SUCCESS
              << "INFO: (MESSAGE) Message at Table [" << tableId << "] OK\r\n";
 
-    result = hoxRESULT_OK;
+    result = hoxRC_OK;
 
 exit_label:
     wxLogDebug("%s: END.", FNAME);
@@ -773,9 +773,9 @@ hoxPlayer::HandleIncomingData_List( hoxCommand& command,
     {
         hoxPlayer* redPlayer   = (*it)->GetRedPlayer();
         hoxPlayer* blackPlayer = (*it)->GetBlackPlayer();
-		iTimes = hoxUtility::TimeInfoToString( (*it)->GetInitialTime() );
-		rTimes = hoxUtility::TimeInfoToString( (*it)->GetRedTime() );
-		bTimes = hoxUtility::TimeInfoToString( (*it)->GetBlackTime() );
+		iTimes = hoxUtil::TimeInfoToString( (*it)->GetInitialTime() );
+		rTimes = hoxUtil::TimeInfoToString( (*it)->GetRedTime() );
+		bTimes = hoxUtil::TimeInfoToString( (*it)->GetBlackTime() );
         if ( redPlayer != NULL ) {
             rid = redPlayer->GetName();
             rscore = wxString::Format("%d", redPlayer->GetScore());
@@ -805,7 +805,7 @@ hoxPlayer::HandleIncomingData_List( hoxCommand& command,
     }
 
     wxLogDebug("%s: END.", FNAME);
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 hoxResult 
@@ -813,7 +813,7 @@ hoxPlayer::HandleIncomingData_Join( hoxCommand& command,
                                     wxString&   response )
 {
     const char* FNAME = "hoxPlayer::HandleIncomingData_Join";
-    hoxResult  result = hoxRESULT_ERR;
+    hoxResult  result = hoxRC_ERR;
     hoxTable*  table = NULL;
     hoxPlayer* redPlayer = NULL;
     hoxPlayer* blackPlayer = NULL;
@@ -840,7 +840,7 @@ hoxPlayer::HandleIncomingData_Join( hoxCommand& command,
     /***********************/
 
     result = this->JoinTable( table );
-    if ( result != hoxRESULT_OK  )
+    if ( result != hoxRC_OK  )
     {
         wxLogError("%s: Failed to ask Table [%s] to join.", FNAME, tableId.c_str());
         response << "2\r\n"  // code
@@ -852,9 +852,9 @@ hoxPlayer::HandleIncomingData_Join( hoxCommand& command,
 
     redPlayer = table->GetRedPlayer();
     blackPlayer = table->GetBlackPlayer();
-	iTimes = hoxUtility::TimeInfoToString( table->GetInitialTime() );
-	rTimes = hoxUtility::TimeInfoToString( table->GetRedTime() );
-	bTimes = hoxUtility::TimeInfoToString( table->GetBlackTime() );
+	iTimes = hoxUtil::TimeInfoToString( table->GetInitialTime() );
+	rTimes = hoxUtil::TimeInfoToString( table->GetRedTime() );
+	bTimes = hoxUtil::TimeInfoToString( table->GetBlackTime() );
     if ( redPlayer != NULL ) {
         rid = redPlayer->GetName();
         rscore = wxString::Format("%d", redPlayer->GetScore());
@@ -884,7 +884,7 @@ hoxPlayer::HandleIncomingData_Join( hoxCommand& command,
              << bscore << ";"
              << "\r\n";
 
-    result = hoxRESULT_OK;
+    result = hoxRC_OK;
 
 exit_label:
     wxLogDebug("%s: END.", FNAME);
@@ -896,7 +896,7 @@ hoxPlayer::HandleIncomingData_NewJoin( hoxCommand& command,
                                        wxString&   response )
 {
     const char* FNAME = "hoxPlayer::HandleIncomingData_NewJoin";
-    hoxResult result = hoxRESULT_ERR;
+    hoxResult result = hoxRC_ERR;
     hoxTable*  table = NULL;
     hoxPlayer* player = NULL;
 
@@ -933,7 +933,7 @@ hoxPlayer::HandleIncomingData_NewJoin( hoxCommand& command,
      */
 
     result = player->JoinTableAs( table, requestColor );
-    if ( result != hoxRESULT_OK )
+    if ( result != hoxRC_OK )
     {
         wxLogError("%s: Table denied the JOIN request as color [%d] from player [%s].", 
             FNAME, requestColor, playerId.c_str());
@@ -948,7 +948,7 @@ hoxPlayer::HandleIncomingData_NewJoin( hoxCommand& command,
 	response << "0\r\n"       // error-code = SUCCESS
 	         << "INFO: (NEW-JOIN) New-Join Table [" << tableId << "] OK\r\n";
 
-    result = hoxRESULT_OK;
+    result = hoxRC_OK;
 
 exit_label:
     wxLogDebug("%s: END.", FNAME);
@@ -960,7 +960,7 @@ hoxPlayer::HandleIncomingData_New( hoxCommand& command,
                                    wxString&   response )
 {
     const char* FNAME = "hoxPlayer::HandleIncomingData_New";
-    hoxResult result = hoxRESULT_ERR;   // Assume: failure.
+    hoxResult result = hoxRC_ERR;   // Assume: failure.
     hoxTable* table = NULL;
     wxString newTableId;
 
@@ -968,7 +968,7 @@ hoxPlayer::HandleIncomingData_New( hoxCommand& command,
 
     const wxString playerId = command.parameters["pid"];
 	const wxString itimes = command.parameters["itimes"];
-	const hoxTimeInfo initialTime = hoxUtility::StringToTimeInfo( itimes );
+	const hoxTimeInfo initialTime = hoxUtil::StringToTimeInfo( itimes );
 
     /* Check the player-Id. */
     if ( playerId != this->GetName() )
@@ -982,7 +982,7 @@ hoxPlayer::HandleIncomingData_New( hoxCommand& command,
 
     /* Create a new Table. */
     result = m_site->CreateNewTableAsPlayer( newTableId, this, initialTime );
-    if ( result != hoxRESULT_OK )
+    if ( result != hoxRC_OK )
     {
         wxLogError("%s: Failed to create a new table.", FNAME);
         response << "2\r\n"  // code
@@ -1004,7 +1004,7 @@ hoxPlayer::HandleIncomingData_New( hoxCommand& command,
              << "" << ";"       // BLACK-Id
              << "" << ";"       // BLACK-Score
 			 << "\r\n";
-    result = hoxRESULT_OK;
+    result = hoxRC_OK;
 
 exit_label:
     wxLogDebug("%s: END.", FNAME);

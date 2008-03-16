@@ -27,7 +27,7 @@
 #include "hoxHttpConnection.h"
 #include "hoxHttpPlayer.h"
 #include "hoxLocalPlayer.h"
-#include "hoxUtility.h"
+#include "hoxUtil.h"
 
 #include <wx/sstream.h>
 #include <wx/protocol/http.h>
@@ -60,7 +60,7 @@ void
 hoxHttpConnection::HandleRequest( hoxRequest* request )
 {
     const char* FNAME = "hoxHttpConnection::_HandleRequest";
-    hoxResult    result = hoxRESULT_ERR;
+    hoxResult    result = hoxRC_ERR;
     std::auto_ptr<hoxResponse> response( new hoxResponse(request->type, 
                                                          request->sender) );
 
@@ -78,21 +78,21 @@ hoxHttpConnection::HandleRequest( hoxRequest* request )
 
             result = _SendRequest( _RequestToString( *request ),
 				                   response->content );
-            this->SetConnected( result == hoxRESULT_OK );
+            this->SetConnected( result == hoxRC_OK );
             break;
 
         default:
             wxLogError("%s: Unsupported request Type [%s].", 
-                FNAME, hoxUtility::RequestTypeToString(request->type).c_str());
-            result = hoxRESULT_NOT_SUPPORTED;
+                FNAME, hoxUtil::RequestTypeToString(request->type).c_str());
+            result = hoxRC_NOT_SUPPORTED;
             break;
     }
 
     /* Log error */
-    if ( result != hoxRESULT_OK )
+    if ( result != hoxRC_OK )
     {
         wxLogError("%s: Error occurred while handling request [%s].", 
-            FNAME, hoxUtility::RequestTypeToString(request->type).c_str());
+            FNAME, hoxUtil::RequestTypeToString(request->type).c_str());
         response->content = "!Error_Result!";
     }
 
@@ -109,7 +109,7 @@ hoxHttpConnection::_RequestToString( const hoxRequest& request ) const
 {
 	wxString result;
 
-	result += "op=" + hoxUtility::RequestTypeToString( request.type );
+	result += "op=" + hoxUtil::RequestTypeToString( request.type );
 
 	hoxCommand::Parameters::const_iterator it;
 	for ( it = request.parameters.begin();
@@ -126,7 +126,7 @@ hoxHttpConnection::_SendRequest( const wxString& request,
                                  wxString&       response )
 {
     const char* FNAME = "hoxHttpConnection::_SendRequest";
-    hoxResult result = hoxRESULT_ERR;
+    hoxResult result = hoxRC_ERR;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -166,7 +166,7 @@ hoxHttpConnection::_SendRequest( const wxString& request,
      *       Thus, there is no need to "unescape" here.
      */
     wxString formattedRequest = request;
-    formattedRequest = hoxUtility::hoxURI::Escape_String( formattedRequest.Trim() );
+    formattedRequest = hoxUtil::hoxURI::Escape_String( formattedRequest.Trim() );
 
     wxString getString = wxString::Format("/cchess/tables.php?%s", formattedRequest.c_str()); 
 
@@ -187,7 +187,7 @@ hoxHttpConnection::_SendRequest( const wxString& request,
         //wxLogDebug("%s: Received document length = [%d].", FNAME, response.size());
         //wxMessageBox(response);
 
-        result = hoxRESULT_OK;
+        result = hoxRC_OK;
     }
      
     delete httpStream;

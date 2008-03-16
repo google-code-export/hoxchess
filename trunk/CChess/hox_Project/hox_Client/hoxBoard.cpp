@@ -31,7 +31,7 @@
 #include "hoxBoard.h"
 #include "hoxCoreBoard.h"
 #include "hoxEnums.h"
-#include "hoxUtility.h"
+#include "hoxUtil.h"
 #include "hoxReferee.h"
 #include "hoxTypes.h"
 #include "hoxTable.h"
@@ -945,16 +945,16 @@ void
 hoxBoard::_UpdateTimerUI()
 {
     // Game times.
-	m_blackGameTime->SetLabel( hoxUtility::FormatTime( m_blackTime.nGame ) );
-    m_redGameTime->SetLabel(   hoxUtility::FormatTime( m_redTime.nGame ) );
+	m_blackGameTime->SetLabel( hoxUtil::FormatTime( m_blackTime.nGame ) );
+    m_redGameTime->SetLabel(   hoxUtil::FormatTime( m_redTime.nGame ) );
 
     // Move times.
-	m_blackMoveTime->SetLabel( hoxUtility::FormatTime( m_blackTime.nMove ) );
-	m_redMoveTime->SetLabel(   hoxUtility::FormatTime( m_redTime.nMove ) );
+	m_blackMoveTime->SetLabel( hoxUtil::FormatTime( m_blackTime.nMove ) );
+	m_redMoveTime->SetLabel(   hoxUtil::FormatTime( m_redTime.nMove ) );
 
     // Free times.
-	m_blackFreeTime->SetLabel( hoxUtility::FormatTime( m_blackTime.nFree ) );
-	m_redFreeTime->SetLabel(   hoxUtility::FormatTime( m_redTime.nFree ) );
+	m_blackFreeTime->SetLabel( hoxUtil::FormatTime( m_blackTime.nFree ) );
+	m_redFreeTime->SetLabel(   hoxUtil::FormatTime( m_redTime.nFree ) );
 }
 
 bool 

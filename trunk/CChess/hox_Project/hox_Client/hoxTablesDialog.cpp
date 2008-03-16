@@ -25,7 +25,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxTablesDialog.h"
-#include "hoxUtility.h"
+#include "hoxUtil.h"
 #include "MyApp.h"    // wxGetApp()
 
 // ----------------------------------------------------------------------------
@@ -130,10 +130,10 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*                      parent,
 		m_listCtrlTables->SetItemData( itemIndex, ::atoi( it->id.c_str() ) );
 
 		m_listCtrlTables->SetItem(itemIndex, ++colIndex, groupInfo);
-		m_listCtrlTables->SetItem(itemIndex, ++colIndex, hoxUtility::FormatTime(it->initialTime.nGame));
-		m_listCtrlTables->SetItem(itemIndex, ++colIndex, hoxUtility::FormatTime(it->initialTime.nMove));
-		m_listCtrlTables->SetItem(itemIndex, ++colIndex, hoxUtility::FormatTime(it->initialTime.nFree));
-		m_listCtrlTables->SetItem(itemIndex, ++colIndex, hoxUtility::GameTypeToString(it->gameType));
+		m_listCtrlTables->SetItem(itemIndex, ++colIndex, hoxUtil::FormatTime(it->initialTime.nGame));
+		m_listCtrlTables->SetItem(itemIndex, ++colIndex, hoxUtil::FormatTime(it->initialTime.nMove));
+		m_listCtrlTables->SetItem(itemIndex, ++colIndex, hoxUtil::FormatTime(it->initialTime.nFree));
+		m_listCtrlTables->SetItem(itemIndex, ++colIndex, hoxUtil::GameTypeToString(it->gameType));
 		m_listCtrlTables->SetItem(itemIndex, ++colIndex, redInfo );
 		m_listCtrlTables->SetItem(itemIndex, ++colIndex, blackInfo );
 		

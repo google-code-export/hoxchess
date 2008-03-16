@@ -285,7 +285,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\hoxUtility.cpp"
+				RelativePath=".\hoxUtil.cpp"
 				>
 			</File>
 			<File
@@ -431,7 +431,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\hoxUtility.h"
+				RelativePath=".\hoxUtil.h"
 				>
 			</File>
 			<File

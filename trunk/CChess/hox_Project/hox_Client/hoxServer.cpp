@@ -27,7 +27,7 @@
 
 #include "hoxServer.h"
 #include "hoxSocketServer.h"
-#include "hoxUtility.h"
+#include "hoxUtil.h"
 #include "hoxNetworkAPI.h"
 #include "hoxRemoteConnection.h"
 
@@ -65,7 +65,7 @@ hoxServer::StartServer( int nPort )
     if ( this->Create() != wxTHREAD_NO_ERROR )
     {
         wxLogError("%s: Failed to create Server thread.", FNAME);
-        return hoxRESULT_ERR;
+        return hoxRC_ERR;
     }
     wxASSERT_MSG( !this->GetThread()->IsDetached(), "The Server thread must be joinable.");
 
@@ -73,7 +73,7 @@ hoxServer::StartServer( int nPort )
 
 	/* Start the socket-server thread */
 
-    wxCHECK_MSG( m_socketServer == NULL, hoxRESULT_ERR, "The socket-server should not have been created.");
+    wxCHECK_MSG( m_socketServer == NULL, hoxRC_ERR, "The socket-server should not have been created.");
 
     m_socketServer = new hoxSocketServer( nPort,
                                           this,
@@ -82,13 +82,13 @@ hoxServer::StartServer( int nPort )
     if ( m_socketServer->Create() != wxTHREAD_NO_ERROR )
     {
         wxLogError("%s: Failed to create socker-server thread.", FNAME);
-        return hoxRESULT_ERR;
+        return hoxRC_ERR;
     }
     wxASSERT_MSG( !m_socketServer->GetThread()->IsDetached(), "The socket-server thread must be joinable.");
 
     m_socketServer->GetThread()->Run();
 
-	return hoxRESULT_OK;
+	return hoxRC_OK;
 }
 
 void      
@@ -242,7 +242,7 @@ hoxServer::Entry()
             break;  // Exit the thread.
         }
         wxLogDebug("%s: Processing request [%s]...", 
-            FNAME, hoxUtility::RequestTypeToString(request->type).c_str());
+            FNAME, hoxUtil::RequestTypeToString(request->type).c_str());
 
          _HandleRequest( request );
         delete request;
@@ -261,7 +261,7 @@ hoxServer::AddRequest( hoxRequest* request )
     if ( m_shutdownRequested )
     {
         wxLogDebug("%s: *** WARN *** Deny request [%s]. The thread is shutdowning.", 
-            FNAME, hoxUtility::RequestTypeToString(request->type).c_str());
+            FNAME, hoxUtil::RequestTypeToString(request->type).c_str());
         delete request;
         return false;
     }
@@ -298,7 +298,7 @@ void
 hoxServer::_HandleRequest( hoxRequest* request )
 {
     const char* FNAME = "hoxServer::_HandleRequest";
-    hoxResult    result = hoxRESULT_ERR;
+    hoxResult    result = hoxRC_ERR;
     std::auto_ptr<hoxResponse> response( new hoxResponse(request->type) );
 
     wxLogDebug("%s: ENTER.", FNAME);
@@ -312,10 +312,10 @@ hoxServer::_HandleRequest( hoxRequest* request )
        )
     {
         result = _CheckAndHandleSocketLostEvent( request, response->content );
-        if ( result == hoxRESULT_HANDLED )
+        if ( result == hoxRC_HANDLED )
         {
             response->flags |= hoxRESPONSE_FLAG_CONNECTION_LOST;
-            result = hoxRESULT_OK;  // Consider "success".
+            result = hoxRC_OK;  // Consider "success".
             goto exit_label;
         }
     }
@@ -349,7 +349,7 @@ hoxServer::_HandleRequest( hoxRequest* request )
             // We disable input events until we are done processing the current command.
             hoxNetworkAPI::SocketInputLock socketLock( sock );
             result = hoxNetworkAPI::ReadLine( sock, response->content );
-            if ( result != hoxRESULT_OK )
+            if ( result != hoxRC_OK )
             {
                 wxLogError("%s: Failed to read incoming command.", FNAME);
                 goto exit_label;
@@ -367,17 +367,17 @@ hoxServer::_HandleRequest( hoxRequest* request )
 
         default:
             wxLogError("%s: Unsupported Request-Type [%s].", 
-                FNAME, hoxUtility::RequestTypeToString(request->type).c_str());
-            result = hoxRESULT_NOT_SUPPORTED;
+                FNAME, hoxUtil::RequestTypeToString(request->type).c_str());
+            result = hoxRC_NOT_SUPPORTED;
             break;
     }
 
 exit_label:
     /* Log error */
-    if ( result != hoxRESULT_OK )
+    if ( result != hoxRC_OK )
     {
         wxLogError("%s: Error occurred while handling request [%s].", 
-            FNAME, hoxUtility::RequestTypeToString(request->type).c_str());
+            FNAME, hoxUtil::RequestTypeToString(request->type).c_str());
         response->content = "!Error_Result!";
     }
 
@@ -397,7 +397,7 @@ hoxServer::_RequestToString( const hoxRequest& request ) const
 {
 	wxString result;
 
-	result += "op=" + hoxUtility::RequestTypeToString( request.type );
+	result += "op=" + hoxUtil::RequestTypeToString( request.type );
 
 	hoxCommand::Parameters::const_iterator it;
 	for ( it = request.parameters.begin();
@@ -414,7 +414,7 @@ hoxServer::_CheckAndHandleSocketLostEvent( const hoxRequest* request,
                                            wxString&         response )
 {
     const char* FNAME = "hoxServer::_CheckAndHandleSocketLostEvent";
-    hoxResult result = hoxRESULT_OK;
+    hoxResult result = hoxRC_OK;
 
     //wxLogDebug("%s: ENTER.", FNAME);
 
@@ -424,7 +424,7 @@ hoxServer::_CheckAndHandleSocketLostEvent( const hoxRequest* request,
     {
         wxLogDebug("%s: Received socket-lost event. Deleting client socket.", FNAME);
         _DestroyActiveSocket( sock );
-        result = hoxRESULT_HANDLED;
+        result = hoxRC_HANDLED;
     }
 
     //wxLogDebug("%s: Not a socket-lost event. Fine - Do nothing. END.", FNAME);
@@ -439,7 +439,7 @@ hoxServer::_HandleRequest_Accept( hoxRequest* request )
     wxSocketBase* socket = request->socket;
 
     wxLogDebug("%s: Saving an active (socket) connection.", FNAME);
-    wxCHECK_MSG(socket, hoxRESULT_ERR, "The socket cannot be NULL.");
+    wxCHECK_MSG(socket, hoxRC_ERR, "The socket cannot be NULL.");
 
     /* TODO: Check for existing player before create a new player/info. */
 
@@ -447,7 +447,7 @@ hoxServer::_HandleRequest_Accept( hoxRequest* request )
     SocketInfo socketInfo(playerId, socket);
     m_activeSockets.push_back( socketInfo );
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 hoxResult 
@@ -461,7 +461,7 @@ hoxServer::_HandleRequest_Disconnect( hoxRequest* request )
 	
 	this->OnPlayerDisconnected( playerId );
 
-	return hoxRESULT_OK;
+	return hoxRC_OK;
 }
 
 hoxRequest*

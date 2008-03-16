@@ -28,7 +28,7 @@
 #include "hoxNetworkAPI.h"
 #include "MyApp.h"      // wxGetApp()
 #include "MyFrame.h"
-#include "hoxUtility.h"
+#include "hoxUtil.h"
 #include <wx/tokenzr.h>
 
 IMPLEMENT_DYNAMIC_CLASS(hoxChesscapePlayer, hoxLocalPlayer)
@@ -93,11 +93,11 @@ hoxChesscapePlayer::QueryForNetworkTables( wxEvtHandler* sender )
 	response->eventObject = pTableList;
 
     wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, requestType );
-    response->code = hoxRESULT_OK;
+    response->code = hoxRC_OK;
     event.SetEventObject( response.release() );  // Caller will de-allocate.
     wxPostEvent( sender, event );
 
-	return hoxRESULT_OK;
+	return hoxRC_OK;
 }
 
 hoxResult 
@@ -108,7 +108,7 @@ hoxChesscapePlayer::JoinNetworkTable( const wxString& tableId,
 	if ( ! _DoesTableExist( tableId ) ) // not found?
 	{
 		wxLogWarning("Table [%s] not longer exist.", tableId.c_str());
-		return hoxRESULT_OK;  // *** Fine (due to time-delay).
+		return hoxRC_OK;  // *** Fine (due to time-delay).
 	}
 
 	m_pendingJoinTableId = tableId;
@@ -122,7 +122,7 @@ hoxChesscapePlayer::OpenNewNetworkTable( wxEvtHandler*   sender )
 	if ( m_bRequestingNewTable )
 	{
 		wxLogWarning("A new Table is already being requested."); 
-		return hoxRESULT_ERR;
+		return hoxRC_ERR;
 	}
 
 	m_bRequestingNewTable = true;
@@ -167,7 +167,7 @@ void
 hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 {
     const char* FNAME = "hoxChesscapePlayer::OnConnectionResponse_PlayerData";
-    hoxResult result = hoxRESULT_OK;
+    hoxResult result = hoxRC_OK;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -1039,7 +1039,7 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 		}
 
 		result = newRedPlayer->JoinTableAs( table, hoxCOLOR_RED );
-		wxASSERT( result == hoxRESULT_OK  );
+		wxASSERT( result == hoxRC_OK  );
 		wxASSERT_MSG( newRedPlayer->HasRole( hoxRole(table->GetId(), 
 											         hoxCOLOR_RED) ),
 					  _("Player must join as RED"));
@@ -1062,7 +1062,7 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 		}
 
 		result = newBlackPlayer->JoinTableAs( table, hoxCOLOR_BLACK );
-		wxASSERT( result == hoxRESULT_OK  );
+		wxASSERT( result == hoxRC_OK  );
 		wxASSERT_MSG( newBlackPlayer->HasRole( hoxRole(table->GetId(), 
 											           hoxCOLOR_BLACK) ),
 					  _("Player must join as BLACK"));
@@ -1099,7 +1099,7 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 			if ( ! _ParseIncomingCommand( response->content, command, paramsStr ) ) // failed?
 			{
 				wxLogDebug("%s: *** WARN *** Failed to parse incoming command.", FNAME);
-				response->code = hoxRESULT_ERR;
+				response->code = hoxRC_ERR;
 				response->content = "Failed to parse incoming command.";
 				break;
 			}
@@ -1107,7 +1107,7 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 			if ( command == "code" )
 			{
 				wxLogDebug("%s: *** WARN *** LOGIN return code = [%s].", FNAME, paramsStr.c_str());
-				response->code = hoxRESULT_ERR;
+				response->code = hoxRC_ERR;
 				response->content.Printf("LOGIN returns code = [%s].", paramsStr.c_str());
 			}
 			else
@@ -1117,7 +1117,7 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 				wxString       role;
 
 				this->_HandleCmd_Login( paramsStr, name, score, role );
-				response->code = hoxRESULT_OK;
+				response->code = hoxRC_OK;
 				response->content.Printf("LOGIN is OK. name=[%s], score=[%s], role=[%s]", 
 					name.c_str(), score.c_str(), role.c_str());
 				wxASSERT( name == this->GetName() );
@@ -1183,7 +1183,7 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 		default:
 			this->DecrementOutstandingRequests();
 			wxLogDebug("%s: *** WARN *** Unsupported request-type [%s].", 
-				FNAME, hoxUtility::RequestTypeToString(response->type));
+				FNAME, hoxUtil::RequestTypeToString(response->type));
 			break;
 	} // switch
 

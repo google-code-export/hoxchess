@@ -112,7 +112,7 @@ hoxRemoteConnection::SetCBSocket( wxSocketBase* socket )
 
     m_pCBSock = socket;
 
-    return hoxRESULT_OK;
+    return hoxRC_OK;
 }
 
 void 
