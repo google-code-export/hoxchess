@@ -385,6 +385,7 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
         }
         case hoxREQUEST_MSG:    /* fall-through */
         case hoxREQUEST_MOVE:   /* fall-through */
+        case hoxREQUEST_RESIGN: /* fall-through */
         case hoxREQUEST_DRAW:
         {
             wxLogDebug("%s: Received [%s] 's event. Do nothing.", FNAME, sType.c_str());
