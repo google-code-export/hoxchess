@@ -47,6 +47,7 @@ enum
     ID_HISTORY_NEXT,
     ID_HISTORY_END,
 
+    ID_ACTION_RESIGN,
 	ID_ACTION_DRAW,
 	ID_ACTION_JOIN	
 };
@@ -73,6 +74,7 @@ BEGIN_EVENT_TABLE(hoxBoard, wxPanel)
     EVT_BUTTON(ID_HISTORY_PREV, hoxBoard::OnButtonHistory_PREV)
     EVT_BUTTON(ID_HISTORY_NEXT, hoxBoard::OnButtonHistory_NEXT)
     EVT_BUTTON(ID_HISTORY_END, hoxBoard::OnButtonHistory_END)
+    EVT_BUTTON(ID_ACTION_RESIGN, hoxBoard::OnButtonResign)
 	EVT_BUTTON(ID_ACTION_DRAW, hoxBoard::OnButtonDraw)
 	EVT_BUTTON(ID_ACTION_JOIN, hoxBoard::OnButtonJoin)
 
@@ -385,6 +387,14 @@ hoxBoard::OnButtonHistory_END( wxCommandEvent &event )
 }
 
 void 
+hoxBoard::OnButtonResign( wxCommandEvent &event )
+{
+    /* Let the table handle this action. */
+    wxCHECK_RET(m_table, "The table is NULL." );
+    m_table->OnResignCommand_FromBoard();
+}
+
+void 
 hoxBoard::OnButtonDraw( wxCommandEvent &event )
 {
     /* Let the table handle this action. */
@@ -567,6 +577,12 @@ hoxBoard::_CreateBoardPanel()
      *********************************/
 
     m_actionSizer = new wxBoxSizer( wxHORIZONTAL );
+
+    m_actionSizer->Add( 
+        new wxButton( boardPanel, ID_ACTION_RESIGN, "Resign", 
+                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
+        0,    // Unstretchable
+        wxALIGN_LEFT | wxFIXED_MINSIZE );
 
     m_actionSizer->Add( 
         new wxButton( boardPanel, ID_ACTION_DRAW, "Draw", 

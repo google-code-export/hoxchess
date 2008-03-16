@@ -42,6 +42,7 @@ IMPLEMENT_DYNAMIC_CLASS(hoxPlayer, wxEvtHandler)
 //----------------------------------------------------------------------------
 
 DEFINE_EVENT_TYPE( hoxEVT_PLAYER_JOIN_TABLE )
+DEFINE_EVENT_TYPE( hoxEVT_PLAYER_RESIGN_TABLE )
 DEFINE_EVENT_TYPE( hoxEVT_PLAYER_DRAW_TABLE )
 DEFINE_EVENT_TYPE( hoxEVT_PLAYER_NEW_MOVE )
 DEFINE_EVENT_TYPE( hoxEVT_PLAYER_NEW_JOIN )
@@ -52,6 +53,7 @@ DEFINE_EVENT_TYPE( hoxEVT_PLAYER_SITE_CLOSING )
 
 BEGIN_EVENT_TABLE(hoxPlayer, wxEvtHandler)
 	EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_JOIN_TABLE, hoxPlayer::OnJoinCmd_FromTable)
+    EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_RESIGN_TABLE, hoxPlayer::OnResignCmd_FromTable)
 	EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_DRAW_TABLE, hoxPlayer::OnDrawCmd_FromTable)
     EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_NEW_MOVE, hoxPlayer::OnNewMove_FromTable)
     EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_NEW_JOIN, hoxPlayer::OnNewJoin_FromTable)
@@ -314,6 +316,25 @@ void
 hoxPlayer::OnJoinCmd_FromTable( wxCommandEvent&  event )
 {
     const char* FNAME = "hoxPlayer::OnJoinCmd_FromTable";
+
+	hoxCommand* pCommand = wx_reinterpret_cast(hoxCommand*, event.GetEventObject()); 
+	const std::auto_ptr<hoxCommand> command( pCommand ); // take care memory leak!
+
+    if ( m_connection == NULL )
+    {
+        wxLogDebug("%s: No connection. Fine. Ignore this Command.", FNAME);
+        return;
+    }
+
+	hoxRequest* request = new hoxRequest( command->type, this );
+	request->parameters = command->parameters;
+    this->AddRequestToConnection( request );
+}
+
+void 
+hoxPlayer::OnResignCmd_FromTable( wxCommandEvent&  event )
+{
+    const char* FNAME = "hoxPlayer::OnResignCmd_FromTable";
 
 	hoxCommand* pCommand = wx_reinterpret_cast(hoxCommand*, event.GetEventObject()); 
 	const std::auto_ptr<hoxCommand> command( pCommand ); // take care memory leak!

@@ -152,6 +152,12 @@ public:
 
     /**
      * Callback function from the Board to let this Table know about
+     * RESIGN-command button that has been pressed by the "local" player.
+     */
+    void OnResignCommand_FromBoard();
+
+    /**
+     * Callback function from the Board to let this Table know about
      * DRAW-command button that has been pressed by the "local" player.
      */
     void OnDrawCommand_FromBoard();

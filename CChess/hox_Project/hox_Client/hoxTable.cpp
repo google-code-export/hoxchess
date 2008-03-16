@@ -273,6 +273,36 @@ hoxTable::OnJoinCommand_FromBoard()
 }
 
 void
+hoxTable::OnResignCommand_FromBoard()
+{
+    const char* FNAME = "hoxTable::OnResignCommand_FromBoard";
+	wxLogDebug("%s: Received a RESIGN request from Board's local-player.", FNAME);
+
+    /* Get the Board Player (or the Board's owner) because he is the
+     * one that sent the Message.
+     */
+    hoxPlayer* boardPlayer = _GetBoardPlayer();
+    wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
+
+	/* Make sure the board Player is actually playing. 
+	 * If not, ignore the request.
+	 */
+
+	if (   boardPlayer != m_redPlayer 
+		&& boardPlayer != m_blackPlayer )
+	{
+		wxLogWarning("The Player [%s] is not playing.", boardPlayer->GetName().c_str());
+		return;
+	}
+
+	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_RESIGN );
+	pCommand->parameters["tid"] = m_id;
+	pCommand->parameters["pid"] = boardPlayer->GetName();
+
+	_PostPlayer_ActionEvent( boardPlayer, hoxEVT_PLAYER_RESIGN_TABLE, pCommand );
+}
+
+void
 hoxTable::OnDrawCommand_FromBoard()
 {
     const char* FNAME = "hoxTable::OnDrawCommand_FromBoard";

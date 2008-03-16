@@ -120,7 +120,8 @@ public:
     void OnButtonHistory_NEXT( wxCommandEvent &event );
     void OnButtonHistory_END( wxCommandEvent &event );
 
-	void OnButtonDraw( wxCommandEvent &event );
+	void OnButtonResign( wxCommandEvent &event );
+    void OnButtonDraw( wxCommandEvent &event );
 	void OnButtonJoin( wxCommandEvent &event );
 
     void OnTimer( wxTimerEvent& event );
