@@ -263,13 +263,13 @@ hoxTable::OnJoinCommand_FromBoard()
 	else if ( m_blackPlayer == NULL ) requestColor = hoxCOLOR_BLACK;
     else                              requestColor = hoxCOLOR_NONE;
 
-	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_JOIN );
-	pCommand->parameters["tid"] = m_id;
-	pCommand->parameters["pid"] = boardPlayer->GetName();
-	pCommand->parameters["color"] = hoxUtil::ColorToString( requestColor );
-	pCommand->parameters["joined"] = "1";
+	hoxRequest* pRequest = new hoxRequest( hoxREQUEST_JOIN );
+	pRequest->parameters["tid"] = m_id;
+	pRequest->parameters["pid"] = boardPlayer->GetName();
+	pRequest->parameters["color"] = hoxUtil::ColorToString( requestColor );
+	pRequest->parameters["joined"] = "1";
 
-	_PostPlayer_ActionEvent( boardPlayer, hoxEVT_PLAYER_JOIN_TABLE, pCommand );
+    boardPlayer->OnRequest_FromTable( pRequest );
 }
 
 void
@@ -295,11 +295,11 @@ hoxTable::OnResignCommand_FromBoard()
 		return;
 	}
 
-	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_RESIGN );
-	pCommand->parameters["tid"] = m_id;
-	pCommand->parameters["pid"] = boardPlayer->GetName();
+	hoxRequest* pRequest = new hoxRequest( hoxREQUEST_RESIGN );
+	pRequest->parameters["tid"] = m_id;
+	pRequest->parameters["pid"] = boardPlayer->GetName();
 
-	_PostPlayer_ActionEvent( boardPlayer, hoxEVT_PLAYER_RESIGN_TABLE, pCommand );
+    boardPlayer->OnRequest_FromTable( pRequest );
 }
 
 void
@@ -325,12 +325,12 @@ hoxTable::OnDrawCommand_FromBoard()
 		return;
 	}
 
-	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_DRAW );
-	pCommand->parameters["tid"] = m_id;
-	pCommand->parameters["pid"] = boardPlayer->GetName();
-	pCommand->parameters["draw_response"] = "";
+	hoxRequest* pRequest = new hoxRequest( hoxREQUEST_DRAW );
+	pRequest->parameters["tid"] = m_id;
+	pRequest->parameters["pid"] = boardPlayer->GetName();
+	pRequest->parameters["draw_response"] = "";
 
-	_PostPlayer_ActionEvent( boardPlayer, hoxEVT_PLAYER_DRAW_TABLE, pCommand );
+    boardPlayer->OnRequest_FromTable( pRequest );
 }
 
 void
@@ -356,11 +356,11 @@ hoxTable::OnResetCommand_FromBoard()
 		return;
 	}
 
-	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_RESET );
-	pCommand->parameters["tid"] = m_id;
-	pCommand->parameters["pid"] = boardPlayer->GetName();
+	hoxRequest* pRequest = new hoxRequest( hoxREQUEST_RESET );
+	pRequest->parameters["tid"] = m_id;
+	pRequest->parameters["pid"] = boardPlayer->GetName();
 
-	_PostPlayer_ActionEvent( boardPlayer, hoxEVT_PLAYER_RESET_TABLE, pCommand );
+    boardPlayer->OnRequest_FromTable( pRequest );
 }
 
 void 
@@ -386,12 +386,12 @@ hoxTable::OnDrawResponse_FromBoard( bool bAcceptDraw )
 		return;
 	}
 
-	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_DRAW );
-	pCommand->parameters["tid"] = m_id;
-	pCommand->parameters["pid"] = boardPlayer->GetName();
-	pCommand->parameters["draw_response"] = (bAcceptDraw ? "1" : "0");
+	hoxRequest* pRequest = new hoxRequest( hoxREQUEST_DRAW );
+	pRequest->parameters["tid"] = m_id;
+	pRequest->parameters["pid"] = boardPlayer->GetName();
+	pRequest->parameters["draw_response"] = (bAcceptDraw ? "1" : "0");
 
-	_PostPlayer_ActionEvent( boardPlayer, hoxEVT_PLAYER_DRAW_TABLE, pCommand );
+    boardPlayer->OnRequest_FromTable( pRequest );
 }
 
 void 
@@ -568,9 +568,7 @@ hoxTable::_PostPlayer_CloseEvent( hoxPlayer* player ) const
 
     wxLogDebug("%s: Informing player [%s] about the Table [%s] being closed...", 
         FNAME, player->GetName().c_str(), m_id.c_str());
-    wxCommandEvent event( hoxEVT_PLAYER_TABLE_CLOSE );
-    event.SetString( m_id );
-    wxPostEvent( player, event );
+    player->OnClose_FromTable( m_id );
 }
 
 void 
@@ -585,13 +583,11 @@ hoxTable::_PostPlayer_LeaveEvent( hoxPlayer* player,
     wxLogDebug("%s: Informing player [%s] about [%s] just left...", 
         FNAME, player->GetName().c_str(), leavePlayer->GetName().c_str());
 
-	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_LEAVE );
-	pCommand->parameters["tid"] = m_id;
-	pCommand->parameters["pid"] = leavePlayer->GetName();
+	hoxRequest* pRequest = new hoxRequest( hoxREQUEST_LEAVE );
+	pRequest->parameters["tid"] = m_id;
+	pRequest->parameters["pid"] = leavePlayer->GetName();
 
-	wxCommandEvent event( hoxEVT_PLAYER_NEW_LEAVE );
-    event.SetEventObject( pCommand );
-    wxPostEvent( player, event );
+    player->OnRequest_FromTable( pRequest );
 }
 
 void 
@@ -607,14 +603,12 @@ hoxTable::_PostPlayer_JoinEvent( hoxPlayer*    player,
     wxLogDebug("%s: Informing player [%s] that a new Player [%s] just joined as [%d]...", 
         FNAME, player->GetName().c_str(), newPlayer->GetName().c_str(), newColor);
 
-	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_E_JOIN );
-	pCommand->parameters["tid"] = m_id;
-	pCommand->parameters["pid"] = newPlayer->GetName();
-	pCommand->parameters["color"] = wxString::Format("%d", newColor);
+	hoxRequest* pRequest = new hoxRequest( hoxREQUEST_E_JOIN );
+	pRequest->parameters["tid"] = m_id;
+	pRequest->parameters["pid"] = newPlayer->GetName();
+	pRequest->parameters["color"] = wxString::Format("%d", newColor);
 
-    wxCommandEvent event( hoxEVT_PLAYER_NEW_JOIN );
-	event.SetEventObject( pCommand );
-    wxPostEvent( player, event );
+    player->OnRequest_FromTable( pRequest );
 }
 
 void 
@@ -635,16 +629,14 @@ hoxTable::_PostPlayer_MoveEvent( hoxPlayer*         player,
     wxLogDebug("%s: Informing player [%s] that [%s] just made a new Move [%s]...", 
         FNAME, player->GetName().c_str(), movePlayer->GetName().c_str(), moveStr.c_str());
 	
-	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_MOVE );
-	pCommand->parameters["tid"] = m_id;
-	pCommand->parameters["pid"] = movePlayer->GetName();
-	pCommand->parameters["move"] = moveStr;
-	pCommand->parameters["status"] = statusStr;
-	pCommand->parameters["game_time"] = wxString::Format("%d", playerTime.nGame);
+	hoxRequest* pRequest = new hoxRequest( hoxREQUEST_MOVE );
+	pRequest->parameters["tid"] = m_id;
+	pRequest->parameters["pid"] = movePlayer->GetName();
+	pRequest->parameters["move"] = moveStr;
+	pRequest->parameters["status"] = statusStr;
+	pRequest->parameters["game_time"] = wxString::Format("%d", playerTime.nGame);
 
-    wxCommandEvent event( hoxEVT_PLAYER_NEW_MOVE );
-	event.SetEventObject( pCommand );
-    wxPostEvent( player, event );
+    player->OnRequest_FromTable( pRequest );
 }
 
 void 
@@ -660,14 +652,12 @@ hoxTable::_PostPlayer_MessageEvent( hoxPlayer*      player,
     wxLogDebug("%s: Informing player [%s] that [%s] just sent a Message [%s]...", 
         FNAME, player->GetName().c_str(), msgPlayer->GetName().c_str(), message.c_str());
 
-	hoxCommand* pCommand = new hoxCommand( hoxREQUEST_MSG );
-	pCommand->parameters["tid"] = m_id;
-	pCommand->parameters["pid"] = msgPlayer->GetName();
-	pCommand->parameters["msg"] = message;
+	hoxRequest* pRequest = new hoxRequest( hoxREQUEST_MSG );
+	pRequest->parameters["tid"] = m_id;
+	pRequest->parameters["pid"] = msgPlayer->GetName();
+	pRequest->parameters["msg"] = message;
     
-	wxCommandEvent event( hoxEVT_PLAYER_MSG );
-    event.SetEventObject( pCommand );
-    wxPostEvent( player, event );
+    player->OnRequest_FromTable( pRequest );
 }
 
 void 
