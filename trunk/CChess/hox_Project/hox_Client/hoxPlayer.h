@@ -39,15 +39,6 @@ class hoxConnection;
 /* 
  * New player-event based on wxCommandEvent.
  */
-DECLARE_EVENT_TYPE(hoxEVT_PLAYER_JOIN_TABLE, wxID_ANY)
-DECLARE_EVENT_TYPE(hoxEVT_PLAYER_RESIGN_TABLE, wxID_ANY)
-DECLARE_EVENT_TYPE(hoxEVT_PLAYER_DRAW_TABLE, wxID_ANY)
-DECLARE_EVENT_TYPE(hoxEVT_PLAYER_RESET_TABLE, wxID_ANY)
-DECLARE_EVENT_TYPE(hoxEVT_PLAYER_NEW_MOVE, wxID_ANY)
-DECLARE_EVENT_TYPE(hoxEVT_PLAYER_NEW_JOIN, wxID_ANY)
-DECLARE_EVENT_TYPE(hoxEVT_PLAYER_NEW_LEAVE, wxID_ANY)
-DECLARE_EVENT_TYPE(hoxEVT_PLAYER_TABLE_CLOSE, wxID_ANY)
-DECLARE_EVENT_TYPE(hoxEVT_PLAYER_MSG, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_PLAYER_SITE_CLOSING, wxID_ANY)
 
 // ----------------------------------------------------------------------------
@@ -80,15 +71,9 @@ public:
      * Event-handle API
      ***************************/
 
-	virtual void OnJoinCmd_FromTable( wxCommandEvent&  event );
-    virtual void OnResignCmd_FromTable( wxCommandEvent&  event );
-	virtual void OnDrawCmd_FromTable( wxCommandEvent&  event );
-    virtual void OnResetCmd_FromTable( wxCommandEvent&  event );
-    virtual void OnNewMove_FromTable( wxCommandEvent&  event );
-    virtual void OnNewJoin_FromTable( wxCommandEvent&  event );
-    virtual void OnNewLeave_FromTable( wxCommandEvent&  event );
-    virtual void OnClose_FromTable( wxCommandEvent&  event );
-    virtual void OnMsg_FromTable( wxCommandEvent&  event );
+	virtual void OnRequest_FromTable( hoxRequest* request );
+
+    virtual void OnClose_FromTable( const wxString& tableId );
 	virtual void OnClosing_FromSite( wxCommandEvent&  event );
 
     /***************************

@@ -131,24 +131,27 @@ hoxChesscapePlayer::OpenNewNetworkTable( wxEvtHandler*   sender )
 }
 
 void 
-hoxChesscapePlayer::OnNewMove_FromTable( wxCommandEvent&  event )
+hoxChesscapePlayer::OnRequest_FromTable( hoxRequest* request )
 {
-    const char* FNAME = "hoxChesscapePlayer::OnNewMove_FromTable";
+    const char* FNAME = "hoxChesscapePlayer::OnRequest_FromTable";
 
-	/* If this Play is playing and this is his first Move, then
-	 * update his Status to "Playing".
-	 */
-	if ( ! m_bSentMyFirstMove )
-	{
-		m_bSentMyFirstMove = true;
+    if ( request->type == hoxREQUEST_MOVE )
+    {
+	    /* If this Play is playing and this is his first Move, then
+	     * update his Status to "Playing".
+	     */
+	    if ( ! m_bSentMyFirstMove )
+	    {
+		    m_bSentMyFirstMove = true;
 
-		wxLogDebug("%s: Sending Player-Status on the 1st Move...", FNAME);
-		hoxRequest* request = new hoxRequest( hoxREQUEST_PLAYER_STATUS, this );
-		request->parameters["status"] = "P";
-		this->AddRequestToConnection( request );
-	}
+		    wxLogDebug("%s: Sending Player-Status on the 1st Move...", FNAME);
+		    hoxRequest* request = new hoxRequest( hoxREQUEST_PLAYER_STATUS, this );
+		    request->parameters["status"] = "P";
+		    this->AddRequestToConnection( request );
+	    }
+    }
 
-	this->hoxPlayer::OnNewMove_FromTable( event );
+    this->hoxPlayer::OnRequest_FromTable( request );
 }
 
 void

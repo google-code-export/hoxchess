@@ -56,7 +56,7 @@ public:
      * Override the parent's event-handler API
      *******************************************/
 
-    virtual void OnClose_FromTable( wxCommandEvent&  event );
+    virtual void OnClose_FromTable( const wxString& tableId );
 
     /*******************************
      * MY-specific Network API

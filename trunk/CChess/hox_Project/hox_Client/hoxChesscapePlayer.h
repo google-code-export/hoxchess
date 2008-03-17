@@ -58,7 +58,7 @@ public:
      * Table-event handlers
      *******************************/
 
-	virtual void OnNewMove_FromTable( wxCommandEvent&  event );
+    virtual void OnRequest_FromTable( hoxRequest* request );
 
     /*******************************
      * Socket-event handlers
