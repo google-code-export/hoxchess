@@ -104,7 +104,7 @@ class hoxPieceInfo
      */
 
     hoxPieceInfo()
-         : type( hoxPIECE_TYPE_INVALID )
+         : type( hoxPIECE_INVALID )
          , color( hoxCOLOR_NONE )
          , position( -1, -1 )
         { }
@@ -122,6 +122,8 @@ class hoxPieceInfo
         , color( other.color )
         , position( other.position )
         { }
+
+    bool IsValid() const { return type != hoxPIECE_INVALID; }
 };
 
 typedef std::list<hoxPieceInfo> hoxPieceInfoList;
@@ -142,10 +144,11 @@ class hoxMove
          */
 
     hoxMove() {}
+    bool IsValid() const { return piece.IsValid(); }
     void SetCapturedPiece( const hoxPieceInfo& captured ) 
         { capturedPiece = captured; }
     bool IsAPieceCaptured() const 
-        { return capturedPiece.type != hoxPIECE_TYPE_INVALID; }
+        { return capturedPiece.IsValid(); }
 
     const wxString ToString() const
     {

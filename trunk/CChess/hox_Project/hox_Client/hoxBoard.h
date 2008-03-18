@@ -167,9 +167,6 @@ private:
     void _ResetTimerUI();  // Reset times to start a new game.
     void _UpdateTimerUI();
 
-	bool _ParseMoveString( const wxString& moveStr, 
-		                   hoxMove&        move ) const;
-
 private:
     hoxCoreBoard*     m_coreBoard;  // The "core" board.
     hoxIReferee*      m_referee;    // The Referee.

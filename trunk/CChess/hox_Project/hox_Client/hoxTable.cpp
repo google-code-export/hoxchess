@@ -177,12 +177,12 @@ hoxTable::ViewBoard( wxWindow* tableWindow )
 	const char* FNAME = "hoxTable::ViewBoard";
 
 	wxCHECK_RET(tableWindow, "The Window is NULL.");
-	wxCHECK_RET( m_board == NULL, "The Board has already been set." );
+	wxCHECK_RET(m_board == NULL, "The Board has already been set.");
 
 	wxLogDebug("%s: Creating a new Board...", FNAME);
 	m_board = new hoxBoard( tableWindow, 
 		                    PIECES_PATH, 
-		                    this->m_referee,
+		                    m_referee,
         					wxDefaultPosition,
 							tableWindow->GetSize() );
 
@@ -999,7 +999,5 @@ hoxTable::_ResetGame()
 {
     m_redTime   = m_initialTime;
     m_blackTime = m_initialTime;
-
-    //m_referee->Reset();
 }
 /************************* END OF FILE ***************************************/

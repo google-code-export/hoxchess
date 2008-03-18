@@ -79,7 +79,7 @@ namespace BoardInfoAPI
     class Piece
     {
     public:
-        Piece() : m_info( hoxPIECE_TYPE_INVALID, hoxCOLOR_NONE,
+        Piece() : m_info( hoxPIECE_INVALID, hoxCOLOR_NONE,
                           hoxPosition(-1, -1) ) { }
         Piece(hoxPieceType t) : m_info( t, hoxCOLOR_NONE, 
                                         hoxPosition(-1, -1) ) { }
@@ -125,7 +125,7 @@ namespace BoardInfoAPI
     {
     public:
         KingPiece(hoxColor c, const hoxPosition& p) 
-            : Piece(hoxPIECE_TYPE_KING, c, p) {}
+            : Piece(hoxPIECE_KING, c, p) {}
         virtual bool CanMoveTo(const hoxPosition& newPos) const;
         virtual void GetPotentialNextPositions(PositionList& positions) const;
     };
@@ -137,7 +137,7 @@ namespace BoardInfoAPI
     {
     public:
         AdvisorPiece(hoxColor c, const hoxPosition& p) 
-            : Piece(hoxPIECE_TYPE_ADVISOR, c, p) {}
+            : Piece(hoxPIECE_ADVISOR, c, p) {}
         virtual bool CanMoveTo(const hoxPosition& newPos) const;
         virtual void GetPotentialNextPositions(PositionList& positions) const;
     };
@@ -149,7 +149,7 @@ namespace BoardInfoAPI
     {
     public:
         ElephantPiece(hoxColor c, const hoxPosition& p) 
-            : Piece(hoxPIECE_TYPE_ELEPHANT, c, p) {}
+            : Piece(hoxPIECE_ELEPHANT, c, p) {}
         virtual bool CanMoveTo(const hoxPosition& newPos) const;
         virtual void GetPotentialNextPositions(PositionList& positions) const;
     };
@@ -161,7 +161,7 @@ namespace BoardInfoAPI
     {
     public:
         ChariotPiece(hoxColor c, const hoxPosition& p) 
-            : Piece(hoxPIECE_TYPE_CHARIOT, c, p) {}
+            : Piece(hoxPIECE_CHARIOT, c, p) {}
         virtual bool CanMoveTo(const hoxPosition& newPos) const;
         virtual void GetPotentialNextPositions(PositionList& positions) const;
     };
@@ -173,7 +173,7 @@ namespace BoardInfoAPI
     {
     public:
         HorsePiece(hoxColor c, const hoxPosition& p) 
-            : Piece(hoxPIECE_TYPE_HORSE, c, p) {}
+            : Piece(hoxPIECE_HORSE, c, p) {}
         virtual bool CanMoveTo(const hoxPosition& newPos) const;
         virtual void GetPotentialNextPositions(PositionList& positions) const;
     };
@@ -185,7 +185,7 @@ namespace BoardInfoAPI
     {
     public:
         CannonPiece(hoxColor c, const hoxPosition& p) 
-            : Piece(hoxPIECE_TYPE_CANNON, c, p) {}
+            : Piece(hoxPIECE_CANNON, c, p) {}
         virtual bool CanMoveTo(const hoxPosition& newPos) const;
         virtual void GetPotentialNextPositions(PositionList& positions) const;
     };
@@ -197,7 +197,7 @@ namespace BoardInfoAPI
     {
     public:
         PawnPiece(hoxColor c, const hoxPosition& p) 
-            : Piece(hoxPIECE_TYPE_PAWN, c, p) {}
+            : Piece(hoxPIECE_PAWN, c, p) {}
         virtual bool CanMoveTo(const hoxPosition& newPos) const;
         virtual void GetPotentialNextPositions(PositionList& positions) const;
     };
@@ -595,7 +595,7 @@ Board::_GetKing( hoxColor color ) const
                                     it != m_pieces.end(); 
                                   ++it )
     {
-        if (    (*it)->HasType( hoxPIECE_TYPE_KING ) 
+        if (    (*it)->HasType( hoxPIECE_KING ) 
              && (*it)->HasColor( color ) )
         {
             return (*it);
@@ -1420,9 +1420,39 @@ hoxReferee::GetNextColor()
     return m_board->GetNextColor();
 }
 
+hoxMove
+hoxReferee::StringToMove( const wxString& sMove ) const
+{
+    const char* FNAME = "hoxReferee::StringToMove";
+    hoxMove move;
+
+    /* NOTE: Move-string has the format of "xyXY" */
+
+    if ( sMove.size() != 4 )
+    {
+        return hoxMove();  // Error: return an invalid Move.
+    }
+
+    move.piece.position.x = sMove[0] - '0';
+    move.piece.position.y = sMove[1] - '0';
+    move.newPosition.x    = sMove[2] - '0';
+    move.newPosition.y    = sMove[3] - '0';
+
+    /* Lookup a Piece based on "fromPosition". */
+
+    if ( ! _GetPieceAtPosition( move.piece.position, 
+                                move.piece ) )
+    {
+        wxLogDebug("%s: Failed to locate piece at the position.", FNAME);
+        return hoxMove();  // Error: return an invalid Move.
+    }
+
+    return move;
+}
+
 bool 
-hoxReferee::GetPieceAtPosition( const hoxPosition& position, 
-                                hoxPieceInfo&      pieceInfo ) const
+hoxReferee::_GetPieceAtPosition( const hoxPosition& position, 
+                                 hoxPieceInfo&      pieceInfo ) const
 {
     wxCHECK_MSG(m_board, false, "The Board is NULL.");
     return m_board->GetPieceAtPosition( position, pieceInfo );

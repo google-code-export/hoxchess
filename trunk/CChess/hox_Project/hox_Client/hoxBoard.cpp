@@ -186,8 +186,6 @@ hoxBoard::OnPlayerJoin( wxCommandEvent &event )
 
     _AddPlayerToList( playerId, player->GetScore() );
 
-    wxCHECK_RET( m_coreBoard != NULL, "The core Board is NULL." );
-
     /* Update the LOCAL - color on the core Board so that it knows
      * who is allowed to make a Move using the mouse.
      */
@@ -252,15 +250,14 @@ hoxBoard::OnNewMove( wxCommandEvent &event )
     const wxString moveStr = event.GetString();
 	const bool bSetupMode = (event.GetInt() > 0);
 
-    if ( ! _ParseMoveString( moveStr, move ) ) // failed?
+    move = m_referee->StringToMove( moveStr );
+    if ( ! move.IsValid() )
     {
         wxLogError("%s: Failed to parse Move-string [%s].", FNAME, moveStr.c_str());
         return;
     }
 
 	/* Ask the core Board to realize the Move */
-
-    wxCHECK_RET( m_coreBoard, "The core Board is NULL." );
 
     if ( ! m_coreBoard->DoMove( move ) )  // failed?
         return;
@@ -361,36 +358,24 @@ hoxBoard::OnWallInputEnter( wxCommandEvent &event )
 void 
 hoxBoard::OnButtonHistory_BEGIN( wxCommandEvent &event )
 {
-    if ( m_coreBoard == NULL )
-        return;
-
     m_coreBoard->DoGameReview_BEGIN();
 }
 
 void 
 hoxBoard::OnButtonHistory_PREV( wxCommandEvent &event )
 {
-    if ( m_coreBoard == NULL )
-        return;
-
     m_coreBoard->DoGameReview_PREV();
 }
 
 void 
 hoxBoard::OnButtonHistory_NEXT( wxCommandEvent &event )
 {
-    if ( m_coreBoard == NULL )
-        return;
-
     m_coreBoard->DoGameReview_NEXT();
 }
 
 void 
 hoxBoard::OnButtonHistory_END( wxCommandEvent &event )
 {
-    if ( m_coreBoard == NULL )
-        return;
-
     m_coreBoard->DoGameReview_END();
 }
 
@@ -427,12 +412,12 @@ hoxBoard::OnButtonJoin( wxCommandEvent &event )
 }
 
 void 
-hoxBoard::OnTimer(wxTimerEvent& event)
+hoxBoard::OnTimer( wxTimerEvent& event )
 {
     if ( m_status != hoxGAME_STATUS_IN_PROGRESS )
         return;
 
-    hoxColor nextColor = m_referee->GetNextColor();
+    const hoxColor nextColor = m_referee->GetNextColor();
 
     if ( nextColor == hoxCOLOR_BLACK )
     {
@@ -449,7 +434,7 @@ hoxBoard::OnTimer(wxTimerEvent& event)
 }
 
 bool 
-hoxBoard::Show(bool show /* = true */)
+hoxBoard::Show( bool show /* = true */ )
 {
     if ( !this->IsShown() && show ) // hidden -> shown?
     {
@@ -1019,38 +1004,5 @@ hoxBoard::_UpdateTimerUI()
 	m_redFreeTime->SetLabel(   hoxUtil::FormatTime( m_redTime.nFree ) );
 }
 
-bool 
-hoxBoard::_ParseMoveString( const wxString& moveStr, 
-	                        hoxMove&        move ) const
-{
-    const char* FNAME = "hoxBoard::_ParseMoveString";
-
-    /* NOTE: Move-string has the format of "xyXY" */
-
-    if ( moveStr.size() != 4 )
-    {
-        return false;   // failure
-    }
-
-    hoxPosition fromPosition;
-    hoxPosition toPosition;
-
-    fromPosition.x = moveStr[0] - '0';
-    fromPosition.y = moveStr[1] - '0';
-    toPosition.x = moveStr[2] - '0';
-    toPosition.y = moveStr[3] - '0';
-
-    // Look up Move based on "fromPosition".    
-
-    move.newPosition = toPosition;
-
-    if ( ! m_referee->GetPieceAtPosition( fromPosition, move.piece ) )
-    {
-        wxLogDebug("%s: *** WARN *** Failed to locate piece at the position.", FNAME);
-        return false;   // failure
-    }
-
-    return true; // success
-}
 
 /************************* END OF FILE ***************************************/

@@ -104,6 +104,8 @@ hoxCoreBoard::hoxCoreBoard( wxWindow*      parent,
      * wxImage::AddHandler( new wxPNGHandler );
      *******/
 
+    wxASSERT_MSG(m_referee != NULL, "A Referee must be set");
+
     m_borderX = 40;   // TODO: Hard-coded constant
     m_borderY = m_borderX;
 }
@@ -113,10 +115,6 @@ hoxCoreBoard::~hoxCoreBoard()
     _ClearPieces();
 
     delete m_dragImage;
-
-    /* *** Let the Table take care the referee.
-     * delete m_referee;
-     */
 }
 
 void 
@@ -326,10 +324,7 @@ hoxCoreBoard::SetPiecesPath(const wxString& piecesPath)
 void 
 hoxCoreBoard::LoadPieces()
 {
-    wxASSERT_MSG( m_referee != NULL, _("The referee must have been set") );
-
-    /* Clear old pieces. */
-    _ClearPieces();
+    _ClearPieces();  // Clear old pieces.
 
     /* Load new pices. */
 
@@ -361,8 +356,7 @@ hoxCoreBoard::StartGame()
     this->DoGameReview_BEGIN();
     m_historyMoves.clear();
 
-    /* Tell the Referee to Reset the game. */
-    wxCHECK_RET(m_referee, "The Referee should not be NULL.");
+    /* Tell the Referee to reset the game. */
     m_referee->Reset();
 
     /* Clear the Game-Over state in the last game, if any. */
@@ -377,13 +371,6 @@ hoxCoreBoard::StartGame()
         _DrawBoard( dc );
         _DrawAllPieces( dc );
     }
-}
-
-void 
-hoxCoreBoard::SetReferee( hoxIReferee* referee )
-{
-    wxASSERT( referee != NULL );
-    m_referee = referee;
 }
 
 void 
@@ -565,30 +552,25 @@ void
 hoxCoreBoard::_OnPieceMoved( hoxPiece*          piece, 
                              const hoxPosition& newPos )
 {
-    hoxMove move;   // Make a new Move
+    hoxMove       move;   // Make a new Move
     hoxGameStatus gameStatus = hoxGAME_STATUS_IN_PROGRESS;
 
-    /* If there is no referee, always assume the move is valid.
-     * Otherwise, ask the referee to check if the move is valid.
-     */
+    /* Ask the referee to check if the move is valid. */
 
-    if ( m_referee != NULL )
+    move.piece       = piece->GetInfo();
+    move.newPosition = newPos;
+
+    if ( ! m_referee->ValidateMove( move, gameStatus ) )
     {
-        move.piece       = piece->GetInfo();
-        move.newPosition = newPos;
-
-        if ( ! m_referee->ValidateMove( move, gameStatus ) )
-        {
-            _PrintDebug( "Move is not valid!!!" );
-            this->Refresh();
-            return;
-        }
-
-        if ( gameStatus != hoxGAME_STATUS_IN_PROGRESS)
-		{
-            SetGameOver( true );
-		}
+        _PrintDebug( "Move is not valid!!!" );
+        this->Refresh();
+        return;
     }
+
+    if ( gameStatus != hoxGAME_STATUS_IN_PROGRESS)
+	{
+        SetGameOver( true );
+	}
 
     /* NOTE: Need to the following check. 
      * Otherwise, the piece would disappear.
@@ -617,8 +599,7 @@ hoxCoreBoard::_CanPieceMoveNext( hoxPiece* piece ) const
     if ( _IsBoardInReviewMode() )
         return false;
 
-    if (    m_referee != NULL
-         && m_referee->GetNextColor() != piece->GetColor() )
+    if ( m_referee->GetNextColor() != piece->GetColor() )
     {
         return false;
     }
@@ -660,18 +641,15 @@ hoxCoreBoard::DoMove( hoxMove& move )
     hoxPiece* piece = _FindPieceAt( move.piece.position );
     wxCHECK_MSG( piece != NULL, false, "Piece is not found." );
     
-    if ( m_referee != NULL )
+    hoxGameStatus status;
+    if ( ! m_referee->ValidateMove( move, status ) )
     {
-        hoxGameStatus status;
-        if ( ! m_referee->ValidateMove( move, status ) )
-        {
-            _PrintDebug( wxString::Format("%s: Move is not valid!!!", FNAME) );
-            return false;
-        }
-
-        if ( status != hoxGAME_STATUS_IN_PROGRESS)
-            SetGameOver( true );
+        _PrintDebug( wxString::Format("%s: Move is not valid!!!", FNAME) );
+        return false;
     }
+
+    if ( status != hoxGAME_STATUS_IN_PROGRESS)
+        SetGameOver( true );
 
     /* Ask the core Board to perform the Move. */
     if ( ! this->_MovePieceTo( piece, move.newPosition ) )

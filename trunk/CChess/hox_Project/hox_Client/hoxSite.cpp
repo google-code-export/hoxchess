@@ -414,10 +414,7 @@ hoxRemoteSite::OnResponse_Disconnect( const hoxResponse_AutoPtr& response )
 	wxLogDebug("%s: Received DISCONNECT's response [%d: %s].", 
 		FNAME, response->code, response->content.c_str());
 
-    wxCommandEvent event( hoxEVT_PLAYER_SITE_CLOSING );
-    event.SetString( "The site is being closed" );
-    event.SetEventObject( &(wxGetApp()) );
-    wxPostEvent( m_player , event );
+    m_player->OnClosing_FromSite();
 }
 
 hoxResult
@@ -902,12 +899,12 @@ hoxTable*
 hoxRemoteSite::CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo)
 {
     hoxTable* table = NULL;
-    wxString tableId = tableInfo.id;
+    wxString  tableId = tableInfo.id;
 
     /* Create a GUI Frame for the new Table. */
     MyChild* childFrame = wxGetApp().GetFrame()->CreateFrameForTable( tableId );
 
-    /* Create a new table with newly created Frame. */
+    /* Create a new table with the newly created Frame. */
     table = m_tableMgr.CreateTable( tableId );
 	table->SetInitialTime( tableInfo.initialTime );
     table->SetBlackTime( tableInfo.blackTime );

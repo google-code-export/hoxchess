@@ -36,11 +36,6 @@ class hoxSite;
 class hoxTable;
 class hoxConnection;
 
-/* 
- * New player-event based on wxCommandEvent.
- */
-DECLARE_EVENT_TYPE(hoxEVT_PLAYER_SITE_CLOSING, wxID_ANY)
-
 // ----------------------------------------------------------------------------
 // The Player class
 // ----------------------------------------------------------------------------
@@ -74,7 +69,7 @@ public:
 	virtual void OnRequest_FromTable( hoxRequest* request );
 
     virtual void OnClose_FromTable( const wxString& tableId );
-	virtual void OnClosing_FromSite( wxCommandEvent&  event );
+	virtual void OnClosing_FromSite();
 
     /***************************
      * Accessor API

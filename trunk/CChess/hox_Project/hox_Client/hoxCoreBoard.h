@@ -100,13 +100,6 @@ public:
     void StartGame();
 
     /**
-     * Set a Referee who can determine whether a Move is legal or not.
-     *
-     * @see hoxIReferee
-     */
-    void SetReferee( hoxIReferee* referee );
-
-    /**
      * Set Owner of this Board.
      */
     void SetBoardOwner( BoardOwner* owner ) { m_owner = owner; }

@@ -81,12 +81,11 @@ hoxNaiveReferee::GetNextColor()
     return _nextColor;
 }
 
-bool 
-hoxNaiveReferee::GetPieceAtPosition( const hoxPosition& position, 
-                                     hoxPieceInfo&      pieceInfo ) const
+hoxMove
+hoxNaiveReferee::StringToMove( const wxString& sMove ) const
 {
     wxLogError(_("Not yet implemented."));
-    return false;
+    return hoxMove();  // Return an "invalid" Move.
 }
 
 /************************* END OF FILE ***************************************/

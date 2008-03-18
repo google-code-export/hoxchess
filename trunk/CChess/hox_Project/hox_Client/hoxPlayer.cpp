@@ -41,10 +41,8 @@ IMPLEMENT_DYNAMIC_CLASS(hoxPlayer, wxEvtHandler)
 // Event types
 //----------------------------------------------------------------------------
 
-DEFINE_EVENT_TYPE( hoxEVT_PLAYER_SITE_CLOSING )
-
 BEGIN_EVENT_TABLE(hoxPlayer, wxEvtHandler)
-	EVT_COMMAND(wxID_ANY, hoxEVT_PLAYER_SITE_CLOSING, hoxPlayer::OnClosing_FromSite)
+	// Empty table
 END_EVENT_TABLE()
 
 
@@ -310,7 +308,7 @@ hoxPlayer::OnRequest_FromTable( hoxRequest* request )
 }
 
 void 
-hoxPlayer::OnClosing_FromSite( wxCommandEvent&  event )
+hoxPlayer::OnClosing_FromSite()
 {
     const char* FNAME = "hoxPlayer::OnClosing_FromSite";
 
