@@ -77,14 +77,14 @@ enum hoxResult
  */
 enum hoxPieceType
 {
-    hoxPIECE_TYPE_INVALID = 0,
-    hoxPIECE_TYPE_KING,             // King (or General)
-    hoxPIECE_TYPE_ADVISOR,          // Advisor (or Guard, or Mandarin)
-    hoxPIECE_TYPE_ELEPHANT,         // Elephant (or Ministers)
-    hoxPIECE_TYPE_CHARIOT,          // Chariot ( Rook, or Car)
-    hoxPIECE_TYPE_HORSE,            // Horse ( Knight )
-    hoxPIECE_TYPE_CANNON,           // Canon
-    hoxPIECE_TYPE_PAWN              // Pawn (or Soldier)
+    hoxPIECE_INVALID = 0,
+    hoxPIECE_KING,             // King (or General)
+    hoxPIECE_ADVISOR,          // Advisor (or Guard, or Mandarin)
+    hoxPIECE_ELEPHANT,         // Elephant (or Ministers)
+    hoxPIECE_CHARIOT,          // Chariot ( Rook, or Car)
+    hoxPIECE_HORSE,            // Horse ( Knight )
+    hoxPIECE_CANNON,           // Canon
+    hoxPIECE_PAWN              // Pawn (or Soldier)
 };
 
 /**

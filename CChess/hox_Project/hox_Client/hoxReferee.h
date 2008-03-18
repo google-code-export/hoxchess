@@ -55,8 +55,11 @@ public:
     virtual void GetGameState( hoxPieceInfoList& pieceInfoList,
                                hoxColor&    nextColor );
     virtual hoxColor GetNextColor();
-    virtual bool GetPieceAtPosition( const hoxPosition& position, 
-                                     hoxPieceInfo&      pieceInfo ) const;
+    virtual hoxMove StringToMove( const wxString& sMove ) const;
+
+private:
+    bool _GetPieceAtPosition( const hoxPosition& position, 
+                              hoxPieceInfo&      pieceInfo ) const;
 
 private:
     BoardInfoAPI::Board*  m_board;  // Board-Info.

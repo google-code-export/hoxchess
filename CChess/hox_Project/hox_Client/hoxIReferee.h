@@ -67,12 +67,10 @@ class hoxIReferee
     virtual hoxColor GetNextColor() = 0;
 
     /**
-     * Lookup a piece-info at a specified position.
-     *
-     * @return true if found.
+     * Convert a string into a Move.
+     * @return an invalid Move if the string is "invalid".
      */
-    virtual bool GetPieceAtPosition( const hoxPosition& position, 
-                                     hoxPieceInfo&      pieceInfo ) const = 0;
+    virtual hoxMove StringToMove( const wxString& sMove ) const = 0;
 };
 
 #endif /* __INCLUDED_HOX_IREFEREE_H_ */

@@ -142,10 +142,7 @@ hoxPlayerMgr::OnSiteClosing()
     for ( hoxPlayerList::iterator it = m_players.begin();
                                   it != m_players.end(); ++it )
     {
-        wxCommandEvent event( hoxEVT_PLAYER_SITE_CLOSING );
-        event.SetString( "The site is being closed" );
-        event.SetEventObject( &(wxGetApp()) );
-        wxPostEvent( (*it) , event );
+        (*it)->OnClosing_FromSite();
     }
 }
 

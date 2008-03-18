@@ -395,11 +395,7 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
 			}
             break;
         }
-        case hoxREQUEST_LOGOUT:
-        {
-            wxLogDebug("%s: Informing the sender about [%s] 's event.", FNAME, sType.c_str());
-            break;
-        }
+        case hoxREQUEST_LOGOUT: /* fall-through */
         case hoxREQUEST_MSG:    /* fall-through */
         case hoxREQUEST_MOVE:   /* fall-through */
         case hoxREQUEST_RESIGN: /* fall-through */

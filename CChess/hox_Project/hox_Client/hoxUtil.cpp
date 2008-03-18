@@ -45,31 +45,31 @@ _get_piece_image_path( hoxPieceType  type,
 
     switch ( type )
     {
-    case hoxPIECE_TYPE_KING:     // King
+    case hoxPIECE_KING:     // King
         filename.sprintf("%s/%cking.png", gPiecePath.c_str(), cColor);
         break;
 
-    case hoxPIECE_TYPE_ADVISOR:  // Advisor
+    case hoxPIECE_ADVISOR:  // Advisor
         filename.sprintf("%s/%cadvisor.png", gPiecePath.c_str(), cColor);
         break;
 
-    case hoxPIECE_TYPE_ELEPHANT: // Elephant 
+    case hoxPIECE_ELEPHANT: // Elephant 
         filename.sprintf("%s/%celephant.png", gPiecePath.c_str(), cColor);
         break;
   
-    case hoxPIECE_TYPE_HORSE:  // Horse 
+    case hoxPIECE_HORSE:  // Horse 
         filename.sprintf("%s/%chorse.png", gPiecePath.c_str(), cColor);
         break;
   
-    case hoxPIECE_TYPE_CHARIOT: // Chariot
+    case hoxPIECE_CHARIOT: // Chariot
         filename.sprintf("%s/%cchariot.png", gPiecePath.c_str(), cColor);
         break;
   
-    case hoxPIECE_TYPE_CANNON: // Cannon
+    case hoxPIECE_CANNON: // Cannon
         filename.sprintf("%s/%ccannon.png", gPiecePath.c_str(), cColor);
         break;
   
-    case hoxPIECE_TYPE_PAWN: // Soldier
+    case hoxPIECE_PAWN: // Soldier
         filename.sprintf("%s/%cpawn.png", gPiecePath.c_str(), cColor);
         break;
 
