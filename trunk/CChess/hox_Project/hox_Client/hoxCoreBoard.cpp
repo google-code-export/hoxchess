@@ -359,10 +359,13 @@ hoxCoreBoard::StartGame()
     /* Tell the Referee to reset the game. */
     m_referee->Reset();
 
+    /* Initialize other stated-info. */
+    m_latestPiece = NULL;
+
     /* Clear the Game-Over state in the last game, if any. */
     if ( m_isGameOver )
     {
-        m_isGameOver = false;
+        m_isGameOver  = false;
 
         this->LoadPieces();
 
