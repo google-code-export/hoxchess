@@ -233,7 +233,7 @@ namespace BoardInfoAPI
                            hoxGameStatus& status );
 
         void GetGameState( hoxPieceInfoList& pieceInfoList,
-                           hoxColor&    nextColor );
+                           hoxColor&         nextColor );
 
         hoxColor GetNextColor() const { return m_nextColor; }
 
@@ -384,7 +384,7 @@ Board::_CreateNewGame()
 
 void 
 Board::GetGameState( hoxPieceInfoList& pieceInfoList,
-                     hoxColor&    nextColor )
+                     hoxColor&         nextColor )
 {
     pieceInfoList.clear();    // Clear the old info, if exists.
 
@@ -1408,7 +1408,7 @@ hoxReferee::ValidateMove( hoxMove&      move,
 
 void 
 hoxReferee::GetGameState( hoxPieceInfoList& pieceInfoList,
-                          hoxColor&    nextColor )
+                          hoxColor&         nextColor )
 {
     wxCHECK_RET(m_board, "The Board is NULL.");
     return m_board->GetGameState( pieceInfoList, nextColor );

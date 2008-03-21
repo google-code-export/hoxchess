@@ -45,8 +45,8 @@ hoxPiece::hoxPiece( const hoxPieceInfo& info )
     wxImage image;
 
     if ( hoxRC_OK == hoxUtil::LoadPieceImage( m_info.type, 
-                                                     m_info.color, 
-                                                     image ) )
+                                              m_info.color, 
+                                              image ) )
     {
         m_bitmap = wxBitmap(image);
     }
