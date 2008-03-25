@@ -202,8 +202,6 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 				    FNAME, sContent.c_str());
 			    response->code = result;
 		    }
-
-	        // Inform the site.
             std::auto_ptr<hoxNetworkTableInfoList> autoPtr_tablelist( pTableList );  // prevent memory leak!
 	        remoteSite->DisplayListOfTables( *pTableList );
             break;
@@ -470,6 +468,10 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
             remoteSite->OnResponse_LOGOUT( response );
             return;  // *** DONE !!!!!!!!!!!!!!!!!
         }
+        case hoxREQUEST_LIST:   /* fall-through */
+        case hoxREQUEST_NEW:    /* fall-through */
+        case hoxREQUEST_JOIN:   /* fall-through */
+        case hoxREQUEST_LEAVE:  /* fall-through */
         case hoxREQUEST_MSG:    /* fall-through */
         case hoxREQUEST_MOVE:   /* fall-through */
         case hoxREQUEST_RESIGN: /* fall-through */
@@ -479,24 +481,8 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
             wxLogDebug("%s: Received [%s] 's event. Do nothing.", FNAME, sType.c_str());
             break;
         }
-        case hoxREQUEST_LIST:    /* fall-through */
-        case hoxREQUEST_NEW:     /* fall-through */
-        case hoxREQUEST_LEAVE:   /* fall-through */
-        case hoxREQUEST_JOIN:
-		{
-			/* NOTE: This command is not done yet. 
-			 * We still need to wait for server's response...
-			 */
-			if ( response->sender && response->sender != this )
-			{
-				wxLogDebug("%s: Delay informing sender of [%s] 's response.", FNAME, sType.c_str());
-				response->sender = NULL;  // TODO: Temporarily clear out sender to skip sending...
-			}
-			break;
-        }
 		default:
-			wxLogDebug("%s: *** WARN *** Unsupported request-type [%s].", 
-				FNAME, hoxUtil::RequestTypeToString(response->type));
+			wxLogDebug("%s: *** WARN *** Unsupported Request [%s].", FNAME, sType.c_str());
 			break;
 	} // switch
 

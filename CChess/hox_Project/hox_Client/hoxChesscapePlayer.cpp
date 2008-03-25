@@ -70,7 +70,7 @@ hoxChesscapePlayer::~hoxChesscapePlayer()
 }
 
 hoxResult 
-hoxChesscapePlayer::QueryForNetworkTables( wxEvtHandler* sender )
+hoxChesscapePlayer::QueryForNetworkTables()
 {
 	const char* FNAME = "hoxChesscapePlayer::QueryForNetworkTables";
 	wxLogDebug("%s: ENTER.", FNAME);
@@ -94,8 +94,7 @@ hoxChesscapePlayer::QueryForNetworkTables( wxEvtHandler* sender )
 }
 
 hoxResult 
-hoxChesscapePlayer::JoinNetworkTable( const wxString& tableId,
-                                      wxEvtHandler*   sender )
+hoxChesscapePlayer::JoinNetworkTable( const wxString& tableId )
 {
 	/* Make sure that the table is still there. */
 	if ( ! _DoesTableExist( tableId ) ) // not found?
@@ -106,11 +105,11 @@ hoxChesscapePlayer::JoinNetworkTable( const wxString& tableId,
 
 	m_pendingJoinTableId = tableId;
 
-	return this->hoxLocalPlayer::JoinNetworkTable( tableId, sender );
+	return this->hoxLocalPlayer::JoinNetworkTable( tableId );
 }
 
 hoxResult 
-hoxChesscapePlayer::OpenNewNetworkTable( wxEvtHandler*   sender )
+hoxChesscapePlayer::OpenNewNetworkTable()
 {
 	if ( m_bRequestingNewTable )
 	{
@@ -120,7 +119,7 @@ hoxChesscapePlayer::OpenNewNetworkTable( wxEvtHandler*   sender )
 
 	m_bRequestingNewTable = true;
 
-	return this->hoxLocalPlayer::OpenNewNetworkTable( sender );
+	return this->hoxLocalPlayer::OpenNewNetworkTable();
 }
 
 void 
@@ -1085,6 +1084,8 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 
     hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
 
+    const wxString sType = hoxUtil::RequestTypeToString(response->type);
+
     switch ( response->type )
 	{
 		case hoxREQUEST_LOGIN:
@@ -1127,46 +1128,12 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
             return;  // *** DONE !!!!!!!!!!!!!!!!!
 		}
 
-		/* For JOIN, lookup the tableInfo and return it. */
-		case hoxREQUEST_JOIN:
-		{
-			/* NOTE: This command is not done yet. 
-			 * We still need to wait for server's response about the JOIN.
-			 */
-			if ( response->sender && response->sender != this )
-			{
-				const wxString tableId = response->content;
-				wxASSERT_MSG(tableId == m_pendingJoinTableId, "The table-Ids should match.");
-
-				wxLogDebug("%s: Delay informing sender about JOIN 's response on table [%s].", 
-					FNAME, tableId.c_str());
-				response->sender = NULL;  // TODO: Temporarily clear out sender to skip sending...
-			}
-			break;
-		}
-
-		case hoxREQUEST_NEW:
-		{
-			/* NOTE: This command is not done yet. 
-			 * We still need to wait for server's response about the NEW.
-			 */
-			if ( response->sender && response->sender != this )
-			{
-				wxLogDebug("%s: Delay informing sender about NEW 's response for a new table.", 
-					FNAME);
-				response->sender = NULL;  // TODO: Temporarily clear out sender to skip sending...
-			}
-			break;
-		}
-
-		case hoxREQUEST_LEAVE:
-		{
-			wxLogDebug("%s: LEAVE (table) 's response received. END.", FNAME);
-			break;
-		}
+		case hoxREQUEST_JOIN:      /* fall through */
+		case hoxREQUEST_NEW:       /* fall through */
+		case hoxREQUEST_LEAVE:     /* fall through */
 		case hoxREQUEST_OUT_DATA:
 		{
-			wxLogDebug("%s: OUT_DATA 's response received. END.", FNAME);
+			wxLogDebug("%s: [%s] 's response received. END.", FNAME, sType.c_str());
 			break;
 		}
 		case hoxREQUEST_LOGOUT:
@@ -1176,8 +1143,7 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 			return;  // *** DONE !!!!!!!!!!!!!!!!!
 		}
 		default:
-			wxLogDebug("%s: *** WARN *** Unsupported request-type [%s].", 
-				FNAME, hoxUtil::RequestTypeToString(response->type));
+			wxLogDebug("%s: *** WARN *** Unsupported Request [%s].", FNAME, sType.c_str());
 			break;
 	} // switch
 
@@ -1191,7 +1157,7 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
         wxPostEvent( sender, event );
     }
 
-    wxLogDebug("%s: The response is OK.", FNAME);
+    wxLogDebug("%s: END.", FNAME);
 }
 
 /************************* END OF FILE ***************************************/

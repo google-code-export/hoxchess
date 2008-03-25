@@ -36,9 +36,6 @@
 #include "hoxMyPlayer.h"
 #include "hoxLocalPlayer.h"
 
-DECLARE_EVENT_TYPE(hoxEVT_SITE_PLAYER_DISCONNECT, wxID_ANY)
-DECLARE_EVENT_TYPE(hoxEVT_SITE_PLAYER_SHUTDOWN_READY, wxID_ANY)
-
 /**
  * The Site's Actions that are enabled at a given time.
  */
@@ -57,22 +54,6 @@ enum hoxSiteAction
 
 /* Forward declarations */
 class hoxServer;
-class hoxSite;
-
-class hoxResponseHandler : public wxEvtHandler
-{
-public:
-    hoxResponseHandler(hoxSite* site) : m_site(site) {}
-    virtual ~hoxResponseHandler() {}
-
-	void OnDisconnect_FromPlayer( wxCommandEvent& event ); 
-	void OnShutdownReady_FromPlayer( wxCommandEvent& event ); 
-
-    hoxSite*   m_site;
-
-private:
-    DECLARE_EVENT_TABLE()
-};
 
 /**
  * The Site.
@@ -110,9 +91,6 @@ public:
 
     virtual void DeletePlayer( hoxPlayer* player );
 
-    hoxResponseHandler*  GetResponseHandler() const 
-        { return m_responseHandler; }
-
 	virtual void Handle_DisconnectFromPlayer( hoxPlayer* player );
 	virtual void Handle_ShutdownReadyFromPlayer( const wxString& playerId );
 
@@ -128,8 +106,7 @@ protected:
     hoxPlayerMgr       m_playerMgr;
     hoxTableMgr        m_tableMgr;
 
-    hoxResponseHandler*  m_responseHandler;
-    wxProgressDialog*    m_dlgProgress;
+    wxProgressDialog*  m_dlgProgress;
 
 	bool               m_siteClosing;    // The Site is being closed?
 
