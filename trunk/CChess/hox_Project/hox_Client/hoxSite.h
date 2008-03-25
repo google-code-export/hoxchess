@@ -67,7 +67,6 @@ public:
 
 	void OnDisconnect_FromPlayer( wxCommandEvent& event ); 
 	void OnShutdownReady_FromPlayer( wxCommandEvent& event ); 
-    void OnConnectionResponse( wxCommandEvent& event ); 
 
     hoxSite*   m_site;
 
@@ -118,6 +117,9 @@ public:
 	virtual void Handle_ShutdownReadyFromPlayer( const wxString& playerId );
 
 	virtual unsigned int GetCurrentActionFlags() const { return 0; }
+
+protected:
+    void ShowProgressDialog( bool bShow = true );
 
 protected:
     const hoxSiteType  m_type;
@@ -210,12 +212,8 @@ public:
 
     virtual hoxTable* CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo);
 
-protected:
-    virtual void Handle_ConnectionResponse( hoxResponse_AutoPtr response );
-    
-    virtual void OnResponse_Connect( const hoxResponse_AutoPtr& response );
-	virtual void OnResponse_Disconnect( const hoxResponse_AutoPtr& response );
-    virtual void OnResponse_List( const hoxResponse_AutoPtr& response );
+    virtual void OnResponse_LOGIN( const hoxResponse_AutoPtr& response );
+	virtual void OnResponse_LOGOUT( const hoxResponse_AutoPtr& response );
 
 protected:
     hoxLocalPlayer*      m_player;
@@ -251,8 +249,7 @@ public:
 
 	virtual unsigned int GetCurrentActionFlags() const;
 
-protected:
-    virtual void OnResponse_Connect( const hoxResponse_AutoPtr& response );
+    virtual void OnResponse_LOGIN( const hoxResponse_AutoPtr& response );
 };
 
 ///////////////////////////////////////////////////////////////////////////////

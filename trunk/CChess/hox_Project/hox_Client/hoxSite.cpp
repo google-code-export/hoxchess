@@ -43,7 +43,6 @@ DEFINE_EVENT_TYPE(hoxEVT_SITE_PLAYER_SHUTDOWN_READY)
 BEGIN_EVENT_TABLE(hoxResponseHandler, wxEvtHandler)
 	EVT_COMMAND(wxID_ANY, hoxEVT_SITE_PLAYER_DISCONNECT, hoxResponseHandler::OnDisconnect_FromPlayer)
 	EVT_COMMAND(wxID_ANY, hoxEVT_SITE_PLAYER_SHUTDOWN_READY, hoxResponseHandler::OnShutdownReady_FromPlayer)
-    EVT_COMMAND(wxID_ANY, hoxEVT_CONNECTION_RESPONSE, hoxResponseHandler::OnConnectionResponse)
 END_EVENT_TABLE()
 
 
@@ -69,23 +68,6 @@ hoxResponseHandler::OnShutdownReady_FromPlayer( wxCommandEvent& event )
     wxLogDebug("%s: ENTER. Player = [%s].", FNAME, playerId.c_str());
 
     m_site->Handle_ShutdownReadyFromPlayer( playerId );
-}
-
-void 
-hoxResponseHandler::OnConnectionResponse( wxCommandEvent& event )
-{
-    const char* FNAME = "hoxResponseHandler::OnConnectionResponse";
-
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
-    hoxResponse_AutoPtr response( response_raw ); // take care memory leak!
-
-    if ( m_site->GetType() != hoxSITE_TYPE_LOCAL ) // remote site?
-    {
-        hoxRemoteSite* remoteSite = (hoxRemoteSite*) m_site;
-        remoteSite->Handle_ConnectionResponse( response );
-    }
 }
 
 
@@ -140,6 +122,44 @@ hoxSite::Handle_ShutdownReadyFromPlayer( const wxString& playerId )
     const char* FNAME = "hoxSite::Handle_ShutdownReadyFromPlayer";
     
 	wxLogDebug("%s: ENTER. Do nothing. END.", FNAME);
+}
+
+void
+hoxSite::ShowProgressDialog( bool bShow /* = true */ )
+{
+    const char* FNAME = "hoxSite::ShowProgressDialog";
+
+    if ( bShow )
+    {
+        if ( m_dlgProgress != NULL ) 
+        {
+            m_dlgProgress->Destroy();  // NOTE: ... see wxWidgets' documentation.
+            m_dlgProgress = NULL;
+        }
+
+        m_dlgProgress = new wxProgressDialog(
+            "Progress dialog",
+            "Wait until connnection is established or press [Cancel]",
+            100,
+            wxGetApp().GetFrame(),  // parent
+            wxPD_AUTO_HIDE | wxPD_CAN_ABORT
+            );
+        m_dlgProgress->SetSize( wxSize(500, 150) );
+        m_dlgProgress->Pulse();
+    }
+    else /* Hide */
+    {
+        if ( m_dlgProgress != NULL )
+        {
+            bool wasCanceled = !m_dlgProgress->Pulse();
+            m_dlgProgress->Update(100);  // make sure to close the dialog.
+            if ( wasCanceled )
+            {
+                wxLogDebug("%s: Connection has been canceled.", FNAME);
+                return;
+            }
+        }
+    }
 }
 
 // --------------------------------------------------------------------------
@@ -340,76 +360,29 @@ hoxRemoteSite::CreateLocalPlayer( const wxString& playerName )
 }
 
 void 
-hoxRemoteSite::Handle_ConnectionResponse( hoxResponse_AutoPtr response )
+hoxRemoteSite::OnResponse_LOGIN( const hoxResponse_AutoPtr& response )
 {
-    const char* FNAME = "hoxRemoteSite::Handle_ConnectionResponse";
+    const char* FNAME = "hoxRemoteSite::OnResponse_LOGIN";
 
-    wxLogDebug("%s: ENTER.", FNAME);
+    this->ShowProgressDialog( false );
 
-    if ( m_dlgProgress != NULL )
+    /* If error, then close the Site. */
+
+    if ( response->code != hoxRC_OK )
     {
-        bool wasCanceled = !m_dlgProgress->Pulse();
-        m_dlgProgress->Update(100);  // make sure to close the dialog.
-        if ( wasCanceled )
-        {
-            wxLogDebug("%s: Connection has been canceled.", FNAME);
-            return;
-        }
-    }
-
-    //if ( response->code != hoxRC_OK )
-    //{
-    //    wxLogDebug("%s: The response's code is ERROR. END.", FNAME);
-    //    return;
-    //}
-
-    switch ( response->type )
-    {
-        case hoxREQUEST_LOGIN:
-            this->OnResponse_Connect( response );
-            break;
-
-        case hoxREQUEST_LOGOUT:
-            this->OnResponse_Disconnect( response );
-            break;
-
-        case hoxREQUEST_LIST:
-            this->OnResponse_List( response );
-            break;
-
-        default:
-            wxLogError("%s: Unknown type [%s].", 
-                FNAME, hoxUtil::RequestTypeToString(response->type).c_str() );
-            break;
-    }
-}
-
-void 
-hoxRemoteSite::OnResponse_Connect( const hoxResponse_AutoPtr& response )
-{
-    const char* FNAME = "hoxRemoteSite::OnResponse_Connect";
-    int        returnCode = -1;
-    wxString   returnMsg;
-    hoxResult  result;
-
-    wxLogDebug("%s: Parsing SEND-CONNECT's response...", FNAME);
-
-	const wxString& responseStr = response->content;
-    result = hoxNetworkAPI::ParseSimpleResponse( responseStr,
-                                                 returnCode,
-                                                 returnMsg );
-    if ( result != hoxRC_OK || returnCode != 0 )
-    {
-        wxLogError("%s: Failed to parse CONNECT's response. [%d] [%s]", 
-            FNAME, returnCode, returnMsg.c_str());
+        wxLogDebug("%s: The response's code for [%s] is ERROR [%d].", 
+            FNAME, 
+            hoxUtil::RequestTypeToString(response->type).c_str(), 
+            response->code);
+        this->Handle_ShutdownReadyFromPlayer( m_player ? m_player->GetName() : "" );
         return;
     }
 }
 
 void 
-hoxRemoteSite::OnResponse_Disconnect( const hoxResponse_AutoPtr& response )
+hoxRemoteSite::OnResponse_LOGOUT( const hoxResponse_AutoPtr& response )
 {
-    const char* FNAME = "hoxRemoteSite::OnResponse_Disconnect";
+    const char* FNAME = "hoxRemoteSite::OnResponse_LOGOUT";
 
 	wxLogDebug("%s: Received DISCONNECT's response [%d: %s].", 
 		FNAME, response->code, response->content.c_str());
@@ -541,20 +514,6 @@ hoxRemoteSite::JoinNewTable(const hoxNetworkTableInfo& tableInfo)
 	return hoxRC_OK;
 }
 
-void 
-hoxRemoteSite::OnResponse_List( const hoxResponse_AutoPtr& response )
-{
-    const char* FNAME = "hoxRemoteSite::OnResponse_List";
-
-    wxLogDebug("%s: ENTER.", FNAME);
-
-	hoxNetworkTableInfoList* pTableList = (hoxNetworkTableInfoList*) response->eventObject;
-	std::auto_ptr<hoxNetworkTableInfoList> autoPtr_tablelist( pTableList );  // prevent memory leak!
-	const hoxNetworkTableInfoList& tableList = *pTableList;
-
-    this->DisplayListOfTables( tableList );
-}
-
 hoxResult
 hoxRemoteSite::DisplayListOfTables( const hoxNetworkTableInfoList& tableList )
 {
@@ -635,7 +594,6 @@ hoxRemoteSite::Connect()
 {
     const char* FNAME = "hoxRemoteSite::Connect";
     hoxResult result;
-    MyFrame* frame = wxGetApp().GetFrame();
 
     if ( this->IsConnected() )
     {
@@ -645,21 +603,7 @@ hoxRemoteSite::Connect()
 
     /* Start connecting... */
 
-    if ( m_dlgProgress != NULL ) 
-    {
-        m_dlgProgress->Destroy();  // NOTE: ... see wxWidgets' documentation.
-        m_dlgProgress = NULL;
-    }
-
-    m_dlgProgress = new wxProgressDialog(
-        "Progress dialog",
-        "Wait until connnection is established or press [Cancel]",
-        100,
-        frame,  // parent
-        wxPD_AUTO_HIDE | wxPD_CAN_ABORT
-        );
-    m_dlgProgress->SetSize( wxSize(500, 150) );
-    m_dlgProgress->Pulse();
+    this->ShowProgressDialog( true );
 
     result = m_player->ConnectToNetworkServer( m_responseHandler );
     if ( result != hoxRC_OK )
@@ -969,10 +913,12 @@ hoxChesscapeSite::CreateLocalPlayer( const wxString& playerName )
 }
 
 void 
-hoxChesscapeSite::OnResponse_Connect( const hoxResponse_AutoPtr& response )
+hoxChesscapeSite::OnResponse_LOGIN( const hoxResponse_AutoPtr& response )
 {
-    const char* FNAME = "hoxChesscapeSite::OnResponse_Connect";
-    wxLogDebug("%s: Parsing CONNECT's response...", FNAME);
+    const char* FNAME = "hoxChesscapeSite::OnResponse_LOGIN";
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    this->ShowProgressDialog( false );
 
 	/* Do nothing. */
     if ( response->code != hoxRC_OK )

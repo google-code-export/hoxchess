@@ -511,6 +511,15 @@ hoxTable::OnLeave_FromPlayer( hoxPlayer* player )
     this->UnassignPlayer( player );
 }
 
+void
+hoxTable::OnScore_FromNetwork( hoxPlayer* player )
+{
+    const char* FNAME = "hoxTable::OnScore_FromNetwork";
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    _PostBoard_ScoreEvent( player );
+}
+
 void 
 hoxTable::OnClose_FromSystem()
 {
@@ -739,6 +748,17 @@ hoxTable::_PostBoard_GameResetEvent() const
 		return;
 
     wxCommandEvent event( hoxEVT_BOARD_GAME_RESET );
+    wxPostEvent( m_board, event );
+}
+
+void 
+hoxTable::_PostBoard_ScoreEvent( hoxPlayer*  player ) const
+{
+	if ( m_board == NULL )
+		return;
+
+    wxCommandEvent event( hoxEVT_BOARD_PLAYER_SCORE );
+    event.SetEventObject( player );
     wxPostEvent( m_board, event );
 }
 

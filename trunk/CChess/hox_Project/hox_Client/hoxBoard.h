@@ -43,6 +43,7 @@ class hoxPlayer;
 
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_JOIN, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_LEAVE, wxID_ANY)
+DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_SCORE, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_WALL_OUTPUT, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_NEW_MOVE, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_DRAW_REQUEST, wxID_ANY)
@@ -109,6 +110,7 @@ public:
 
     void OnPlayerJoin( wxCommandEvent &event );
     void OnPlayerLeave( wxCommandEvent &event );
+    void OnPlayerScore( wxCommandEvent &event );
     void OnWallOutput( wxCommandEvent &event );
 	void OnNewMove( wxCommandEvent &event );
 	void OnDrawRequest( wxCommandEvent &event );

@@ -75,11 +75,6 @@ hoxChesscapePlayer::QueryForNetworkTables( wxEvtHandler* sender )
 	const char* FNAME = "hoxChesscapePlayer::QueryForNetworkTables";
 	wxLogDebug("%s: ENTER.", FNAME);
 
-	/* Just return the "cache" list. */
-
-	hoxRequestType requestType = hoxREQUEST_LIST;
-    hoxResponse_AutoPtr response( new hoxResponse(requestType, 
-                                                  sender) );
 	/* Clone the "cache" list and return the cloned */
 	hoxNetworkTableInfoList* pTableList = new hoxNetworkTableInfoList;
 
@@ -90,12 +85,10 @@ hoxChesscapePlayer::QueryForNetworkTables( wxEvtHandler* sender )
 		pTableList->push_back( (*it) );
 	}
 	
-	response->eventObject = pTableList;
-
-    wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, requestType );
-    response->code = hoxRC_OK;
-    event.SetEventObject( response.release() );  // Caller will de-allocate.
-    wxPostEvent( sender, event );
+    // Inform the site.
+    std::auto_ptr<hoxNetworkTableInfoList> autoPtr_tablelist( pTableList );  // prevent memory leak!
+    hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
+    remoteSite->DisplayListOfTables( *pTableList );
 
 	return hoxRC_OK;
 }
@@ -1088,11 +1081,14 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
     hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
     std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
 
-	switch ( response->type )
+    this->DecrementOutstandingRequests();
+
+    hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
+
+    switch ( response->type )
 	{
 		case hoxREQUEST_LOGIN:
 		{
-			this->DecrementOutstandingRequests();
 			wxLogDebug("%s: CONNECT (or LOGIN) 's response received.", FNAME);
 			wxLogDebug("%s: ... response = [%s].", FNAME, response->content.c_str());
 
@@ -1104,36 +1100,36 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 				wxLogDebug("%s: *** WARN *** Failed to parse incoming command.", FNAME);
 				response->code = hoxRC_ERR;
 				response->content = "Failed to parse incoming command.";
-				break;
 			}
+            else
+            {
+			    if ( command == "code" )
+			    {
+				    wxLogDebug("%s: *** WARN *** LOGIN return code = [%s].", FNAME, paramsStr.c_str());
+				    response->code = hoxRC_ERR;
+				    response->content.Printf("LOGIN returns code = [%s].", paramsStr.c_str());
+			    }
+			    else
+			    {
+				    wxString       name;
+				    wxString       score;
+				    wxString       role;
 
-			if ( command == "code" )
-			{
-				wxLogDebug("%s: *** WARN *** LOGIN return code = [%s].", FNAME, paramsStr.c_str());
-				response->code = hoxRC_ERR;
-				response->content.Printf("LOGIN returns code = [%s].", paramsStr.c_str());
-			}
-			else
-			{
-				wxString       name;
-				wxString       score;
-				wxString       role;
-
-				this->_HandleCmd_Login( paramsStr, name, score, role );
-				response->code = hoxRC_OK;
-				response->content.Printf("LOGIN is OK. name=[%s], score=[%s], role=[%s]", 
-					name.c_str(), score.c_str(), role.c_str());
-				wxASSERT( name == this->GetName() );
-				this->SetScore( ::atoi( score.c_str() ) );
-			}
-			break;
+				    this->_HandleCmd_Login( paramsStr, name, score, role );
+				    response->code = hoxRC_OK;
+				    response->content.Printf("LOGIN is OK. name=[%s], score=[%s], role=[%s]", 
+					    name.c_str(), score.c_str(), role.c_str());
+				    wxASSERT( name == this->GetName() );
+				    this->SetScore( ::atoi( score.c_str() ) );
+			    }
+            }
+            remoteSite->OnResponse_LOGIN( response );
+            return;  // *** DONE !!!!!!!!!!!!!!!!!
 		}
 
 		/* For JOIN, lookup the tableInfo and return it. */
 		case hoxREQUEST_JOIN:
 		{
-			this->DecrementOutstandingRequests();
-
 			/* NOTE: This command is not done yet. 
 			 * We still need to wait for server's response about the JOIN.
 			 */
@@ -1151,8 +1147,6 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 
 		case hoxREQUEST_NEW:
 		{
-			this->DecrementOutstandingRequests();
-
 			/* NOTE: This command is not done yet. 
 			 * We still need to wait for server's response about the NEW.
 			 */
@@ -1167,24 +1161,21 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 
 		case hoxREQUEST_LEAVE:
 		{
-			this->DecrementOutstandingRequests();
 			wxLogDebug("%s: LEAVE (table) 's response received. END.", FNAME);
 			break;
 		}
 		case hoxREQUEST_OUT_DATA:
 		{
-			this->DecrementOutstandingRequests();
 			wxLogDebug("%s: OUT_DATA 's response received. END.", FNAME);
 			break;
 		}
 		case hoxREQUEST_LOGOUT:
 		{
-			this->DecrementOutstandingRequests();
-			wxLogDebug("%s: DISCONNECT 's response received. END.", FNAME);
-			break;
+			wxLogDebug("%s: LOGOUT 's response received. END.", FNAME);
+            remoteSite->OnResponse_LOGOUT( response );
+			return;  // *** DONE !!!!!!!!!!!!!!!!!
 		}
 		default:
-			this->DecrementOutstandingRequests();
 			wxLogDebug("%s: *** WARN *** Unsupported request-type [%s].", 
 				FNAME, hoxUtil::RequestTypeToString(response->type));
 			break;

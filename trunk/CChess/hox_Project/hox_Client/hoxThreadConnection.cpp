@@ -56,6 +56,16 @@ hoxThreadConnection::~hoxThreadConnection()
 {
     const char* FNAME = "hoxThreadConnection::~hoxThreadConnection";
     wxLogDebug("%s: ENTER.", FNAME);
+
+    while ( ! m_requests.empty() )
+    {
+        hoxRequest* request = m_requests.front();
+        m_requests.pop_front();
+        wxLogDebug("%s: Deleting request [%s]...", FNAME, 
+            hoxUtil::RequestTypeToString(request->type).c_str());
+        delete request;
+    }
+    wxLogDebug("%s: END.", FNAME);
 }
 
 void 
