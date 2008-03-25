@@ -68,17 +68,17 @@ hoxLocalPlayer::OnClose_FromTable( const wxString& tableId )
 
     wxLogDebug("%s: ENTER. Table-Id = [%s].", FNAME, tableId.c_str());
 
-    this->LeaveNetworkTable( tableId, this );
+    this->LeaveNetworkTable( tableId );
 
     this->hoxPlayer::OnClose_FromTable( tableId );
 }
 
 hoxResult 
-hoxLocalPlayer::ConnectToNetworkServer( wxEvtHandler* sender )
+hoxLocalPlayer::ConnectToNetworkServer()
 {
     this->StartConnection();
 
-    hoxRequest* request = new hoxRequest( hoxREQUEST_LOGIN, sender );
+    hoxRequest* request = new hoxRequest( hoxREQUEST_LOGIN );
 	request->parameters["pid"] = this->GetName();
 	request->parameters["password"] = this->GetPassword();
     this->AddRequestToConnection( request );
@@ -87,9 +87,9 @@ hoxLocalPlayer::ConnectToNetworkServer( wxEvtHandler* sender )
 }
 
 hoxResult 
-hoxLocalPlayer::DisconnectFromNetworkServer( wxEvtHandler* sender )
+hoxLocalPlayer::DisconnectFromNetworkServer()
 {
-    hoxRequest* request = new hoxRequest( hoxREQUEST_LOGOUT, sender );
+    hoxRequest* request = new hoxRequest( hoxREQUEST_LOGOUT );
 	request->parameters["pid"] = this->GetName();
 	this->AddRequestToConnection( request );
 
@@ -97,9 +97,9 @@ hoxLocalPlayer::DisconnectFromNetworkServer( wxEvtHandler* sender )
 }
 
 hoxResult 
-hoxLocalPlayer::QueryForNetworkTables( wxEvtHandler* sender )
+hoxLocalPlayer::QueryForNetworkTables()
 {
-    hoxRequest* request = new hoxRequest( hoxREQUEST_LIST, sender );
+    hoxRequest* request = new hoxRequest( hoxREQUEST_LIST );
 	request->parameters["pid"] = this->GetName();
     this->AddRequestToConnection( request );
 
@@ -107,13 +107,12 @@ hoxLocalPlayer::QueryForNetworkTables( wxEvtHandler* sender )
 }
 
 hoxResult 
-hoxLocalPlayer::JoinNetworkTable( const wxString& tableId,
-                                  wxEvtHandler*   sender )
+hoxLocalPlayer::JoinNetworkTable( const wxString& tableId )
 {
 	/* Check if this Player is already AT the Table. */
 	bool hasRole = this->HasRoleAtTable( tableId );
 
-    hoxRequest* request = new hoxRequest( hoxREQUEST_JOIN, sender );
+    hoxRequest* request = new hoxRequest( hoxREQUEST_JOIN );
 	request->parameters["pid"] = this->GetName();
 	request->parameters["tid"] = tableId;
     request->parameters["color"] = hoxUtil::ColorToString( hoxCOLOR_NONE ); // Observer.
@@ -124,9 +123,9 @@ hoxLocalPlayer::JoinNetworkTable( const wxString& tableId,
 }
 
 hoxResult 
-hoxLocalPlayer::OpenNewNetworkTable( wxEvtHandler*   sender )
+hoxLocalPlayer::OpenNewNetworkTable()
 {
-    hoxRequest* request = new hoxRequest( hoxREQUEST_NEW, sender );
+    hoxRequest* request = new hoxRequest( hoxREQUEST_NEW );
 	request->parameters["pid"] = this->GetName();
 	request->parameters["itimes"] = "1500/300/20"; // TODO: Hard-coded initial times.
     this->AddRequestToConnection( request );
@@ -135,10 +134,9 @@ hoxLocalPlayer::OpenNewNetworkTable( wxEvtHandler*   sender )
 }
 
 hoxResult 
-hoxLocalPlayer::LeaveNetworkTable( const wxString& tableId,
-                                   wxEvtHandler*   sender )
+hoxLocalPlayer::LeaveNetworkTable( const wxString& tableId )
 {
-    hoxRequest* request = new hoxRequest( hoxREQUEST_LEAVE, sender );
+    hoxRequest* request = new hoxRequest( hoxREQUEST_LEAVE );
 	request->parameters["pid"] = this->GetName();
 	request->parameters["tid"] = tableId;
     this->AddRequestToConnection( request );
@@ -164,22 +162,23 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
 
     hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
 
-    if ( response->sender && response->sender != this )
-    {
-		if ( response->type == hoxREQUEST_LOGIN )
-		{
+    const wxString sType = hoxUtil::RequestTypeToString(response->type);
+
+	switch ( response->type )
+	{
+        case hoxREQUEST_LOGIN:
+        {
             result = this->HandleResponseEvent_Connect(event);
 			if ( result != hoxRC_OK )
 			{
-				wxLogDebug("%s: *** WARN *** Failed to handle CONNECT's response [%s].", 
+				wxLogDebug("%s: *** WARN *** Failed to handle LOGIN's response [%s].", 
 					FNAME, response->content.c_str());
 				response->code = result;
 			}
-            // Inform the site.
             remoteSite->OnResponse_LOGIN( response );
-            return;
+            return;  // *** DONE !!!!!!!!!!!!!!!!!
         }
-		else if ( response->type == hoxREQUEST_LIST )
+        case hoxREQUEST_LIST:
 		{
 			hoxNetworkTableInfoList* pTableList = new hoxNetworkTableInfoList;
 			result = hoxNetworkAPI::ParseNetworkTables( response->content,
@@ -190,12 +189,11 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
 					FNAME, response->content.c_str());
 				response->code = result;
 			}
-            // Inform the site.
             std::auto_ptr<hoxNetworkTableInfoList> autoPtr_tablelist( pTableList );  // prevent memory leak!
             remoteSite->DisplayListOfTables( *pTableList );
-            return;
+            return;  // *** DONE !!!!!!!!!!!!!!!!!
 		}
-		else if ( response->type == hoxREQUEST_JOIN )
+        case hoxREQUEST_JOIN:
 		{
 			std::auto_ptr<hoxNetworkTableInfo> pTableInfo( new hoxNetworkTableInfo() );
 			result = hoxNetworkAPI::ParseJoinNetworkTable( response->content,
@@ -207,9 +205,9 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
 				response->code = result;
 			}
 			remoteSite->JoinExistingTable( *pTableInfo );
-			return;
+			return;  // *** DONE !!!!!!!!!!!!!!!!!
 		}
-		else if ( response->type == hoxREQUEST_NEW )
+        case hoxREQUEST_NEW:
 		{
 			std::auto_ptr<hoxNetworkTableInfo> pTableInfo( new hoxNetworkTableInfo() );
 			result = hoxNetworkAPI::ParseNewNetworkTable( response->content,
@@ -222,21 +220,21 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
                 return;
 			}
 			remoteSite->JoinNewTable( *pTableInfo );
-			return;
+			return;  // *** DONE !!!!!!!!!!!!!!!!!
 		}
-		
-        wxEvtHandler* sender = response->sender;
-        response.release();
-        wxPostEvent( sender, event );
-        return;
-    }
+        case hoxREQUEST_OUT_DATA:
+        {
+		    wxLogDebug("%s: [%s] 's response received. END.", FNAME, sType.c_str());
+            return;  // *** DONE !!!!!!!!!!!!!!!!!
+        }
+		default:
+			wxLogDebug("%s: *** WARN *** Unsupported Request [%s].", FNAME, sType.c_str());
+			break;
+	} // switch
 
-    if ( response->type == hoxREQUEST_OUT_DATA )
-    {
-		wxLogDebug("%s: [%s] 's response received. END.", 
-			FNAME, hoxUtil::RequestTypeToString(response->type).c_str());
-        return;
-    }
+
+    ///////////////////////////////// OLD CODE ////////////////////////////////
+
 
     /* Parse the response */
     result = hoxNetworkAPI::ParseSimpleResponse( response->content,
@@ -245,11 +243,11 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
     if ( result != hoxRC_OK || returnCode != 0 )
     {
         wxLogDebug("%s: *** WARN *** Failed to parse the response. [%d] [%s]", 
-            FNAME,  returnCode, returnMsg.c_str());
+            FNAME, returnCode, returnMsg.c_str());
         return;
     }
 
-    wxLogDebug("%s: The response is OK.", FNAME);
+    wxLogDebug("%s: END.", FNAME);
 }
 
 hoxResult 

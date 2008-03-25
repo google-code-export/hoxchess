@@ -37,39 +37,6 @@
 #include "hoxNetworkAPI.h"
 #include "hoxTablesDialog.h"
 
-DEFINE_EVENT_TYPE(hoxEVT_SITE_PLAYER_DISCONNECT)
-DEFINE_EVENT_TYPE(hoxEVT_SITE_PLAYER_SHUTDOWN_READY)
-
-BEGIN_EVENT_TABLE(hoxResponseHandler, wxEvtHandler)
-	EVT_COMMAND(wxID_ANY, hoxEVT_SITE_PLAYER_DISCONNECT, hoxResponseHandler::OnDisconnect_FromPlayer)
-	EVT_COMMAND(wxID_ANY, hoxEVT_SITE_PLAYER_SHUTDOWN_READY, hoxResponseHandler::OnShutdownReady_FromPlayer)
-END_EVENT_TABLE()
-
-
-void 
-hoxResponseHandler::OnDisconnect_FromPlayer( wxCommandEvent& event )
-{
-    const char* FNAME = "hoxResponseHandler::OnDisconnect_FromPlayer";
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    hoxPlayer* player = wx_reinterpret_cast(hoxPlayer*, event.GetEventObject());
-    wxCHECK_RET(player, "Player cannot be NULL.");
-
-    m_site->Handle_DisconnectFromPlayer( player );
-}
-
-void 
-hoxResponseHandler::OnShutdownReady_FromPlayer( wxCommandEvent& event )
-{
-    const char* FNAME = "hoxResponseHandler::OnShutdownReady_FromPlayer";
-	
-	const wxString playerId = event.GetString();
-
-    wxLogDebug("%s: ENTER. Player = [%s].", FNAME, playerId.c_str());
-
-    m_site->Handle_ShutdownReadyFromPlayer( playerId );
-}
-
 
 // --------------------------------------------------------------------------
 // hoxSite
@@ -80,19 +47,15 @@ hoxSite::hoxSite( hoxSiteType             type,
                   const hoxServerAddress& address )
         : m_type( type )
         , m_address( address)
-        , m_responseHandler( NULL )
         , m_dlgProgress( NULL )
 		, m_siteClosing( false )
 {
     m_playerMgr.SetSite( this );
     m_tableMgr.SetSite( this );
-
-    m_responseHandler = new hoxResponseHandler( this );
 }
 
 hoxSite::~hoxSite()
 {
-    delete m_responseHandler;
 }
 
 void 
@@ -537,7 +500,7 @@ hoxRemoteSite::DisplayListOfTables( const hoxNetworkTableInfoList& tableList )
         case hoxTablesDialog::COMMAND_ID_JOIN:
         {
             wxLogDebug("%s: Ask the server to allow me to JOIN table = [%s]", FNAME, selectedId.c_str());
-            result = m_player->JoinNetworkTable( selectedId, m_responseHandler );
+            result = m_player->JoinNetworkTable( selectedId );
             if ( result != hoxRC_OK )
             {
                 wxLogError("%s: Failed to JOIN a network table [%s].", FNAME, selectedId.c_str());
@@ -548,7 +511,7 @@ hoxRemoteSite::DisplayListOfTables( const hoxNetworkTableInfoList& tableList )
         case hoxTablesDialog::COMMAND_ID_NEW:
         {
             wxLogDebug("%s: Ask the server to open a new table.", FNAME);
-            result = m_player->OpenNewNetworkTable( m_responseHandler );
+            result = m_player->OpenNewNetworkTable();
             if ( result != hoxRC_OK )
             {
                 wxLogError("%s: Failed to open a NEW network table.", FNAME);
@@ -605,7 +568,7 @@ hoxRemoteSite::Connect()
 
     this->ShowProgressDialog( true );
 
-    result = m_player->ConnectToNetworkServer( m_responseHandler );
+    result = m_player->ConnectToNetworkServer();
     if ( result != hoxRC_OK )
     {
         wxLogError("%s: Failed to connect to server.", FNAME);
@@ -633,7 +596,7 @@ hoxRemoteSite::Close()
 	{
 		/* Inform the remote server that the player is logging-out. 
 		 */
-		result = m_player->DisconnectFromNetworkServer( m_responseHandler );
+		result = m_player->DisconnectFromNetworkServer();
 		if ( result != hoxRC_OK )
 		{
 			wxLogError("%s: Failed to connect to server.", FNAME);
@@ -656,7 +619,7 @@ hoxRemoteSite::QueryForNetworkTables()
         return hoxRC_ERR;
     }
 
-    result = m_player->QueryForNetworkTables( m_responseHandler );
+    result = m_player->QueryForNetworkTables();
     if ( result != hoxRC_OK )
     {
         wxLogError("%s: Failed to query for tables.", FNAME);
@@ -680,7 +643,7 @@ hoxRemoteSite::CreateNewTable( wxString& newTableId )
     const char* FNAME = "hoxRemoteSite::CreateNewTable";
     hoxResult result;
 
-    result = m_player->OpenNewNetworkTable( m_responseHandler );
+    result = m_player->OpenNewNetworkTable();
     if ( result != hoxRC_OK )
     {
         wxLogError("%s: Failed to open a new Table on the remote server.", FNAME);

@@ -441,11 +441,7 @@ hoxPlayer::HandleIncomingData_Disconnect( hoxCommand& command )
 	this->ShutdownConnection();
 
     /* Inform the site about this event. */
-	{
-		wxCommandEvent event( hoxEVT_SITE_PLAYER_DISCONNECT );
-		event.SetEventObject( this );
-		wxPostEvent( m_site->GetResponseHandler(), event );
-	}
+    m_site->Handle_DisconnectFromPlayer( this );
 
 	/* Finally, return 'success'. */
     result = hoxRC_OK;
@@ -975,9 +971,7 @@ hoxPlayer::_PostSite_ShutdownReady()
 	const char* FNAME  = "hoxPlayer::_PostSite_ShutdownReady";
 	wxLogDebug("%s: ENTER.", FNAME);
 
-    wxCommandEvent event( hoxEVT_SITE_PLAYER_SHUTDOWN_READY );
-    event.SetString( this->GetName() );
-    wxPostEvent( m_site->GetResponseHandler(), event );
+    m_site->Handle_ShutdownReadyFromPlayer( this->GetName() );
 }
 
 /************************* END OF FILE ***************************************/

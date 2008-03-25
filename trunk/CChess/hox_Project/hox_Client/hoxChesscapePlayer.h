@@ -49,10 +49,9 @@ public:
      * Override the parent's API
      *******************************/
 
-	virtual hoxResult QueryForNetworkTables( wxEvtHandler* sender );
-    virtual hoxResult JoinNetworkTable( const wxString& tableId,
-                                        wxEvtHandler*   sender );
-	virtual hoxResult OpenNewNetworkTable( wxEvtHandler*   sender );
+	virtual hoxResult QueryForNetworkTables();
+    virtual hoxResult JoinNetworkTable( const wxString& tableId );
+	virtual hoxResult OpenNewNetworkTable();
 
 	/*******************************
      * Table-event handlers
