@@ -40,6 +40,11 @@ namespace hoxUtil
     hoxResult LoadPieceImage(hoxPieceType type, hoxColor color, wxImage& image);
 
     /**
+     * Convert a given Result to a (human-readable) string.
+     */
+    const char* ResultToStr( const hoxResult result );
+
+    /**
      * A helper to generate a random string.
      */
     wxString GenerateRandomString();

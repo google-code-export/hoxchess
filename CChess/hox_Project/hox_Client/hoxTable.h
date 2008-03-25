@@ -238,6 +238,14 @@ public:
     void OnGameReset_FromNetwork();
 
     /**
+     * Callback function from the NETWORK Player to let this Table know about
+     * a player's new Score.
+     *
+     * @param player The Player who has the new score.
+     */
+    void OnScore_FromNetwork( hoxPlayer* player );
+
+    /**
      * Callback function from a player who is leaving the table.
      */
     void OnLeave_FromPlayer( hoxPlayer* player );
@@ -335,6 +343,8 @@ private:
     void _PostBoard_GameOverEvent( const hoxGameStatus gameStatus ) const;
 
     void _PostBoard_GameResetEvent() const;
+
+    void _PostBoard_ScoreEvent( hoxPlayer*  player ) const;
 
     /**
      * Inform other Players that a new Player just joined the Table.

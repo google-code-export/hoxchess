@@ -53,6 +53,7 @@ hoxMyPlayer::hoxMyPlayer( const wxString& name,
                           hoxPlayerType   type,
                           int             score )
             : hoxLocalPlayer( name, type, score )
+            , m_bLoginSuccess( false )
 { 
     const char* FNAME = "hoxMyPlayer::hoxMyPlayer";
     wxLogDebug("%s: ENTER.", FNAME);
@@ -69,6 +70,22 @@ hoxMyPlayer::OnIncomingNetworkData( wxSocketEvent& event )
 {
     const char* FNAME = "hoxMyPlayer::OnIncomingNetworkData";
     wxLogDebug("%s: ENTER.", FNAME);
+
+    /* Do nothing if LOGIN is not done successfully. */
+    if ( ! m_bLoginSuccess )
+    {
+        wxLogDebug("%s: *** WARN *** LOGIN not yet OK. Do nothing.", FNAME);
+        return;
+    }
+
+    //////////// TODO: Concurrent access with the "Connection" thread ///////////
+    //
+    //  NOTE: *** Disable this code since it does not solve 
+    //            our "multiple-input-notification" problem.
+    //
+    //event.GetSocket()->SetNotify(wxSOCKET_LOST_FLAG); // remove the wxSOCKET_INPUT_FLAG!!!
+    //
+    /////////////////////////////////////////////////////////////////////////////
 
     hoxRequest* request = new hoxRequest( hoxREQUEST_PLAYER_DATA, this );
     request->socket      = event.GetSocket();
@@ -90,7 +107,30 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
     /* Make a note to 'self' that one request has been serviced. */
     DecrementOutstandingRequests();
 
-    /* NOTE: Only handle the connection-lost event. */
+    hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
+
+    /* Handle error-code. */
+
+    if ( response->code == hoxRC_CLOSED )
+    {
+        wxLogDebug("%s: Connection has been closed.", FNAME);
+        /* Currently, we support one connection per player.
+         * Since this ONLY connection is closed, the player must leave
+         * all tables.
+         */
+        this->LeaveAllTables();
+        wxLogDebug("%s: END (closed).", FNAME);
+        return;
+    }
+    else if ( response->code != hoxRC_OK )
+    {
+        wxLogDebug("%s: *** WARN *** Received error-code [%d].", FNAME, response->code);
+        //this->LeaveAllTables();
+        wxLogDebug("%s: END (error).", FNAME);
+        return;
+    }
+
+    /* Handle the connection-lost event. */
 
     if ( (response->flags & hoxRESPONSE_FLAG_CONNECTION_LOST) !=  0 )
     {
@@ -165,7 +205,6 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 
 	        // Inform the site.
             std::auto_ptr<hoxNetworkTableInfoList> autoPtr_tablelist( pTableList );  // prevent memory leak!
-	        hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
 	        remoteSite->DisplayListOfTables( *pTableList );
             break;
         }
@@ -180,7 +219,6 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 				    FNAME, sContent.c_str());
                 break;
 		    }
-		    hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
 		    remoteSite->JoinNewTable( *pTableInfo );
 		    break;
         }
@@ -213,7 +251,6 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 				    FNAME, sContent.c_str());
                 break;
 		    }
-		    hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
 		    remoteSite->JoinNewTable( *pTableInfo );
 		    break;
         }
@@ -234,7 +271,6 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 		    }
             wxLogDebug("%s: Player [%s] joined Table [%s] as [%d].", FNAME, 
                 playerId.c_str(), tableId.c_str(), joinColor);
-            hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
             result = remoteSite->OnPlayerJoined( tableId, 
                                                  playerId, 
                                                  nPlayerScore,
@@ -340,10 +376,29 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
             table->OnGameOver_FromNetwork( this, gameStatus );
             break;
         }
+        case hoxREQUEST_E_SCORE:
+        {
+            hoxTable*     table = NULL;
+            hoxPlayer*    player = NULL;
+            int           nScore = 0;
+
+		    result = _ParsePlayerScoreEvent( sContent,
+									         table, player, nScore );
+		    if ( result != hoxRC_OK )
+		    {
+			    wxLogDebug("%s: Failed to parse E_SCORE's event [%s].",
+                    FNAME, sContent.c_str());
+                break;
+		    }
+            wxLogDebug("%s: Inform table [%s] of player [%s] new Score [%d].", 
+                FNAME, table->GetId().c_str(), player->GetName().c_str(), nScore);
+            player->SetScore( nScore );
+            table->OnScore_FromNetwork( player );
+            break;
+        }
         default:
         {
-		    wxLogDebug("%s: *** WARN *** Unsupported command-type [%s].", 
-			    FNAME, sType.c_str());
+		    wxLogDebug("%s: *** WARN *** Unsupported command [%s].", FNAME, sType.c_str());
         }
     } // switch()
 
@@ -364,6 +419,8 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
     /* Make a note to 'self' that one request has been serviced. */
     DecrementOutstandingRequests();
 
+    hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
+
     const wxString sType = hoxUtil::RequestTypeToString(response->type);
 
 	switch ( response->type )
@@ -379,23 +436,40 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
                 wxLogError("%s: Failed to parse command-string [%s].", FNAME, commandStr.c_str());
                 break;
             }
-            wxLogDebug("%s: Received a command [%s].", FNAME, 
-                hoxUtil::RequestTypeToString(command.type).c_str());
+            wxLogDebug("%s: Received a command [%s].", FNAME, sType.c_str());
 
             const wxString sType    = hoxUtil::RequestTypeToString(command.type);
-            //const wxString sCode    = command.parameters["code"];
+            const wxString sCode    = command.parameters["code"];
             const wxString sContent = command.parameters["content"];
 
-            result = _HandleResponseEvent_LOGIN( sContent );
-			if ( result != hoxRC_OK )
-			{
-				wxLogDebug("%s: *** WARN *** Failed to handle [%s] 's response [%s].", 
-                    FNAME, sType.c_str(), sContent.c_str());
-				response->code = result;
-			}
-            break;
+            if ( sCode != "0" )  // error?
+            {
+                wxLogDebug("%s: *** WARN *** Failed to login. Error = [%s: %s].", 
+                    FNAME, sCode.c_str(), sContent.c_str());
+                response->code = hoxRC_ERR;
+                wxLogDebug("%s: *** INFO *** Shutdown connection due to LOGIN failure...", FNAME);
+            }
+            else
+            {
+                result = _HandleResponseEvent_LOGIN( sContent );
+			    if ( result != hoxRC_OK )
+			    {
+				    wxLogDebug("%s: *** WARN *** Failed to handle [%s] 's response [%s].", 
+                        FNAME, sType.c_str(), sContent.c_str());
+				    response->code = result;
+                } else {
+                    m_bLoginSuccess = true;
+                }
+            }
+            remoteSite->OnResponse_LOGIN( response );
+            return;  // *** DONE !!!!!!!!!!!!!!!!!
         }
-        case hoxREQUEST_LOGOUT: /* fall-through */
+
+        case hoxREQUEST_LOGOUT:
+        {
+            remoteSite->OnResponse_LOGOUT( response );
+            return;  // *** DONE !!!!!!!!!!!!!!!!!
+        }
         case hoxREQUEST_MSG:    /* fall-through */
         case hoxREQUEST_MOVE:   /* fall-through */
         case hoxREQUEST_RESIGN: /* fall-through */
@@ -436,7 +510,7 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
         wxPostEvent( sender, event );
     }
 
-    wxLogDebug("%s: The response is OK.", FNAME);
+    wxLogDebug("%s: END.", FNAME);
 }
 
 hoxResult 
@@ -820,6 +894,58 @@ hoxMyPlayer::_ParsePlayerResetEvent( const wxString& sContent,
     if ( table == NULL )
     {
         wxLogDebug("%s: Table [%s] not found.", FNAME, tableId.c_str());
+        return hoxRC_NOT_FOUND;
+    }
+
+	return hoxRC_OK;
+}
+
+hoxResult
+hoxMyPlayer::_ParsePlayerScoreEvent( const wxString& sContent,
+                                     hoxTable*&      table,
+                                     hoxPlayer*&     player,
+                                     int&            nScore )
+{
+    const char* FNAME = "hoxMyPlayer::_ParsePlayerScoreEvent";
+    wxString tableId;
+    wxString playerId;
+
+    table   = NULL;
+    player  = NULL;
+    nScore  = 0;
+
+    /* Parse the input string. */
+
+	// ... Do not return empty tokens
+	wxStringTokenizer tkz( sContent, ";", wxTOKEN_STRTOK );
+	int tokenPosition = 0;
+	wxString token;
+
+	while ( tkz.HasMoreTokens() )
+	{
+		token = tkz.GetNextToken();
+		switch ( tokenPosition++ )
+		{
+			case 0: tableId    = token;  break;
+            case 1: playerId   = token;  break;
+            case 2: nScore     = ::atoi(token.c_str());  break;
+			default: /* Ignore the rest. */ break;
+		}
+	}		
+
+    /* Lookup Table. */
+    table = this->GetSite()->FindTable( tableId );
+    if ( table == NULL )
+    {
+        wxLogDebug("%s: Table [%s] not found.", FNAME, tableId.c_str());
+        return hoxRC_NOT_FOUND;
+    }
+
+    /* Lookup Player. */
+    player = this->GetSite()->FindPlayer( playerId );
+    if ( player == NULL ) 
+    {
+        wxLogDebug("%s: Player [%s] not found.", FNAME, playerId.c_str());
         return hoxRC_NOT_FOUND;
     }
 

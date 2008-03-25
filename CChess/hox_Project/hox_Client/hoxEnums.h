@@ -65,6 +65,7 @@ enum hoxResult
     hoxRC_ERR,   // A generic error.
 
     hoxRC_HANDLED,   // something (request, event,...) has been handled.
+    hoxRC_CLOSED,    // Something (socket,...) has been closed.
     hoxRC_NOT_FOUND, // Something is not found.
     hoxRC_NOT_SUPPORTED
 };
@@ -296,6 +297,9 @@ enum hoxRequestType
 
     hoxREQUEST_E_END,
         /* Event generated from a Table that the game has ended. */
+
+    hoxREQUEST_E_SCORE,
+        /* Event generated to inform of a player's new Score. */
 
     hoxREQUEST_PLAYER_STATUS,
         /* Event generated from a Player when his Status is changed. */

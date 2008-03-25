@@ -99,12 +99,38 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
             wxASSERT_MSG( request->socket == m_pSClient, "Sockets should match." );
             // We disable input events until we are done processing the current command.
             hoxNetworkAPI::SocketInputLock socketLock( m_pSClient );
-            result = _ReadLine( m_pSClient, response->content );
-            if ( result != hoxRC_OK )
-            {
-                wxLogError("%s: Failed to read incoming command.", FNAME);
-                goto exit_label;
-            }
+			wxSocketFlags savedFlags = m_pSClient->GetFlags();
+            m_pSClient->SetFlags( savedFlags | wxSOCKET_NOWAIT );
+			for (;;)
+			{
+				result = _ReadLine( m_pSClient, response->content );
+                if ( result == hoxRC_CLOSED ) // Connection closed by the remote peer?
+                {
+					break;
+                }
+                else if ( result == hoxRC_NOT_FOUND ) // No more data?
+                {
+					break;
+                }
+				else if ( result != hoxRC_OK )
+				{
+					wxLogDebug("%s: *** WARN *** Failed to read incoming command.", FNAME);
+					break;
+				}
+
+				// *** Perform "multiple" notifications to the Player.
+				wxLogDebug("%s: Inform the Player for this command...", FNAME);
+				wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, request->type );
+				response->code = result;
+				event.SetEventObject( response.release() );  // Caller will de-allocate.
+				wxPostEvent( m_player, event );
+				
+				// *** Allocate new response.
+				wxLogDebug("%s: [PLAYER_DATA] Allocate a new response.", FNAME);
+				response.reset( new hoxResponse(request->type, request->sender) );
+			} // for(...)
+			
+			m_pSClient->SetFlags( savedFlags ); // *** Restore flags.
             break;
         }
 
@@ -159,17 +185,19 @@ hoxSocketConnection::HandleRequest( hoxRequest* request )
 exit_label:
     if ( result != hoxRC_OK )
     {
-        wxLogDebug("%s: *** WARN *** Error occurred while handling request [%s].", 
-            FNAME, hoxUtil::RequestTypeToString(request->type).c_str());
-        response->content = "!Error_Result!";
+        wxLogDebug("%s: * INFO * Request [%s]: return error-code = [%s]...", 
+            FNAME, hoxUtil::RequestTypeToString(request->type).c_str(), 
+            hoxUtil::ResultToStr(result));
     }
 
-    /* NOTE: If there was error, just return it to the caller. */
-
-    wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, request->type );
-    response->code = result;
-    event.SetEventObject( response.release() );  // Caller will de-allocate.
-    wxPostEvent( m_player, event );
+    /* If there are data, just return it to the caller. */
+    if ( result != hoxRC_NOT_FOUND )
+    {
+        wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, request->type );
+        response->code = result;
+        event.SetEventObject( response.release() );  // Caller will de-allocate.
+        wxPostEvent( m_player, event );
+    }
 }
 
 const wxString 
@@ -313,6 +341,8 @@ hoxSocketConnection::_ReadLine( wxSocketBase* sock,
     const char* FNAME = "hoxSocketConnection::_ReadLine";
     wxString commandStr;
 
+    result = "";
+
 	/* Read a line until "\n\n" */
 
 	bool   bSawOne = false;
@@ -321,6 +351,14 @@ hoxSocketConnection::_ReadLine( wxSocketBase* sock,
     for (;;)
     {
         sock->Read( &c, 1 );
+#if 0
+        if ( sock->LastCount() == 0 )  // Connection closed by the remote peer?
+        {
+            wxLogDebug("%s: Connection closed by the remote peer. Result message = [%s].",
+                FNAME, commandStr.c_str());
+            return hoxRC_CLOSED;  // Done.
+        }
+#endif
         if ( sock->LastCount() == 1 )
         {
 			if ( !bSawOne && c == '\n' )
@@ -340,20 +378,18 @@ hoxSocketConnection::_ReadLine( wxSocketBase* sock,
                 // Impose some limit.
                 if ( commandStr.size() >= hoxNETWORK_MAX_MSG_SIZE )
                 {
-                    wxLogError("%s: Maximum message's size [%d] reached. Likely to be an error.", 
+                    wxLogDebug("%s: *** WARN *** Maximum message's size [%d] reached. Likely to be an error.", 
                         FNAME, hoxNETWORK_MAX_MSG_SIZE);
-                    wxLogError("%s: Partial read message (64 bytes) = [%s ...].", 
+                    wxLogDebug("%s: *** WARN *** Partial read message (64 bytes) = [%s ...].", 
                         FNAME, commandStr.substr(0, 64).c_str());
                     break;
                 }
             }
         }
-        else if ( sock->Error() )
+        else
         {
-            wxLogWarning("%s: Fail to read 1 byte from the network. Error = [%s].", 
-                FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
-            wxLogWarning("%s: Result message accumulated so far = [%s].", FNAME, commandStr.c_str());
-            break;
+            wxLogDebug("%s: No more data. Result message = [%s].", FNAME, commandStr.c_str());
+            return hoxRC_NOT_FOUND;  // Done.
         }
     }
 

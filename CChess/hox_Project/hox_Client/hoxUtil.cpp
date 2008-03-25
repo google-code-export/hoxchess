@@ -109,6 +109,24 @@ hoxUtil::LoadPieceImage( hoxPieceType  type,
     return hoxRC_OK;
 }
 
+const char*
+hoxUtil::ResultToStr( const hoxResult result )
+{
+    switch( result )
+    {
+        case hoxRC_UNKNOWN:         return "UNKNOWN";
+
+        case hoxRC_OK:              return "OK";
+        case hoxRC_ERR:             return "ERR";
+        case hoxRC_HANDLED:         return "HANDLED";
+        case hoxRC_CLOSED:          return "CLOSED";
+        case hoxRC_NOT_FOUND:       return "NOT_FOUND";
+        case hoxRC_NOT_SUPPORTED:   return "NOT_SUPPORTED";
+
+        default:                    return "UNKNOWN";
+    }
+}
+
 wxString 
 hoxUtil::GenerateRandomString()
 {
@@ -144,11 +162,12 @@ hoxUtil::RequestTypeToString( const hoxRequestType requestType )
         case hoxREQUEST_RESET:       return "RESET";
         case hoxREQUEST_E_JOIN:      return "E_JOIN";
         case hoxREQUEST_E_END:       return "E_END";
+        case hoxREQUEST_E_SCORE:     return "E_SCORE";
 		case hoxREQUEST_PLAYER_STATUS: return "PLAYER_STATUS";
         case hoxREQUEST_OUT_DATA:    return "OUT_DATA";
         case hoxREQUEST_MSG:         return "MSG";
 
-        default:                          return "UNKNOWN";
+        default:                     return "UNKNOWN";
     }
 }
 
@@ -176,6 +195,7 @@ hoxUtil::StringToRequestType( const wxString& input )
     if ( input == "RESET" )       return hoxREQUEST_RESET;
     if ( input == "E_JOIN" )      return hoxREQUEST_E_JOIN;
     if ( input == "E_END" )       return hoxREQUEST_E_END;
+    if ( input == "E_SCORE" )     return hoxREQUEST_E_SCORE;
 	if ( input == "PLAYER_STATUS" ) return hoxREQUEST_PLAYER_STATUS;
     if ( input == "OUT_DATA" )    return hoxREQUEST_OUT_DATA;
     if ( input == "MSG" )         return hoxREQUEST_MSG;

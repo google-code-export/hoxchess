@@ -162,6 +162,8 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
     /* Make a note to 'self' that one request has been serviced. */
     DecrementOutstandingRequests();
 
+    hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
+
     if ( response->sender && response->sender != this )
     {
 		if ( response->type == hoxREQUEST_LOGIN )
@@ -173,6 +175,9 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
 					FNAME, response->content.c_str());
 				response->code = result;
 			}
+            // Inform the site.
+            remoteSite->OnResponse_LOGIN( response );
+            return;
         }
 		else if ( response->type == hoxREQUEST_LIST )
 		{
@@ -185,7 +190,10 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
 					FNAME, response->content.c_str());
 				response->code = result;
 			}
-			response->eventObject = pTableList;
+            // Inform the site.
+            std::auto_ptr<hoxNetworkTableInfoList> autoPtr_tablelist( pTableList );  // prevent memory leak!
+            remoteSite->DisplayListOfTables( *pTableList );
+            return;
 		}
 		else if ( response->type == hoxREQUEST_JOIN )
 		{
@@ -198,7 +206,6 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
 					FNAME, response->content.c_str());
 				response->code = result;
 			}
-			hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
 			remoteSite->JoinExistingTable( *pTableInfo );
 			return;
 		}
@@ -214,7 +221,6 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
 				response->code = result;
                 return;
 			}
-			hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
 			remoteSite->JoinNewTable( *pTableInfo );
 			return;
 		}

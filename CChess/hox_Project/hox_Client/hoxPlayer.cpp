@@ -112,7 +112,7 @@ hoxPlayer::RemoveRole( hoxRole role )
     wxASSERT( this->HasRole( role ) );
     m_roles.remove( role );
 
-    if ( m_siteClosing && m_nOutstandingRequests == 0 && m_roles.empty() )
+    if ( m_siteClosing && /*m_nOutstandingRequests == 0 &&*/ m_roles.empty() )
     {
 		_PostSite_ShutdownReady();
     }
@@ -316,7 +316,7 @@ hoxPlayer::OnClosing_FromSite()
 
     m_siteClosing = true; // *** Turn it ON!
 
-    if ( m_nOutstandingRequests == 0 && m_roles.empty() )
+    if ( /*m_nOutstandingRequests == 0 &&*/ m_roles.empty() )
     {
 		_PostSite_ShutdownReady();
     }
@@ -952,7 +952,7 @@ hoxPlayer::DecrementOutstandingRequests()
 
     if ( m_nOutstandingRequests == 0 )
     {
-        wxLogDebug("%s: *** WARN *** No more outstanding requests to be decremented.", FNAME);
+        wxLogDebug("%s: * INFO * No more outstanding requests to be decremented.", FNAME);
         return;
     }
 

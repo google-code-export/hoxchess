@@ -98,7 +98,14 @@ private:
     hoxResult _ParsePlayerResetEvent( const wxString& sContent,
                                       hoxTable*&      table );
 
+    hoxResult _ParsePlayerScoreEvent( const wxString& sContent,
+                                      hoxTable*&      table,
+                                      hoxPlayer*&     player,
+                                      int&            nScore );
+
 private:
+    bool      m_bLoginSuccess;  /* Has this Player logged in successfully? */ 
+
 
     DECLARE_DYNAMIC_CLASS(hoxMyPlayer)
     DECLARE_EVENT_TABLE()

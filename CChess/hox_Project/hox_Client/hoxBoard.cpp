@@ -57,6 +57,7 @@ enum
 /* Define my custom events */
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_PLAYER_JOIN )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_PLAYER_LEAVE )
+DEFINE_EVENT_TYPE( hoxEVT_BOARD_PLAYER_SCORE )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_WALL_OUTPUT )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_NEW_MOVE )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_DRAW_REQUEST )
@@ -66,6 +67,7 @@ DEFINE_EVENT_TYPE( hoxEVT_BOARD_GAME_RESET )
 BEGIN_EVENT_TABLE(hoxBoard, wxPanel)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_JOIN, hoxBoard::OnPlayerJoin)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_LEAVE, hoxBoard::OnPlayerLeave)
+    EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_SCORE, hoxBoard::OnPlayerScore)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_WALL_OUTPUT, hoxBoard::OnWallOutput)
 	EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_NEW_MOVE, hoxBoard::OnNewMove)
 	EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_DRAW_REQUEST, hoxBoard::OnDrawRequest)
@@ -229,6 +231,29 @@ hoxBoard::OnPlayerLeave( wxCommandEvent &event )
     }
 
     _RemovePlayerFromList( playerId );
+}
+
+void 
+hoxBoard::OnPlayerScore( wxCommandEvent &event )
+{
+    const char* FNAME = "hoxBoard::OnPlayerScore";
+
+    hoxPlayer* player = wxDynamicCast(event.GetEventObject(), hoxPlayer);
+    wxCHECK_RET(player, "Player cannot be NULL.");
+
+    const wxString playerId = player->GetName();
+
+    if ( playerId == m_redId )
+    {
+        _SetRedInfo( player );
+    } 
+    else if ( playerId == m_blackId )
+    {
+        _SetBlackInfo( player );
+    } 
+
+    /* NOTE: This action "add" can be used as an "update" action. */
+    _AddPlayerToList( playerId, player->GetScore() );
 }
 
 void 
