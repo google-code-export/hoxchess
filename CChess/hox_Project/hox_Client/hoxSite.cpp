@@ -323,7 +323,7 @@ hoxRemoteSite::CreateLocalPlayer( const wxString& playerName )
 }
 
 void 
-hoxRemoteSite::OnResponse_LOGIN( const hoxResponse_AutoPtr& response )
+hoxRemoteSite::OnResponse_LOGIN( const hoxResponse_APtr& response )
 {
     const char* FNAME = "hoxRemoteSite::OnResponse_LOGIN";
 
@@ -343,7 +343,7 @@ hoxRemoteSite::OnResponse_LOGIN( const hoxResponse_AutoPtr& response )
 }
 
 void 
-hoxRemoteSite::OnResponse_LOGOUT( const hoxResponse_AutoPtr& response )
+hoxRemoteSite::OnResponse_LOGOUT( const hoxResponse_APtr& response )
 {
     const char* FNAME = "hoxRemoteSite::OnResponse_LOGOUT";
 
@@ -876,7 +876,7 @@ hoxChesscapeSite::CreateLocalPlayer( const wxString& playerName )
 }
 
 void 
-hoxChesscapeSite::OnResponse_LOGIN( const hoxResponse_AutoPtr& response )
+hoxChesscapeSite::OnResponse_LOGIN( const hoxResponse_APtr& response )
 {
     const char* FNAME = "hoxChesscapeSite::OnResponse_LOGIN";
     wxLogDebug("%s: ENTER.", FNAME);

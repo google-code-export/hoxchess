@@ -29,9 +29,119 @@
 
 #include <wx/wx.h>
 #include <wx/socket.h>
+#include <boost/shared_ptr.hpp>
 #include "hoxThreadConnection.h"
 #include "hoxEnums.h"
 #include "hoxTypes.h"
+
+/* Forward declarations. */
+class hoxSocketConnection;
+class hoxSocketWriter;
+class hoxSocketReader;
+
+/* Typedef(s) */
+typedef boost::shared_ptr<hoxSocketWriter> hoxSocketWriter_SPtr;
+typedef boost::shared_ptr<hoxSocketReader> hoxSocketReader_SPtr;
+
+// ----------------------------------------------------------------------------
+// hoxRequestQueue
+// ----------------------------------------------------------------------------
+
+class hoxRequestQueue
+{
+public:
+    hoxRequestQueue();
+    ~hoxRequestQueue();
+
+    void            PushBack( hoxRequest_APtr apRequest );
+    hoxRequest_APtr PopFront();
+
+private:
+    hoxRequestList    m_list;   // The list of requests.
+    wxMutex           m_mutex;  // Lock
+};
+
+// ----------------------------------------------------------------------------
+// hoxSocketWriter
+// ----------------------------------------------------------------------------
+
+class hoxSocketWriter : public wxThread
+{
+public:
+    hoxSocketWriter( hoxSocketConnection& owner );
+    ~hoxSocketWriter();
+
+    bool AddRequest( hoxRequest_APtr apRequest );
+
+protected:
+    // entry point for the thread
+    virtual void *Entry();
+
+private:
+    void        _StartReader( wxSocketClient* socket );
+
+    hoxRequest_APtr _GetRequest();
+    void            _HandleRequest( hoxRequest_APtr apRequest );
+
+    hoxResult _Login( const wxString& sHostname,
+                      const int       nPort,
+                      const wxString& request,
+                      wxString&       response );
+
+    void _Disconnect();
+
+private:
+    // the owner of the thread
+    hoxSocketConnection&  m_owner;
+
+    wxSocketClient*       m_socket;
+                /* The socket to handle network connections */
+
+    hoxSocketReader_SPtr  m_reader;
+                /* The Reader Thread. */
+
+    // Storage to hold pending outgoing request.
+    wxSemaphore           m_semRequests;
+    hoxRequestQueue       m_requests;
+
+    bool                  m_shutdownRequested;
+                /* Has a shutdown-request been received? */
+
+    // no copy ctor/assignment operator
+    hoxSocketWriter(const hoxSocketWriter&);
+    hoxSocketWriter& operator=(const hoxSocketWriter&);
+};
+
+// ----------------------------------------------------------------------------
+// hoxSocketReader
+// ----------------------------------------------------------------------------
+
+class hoxSocketReader : public wxThread
+{
+public:
+    hoxSocketReader( hoxSocketConnection& owner );
+    ~hoxSocketReader();
+
+    void SetSocket( wxSocketClient* socket ) { m_socket = socket; }
+
+protected:
+    // entry point for the thread
+    virtual void *Entry();
+
+private:
+    // the owner of the thread
+    hoxSocketConnection&  m_owner;
+
+    wxSocketClient*       m_socket;
+                /* The socket to handle network connections */
+
+    bool                  m_shutdownRequested;
+                /* Has a shutdown-request been received? */
+
+    // no copy ctor/assignment operator
+    hoxSocketReader(const hoxSocketReader&);
+    hoxSocketReader& operator=(const hoxSocketReader&);
+};
 
 // ----------------------------------------------------------------------------
 // hoxSocketConnection
@@ -40,7 +150,7 @@
 /**
  * A Connection based on a network Socket.
  */
-class hoxSocketConnection : public hoxThreadConnection
+class hoxSocketConnection : public hoxConnection
 {
 public:
     hoxSocketConnection(); // DUMMY default constructor required for RTTI info.
@@ -48,29 +158,45 @@ public:
                          int             nPort );
     virtual ~hoxSocketConnection();
 
-protected:
-    /*******************************************
-     * Override the parent's event-handler API
-     *******************************************/
+    // **** Override the parent's API ****
+    virtual void Start();
+    virtual void Shutdown();
+    virtual bool AddRequest( hoxRequest* request );
+    virtual bool IsConnected() { return m_bConnected; }
 
-    virtual void HandleRequest( hoxRequest* request );
+    virtual void       SetPlayer(hoxPlayer* player) { m_player = player; }
+    virtual hoxPlayer* GetPlayer()                  { return m_player; }
+
+    // **** API for Socket-Writer and -Reader ****
+    wxString       GetHostname() const { return m_sHostname; }
+    int            GetPort() const { return m_nPort; }
+
+    void StartWriter();
+
+    virtual void SetConnected(bool connected) { m_bConnected = connected; }
+
+    /**
+     * Is this Thread being shutdowned by the System.
+     */
+    bool IsBeingShutdowned() const { return m_shutdownRequested; } 
 
 private:
-	const wxString _RequestToString( const hoxRequest& request ) const;
+    wxString              m_sHostname; 
+    int                   m_nPort;
 
-    hoxResult   _CheckAndHandleSocketLostEvent( const hoxRequest* request, 
-                                                wxString&         response );
-    hoxResult   _Connect( const wxString& request,
-                          wxString&       response );
-    void        _Disconnect();
-    hoxResult _ReadLine( wxSocketBase* sock, 
-                         wxString&     result );
-    hoxResult _WriteLine( wxSocketBase*   sock, 
-                          const wxString& contentStr );
+    bool                  m_bConnected;
+                /* Has the connection been established with the server */
 
-private:
-    wxSocketClient*       m_pSClient;
-                /* The socket to handle network connections */
+    hoxPlayer*            m_player;
+                /* The player that owns this connection */
+
+    bool                  m_shutdownRequested;
+                /* Has a shutdown-request been received? */
+
+    hoxSocketWriter_SPtr  m_writer;
+                /* The Reader Thread. 
+                 * This Thread also creates and manages the Writer Thread.
+                 */
 
     DECLARE_DYNAMIC_CLASS(hoxSocketConnection)
 };
