@@ -184,11 +184,33 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 
     switch ( command.type )
     {
+        case hoxREQUEST_LOGIN:
+		{
+            if ( sCode != "0" )  // error?
+            {
+                wxLogDebug("%s: *** WARN *** Failed to login. Error = [%s: %s].", 
+                    FNAME, sCode.c_str(), sContent.c_str());
+                response->code = hoxRC_ERR;
+                wxLogDebug("%s: *** INFO *** Shutdown connection due to LOGIN failure...", FNAME);
+            }
+            else
+            {
+                result = _HandleResponseEvent_LOGIN( sContent );
+			    if ( result != hoxRC_OK )
+			    {
+				    wxLogDebug("%s: *** WARN *** Failed to handle [%s] 's response [%s].", 
+                        FNAME, sType.c_str(), sContent.c_str());
+				    response->code = result;
+                } else {
+                    m_bLoginSuccess = true;
+                }
+            }
+            remoteSite->OnResponse_LOGIN( response );
+            break;
+        }
         case hoxREQUEST_LOGOUT:
         {
-            // TODO: Ignore this event for now.
-		    wxLogDebug("%s: *** TODO *** Ignore this LOGOUT's event [%s] for now.", 
-			    FNAME, sContent.c_str());
+            remoteSite->OnResponse_LOGOUT( response );
             break;
         }
         case hoxREQUEST_LIST:

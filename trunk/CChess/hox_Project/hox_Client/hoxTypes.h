@@ -30,6 +30,7 @@
 
 #include <wx/wx.h>
 #include <wx/socket.h>
+#include <boost/shared_ptr.hpp>
 #include <list>
 #include <vector>
 #include <map>
@@ -277,7 +278,8 @@ public:
                     , socket( NULL )
                     , socketEvent( wxSOCKET_INPUT ) {}
 };
-typedef std::list<hoxRequest*> hoxRequestList;
+typedef std::auto_ptr<hoxRequest> hoxRequest_APtr;
+typedef std::list<hoxRequest*>    hoxRequestList;
 
 class hoxResponse : public wxObject
 {
@@ -301,8 +303,8 @@ public:
                   , sender( s )
 	              , eventObject( NULL ) {}
 };
-
-typedef std::auto_ptr<hoxResponse> hoxResponse_AutoPtr;
+typedef std::auto_ptr<hoxResponse>     hoxResponse_APtr;
+typedef boost::shared_ptr<hoxResponse> hoxResponse_SPtr;
 
 /**
  * Representing a server address.

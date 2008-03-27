@@ -189,8 +189,8 @@ public:
 
     virtual hoxTable* CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo);
 
-    virtual void OnResponse_LOGIN( const hoxResponse_AutoPtr& response );
-	virtual void OnResponse_LOGOUT( const hoxResponse_AutoPtr& response );
+    virtual void OnResponse_LOGIN( const hoxResponse_APtr& response );
+	virtual void OnResponse_LOGOUT( const hoxResponse_APtr& response );
 
 protected:
     hoxLocalPlayer*      m_player;
@@ -226,7 +226,7 @@ public:
 
 	virtual unsigned int GetCurrentActionFlags() const;
 
-    virtual void OnResponse_LOGIN( const hoxResponse_AutoPtr& response );
+    virtual void OnResponse_LOGIN( const hoxResponse_APtr& response );
 };
 
 ///////////////////////////////////////////////////////////////////////////////
