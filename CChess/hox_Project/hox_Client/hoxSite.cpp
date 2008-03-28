@@ -969,8 +969,8 @@ hoxSiteManager::CreateSite( hoxSiteType             siteType,
 		hoxRemoteSite* remoteSite = new hoxRemoteSite( address );
 		hoxLocalPlayer* localPlayer = remoteSite->CreateLocalPlayer( userName );
 		localPlayer->SetPassword( password );
-        hoxConnection* connection = new hoxSocketConnection( address.name, 
-                                                             address.port );
+        hoxConnection* connection = new hoxSocketConnection( address,
+                                                             localPlayer );
 		localPlayer->SetConnection( connection );
 		site = remoteSite;
 		break;
@@ -980,8 +980,8 @@ hoxSiteManager::CreateSite( hoxSiteType             siteType,
 		hoxRemoteSite* remoteSite = new hoxHTTPSite( address );
 		hoxLocalPlayer* localPlayer = remoteSite->CreateLocalPlayer( userName );
 		localPlayer->SetPassword( password );
-        hoxConnection* connection = new hoxHttpConnection( address.name, 
-                                                           address.port );
+        hoxConnection* connection = new hoxHttpConnection( address,
+                                                           localPlayer );
 		localPlayer->SetConnection( connection );
 		site = remoteSite;
 		break;
@@ -991,8 +991,8 @@ hoxSiteManager::CreateSite( hoxSiteType             siteType,
 		hoxRemoteSite* remoteSite = new hoxChesscapeSite( address );
 		hoxLocalPlayer* localPlayer = remoteSite->CreateLocalPlayer( userName );
 		localPlayer->SetPassword( password );
-        hoxConnection* connection = new hoxChesscapeConnection( address.name, 
-                                                                address.port );
+        hoxConnection* connection = new hoxChesscapeConnection( address,
+                                                                localPlayer );
 		localPlayer->SetConnection( connection );
 		site = remoteSite;
 		break;

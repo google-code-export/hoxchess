@@ -38,15 +38,13 @@ hoxThreadConnection::hoxThreadConnection()
     wxFAIL_MSG( "This default constructor is never meant to be used." );
 }
 
-hoxThreadConnection::hoxThreadConnection( const wxString& sHostname,
-                                          int             nPort )
-        : hoxConnection()
+hoxThreadConnection::hoxThreadConnection( const hoxServerAddress& serverAddress,
+                                          hoxPlayer*              player )
+        : hoxConnection( player )
         , wxThreadHelper()
-        , m_sHostname( sHostname )
-        , m_nPort( nPort )
+        , m_serverAddress( serverAddress )
         , m_bConnected( false )
         , m_shutdownRequested( false )
-        , m_player( NULL )
 {
     const char* FNAME = "hoxThreadConnection::hoxThreadConnection";
     wxLogDebug("%s: ENTER.", FNAME);

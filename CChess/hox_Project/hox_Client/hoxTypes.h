@@ -322,6 +322,15 @@ public:
     {
         return ( (name == other.name) && (port == other.port) );
     }
+
+    const char* c_str() const
+    {
+        _str.Printf("%s:%d", name.c_str(), port);
+        return _str.c_str();
+    }
+
+private:
+    mutable wxString   _str;  // String representation.
 };
 
 #endif /* __INCLUDED_HOX_TYPES_H_ */

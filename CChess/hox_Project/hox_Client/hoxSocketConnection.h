@@ -68,10 +68,12 @@ private:
 class hoxSocketWriter : public wxThread
 {
 public:
-    hoxSocketWriter( hoxSocketConnection& owner );
+    hoxSocketWriter( hoxPlayer*              player,
+                     const hoxServerAddress& serverAddress );
     ~hoxSocketWriter();
 
     bool AddRequest( hoxRequest_APtr apRequest );
+    bool IsConnected() const { return m_bConnected; }
 
 protected:
     // entry point for the thread
@@ -83,29 +85,30 @@ private:
     hoxRequest_APtr _GetRequest();
     void            _HandleRequest( hoxRequest_APtr apRequest );
 
-    hoxResult _Login( const wxString& sHostname,
-                      const int       nPort,
-                      const wxString& request,
-                      wxString&       response );
+    hoxResult _Login( const hoxServerAddress& serverAddress,
+                      const wxString&         request,
+                      wxString&               response );
 
     void _Disconnect();
 
 private:
-    // the owner of the thread
-    hoxSocketConnection&  m_owner;
+    const hoxServerAddress  m_serverAddress;
 
-    wxSocketClient*       m_socket;
+    wxSocketClient*         m_socket;
                 /* The socket to handle network connections */
 
-    hoxSocketReader_SPtr  m_reader;
+    hoxSocketReader_SPtr    m_reader;
                 /* The Reader Thread. */
 
     // Storage to hold pending outgoing request.
-    wxSemaphore           m_semRequests;
-    hoxRequestQueue       m_requests;
+    wxSemaphore             m_semRequests;
+    hoxRequestQueue         m_requests;
 
-    bool                  m_shutdownRequested;
+    bool                    m_shutdownRequested;
                 /* Has a shutdown-request been received? */
+
+    bool                    m_bConnected;
+                /* Has the connection been established with the server */
 
     // no copy ctor/assignment operator
     hoxSocketWriter(const hoxSocketWriter&);
@@ -119,7 +122,7 @@ private:
 class hoxSocketReader : public wxThread
 {
 public:
-    hoxSocketReader( hoxSocketConnection& owner );
+    hoxSocketReader( hoxPlayer* player );
     ~hoxSocketReader();
 
     void SetSocket( wxSocketClient* socket ) { m_socket = socket; }
@@ -129,8 +132,8 @@ protected:
     virtual void *Entry();
 
 private:
-    // the owner of the thread
-    hoxSocketConnection&  m_owner;
+    hoxPlayer*            m_player;
+                /* The player that would receive notifications */
 
     wxSocketClient*       m_socket;
                 /* The socket to handle network connections */
@@ -154,26 +157,18 @@ class hoxSocketConnection : public hoxConnection
 {
 public:
     hoxSocketConnection(); // DUMMY default constructor required for RTTI info.
-    hoxSocketConnection( const wxString& sHostname,
-                         int             nPort );
+    hoxSocketConnection( const hoxServerAddress& serverAddress,
+                         hoxPlayer*              player );
     virtual ~hoxSocketConnection();
 
     // **** Override the parent's API ****
     virtual void Start();
     virtual void Shutdown();
     virtual bool AddRequest( hoxRequest* request );
-    virtual bool IsConnected() { return m_bConnected; }
-
-    virtual void       SetPlayer(hoxPlayer* player) { m_player = player; }
-    virtual hoxPlayer* GetPlayer()                  { return m_player; }
+    virtual bool IsConnected();
 
     // **** API for Socket-Writer and -Reader ****
-    wxString       GetHostname() const { return m_sHostname; }
-    int            GetPort() const { return m_nPort; }
-
     void StartWriter();
-
-    virtual void SetConnected(bool connected) { m_bConnected = connected; }
 
     /**
      * Is this Thread being shutdowned by the System.
@@ -181,19 +176,10 @@ public:
     bool IsBeingShutdowned() const { return m_shutdownRequested; } 
 
 private:
-    wxString              m_sHostname; 
-    int                   m_nPort;
-
-    bool                  m_bConnected;
-                /* Has the connection been established with the server */
-
-    hoxPlayer*            m_player;
-                /* The player that owns this connection */
-
-    bool                  m_shutdownRequested;
+    bool                     m_shutdownRequested;
                 /* Has a shutdown-request been received? */
 
-    hoxSocketWriter_SPtr  m_writer;
+    hoxSocketWriter_SPtr     m_writer;
                 /* The Reader Thread. 
                  * This Thread also creates and manages the Writer Thread.
                  */

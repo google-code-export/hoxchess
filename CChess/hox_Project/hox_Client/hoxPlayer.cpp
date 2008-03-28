@@ -337,10 +337,6 @@ hoxPlayer::SetConnection( hoxConnection* connection )
     wxLogDebug("%s: Assign the connection to this user [%s]", FNAME, GetName().c_str());
     m_connection = connection;
 
-    wxLogDebug("%s: Specify this Player [%s] as the Connection's owner.", 
-        FNAME, this->GetName().c_str());
-    m_connection->SetPlayer( this );
-
     return true;
 }
 

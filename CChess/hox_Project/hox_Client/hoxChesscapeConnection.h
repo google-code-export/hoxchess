@@ -44,8 +44,8 @@ class hoxChesscapeConnection : public hoxThreadConnection
 {
 public:
     hoxChesscapeConnection(); // DUMMY default constructor required for RTTI info.
-    hoxChesscapeConnection( const wxString& sHostname,
-                         int             nPort );
+    hoxChesscapeConnection( const hoxServerAddress& serverAddress,
+                            hoxPlayer*              player );
     virtual ~hoxChesscapeConnection();
 
 protected:

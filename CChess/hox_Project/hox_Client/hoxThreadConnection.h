@@ -50,8 +50,8 @@ class hoxThreadConnection : public hoxConnection
 {
 public:
     hoxThreadConnection(); // DUMMY default constructor required for RTTI info.
-    hoxThreadConnection( const wxString& sHostname,
-                         int             nPort );
+    hoxThreadConnection( const hoxServerAddress& serverAddress,
+                         hoxPlayer*              player );
     virtual ~hoxThreadConnection();
 
     // **** Override the parent's API ****
@@ -59,9 +59,6 @@ public:
     virtual void Shutdown();
     virtual bool AddRequest( hoxRequest* request );
     virtual bool IsConnected() { return m_bConnected; }
-
-    virtual void       SetPlayer(hoxPlayer* player) { m_player = player; }
-    virtual hoxPlayer* GetPlayer()                  { return m_player; }
 
     /**
      * Thread execution starts here.
@@ -80,21 +77,17 @@ protected:
     virtual void SetConnected(bool connected) { m_bConnected = connected; }
 
 protected:
-    wxString              m_sHostname; 
-    int                   m_nPort;
+    const hoxServerAddress  m_serverAddress;
 
-    bool                  m_bConnected;
+    bool                    m_bConnected;
                 /* Has the connection been established with the server */
 
-    wxSemaphore           m_semRequests;
-    wxMutex               m_mutexRequests;
-    hoxRequestList        m_requests;
-
-    hoxPlayer*            m_player;
-                /* The player that owns this connection */
+    wxSemaphore             m_semRequests;
+    wxMutex                 m_mutexRequests;
+    hoxRequestList          m_requests;
 
 private:
-    bool                  m_shutdownRequested;
+    bool                    m_shutdownRequested;
                 /* Has a shutdown-request been received? */
 
 

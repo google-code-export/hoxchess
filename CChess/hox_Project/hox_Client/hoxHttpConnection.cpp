@@ -43,9 +43,9 @@ hoxHttpConnection::hoxHttpConnection()
     wxFAIL_MSG( "This default constructor is never meant to be used." );
 }
 
-hoxHttpConnection::hoxHttpConnection( const wxString&  sHostname,
-                                      int              nPort )
-        : hoxThreadConnection( sHostname, nPort )
+hoxHttpConnection::hoxHttpConnection( const hoxServerAddress& serverAddress,
+                                      hoxPlayer*              player )
+        : hoxThreadConnection( serverAddress, player )
 {
 }
 
@@ -101,7 +101,7 @@ hoxHttpConnection::HandleRequest( hoxRequest* request )
     wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, request->type );
     response->code = result;
     event.SetEventObject( response.release() );  // Caller will de-allocate.
-    wxPostEvent( m_player, event );
+    wxPostEvent( this->GetPlayer(), event );
 }
 
 const wxString 
@@ -147,7 +147,8 @@ hoxHttpConnection::_SendRequest( const wxString& request,
     /* This will wait until the user connects to the internet. 
      * It is important in case of dialup (or ADSL) connections.
      */
-    while ( !get.Connect( m_sHostname, m_nPort ) ) // only the server, no pages here yet ...
+    while ( !get.Connect( m_serverAddress.name,
+                          m_serverAddress.port ) ) // only the server, no pages here yet ...
     {
         wxSleep( 1 /* 1-second wait */ );
 
@@ -176,7 +177,7 @@ hoxHttpConnection::_SendRequest( const wxString& request,
     {
         wxLogDebug("%s: *** ERROR *** GetInputStream is NULL. Response-code = [%d]. Protocol-error = [%d].",
             FNAME, get.GetResponse(), (int) get.GetError() );
-        wxLogDebug("%s: *** ERROR *** Failed to connect to server [%s:%d].", FNAME, m_sHostname.c_str(), m_nPort);
+        wxLogDebug("%s: *** ERROR *** Failed to connect to server [%s].", FNAME, m_serverAddress.c_str());
     }
     else if (get.GetError() == wxPROTO_NOERR)
     {

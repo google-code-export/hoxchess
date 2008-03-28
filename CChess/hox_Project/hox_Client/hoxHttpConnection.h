@@ -43,8 +43,8 @@ class hoxHttpConnection : public hoxThreadConnection
 {
 public:
     hoxHttpConnection(); // DUMMY default constructor required for RTTI info.
-    hoxHttpConnection( const wxString& sHostname,
-                       int             nPort );
+    hoxHttpConnection( const hoxServerAddress& serverAddress,
+                       hoxPlayer*              player );
     virtual ~hoxHttpConnection();
 
 protected:
