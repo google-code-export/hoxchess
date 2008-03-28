@@ -91,11 +91,13 @@ hoxRequestQueue::PopFront()
 // hoxSocketWriter
 // ----------------------------------------------------------------------------
 
-hoxSocketWriter::hoxSocketWriter( hoxSocketConnection& owner )
+hoxSocketWriter::hoxSocketWriter( hoxPlayer*              player,
+                                  const hoxServerAddress& serverAddress )
         : wxThread( wxTHREAD_JOINABLE )
-        , m_owner( owner )
+        , m_serverAddress( serverAddress )
         , m_socket( NULL )
         , m_shutdownRequested( false )
+        , m_bConnected( false )
 {
     /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
      * NOTE: We need to use wxSOCKET_BLOCK option to avoid the problem
@@ -113,7 +115,7 @@ hoxSocketWriter::hoxSocketWriter( hoxSocketConnection& owner )
     m_socket->SetTimeout( 10*60 /* 10 minutes */ /*hoxSOCKET_CLIENT_SOCKET_TIMEOUT*/ );
 
     /* Create Reader thread. */
-    m_reader.reset( new hoxSocketReader( owner ) );
+    m_reader.reset( new hoxSocketReader( player ) );
 }
 
 hoxSocketWriter::~hoxSocketWriter()
@@ -158,6 +160,7 @@ hoxSocketWriter::_StartReader( wxSocketClient* socket )
         return;
     }
 
+    /* Set the socket to READ from. */
     m_reader->SetSocket( socket );
 
     if ( m_reader->Create() != wxTHREAD_NO_ERROR )
@@ -238,7 +241,7 @@ hoxSocketWriter::Entry()
     /* Wait for the Reader Thread to exit. */
 
     wxLogDebug("%s: Request the Reader thread to be shutdowned...", FNAME);
-    if ( m_reader /*&& m_reader->IsRunning()*/ )  // TODO: Is it a good way to test?
+    if ( m_reader != NULL )
     {
         wxThread::ExitCode exitCode = m_reader->Wait();
         wxLogDebug("%s: The Reader thread shutdowned with exit-code = [%d].", FNAME, exitCode);
@@ -259,8 +262,7 @@ hoxSocketWriter::_HandleRequest( hoxRequest_APtr apRequest )
     {
         case hoxREQUEST_LOGIN:
         {
-            result = _Login( m_owner.GetHostname(),
-                             m_owner.GetPort(),
+            result = _Login( m_serverAddress,
                              _RequestToString( *apRequest ),
                              response->content );
             if ( result == hoxRC_HANDLED )
@@ -287,7 +289,7 @@ hoxSocketWriter::_HandleRequest( hoxRequest_APtr apRequest )
         case hoxREQUEST_RESET:    /* fall through */
         case hoxREQUEST_MSG:
         {
-            if ( ! m_owner.IsConnected() )
+            if ( ! m_bConnected )
             {
                 // NOTE: The connection could have been closed if the server is down.
                 wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
@@ -312,29 +314,17 @@ hoxSocketWriter::_HandleRequest( hoxRequest_APtr apRequest )
             FNAME, hoxUtil::RequestTypeToString(apRequest->type).c_str(), 
             hoxUtil::ResultToStr(result));
     }
-
-#if 0
-    /* If there are data, just return it to the caller. */
-    if ( result != hoxRC_NOT_FOUND )
-    {
-        wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, request->type );
-        response->code = result;
-        event.SetEventObject( response.release() );  // Caller will de-allocate.
-        wxPostEvent( m_owner.GetPlayer(), event );
-    }
-#endif
 }
 
 hoxResult
-hoxSocketWriter::_Login( const wxString& sHostname,
-                         const int       nPort,
-                         const wxString& request,
-                         wxString&       response )
+hoxSocketWriter::_Login( const hoxServerAddress& serverAddress,
+                         const wxString&         request,
+                         wxString&               response )
 {
     const char* FNAME = "hoxSocketWriter::_Login";
     hoxResult result;
 
-    if ( m_owner.IsConnected() )
+    if ( m_bConnected )
     {
         wxLogDebug("%s: The connection already established. END.", FNAME);
         return hoxRC_HANDLED;
@@ -342,27 +332,25 @@ hoxSocketWriter::_Login( const wxString& sHostname,
 
     /* Get the server address. */
     wxIPV4address addr;
-    addr.Hostname( sHostname );
-    addr.Service( nPort );
+    addr.Hostname( serverAddress.name );
+    addr.Service( serverAddress.port );
 
-    wxLogDebug("%s: Trying to connect to [%s:%d]...", 
-        FNAME, addr.Hostname().c_str(), addr.Service());
+    wxLogDebug("%s: Trying to connect to [%s]...", FNAME, serverAddress.c_str());
 
     if ( ! m_socket->Connect( addr, true /* wait */ ) )
     {
-        wxLogError("%s: Failed to connect to the server [%s:%d]. Error = [%s].",
-            FNAME, addr.Hostname().c_str(), addr.Service(), 
+        wxLogError("%s: Failed to connect to the server [%s]. Error = [%s].",
+            FNAME, serverAddress.c_str(), 
             hoxNetworkAPI::SocketErrorToString(m_socket->LastError()).c_str());
         return hoxRC_ERR;
     }
 
     wxLogDebug("%s: Succeeded! Connection established with the server.", FNAME);
-    m_owner.SetConnected( true );
+    m_bConnected = true;
 
     //////////////////////////////////
     // Start the READER thread.
     _StartReader( m_socket );
-
 
 	////////////////////////////
     // Send LOGIN request.
@@ -385,16 +373,16 @@ hoxSocketWriter::_Disconnect()
         m_socket->Destroy();
         m_socket = NULL;
     }
-    m_owner.SetConnected( false );
+    m_bConnected = false;
 }
 
 // ----------------------------------------------------------------------------
 // hoxSocketReader
 // ----------------------------------------------------------------------------
 
-hoxSocketReader::hoxSocketReader( hoxSocketConnection& owner )
+hoxSocketReader::hoxSocketReader( hoxPlayer* player )
         : wxThread( wxTHREAD_JOINABLE )
-        , m_owner( owner )
+        , m_player( player )
         , m_socket( NULL )
         , m_shutdownRequested( false )
 {
@@ -438,7 +426,7 @@ hoxSocketReader::Entry()
         wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, type );
         apResponse->code = result;
         event.SetEventObject( apResponse.release() );  // Caller will de-allocate.
-        wxPostEvent( m_owner.GetPlayer(), event );
+        wxPostEvent( m_player, event );
     }
 
     return NULL;
@@ -453,19 +441,16 @@ hoxSocketConnection::hoxSocketConnection()
     wxFAIL_MSG( "This default constructor is never meant to be used." );
 }
 
-hoxSocketConnection::hoxSocketConnection( const wxString&  sHostname,
-                                          int              nPort )
-        : hoxConnection()
-        , m_sHostname( sHostname )
-        , m_nPort( nPort )
-        , m_bConnected( false )
-        , m_player( NULL )
+hoxSocketConnection::hoxSocketConnection( const hoxServerAddress& serverAddress,
+                                          hoxPlayer*              player )
+        : hoxConnection( player )
 {
     const char* FNAME = "hoxSocketConnection::hoxSocketConnection";
 
     /* Create Writer thread. */
     wxLogDebug("%s: Create the Writer Thread...", FNAME);
-    m_writer.reset( new hoxSocketWriter( *this ) );
+    m_writer.reset( new hoxSocketWriter( player, 
+                                         serverAddress ) );
 }
 
 hoxSocketConnection::~hoxSocketConnection()
@@ -520,7 +505,7 @@ hoxSocketConnection::Shutdown()
     m_shutdownRequested = true;
 
     wxLogDebug("%s: Request the Writer thread to be shutdowned...", FNAME);
-    if ( m_writer && m_writer->IsRunning() )  // TODO: Is it a good way to test?
+    if ( m_writer != NULL )
     {
         wxThread::ExitCode exitCode = m_writer->Wait();
         wxLogDebug("%s: The Writer thread shutdowned with exit-code = [%d].", FNAME, exitCode);
@@ -533,6 +518,18 @@ hoxSocketConnection::AddRequest( hoxRequest* request )
     hoxRequest_APtr apRequest( request );
     return m_writer->AddRequest( apRequest );
 }
+
+bool
+hoxSocketConnection::IsConnected()
+{ 
+    return m_writer->IsConnected();
+}
+
+
+// ----------------------------------------------------------------------------
+// Other API
+// ----------------------------------------------------------------------------
+
 
 const wxString 
 _RequestToString( const hoxRequest& request )

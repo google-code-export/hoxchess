@@ -40,9 +40,9 @@ hoxChesscapeConnection::hoxChesscapeConnection()
     wxFAIL_MSG( "This default constructor is never meant to be used." );
 }
 
-hoxChesscapeConnection::hoxChesscapeConnection( const wxString&  sHostname,
-                                          int              nPort )
-        : hoxThreadConnection( sHostname, nPort )
+hoxChesscapeConnection::hoxChesscapeConnection( const hoxServerAddress& serverAddress,
+                                                hoxPlayer*              player )
+        : hoxThreadConnection( serverAddress, player )
         , m_pSClient( NULL )
 {
     const char* FNAME = "hoxChesscapeConnection::hoxChesscapeConnection";
@@ -119,7 +119,7 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
 					wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, request->type );
 					response->code = result;
 					event.SetEventObject( response.release() );  // Caller will de-allocate.
-					wxPostEvent( m_player, event );
+					wxPostEvent( this->GetPlayer(), event );
 					
 					// *** Allocate new response.
 					wxLogDebug("%s: [PLAYER_DATA] Allocate a new response.", FNAME);
@@ -223,7 +223,7 @@ exit_label:
     wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, request->type );
     response->code = result;
     event.SetEventObject( response.release() );  // Caller will de-allocate.
-    wxPostEvent( m_player, event );
+    wxPostEvent( this->GetPlayer(), event );
 }
 
 hoxResult 
@@ -263,19 +263,18 @@ hoxChesscapeConnection::_Connect( const wxString& login,
 
     /* Get the server address. */
     wxIPV4address addr;
-    addr.Hostname( m_sHostname );
-    addr.Service( m_nPort );
+    addr.Hostname( m_serverAddress.name );
+    addr.Service( m_serverAddress.port );
 
-    wxLogDebug("%s: Trying to connect to [%s:%d]...", 
-        FNAME, addr.Hostname().c_str(), addr.Service());
+    wxLogDebug("%s: Trying to connect to [%s]...", FNAME, m_serverAddress.c_str());
 
     //m_pSClient->Connect( addr, false /* no-wait */ );
     //m_pSClient->WaitOnConnect( 10 /* wait for 10 seconds */ );
 
     if ( ! m_pSClient->Connect( addr, true /* wait */ ) )
     {
-        wxLogError("%s: Failed to connect to the server [%s:%d]. Error = [%s].",
-            FNAME, addr.Hostname().c_str(), addr.Service(), 
+        wxLogError("%s: Failed to connect to the server [%s]. Error = [%s].",
+            FNAME, m_serverAddress.c_str(), 
             hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
         return hoxRC_ERR;
     }
@@ -312,10 +311,10 @@ hoxChesscapeConnection::_Connect( const wxString& login,
         }
 	}
 	//////////////////////////////
-    wxCHECK_MSG(m_player, hoxRC_ERR, "The player is NULL.");
+    wxCHECK_MSG(this->GetPlayer(), hoxRC_ERR, "The player is NULL.");
     wxLogDebug("%s: Let the connection's Player [%s] handle all socket events.", 
-        FNAME, m_player->GetName());
-    m_pSClient->SetEventHandler( *m_player, CLIENT_SOCKET_ID );
+        FNAME, this->GetPlayer()->GetName());
+    m_pSClient->SetEventHandler( *(this->GetPlayer()), CLIENT_SOCKET_ID );
     m_pSClient->SetNotify(wxSOCKET_INPUT_FLAG | wxSOCKET_LOST_FLAG);
     m_pSClient->Notify(true);
 

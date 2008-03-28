@@ -32,7 +32,8 @@ IMPLEMENT_ABSTRACT_CLASS(hoxConnection, wxObject)
 // hoxConnection
 //-----------------------------------------------------------------------------
 
-hoxConnection::hoxConnection()
+hoxConnection::hoxConnection( hoxPlayer* player /* = NULL */ )
+        : m_player( player )
 {
     const char* FNAME = "hoxConnection::hoxConnection";
     wxLogDebug("%s: ENTER.", FNAME);

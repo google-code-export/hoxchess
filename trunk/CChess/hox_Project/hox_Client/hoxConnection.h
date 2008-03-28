@@ -31,6 +31,9 @@
 #include "hoxEnums.h"
 #include "hoxTypes.h"
 
+/* Forward declarations */
+class hoxPlayer;
+
 // ----------------------------------------------------------------------------
 // hoxConnection
 // ----------------------------------------------------------------------------
@@ -43,7 +46,7 @@
 class hoxConnection : public wxObject
 {
 public:
-    hoxConnection();
+    hoxConnection( hoxPlayer* player = NULL );
     virtual ~hoxConnection();
 
     virtual void Start() = 0;
@@ -51,8 +54,12 @@ public:
     virtual bool AddRequest( hoxRequest* request ) = 0;
     virtual bool IsConnected() = 0;
 
-    virtual void       SetPlayer(hoxPlayer* player) {}
-    virtual hoxPlayer* GetPlayer()     { return NULL; }
+    // -----------
+    hoxPlayer* GetPlayer() const  { return m_player; }
+
+private:
+    hoxPlayer*         m_player;
+                /* The player that owns this connection */
 
     DECLARE_ABSTRACT_CLASS(hoxConnection)
 };
