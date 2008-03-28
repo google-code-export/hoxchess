@@ -349,8 +349,10 @@ hoxRemoteSite::OnResponse_LOGOUT( const hoxResponse_APtr& response )
 
 	wxLogDebug("%s: Received DISCONNECT's response [%d: %s].", 
 		FNAME, response->code, response->content.c_str());
-
-    m_player->OnClosing_FromSite();
+    if ( m_player != NULL )
+    {
+        m_player->OnClosing_FromSite();
+    }
 }
 
 hoxResult

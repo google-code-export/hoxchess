@@ -27,11 +27,67 @@
 #ifndef __INCLUDED_HOX_CHESSCAPE_CONNECTION_H_
 #define __INCLUDED_HOX_CHESSCAPE_CONNECTION_H_
 
-#include <wx/wx.h>
-#include <wx/socket.h>
-#include "hoxThreadConnection.h"
-#include "hoxEnums.h"
-#include "hoxTypes.h"
+#include "hoxSocketConnection.h"
+
+// ----------------------------------------------------------------------------
+// hoxChesscapeWriter
+// ----------------------------------------------------------------------------
+
+class hoxChesscapeWriter : public hoxSocketWriter
+{
+public:
+    hoxChesscapeWriter( hoxPlayer*              player,
+                        const hoxServerAddress& serverAddress );
+    virtual ~hoxChesscapeWriter();
+
+protected:
+    virtual void HandleRequest( hoxRequest_APtr apRequest );
+
+private:
+    void        _StartReader( wxSocketClient* socket );
+
+    // ------
+    hoxResult   _Login(const wxString& login, 
+		               const wxString& password,
+					   wxString&       responseStr);
+    hoxResult   _Logout(const wxString& login);
+    hoxResult   _Join(const wxString& tableId,
+		              const bool      hasRole, // already at table?
+		              hoxColor   requestColor);
+    hoxResult   _UpdateStatus(const wxString& playerStatus);
+	hoxResult   _Leave();
+	hoxResult   _Move(hoxRequest_APtr apRequest);
+    hoxResult   _New();
+	hoxResult   _WallMessage(hoxRequest_APtr apRequest);
+	hoxResult   _Draw( const wxString& drawResponse );
+
+private:
+
+    // no copy ctor/assignment operator
+    hoxChesscapeWriter(const hoxChesscapeWriter&);
+    hoxChesscapeWriter& operator=(const hoxChesscapeWriter&);
+};
+
+// ----------------------------------------------------------------------------
+// hoxChesscapeReader
+// ----------------------------------------------------------------------------
+
+class hoxChesscapeReader : public hoxSocketReader
+{
+public:
+    hoxChesscapeReader( hoxPlayer* player );
+    virtual ~hoxChesscapeReader();
+
+protected:
+    virtual hoxResult ReadLine( wxSocketBase* sock,
+                                wxString&     result );
+
+private:
+
+    // no copy ctor/assignment operator
+    hoxChesscapeReader(const hoxChesscapeReader&);
+    hoxChesscapeReader& operator=(const hoxChesscapeReader&);
+};
 
 // ----------------------------------------------------------------------------
 // hoxChesscapeConnection
@@ -40,7 +96,7 @@
 /**
  * A Connection to communicate with Chesscape servers.
  */
-class hoxChesscapeConnection : public hoxThreadConnection
+class hoxChesscapeConnection : public hoxSocketConnection
 {
 public:
     hoxChesscapeConnection(); // DUMMY default constructor required for RTTI info.
@@ -49,36 +105,9 @@ public:
     virtual ~hoxChesscapeConnection();
 
 protected:
-    /*******************************************
-     * Override the parent's event-handler API
-     *******************************************/
-
-    virtual void HandleRequest( hoxRequest* request );
+    virtual void StartWriter();
 
 private:
-    hoxResult   _CheckAndHandleSocketLostEvent( const hoxRequest* request, 
-                                                wxString&         response );
-    hoxResult   _Connect(const wxString& login, 
-		                 const wxString& password,
-						 wxString&       responseStr);
-    hoxResult   _Disconnect(const wxString& login);
-    hoxResult   _Join(const wxString& tableId,
-		              const bool      hasRole, // already at table?
-		              hoxColor   requestColor);
-    hoxResult   _UpdateStatus(const wxString& playerStatus);
-	hoxResult   _Leave();
-	hoxResult   _Move(hoxRequest* request);
-    hoxResult   _New();
-	hoxResult   _WallMessage(hoxRequest* request);
-	hoxResult   _Draw( const wxString& drawResponse );
-
-    void        _DestroySocket();
-    hoxResult _ReadLine( wxSocketBase* sock, 
-                         wxString&     result );
-
-private:
-    wxSocketClient*       m_pSClient;
-                /* The socket to handle network connections */
 
     DECLARE_DYNAMIC_CLASS(hoxChesscapeConnection)
 };

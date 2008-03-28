@@ -285,6 +285,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hoxTypes.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\hoxUtil.cpp"
 				>
 			</File>

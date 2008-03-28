@@ -583,6 +583,30 @@ hoxNetworkAPI::ReadLine( wxSocketBase* sock,
 }
 
 hoxResult 
+hoxNetworkAPI::WriteLine( wxSocketBase*   sock,
+                          const wxString& message )
+{
+    const char* FNAME = "hoxNetworkAPI::WriteLine";
+    hoxResult      result = hoxRC_ERR;
+    wxUint32       nWrite;
+
+    nWrite = (wxUint32) message.size();
+    sock->Write( message, nWrite );
+    if ( sock->LastCount() != nWrite )
+    {
+        wxLogDebug("%s: *** WARN *** Writing to socket failed. Error = [%s]", 
+            FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
+        goto exit_label;
+    }
+
+    result = hoxRC_OK;
+
+exit_label:
+    wxLogDebug("%s: END.", FNAME);
+    return result;
+}
+
+hoxResult 
 hoxNetworkAPI::WriteMsg( wxSocketBase*   sock,
                          const wxString& message )
 {
@@ -590,13 +614,13 @@ hoxNetworkAPI::WriteMsg( wxSocketBase*   sock,
     hoxResult      result = hoxRC_ERR;
     wxUint32       nWrite;
 
-    wxLogDebug("%s: ENTER. Message = [%s].", FNAME, message.c_str());
+    //wxLogDebug("%s: ENTER. Message = [%s].", FNAME, message.c_str());
 
     nWrite = (wxUint32) message.size();
     sock->WriteMsg( message, nWrite );
     if ( sock->LastCount() != nWrite )
     {
-        wxLogError("%s: Writing to socket failed. Error = [%s]", 
+        wxLogDebug("%s: *** WARN *** Writing to socket failed. Error = [%s]", 
             FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
         goto exit_label;
     }

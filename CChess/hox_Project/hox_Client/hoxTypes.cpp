@@ -18,50 +18,59 @@
  ***************************************************************************/
 
 /////////////////////////////////////////////////////////////////////////////
-// Name:            hoxConnection.h
-// Created:         11/05/2007
+// Name:            hoxTypes.cpp
+// Created:         03/27/2008
 //
-// Description:     The Connection which is the base for all connections.
+// Description:     Containing simple types commonly used through out 
+//                  the project.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_CONNECTION_H_
-#define __INCLUDED_HOX_CONNECTION_H_
-
-#include <wx/wx.h>
-#include "hoxEnums.h"
 #include "hoxTypes.h"
-
-/* Forward declarations */
-class hoxPlayer;
+#include "hoxUtil.h"
 
 // ----------------------------------------------------------------------------
-// hoxConnection
+// hoxRequestQueue
 // ----------------------------------------------------------------------------
 
-/**
- * The interface for a Connection providing the communication between a player
- * and a remote server.
- * The class is the base class for all other Connections.
- */
-class hoxConnection : public wxObject
+hoxRequestQueue::hoxRequestQueue()
 {
-public:
-    hoxConnection( hoxPlayer* player = NULL );
-    virtual ~hoxConnection();
+}
 
-    virtual void Start() = 0;
-    virtual void Shutdown() = 0;
-    virtual bool AddRequest( hoxRequest* request ) = 0;
-    virtual bool IsConnected() const = 0;
+hoxRequestQueue::~hoxRequestQueue()
+{
+    const char* FNAME = "hoxRequestQueue::~hoxRequestQueue";
 
-    // -----------
-    hoxPlayer* GetPlayer() const  { return m_player; }
+    while ( ! m_list.empty() )
+    {
+        hoxRequest_APtr apRequest( m_list.front() );
+        m_list.pop_front();
+        wxLogDebug("%s: Deleting request [%s]...", FNAME, 
+            hoxUtil::RequestTypeToString(apRequest->type).c_str());
+    }
+}
 
-private:
-    hoxPlayer*         m_player;
-                /* The player that owns this connection */
+void
+hoxRequestQueue::PushBack( hoxRequest_APtr apRequest )
+{
+    wxMutexLocker lock( m_mutex ); // Gain exclusive access.
 
-    DECLARE_ABSTRACT_CLASS(hoxConnection)
-};
+    m_list.push_back( apRequest.release() );
+}
 
-#endif /* __INCLUDED_HOX_CONNECTION_H_ */
+hoxRequest_APtr
+hoxRequestQueue::PopFront()
+{
+    hoxRequest_APtr apRequest;   // Empty pointer.
+
+    wxMutexLocker lock( m_mutex ); // Gain exclusive access.
+
+    if ( ! m_list.empty() )
+    {
+        apRequest.reset( m_list.front() );
+        m_list.pop_front();
+    }
+
+    return apRequest;
+}
+
+/************************* END OF FILE ***************************************/
