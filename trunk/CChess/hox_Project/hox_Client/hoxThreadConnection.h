@@ -58,7 +58,7 @@ public:
     virtual void Start();
     virtual void Shutdown();
     virtual bool AddRequest( hoxRequest* request );
-    virtual bool IsConnected() { return m_bConnected; }
+    virtual bool IsConnected() const { return m_bConnected; }
 
     /**
      * Thread execution starts here.

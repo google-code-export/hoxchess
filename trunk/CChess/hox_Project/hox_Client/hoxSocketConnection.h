@@ -30,36 +30,16 @@
 #include <wx/wx.h>
 #include <wx/socket.h>
 #include <boost/shared_ptr.hpp>
-#include "hoxThreadConnection.h"
-#include "hoxEnums.h"
+#include "hoxConnection.h"
 #include "hoxTypes.h"
 
 /* Forward declarations. */
-class hoxSocketConnection;
 class hoxSocketWriter;
 class hoxSocketReader;
 
 /* Typedef(s) */
 typedef boost::shared_ptr<hoxSocketWriter> hoxSocketWriter_SPtr;
 typedef boost::shared_ptr<hoxSocketReader> hoxSocketReader_SPtr;
-
-// ----------------------------------------------------------------------------
-// hoxRequestQueue
-// ----------------------------------------------------------------------------
-
-class hoxRequestQueue
-{
-public:
-    hoxRequestQueue();
-    ~hoxRequestQueue();
-
-    void            PushBack( hoxRequest_APtr apRequest );
-    hoxRequest_APtr PopFront();
-
-private:
-    hoxRequestList    m_list;   // The list of requests.
-    wxMutex           m_mutex;  // Lock
-};
 
 // ----------------------------------------------------------------------------
 // hoxSocketWriter
@@ -70,7 +50,7 @@ class hoxSocketWriter : public wxThread
 public:
     hoxSocketWriter( hoxPlayer*              player,
                      const hoxServerAddress& serverAddress );
-    ~hoxSocketWriter();
+    virtual ~hoxSocketWriter();
 
     bool AddRequest( hoxRequest_APtr apRequest );
     bool IsConnected() const { return m_bConnected; }
@@ -79,11 +59,12 @@ protected:
     // entry point for the thread
     virtual void *Entry();
 
+    virtual void HandleRequest( hoxRequest_APtr apRequest );
+
 private:
     void        _StartReader( wxSocketClient* socket );
 
     hoxRequest_APtr _GetRequest();
-    void            _HandleRequest( hoxRequest_APtr apRequest );
 
     hoxResult _Login( const hoxServerAddress& serverAddress,
                       const wxString&         request,
@@ -91,7 +72,12 @@ private:
 
     void _Disconnect();
 
-private:
+    hoxResult _WriteLine( wxSocketBase*   sock, 
+                          const wxString& contentStr );
+
+protected:
+    hoxPlayer*              m_player;
+
     const hoxServerAddress  m_serverAddress;
 
     wxSocketClient*         m_socket;
@@ -123,7 +109,7 @@ class hoxSocketReader : public wxThread
 {
 public:
     hoxSocketReader( hoxPlayer* player );
-    ~hoxSocketReader();
+    virtual ~hoxSocketReader();
 
     void SetSocket( wxSocketClient* socket ) { m_socket = socket; }
 
@@ -131,7 +117,10 @@ protected:
     // entry point for the thread
     virtual void *Entry();
 
-private:
+    virtual hoxResult ReadLine( wxSocketBase* sock,
+                                wxString&     result );
+
+protected:
     hoxPlayer*            m_player;
                 /* The player that would receive notifications */
 
@@ -165,17 +154,19 @@ public:
     virtual void Start();
     virtual void Shutdown();
     virtual bool AddRequest( hoxRequest* request );
-    virtual bool IsConnected();
-
-    // **** API for Socket-Writer and -Reader ****
-    void StartWriter();
+    virtual bool IsConnected() const;
 
     /**
      * Is this Thread being shutdowned by the System.
      */
     bool IsBeingShutdowned() const { return m_shutdownRequested; } 
 
-private:
+protected:
+    virtual void StartWriter();
+
+protected:
+    const hoxServerAddress   m_serverAddress;
+
     bool                     m_shutdownRequested;
                 /* Has a shutdown-request been received? */
 

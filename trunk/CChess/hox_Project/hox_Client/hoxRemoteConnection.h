@@ -53,7 +53,7 @@ public:
     virtual void Start();
     virtual void Shutdown();
     virtual bool AddRequest( hoxRequest* request );
-    virtual bool IsConnected()   { return false; }
+    virtual bool IsConnected() const { return false; }
 
     /**
      * Set the Callback socket. 

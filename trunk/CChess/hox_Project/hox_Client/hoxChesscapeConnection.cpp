@@ -29,117 +29,36 @@
 #include "hoxUtil.h"
 #include "hoxNetworkAPI.h"
 
-IMPLEMENT_DYNAMIC_CLASS(hoxChesscapeConnection, hoxThreadConnection)
+IMPLEMENT_DYNAMIC_CLASS(hoxChesscapeConnection, hoxSocketConnection)
 
 //-----------------------------------------------------------------------------
-// hoxChesscapeConnection
+// hoxChesscapeWriter
 //-----------------------------------------------------------------------------
 
-hoxChesscapeConnection::hoxChesscapeConnection()
+hoxChesscapeWriter::hoxChesscapeWriter( hoxPlayer*              player,
+                                        const hoxServerAddress& serverAddress )
+            : hoxSocketWriter( player, serverAddress )
 {
-    wxFAIL_MSG( "This default constructor is never meant to be used." );
 }
-
-hoxChesscapeConnection::hoxChesscapeConnection( const hoxServerAddress& serverAddress,
-                                                hoxPlayer*              player )
-        : hoxThreadConnection( serverAddress, player )
-        , m_pSClient( NULL )
+hoxChesscapeWriter::~hoxChesscapeWriter()
 {
-    const char* FNAME = "hoxChesscapeConnection::hoxChesscapeConnection";
-
-    wxLogDebug("%s: Create a client-socket with default time-out = [%d] seconds.", 
-        FNAME, hoxSOCKET_CLIENT_SOCKET_TIMEOUT);
-
-    m_pSClient = new wxSocketClient( wxSOCKET_WAITALL );
-    m_pSClient->Notify( false /* Disable socket-events */ );
-    m_pSClient->SetTimeout( hoxSOCKET_CLIENT_SOCKET_TIMEOUT );
-}
-
-hoxChesscapeConnection::~hoxChesscapeConnection()
-{
-    const char* FNAME = "hoxChesscapeConnection::~hoxChesscapeConnection";
-
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    _DestroySocket();
 }
 
 void 
-hoxChesscapeConnection::HandleRequest( hoxRequest* request )
+hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = "hoxChesscapeConnection::HandleRequest";
+    const char* FNAME = "hoxChesscapeWriter::HandleRequest";
     hoxResult    result = hoxRC_ERR;
-    std::auto_ptr<hoxResponse> response( new hoxResponse(request->type, 
-                                                         request->sender) );
+    hoxResponse_APtr response( new hoxResponse(apRequest->type, 
+                                               apRequest->sender) );
 
-    /* 
-     * SPECIAL CASE: 
-     *     Handle the "special" request: Socket-Lost event,
-     *     which is applicable to some requests.
-     */
-    if ( request->type == hoxREQUEST_PLAYER_DATA )
+    switch( apRequest->type )
     {
-        result = _CheckAndHandleSocketLostEvent( request, response->content );
-        if ( result == hoxRC_HANDLED )
-        {
-            response->flags |= hoxRESPONSE_FLAG_CONNECTION_LOST;
-            result = hoxRC_OK;  // Consider "success".
-            goto exit_label;
-        }
-    }
-
-    /*
-     * NORMAL CASE: 
-     *    Handle "normal" request.
-     */
-    switch( request->type )
-    {
-        case hoxREQUEST_PLAYER_DATA: // Incoming data from remote player.
-        {
-            wxASSERT_MSG( request->socket == m_pSClient, "Sockets should match." );
-            // We disable input events until we are done processing the current command.
-            hoxNetworkAPI::SocketInputLock socketLock( m_pSClient );
-			wxSocketFlags savedFlags = m_pSClient->GetFlags();
-			for (;;)
-			{
-				m_pSClient->SetFlags( savedFlags ); // Make sure to read data in the ORIGINAL mode.
-				result = this->_ReadLine( m_pSClient, response->content );
-				if ( result != hoxRC_OK )
-				{
-					wxLogError("%s: Failed to read incoming command.", FNAME);
-					break; //goto exit_label;
-				}
-
-				// Peek data in advance (in non-blocking mode) to see if any more data...
-				m_pSClient->SetFlags( savedFlags | wxSOCKET_NOWAIT );
-				if ( m_pSClient->IsData() ) // more data to read.
-				{
-					// *** Perform "multiple" notifications to the Player.
-					wxLogDebug("%s: Inform the Player for this command...", FNAME);
-					wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, request->type );
-					response->code = result;
-					event.SetEventObject( response.release() );  // Caller will de-allocate.
-					wxPostEvent( this->GetPlayer(), event );
-					
-					// *** Allocate new response.
-					wxLogDebug("%s: [PLAYER_DATA] Allocate a new response.", FNAME);
-					response.reset( new hoxResponse(request->type, request->sender) );
-				}
-				else
-				{
-					break; // *** Done.
-				}
-			} // for(...)
-			// *** Restore flags.
-			m_pSClient->SetFlags( savedFlags );
-            break;
-        }
-
         case hoxREQUEST_LOGIN:
 		{
-			const wxString login = request->parameters["pid"]; 
-		    const wxString password = request->parameters["password"];
-            result = _Connect(login, password, response->content);
+			const wxString login = apRequest->parameters["pid"]; 
+		    const wxString password = apRequest->parameters["password"];
+            result = _Login(login, password, response->content);
             if ( result == hoxRC_HANDLED )
             {
                 result = hoxRC_OK;  // Consider "success".
@@ -149,17 +68,17 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
 
         case hoxREQUEST_LOGOUT:
 		{
-			const wxString login = request->parameters["pid"]; 
-            result = _Disconnect(login);
+			const wxString login = apRequest->parameters["pid"]; 
+            result = _Logout(login);
 			break;
 		}
 
         case hoxREQUEST_JOIN:
 		{
-		    const wxString tableId = request->parameters["tid"];
-			const bool hasRole = (request->parameters["joined"] == "1");
+		    const wxString tableId = apRequest->parameters["tid"];
+			const bool hasRole = (apRequest->parameters["joined"] == "1");
 			const hoxColor requestColor = 
-				hoxUtil::StringToColor( request->parameters["color"] );
+				hoxUtil::StringToColor( apRequest->parameters["color"] );
             result = _Join(tableId, hasRole, requestColor);
 			response->content = tableId;
             break;
@@ -167,7 +86,7 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
 
         case hoxREQUEST_PLAYER_STATUS:
 		{
-		    const wxString playerStatus = request->parameters["status"];
+		    const wxString playerStatus = apRequest->parameters["status"];
             result = _UpdateStatus( playerStatus );
             break;
 		}
@@ -180,7 +99,7 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
 
         case hoxREQUEST_MOVE:
 		{
-            result = _Move( request );
+            result = _Move( apRequest );
             break;
 		}
 
@@ -192,70 +111,72 @@ hoxChesscapeConnection::HandleRequest( hoxRequest* request )
 
         case hoxREQUEST_MSG:
 		{
-            result = _WallMessage( request );
+            result = _WallMessage( apRequest );
             break;
 		}
 
         case hoxREQUEST_DRAW:
 		{
-			const wxString drawResponse = request->parameters["draw_response"];
+			const wxString drawResponse = apRequest->parameters["draw_response"];
             result = _Draw( drawResponse );
             break;
 		}
 
         default:
-            wxLogError("%s: Unsupported request Type [%s].", 
-                FNAME, hoxUtil::RequestTypeToString(request->type).c_str());
+            wxLogDebug("%s: *** WARN *** Unsupported Request [%s].", 
+                FNAME, hoxUtil::RequestTypeToString(apRequest->type).c_str());
             result = hoxRC_NOT_SUPPORTED;
             break;
     }
 
-exit_label:
     if ( result != hoxRC_OK )
     {
-        wxLogDebug("%s: *** WARN *** Error occurred while handling request [%s].", 
-            FNAME, hoxUtil::RequestTypeToString(request->type).c_str());
-        response->content = "!Error_Result!";
+        wxLogDebug("%s: * INFO * Request [%s]: return error-code = [%s]...", 
+            FNAME, hoxUtil::RequestTypeToString(apRequest->type).c_str(), 
+            hoxUtil::ResultToStr(result));
     }
-
-    /* NOTE: If there was error, just return it to the caller. */
-
-    wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, request->type );
-    response->code = result;
-    event.SetEventObject( response.release() );  // Caller will de-allocate.
-    wxPostEvent( this->GetPlayer(), event );
 }
 
-hoxResult 
-hoxChesscapeConnection::_CheckAndHandleSocketLostEvent( 
-                                const hoxRequest* request, 
-                                wxString&         response )
+void
+hoxChesscapeWriter::_StartReader( wxSocketClient* socket )
 {
-    const char* FNAME = "hoxChesscapeConnection::_CheckAndHandleSocketLostEvent";
-    hoxResult result = hoxRC_OK;
+    const char* FNAME = "hoxChesscapeWriter::_StartReader";
 
-    //wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", FNAME);
 
-    wxASSERT_MSG( request->socket == m_pSClient, "Sockets should match." );
-
-    if ( request->socketEvent == wxSOCKET_LOST )
+    if (    m_reader.get() != NULL
+         && m_reader->IsRunning() )
     {
-        wxLogDebug("%s: Received socket-lost event. Deleting client socket.", FNAME);
-        _DestroySocket();
-        result = hoxRC_HANDLED;
+        wxLogDebug("%s: The connection has already been started. END.", FNAME);
+        return;
     }
 
-    return result;
+    /* Create Reader thread. */
+    wxLogDebug("%s: Create the Reader Thread...", FNAME);
+    m_reader.reset( new hoxChesscapeReader( m_player ) );
+
+    /* Set the socket to READ from. */
+    m_reader->SetSocket( socket );
+
+    if ( m_reader->Create() != wxTHREAD_NO_ERROR )
+    {
+        wxLogDebug("%s: *** WARN *** Failed to create the Reader thread.", FNAME);
+        return;
+    }
+    wxASSERT_MSG( !m_reader->IsDetached(), 
+                  "The Reader thread must be joinable." );
+
+    m_reader->Run();
 }
 
 hoxResult
-hoxChesscapeConnection::_Connect( const wxString& login, 
-		                          const wxString& password,
-								  wxString&       responseStr )
+hoxChesscapeWriter::_Login( const wxString& login, 
+		                    const wxString& password,
+                            wxString&       responseStr )
 {
-    const char* FNAME = "hoxChesscapeConnection::_Connect";
+    const char* FNAME = "hoxChesscapeWriter::_Login";
 
-    if ( this->IsConnected() )
+    if ( m_bConnected )
     {
         wxLogDebug("%s: The connection already established. END.", FNAME);
         return hoxRC_HANDLED;
@@ -268,63 +189,34 @@ hoxChesscapeConnection::_Connect( const wxString& login,
 
     wxLogDebug("%s: Trying to connect to [%s]...", FNAME, m_serverAddress.c_str());
 
-    //m_pSClient->Connect( addr, false /* no-wait */ );
-    //m_pSClient->WaitOnConnect( 10 /* wait for 10 seconds */ );
-
-    if ( ! m_pSClient->Connect( addr, true /* wait */ ) )
+    if ( ! m_socket->Connect( addr, true /* wait */ ) )
     {
         wxLogError("%s: Failed to connect to the server [%s]. Error = [%s].",
             FNAME, m_serverAddress.c_str(), 
-            hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
+            hoxNetworkAPI::SocketErrorToString(m_socket->LastError()).c_str());
         return hoxRC_ERR;
     }
 
     wxLogDebug("%s: Succeeded! Connection established with the server.", FNAME);
-    this->SetConnected( true );
+    m_bConnected = true;
+
+    //////////////////////////////////
+    // Start the READER thread.
+    _StartReader( m_socket );
 
 	////////////////////////////
     // Send LOGIN request.
-	{
-		wxLogDebug("%s: Sending LOGIN request over the network...", FNAME);
-		wxString loginRequest;
-		loginRequest.Printf("\x02\x10uLogin?0\x10%s\x10%s\x10\x03", login.c_str(), password.c_str());
+	wxLogDebug("%s: Sending LOGIN request over the network...", FNAME);
+	wxString loginRequest;
+	loginRequest.Printf("\x02\x10uLogin?0\x10%s\x10%s\x10\x03", login.c_str(), password.c_str());
 
-		wxUint32 requestSize = (wxUint32) loginRequest.size();
-		m_pSClient->Write( loginRequest, requestSize );
-		wxUint32 nWrite = m_pSClient->LastCount();
-		if ( nWrite < requestSize )
-		{
-			wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
-				FNAME, loginRequest.c_str(), nWrite, requestSize, 
-				hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
-			return hoxRC_ERR;
-		}
-	}
-	////////////////////////////
-	// Read the response.
-	{
-        hoxResult result = this->_ReadLine( m_pSClient, responseStr );
-        if ( result != hoxRC_OK )
-        {
-            wxLogDebug("%s: *** WARN *** Failed to read incoming command.", FNAME);
-            //return hoxRC_ERR;
-        }
-	}
-	//////////////////////////////
-    wxCHECK_MSG(this->GetPlayer(), hoxRC_ERR, "The player is NULL.");
-    wxLogDebug("%s: Let the connection's Player [%s] handle all socket events.", 
-        FNAME, this->GetPlayer()->GetName());
-    m_pSClient->SetEventHandler( *(this->GetPlayer()), CLIENT_SOCKET_ID );
-    m_pSClient->SetNotify(wxSOCKET_INPUT_FLAG | wxSOCKET_LOST_FLAG);
-    m_pSClient->Notify(true);
-
-    return hoxRC_OK;
+	return hoxNetworkAPI::WriteLine( m_socket, loginRequest );
 }
 
 hoxResult
-hoxChesscapeConnection::_Disconnect( const wxString& login )
+hoxChesscapeWriter::_Logout( const wxString& login )
 {
-    const char* FNAME = "hoxChesscapeConnection::_Disconnect";
+    const char* FNAME = "hoxChesscapeWriter::_Logout";
 
     if ( ! this->IsConnected() )
     {
@@ -339,26 +231,15 @@ hoxChesscapeConnection::_Disconnect( const wxString& login )
 	wxString cmdRequest;
 	cmdRequest.Printf("\x02\x10%s\x10\x03", "logout?");
 
-	wxUint32 requestSize = (wxUint32) cmdRequest.size();
-	m_pSClient->Write( cmdRequest, requestSize );
-	wxUint32 nWrite = m_pSClient->LastCount();
-	if ( nWrite < requestSize )
-	{
-		wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
-			FNAME, cmdRequest.c_str(), nWrite, requestSize, 
-			hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
-		return hoxRC_ERR;
-	}
-
-    return hoxRC_OK;
+	return hoxNetworkAPI::WriteLine( m_socket, cmdRequest );
 }
 
 hoxResult
-hoxChesscapeConnection::_Join( const wxString& tableId,
+hoxChesscapeWriter::_Join( const wxString& tableId,
 							   const bool      hasRole,
 							   hoxColor   requestColor )
 {
-    const char* FNAME = "hoxChesscapeConnection::_Join";
+    const char* FNAME = "hoxChesscapeWriter::_Join";
 
     if ( ! this->IsConnected() )
     {
@@ -375,14 +256,8 @@ hoxChesscapeConnection::_Join( const wxString& tableId,
 		wxString cmdRequest;
 		cmdRequest.Printf("\x02\x10join?%s\x10\x03", tableId.c_str());
 
-		wxUint32 requestSize = (wxUint32) cmdRequest.size();
-		m_pSClient->Write( cmdRequest, requestSize );
-		wxUint32 nWrite = m_pSClient->LastCount();
-		if ( nWrite < requestSize )
+		if ( hoxRC_OK != hoxNetworkAPI::WriteLine( m_socket, cmdRequest ) )
 		{
-			wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
-				FNAME, cmdRequest.c_str(), nWrite, requestSize, 
-				hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
 			return hoxRC_ERR;
 		}
 	}
@@ -398,14 +273,8 @@ hoxChesscapeConnection::_Join( const wxString& tableId,
 		wxString cmdRequest;
 		cmdRequest.Printf("\x02\x10tCmd?%s\x10\x03", requestSeat.c_str());
 
-		wxUint32 requestSize = (wxUint32) cmdRequest.size();
-		m_pSClient->Write( cmdRequest, requestSize );
-		wxUint32 nWrite = m_pSClient->LastCount();
-		if ( nWrite < requestSize )
+		if ( hoxRC_OK != hoxNetworkAPI::WriteLine( m_socket, cmdRequest ) )
 		{
-			wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
-				FNAME, cmdRequest.c_str(), nWrite, requestSize, 
-				hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
 			return hoxRC_ERR;
 		}
 	}
@@ -414,9 +283,9 @@ hoxChesscapeConnection::_Join( const wxString& tableId,
 }
 
 hoxResult
-hoxChesscapeConnection::_UpdateStatus( const wxString& playerStatus )
+hoxChesscapeWriter::_UpdateStatus( const wxString& playerStatus )
 {
-    const char* FNAME = "hoxChesscapeConnection::_UpdateStatus";
+    const char* FNAME = "hoxChesscapeWriter::_UpdateStatus";
 
     if ( ! this->IsConnected() )
     {
@@ -432,24 +301,13 @@ hoxChesscapeConnection::_UpdateStatus( const wxString& playerStatus )
 	wxString cmdRequest;
 	cmdRequest.Printf("\x02\x10updateStatus?%s\x10\x03", playerStatus.c_str());
 
-	wxUint32 requestSize = (wxUint32) cmdRequest.size();
-	m_pSClient->Write( cmdRequest, requestSize );
-	wxUint32 nWrite = m_pSClient->LastCount();
-	if ( nWrite < requestSize )
-	{
-		wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
-			FNAME, cmdRequest.c_str(), nWrite, requestSize, 
-			hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
-		return hoxRC_ERR;
-	}
-
-    return hoxRC_OK;
+    return hoxNetworkAPI::WriteLine( m_socket, cmdRequest );
 }
 
 hoxResult
-hoxChesscapeConnection::_Leave()
+hoxChesscapeWriter::_Leave()
 {
-    const char* FNAME = "hoxChesscapeConnection::_Leave";
+    const char* FNAME = "hoxChesscapeWriter::_Leave";
 
     if ( ! this->IsConnected() )
     {
@@ -464,24 +322,13 @@ hoxChesscapeConnection::_Leave()
 	wxString cmdRequest;
 	cmdRequest.Printf("\x02\x10%s\x10\x03", "closeTable?");
 
-	wxUint32 requestSize = (wxUint32) cmdRequest.size();
-	m_pSClient->Write( cmdRequest, requestSize );
-	wxUint32 nWrite = m_pSClient->LastCount();
-	if ( nWrite < requestSize )
-	{
-		wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
-			FNAME, cmdRequest.c_str(), nWrite, requestSize, 
-			hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
-		return hoxRC_ERR;
-	}
-
-    return hoxRC_OK;
+    return hoxNetworkAPI::WriteLine( m_socket, cmdRequest );
 }
 
 hoxResult
-hoxChesscapeConnection::_New()
+hoxChesscapeWriter::_New()
 {
-    const char* FNAME = "hoxChesscapeConnection::_New";
+    const char* FNAME = "hoxChesscapeWriter::_New";
 
     if ( ! this->IsConnected() )
     {
@@ -498,24 +345,13 @@ hoxChesscapeConnection::_New()
 		"create?com.chesscape.server.xiangqi.TableHandler",
 		0 /* Rated Table */ );
 
-	wxUint32 requestSize = (wxUint32) cmdRequest.size();
-	m_pSClient->Write( cmdRequest, requestSize );
-	wxUint32 nWrite = m_pSClient->LastCount();
-	if ( nWrite < requestSize )
-	{
-		wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
-			FNAME, cmdRequest.c_str(), nWrite, requestSize, 
-			hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
-		return hoxRC_ERR;
-	}
-
-    return hoxRC_OK;
+    return hoxNetworkAPI::WriteLine( m_socket, cmdRequest );
 }
 
 hoxResult   
-hoxChesscapeConnection::_Move( hoxRequest* request )
+hoxChesscapeWriter::_Move( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = "hoxChesscapeConnection::_Move";
+    const char* FNAME = "hoxChesscapeWriter::_Move";
 
     if ( ! this->IsConnected() )
     {
@@ -525,9 +361,9 @@ hoxChesscapeConnection::_Move( hoxRequest* request )
     }
 
 	/* Extract parameters. */
-	const wxString moveStr     = request->parameters["move"];
-	const wxString statusStr   = request->parameters["status"];
-	const wxString gameTimeStr = request->parameters["game_time"];
+	const wxString moveStr     = apRequest->parameters["move"];
+	const wxString statusStr   = apRequest->parameters["status"];
+	const wxString gameTimeStr = apRequest->parameters["game_time"];
 	int gameTime = ::atoi( gameTimeStr.c_str() ) * 1000;  // convert to miliseconds
 
     /* Send MOVE request. */
@@ -537,14 +373,8 @@ hoxChesscapeConnection::_Move( hoxRequest* request )
 	cmdRequest.Printf("\x02\x10tCmd?Move\x10%s\x10%d\x10\x03", 
 		moveStr.c_str(), gameTime);
 
-	wxUint32 requestSize = (wxUint32) cmdRequest.size();
-	m_pSClient->Write( cmdRequest, requestSize );
-	wxUint32 nWrite = m_pSClient->LastCount();
-	if ( nWrite < requestSize )
+	if ( hoxRC_OK != hoxNetworkAPI::WriteLine( m_socket, cmdRequest ) )
 	{
-		wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
-			FNAME, cmdRequest.c_str(), nWrite, requestSize, 
-			hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
 		return hoxRC_ERR;
 	}
 
@@ -559,14 +389,8 @@ hoxChesscapeConnection::_Move( hoxRequest* request )
 		cmdRequest.Printf("\x02\x10tCmd?%s\x10\x03",
 			"Winner" /* FIXME: Hard-code */);
 
-		wxUint32 requestSize = (wxUint32) cmdRequest.size();
-		m_pSClient->Write( cmdRequest, requestSize );
-		wxUint32 nWrite = m_pSClient->LastCount();
-		if ( nWrite < requestSize )
+		if ( hoxRC_OK != hoxNetworkAPI::WriteLine( m_socket, cmdRequest ) )
 		{
-			wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
-				FNAME, cmdRequest.c_str(), nWrite, requestSize, 
-				hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
 			return hoxRC_ERR;
 		}
 	}
@@ -575,9 +399,9 @@ hoxChesscapeConnection::_Move( hoxRequest* request )
 }
 
 hoxResult   
-hoxChesscapeConnection::_WallMessage( hoxRequest* request )
+hoxChesscapeWriter::_WallMessage( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = "hoxChesscapeConnection::_WallMessage";
+    const char* FNAME = "hoxChesscapeWriter::_WallMessage";
 
     if ( ! this->IsConnected() )
     {
@@ -587,7 +411,7 @@ hoxChesscapeConnection::_WallMessage( hoxRequest* request )
     }
 
 	/* Extract parameters. */
-	const wxString message = request->parameters["msg"];
+	const wxString message = apRequest->parameters["msg"];
 
     /* Send MESSAGE request. */
 
@@ -595,24 +419,13 @@ hoxChesscapeConnection::_WallMessage( hoxRequest* request )
 	wxString cmdRequest;
 	cmdRequest.Printf("\x02\x10tMsg?%s\x10\x03", message.c_str());
 
-	wxUint32 requestSize = (wxUint32) cmdRequest.size();
-	m_pSClient->Write( cmdRequest, requestSize );
-	wxUint32 nWrite = m_pSClient->LastCount();
-	if ( nWrite < requestSize )
-	{
-		wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
-			FNAME, cmdRequest.c_str(), nWrite, requestSize, 
-			hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
-		return hoxRC_ERR;
-	}
-
-    return hoxRC_OK;
+    return hoxNetworkAPI::WriteLine( m_socket, cmdRequest );
 }
 
 hoxResult   
-hoxChesscapeConnection::_Draw( const wxString& drawResponse )
+hoxChesscapeWriter::_Draw( const wxString& drawResponse )
 {
-    const char* FNAME = "hoxChesscapeConnection::_Draw";
+    const char* FNAME = "hoxChesscapeWriter::_Draw";
 
     if ( ! this->IsConnected() )
     {
@@ -640,39 +453,30 @@ hoxChesscapeConnection::_Draw( const wxString& drawResponse )
 	wxString cmdRequest;
 	cmdRequest.Printf("\x02\x10tCmd?%s\x10\x03", drawCmd.c_str());
 
-	wxUint32 requestSize = (wxUint32) cmdRequest.size();
-	m_pSClient->Write( cmdRequest, requestSize );
-	wxUint32 nWrite = m_pSClient->LastCount();
-	if ( nWrite < requestSize )
-	{
-		wxLogDebug("%s: *** WARN *** Failed to send request [%s] ( %d < %d ). Error = [%s].", 
-			FNAME, cmdRequest.c_str(), nWrite, requestSize, 
-			hoxNetworkAPI::SocketErrorToString(m_pSClient->LastError()).c_str());
-		return hoxRC_ERR;
-	}
-
-    return hoxRC_OK;
+    return hoxNetworkAPI::WriteLine( m_socket, cmdRequest );
 }
 
-void
-hoxChesscapeConnection::_DestroySocket()
-{
-    const char* FNAME = "hoxChesscapeConnection::_DestroySocket";
+//-----------------------------------------------------------------------------
+// hoxChesscapeReader
+//-----------------------------------------------------------------------------
 
-    if ( m_pSClient != NULL )
-    {
-        wxLogDebug("%s: Destroy the client socket...", FNAME);
-        m_pSClient->Destroy();
-        m_pSClient = NULL;
-    }
-    this->SetConnected( false );
+hoxChesscapeReader::hoxChesscapeReader( hoxPlayer* player )
+            : hoxSocketReader( player )
+{
+    const char* FNAME = "hoxChesscapeReader::hoxChesscapeReader";
+
+    wxLogDebug("%s: ENTER.", FNAME);
+}
+
+hoxChesscapeReader::~hoxChesscapeReader()
+{
 }
 
 hoxResult
-hoxChesscapeConnection::_ReadLine( wxSocketBase* sock, 
-                                   wxString&     result )
+hoxChesscapeReader::ReadLine( wxSocketBase* sock, 
+                              wxString&     result )
 {
-    const char* FNAME = "hoxChesscapeConnection::_ReadLine";
+    const char* FNAME = "hoxChesscapeReader::ReadLine";
     wxString commandStr;
 
 	/* Read a line between '0x02' and '0x03' */
@@ -703,9 +507,9 @@ hoxChesscapeConnection::_ReadLine( wxSocketBase* sock,
                 // Impose some limit.
                 if ( commandStr.size() >= hoxNETWORK_MAX_MSG_SIZE )
                 {
-                    wxLogError("%s: Maximum message's size [%d] reached. Likely to be an error.", 
+                    wxLogDebug("%s: *** WARN *** Maximum message's size [%d] reached. Likely to be an error.", 
                         FNAME, hoxNETWORK_MAX_MSG_SIZE);
-                    wxLogError("%s: Partial read message (64 bytes) = [%s ...].", 
+                    wxLogDebug("%s: *** WARN *** Partial read message (64 bytes) = [%s ...].", 
                         FNAME, commandStr.substr(0, 64).c_str());
                     break;
                 }
@@ -713,14 +517,70 @@ hoxChesscapeConnection::_ReadLine( wxSocketBase* sock,
         }
         else if ( sock->Error() )
         {
-            wxLogWarning("%s: Fail to read 1 byte from the network. Error = [%s].", 
+            wxLogDebug("%s: *** WARN *** Fail to read 1 byte from the network. Error = [%s].", 
                 FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
-            wxLogWarning("%s: Result message accumulated so far = [%s].", FNAME, commandStr.c_str());
+            wxLogDebug("%s: *** WARN *** Result message accumulated so far = [%s].", FNAME, commandStr.c_str());
             break;
         }
     }
 
     return hoxRC_ERR;
+}
+
+//-----------------------------------------------------------------------------
+// hoxChesscapeConnection
+//-----------------------------------------------------------------------------
+
+hoxChesscapeConnection::hoxChesscapeConnection()
+{
+    wxFAIL_MSG( "This default constructor is never meant to be used." );
+}
+
+hoxChesscapeConnection::hoxChesscapeConnection( const hoxServerAddress& serverAddress,
+                                                hoxPlayer*              player )
+        : hoxSocketConnection( serverAddress, player )
+{
+    const char* FNAME = "hoxChesscapeConnection::hoxChesscapeConnection";
+
+    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: END.", FNAME);
+}
+
+hoxChesscapeConnection::~hoxChesscapeConnection()
+{
+    const char* FNAME = "hoxChesscapeConnection::~hoxChesscapeConnection";
+
+    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: END.", FNAME);
+}
+
+void
+hoxChesscapeConnection::StartWriter()
+{
+    const char* FNAME = "hoxChesscapeConnection::StartWriter";
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    if (    m_writer 
+         && m_writer->IsRunning() )
+    {
+        wxLogDebug("%s: The connection has already been started. END.", FNAME);
+        return;
+    }
+
+    /* Create Writer thread. */
+    wxLogDebug("%s: Create the Writer Thread...", FNAME);
+    m_writer.reset( new hoxChesscapeWriter( this->GetPlayer(), 
+                                            m_serverAddress ) );
+    if ( m_writer->Create() != wxTHREAD_NO_ERROR )
+    {
+        wxLogDebug("%s: *** WARN *** Failed to create the Writer thread.", FNAME);
+        return;
+    }
+    wxASSERT_MSG( !m_writer->IsDetached(), 
+                  "The Writer thread must be joinable." );
+
+    m_writer->Run();
 }
 
 /************************* END OF FILE ***************************************/

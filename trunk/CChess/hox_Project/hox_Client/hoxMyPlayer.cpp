@@ -102,7 +102,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
     wxLogDebug("%s: ENTER.", FNAME);
 
     hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
-    const std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
+    const hoxResponse_APtr response( response_raw ); // take care memory leak!
 
     /* Make a note to 'self' that one request has been serviced. */
     DecrementOutstandingRequests();
@@ -111,25 +111,20 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 
     /* Handle error-code. */
 
-    if ( response->code == hoxRC_CLOSED )
+    if ( response->code != hoxRC_OK )
     {
-        wxLogDebug("%s: Connection has been closed.", FNAME);
-        /* Currently, we support one connection per player.
-         * Since this ONLY connection is closed, the player must leave
-         * all tables.
+        wxLogDebug("%s: *** WARN *** Received error-code [%s].", 
+            FNAME, hoxUtil::ResultToStr(response->code));
+
+        /* Close the connection and logout.
          */
         this->LeaveAllTables();
-        wxLogDebug("%s: END (closed).", FNAME);
-        return;
+        this->DisconnectFromNetworkServer();
+        remoteSite->OnResponse_LOGOUT( response );
+        wxLogDebug("%s: END (exception).", FNAME);
+        return;  // *** Exit immediately.
     }
-    else if ( response->code != hoxRC_OK )
-    {
-        wxLogDebug("%s: *** WARN *** Received error-code [%d].", FNAME, response->code);
-        //this->LeaveAllTables();
-        wxLogDebug("%s: END (error).", FNAME);
-        return;
-    }
-
+#if 0
     /* Handle the connection-lost event. */
 
     if ( (response->flags & hoxRESPONSE_FLAG_CONNECTION_LOST) !=  0 )
@@ -143,7 +138,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
         wxLogDebug("%s: END (lost).", FNAME);
         return;
     }
-
+#endif
     /* Handle other type of data. */
 
     const wxString commandStr = response->content;

@@ -56,6 +56,7 @@ hoxChesscapePlayer::hoxChesscapePlayer( const wxString& name,
                           hoxPlayerType   type,
                           int             score )
             : hoxLocalPlayer( name, type, score )
+            , m_bRequestingLogin( false )
 			, m_bRequestingNewTable( false )
 			, m_bSentMyFirstMove( false )
 { 
@@ -67,6 +68,17 @@ hoxChesscapePlayer::~hoxChesscapePlayer()
 {
     const char* FNAME = "hoxChesscapePlayer::~hoxChesscapePlayer";
     wxLogDebug("%s: ENTER.", FNAME);
+}
+
+hoxResult
+hoxChesscapePlayer::ConnectToNetworkServer()
+{
+	const char* FNAME = "hoxChesscapePlayer::ConnectToNetworkServer";
+	wxLogDebug("%s: ENTER.", FNAME);
+
+    m_bRequestingLogin = true;
+
+    return this->hoxLocalPlayer::ConnectToNetworkServer();
 }
 
 hoxResult 
@@ -174,6 +186,8 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
     /* Make a note to 'self' that one request has been serviced. */
     DecrementOutstandingRequests();
 
+    hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
+
     /* NOTE: Only handle the connection-lost event. */
 
     if ( (response->flags & hoxRESPONSE_FLAG_CONNECTION_LOST) !=  0 )
@@ -196,6 +210,46 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 	}
 
 	/* Processing the command... */
+
+    /////////////////////////////////////////////////////////////
+    if ( m_bRequestingLogin )  // LOGIN pending?
+	{
+		wxLogDebug("%s: LOGIN 's response received.", FNAME);
+		wxLogDebug("%s: ... response = [%s].", FNAME, response->content.c_str());
+
+	    if ( command == "code" )
+	    {
+		    wxLogDebug("%s: *** WARN *** LOGIN return code = [%s].", FNAME, paramsStr.c_str());
+		    response->code = hoxRC_ERR;
+		    response->content.Printf("LOGIN returns code = [%s].", paramsStr.c_str());
+            remoteSite->OnResponse_LOGIN( response );
+            m_bRequestingLogin = false;
+            return;  // *** DONE !!!!!!!!!!!!!!!!!
+	    }
+	    else if ( command == "login" )
+	    {
+		    wxString       name;
+		    wxString       score;
+		    wxString       role;
+
+		    this->_HandleCmd_Login( paramsStr, name, score, role );
+		    response->code = hoxRC_OK;
+		    response->content.Printf("LOGIN is OK. name=[%s], score=[%s], role=[%s]", 
+			    name.c_str(), score.c_str(), role.c_str());
+		    wxASSERT( name == this->GetName() );
+		    this->SetScore( ::atoi( score.c_str() ) );
+            remoteSite->OnResponse_LOGIN( response );
+            m_bRequestingLogin = false;
+            return;  // *** DONE !!!!!!!!!!!!!!!!!
+        }
+	}
+	//else if ( command == "logout" )
+	//{
+	//	wxLogDebug("%s: LOGOUT 's response received.", FNAME);
+ //       remoteSite->OnResponse_LOGOUT( response );
+	//	return;  // *** DONE !!!!!!!!!!!!!!!!!
+	//}
+    /////////////////////////////////////////////////////////////
 
 	if      ( command == "show" )          _HandleCmd_Show( paramsStr );
 	else if ( command == "unshow" )        _HandleCmd_Unshow( paramsStr );
@@ -1088,46 +1142,6 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 
     switch ( response->type )
 	{
-		case hoxREQUEST_LOGIN:
-		{
-			wxLogDebug("%s: CONNECT (or LOGIN) 's response received.", FNAME);
-			wxLogDebug("%s: ... response = [%s].", FNAME, response->content.c_str());
-
-			wxString command;
-			wxString paramsStr;
-
-			if ( ! _ParseIncomingCommand( response->content, command, paramsStr ) ) // failed?
-			{
-				wxLogDebug("%s: *** WARN *** Failed to parse incoming command.", FNAME);
-				response->code = hoxRC_ERR;
-				response->content = "Failed to parse incoming command.";
-			}
-            else
-            {
-			    if ( command == "code" )
-			    {
-				    wxLogDebug("%s: *** WARN *** LOGIN return code = [%s].", FNAME, paramsStr.c_str());
-				    response->code = hoxRC_ERR;
-				    response->content.Printf("LOGIN returns code = [%s].", paramsStr.c_str());
-			    }
-			    else
-			    {
-				    wxString       name;
-				    wxString       score;
-				    wxString       role;
-
-				    this->_HandleCmd_Login( paramsStr, name, score, role );
-				    response->code = hoxRC_OK;
-				    response->content.Printf("LOGIN is OK. name=[%s], score=[%s], role=[%s]", 
-					    name.c_str(), score.c_str(), role.c_str());
-				    wxASSERT( name == this->GetName() );
-				    this->SetScore( ::atoi( score.c_str() ) );
-			    }
-            }
-            remoteSite->OnResponse_LOGIN( response );
-            return;  // *** DONE !!!!!!!!!!!!!!!!!
-		}
-
 		case hoxREQUEST_JOIN:      /* fall through */
 		case hoxREQUEST_NEW:       /* fall through */
 		case hoxREQUEST_LEAVE:     /* fall through */
@@ -1135,12 +1149,6 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 		{
 			wxLogDebug("%s: [%s] 's response received. END.", FNAME, sType.c_str());
 			break;
-		}
-		case hoxREQUEST_LOGOUT:
-		{
-			wxLogDebug("%s: LOGOUT 's response received. END.", FNAME);
-            remoteSite->OnResponse_LOGOUT( response );
-			return;  // *** DONE !!!!!!!!!!!!!!!!!
 		}
 		default:
 			wxLogDebug("%s: *** WARN *** Unsupported Request [%s].", FNAME, sType.c_str());

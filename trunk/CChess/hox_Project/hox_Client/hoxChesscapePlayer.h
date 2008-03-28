@@ -49,6 +49,7 @@ public:
      * Override the parent's API
      *******************************/
 
+    virtual hoxResult ConnectToNetworkServer();
 	virtual hoxResult QueryForNetworkTables();
     virtual hoxResult JoinNetworkTable( const wxString& tableId );
 	virtual hoxResult OpenNewNetworkTable();
@@ -123,6 +124,9 @@ private:
 
 	wxString                         m_pendingRequestSeat;
 			/* The Seat (RED/BLACK) this player is requesting to play as. */
+
+	bool                             m_bRequestingLogin;
+			/* Whether this Player is LOGIN-ing the server. */
 
 	bool                             m_bRequestingNewTable;
 			/* Whether this Player is requesting for a NEW Table. */

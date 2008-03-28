@@ -333,4 +333,23 @@ private:
     mutable wxString   _str;  // String representation.
 };
 
+// ----------------------------------------------------------------------------
+// hoxRequestQueue
+// ----------------------------------------------------------------------------
+
+class hoxRequestQueue
+{
+public:
+    hoxRequestQueue();
+    ~hoxRequestQueue();
+
+    void            PushBack( hoxRequest_APtr apRequest );
+    hoxRequest_APtr PopFront();
+
+private:
+    hoxRequestList  m_list;   // The list of requests.
+    wxMutex         m_mutex;  // Lock
+};
+
+
 #endif /* __INCLUDED_HOX_TYPES_H_ */
