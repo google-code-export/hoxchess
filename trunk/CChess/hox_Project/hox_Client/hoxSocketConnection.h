@@ -67,8 +67,8 @@ private:
     hoxRequest_APtr _GetRequest();
 
     hoxResult _Login( const hoxServerAddress& serverAddress,
-                      const wxString&         request,
-                      wxString&               response );
+                      const wxString&         sRequest,
+                      wxString&               sResponse );
 
     void _Disconnect();
 

@@ -104,11 +104,6 @@ public:
     hoxPlayer* GetBlackPlayer() const { return m_blackPlayer; }
 
     /**
-     * Set the Board (the Table's GUI).
-     */
-    void SetBoard( hoxBoard* board );
-
-    /**
      * View the table's Board (the Table's GUI) by creating a new
 	 * Board using the given 'tableWindow' parameter as the parent Window.
 	 *

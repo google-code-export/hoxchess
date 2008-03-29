@@ -151,26 +151,6 @@ hoxTable::UnassignPlayer( hoxPlayer* player,
 }
 
 void 
-hoxTable::SetBoard( hoxBoard* board )
-{
-    wxASSERT_MSG( m_board == NULL, "The Board has already been set." );
-
-    m_board = board;
-
-    /* Assuming the this API can be used to "unset" the table.
-     * Thus, the input argument 'board' can be NULL.
-     * In the case it is not NULL, then also attach the Table
-     * to the Board so that the Board can inform (call back) 
-     * the Table about the new Board Moves.
-     */
-    if ( m_board != NULL )
-    {
-        m_board->SetTable( this );
-        m_board->Show( true );  // Display Board's GUI.
-    }
-}
-
-void 
 hoxTable::ViewBoard( wxWindow* tableWindow )
 {
 	const char* FNAME = "hoxTable::ViewBoard";

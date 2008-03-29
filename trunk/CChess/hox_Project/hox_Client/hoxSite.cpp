@@ -333,10 +333,11 @@ hoxRemoteSite::OnResponse_LOGIN( const hoxResponse_APtr& response )
 
     if ( response->code != hoxRC_OK )
     {
-        wxLogDebug("%s: The response's code for [%s] is ERROR [%d].", 
+        wxLogError("%s: The response's code for [%s] is ERROR [%s: %s].", 
             FNAME, 
             hoxUtil::RequestTypeToString(response->type).c_str(), 
-            response->code);
+            hoxUtil::ResultToStr(response->code),
+            response->content.c_str());
         this->Handle_ShutdownReadyFromPlayer( m_player ? m_player->GetName() : "" );
         return;
     }
