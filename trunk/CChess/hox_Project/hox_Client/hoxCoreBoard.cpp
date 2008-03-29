@@ -76,7 +76,7 @@ hoxCoreBoard::hoxCoreBoard()
  *       in the update region.
  */
 hoxCoreBoard::hoxCoreBoard( wxWindow*      parent, 
-                            hoxIReferee*   referee /* = new hoxNaiveReferee() */,
+                            hoxIReferee*   referee,
                             const wxPoint& pos  /* = wxDefaultPosition */, 
                             const wxSize&  size /* = wxDefaultSize*/ )
         : wxPanel( parent, 
