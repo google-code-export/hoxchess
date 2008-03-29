@@ -33,7 +33,6 @@
 #include <list>
 #include "hoxPiece.h"
 #include "hoxIReferee.h"
-#include "hoxNaiveReferee.h"
 
 /*
  * typedefs
@@ -74,7 +73,7 @@ public:
 public:
     hoxCoreBoard(); // Dummy default constructor required for RTTI info.
     hoxCoreBoard( wxWindow*      parent,
-                  hoxIReferee*   referee = new hoxNaiveReferee(),
+                  hoxIReferee*   referee,
                   const wxPoint& pos = wxDefaultPosition, 
                   const wxSize&  size = wxDefaultSize );
     virtual ~hoxCoreBoard();
