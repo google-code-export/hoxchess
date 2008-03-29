@@ -91,21 +91,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
         wxLogDebug("%s: END (exception).", FNAME);
         return;  // *** Exit immediately.
     }
-#if 0
-    /* Handle the connection-lost event. */
 
-    if ( (response->flags & hoxRESPONSE_FLAG_CONNECTION_LOST) !=  0 )
-    {
-        wxLogDebug("%s: Connection has been lost.", FNAME);
-        /* Currently, we support one connection per player.
-         * Since this ONLY connection is closed, the player must leave
-         * all tables.
-         */
-        this->LeaveAllTables();
-        wxLogDebug("%s: END (lost).", FNAME);
-        return;
-    }
-#endif
     /* Handle other type of data. */
 
     const wxString commandStr = response->content;
@@ -131,7 +117,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
         const wxString sMessage = "Request " + sType + " failed with code = " + sCode;
         wxLogDebug("%s: %s.", FNAME, sMessage.c_str());
 
-        hoxTable* table = this->GetSite()->FindTable( sTableId );
+        hoxTable* table = remoteSite->FindTable( sTableId );
         if ( table == NULL )
         {
             wxLogDebug("%s: Table [%s] not found.", FNAME, sTableId.c_str());
@@ -392,7 +378,40 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
 {
     const char* FNAME = "hoxMyPlayer::OnConnectionResponse";
     wxLogDebug("%s: ENTER.", FNAME);
-    wxFAIL_MSG("This function should not be called");
+
+    /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     *
+     * NOTE: Currently, this function exists to handle errors only.
+     *
+     * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
+
+    const hoxResponse_APtr apResponse( wxDynamicCast(event.GetEventObject(), hoxResponse) );
+
+    hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
+    
+    const wxString sType = hoxUtil::RequestTypeToString(apResponse->type);
+    const wxString sContent = apResponse->content;
+
+    switch ( apResponse->type )
+    {
+        case hoxREQUEST_LOGIN:
+		{
+            if ( apResponse->code != hoxRC_OK )  // error?
+            {
+                wxLogDebug("%s: *** WARN *** Failed to login. Error = [%s].", 
+                    FNAME, sContent.c_str());
+                remoteSite->OnResponse_LOGIN( apResponse );
+            }
+            break;
+        }
+        default:
+        {
+		    wxLogWarning("%s: Failed to handle Request [%s]. Error = [%s].", 
+                FNAME, sType.c_str(), sContent.c_str());
+        }
+    }
+
+    wxLogDebug("%s: END.", FNAME);
 }
 
 hoxResult 

@@ -206,16 +206,17 @@ hoxSocketWriter::HandleRequest( hoxRequest_APtr apRequest )
 {
     const char* FNAME = "hoxSocketWriter::HandleRequest";
     hoxResult    result = hoxRC_ERR;
-    hoxResponse_APtr response( new hoxResponse(apRequest->type, 
-                                               apRequest->sender) );
+    const hoxRequestType requestType = apRequest->type;
+    hoxResponse_APtr apResponse( new hoxResponse(requestType, 
+                                                 apRequest->sender) );
 
-    switch( apRequest->type )
+    switch( requestType )
     {
         case hoxREQUEST_LOGIN:
         {
             result = _Login( m_serverAddress,
                              _RequestToString( *apRequest ),
-                             response->content );
+                             apResponse->content );
             if ( result == hoxRC_HANDLED )
             {
                 result = hoxRC_OK;  // Consider "success".
@@ -254,7 +255,7 @@ hoxSocketWriter::HandleRequest( hoxRequest_APtr apRequest )
         default:
         {
             wxLogDebug("%s: *** WARN *** Unsupported Request [%s].", 
-                FNAME, hoxUtil::RequestTypeToString(apRequest->type).c_str());
+                FNAME, hoxUtil::RequestTypeToString(requestType).c_str());
             result = hoxRC_NOT_SUPPORTED;
         }
     }
@@ -262,23 +263,28 @@ hoxSocketWriter::HandleRequest( hoxRequest_APtr apRequest )
     if ( result != hoxRC_OK )
     {
         wxLogDebug("%s: * INFO * Request [%s]: return error-code = [%s]...", 
-            FNAME, hoxUtil::RequestTypeToString(apRequest->type).c_str(), 
+            FNAME, hoxUtil::RequestTypeToString(requestType).c_str(), 
             hoxUtil::ResultToStr(result));
+
+        /* Notify the Player of this error. */
+        wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, requestType );
+        apResponse->code = result;
+        event.SetEventObject( apResponse.release() );  // Caller will de-allocate.
+        wxPostEvent( m_player, event );
     }
 }
 
 hoxResult
 hoxSocketWriter::_Login( const hoxServerAddress& serverAddress,
-                         const wxString&         request,
-                         wxString&               response )
+                         const wxString&         sRequest,
+                         wxString&               sResponse )
 {
     const char* FNAME = "hoxSocketWriter::_Login";
-    hoxResult result;
 
     if ( m_bConnected )
     {
-        wxLogDebug("%s: The connection already established. END.", FNAME);
-        return hoxRC_HANDLED;
+        wxLogDebug("%s: * INFO *The connection already established. END.", FNAME);
+        return hoxRC_OK; // Consider "success".
     }
 
     /* Get the server address. */
@@ -290,9 +296,10 @@ hoxSocketWriter::_Login( const hoxServerAddress& serverAddress,
 
     if ( ! m_socket->Connect( addr, true /* wait */ ) )
     {
-        wxLogError("%s: Failed to connect to the server [%s]. Error = [%s].",
+        wxLogDebug("%s: *** WARN *** Failed to connect to the server [%s]. Error = [%s].",
             FNAME, serverAddress.c_str(), 
             hoxNetworkAPI::SocketErrorToString(m_socket->LastError()).c_str());
+        sResponse = "Failed to connect to server";
         return hoxRC_ERR;
     }
 
@@ -306,11 +313,7 @@ hoxSocketWriter::_Login( const hoxServerAddress& serverAddress,
 	////////////////////////////
     // Send LOGIN request.
 	wxLogDebug("%s: Sending LOGIN request over the network...", FNAME);
-    result = _WriteLine( m_socket, request );
-    if ( result != hoxRC_OK )
-        return result;
-
-    return hoxRC_OK;
+    return _WriteLine( m_socket, sRequest );
 }
 
 void
