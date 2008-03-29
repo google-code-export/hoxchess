@@ -85,9 +85,6 @@ hoxRemotePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
     hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
     const std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
 
-    /* Make a note to 'self' that one request has been serviced. */
-    DecrementOutstandingRequests();
-
     /* NOTE: Only handle the connection-lost event. */
 
     if ( (response->flags & hoxRESPONSE_FLAG_CONNECTION_LOST) !=  0 )
@@ -126,9 +123,6 @@ hoxRemotePlayer::OnServerResponse( wxCommandEvent& event )
 
     hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
     const std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
-
-    /* Make a note to 'self' that one request has been serviced. */
-    DecrementOutstandingRequests();
 
     wxLogDebug("%s: END.", FNAME);
 }

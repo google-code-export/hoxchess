@@ -35,7 +35,6 @@
 #include "hoxReferee.h"
 #include "hoxTypes.h"
 #include "hoxTable.h"
-#include "hoxPlayer.h"
 
 /* UI-related IDs. */
 enum
@@ -161,22 +160,22 @@ hoxBoard::OnPlayerJoin( wxCommandEvent &event )
 {
     const char* FNAME = "hoxBoard::OnPlayerJoin";
 
-    hoxPlayer* player = wxDynamicCast(event.GetEventObject(), hoxPlayer);
-    wxCHECK_RET(player, "Player cannot be NULL.");
+    hoxPlayerInfo_APtr apPlayerInfo( wxStaticCast(event.GetEventObject(), hoxPlayerInfo) );
+    wxCHECK_RET(apPlayerInfo.get(), "Player cannot be NULL.");
 
-    const wxString playerId = player->GetName();
+    const wxString playerId = apPlayerInfo->id;
     hoxColor       playerColor = hoxCOLOR_UNKNOWN;
 
     if ( event.GetInt() == hoxCOLOR_RED )
     {
         playerColor = hoxCOLOR_RED;
-        _SetRedInfo( player );
+        _SetRedInfo( apPlayerInfo.get() );
         if ( playerId == m_blackId ) _SetBlackInfo( NULL );
     } 
     else if ( event.GetInt() == hoxCOLOR_BLACK )
     {
         playerColor = hoxCOLOR_BLACK;
-        _SetBlackInfo( player );
+        _SetBlackInfo( apPlayerInfo.get() );
         if ( playerId == m_redId ) _SetRedInfo( NULL );
     }
     else
@@ -186,13 +185,13 @@ hoxBoard::OnPlayerJoin( wxCommandEvent &event )
         if ( playerId == m_blackId ) _SetBlackInfo( NULL );
     }
 
-    _AddPlayerToList( playerId, player->GetScore() );
+    _AddPlayerToList( playerId, apPlayerInfo->score );
 
     /* Update the LOCAL - color on the core Board so that it knows
      * who is allowed to make a Move using the mouse.
      */
 
-    hoxPlayerType playerType = player->GetType();
+    hoxPlayerType playerType = apPlayerInfo->type;
     if ( playerType == hoxPLAYER_TYPE_LOCAL )
     {
         wxLogDebug("%s: Update the core Board's local-color to [%d].", 
@@ -212,10 +211,10 @@ hoxBoard::OnPlayerLeave( wxCommandEvent &event )
 {
     const char* FNAME = "hoxBoard::OnPlayerLeave";
 
-    hoxPlayer* player = wxDynamicCast(event.GetEventObject(), hoxPlayer);
-    wxCHECK_RET(player, "Player cannot be NULL.");
+    hoxPlayerInfo_APtr apPlayerInfo( wxStaticCast(event.GetEventObject(), hoxPlayerInfo) );
+    wxCHECK_RET(apPlayerInfo.get(), "Player cannot be NULL.");
 
-    const wxString playerId = player->GetName();
+    const wxString playerId = apPlayerInfo->id;
 
     if ( playerId == m_redId )     // Check RED
     {
@@ -238,22 +237,22 @@ hoxBoard::OnPlayerScore( wxCommandEvent &event )
 {
     const char* FNAME = "hoxBoard::OnPlayerScore";
 
-    hoxPlayer* player = wxDynamicCast(event.GetEventObject(), hoxPlayer);
-    wxCHECK_RET(player, "Player cannot be NULL.");
+    hoxPlayerInfo_APtr apPlayerInfo( wxStaticCast(event.GetEventObject(), hoxPlayerInfo) );
+    wxCHECK_RET(apPlayerInfo.get(), "Player cannot be NULL.");
 
-    const wxString playerId = player->GetName();
+    const wxString playerId = apPlayerInfo->id;
 
     if ( playerId == m_redId )
     {
-        _SetRedInfo( player );
+        _SetRedInfo( apPlayerInfo.get() );
     } 
     else if ( playerId == m_blackId )
     {
-        _SetBlackInfo( player );
+        _SetBlackInfo( apPlayerInfo.get() );
     } 
 
     /* NOTE: This action "add" can be used as an "update" action. */
-    _AddPlayerToList( playerId, player->GetScore() );
+    _AddPlayerToList( playerId, apPlayerInfo->score );
 }
 
 void 
@@ -295,10 +294,7 @@ hoxBoard::OnDrawRequest( wxCommandEvent &event )
 {
     const char* FNAME = "hoxBoard::OnDrawRequest";
 
-    hoxPlayer* player = wxDynamicCast(event.GetEventObject(), hoxPlayer);
-    wxCHECK_RET(player, "Player cannot be NULL.");
-
-    const wxString playerId = player->GetName();
+    const wxString playerId = event.GetString();
 	const int bPopupRequest = event.GetInt(); // NOTE: force to boolean!
 
     const wxString boardMessage = playerId + " is offering a DRAW."; 
@@ -483,17 +479,16 @@ hoxBoard::Show( bool show /* = true */ )
 }
 
 void 
-hoxBoard::_SetRedInfo( const hoxPlayer* player )
+hoxBoard::_SetRedInfo( const hoxPlayerInfo* playerInfo )
 {
     if ( ! this->IsShown() ) return; // Do nothing if not visible.
 
     wxString info;
 
-    if ( player != NULL )
+    if ( playerInfo != NULL )
     {
-        m_redId = player->GetName();
-        info = wxString::Format("%s (%d)", 
-            player->GetName().c_str(), player->GetScore());
+        m_redId = playerInfo->id;
+        info = wxString::Format("%s (%d)", m_redId.c_str(), playerInfo->score);
     }
     else
     {
@@ -505,17 +500,16 @@ hoxBoard::_SetRedInfo( const hoxPlayer* player )
 }
 
 void 
-hoxBoard::_SetBlackInfo( const hoxPlayer* player )
+hoxBoard::_SetBlackInfo( const hoxPlayerInfo* playerInfo )
 {
     if ( ! this->IsShown() ) return; // Do nothing if not visible.
 
     wxString info;
 
-    if ( player != NULL )
+    if ( playerInfo != NULL )
     {
-        m_blackId = player->GetName();
-        info = wxString::Format("%s (%d)", 
-            player->GetName().c_str(), player->GetScore());
+        m_blackId = playerInfo->id;
+        info = wxString::Format("%s (%d)", m_blackId.c_str(), playerInfo->score);
     }
     else
     {

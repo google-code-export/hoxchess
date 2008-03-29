@@ -157,9 +157,6 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
     hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
     std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
 
-    /* Make a note to 'self' that one request has been serviced. */
-    DecrementOutstandingRequests();
-
     hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
 
     const wxString sType = hoxUtil::RequestTypeToString(response->type);

@@ -677,10 +677,11 @@ hoxTable::_PostBoard_PlayerEvent( wxEventType commandType,
 	if ( m_board == NULL )
 		return;
 
-    wxCommandEvent playerEvent( commandType );
-    playerEvent.SetEventObject( player );
-    playerEvent.SetInt( extraCode );
-    wxPostEvent( m_board , playerEvent );
+    wxCommandEvent event( commandType );
+    hoxPlayerInfo_APtr apPlayerInfo = player->GetPlayerInfo();
+    event.SetEventObject( apPlayerInfo.release() );
+    event.SetInt( extraCode );
+    wxPostEvent( m_board , event );
 }
 
 void 
@@ -725,7 +726,7 @@ hoxTable::_PostBoard_DrawRequestEvent( hoxPlayer* fromPlayer,
 		return;
 
     wxCommandEvent event( hoxEVT_BOARD_DRAW_REQUEST );
-	event.SetEventObject( fromPlayer );
+    event.SetString( fromPlayer->GetName() );
     event.SetInt( (int) bPopupRequest );
     wxPostEvent( m_board, event );
 }
@@ -758,7 +759,8 @@ hoxTable::_PostBoard_ScoreEvent( hoxPlayer*  player ) const
 		return;
 
     wxCommandEvent event( hoxEVT_BOARD_PLAYER_SCORE );
-    event.SetEventObject( player );
+    hoxPlayerInfo_APtr apPlayerInfo = player->GetPlayerInfo();
+    event.SetEventObject( apPlayerInfo.release() );
     wxPostEvent( m_board, event );
 }
 
@@ -927,8 +929,8 @@ hoxTable::_GetBoardPlayer() const
 }
 
 void 
-hoxTable::_AddPlayer( hoxPlayer*    player, 
-                      hoxColor role )
+hoxTable::_AddPlayer( hoxPlayer* player, 
+                      hoxColor   role )
 {
     hoxPlayerList::iterator found_it = 
         std::find( m_players.begin(), m_players.end(), player );

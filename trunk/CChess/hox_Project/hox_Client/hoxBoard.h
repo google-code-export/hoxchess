@@ -39,7 +39,6 @@
 /* Forward declarations */
 class hoxIReferee;
 class hoxTable;
-class hoxPlayer;
 
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_JOIN, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_LEAVE, wxID_ANY)
@@ -146,8 +145,8 @@ public:
     void ToggleViewSide();
 
 private:
-    void _SetRedInfo( const hoxPlayer* player );
-    void _SetBlackInfo( const hoxPlayer* player );
+    void _SetRedInfo( const hoxPlayerInfo* playerInfo );
+    void _SetBlackInfo( const hoxPlayerInfo* playerInfo );
 
     void _CreateBoardPanel();
     void _LayoutBoardPanel( bool viewInverted );

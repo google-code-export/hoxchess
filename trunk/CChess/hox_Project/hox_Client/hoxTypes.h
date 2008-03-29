@@ -40,6 +40,7 @@
 
 /* Forward declarations */
 class hoxPlayer;
+class hoxConnection;
 class hoxTable;
 class wxSocketBase;
 
@@ -48,6 +49,8 @@ class wxSocketBase;
  */
 typedef std::list<hoxPlayer*>  hoxPlayerList;
 typedef std::list<hoxTable*>   hoxTableList; 
+
+typedef std::auto_ptr<hoxConnection> hoxConnection_APtr;
 
 /**
  * Representing a player's role.
@@ -289,19 +292,16 @@ public:
     wxString         content;
     int              flags;
     wxEvtHandler*    sender;
-	void*            eventObject; // TODO: Re-consider this or other members?
 
     hoxResponse() : type( hoxREQUEST_UNKNOWN )
                   , code( hoxRC_UNKNOWN )
                   , flags( hoxRESPONSE_FLAG_NONE )
-                  , sender( NULL )
-	              , eventObject( NULL ) {}
+                  , sender( NULL ) {}
     hoxResponse(hoxRequestType t, wxEvtHandler* s = NULL) 
                   : type( t )
                   , code( hoxRC_UNKNOWN )
                   , flags( hoxRESPONSE_FLAG_NONE )
-                  , sender( s )
-	              , eventObject( NULL ) {}
+                  , sender( s ) {}
 };
 typedef std::auto_ptr<hoxResponse>     hoxResponse_APtr;
 typedef boost::shared_ptr<hoxResponse> hoxResponse_SPtr;
@@ -350,6 +350,30 @@ private:
     hoxRequestList  m_list;   // The list of requests.
     wxMutex         m_mutex;  // Lock
 };
+
+// ----------------------------------------------------------------------------
+// hoxPlayerInfo
+// ----------------------------------------------------------------------------
+
+class hoxPlayerInfo : public wxObject
+{
+public:
+    wxString       id;   // The player's ID.
+
+    hoxPlayerType  type;       
+            /* Is it a Local, Network,... player? */
+
+    int            score;  // The player's Score.
+
+    hoxPlayerInfo( const wxString& i,
+                   hoxPlayerType   t,
+                   int             s = 1500 )
+            : id(i), type(t), score(s) {}
+    
+    hoxPlayerInfo() 
+            : id(""), type(hoxPLAYER_TYPE_DUMMY), score(1500) {}
+};
+typedef std::auto_ptr<hoxPlayerInfo> hoxPlayerInfo_APtr;
 
 
 #endif /* __INCLUDED_HOX_TYPES_H_ */

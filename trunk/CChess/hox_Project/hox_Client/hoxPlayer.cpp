@@ -58,11 +58,8 @@ hoxPlayer::hoxPlayer()
 hoxPlayer::hoxPlayer( const wxString& name,
                       hoxPlayerType   type,
                       int             score /* = 1500 */)
-            : m_name( name )
-            , m_type( type )
-            , m_score( score )
-            , m_connection( NULL )
-            , m_nOutstandingRequests( 0 )
+            : m_info( name, type, score )
+            , m_site( NULL )
 			, m_siteClosing( false )
 { 
 }
@@ -72,21 +69,10 @@ hoxPlayer::~hoxPlayer()
     const char* FNAME = "hoxPlayer::~hoxPlayer";
     wxLogDebug("%s: ENTER. (%s)", FNAME, this->GetName().c_str());
 
-    if ( m_connection == NULL )
-        return;
-
-    if ( m_nOutstandingRequests > 0 )
+    if ( m_connection.get() != NULL )
     {
-        wxLogDebug("%s: *** WARN *** There are still [%d] outstanding requests waiting to be serviced.", 
-            FNAME, m_nOutstandingRequests);
+        this->ShutdownConnection();
     }
-
-    this->ShutdownConnection();
-
-    /* Deleting the connection itself.
-     */
-    wxLogDebug("%s: Deleting connection...", FNAME);
-    delete m_connection;
 }
 
 void               
@@ -112,7 +98,7 @@ hoxPlayer::RemoveRole( hoxRole role )
     wxASSERT( this->HasRole( role ) );
     m_roles.remove( role );
 
-    if ( m_siteClosing && /*m_nOutstandingRequests == 0 &&*/ m_roles.empty() )
+    if ( m_siteClosing && m_roles.empty() )
     {
 		_PostSite_ShutdownReady();
     }
@@ -262,26 +248,22 @@ hoxPlayer::LeaveAllTables()
     return bErrorFound ? hoxRC_ERR : hoxRC_OK;
 }
 
-bool 
+void 
 hoxPlayer::ResetConnection()
 { 
     const char* FNAME = "hoxPlayer::ResetConnection";
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    if ( m_connection != NULL )
+    if ( m_connection.get() != NULL )
     {
         wxLogDebug("%s: Request the Connection thread to be shutdowned...", FNAME);
         hoxRequest* request = new hoxRequest( hoxREQUEST_SHUTDOWN, NULL );
         m_connection->AddRequest( request );
 
         m_connection->Shutdown();
-
-        delete m_connection; 
-        m_connection = NULL; 
+        m_connection.reset();
     }
-
-	return true;  // everything is fine.
 }
 
 void 
@@ -295,9 +277,9 @@ hoxPlayer::OnRequest_FromTable( hoxRequest* request )
 {
     const char* FNAME = "hoxPlayer::OnRequest_FromTable";
 
-	std::auto_ptr<hoxRequest> apRequest( request );
+	hoxRequest_APtr apRequest( request );
 
-    if ( m_connection == NULL )
+    if ( m_connection.get() == NULL )
     {
         wxLogDebug("%s: No connection. Fine. Ignore this Request.", FNAME);
         return;
@@ -316,18 +298,18 @@ hoxPlayer::OnClosing_FromSite()
 
     m_siteClosing = true; // *** Turn it ON!
 
-    if ( /*m_nOutstandingRequests == 0 &&*/ m_roles.empty() )
+    if ( m_roles.empty() )
     {
 		_PostSite_ShutdownReady();
     }
 }
 
 bool 
-hoxPlayer::SetConnection( hoxConnection* connection )
+hoxPlayer::SetConnection( hoxConnection_APtr connection )
 {
     const char* FNAME = "hoxPlayer::SetConnection";
 
-    if ( m_connection != NULL )
+    if ( m_connection.get() != NULL )
     {
         wxLogDebug("%s: Connection already set to this Player [%s]. Fine. END.", 
             FNAME, GetName().c_str());
@@ -891,7 +873,7 @@ hoxPlayer::StartConnection()
 {
     const char* FNAME = "hoxPlayer::StartConnection";
 
-    wxCHECK_RET( m_connection, "The connection must have been set." );
+    wxCHECK_RET( m_connection.get() != NULL, "The connection must have been set." );
 
     m_connection->Start();
 }
@@ -912,53 +894,20 @@ hoxPlayer::AddRequestToConnection( hoxRequest* request )
 { 
     const char* FNAME = "hoxPlayer::AddRequestToConnection";
 
-    if ( m_connection == NULL )
+    if ( m_connection.get() == NULL )
     {
         wxLogWarning("%s: No connection set. Deleting the request.", FNAME);
         delete request;
         return;
     }
 
-    if ( m_connection->AddRequest( request ) )  // success?
-	{
-		wxCHECK_RET(request, "The request cannot be NULL.");
-		if ( request->sender != NULL )
-		{
-			++m_nOutstandingRequests;
-			wxLogDebug("%s: After incremented, the number of outstanding requests = [%d].",
-				FNAME, m_nOutstandingRequests);
-		}
-	}
+    m_connection->AddRequest( request );
 
     if ( request->type == hoxREQUEST_SHUTDOWN )
     {
         wxLogDebug("%s: Request the Connection thread to be shutdowned...", FNAME);
         m_connection->Shutdown();
     }
-}
-
-void 
-hoxPlayer::DecrementOutstandingRequests() 
-{ 
-    const char* FNAME = "hoxPlayer::DecrementOutstandingRequests";
-
-    if ( m_nOutstandingRequests == 0 )
-    {
-        wxLogDebug("%s: * INFO * No more outstanding requests to be decremented.", FNAME);
-        return;
-    }
-
-    --m_nOutstandingRequests; 
-    wxLogDebug("%s: After decremented, the number of outstanding requests = [%d].",
-        FNAME, m_nOutstandingRequests);
-
-    if ( m_nOutstandingRequests == 0 )
-    {
-		if ( m_siteClosing && m_roles.empty() )
-		{
-			_PostSite_ShutdownReady();
-		}
-	}
 }
 
 void 

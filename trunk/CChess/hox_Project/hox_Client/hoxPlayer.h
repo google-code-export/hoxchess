@@ -27,14 +27,11 @@
 #ifndef __INCLUDED_HOX_PLAYER_H_
 #define __INCLUDED_HOX_PLAYER_H_
 
-#include <wx/wx.h>
-#include "hoxEnums.h"
 #include "hoxTypes.h"
 
 /* Forward declarations */
 class hoxSite;
 class hoxTable;
-class hoxConnection;
 
 // ----------------------------------------------------------------------------
 // The Player class
@@ -75,10 +72,8 @@ public:
      * Accessor API
      ***************************/
 
-    wxString      GetName() const               { return m_name; }
-    void          SetName(const wxString& name) { m_name = name; }
-
-    hoxPlayerType GetType() const { return m_type; }
+    wxString      GetName() const { return m_info.id; }
+    hoxPlayerType GetType() const { return m_info.type; }
 
     const hoxRoleList& GetRoles() const { return m_roles; }
     void               AddRole( hoxRole role );
@@ -89,8 +84,8 @@ public:
 	bool               FindRoleAtTable( const wxString& tableId, 
 		                                hoxColor&  assignedColor ) const;
 
-    int                GetScore() const    { return m_score; }
-    void               SetScore(int score) { m_score = score; }
+    int                GetScore() const    { return m_info.score; }
+    void               SetScore(int score) { m_info.score = score; }
 
     wxString GetPassword() const                   { return m_password; }
     void     SetPassword(const wxString& password) { m_password = password; }
@@ -98,6 +93,27 @@ public:
     void     SetSite(hoxSite* site) { m_site = site; }
     hoxSite* GetSite() const        { return m_site; }
     
+    hoxPlayerInfo_APtr GetPlayerInfo() const 
+        { return hoxPlayerInfo_APtr( new hoxPlayerInfo(m_info) ); }
+
+    /**
+     * Set the connection to the "outside" world.
+     *
+     * @return true  - If this connection can be set.
+     *         false - If some other existing connection has been set.
+     */
+    bool SetConnection( hoxConnection_APtr connection );
+
+    /**
+     * Return the connection.
+     */
+    hoxConnection* GetConnection() const { return m_connection.get(); }
+  
+    /**
+     * Reset connection to NULL.    
+     */
+    void ResetConnection();
+
     /***************************
      * Basic action API
      ***************************/
@@ -122,24 +138,6 @@ public:
     virtual hoxResult LeaveTable( hoxTable* table );
     virtual hoxResult LeaveAllTables();
 
-    /**
-     * Set the connection to the "outside" world.
-     *
-     * @return true  - If this connection can be set.
-     *         false - If some other existing connection has been set.
-     */
-    virtual bool SetConnection( hoxConnection* connection );
-
-    /**
-     * Return the connection.
-     */
-    virtual hoxConnection* GetConnection() const { return m_connection; }
-  
-    /**
-     * Reset connection to NULL.    
-     */
-    virtual bool ResetConnection();
-
 protected:
     /**
      * Handle the incoming data from the connection.
@@ -159,15 +157,16 @@ protected:
 
     virtual void AddRequestToConnection( hoxRequest* request );
 
-    void DecrementOutstandingRequests();
-
 private:
 	void _PostSite_ShutdownReady();
 
 private:
+    hoxPlayerInfo   m_info;   
+            /* Basic player's info (ID, Type, Score,...) */
+
     hoxSite*        m_site;
 
-    hoxConnection*  m_connection;
+    hoxConnection_APtr  m_connection;
             /* The connection to "outside" world.
              * For Dummy player, it will be NULL.
              * NOTE: This variable is placed here even though some players
@@ -176,19 +175,11 @@ private:
              *       and design.
              */
 
-    wxString       m_name;   // The player's name.
-
-    hoxPlayerType  m_type;       
-            /* Is it a Local, Network,... player? */
-
     hoxRoleList    m_roles;
             /* Which tables, which side (color) I am playing (RED or BLACK)?
              */
 
-    int            m_score;  // The player's Score.
 	wxString       m_password; // The player's login-password.
-
-    int            m_nOutstandingRequests;
 
 	bool           m_siteClosing;    // The site is being closed?
 

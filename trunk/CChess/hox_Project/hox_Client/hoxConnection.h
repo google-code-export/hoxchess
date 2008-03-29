@@ -54,7 +54,7 @@ public:
     virtual bool AddRequest( hoxRequest* request ) = 0;
     virtual bool IsConnected() const = 0;
 
-    // -----------
+protected:
     hoxPlayer* GetPlayer() const  { return m_player; }
 
 private:
