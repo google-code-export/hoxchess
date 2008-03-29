@@ -58,14 +58,12 @@ public:
      * Table-event handlers
      *******************************/
 
-    virtual void OnRequest_FromTable( hoxRequest* request );
+    virtual void OnRequest_FromTable( hoxRequest_APtr apRequest );
 
     /*******************************
      * Socket-event handlers
      *******************************/
 
-    void OnIncomingNetworkData( wxSocketEvent& event );
-    
     void OnConnectionResponse_PlayerData( wxCommandEvent& event ); 
     void OnConnectionResponse( wxCommandEvent& event ); 
 

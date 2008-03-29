@@ -115,8 +115,8 @@ hoxServer::CloseServer()
 	if ( this->GetThread()->IsRunning() )
 	{
 		wxLogDebug("%s: Request the Server thread to be shutdowned...", FNAME);
-		hoxRequest* request = new hoxRequest( hoxREQUEST_SHUTDOWN, NULL );
-		this->AddRequest( request );
+		hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_SHUTDOWN ) );
+		this->AddRequest( apRequest );
 		wxThread::ExitCode exitCode = this->GetThread()->Wait();
 		wxLogDebug("%s: The Server thread was shutdowned with exit-code = [%d].", FNAME, exitCode);
 	}
@@ -252,7 +252,7 @@ hoxServer::Entry()
 }
 
 bool 
-hoxServer::AddRequest( hoxRequest* request )
+hoxServer::AddRequest( hoxRequest_APtr apRequest )
 {
     const char* FNAME = "hoxServer::AddRequest";
     //wxLogDebug("%s: ENTER. Trying to obtain the lock...", FNAME);
@@ -261,12 +261,11 @@ hoxServer::AddRequest( hoxRequest* request )
     if ( m_shutdownRequested )
     {
         wxLogDebug("%s: *** WARN *** Deny request [%s]. The thread is shutdowning.", 
-            FNAME, hoxUtil::RequestTypeToString(request->type).c_str());
-        delete request;
+            FNAME, hoxUtil::RequestTypeToString(apRequest->type).c_str());
         return false;
     }
 
-    m_requests.push_back( request );
+    m_requests.push_back( apRequest.release() );
     m_semRequests.Post();
     //wxLogDebug("%s: END.", FNAME);
 	return true;
@@ -299,7 +298,7 @@ hoxServer::_HandleRequest( hoxRequest* request )
 {
     const char* FNAME = "hoxServer::_HandleRequest";
     hoxResult    result = hoxRC_ERR;
-    std::auto_ptr<hoxResponse> response( new hoxResponse(request->type) );
+    hoxResponse_APtr response( new hoxResponse(request->type) );
 
     wxLogDebug("%s: ENTER.", FNAME);
 

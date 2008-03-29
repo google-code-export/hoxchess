@@ -133,7 +133,7 @@ hoxThreadConnection::Entry()
 }
 
 bool
-hoxThreadConnection::AddRequest( hoxRequest* request )
+hoxThreadConnection::AddRequest( hoxRequest_APtr apRequest )
 {
     const char* FNAME = "hoxThreadConnection::AddRequest";
 
@@ -143,12 +143,11 @@ hoxThreadConnection::AddRequest( hoxRequest* request )
     if ( m_shutdownRequested )
     {
         wxLogDebug("%s: *** WARN*** Deny request [%s]. The thread is shutdowning.", 
-            FNAME, hoxUtil::RequestTypeToString(request->type).c_str());
-        delete request;
+            FNAME, hoxUtil::RequestTypeToString(apRequest->type).c_str());
         return false;
     }
 
-    m_requests.push_back( request );
+    m_requests.push_back( apRequest.release() );
     m_semRequests.Post();
     //wxLogDebug("%s END.", FNAME);
 	return true;

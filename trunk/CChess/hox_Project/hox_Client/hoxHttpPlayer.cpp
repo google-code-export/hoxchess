@@ -67,14 +67,14 @@ hoxHttpPlayer::~hoxHttpPlayer()
 }
 
 void 
-hoxHttpPlayer::AddRequestToConnection( hoxRequest* request )
+hoxHttpPlayer::AddRequestToConnection( hoxRequest_APtr apRequest )
 { 
     const char* FNAME = "hoxHttpPlayer::AddRequestToConnection";
 
-	wxCHECK_RET(request != NULL, "Request cannot be NULL.");
+	wxCHECK_RET(apRequest.get() != NULL, "Request cannot be NULL.");
 
-	request->parameters["sid"] = m_sessionId;
-	this->hoxPlayer::AddRequestToConnection( request );
+	apRequest->parameters["sid"] = m_sessionId;
+	this->hoxPlayer::AddRequestToConnection( apRequest );
 }
 
 void 
@@ -83,9 +83,9 @@ hoxHttpPlayer::OnTimer( wxTimerEvent& event )
     const char* FNAME = "hoxHttpPlayer::OnTimer";
     wxLogDebug("%s: ENTER.", FNAME);
 
-    hoxRequest* request = new hoxRequest( hoxREQUEST_POLL, this );
-	request->parameters["pid"] = this->GetName();
-    this->AddRequestToConnection( request );
+    hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_POLL, this ) );
+	apRequest->parameters["pid"] = this->GetName();
+    this->AddRequestToConnection( apRequest );
 }
 
 void 

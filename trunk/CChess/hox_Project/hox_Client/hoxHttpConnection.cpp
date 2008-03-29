@@ -61,8 +61,8 @@ hoxHttpConnection::HandleRequest( hoxRequest* request )
 {
     const char* FNAME = "hoxHttpConnection::_HandleRequest";
     hoxResult    result = hoxRC_ERR;
-    std::auto_ptr<hoxResponse> response( new hoxResponse(request->type, 
-                                                         request->sender) );
+    hoxResponse_APtr response( new hoxResponse(request->type, 
+                                               request->sender) );
 
     switch( request->type )
     {

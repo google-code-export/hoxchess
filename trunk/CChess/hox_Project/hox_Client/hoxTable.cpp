@@ -59,7 +59,8 @@ hoxTable::~hoxTable()
     const char* FNAME = "hoxTable::~hoxTable";
     wxLogDebug("%s: ENTER.", FNAME);
 
-    delete m_board;
+    _CloseBoard();   // Close GUI Board.
+
     delete m_referee;
 }
 
@@ -263,13 +264,13 @@ hoxTable::OnJoinCommand_FromBoard()
 	else if ( m_blackPlayer == NULL ) requestColor = hoxCOLOR_BLACK;
     else                              requestColor = hoxCOLOR_NONE;
 
-	hoxRequest* pRequest = new hoxRequest( hoxREQUEST_JOIN );
-	pRequest->parameters["tid"] = m_id;
-	pRequest->parameters["pid"] = boardPlayer->GetName();
-	pRequest->parameters["color"] = hoxUtil::ColorToString( requestColor );
-	pRequest->parameters["joined"] = "1";
+	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_JOIN ) );
+	apRequest->parameters["tid"] = m_id;
+	apRequest->parameters["pid"] = boardPlayer->GetName();
+	apRequest->parameters["color"] = hoxUtil::ColorToString( requestColor );
+	apRequest->parameters["joined"] = "1";
 
-    boardPlayer->OnRequest_FromTable( pRequest );
+    boardPlayer->OnRequest_FromTable( apRequest );
 }
 
 void
@@ -295,11 +296,11 @@ hoxTable::OnResignCommand_FromBoard()
 		return;
 	}
 
-	hoxRequest* pRequest = new hoxRequest( hoxREQUEST_RESIGN );
-	pRequest->parameters["tid"] = m_id;
-	pRequest->parameters["pid"] = boardPlayer->GetName();
+	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_RESIGN ) );
+	apRequest->parameters["tid"] = m_id;
+	apRequest->parameters["pid"] = boardPlayer->GetName();
 
-    boardPlayer->OnRequest_FromTable( pRequest );
+    boardPlayer->OnRequest_FromTable( apRequest );
 }
 
 void
@@ -325,12 +326,12 @@ hoxTable::OnDrawCommand_FromBoard()
 		return;
 	}
 
-	hoxRequest* pRequest = new hoxRequest( hoxREQUEST_DRAW );
-	pRequest->parameters["tid"] = m_id;
-	pRequest->parameters["pid"] = boardPlayer->GetName();
-	pRequest->parameters["draw_response"] = "";
+	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_DRAW ) );
+	apRequest->parameters["tid"] = m_id;
+	apRequest->parameters["pid"] = boardPlayer->GetName();
+	apRequest->parameters["draw_response"] = "";
 
-    boardPlayer->OnRequest_FromTable( pRequest );
+    boardPlayer->OnRequest_FromTable( apRequest );
 }
 
 void
@@ -356,11 +357,11 @@ hoxTable::OnResetCommand_FromBoard()
 		return;
 	}
 
-	hoxRequest* pRequest = new hoxRequest( hoxREQUEST_RESET );
-	pRequest->parameters["tid"] = m_id;
-	pRequest->parameters["pid"] = boardPlayer->GetName();
+	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_RESET ) );
+	apRequest->parameters["tid"] = m_id;
+	apRequest->parameters["pid"] = boardPlayer->GetName();
 
-    boardPlayer->OnRequest_FromTable( pRequest );
+    boardPlayer->OnRequest_FromTable( apRequest );
 }
 
 void 
@@ -386,12 +387,12 @@ hoxTable::OnDrawResponse_FromBoard( bool bAcceptDraw )
 		return;
 	}
 
-	hoxRequest* pRequest = new hoxRequest( hoxREQUEST_DRAW );
-	pRequest->parameters["tid"] = m_id;
-	pRequest->parameters["pid"] = boardPlayer->GetName();
-	pRequest->parameters["draw_response"] = (bAcceptDraw ? "1" : "0");
+	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_DRAW ) );
+	apRequest->parameters["tid"] = m_id;
+	apRequest->parameters["pid"] = boardPlayer->GetName();
+	apRequest->parameters["draw_response"] = (bAcceptDraw ? "1" : "0");
 
-    boardPlayer->OnRequest_FromTable( pRequest );
+    boardPlayer->OnRequest_FromTable( apRequest );
 }
 
 void 
@@ -536,8 +537,7 @@ hoxTable::OnClose_FromSystem()
         _RemovePlayer( player );
     }
 
-    delete m_board;
-    m_board = NULL;
+    _CloseBoard();   // Close GUI Board.
 
     delete m_referee;
     m_referee = NULL;
@@ -556,16 +556,25 @@ hoxTable::ToggleViewSide()
     m_board->ToggleViewSide();
 }
 
-void 
-hoxTable::_PostPlayer_ActionEvent( hoxPlayer*  player,
-								   wxEventType commandType,
-								   hoxCommand* pCommand ) const
+void
+hoxTable::_CloseBoard()
 {
-    wxCHECK_RET( player, "The player is NULL." );
+    const char* FNAME = "hoxTable::_CloseBoard";
 
-    wxCommandEvent event( commandType );
-	event.SetEventObject( pCommand );
-    wxPostEvent( player, event );
+    if ( m_board != NULL )
+    {
+        wxLogDebug("%s: ENTER. Table-Id = [%s].", FNAME, m_id.c_str());
+        
+        m_board->Close();
+            /* NOTE: This has to be used instead of "delete" or "Destroy()"
+             *       function to avoid memory leaks.
+             *       For example, "LEAVE" event would not be processed...
+             *
+             * See http://docs.wxwidgets.org/stable/wx_windowdeletionoverview.html#windowdeletionoverview
+             */
+        
+        m_board = NULL;
+    }
 }
 
 void 
@@ -592,11 +601,11 @@ hoxTable::_PostPlayer_LeaveEvent( hoxPlayer* player,
     wxLogDebug("%s: Informing player [%s] about [%s] just left...", 
         FNAME, player->GetName().c_str(), leavePlayer->GetName().c_str());
 
-	hoxRequest* pRequest = new hoxRequest( hoxREQUEST_LEAVE );
-	pRequest->parameters["tid"] = m_id;
-	pRequest->parameters["pid"] = leavePlayer->GetName();
+	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_LEAVE ) );
+	apRequest->parameters["tid"] = m_id;
+	apRequest->parameters["pid"] = leavePlayer->GetName();
 
-    player->OnRequest_FromTable( pRequest );
+    player->OnRequest_FromTable( apRequest );
 }
 
 void 
@@ -612,12 +621,12 @@ hoxTable::_PostPlayer_JoinEvent( hoxPlayer*    player,
     wxLogDebug("%s: Informing player [%s] that a new Player [%s] just joined as [%d]...", 
         FNAME, player->GetName().c_str(), newPlayer->GetName().c_str(), newColor);
 
-	hoxRequest* pRequest = new hoxRequest( hoxREQUEST_E_JOIN );
-	pRequest->parameters["tid"] = m_id;
-	pRequest->parameters["pid"] = newPlayer->GetName();
-	pRequest->parameters["color"] = wxString::Format("%d", newColor);
+	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_E_JOIN ) );
+	apRequest->parameters["tid"] = m_id;
+	apRequest->parameters["pid"] = newPlayer->GetName();
+	apRequest->parameters["color"] = wxString::Format("%d", newColor);
 
-    player->OnRequest_FromTable( pRequest );
+    player->OnRequest_FromTable( apRequest );
 }
 
 void 
@@ -638,14 +647,14 @@ hoxTable::_PostPlayer_MoveEvent( hoxPlayer*         player,
     wxLogDebug("%s: Informing player [%s] that [%s] just made a new Move [%s]...", 
         FNAME, player->GetName().c_str(), movePlayer->GetName().c_str(), moveStr.c_str());
 	
-	hoxRequest* pRequest = new hoxRequest( hoxREQUEST_MOVE );
-	pRequest->parameters["tid"] = m_id;
-	pRequest->parameters["pid"] = movePlayer->GetName();
-	pRequest->parameters["move"] = moveStr;
-	pRequest->parameters["status"] = statusStr;
-	pRequest->parameters["game_time"] = wxString::Format("%d", playerTime.nGame);
+	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_MOVE ) );
+	apRequest->parameters["tid"] = m_id;
+	apRequest->parameters["pid"] = movePlayer->GetName();
+	apRequest->parameters["move"] = moveStr;
+	apRequest->parameters["status"] = statusStr;
+	apRequest->parameters["game_time"] = wxString::Format("%d", playerTime.nGame);
 
-    player->OnRequest_FromTable( pRequest );
+    player->OnRequest_FromTable( apRequest );
 }
 
 void 
@@ -661,12 +670,12 @@ hoxTable::_PostPlayer_MessageEvent( hoxPlayer*      player,
     wxLogDebug("%s: Informing player [%s] that [%s] just sent a Message [%s]...", 
         FNAME, player->GetName().c_str(), msgPlayer->GetName().c_str(), message.c_str());
 
-	hoxRequest* pRequest = new hoxRequest( hoxREQUEST_MSG );
-	pRequest->parameters["tid"] = m_id;
-	pRequest->parameters["pid"] = msgPlayer->GetName();
-	pRequest->parameters["msg"] = message;
+	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_MSG ) );
+	apRequest->parameters["tid"] = m_id;
+	apRequest->parameters["pid"] = msgPlayer->GetName();
+	apRequest->parameters["msg"] = message;
     
-    player->OnRequest_FromTable( pRequest );
+    player->OnRequest_FromTable( apRequest );
 }
 
 void 
@@ -678,7 +687,7 @@ hoxTable::_PostBoard_PlayerEvent( wxEventType commandType,
 		return;
 
     wxCommandEvent event( commandType );
-    hoxPlayerInfo_APtr apPlayerInfo = player->GetPlayerInfo();
+    hoxPlayerInfo_APtr apPlayerInfo( player->GetPlayerInfo() );
     event.SetEventObject( apPlayerInfo.release() );
     event.SetInt( extraCode );
     wxPostEvent( m_board , event );
@@ -759,7 +768,7 @@ hoxTable::_PostBoard_ScoreEvent( hoxPlayer*  player ) const
 		return;
 
     wxCommandEvent event( hoxEVT_BOARD_PLAYER_SCORE );
-    hoxPlayerInfo_APtr apPlayerInfo = player->GetPlayerInfo();
+    hoxPlayerInfo_APtr apPlayerInfo( player->GetPlayerInfo() );
     event.SetEventObject( apPlayerInfo.release() );
     wxPostEvent( m_board, event );
 }

@@ -67,7 +67,7 @@ hoxRemoteConnection::Shutdown()
 }
 
 bool 
-hoxRemoteConnection::AddRequest( hoxRequest* request )
+hoxRemoteConnection::AddRequest( hoxRequest_APtr apRequest )
 {
     const char* FNAME = "hoxRemoteConnection::AddRequest";
     wxLogDebug("%s: ENTER.", FNAME);
@@ -75,32 +75,30 @@ hoxRemoteConnection::AddRequest( hoxRequest* request )
     wxCHECK_MSG( m_server, false, "The Server component must have been set." );
 
     /* This type of connection does not need to handle SHUTDOWN. */
-    if ( request->type == hoxREQUEST_SHUTDOWN )
+    if ( apRequest->type == hoxREQUEST_SHUTDOWN )
     {
         wxLogDebug("%s: Ignore this shutdown request.", FNAME);
-        delete request;
         return false;
     }
 
 	if ( m_pCBSock == NULL )
 	{
         wxLogDebug("%s: *** INFO *** The Callback socket is not set. Ignore this request.", FNAME);
-        delete request;
         return false;
 	}
 
     // Perform sanity check if possible.
-    if ( request->socket != NULL )
+    if ( apRequest->socket != NULL )
     {
-        wxCHECK_MSG(m_pCBSock == request->socket, false, "The sockets must match.");
+        wxCHECK_MSG(m_pCBSock == apRequest->socket, false, "The sockets must match.");
     }
 
     // *************************
     // Simply forward to the server to handle...
     // *************************
 
-    request->socket = m_pCBSock;
-    return m_server->AddRequest( request );
+    apRequest->socket = m_pCBSock;
+    return m_server->AddRequest( apRequest );
 }
 
 hoxResult 

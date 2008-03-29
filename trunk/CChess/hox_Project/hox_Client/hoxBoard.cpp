@@ -106,6 +106,8 @@ hoxBoard::hoxBoard( wxWindow*       parent,
         , m_status( hoxGAME_STATUS_OPEN )
 		, m_timer( NULL )
 {
+    const char* FNAME = "hoxBoard::hoxBoard";
+    wxLogDebug("%s: ENTER.", FNAME);
     wxCHECK_RET( m_referee != NULL, "A Referee must be set." );
 
     /* Create the core board. */
@@ -119,6 +121,9 @@ hoxBoard::hoxBoard( wxWindow*       parent,
 
 hoxBoard::~hoxBoard()
 {
+    const char* FNAME = "hoxBoard::~hoxBoard";
+    wxLogDebug("%s: ENTER.", FNAME);
+
     if ( m_timer != NULL )
     {
         if ( m_timer->IsRunning() )
@@ -160,7 +165,7 @@ hoxBoard::OnPlayerJoin( wxCommandEvent &event )
 {
     const char* FNAME = "hoxBoard::OnPlayerJoin";
 
-    hoxPlayerInfo_APtr apPlayerInfo( wxStaticCast(event.GetEventObject(), hoxPlayerInfo) );
+    hoxPlayerInfo_APtr apPlayerInfo( wxDynamicCast(event.GetEventObject(), hoxPlayerInfo) );
     wxCHECK_RET(apPlayerInfo.get(), "Player cannot be NULL.");
 
     const wxString playerId = apPlayerInfo->id;
@@ -209,9 +214,7 @@ hoxBoard::OnPlayerJoin( wxCommandEvent &event )
 void 
 hoxBoard::OnPlayerLeave( wxCommandEvent &event )
 {
-    const char* FNAME = "hoxBoard::OnPlayerLeave";
-
-    hoxPlayerInfo_APtr apPlayerInfo( wxStaticCast(event.GetEventObject(), hoxPlayerInfo) );
+    hoxPlayerInfo_APtr apPlayerInfo( wxDynamicCast(event.GetEventObject(), hoxPlayerInfo) );
     wxCHECK_RET(apPlayerInfo.get(), "Player cannot be NULL.");
 
     const wxString playerId = apPlayerInfo->id;
@@ -237,7 +240,7 @@ hoxBoard::OnPlayerScore( wxCommandEvent &event )
 {
     const char* FNAME = "hoxBoard::OnPlayerScore";
 
-    hoxPlayerInfo_APtr apPlayerInfo( wxStaticCast(event.GetEventObject(), hoxPlayerInfo) );
+    hoxPlayerInfo_APtr apPlayerInfo( wxDynamicCast(event.GetEventObject(), hoxPlayerInfo) );
     wxCHECK_RET(apPlayerInfo.get(), "Player cannot be NULL.");
 
     const wxString playerId = apPlayerInfo->id;

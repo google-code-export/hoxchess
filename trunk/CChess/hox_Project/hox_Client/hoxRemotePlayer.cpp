@@ -64,14 +64,14 @@ hoxRemotePlayer::OnIncomingNetworkData( wxSocketEvent& event )
     const char* FNAME = "hoxRemotePlayer::OnIncomingNetworkData";
     wxLogDebug("%s: ENTER.", FNAME);
 
-    hoxRequest* request = new hoxRequest( hoxREQUEST_PLAYER_DATA, this );
-    request->socket      = event.GetSocket();
+    hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_PLAYER_DATA, this ) );
+    apRequest->socket      = event.GetSocket();
         /* Set the socket here so that the connection can perform 
          * sanity check to make sure the socket matches.
          */
 
-    request->socketEvent = event.GetSocketEvent(); // TODO: Not consistent???
-    this->AddRequestToConnection( request );
+    apRequest->socketEvent = event.GetSocketEvent(); // TODO: Not consistent???
+    this->AddRequestToConnection( apRequest );
 }
 
 void 

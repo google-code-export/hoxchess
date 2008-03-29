@@ -269,12 +269,13 @@ public:
 
 private:
     /**
-     * Post (inform) a player about the fact that a command button
-     * has been pressed.
+     * Close the GUI Board.
+     *
+     * @note This function is required instead of calling "delete" to
+     *       avoid memory leak issues.
+     *
      */
-    void _PostPlayer_ActionEvent( hoxPlayer*  player,
-		                          wxEventType commandType,
-								  hoxCommand* pCommand ) const;
+    void _CloseBoard();
 
     /**
      * Post (inform) a player about the fact that this table is 

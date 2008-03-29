@@ -602,7 +602,6 @@ hoxNetworkAPI::WriteLine( wxSocketBase*   sock,
     result = hoxRC_OK;
 
 exit_label:
-    wxLogDebug("%s: END.", FNAME);
     return result;
 }
 
@@ -613,8 +612,6 @@ hoxNetworkAPI::WriteMsg( wxSocketBase*   sock,
     const char* FNAME = "hoxNetworkAPI::WriteMsg";
     hoxResult      result = hoxRC_ERR;
     wxUint32       nWrite;
-
-    //wxLogDebug("%s: ENTER. Message = [%s].", FNAME, message.c_str());
 
     nWrite = (wxUint32) message.size();
     sock->WriteMsg( message, nWrite );
@@ -628,7 +625,6 @@ hoxNetworkAPI::WriteMsg( wxSocketBase*   sock,
     result = hoxRC_OK;
 
 exit_label:
-    wxLogDebug("%s: END.", FNAME);
     return result;
 }
 

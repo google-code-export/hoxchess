@@ -63,7 +63,7 @@ public:
      * Event-handle API
      ***************************/
 
-	virtual void OnRequest_FromTable( hoxRequest* request );
+	virtual void OnRequest_FromTable( hoxRequest_APtr apRequest );
 
     virtual void OnClose_FromTable( const wxString& tableId );
 	virtual void OnClosing_FromSite();
@@ -155,7 +155,7 @@ protected:
     virtual void StartConnection();
     virtual void ShutdownConnection();
 
-    virtual void AddRequestToConnection( hoxRequest* request );
+    virtual void AddRequestToConnection( hoxRequest_APtr apRequest );
 
 private:
 	void _PostSite_ShutdownReady();
