@@ -90,11 +90,11 @@ END_EVENT_TABLE()
 // hoxBoard
 // ----------------------------------------------------------------------------
 
-hoxBoard::hoxBoard( wxWindow*       parent,
-                    const wxString& piecesPath,
-                    hoxIReferee*    referee,
-                    const wxPoint&  pos  /* = wxDefaultPosition */, 
-                    const wxSize&   size /* = wxDefaultSize */)
+hoxBoard::hoxBoard( wxWindow*        parent,
+                    const wxString&  piecesPath,
+                    hoxIReferee_SPtr referee,
+                    const wxPoint&   pos  /* = wxDefaultPosition */, 
+                    const wxSize&    size /* = wxDefaultSize */)
         : wxPanel( parent, 
                    wxID_ANY, 
                    pos, 
@@ -108,7 +108,7 @@ hoxBoard::hoxBoard( wxWindow*       parent,
 {
     const char* FNAME = "hoxBoard::hoxBoard";
     wxLogDebug("%s: ENTER.", FNAME);
-    wxCHECK_RET( m_referee != NULL, "A Referee must be set." );
+    wxCHECK_RET( m_referee.get() != NULL, "A Referee must be set." );
 
     /* Create the core board. */
     m_coreBoard = new hoxCoreBoard( this, m_referee );

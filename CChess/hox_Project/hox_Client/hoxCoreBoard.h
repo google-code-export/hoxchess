@@ -72,10 +72,10 @@ public:
 
 public:
     hoxCoreBoard(); // Dummy default constructor required for RTTI info.
-    hoxCoreBoard( wxWindow*      parent,
-                  hoxIReferee*   referee,
-                  const wxPoint& pos = wxDefaultPosition, 
-                  const wxSize&  size = wxDefaultSize );
+    hoxCoreBoard( wxWindow*        parent,
+                  hoxIReferee_SPtr referee,
+                  const wxPoint&   pos = wxDefaultPosition, 
+                  const wxSize&    size = wxDefaultSize );
     virtual ~hoxCoreBoard();
 
     /*********************************
@@ -238,9 +238,9 @@ private:
     wxCoord         m_cellS;    // The size of each cell.
     bool            m_bViewInverted; // true if Black is at the bottom
 
-    hoxPieceList    m_pieces;  // List of all Pieces
-    hoxIReferee*    m_referee; // The Referee of the game.
-    BoardOwner*     m_owner;   // This Board's owner.
+    hoxPieceList     m_pieces;  // List of all Pieces
+    hoxIReferee_SPtr m_referee; // The Referee of the game.
+    BoardOwner*      m_owner;   // This Board's owner.
 
     hoxColor   m_localColor;
             /* The color (player-role) of the "local" player. */

@@ -48,7 +48,7 @@ hoxTable*
 hoxTableMgr::CreateTable( const wxString& tableId )
 {
     /* Create a Referee */
-    hoxIReferee* referee = new hoxReferee();
+    hoxIReferee_SPtr referee( new hoxReferee() );
 
     /* Create a Table (with the referee).
      *

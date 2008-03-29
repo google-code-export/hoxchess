@@ -75,10 +75,10 @@ hoxCoreBoard::hoxCoreBoard()
  * NOTE: wx_FULL_REPAINT_ON_RESIZE is used to have entire window included 
  *       in the update region.
  */
-hoxCoreBoard::hoxCoreBoard( wxWindow*      parent, 
-                            hoxIReferee*   referee,
-                            const wxPoint& pos  /* = wxDefaultPosition */, 
-                            const wxSize&  size /* = wxDefaultSize*/ )
+hoxCoreBoard::hoxCoreBoard( wxWindow*        parent, 
+                            hoxIReferee_SPtr referee,
+                            const wxPoint&   pos  /* = wxDefaultPosition */, 
+                            const wxSize&    size /* = wxDefaultSize*/ )
         : wxPanel( parent, 
                    wxID_ANY, 
                    pos, 
@@ -104,7 +104,7 @@ hoxCoreBoard::hoxCoreBoard( wxWindow*      parent,
      * wxImage::AddHandler( new wxPNGHandler );
      *******/
 
-    wxASSERT_MSG(m_referee != NULL, "A Referee must be set");
+    wxASSERT_MSG(m_referee.get() != NULL, "A Referee must be set");
 
     m_borderX = 40;   // TODO: Hard-coded constant
     m_borderY = m_borderX;
@@ -357,7 +357,7 @@ hoxCoreBoard::StartGame()
     m_historyMoves.clear();
 
     /* Tell the Referee to reset the game. */
-    m_referee->Reset();
+    m_referee->ResetGame();
 
     /* Initialize other stated-info. */
     m_latestPiece = NULL;

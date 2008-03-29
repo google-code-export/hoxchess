@@ -35,7 +35,6 @@
 #include "hoxTypes.h"
 
 /* Forward declarations */
-class hoxIReferee;
 class hoxPlayer;
 class hoxBoard;
 class hoxSite;
@@ -52,7 +51,7 @@ class hoxTable
 public:
     hoxTable( hoxSite*          site,
               const wxString&   id,
-              hoxIReferee*      referee,
+              hoxIReferee_SPtr  referee,
               hoxBoard*         board = NULL );
     
     virtual ~hoxTable();
@@ -409,7 +408,7 @@ private:
     hoxSite*         m_site;
     const wxString   m_id;       // The table's ID.
 
-    hoxIReferee*     m_referee;  // The referee
+    hoxIReferee_SPtr m_referee;  // The referee
 
     hoxBoard*        m_board;    // The (OPTIONAL) Board.
 
