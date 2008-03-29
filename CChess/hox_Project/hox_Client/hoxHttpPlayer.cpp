@@ -99,9 +99,6 @@ hoxHttpPlayer::OnConnectionResponse_Poll(wxCommandEvent& event)
     hoxResponse* response = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
     const std::auto_ptr<hoxResponse> safe_response( response ); // take care memory leak!
 
-    /* Notice to 'self' that one request has been serviced. */
-    DecrementOutstandingRequests();
-
     /* NOTE: We do not check for the return-code ( event.GetInt() )
      *       because the response's content would be an empty string anyway.
      */

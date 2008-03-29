@@ -104,9 +104,6 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
     hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
     const hoxResponse_APtr response( response_raw ); // take care memory leak!
 
-    /* Make a note to 'self' that one request has been serviced. */
-    DecrementOutstandingRequests();
-
     hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
 
     /* Handle error-code. */
@@ -430,9 +427,6 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
 
     hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
     std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
-
-    /* Make a note to 'self' that one request has been serviced. */
-    DecrementOutstandingRequests();
 
     hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
 

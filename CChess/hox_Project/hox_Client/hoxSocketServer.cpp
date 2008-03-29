@@ -173,9 +173,10 @@ hoxSocketServer::_HandleNewConnect( wxSocketBase* newSock )
 
     /* Create a connection for the new player. */
     hoxRemoteConnection* connection = new hoxRemoteConnection();
+    hoxConnection_APtr apConnection( connection );
     connection->SetServer( m_server );
     connection->SetCBSocket( newSock );
-    newPlayer->SetConnection( connection );
+    newPlayer->SetConnection( apConnection );
 
     /* Let the player handles all socket events. */
     wxLogDebug("%s: Let this Remote player [%s] handle all socket events", 
