@@ -68,7 +68,7 @@ public:
 	hoxResult StartServer(int nPort);
 	void      CloseServer();
     
-	bool AddRequest( hoxRequest* request );
+	bool AddRequest( hoxRequest_APtr apRequest );
 
     hoxSite* GetSite() const { return m_site; }
 

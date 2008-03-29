@@ -258,8 +258,8 @@ hoxPlayer::ResetConnection()
     if ( m_connection.get() != NULL )
     {
         wxLogDebug("%s: Request the Connection thread to be shutdowned...", FNAME);
-        hoxRequest* request = new hoxRequest( hoxREQUEST_SHUTDOWN, NULL );
-        m_connection->AddRequest( request );
+        hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_SHUTDOWN ) );
+        m_connection->AddRequest( apRequest );
 
         m_connection->Shutdown();
         m_connection.reset();
@@ -273,11 +273,9 @@ hoxPlayer::OnClose_FromTable( const wxString& tableId )
 }
 
 void 
-hoxPlayer::OnRequest_FromTable( hoxRequest* request )
+hoxPlayer::OnRequest_FromTable( hoxRequest_APtr apRequest )
 {
     const char* FNAME = "hoxPlayer::OnRequest_FromTable";
-
-	hoxRequest_APtr apRequest( request );
 
     if ( m_connection.get() == NULL )
     {
@@ -286,7 +284,7 @@ hoxPlayer::OnRequest_FromTable( hoxRequest* request )
     }
 
     apRequest->sender = this;
-    this->AddRequestToConnection( apRequest.release() );
+    this->AddRequestToConnection( apRequest );
 }
 
 void 
@@ -387,9 +385,9 @@ hoxPlayer::HandleIncomingData( const wxString& commandStr )
      */
 	if ( ! response.empty() )
 	{
-		hoxRequest* request = new hoxRequest( hoxREQUEST_OUT_DATA, this );
-        request->parameters["data"] = response;
-		this->AddRequestToConnection( request );
+		hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_OUT_DATA, this ) );
+        apRequest->parameters["data"] = response;
+		this->AddRequestToConnection( apRequest );
 	}
 
     wxLogDebug("%s: END.", FNAME);
@@ -885,25 +883,26 @@ hoxPlayer::ShutdownConnection()
 
     wxLogDebug("%s: Player [%s] requesting the Connection to be shutdowned...", 
         FNAME, this->GetName().c_str());
-    hoxRequest* request = new hoxRequest( hoxREQUEST_SHUTDOWN, NULL );
-    this->AddRequestToConnection( request );
+    hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_SHUTDOWN ) );
+    this->AddRequestToConnection( apRequest );
 }
 
 void 
-hoxPlayer::AddRequestToConnection( hoxRequest* request )
+hoxPlayer::AddRequestToConnection( hoxRequest_APtr apRequest )
 { 
     const char* FNAME = "hoxPlayer::AddRequestToConnection";
 
     if ( m_connection.get() == NULL )
     {
-        wxLogWarning("%s: No connection set. Deleting the request.", FNAME);
-        delete request;
+        wxLogDebug("%s: *** WARN *** No connection set. Deleting the request.", FNAME);
         return;
     }
 
-    m_connection->AddRequest( request );
+    bool bIsShutdown = (apRequest->type == hoxREQUEST_SHUTDOWN);
 
-    if ( request->type == hoxREQUEST_SHUTDOWN )
+    m_connection->AddRequest( apRequest );
+
+    if ( bIsShutdown )
     {
         wxLogDebug("%s: Request the Connection thread to be shutdowned...", FNAME);
         m_connection->Shutdown();

@@ -235,9 +235,9 @@ hoxLocalSite::Handle_DisconnectFromPlayer( hoxPlayer* player )
 
 	/* Inform the server. */
     wxLogDebug("%s: Posting DISCONNECT request to remove the new client connection.", FNAME);
-    hoxRequest* request = new hoxRequest( hoxREQUEST_LOGOUT );
-    request->parameters["pid"] = player->GetName();
-    m_server->AddRequest( request );
+    hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_LOGOUT ) );
+    apRequest->parameters["pid"] = player->GetName();
+    m_server->AddRequest( apRequest );
 
 	wxLogDebug("%s: END.", FNAME);
 }

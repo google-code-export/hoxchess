@@ -51,7 +51,7 @@ public:
      * Override parent-API
      *******************************/
 
-	virtual void AddRequestToConnection( hoxRequest* request );
+	virtual void AddRequestToConnection( hoxRequest_APtr apRequest );
 
     /*******************************
      * Incoming-data event handlers

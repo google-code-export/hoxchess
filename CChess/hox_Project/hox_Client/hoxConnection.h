@@ -51,7 +51,7 @@ public:
 
     virtual void Start() = 0;
     virtual void Shutdown() = 0;
-    virtual bool AddRequest( hoxRequest* request ) = 0;
+    virtual bool AddRequest( hoxRequest_APtr apRequest ) = 0;
     virtual bool IsConnected() const = 0;
 
 protected:

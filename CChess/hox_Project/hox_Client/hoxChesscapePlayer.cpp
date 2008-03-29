@@ -38,7 +38,6 @@ BEGIN_EVENT_TABLE(hoxChesscapePlayer, hoxLocalPlayer)
 	//     we must declare an entry in each derived-class's table-event (using virtual WILL NOT WORK)....
 	//     However, it seems here that I do not have to do it.
 
-    EVT_SOCKET(CLIENT_SOCKET_ID,  hoxChesscapePlayer::OnIncomingNetworkData)
     EVT_COMMAND(hoxREQUEST_PLAYER_DATA, hoxEVT_CONNECTION_RESPONSE, hoxChesscapePlayer::OnConnectionResponse_PlayerData)
     EVT_COMMAND(wxID_ANY, hoxEVT_CONNECTION_RESPONSE, hoxChesscapePlayer::OnConnectionResponse)
 END_EVENT_TABLE()
@@ -135,11 +134,11 @@ hoxChesscapePlayer::OpenNewNetworkTable()
 }
 
 void 
-hoxChesscapePlayer::OnRequest_FromTable( hoxRequest* request )
+hoxChesscapePlayer::OnRequest_FromTable( hoxRequest_APtr apRequest )
 {
     const char* FNAME = "hoxChesscapePlayer::OnRequest_FromTable";
 
-    if ( request->type == hoxREQUEST_MOVE )
+    if ( apRequest->type == hoxREQUEST_MOVE )
     {
 	    /* If this Play is playing and this is his first Move, then
 	     * update his Status to "Playing".
@@ -149,25 +148,13 @@ hoxChesscapePlayer::OnRequest_FromTable( hoxRequest* request )
 		    m_bSentMyFirstMove = true;
 
 		    wxLogDebug("%s: Sending Player-Status on the 1st Move...", FNAME);
-		    hoxRequest* request = new hoxRequest( hoxREQUEST_PLAYER_STATUS, this );
-		    request->parameters["status"] = "P";
-		    this->AddRequestToConnection( request );
+		    hoxRequest_APtr apStatusRequest( new hoxRequest( hoxREQUEST_PLAYER_STATUS, this ) );
+		    apStatusRequest->parameters["status"] = "P";
+		    this->AddRequestToConnection( apStatusRequest );
 	    }
     }
 
-    this->hoxPlayer::OnRequest_FromTable( request );
-}
-
-void
-hoxChesscapePlayer::OnIncomingNetworkData( wxSocketEvent& event )
-{
-    const char* FNAME = "hoxChesscapePlayer::OnIncomingNetworkData";
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    hoxRequest* request = new hoxRequest( hoxREQUEST_PLAYER_DATA, this );
-    request->socket      = event.GetSocket();
-    request->socketEvent = event.GetSocketEvent();
-    this->AddRequestToConnection( request );
+    this->hoxPlayer::OnRequest_FromTable( apRequest );
 }
 
 void 

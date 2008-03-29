@@ -35,7 +35,6 @@
 IMPLEMENT_DYNAMIC_CLASS(hoxMyPlayer, hoxLocalPlayer)
 
 BEGIN_EVENT_TABLE(hoxMyPlayer, hoxLocalPlayer)
-    EVT_SOCKET(CLIENT_SOCKET_ID,  hoxMyPlayer::OnIncomingNetworkData)
     EVT_COMMAND(hoxREQUEST_PLAYER_DATA, hoxEVT_CONNECTION_RESPONSE, hoxMyPlayer::OnConnectionResponse_PlayerData)
     EVT_COMMAND(wxID_ANY, hoxEVT_CONNECTION_RESPONSE, hoxMyPlayer::OnConnectionResponse)
 END_EVENT_TABLE()
@@ -65,34 +64,6 @@ hoxMyPlayer::~hoxMyPlayer()
     wxLogDebug("%s: ENTER.", FNAME);
 }
 
-void
-hoxMyPlayer::OnIncomingNetworkData( wxSocketEvent& event )
-{
-    const char* FNAME = "hoxMyPlayer::OnIncomingNetworkData";
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    /* Do nothing if LOGIN is not done successfully. */
-    if ( ! m_bLoginSuccess )
-    {
-        wxLogDebug("%s: *** WARN *** LOGIN not yet OK. Do nothing.", FNAME);
-        return;
-    }
-
-    //////////// TODO: Concurrent access with the "Connection" thread ///////////
-    //
-    //  NOTE: *** Disable this code since it does not solve 
-    //            our "multiple-input-notification" problem.
-    //
-    //event.GetSocket()->SetNotify(wxSOCKET_LOST_FLAG); // remove the wxSOCKET_INPUT_FLAG!!!
-    //
-    /////////////////////////////////////////////////////////////////////////////
-
-    hoxRequest* request = new hoxRequest( hoxREQUEST_PLAYER_DATA, this );
-    request->socket      = event.GetSocket();
-    request->socketEvent = event.GetSocketEvent();
-    this->AddRequestToConnection( request );
-}
-
 void 
 hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 {
@@ -101,8 +72,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
-    const hoxResponse_APtr response( response_raw ); // take care memory leak!
+    const hoxResponse_APtr response( wxDynamicCast(event.GetEventObject(), hoxResponse) );
 
     hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
 
@@ -421,93 +391,8 @@ void
 hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
 {
     const char* FNAME = "hoxMyPlayer::OnConnectionResponse";
-    hoxResult   result;
-
     wxLogDebug("%s: ENTER.", FNAME);
-
-    hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
-    std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
-
-    hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
-
-    const wxString sType = hoxUtil::RequestTypeToString(response->type);
-
-	switch ( response->type )
-	{
-        case hoxREQUEST_LOGIN:
-		{
-            const wxString commandStr = response->content;
-            hoxCommand  command;
-
-            result = hoxNetworkAPI::ParseCommand( commandStr, command );
-            if ( result != hoxRC_OK )
-            {
-                wxLogError("%s: Failed to parse command-string [%s].", FNAME, commandStr.c_str());
-                break;
-            }
-            wxLogDebug("%s: Received a command [%s].", FNAME, sType.c_str());
-
-            const wxString sType    = hoxUtil::RequestTypeToString(command.type);
-            const wxString sCode    = command.parameters["code"];
-            const wxString sContent = command.parameters["content"];
-
-            if ( sCode != "0" )  // error?
-            {
-                wxLogDebug("%s: *** WARN *** Failed to login. Error = [%s: %s].", 
-                    FNAME, sCode.c_str(), sContent.c_str());
-                response->code = hoxRC_ERR;
-                wxLogDebug("%s: *** INFO *** Shutdown connection due to LOGIN failure...", FNAME);
-            }
-            else
-            {
-                result = _HandleResponseEvent_LOGIN( sContent );
-			    if ( result != hoxRC_OK )
-			    {
-				    wxLogDebug("%s: *** WARN *** Failed to handle [%s] 's response [%s].", 
-                        FNAME, sType.c_str(), sContent.c_str());
-				    response->code = result;
-                } else {
-                    m_bLoginSuccess = true;
-                }
-            }
-            remoteSite->OnResponse_LOGIN( response );
-            return;  // *** DONE !!!!!!!!!!!!!!!!!
-        }
-
-        case hoxREQUEST_LOGOUT:
-        {
-            remoteSite->OnResponse_LOGOUT( response );
-            return;  // *** DONE !!!!!!!!!!!!!!!!!
-        }
-        case hoxREQUEST_LIST:   /* fall-through */
-        case hoxREQUEST_NEW:    /* fall-through */
-        case hoxREQUEST_JOIN:   /* fall-through */
-        case hoxREQUEST_LEAVE:  /* fall-through */
-        case hoxREQUEST_MSG:    /* fall-through */
-        case hoxREQUEST_MOVE:   /* fall-through */
-        case hoxREQUEST_RESIGN: /* fall-through */
-        case hoxREQUEST_DRAW:   /* fall-through */
-        case hoxREQUEST_RESET:
-        {
-            wxLogDebug("%s: Received [%s] 's event. Do nothing.", FNAME, sType.c_str());
-            break;
-        }
-		default:
-			wxLogDebug("%s: *** WARN *** Unsupported Request [%s].", FNAME, sType.c_str());
-			break;
-	} // switch
-
-
-	/* Post event to the sender if it is not THIS player */
-
-    if ( response->sender && response->sender != this )
-    {
-        wxEvtHandler* sender = response->sender;
-        response.release();
-        wxPostEvent( sender, event );
-    }
-
-    wxLogDebug("%s: END.", FNAME);
+    wxFAIL_MSG("This function should not be called");
 }
 
 hoxResult 

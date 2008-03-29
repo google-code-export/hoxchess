@@ -559,10 +559,9 @@ hoxSocketConnection::Shutdown()
 }
 
 bool
-hoxSocketConnection::AddRequest( hoxRequest* request )
+hoxSocketConnection::AddRequest( hoxRequest_APtr apRequest )
 {
     wxCHECK_MSG(m_writer.get() != NULL, false, "Writer is not yet created");
-    hoxRequest_APtr apRequest( request );
     return m_writer->AddRequest( apRequest );
 }
 
