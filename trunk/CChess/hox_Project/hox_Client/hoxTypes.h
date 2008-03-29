@@ -42,6 +42,7 @@
 class hoxPlayer;
 class hoxConnection;
 class hoxTable;
+class hoxIReferee;
 class wxSocketBase;
 
 /**
@@ -51,6 +52,8 @@ typedef std::list<hoxPlayer*>  hoxPlayerList;
 typedef std::list<hoxTable*>   hoxTableList; 
 
 typedef std::auto_ptr<hoxConnection> hoxConnection_APtr;
+
+typedef boost::shared_ptr<hoxIReferee> hoxIReferee_SPtr;
 
 /**
  * Representing a player's role.

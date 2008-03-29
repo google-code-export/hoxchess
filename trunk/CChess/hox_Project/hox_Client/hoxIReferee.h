@@ -41,7 +41,7 @@ class hoxIReferee
     /**
      * Reset the game that this referee is residing over.
      */
-    virtual void Reset() = 0;
+    virtual void ResetGame() = 0;
 
     /**
      * Validate and record a given Move.

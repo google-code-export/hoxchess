@@ -49,7 +49,7 @@ public:
      * Override base class virtuals
      *********************************/
 
-    virtual void Reset();
+    virtual void ResetGame();
     virtual bool ValidateMove( hoxMove&       move,
                                hoxGameStatus& status );
     virtual void GetGameState( hoxPieceInfoList& pieceInfoList,

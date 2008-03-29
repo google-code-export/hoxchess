@@ -37,7 +37,6 @@
 #include "hoxCoreBoard.h"
 
 /* Forward declarations */
-class hoxIReferee;
 class hoxTable;
 
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_JOIN, wxID_ANY)
@@ -76,11 +75,11 @@ class hoxBoard : public wxPanel
 {
 public:
     /* Construct an "hidden" Board. */
-    hoxBoard( wxWindow*       parent,
-              const wxString& piecesPath,
-              hoxIReferee*    referee,
-              const wxPoint&  pos = wxDefaultPosition, 
-              const wxSize&   size = wxDefaultSize );
+    hoxBoard( wxWindow*        parent,
+              const wxString&  piecesPath,
+              hoxIReferee_SPtr referee,
+              const wxPoint&   pos = wxDefaultPosition, 
+              const wxSize&    size = wxDefaultSize );
 
     virtual ~hoxBoard();
 
@@ -170,7 +169,7 @@ private:
 
 private:
     hoxCoreBoard*     m_coreBoard;  // The "core" board.
-    hoxIReferee*      m_referee;    // The Referee.
+    hoxIReferee_SPtr  m_referee;    // The Referee.
     hoxTable*         m_table;      // The Table to which this Board belongs.
 
     hoxGameStatus     m_status;     // The game's status.

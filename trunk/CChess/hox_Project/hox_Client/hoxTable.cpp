@@ -38,7 +38,7 @@
 
 hoxTable::hoxTable( hoxSite*         site,
                     const wxString&  id,
-                    hoxIReferee*     referee,
+                    hoxIReferee_SPtr referee,
                     hoxBoard*        board /* = NULL */ )
         : m_site( site )
         , m_id( id )
@@ -60,8 +60,6 @@ hoxTable::~hoxTable()
     wxLogDebug("%s: ENTER.", FNAME);
 
     _CloseBoard();   // Close GUI Board.
-
-    delete m_referee;
 }
 
 hoxResult 
@@ -538,9 +536,6 @@ hoxTable::OnClose_FromSystem()
     }
 
     _CloseBoard();   // Close GUI Board.
-
-    delete m_referee;
-    m_referee = NULL;
 }
 
 void

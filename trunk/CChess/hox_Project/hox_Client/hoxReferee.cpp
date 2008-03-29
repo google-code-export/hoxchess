@@ -1382,7 +1382,7 @@ BoardInfoAPI::PositionList_Clear( PositionList& positions )
 hoxReferee::hoxReferee()
             : m_board( NULL )
 {
-    this->Reset();
+    this->ResetGame();
 }
 
 hoxReferee::~hoxReferee()
@@ -1391,7 +1391,7 @@ hoxReferee::~hoxReferee()
 }
 
 void
-hoxReferee::Reset()
+hoxReferee::ResetGame()
 {
     delete m_board;   // Delete the old Board, if exists.
 
