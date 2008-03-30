@@ -177,11 +177,19 @@ public:
 	 *               TODO: We need to look at this 'dual-role' issue.
 	 *
      * @param moveStr The string containing the Move.
-	 * @param bSetupMode If true, then we are in SETUP-MODE.
      */
     void OnMove_FromNetwork( hoxPlayer*       player,
-                             const wxString&  moveStr,
-							 bool             bSetupMode = false );
+                             const wxString&  moveStr );
+
+    /**
+     * Callback function from the NETWORK Player to let this Table know about
+     * the "past/history" Moves.
+     *
+     * @param player The player who informs about the Move.
+     * @param moves The list of past Moves.
+     */
+    void OnPastMoves_FromNetwork( hoxPlayer*           player,
+                                  const hoxStringList& moves );
 
     /**
      * Callback function from the NETWORK Player to let this Table know about

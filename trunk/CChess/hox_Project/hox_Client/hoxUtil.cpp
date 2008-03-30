@@ -163,6 +163,8 @@ hoxUtil::RequestTypeToString( const hoxRequestType requestType )
         case hoxREQUEST_E_JOIN:      return "E_JOIN";
         case hoxREQUEST_E_END:       return "E_END";
         case hoxREQUEST_E_SCORE:     return "E_SCORE";
+        case hoxREQUEST_I_TABLE:     return "I_TABLE";
+        case hoxREQUEST_I_MOVES:     return "I_MOVES";
 		case hoxREQUEST_PLAYER_STATUS: return "PLAYER_STATUS";
         case hoxREQUEST_OUT_DATA:    return "OUT_DATA";
         case hoxREQUEST_MSG:         return "MSG";
@@ -196,6 +198,8 @@ hoxUtil::StringToRequestType( const wxString& input )
     if ( input == "E_JOIN" )      return hoxREQUEST_E_JOIN;
     if ( input == "E_END" )       return hoxREQUEST_E_END;
     if ( input == "E_SCORE" )     return hoxREQUEST_E_SCORE;
+    if ( input == "I_TABLE" )     return hoxREQUEST_I_TABLE;
+    if ( input == "I_MOVES" )     return hoxREQUEST_I_MOVES;
 	if ( input == "PLAYER_STATUS" ) return hoxREQUEST_PLAYER_STATUS;
     if ( input == "OUT_DATA" )    return hoxREQUEST_OUT_DATA;
     if ( input == "MSG" )         return hoxREQUEST_MSG;

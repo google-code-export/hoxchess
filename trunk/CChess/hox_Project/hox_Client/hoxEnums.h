@@ -301,6 +301,12 @@ enum hoxRequestType
     hoxREQUEST_E_SCORE,
         /* Event generated to inform of a player's new Score. */
 
+    hoxREQUEST_I_TABLE,
+        /* Info about a Table */
+
+    hoxREQUEST_I_MOVES,
+        /* Info about the "past/history" Moves */
+
     hoxREQUEST_PLAYER_STATUS,
         /* Event generated from a Player when his Status is changed. */
 

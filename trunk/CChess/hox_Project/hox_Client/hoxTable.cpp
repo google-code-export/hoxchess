@@ -375,21 +375,27 @@ hoxTable::OnDrawResponse_FromBoard( bool bAcceptDraw )
 
 void 
 hoxTable::OnMove_FromNetwork( hoxPlayer*       player,
-                              const wxString&  moveStr,
-							  bool             bSetupMode /* = false */ )
+                              const wxString&  moveStr )
 {
-    const char* FNAME = "hoxTable::OnMove_FromNetwork";
-
     /* Inform the Board about this Move. */
-	_PostBoard_MoveEvent( moveStr, bSetupMode );
+	_PostBoard_MoveEvent( moveStr );
 
     /* Inform other players about the new Player */
-	if ( ! bSetupMode )
-	{
-		_PostAll_MoveEvent( player, 
-							moveStr,
-							true /* coming from the network, not from Board */ );
-	}
+	_PostAll_MoveEvent( player, 
+						moveStr,
+						true /* coming from the network, not from Board */ );
+}
+
+void
+hoxTable::OnPastMoves_FromNetwork( hoxPlayer*           player,
+                                   const hoxStringList& moves )
+{
+    /* Inform the Board about this event. */
+    for ( hoxStringList::const_iterator it = moves.begin();
+                                        it != moves.end(); ++it )
+    {
+        _PostBoard_MoveEvent( (*it), true /* in SETUP-MODE */ );
+    }
 }
 
 void 

@@ -176,11 +176,9 @@ private:
 
     /* Players */
 
-    typedef std::list<wxString> StringList;
-
     wxString          m_redId;
     wxString          m_blackId;
-    StringList        m_observerIds;
+    hoxStringList     m_observerIds;
 
     /* Timers */
 

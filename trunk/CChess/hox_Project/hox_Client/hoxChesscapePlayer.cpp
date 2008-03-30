@@ -165,24 +165,26 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
-    const std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
+    const hoxResponse_APtr response( wxDynamicCast(event.GetEventObject(), hoxResponse) );
 	wxString command;
 	wxString paramsStr;
 
     hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
 
-    /* NOTE: Only handle the connection-lost event. */
+    /* Handle error-code. */
 
-    if ( (response->flags & hoxRESPONSE_FLAG_CONNECTION_LOST) !=  0 )
+    if ( response->code != hoxRC_OK )
     {
-        wxLogDebug("%s: Connection has been lost.", FNAME);
-        /* Currently, we support one connection per player.
-         * Since this ONLY connection is closed, the player must leave
-         * all tables.
+        wxLogDebug("%s: *** WARN *** Received error-code [%s].", 
+            FNAME, hoxUtil::ResultToStr(response->code));
+
+        /* Close the connection and logout.
          */
         this->LeaveAllTables();
-		goto exit_label;
+        this->DisconnectFromNetworkServer();
+        remoteSite->OnResponse_LOGOUT( response );
+        wxLogDebug("%s: END (exception).", FNAME);
+        return;  // *** Exit immediately.
     }
 
 	/* Parse for the command */
@@ -824,6 +826,9 @@ hoxChesscapePlayer::_HandleTableCmd_PastMoves( hoxTable*       table,
 	                                           const wxString& cmdStr )
 {
 	const char* FNAME = "hoxChesscapePlayer::_HandleTableCmd_PastMoves";
+    hoxStringList moves;
+
+    /* Get the list of Past Moves. */
 
 	wxString delims;
 	delims += 0x10;   // move-delimiter
@@ -833,9 +838,11 @@ hoxChesscapePlayer::_HandleTableCmd_PastMoves( hoxTable*       table,
 	{
 		moveStr = tkz.GetNextToken();
 		wxLogDebug("%s: .... move-str=[%s].", FNAME, moveStr.c_str());
-		// Inform our table...
-		table->OnMove_FromNetwork( this, moveStr, true );
+        moves.push_back( moveStr );
 	}
+
+	/* Inform our table... */
+    table->OnPastMoves_FromNetwork( this, moves );
 
 	return true;
 }
