@@ -26,8 +26,7 @@
 
 #include "hoxMyPlayer.h"
 #include "hoxNetworkAPI.h"
-#include "MyApp.h"      // wxGetApp()
-#include "MyFrame.h"
+#include "hoxSite.h"
 #include "hoxUtil.h"
 
 #include <wx/tokenzr.h>
@@ -103,13 +102,13 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
         wxLogError("%s: Failed to parse command-string [%s].", FNAME, commandStr.c_str());
         return;
     }
-    wxLogDebug("%s: Received a command [%s].", FNAME, 
-        hoxUtil::RequestTypeToString(command.type).c_str());
 
     const wxString sType    = hoxUtil::RequestTypeToString(command.type);
     const wxString sCode    = command.parameters["code"];
     const wxString sTableId = command.parameters["tid"];
     const wxString sContent = command.parameters["content"];
+
+    wxLogDebug("%s: Received a command [%s].", FNAME, sType.c_str());
 
     /* Handle the error-code. */
     if ( sCode != "0" ) // failed?
@@ -118,11 +117,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
         wxLogDebug("%s: %s.", FNAME, sMessage.c_str());
 
         hoxTable* table = remoteSite->FindTable( sTableId );
-        if ( table == NULL )
-        {
-            wxLogDebug("%s: Table [%s] not found.", FNAME, sTableId.c_str());
-        }
-        else
+        if ( table != NULL )
         {
             // Post the error on the Board.
             table->PostSystemMessage( sMessage );
@@ -163,7 +158,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
         }
         case hoxREQUEST_LIST:
         {
-		    hoxNetworkTableInfoList* pTableList = new hoxNetworkTableInfoList;
+            std::auto_ptr<hoxNetworkTableInfoList> pTableList( new hoxNetworkTableInfoList );
 		    result = _ParseNetworkTables( sContent,
 					                      *pTableList );
 		    if ( result != hoxRC_OK )
@@ -172,19 +167,18 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 				    FNAME, sContent.c_str());
 			    response->code = result;
 		    }
-            std::auto_ptr<hoxNetworkTableInfoList> autoPtr_tablelist( pTableList );  // prevent memory leak!
 	        remoteSite->DisplayListOfTables( *pTableList );
             break;
         }
-        case hoxREQUEST_NEW:
+        case hoxREQUEST_I_TABLE:
         {
 		    std::auto_ptr<hoxNetworkTableInfo> pTableInfo( new hoxNetworkTableInfo() );
 		    result = hoxNetworkAPI::ParseOneNetworkTable( sContent,
 													      *pTableInfo );
 		    if ( result != hoxRC_OK )
 		    {
-			    wxLogDebug("%s: *** WARN *** Failed to parse NEW's event [%s].", 
-				    FNAME, sContent.c_str());
+			    wxLogDebug("%s: *** WARN *** Failed to parse [%s]'s event [%s].", 
+				    FNAME, sType.c_str(), sContent.c_str());
                 break;
 		    }
 		    remoteSite->JoinNewTable( *pTableInfo );
@@ -207,20 +201,6 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
                 leavePlayer->GetName().c_str(), table->GetId().c_str());
             table->OnLeave_FromNetwork( leavePlayer, this );
             break;
-        }
-        case hoxREQUEST_JOIN:
-        {
-		    std::auto_ptr<hoxNetworkTableInfo> pTableInfo( new hoxNetworkTableInfo() );
-		    result = hoxNetworkAPI::ParseOneNetworkTable( sContent,
-													      *pTableInfo );
-		    if ( result != hoxRC_OK )
-		    {
-			    wxLogDebug("%s: *** WARN *** Failed to parse JOIN's event [%s].", 
-				    FNAME, sContent.c_str());
-                break;
-		    }
-		    remoteSite->JoinNewTable( *pTableInfo );
-		    break;
         }
         case hoxREQUEST_E_JOIN:
         {
@@ -364,9 +344,27 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
             table->OnScore_FromNetwork( player );
             break;
         }
+        case hoxREQUEST_I_MOVES:
+        {
+            hoxTable*     table = NULL;
+            hoxStringList moves;
+
+		    result = _ParsePastMovesEvent( sContent,
+									       table, moves );
+		    if ( result != hoxRC_OK )
+		    {
+			    wxLogDebug("%s: Failed to parse I_MOVES's event [%s].",
+                    FNAME, sContent.c_str());
+                break;
+		    }
+            wxLogDebug("%s: Inform Table [%s] of past Moves [%s].", FNAME, 
+                table->GetId().c_str(), sContent.c_str());
+            table->OnPastMoves_FromNetwork( this, moves );
+            break;
+        }
         default:
         {
-		    wxLogDebug("%s: *** WARN *** Unsupported command [%s].", FNAME, sType.c_str());
+		    wxLogDebug("%s: *** WARN *** Unexpected command [%s].", FNAME, sType.c_str());
         }
     } // switch()
 
@@ -849,6 +847,67 @@ hoxMyPlayer::_ParsePlayerScoreEvent( const wxString& sContent,
         wxLogDebug("%s: Player [%s] not found.", FNAME, playerId.c_str());
         return hoxRC_NOT_FOUND;
     }
+
+	return hoxRC_OK;
+}
+
+hoxResult
+hoxMyPlayer::_ParsePastMovesEvent( const wxString& sContent,
+                                   hoxTable*&      table,
+                                   hoxStringList&  moves )
+{
+    const char* FNAME = "hoxMyPlayer::_ParsePastMovesEvent";
+    wxString tableId;
+    wxString sMoves;
+
+    table   = NULL;
+    moves.clear();
+
+    /* Parse the input string. */
+
+	// ... Do not return empty tokens
+	wxStringTokenizer tkz( sContent, ";", wxTOKEN_STRTOK );
+	int tokenPosition = 0;
+	wxString token;
+
+	while ( tkz.HasMoreTokens() )
+	{
+		token = tkz.GetNextToken();
+		switch ( tokenPosition++ )
+		{
+			case 0: tableId    = token;  break;
+            case 1: sMoves     = token;  break;
+			default: /* Ignore the rest. */ break;
+		}
+	}		
+
+    /* Lookup Table. */
+    table = this->GetSite()->FindTable( tableId );
+    if ( table == NULL )
+    {
+        wxLogDebug("%s: Table [%s] not found.", FNAME, tableId.c_str());
+        return hoxRC_NOT_FOUND;
+    }
+
+    /* Parse for the list of Moves. */
+    _ParseMovesString( sMoves, moves );
+
+	return hoxRC_OK;
+}
+
+hoxResult
+hoxMyPlayer::_ParseMovesString( const wxString& sMoves,
+                                hoxStringList&  moves )
+{
+	// ... Do not return empty tokens
+	wxStringTokenizer tkz( sMoves, "/", wxTOKEN_STRTOK );
+	wxString token;
+
+	while ( tkz.HasMoreTokens() )
+	{
+		token = tkz.GetNextToken();
+        moves.push_back( token );
+	}		
 
 	return hoxRC_OK;
 }

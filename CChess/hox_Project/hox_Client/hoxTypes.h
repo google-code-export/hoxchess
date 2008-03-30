@@ -55,6 +55,8 @@ typedef std::auto_ptr<hoxConnection> hoxConnection_APtr;
 
 typedef boost::shared_ptr<hoxIReferee> hoxIReferee_SPtr;
 
+typedef std::list<wxString> hoxStringList;
+
 /**
  * Representing a player's role.
  * NOTE: A play can have multiple roles.

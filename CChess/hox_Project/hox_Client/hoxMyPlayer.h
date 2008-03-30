@@ -101,6 +101,13 @@ private:
                                       hoxPlayer*&     player,
                                       int&            nScore );
 
+    hoxResult _ParsePastMovesEvent( const wxString& sContent,
+                                    hoxTable*&      table,
+                                    hoxStringList&  moves );
+
+    hoxResult _ParseMovesString( const wxString& sMoves,
+                                 hoxStringList&  moves );
+
 private:
     bool      m_bLoginSuccess;  /* Has this Player logged in successfully? */ 
 
