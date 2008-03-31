@@ -157,6 +157,7 @@ hoxUtil::RequestTypeToString( const hoxRequestType requestType )
         case hoxREQUEST_NEW:         return "NEW";
         case hoxREQUEST_JOIN:        return "JOIN";
         case hoxREQUEST_LEAVE:       return "LEAVE";
+        case hoxREQUEST_UPDATE:      return "UPDATE";
         case hoxREQUEST_RESIGN:      return "RESIGN";
 		case hoxREQUEST_DRAW:        return "DRAW";
         case hoxREQUEST_RESET:       return "RESET";
@@ -192,6 +193,7 @@ hoxUtil::StringToRequestType( const wxString& input )
     if ( input == "NEW" )         return hoxREQUEST_NEW;
     if ( input == "JOIN" )        return hoxREQUEST_JOIN;
     if ( input == "LEAVE" )       return hoxREQUEST_LEAVE;
+    if ( input == "UPDATE" )      return hoxREQUEST_UPDATE;
     if ( input == "RESIGN" )      return hoxREQUEST_RESIGN;
 	if ( input == "DRAW" )        return hoxREQUEST_DRAW;
     if ( input == "RESET" )       return hoxREQUEST_RESET;

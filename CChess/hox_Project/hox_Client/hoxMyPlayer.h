@@ -68,6 +68,11 @@ private:
                                       hoxTable*&      table,
                                       hoxPlayer*&     player );
 
+    hoxResult _ParseTableUpdateEvent( const wxString& sContent,
+                                      hoxTable*&      table,
+                                      hoxPlayer*&     player,
+                                      hoxTimeInfo&    newTimeInfo );
+
     hoxResult _ParsePlayerJoinEvent( const wxString& sContent,
                                      wxString&       tableId,
                                      wxString&       playerId,

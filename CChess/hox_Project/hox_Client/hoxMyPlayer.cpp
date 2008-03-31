@@ -202,6 +202,26 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
             table->OnLeave_FromNetwork( leavePlayer, this );
             break;
         }
+        case hoxREQUEST_UPDATE:
+        {
+            hoxTable*     table = NULL;
+            hoxPlayer*    player = NULL;
+            hoxTimeInfo   newTimeInfo;
+
+		    result = _ParseTableUpdateEvent( sContent,
+									         table, player, newTimeInfo );
+		    if ( result != hoxRC_OK )
+		    {
+			    wxLogDebug("%s: Failed to parse [%s]'s event [%s].",
+                    FNAME, sType.c_str(), sContent.c_str());
+                break;
+		    }
+            wxLogDebug("%s: Player [%s] updated Timers to [%s] in Table [%s].", FNAME, 
+                player->GetName().c_str(), hoxUtil::TimeInfoToString(newTimeInfo).c_str(),
+                table->GetId().c_str());
+            table->OnUpdate_FromPlayer( player, newTimeInfo );
+            break;
+        }
         case hoxREQUEST_E_JOIN:
         {
             wxString      tableId;
@@ -537,11 +557,62 @@ hoxMyPlayer::_ParsePlayerLeaveEvent( const wxString& sContent,
 }
 
 hoxResult
+hoxMyPlayer::_ParseTableUpdateEvent( const wxString& sContent,
+                                     hoxTable*&      table,
+                                     hoxPlayer*&     player,
+                                     hoxTimeInfo&    newTimeInfo )
+{
+    const char* FNAME = "hoxMyPlayer::_ParseTableUpdateEvent";
+    wxString tableId;
+    wxString playerId;
+
+    table  = NULL;
+    player = NULL;
+
+    /* Parse the input string. */
+
+	// ... Do not return empty tokens
+	wxStringTokenizer tkz( sContent, ";", wxTOKEN_STRTOK );
+	int tokenPosition = 0;
+	wxString token;
+
+	while ( tkz.HasMoreTokens() )
+	{
+		token = tkz.GetNextToken();
+		switch ( tokenPosition++ )
+		{
+			case 0: tableId = token;  break;
+			case 1: playerId = token;  break;
+            case 2: newTimeInfo = hoxUtil::StringToTimeInfo(token); break; 
+			default: /* Ignore the rest. */ break;
+		}
+	}		
+
+    /* Lookup Table. */
+    table = this->GetSite()->FindTable( tableId );
+    if ( table == NULL )
+    {
+        wxLogDebug("%s: Table [%s] not found.", FNAME, tableId.c_str());
+        return hoxRC_NOT_FOUND;
+    }
+
+    /* Lookup Player. */
+    player = this->GetSite()->FindPlayer( playerId );
+    if ( player == NULL ) 
+    {
+        wxLogDebug("%s: Player [%s] not found.", FNAME, playerId.c_str());
+        return hoxRC_NOT_FOUND;
+    }
+
+	return hoxRC_OK;
+}
+
+hoxResult
 hoxMyPlayer::_ParsePlayerJoinEvent( const wxString& sContent,
                                     wxString&       tableId,
                                     wxString&       playerId,
                                     int&            nPlayerScore,
-                                    hoxColor&  color)
+                                    hoxColor&       color)
 {
     const char* FNAME = "hoxMyPlayer::_ParsePlayerJoinEvent";
 

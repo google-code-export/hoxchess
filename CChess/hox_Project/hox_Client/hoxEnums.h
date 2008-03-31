@@ -282,6 +282,7 @@ enum hoxRequestType
     hoxREQUEST_NEW,
     hoxREQUEST_JOIN,
     hoxREQUEST_LEAVE,
+    hoxREQUEST_UPDATE,
 
     hoxREQUEST_RESIGN,
         /* Resign request generated from a physical Table */

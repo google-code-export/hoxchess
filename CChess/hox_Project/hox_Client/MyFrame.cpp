@@ -756,6 +756,12 @@ MyFrame::UpdateSiteTreeUI()
         }
     }
 
+    /* Select the 1st site, if any. */
+    if ( sites.size() == 1 )
+    {
+        m_sitesTree->SelectItem( siteId );
+    }
+
     /* Make Sites visible. */
     m_sitesTree->Expand(rootId);
 }

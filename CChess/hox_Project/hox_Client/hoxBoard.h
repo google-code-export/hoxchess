@@ -47,6 +47,7 @@ DECLARE_EVENT_TYPE(hoxEVT_BOARD_NEW_MOVE, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_DRAW_REQUEST, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_GAME_OVER, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_GAME_RESET, wxID_ANY)
+DECLARE_EVENT_TYPE(hoxEVT_BOARD_TABLE_UPDATE, wxID_ANY)
 
 /** 
  * A full-featured Board acting as the Table's UI.
@@ -114,6 +115,7 @@ public:
 	void OnDrawRequest( wxCommandEvent &event );
 	void OnGameOver( wxCommandEvent &event );
     void OnGameReset( wxCommandEvent &event );
+    void OnTableUpdate( wxCommandEvent &event );
 
     void OnWallInputEnter( wxCommandEvent &event );
 
@@ -122,6 +124,7 @@ public:
     void OnButtonHistory_NEXT( wxCommandEvent &event );
     void OnButtonHistory_END( wxCommandEvent &event );
 
+    void OnButtonOptions( wxCommandEvent &event );
 	void OnButtonResign( wxCommandEvent &event );
     void OnButtonDraw( wxCommandEvent &event );
     void OnButtonReset( wxCommandEvent &event );
