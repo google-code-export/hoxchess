@@ -146,6 +146,12 @@ public:
 
     /**
      * Callback function from the Board to let this Table know about
+     * OPTIONS-command button that has been pressed by the "local" player.
+     */
+    void OnOptionsCommand_FromBoard( const hoxTimeInfo& newTimeInfo );
+
+    /**
+     * Callback function from the Board to let this Table know about
      * RESIGN-command button that has been pressed by the "local" player.
      */
     void OnResignCommand_FromBoard();
@@ -253,6 +259,15 @@ public:
     void OnLeave_FromPlayer( hoxPlayer* player );
 
     /**
+     * Callback function from a player who just updated the Options (Table).
+     *
+     * @param player The Player who just updated the Options.
+     * @param newTimeInfo The new initial Time-Info.
+     */
+    void OnUpdate_FromPlayer( hoxPlayer*         player,
+                              const hoxTimeInfo& newTimeInfo );
+
+    /**
      * Callback function from the (local) system to force this table
      * to close.
      */
@@ -348,6 +363,9 @@ private:
     void _PostBoard_GameResetEvent() const;
 
     void _PostBoard_ScoreEvent( hoxPlayer*  player ) const;
+
+    void _PostBoard_UpdateEvent( hoxPlayer*         player,
+                                 const hoxTimeInfo& newTimeInfo ) const;
 
     /**
      * Inform other Players that a new Player just joined the Table.

@@ -252,6 +252,42 @@ hoxTable::OnJoinCommand_FromBoard()
 }
 
 void
+hoxTable::OnOptionsCommand_FromBoard( const hoxTimeInfo& newTimeInfo )
+{
+    const char* FNAME = "hoxTable::OnOptionsCommand_FromBoard";
+	wxLogDebug("%s: ENTER.", FNAME);
+
+    /* Get the Board Player (or the Board's owner) because he is the
+     * one that issued the command.
+     */
+    hoxPlayer* boardPlayer = _GetBoardPlayer();
+    wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
+
+	/* Make sure the board Player satifies one of the following conditions:
+	 *  (1) He is the RED player, or...
+     *  (2) He is the BLACK player and there is no RED player.
+	 */
+
+	bool bActionAllowed = 
+        (     boardPlayer == m_redPlayer 
+		  || (boardPlayer == m_blackPlayer && m_redPlayer == NULL) );
+
+    if ( ! bActionAllowed )
+	{
+		wxLogWarning("Player [%s] is not allowed to change Options.", 
+            boardPlayer->GetName().c_str());
+		return;
+	}
+
+    hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_UPDATE ) );
+	apRequest->parameters["tid"] = m_id;
+	apRequest->parameters["pid"] = boardPlayer->GetName();
+    apRequest->parameters["itimes"] = hoxUtil::TimeInfoToString( newTimeInfo );
+
+    boardPlayer->OnRequest_FromTable( apRequest );
+}
+
+void
 hoxTable::OnResignCommand_FromBoard()
 {
     const char* FNAME = "hoxTable::OnResignCommand_FromBoard";
@@ -494,6 +530,17 @@ hoxTable::OnLeave_FromPlayer( hoxPlayer* player )
     wxLogDebug("%s: ENTER.", FNAME);
 
     this->UnassignPlayer( player );
+}
+
+void
+hoxTable::OnUpdate_FromPlayer( hoxPlayer*         player,
+                               const hoxTimeInfo& newTimeInfo )
+{
+    m_initialTime = newTimeInfo;
+    m_redTime     = m_initialTime;
+    m_blackTime   = m_initialTime;
+
+    _PostBoard_UpdateEvent( player, m_initialTime );
 }
 
 void
@@ -751,6 +798,18 @@ hoxTable::_PostBoard_ScoreEvent( hoxPlayer*  player ) const
     wxCommandEvent event( hoxEVT_BOARD_PLAYER_SCORE );
     hoxPlayerInfo_APtr apPlayerInfo( player->GetPlayerInfo() );
     event.SetEventObject( apPlayerInfo.release() );
+    wxPostEvent( m_board, event );
+}
+
+void
+hoxTable::_PostBoard_UpdateEvent( hoxPlayer*         player,
+                                  const hoxTimeInfo& newTimeInfo ) const
+{
+	if ( m_board == NULL )
+		return;
+
+    wxCommandEvent event( hoxEVT_BOARD_TABLE_UPDATE );
+    event.SetString( hoxUtil::TimeInfoToString( newTimeInfo ) );
     wxPostEvent( m_board, event );
 }
 

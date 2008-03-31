@@ -236,6 +236,7 @@ hoxSocketWriter::HandleRequest( hoxRequest_APtr apRequest )
         case hoxREQUEST_NEW:      /* fall through */
         case hoxREQUEST_JOIN:     /* fall through */
         case hoxREQUEST_LEAVE:    /* fall through */
+        case hoxREQUEST_UPDATE:   /* fall through */
         case hoxREQUEST_RESIGN:   /* fall through */
         case hoxREQUEST_DRAW:     /* fall through */
         case hoxREQUEST_RESET:    /* fall through */

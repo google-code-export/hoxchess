@@ -35,6 +35,7 @@
 #include "hoxReferee.h"
 #include "hoxTypes.h"
 #include "hoxTable.h"
+#include "hoxOptionDialog.h"
 
 /* UI-related IDs. */
 enum
@@ -46,6 +47,7 @@ enum
     ID_HISTORY_NEXT,
     ID_HISTORY_END,
 
+    ID_ACTION_OPTIONS,
     ID_ACTION_RESIGN,
 	ID_ACTION_DRAW,
 	ID_ACTION_RESET,
@@ -62,6 +64,7 @@ DEFINE_EVENT_TYPE( hoxEVT_BOARD_NEW_MOVE )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_DRAW_REQUEST )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_GAME_OVER )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_GAME_RESET )
+DEFINE_EVENT_TYPE( hoxEVT_BOARD_TABLE_UPDATE )
 
 BEGIN_EVENT_TABLE(hoxBoard, wxPanel)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_JOIN, hoxBoard::OnPlayerJoin)
@@ -72,12 +75,14 @@ BEGIN_EVENT_TABLE(hoxBoard, wxPanel)
 	EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_DRAW_REQUEST, hoxBoard::OnDrawRequest)
 	EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_GAME_OVER, hoxBoard::OnGameOver)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_GAME_RESET, hoxBoard::OnGameReset)
+    EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_TABLE_UPDATE, hoxBoard::OnTableUpdate)
 
     EVT_TEXT_ENTER(ID_BOARD_WALL_INPUT, hoxBoard::OnWallInputEnter)
     EVT_BUTTON(ID_HISTORY_BEGIN, hoxBoard::OnButtonHistory_BEGIN)
     EVT_BUTTON(ID_HISTORY_PREV, hoxBoard::OnButtonHistory_PREV)
     EVT_BUTTON(ID_HISTORY_NEXT, hoxBoard::OnButtonHistory_NEXT)
     EVT_BUTTON(ID_HISTORY_END, hoxBoard::OnButtonHistory_END)
+    EVT_BUTTON(ID_ACTION_OPTIONS, hoxBoard::OnButtonOptions)
     EVT_BUTTON(ID_ACTION_RESIGN, hoxBoard::OnButtonResign)
 	EVT_BUTTON(ID_ACTION_DRAW, hoxBoard::OnButtonDraw)
     EVT_BUTTON(ID_ACTION_RESET, hoxBoard::OnButtonReset)
@@ -373,6 +378,19 @@ hoxBoard::OnGameReset( wxCommandEvent &event )
 }
 
 void 
+hoxBoard::OnTableUpdate( wxCommandEvent &event )
+{
+    const hoxTimeInfo newTimeInfo = 
+        hoxUtil::StringToTimeInfo( event.GetString() );
+
+    m_initialTime = newTimeInfo;
+    m_redTime     = m_initialTime;
+    m_blackTime   = m_initialTime;
+
+    _UpdateTimerUI();
+}
+
+void 
 hoxBoard::OnWallInputEnter( wxCommandEvent &event )
 {
     m_wallInput->Clear();
@@ -401,6 +419,36 @@ void
 hoxBoard::OnButtonHistory_END( wxCommandEvent &event )
 {
     m_coreBoard->DoGameReview_END();
+}
+
+void 
+hoxBoard::OnButtonOptions( wxCommandEvent &event )
+{
+    if (    m_status != hoxGAME_STATUS_OPEN 
+         && m_status != hoxGAME_STATUS_READY )
+    {
+        wxLogWarning("Game is already in progress or has ended.\n"
+                     "Table Options are disabled at this time.");
+        return;
+    }
+
+    hoxOptionDialog optionDlg( this, wxID_ANY, "Table Options", m_table );
+    optionDlg.ShowModal();
+
+    hoxOptionDialog::CommandId selectedCommand = optionDlg.GetSelectedCommand();
+
+    switch( selectedCommand )
+    {
+        case hoxOptionDialog::COMMAND_ID_SAVE:
+        {
+            const hoxTimeInfo newTimeInfo = optionDlg.GetNewTimeInfo();
+            m_table->OnOptionsCommand_FromBoard( newTimeInfo );
+            break;
+        }
+        default:
+            // No command is selected. Fine.
+            break;
+    }
 }
 
 void 
@@ -600,6 +648,14 @@ hoxBoard::_CreateBoardPanel()
      *********************************/
 
     m_actionSizer = new wxBoxSizer( wxHORIZONTAL );
+
+    m_actionSizer->Add( 
+        new wxButton( boardPanel, ID_ACTION_OPTIONS, "Options", 
+                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
+        0,    // Unstretchable
+        wxALIGN_LEFT | wxFIXED_MINSIZE );
+
+    m_actionSizer->AddSpacer( 20 );  // Add some spaces in between.
 
     m_actionSizer->Add( 
         new wxButton( boardPanel, ID_ACTION_RESIGN, "Resign", 
