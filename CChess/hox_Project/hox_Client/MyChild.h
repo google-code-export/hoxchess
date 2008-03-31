@@ -28,11 +28,10 @@
 #define __INCLUDED_MY_CHILD_H_
 
 #include <wx/wx.h>
-
+#include "hoxTypes.h"
 
 /* Forward declarations */
 class hoxSite;
-class hoxTable;
 
 /**
  * The child (MDI) frame.
@@ -53,7 +52,7 @@ public:
     void OnClose(wxCloseEvent& event);
     void OnSize(wxSizeEvent& event);
 
-    void SetTable(hoxTable* table);
+    void SetTable(hoxTable_SPtr pTable);
     
     hoxSite* GetSite() const;
 
@@ -62,7 +61,7 @@ private:
     void _SetupStatusBar();
 
 private:
-    hoxTable* m_table;
+    hoxTable_SPtr m_pTable;
 
     DECLARE_EVENT_TABLE()
 };

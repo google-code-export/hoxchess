@@ -46,10 +46,10 @@ public:
         COMMAND_ID_SAVE
     };
 
-    hoxOptionDialog( wxWindow*        parent, 
-                     wxWindowID       id, 
-                     const wxString&  title,
-                     const hoxTable*  table );
+    hoxOptionDialog( wxWindow*           parent, 
+                     wxWindowID          id, 
+                     const wxString&     title,
+                     const hoxTable_SPtr pTable );
 
     void OnButtonSave(wxCommandEvent& event);
 
@@ -57,14 +57,14 @@ public:
 	hoxTimeInfo    GetNewTimeInfo() const { return m_newTimeInfo; }
 
 private:
-    wxTextCtrl*      m_textCtrlTime_Game;
-    wxTextCtrl*      m_textCtrlTime_Move;
-    wxTextCtrl*      m_textCtrlTime_Free;
+    wxTextCtrl*         m_textCtrlTime_Game;
+    wxTextCtrl*         m_textCtrlTime_Move;
+    wxTextCtrl*         m_textCtrlTime_Free;
 
-    CommandId        m_selectedCommand; // Save / Cancel ?
+    CommandId           m_selectedCommand; // Save / Cancel ?
     
-    const hoxTable*  m_table;
-    hoxTimeInfo      m_newTimeInfo;
+    const hoxTable_SPtr m_pTable;
+    hoxTimeInfo         m_newTimeInfo;
 
     DECLARE_EVENT_TABLE()
 };

@@ -77,9 +77,9 @@ public:
 											 const hoxTimeInfo& initialTime) 
         { return hoxRC_ERR; }
 
-    virtual hoxResult CloseTable(hoxTable* table);
+    virtual hoxResult CloseTable(hoxTable_SPtr pTable);
     const hoxTableList& GetTables() const { return m_tableMgr.GetTables(); } 
-    hoxTable* FindTable( const wxString& tableId ) const
+    hoxTable_SPtr FindTable( const wxString& tableId ) const
         { return m_tableMgr.FindTable( tableId ); }
 
     hoxPlayer* FindPlayer( const wxString& playerId ) const
@@ -187,7 +187,7 @@ public:
 
 	virtual unsigned int GetCurrentActionFlags() const;
 
-    virtual hoxTable* CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo);
+    virtual hoxTable_SPtr CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo);
 
     virtual void OnResponse_LOGIN( const hoxResponse_APtr& response );
 	virtual void OnResponse_LOGOUT( const hoxResponse_APtr& response );

@@ -107,7 +107,6 @@ hoxBoard::hoxBoard( wxWindow*        parent,
                    wxFULL_REPAINT_ON_RESIZE )
         , m_coreBoard( NULL )
         , m_referee( referee )
-        , m_table( NULL )
         , m_status( hoxGAME_STATUS_OPEN )
 		, m_timer( NULL )
 {
@@ -148,13 +147,13 @@ hoxBoard::OnBoardMove( const hoxMove& move,
     _OnValidMove( move );
 
     /* Inform the Table of the new move. */
-    wxCHECK_RET(m_table, "The table is NULL." );
+    wxCHECK_RET(m_pTable, "The table is NULL." );
 	const hoxTimeInfo playerTime = ( move.piece.color == hoxCOLOR_RED
 		                         ? m_redTime
 			    				 : m_blackTime );
-    m_table->OnMove_FromBoard( move, 
-		                       status,
-							   playerTime );
+    m_pTable->OnMove_FromBoard( move, 
+		                        status,
+			 				    playerTime );
 }
 
 void 
@@ -321,8 +320,8 @@ hoxBoard::OnDrawRequest( wxCommandEvent &event )
     if ( answer == wxYES )
     {
 	    /* Inform the Table. */
-	    wxCHECK_RET(m_table, "The table is NULL." );
-	    m_table->OnDrawResponse_FromBoard( true );
+	    wxCHECK_RET(m_pTable.get() != NULL, "The table is NULL." );
+	    m_pTable->OnDrawResponse_FromBoard( true );
 
 	    /* Set Game's status to DRAW */
 	    this->OnBoardMsg( "Accepted Draw request. Game drawn." ); 
@@ -399,7 +398,7 @@ void
 hoxBoard::OnWallInputEnter( wxCommandEvent &event )
 {
     m_wallInput->Clear();
-    m_table->OnMessage_FromBoard( event.GetString() );
+    m_pTable->OnMessage_FromBoard( event.GetString() );
 }
 
 void 
@@ -437,7 +436,7 @@ hoxBoard::OnButtonOptions( wxCommandEvent &event )
         return;
     }
 
-    hoxOptionDialog optionDlg( this, wxID_ANY, "Table Options", m_table );
+    hoxOptionDialog optionDlg( this, wxID_ANY, "Table Options", m_pTable );
     optionDlg.ShowModal();
 
     hoxOptionDialog::CommandId selectedCommand = optionDlg.GetSelectedCommand();
@@ -447,7 +446,7 @@ hoxBoard::OnButtonOptions( wxCommandEvent &event )
         case hoxOptionDialog::COMMAND_ID_SAVE:
         {
             const hoxTimeInfo newTimeInfo = optionDlg.GetNewTimeInfo();
-            m_table->OnOptionsCommand_FromBoard( newTimeInfo );
+            m_pTable->OnOptionsCommand_FromBoard( newTimeInfo );
             break;
         }
         default:
@@ -460,32 +459,32 @@ void
 hoxBoard::OnButtonResign( wxCommandEvent &event )
 {
     /* Let the table handle this action. */
-    wxCHECK_RET(m_table, "The table is NULL." );
-    m_table->OnResignCommand_FromBoard();
+    wxCHECK_RET(m_pTable.get() != NULL, "The table is NULL." );
+    m_pTable->OnResignCommand_FromBoard();
 }
 
 void 
 hoxBoard::OnButtonDraw( wxCommandEvent &event )
 {
     /* Let the table handle this action. */
-    wxCHECK_RET(m_table, "The table is NULL." );
-    m_table->OnDrawCommand_FromBoard();
+    wxCHECK_RET(m_pTable.get() != NULL, "The table is NULL." );
+    m_pTable->OnDrawCommand_FromBoard();
 }
 
 void 
 hoxBoard::OnButtonReset( wxCommandEvent &event )
 {
     /* Let the table handle this action. */
-    wxCHECK_RET(m_table, "The table is NULL." );
-    m_table->OnResetCommand_FromBoard();
+    wxCHECK_RET(m_pTable.get() != NULL, "The table is NULL." );
+    m_pTable->OnResetCommand_FromBoard();
 }
 
 void 
 hoxBoard::OnButtonJoin( wxCommandEvent &event )
 {
     /* Let the table handle this action. */
-    wxCHECK_RET(m_table, "The table is NULL." );
-    m_table->OnJoinCommand_FromBoard();
+    wxCHECK_RET(m_pTable.get() != NULL, "The table is NULL." );
+    m_pTable->OnJoinCommand_FromBoard();
 }
 
 void 
@@ -879,9 +878,9 @@ hoxBoard::_LayoutBoardPanel( bool viewInverted )
 }
 
 void 
-hoxBoard::SetTable( hoxTable* table ) 
+hoxBoard::SetTable( hoxTable_SPtr pTable ) 
 { 
-    m_table = table;
+    m_pTable = pTable;
 
     /* A timer to keep track of the time. */
     m_timer = new wxTimer( this );
@@ -1054,11 +1053,11 @@ hoxBoard::_ResetTimerUI()
 {
     /* Set default game-times. */
 
-	if ( m_table != NULL )
+	if ( m_pTable.get() != NULL )
 	{
-		m_initialTime = m_table->GetInitialTime();
-		m_blackTime   = m_table->GetBlackTime();
-		m_redTime     = m_table->GetRedTime();
+		m_initialTime = m_pTable->GetInitialTime();
+		m_blackTime   = m_pTable->GetBlackTime();
+		m_redTime     = m_pTable->GetRedTime();
 	}
 	else
 	{

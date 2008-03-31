@@ -151,21 +151,13 @@ hoxTable::UnassignPlayer( hoxPlayer* player,
 }
 
 void 
-hoxTable::ViewBoard( wxWindow* tableWindow )
+hoxTable::ViewBoard( hoxBoard* pBoard )
 {
 	const char* FNAME = "hoxTable::ViewBoard";
 
-	wxCHECK_RET(tableWindow, "The Window is NULL.");
 	wxCHECK_RET(m_board == NULL, "The Board has already been set.");
 
-	wxLogDebug("%s: Creating a new Board...", FNAME);
-	m_board = new hoxBoard( tableWindow, 
-		                    PIECES_PATH, 
-		                    m_referee,
-        					wxDefaultPosition,
-							tableWindow->GetSize() );
-
-	m_board->SetTable( this );
+    m_board = pBoard;
     m_board->Show( true );  // Display Board's GUI.
 }
 

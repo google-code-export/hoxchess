@@ -65,11 +65,11 @@ private:
                                    hoxNetworkTableInfoList& tableList );
 
     hoxResult _ParsePlayerLeaveEvent( const wxString& sContent,
-                                      hoxTable*&      table,
+                                      hoxTable_SPtr&  pTable,
                                       hoxPlayer*&     player );
 
     hoxResult _ParseTableUpdateEvent( const wxString& sContent,
-                                      hoxTable*&      table,
+                                      hoxTable_SPtr&  pTable,
                                       hoxPlayer*&     player,
                                       hoxTimeInfo&    newTimeInfo );
 
@@ -80,34 +80,34 @@ private:
                                      hoxColor&       color);
 
     hoxResult _ParsePlayerMsgEvent( const wxString& sContent,
-                                    hoxTable*&      table,
+                                    hoxTable_SPtr&  pTable,
                                     wxString&       playerId,
                                     wxString&       message );
 
     hoxResult _ParsePlayerMoveEvent( const wxString& sContent,
-                                     hoxTable*&      table,
+                                     hoxTable_SPtr&  pTable,
                                      hoxPlayer*&     player,
                                      wxString&       sMove );
 
     hoxResult _ParsePlayerDrawEvent( const wxString& sContent,
-                                     hoxTable*&      table,
+                                     hoxTable_SPtr&  pTable,
                                      hoxPlayer*&     player );
 
     hoxResult _ParsePlayerEndEvent( const wxString& sContent,
-                                    hoxTable*&      table,
+                                    hoxTable_SPtr&  pTable,
                                     hoxGameStatus&  gameStatus,
                                     wxString&       sReason );
 
     hoxResult _ParsePlayerResetEvent( const wxString& sContent,
-                                      hoxTable*&      table );
+                                      hoxTable_SPtr&  pTable );
 
     hoxResult _ParsePlayerScoreEvent( const wxString& sContent,
-                                      hoxTable*&      table,
+                                      hoxTable_SPtr&  pTable,
                                       hoxPlayer*&     player,
                                       int&            nScore );
 
     hoxResult _ParsePastMovesEvent( const wxString& sContent,
-                                    hoxTable*&      table,
+                                    hoxTable_SPtr&  pTable,
                                     hoxStringList&  moves );
 
     hoxResult _ParseMovesString( const wxString& sMoves,

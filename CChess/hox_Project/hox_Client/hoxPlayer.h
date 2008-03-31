@@ -124,18 +124,18 @@ public:
      *
      * @param table The Table to join.
      */
-    virtual hoxResult JoinTable( hoxTable* table );
+    virtual hoxResult JoinTable( hoxTable_SPtr pTable );
 
     /**
      * Request to join a Table as a specified role.
      *
-     * @param table        The Table to join.
+     * @param pTable       The Table to join.
      * @param requestColor The request role (color).
      */
-    virtual hoxResult JoinTableAs( hoxTable*     table,
-                                   hoxColor requestColor );
+    virtual hoxResult JoinTableAs( hoxTable_SPtr pTable,
+                                   hoxColor      requestColor );
 
-    virtual hoxResult LeaveTable( hoxTable* table );
+    virtual hoxResult LeaveTable( hoxTable_SPtr pTable );
     virtual hoxResult LeaveAllTables();
 
 protected:

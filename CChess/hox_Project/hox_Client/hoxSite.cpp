@@ -36,6 +36,7 @@
 #include "MyChild.h"
 #include "hoxNetworkAPI.h"
 #include "hoxTablesDialog.h"
+#include "hoxBoard.h"
 
 
 // --------------------------------------------------------------------------
@@ -65,9 +66,9 @@ hoxSite::DeletePlayer( hoxPlayer* player )
 }
 
 hoxResult 
-hoxSite::CloseTable(hoxTable* table)
+hoxSite::CloseTable(hoxTable_SPtr pTable)
 {
-    m_tableMgr.RemoveTable( table );
+    m_tableMgr.RemoveTable( pTable );
     return hoxRC_OK;
 }
 
@@ -204,7 +205,7 @@ hoxLocalSite::CreateNewTableAsPlayer( wxString&          newTableId,
 									  const hoxTimeInfo& initialTime )
 {
     const char* FNAME = "hoxLocalSite::CreateNewTableAsPlayer";
-    hoxTable* newTable = NULL;
+    hoxTable_SPtr pTable;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -212,13 +213,13 @@ hoxLocalSite::CreateNewTableAsPlayer( wxString&          newTableId,
 	newTableId = _GenerateTableId();
 
     /* Create a new table without a frame. */
-    newTable = m_tableMgr.CreateTable( newTableId );
-	newTable->SetInitialTime( initialTime );
-    newTable->SetRedTime( initialTime );
-	newTable->SetBlackTime( initialTime );
+    pTable = m_tableMgr.CreateTable( newTableId );
+	pTable->SetInitialTime( initialTime );
+    pTable->SetRedTime( initialTime );
+	pTable->SetBlackTime( initialTime );
 
     /* Add the specified player to the table. */
-    hoxResult result = player->JoinTableAs( newTable, hoxCOLOR_RED );
+    hoxResult result = player->JoinTableAs( pTable, hoxCOLOR_RED );
     wxASSERT( result == hoxRC_OK  );
 
     /* Update UI. */
@@ -364,14 +365,14 @@ hoxRemoteSite::OnPlayerJoined( const wxString&  tableId,
 {
     const char* FNAME = "hoxRemoteSite::OnPlayerJoined";
 	hoxResult   result;
-    hoxTable*   table = NULL;
+    hoxTable_SPtr pTable;
     hoxPlayer*  player = NULL;
 
 	/* Lookup the Table.
      * Make sure that it must be already created.
      */
-	table = this->FindTable( tableId );
-	if ( table == NULL )
+	pTable = this->FindTable( tableId );
+	if ( pTable.get() == NULL )
 	{
         wxLogDebug("%s: *** WARN *** The table [%s] does NOT exist.", FNAME, tableId.c_str());
 		return hoxRC_ERR;
@@ -388,7 +389,7 @@ hoxRemoteSite::OnPlayerJoined( const wxString&  tableId,
 
     /* Attempt to join the table with the requested color.
      */
-    result = player->JoinTableAs( table, requestColor );
+    result = player->JoinTableAs( pTable, requestColor );
     if ( result != hoxRC_OK )
     {
         wxLogDebug("%s: *** ERROR *** Failed to ask table to join [%s] as color [%d].", 
@@ -404,7 +405,7 @@ hoxRemoteSite::OnPlayerJoined( const wxString&  tableId,
     if (    player == this->m_player 
          && requestColor == hoxCOLOR_BLACK )
 	{
-		table->ToggleViewSide();
+		pTable->ToggleViewSide();
 	}
 
 	return hoxRC_OK;
@@ -415,7 +416,7 @@ hoxRemoteSite::JoinNewTable(const hoxNetworkTableInfo& tableInfo)
 {
 	const char* FNAME = "hoxRemoteSite::JoinNewTable";
     hoxResult      result;
-    hoxTable*      table   = NULL;
+    hoxTable_SPtr  pTable;
     const wxString tableId = tableInfo.id;
     const wxString redId   = tableInfo.redId;
     const wxString blackId = tableInfo.blackId;
@@ -423,11 +424,11 @@ hoxRemoteSite::JoinNewTable(const hoxNetworkTableInfo& tableInfo)
 
 	/* Create a table if necessary. */
 
-    table = this->FindTable( tableId );
-	if ( table == NULL )
+    pTable = this->FindTable( tableId );
+	if ( pTable.get() == NULL )
 	{
         wxLogDebug("%s: Create a new Table [%s].", FNAME, tableId.c_str());
-        table = this->CreateNewTableWithGUI( tableInfo );
+        pTable = this->CreateNewTableWithGUI( tableInfo );
 	}
 
 	/* Determine which color (or role) my player will have. */
@@ -442,28 +443,28 @@ hoxRemoteSite::JoinNewTable(const hoxNetworkTableInfo& tableInfo)
 	 * Assign players to table.
      ****************************/
 
-    result = m_player->JoinTableAs( table, myColor );
+    result = m_player->JoinTableAs( pTable, myColor );
     wxCHECK( result == hoxRC_OK, hoxRC_ERR  );
 
 	/* Create additional "dummy" player(s) if required.
      */
 
-    if ( !redId.empty() && table->GetRedPlayer() == NULL )
+    if ( !redId.empty() && pTable->GetRedPlayer() == NULL )
     {
 	    if ( NULL == (player = this->FindPlayer( redId )) )
 	    {
             player = this->CreateDummyPlayer( redId, ::atoi(tableInfo.redScore) );
 	    }
-        result = player->JoinTableAs( table, hoxCOLOR_RED );
+        result = player->JoinTableAs( pTable, hoxCOLOR_RED );
         wxCHECK( result == hoxRC_OK, hoxRC_ERR  );
     }
-    if ( !blackId.empty() && table->GetBlackPlayer() == NULL )
+    if ( !blackId.empty() && pTable->GetBlackPlayer() == NULL )
     {
 	    if ( NULL == (player = this->FindPlayer( blackId )) )
 	    {
             player = this->CreateDummyPlayer( blackId, ::atoi(tableInfo.blackScore) );
 	    }
-        result = player->JoinTableAs( table, hoxCOLOR_BLACK );
+        result = player->JoinTableAs( pTable, hoxCOLOR_BLACK );
         wxCHECK( result == hoxRC_OK, hoxRC_ERR  );
     }
 
@@ -472,7 +473,7 @@ hoxRemoteSite::JoinNewTable(const hoxNetworkTableInfo& tableInfo)
 
     if ( myColor == hoxCOLOR_BLACK )
 	{
-		table->ToggleViewSide();
+		pTable->ToggleViewSide();
 	}
 
 	wxGetApp().GetFrame()->UpdateSiteTreeUI();
@@ -661,12 +662,12 @@ hoxRemoteSite::JoinExistingTable(const hoxNetworkTableInfo& tableInfo)
 {
     const char* FNAME = "hoxRemoteSite::JoinExistingTable";
 	hoxResult   result;
-    hoxTable*   table = NULL;
+    hoxTable_SPtr pTable;
     wxString    tableId = tableInfo.id;
 
 	/* Make sure that no Table with the specified Id is created yet. */
-	table = this->FindTable( tableId );
-	if ( table != NULL )
+	pTable = this->FindTable( tableId );
+	if ( pTable.get() != NULL )
 	{
 		wxLogWarning("This Site should only handle JOIN (existing) table.");
 		return hoxRC_ERR;
@@ -676,7 +677,7 @@ hoxRemoteSite::JoinExistingTable(const hoxNetworkTableInfo& tableInfo)
     /* Create a new table. */
     /***********************/
 
-    table = this->CreateNewTableWithGUI( tableInfo );
+    pTable = this->CreateNewTableWithGUI( tableInfo );
 
     /***********************/
     /* Setup players       */
@@ -717,17 +718,17 @@ hoxRemoteSite::JoinExistingTable(const hoxNetworkTableInfo& tableInfo)
 
     if ( red_player != NULL )
     {
-        result = red_player->JoinTableAs( table, hoxCOLOR_RED );
+        result = red_player->JoinTableAs( pTable, hoxCOLOR_RED );
         wxASSERT( result == hoxRC_OK  );
     }
     if ( black_player != NULL )
     {
-        result = black_player->JoinTableAs( table, hoxCOLOR_BLACK );
+        result = black_player->JoinTableAs( pTable, hoxCOLOR_BLACK );
         wxASSERT( result == hoxRC_OK  );
     }
 	if ( myColor == hoxCOLOR_NONE )
 	{
-		result = m_player->JoinTableAs( table, myColor );
+		result = m_player->JoinTableAs( pTable, myColor );
 		wxASSERT( result == hoxRC_OK  );
 	}
 
@@ -735,7 +736,7 @@ hoxRemoteSite::JoinExistingTable(const hoxNetworkTableInfo& tableInfo)
 
 	if ( myColor == hoxCOLOR_BLACK )
 	{
-		table->ToggleViewSide();
+		pTable->ToggleViewSide();
 	}
 
 	wxGetApp().GetFrame()->UpdateSiteTreeUI();
@@ -800,25 +801,35 @@ hoxRemoteSite::GetCurrentActionFlags() const
 	return flags;
 }
 
-hoxTable* 
+hoxTable_SPtr
 hoxRemoteSite::CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo)
 {
-    hoxTable* table = NULL;
+    const char* FNAME = "hoxRemoteSite::CreateNewTableWithGUI";
+    hoxTable_SPtr pTable;
     wxString  tableId = tableInfo.id;
 
     /* Create a GUI Frame for the new Table. */
     MyChild* childFrame = wxGetApp().GetFrame()->CreateFrameForTable( tableId );
 
     /* Create a new table with the newly created Frame. */
-    table = m_tableMgr.CreateTable( tableId );
-	table->SetInitialTime( tableInfo.initialTime );
-    table->SetBlackTime( tableInfo.blackTime );
-    table->SetRedTime( tableInfo.redTime );
-	table->ViewBoard( childFrame );
-    childFrame->SetTable( table );
+    pTable = m_tableMgr.CreateTable( tableId );
+	pTable->SetInitialTime( tableInfo.initialTime );
+    pTable->SetBlackTime( tableInfo.blackTime );
+    pTable->SetRedTime( tableInfo.redTime );
+	
+	wxLogDebug("%s: Creating a new Board...", FNAME);
+	hoxBoard* pBoard = new hoxBoard( childFrame, 
+		                             PIECES_PATH, 
+		                             pTable->GetReferee(),
+        					         wxDefaultPosition,
+							         childFrame->GetSize() );
+	pBoard->SetTable( pTable );
+    pTable->ViewBoard( pBoard );
+    
+    childFrame->SetTable( pTable );
     childFrame->Show( true );
 
-    return table;
+    return pTable;
 }
 
 // --------------------------------------------------------------------------

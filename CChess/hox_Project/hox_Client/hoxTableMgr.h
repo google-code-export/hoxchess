@@ -40,10 +40,10 @@ public:
     hoxTableMgr();
     ~hoxTableMgr();
 
-    hoxTable* CreateTable( const wxString& tableId );
-    void RemoveTable( hoxTable* table );
+    hoxTable_SPtr CreateTable( const wxString& tableId );
+    void RemoveTable( hoxTable_SPtr pTable );
     
-    hoxTable* FindTable( const wxString& tableId ) const;
+    hoxTable_SPtr FindTable( const wxString& tableId ) const;
     const hoxTableList& GetTables() const { return m_tables; } 
 
     void     SetSite(hoxSite* site) { m_site = site; }

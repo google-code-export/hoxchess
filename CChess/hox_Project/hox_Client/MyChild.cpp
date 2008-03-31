@@ -66,7 +66,6 @@ MyChild::MyChild( wxMDIParentFrame* parent,
                           pos, 
                           size,
                           wxDEFAULT_FRAME_STYLE | wxNO_FULL_REPAINT_ON_RESIZE )
-        , m_table( NULL )
 {
     _SetupMenu();
     _SetupStatusBar();
@@ -107,8 +106,8 @@ MyChild::OnQuit( wxCommandEvent& event )
 void 
 MyChild::OnToggle( wxCommandEvent& event )
 {
-    if ( m_table != NULL )
-        m_table->ToggleViewSide();
+    if ( m_pTable.get() != NULL )
+        m_pTable->ToggleViewSide();
 }
 
 void 
@@ -117,11 +116,11 @@ MyChild::OnClose(wxCloseEvent& event)
     const char* FNAME = "MyChild::OnClose";
     wxLogDebug("%s: ENTER.", FNAME);
 
-    wxCHECK_RET( m_table, "The table must have been set." );
+    wxCHECK_RET( m_pTable.get() != NULL, "The table must have been set." );
     
     MyFrame* parent = wxGetApp().GetFrame();
     wxCHECK_RET( parent, "We should be able to cast...");
-    bool bAllowedToClose =  parent->OnChildClose( this, m_table );
+    bool bAllowedToClose = parent->OnChildClose( this, m_pTable );
 
     if ( !bAllowedToClose )
     {
@@ -129,9 +128,9 @@ MyChild::OnClose(wxCloseEvent& event)
         return;
     }
 
-    hoxSite* site = m_table->GetSite();
-    site->CloseTable( m_table );
-    m_table = NULL;
+    hoxSite* site = m_pTable->GetSite();
+    site->CloseTable( m_pTable );
+    m_pTable.reset();
 
     parent->UpdateSiteTreeUI();
 
@@ -148,18 +147,18 @@ void MyChild::OnSize(wxSizeEvent& event)
 }
 
 void
-MyChild::SetTable(hoxTable* table)
+MyChild::SetTable(hoxTable_SPtr pTable)
 {
-    wxCHECK_RET( m_table == NULL, "A table has already been set." );
-    wxASSERT( table != NULL );
-    m_table = table;
+    wxCHECK_RET( m_pTable.get() == NULL, "A table has already been set." );
+    wxASSERT( pTable != NULL );
+    m_pTable = pTable;
 }
 
 hoxSite* 
 MyChild::GetSite() const
 {
-    if ( m_table != NULL )
-        return m_table->GetSite();
+    if ( m_pTable.get() != NULL )
+        return m_pTable->GetSite();
 
     return NULL;
 }

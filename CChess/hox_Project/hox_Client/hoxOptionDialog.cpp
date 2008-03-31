@@ -49,16 +49,16 @@ END_EVENT_TABLE()
 //-----------------------------------------------------------------------------
 
 
-hoxOptionDialog::hoxOptionDialog( wxWindow*        parent, 
-                                  wxWindowID       id, 
-                                  const wxString&  title,
-                                  const hoxTable*  table )
+hoxOptionDialog::hoxOptionDialog( wxWindow*           parent, 
+                                  wxWindowID          id, 
+                                  const wxString&     title,
+                                  const hoxTable_SPtr pTable )
         : wxDialog( parent, id, title, wxDefaultPosition, wxDefaultSize, 
 		            wxDEFAULT_DIALOG_STYLE )
         , m_selectedCommand( COMMAND_ID_CANCEL )
-		, m_table( table )
+		, m_pTable( pTable )
 {
-    const hoxTimeInfo currentTimeInfo = m_table->GetInitialTime();
+    const hoxTimeInfo currentTimeInfo = m_pTable->GetInitialTime();
 
 	/* Create a layout. */
 
@@ -178,7 +178,7 @@ hoxOptionDialog::OnButtonSave(wxCommandEvent& event)
 	}
 
     wxLogDebug("%s: Table [%s]: The new Timers = [%s].", FNAME,
-        m_table->GetId().c_str(),
+        m_pTable->GetId().c_str(),
         hoxUtil::TimeInfoToString(m_newTimeInfo).c_str());
 
 	/* Return the SAVE command. */

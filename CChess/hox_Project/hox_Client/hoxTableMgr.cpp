@@ -25,11 +25,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxTableMgr.h"
-#include "hoxBoard.h"
 #include "hoxReferee.h"
-#include "MyApp.h"      // wxGetApp
-#include "MyFrame.h"
-#include "MyChild.h"
 
 hoxTableMgr::hoxTableMgr()
 {
@@ -37,14 +33,9 @@ hoxTableMgr::hoxTableMgr()
 
 hoxTableMgr::~hoxTableMgr()
 {
-    for ( hoxTableList::iterator it = m_tables.begin(); 
-                              it != m_tables.end(); ++it )
-    {
-        delete (*it);
-    }
 }
 
-hoxTable*
+hoxTable_SPtr
 hoxTableMgr::CreateTable( const wxString& tableId )
 {
     /* Create a Referee */
@@ -55,33 +46,37 @@ hoxTableMgr::CreateTable( const wxString& tableId )
      * NOTE: Since this App can function as a server, it is important
      *       to have a notion of a Table withOUT a Board (or Table's GUI).
      */
-    hoxTable* table = new hoxTable( m_site, tableId, referee );
+    hoxTable_SPtr pTable( new hoxTable( m_site, tableId, referee ) );
 
     /* Save this table to our list */
-    m_tables.push_back( table);
+    m_tables.push_back( pTable);
 
-    return table;
+    return pTable;
 }
 
 void
-hoxTableMgr::RemoveTable( hoxTable* table )
+hoxTableMgr::RemoveTable( hoxTable_SPtr pTable )
 {
-    wxASSERT( table != NULL );
-    delete table;
-    m_tables.remove( table );
+    wxASSERT( pTable.get() != NULL );
+    m_tables.remove( pTable );
 }
 
-hoxTable* 
+hoxTable_SPtr
 hoxTableMgr::FindTable( const wxString& tableId ) const
 {
+    hoxTable_SPtr foundTable;
+
     for ( hoxTableList::const_iterator it = m_tables.begin(); 
-                              it != m_tables.end(); ++it )
+                                       it != m_tables.end(); ++it )
     {
         if ( tableId == (*it)->GetId() )
-            return (*it);
+        {
+            foundTable = (*it);
+            break;
+        }
     }
 
-    return NULL;
+    return foundTable;
 }
 
 /************************* END OF FILE ***************************************/
