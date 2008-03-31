@@ -380,14 +380,19 @@ hoxBoard::OnGameReset( wxCommandEvent &event )
 void 
 hoxBoard::OnTableUpdate( wxCommandEvent &event )
 {
+    const wxString sEvent = event.GetString();
     const hoxTimeInfo newTimeInfo = 
-        hoxUtil::StringToTimeInfo( event.GetString() );
+        hoxUtil::StringToTimeInfo( sEvent );
 
     m_initialTime = newTimeInfo;
     m_redTime     = m_initialTime;
     m_blackTime   = m_initialTime;
 
     _UpdateTimerUI();
+
+	/* Display a notification message. */
+    const wxString boardMessage = "Timer changed to " + sEvent; 
+	this->OnBoardMsg( boardMessage );
 }
 
 void 
