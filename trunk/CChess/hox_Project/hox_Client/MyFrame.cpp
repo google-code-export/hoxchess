@@ -239,7 +239,7 @@ MyFrame::OnNewTable( wxCommandEvent& event )
 {
     const char* FNAME = "MyFrame::OnNewTable";
 
-    hoxTable* selectedTable = NULL;
+    hoxTable_SPtr selectedTable;
     hoxSite* selectedSite = _GetSelectedSite(selectedTable);
 
     if ( selectedSite == NULL )
@@ -271,7 +271,7 @@ void
 MyFrame::OnUpdateNewTable(wxUpdateUIEvent& event)
 {
 	bool enableMenu = false;
-    hoxTable* selectedTable = NULL;
+    hoxTable_SPtr selectedTable;
     hoxSite* selectedSite = _GetSelectedSite(selectedTable);
 
     if (   selectedSite != NULL 
@@ -296,7 +296,7 @@ MyFrame::OnUpdateCloseTable(wxUpdateUIEvent& event)
 void 
 MyFrame::OnUpdateListTables(wxUpdateUIEvent& event)
 {
-    hoxTable* selectedTable = NULL;
+    hoxTable_SPtr selectedTable;
     hoxSite*  selectedSite = _GetSelectedSite(selectedTable);
 
 	bool bEnabled = (    selectedSite != NULL 
@@ -306,20 +306,20 @@ MyFrame::OnUpdateListTables(wxUpdateUIEvent& event)
 }
 
 bool
-MyFrame::OnChildClose( MyChild* child, 
-                       hoxTable* table )
+MyFrame::OnChildClose( MyChild*      child, 
+                       hoxTable_SPtr pTable )
 {
     const char* FNAME = "MyFrame::OnChildClose";
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    wxCHECK_MSG( table != NULL, true, "The table is NULL." );
+    wxCHECK_MSG( pTable.get() != NULL, true, "The table is NULL." );
 
 	/* Save the layout. */
 	_SaveDefaultTableLayout( child->GetSize() );
 
     m_nChildren--;
-    table->OnClose_FromSystem();
+    pTable->OnClose_FromSystem();
     m_children.remove( child );
 
     wxLogDebug("%s: END.", FNAME);
@@ -367,7 +367,7 @@ MyFrame::OnCloseServer( wxCommandEvent& event )
 
     /* Find out which site is selected. */
 
-    hoxTable* selectedTable = NULL;
+    hoxTable_SPtr selectedTable;
     hoxSite* selectedSite = _GetSelectedSite(selectedTable);
 
     if ( selectedSite == NULL )
@@ -458,7 +458,7 @@ MyFrame::OnListTables( wxCommandEvent& event )
     const char* FNAME = "MyFrame::OnListTables";
     wxLogDebug("%s: ENTER.", FNAME);
 
-    hoxTable* selectedTable = NULL;
+    hoxTable_SPtr selectedTable;
     hoxSite* selectedSite = _GetSelectedSite(selectedTable);
 
     if ( selectedSite == NULL )
@@ -614,10 +614,10 @@ MyFrame::OnContextMenu( wxContextMenuEvent& event )
     
     wxMenu menu;
 
-    hoxTable* selectedTable = NULL;
+    hoxTable_SPtr selectedTable;
     hoxSite* selectedSite = _GetSelectedSite(selectedTable);
 
-    if ( selectedTable != NULL )
+    if ( selectedTable.get() != NULL )
     {
         menu.Append(MDI_CLOSE_TABLE, _("&Close Table\tCtrl-C"), 
 			                         _("Close Table"));
@@ -794,9 +794,9 @@ MyFrame::_CloseChildrenOfSite(hoxSite* site)
 }
 
 hoxSite* 
-MyFrame::_GetSelectedSite(hoxTable*& selectedTable) const
+MyFrame::_GetSelectedSite(hoxTable_SPtr& selectedTable) const
 {
-    selectedTable = NULL;
+    selectedTable.reset();
 
     hoxSite* selectedSite = NULL;
 
@@ -827,12 +827,6 @@ MyFrame::_GetSelectedSite(hoxTable*& selectedTable) const
         wxTreeItemData* itemData = m_sitesTree->GetItemData(selectedItem);
         SiteTreeItemData* siteData = (SiteTreeItemData*) itemData;
         selectedSite = siteData->GetSite();
-        selectedTable = NULL;
-    }
-    else
-    {
-        selectedSite = NULL;
-        selectedTable = NULL;
     }
 
     return selectedSite;

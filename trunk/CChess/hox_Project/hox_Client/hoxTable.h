@@ -65,6 +65,8 @@ public:
 	 */
     const wxString GetId() const { return m_id; }
 
+    hoxIReferee_SPtr GetReferee() const { return m_referee; }
+
     /**
      * Assign a player to this Table.
      *
@@ -108,7 +110,7 @@ public:
 	 * Board using the given 'tableWindow' parameter as the parent Window.
 	 *
      */
-    void ViewBoard( wxWindow* tableWindow );
+    void ViewBoard( hoxBoard* pBoard );
 
 	void SetInitialTime(const hoxTimeInfo& timeInfo) { m_initialTime = timeInfo; }
 	const hoxTimeInfo GetInitialTime() const { return m_initialTime; }

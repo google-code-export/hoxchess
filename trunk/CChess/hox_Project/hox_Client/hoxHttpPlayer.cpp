@@ -175,8 +175,8 @@ void
 hoxHttpPlayer::_HandleEventFromNetwork( const hoxNetworkEvent& networkEvent )
 {
     const char* FNAME = "hoxHttpPlayer::_HandleEventFromNetwork";
-    hoxSite*  site = NULL;
-    hoxTable* table = NULL;
+    hoxSite*      site = NULL;
+    hoxTable_SPtr pTable;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -184,8 +184,8 @@ hoxHttpPlayer::_HandleEventFromNetwork( const hoxNetworkEvent& networkEvent )
     site = this->GetSite();
 
     /* Lookup table */
-    table = site->FindTable( tableId );
-    if ( table == NULL )
+    pTable = site->FindTable( tableId );
+    if ( pTable.get() == NULL )
     {
         wxLogDebug("%s: *** ERROR *** Failed to find table = [%s].", FNAME, tableId.c_str());
         return;
@@ -241,19 +241,19 @@ hoxHttpPlayer::_HandleEventFromNetwork( const hoxNetworkEvent& networkEvent )
                 break;
             }
             wxLogDebug("%s: Player [%s] just left the table.", FNAME, leavePlayer->GetName().c_str());
-            table->OnLeave_FromNetwork( leavePlayer, this );
+            pTable->OnLeave_FromNetwork( leavePlayer, this );
             break;
         }
         case hoxNETWORK_EVENT_TYPE_NEW_MOVE:    // NEW MOVE
         {
             wxString moveStr = networkEvent.content;
-            table->OnMove_FromNetwork( this, moveStr );
+            pTable->OnMove_FromNetwork( this, moveStr );
             break;
         }
         case hoxNETWORK_EVENT_TYPE_NEW_WALL_MSG: // NEW MESSAGE
         {
             wxString message = networkEvent.content;
-            table->OnMessage_FromNetwork( this->GetName(), message );
+            pTable->OnMessage_FromNetwork( this->GetName(), message );
             break;
         }
         default:

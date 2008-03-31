@@ -96,13 +96,13 @@ private:
 
 	bool _HandleTableCmd(const wxString& cmdStr);
 	bool _HandleTableCmd_Settings(const wxString& cmdStr);
-	bool _HandleTableCmd_PastMoves(hoxTable*       table,
+	bool _HandleTableCmd_PastMoves(hoxTable_SPtr   pTable,
 		                           const wxString& cmdStr);
-	bool _HandleTableCmd_Move(hoxTable*       table,
+	bool _HandleTableCmd_Move(hoxTable_SPtr   pTable,
 		                      const wxString& cmdStr);
-	bool _HandleTableCmd_GameOver(hoxTable*       table,
+	bool _HandleTableCmd_GameOver(hoxTable_SPtr   pTable,
 		                          const wxString& cmdStr);
-	bool _HandleTableCmd_OfferDraw(hoxTable* table);
+	bool _HandleTableCmd_OfferDraw(hoxTable_SPtr pTable);
 	bool _HandleTableMsg(const wxString& cmdStr);
 
 	/* Private event-handlers */

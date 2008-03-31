@@ -666,29 +666,17 @@ hoxChesscapePlayer::_HandleTableCmd( const wxString& cmdStr )
 	wxString tableId = roles.front().tableId;
 
 	// Find the table hosted on this system using the specified table-Id.
-	hoxTable* table = this->GetSite()->FindTable( tableId );
-	if ( table == NULL )
+	hoxTable_SPtr pTable = this->GetSite()->FindTable( tableId );
+	if ( pTable.get() == NULL )
 	{
 		wxLogDebug("%s: *** WARN *** Table [%s] not found.", FNAME, tableId.c_str());
 		return false;
 	}
 
-	if ( tCmd == "MvPts" )
-	{
-		_HandleTableCmd_PastMoves( table, subCmdStr );
-	}
-	else if ( tCmd == "Move" )
-	{
-		_HandleTableCmd_Move( table, subCmdStr );
-	}
-	else if ( tCmd == "GameOver" )
-	{
-		_HandleTableCmd_GameOver( table, subCmdStr );
-	}
-	else if ( tCmd == "OfferDraw" )
-	{
-		_HandleTableCmd_OfferDraw( table );
-	}
+	if      ( tCmd == "MvPts" )     _HandleTableCmd_PastMoves( pTable, subCmdStr );
+	else if ( tCmd == "Move" )      _HandleTableCmd_Move( pTable, subCmdStr );
+	else if ( tCmd == "GameOver" )  _HandleTableCmd_GameOver( pTable, subCmdStr );
+	else if ( tCmd == "OfferDraw" ) _HandleTableCmd_OfferDraw( pTable );
 	else
 	{
 		wxLogDebug("%s: *** Ignore this Table-command = [%s].", FNAME, tCmd.c_str());
@@ -822,7 +810,7 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 }
 
 bool 
-hoxChesscapePlayer::_HandleTableCmd_PastMoves( hoxTable*       table,
+hoxChesscapePlayer::_HandleTableCmd_PastMoves( hoxTable_SPtr   pTable,
 	                                           const wxString& cmdStr )
 {
 	const char* FNAME = "hoxChesscapePlayer::_HandleTableCmd_PastMoves";
@@ -842,13 +830,13 @@ hoxChesscapePlayer::_HandleTableCmd_PastMoves( hoxTable*       table,
 	}
 
 	/* Inform our table... */
-    table->OnPastMoves_FromNetwork( this, moves );
+    pTable->OnPastMoves_FromNetwork( this, moves );
 
 	return true;
 }
 
 bool 
-hoxChesscapePlayer::_HandleTableCmd_Move( hoxTable*       table,
+hoxChesscapePlayer::_HandleTableCmd_Move( hoxTable_SPtr   pTable,
 	                                      const wxString& cmdStr )
 {
 	const char* FNAME = "hoxChesscapePlayer::_HandleTableCmd_Move";
@@ -883,13 +871,13 @@ hoxChesscapePlayer::_HandleTableCmd_Move( hoxTable*       table,
 	 */
 
 	wxLogDebug("%s: Inform table of Move = [%s][%s].", FNAME, moveStr.c_str(), moveParam.c_str());
-	table->OnMove_FromNetwork( this, moveStr );
+	pTable->OnMove_FromNetwork( this, moveStr );
 
 	return true;
 }
 
 bool 
-hoxChesscapePlayer::_HandleTableCmd_GameOver( hoxTable*       table,
+hoxChesscapePlayer::_HandleTableCmd_GameOver( hoxTable_SPtr   pTable,
 	                                          const wxString& cmdStr )
 {
 	const char* FNAME = "hoxChesscapePlayer::_HandleTableCmd_GameOver";
@@ -916,21 +904,21 @@ hoxChesscapePlayer::_HandleTableCmd_GameOver( hoxTable*       table,
 	}
 
 	wxLogDebug("%s: Inform table of Game-Status [%d].", FNAME, (int) gameStatus);
-	table->OnGameOver_FromNetwork( this, gameStatus );
+	pTable->OnGameOver_FromNetwork( this, gameStatus );
 
 	return true;
 }
 
 bool 
-hoxChesscapePlayer::_HandleTableCmd_OfferDraw( hoxTable* table )
+hoxChesscapePlayer::_HandleTableCmd_OfferDraw( hoxTable_SPtr pTable )
 {
 	const char* FNAME = "hoxChesscapePlayer::_HandleTableCmd_OfferDraw";
 
 	/* Make sure that this Player is playing... */
 
 	hoxPlayer* whoOffered = NULL;  // Who offered draw?
-	hoxPlayer* blackPlayer = table->GetBlackPlayer();
-	hoxPlayer* redPlayer = table->GetRedPlayer();
+	hoxPlayer* blackPlayer = pTable->GetBlackPlayer();
+	hoxPlayer* redPlayer = pTable->GetRedPlayer();
 
 	if      ( blackPlayer == this )  whoOffered = redPlayer;
 	else if ( redPlayer   == this )  whoOffered = blackPlayer;
@@ -943,7 +931,7 @@ hoxChesscapePlayer::_HandleTableCmd_OfferDraw( hoxTable* table )
 
 	wxLogDebug("%s: Inform table of player [%s] is offering Draw-Request.", 
 		FNAME, whoOffered->GetName().c_str());
-	table->OnDrawRequest_FromNetwork( whoOffered );
+	pTable->OnDrawRequest_FromNetwork( whoOffered );
 
 	return true;
 }
@@ -965,8 +953,8 @@ hoxChesscapePlayer::_HandleTableMsg( const wxString& cmdStr )
 	wxString tableId = roles.front().tableId;
 
 	// Find the table hosted on this system using the specified table-Id.
-	hoxTable* table = this->GetSite()->FindTable( tableId );
-	if ( table == NULL )
+	hoxTable_SPtr pTable = this->GetSite()->FindTable( tableId );
+	if ( pTable.get() == NULL )
 	{
 		wxLogDebug("%s: *** WARN *** Table [%s] not found.", FNAME, tableId.c_str());
 		return false;
@@ -977,7 +965,7 @@ hoxChesscapePlayer::_HandleTableMsg( const wxString& cmdStr )
 	const wxString whoSent = cmdStr.AfterFirst('<').BeforeFirst('>');
 	const wxString message = cmdStr.AfterFirst(' ').BeforeFirst(0x10);
 
-	table->OnMessage_FromNetwork( whoSent, message );
+	pTable->OnMessage_FromNetwork( whoSent, message );
 
 	return true;
 }
@@ -1029,7 +1017,7 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 
 	hoxColor myCurrentColor = hoxCOLOR_NONE;
 	hoxSite*       site = this->GetSite();
-	hoxTable*      table = NULL;
+	hoxTable_SPtr  pTable;
 	const wxString tableId = tableInfo.id;
 
 	if ( ! this->FindRoleAtTable( tableInfo.id, myCurrentColor ) ) // not found?
@@ -1037,8 +1025,8 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 		return;  // Not my table. Fine. Do nothing.
 	}
 
-	table = site->FindTable( tableId );
-	if ( table == NULL ) // not found?
+	pTable = site->FindTable( tableId );
+	if ( pTable == NULL ) // not found?
 	{
 		wxLogDebug("%s: *** ERROR *** Table [%s] not found.", FNAME, tableId.c_str());
 		return;
@@ -1046,8 +1034,8 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 
 	/* Find out if any new Player just "sit" at the Table. */
 
-	hoxPlayer* currentRedPlayer = table->GetRedPlayer();
-	hoxPlayer* currentBlackPlayer = table->GetBlackPlayer();
+	hoxPlayer* currentRedPlayer = pTable->GetRedPlayer();
+	hoxPlayer* currentBlackPlayer = pTable->GetBlackPlayer();
 	const wxString currentRedId = currentRedPlayer ? currentRedPlayer->GetName() : "";
 	const wxString currentBlackId = currentBlackPlayer ? currentBlackPlayer->GetName() : "";
 	bool bNewRed   = false;  // A new Player just 'sit' as RED.
@@ -1078,11 +1066,8 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 				                                    ::atoi( tableInfo.redScore.c_str() ) ); 
 		}
 
-		result = newRedPlayer->JoinTableAs( table, hoxCOLOR_RED );
+		result = newRedPlayer->JoinTableAs( pTable, hoxCOLOR_RED );
 		wxASSERT( result == hoxRC_OK  );
-		wxASSERT_MSG( newRedPlayer->HasRole( hoxRole(table->GetId(), 
-											         hoxCOLOR_RED) ),
-					  _("Player must join as RED"));
 	}
 
 	/* Handle the new 'sitting' BLACK player */
@@ -1101,18 +1086,15 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 			                                          ::atoi( tableInfo.blackScore.c_str() ) );
 		}
 
-		result = newBlackPlayer->JoinTableAs( table, hoxCOLOR_BLACK );
+		result = newBlackPlayer->JoinTableAs( pTable, hoxCOLOR_BLACK );
 		wxASSERT( result == hoxRC_OK  );
-		wxASSERT_MSG( newBlackPlayer->HasRole( hoxRole(table->GetId(), 
-											           hoxCOLOR_BLACK) ),
-					  _("Player must join as BLACK"));
 	}
 
 	/* Toggle board if this Player plays BLACK. */
 
 	if ( newBlackPlayer == this )
 	{
-		table->ToggleViewSide();
+		pTable->ToggleViewSide();
 	}
 }
 

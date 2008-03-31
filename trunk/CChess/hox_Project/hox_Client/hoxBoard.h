@@ -142,7 +142,7 @@ public:
      * My MAIN public API
      *********************************/
 
-    void SetTable( hoxTable* table );
+    void SetTable( hoxTable_SPtr pTable );
 
     void ToggleViewSide();
 
@@ -173,7 +173,7 @@ private:
 private:
     hoxCoreBoard*     m_coreBoard;  // The "core" board.
     hoxIReferee_SPtr  m_referee;    // The Referee.
-    hoxTable*         m_table;      // The Table to which this Board belongs.
+    hoxTable_SPtr     m_pTable;     // The Table to which this Board belongs.
 
     hoxGameStatus     m_status;     // The game's status.
 

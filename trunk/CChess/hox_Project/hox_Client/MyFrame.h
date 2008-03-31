@@ -130,7 +130,7 @@ public:
      *       for the permission to close.
      *       !!! BE CAREFUL with recursive calls. !!!
      */
-    bool OnChildClose(MyChild* child, hoxTable* table);
+    bool OnChildClose(MyChild* child, hoxTable_SPtr pTable);
 
     void OnFrameLogMsgEvent( wxCommandEvent &event );
     void OnContextMenu( wxContextMenuEvent& event );
@@ -159,13 +159,13 @@ public:
     class TableTreeItemData : public wxTreeItemData
     {
     public:
-        TableTreeItemData(hoxTable* table = NULL) : m_table(table) {}
+        TableTreeItemData(hoxTable_SPtr table) : m_table(table) {}
         ~TableTreeItemData() {}
 
-        hoxTable* GetTable() const { return m_table; }
+        hoxTable_SPtr GetTable() const { return m_table; }
 
     private:
-        hoxTable*  m_table;
+        hoxTable_SPtr  m_table;
     };
     void UpdateSiteTreeUI();
 
@@ -175,7 +175,7 @@ private:
      */
     void     _CloseChildrenOfSite(hoxSite* site);
 
-    hoxSite* _GetSelectedSite(hoxTable*& selectedTable) const;
+    hoxSite* _GetSelectedSite(hoxTable_SPtr& selectedTable) const;
 
 	bool _GetDefaultSitesLayout( int& sizeX );
 	bool _SaveDefaultSitesLayout( const int sizeX );

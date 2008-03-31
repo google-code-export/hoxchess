@@ -159,14 +159,14 @@ hoxPlayer::FindRoleAtTable( const wxString& tableId,
  *       see which role the player has.
  */
 hoxResult 
-hoxPlayer::JoinTable( hoxTable* table )
+hoxPlayer::JoinTable( hoxTable_SPtr pTable )
 {
     const char* FNAME = "hoxPlayer::JoinTable";
 
-    wxCHECK_MSG( table != NULL, hoxRC_ERR, "The table is NULL." );
+    wxCHECK_MSG( pTable.get() != NULL, hoxRC_ERR, "The table is NULL." );
     // TODO: Check for duplicate!!! (join same table twice)
     hoxColor assignedColor;
-    bool          informOthers = true;
+    bool     informOthers = true;
 
     /* NOTE: Except for dummy players, this player will inform other
      *       about his presence.
@@ -178,43 +178,43 @@ hoxPlayer::JoinTable( hoxTable* table )
         informOthers = false;
     }
 
-    hoxResult result = table->AssignPlayer( this, 
-                                            assignedColor, 
-                                            informOthers );
+    hoxResult result = pTable->AssignPlayer( this, 
+                                             assignedColor, 
+                                             informOthers );
     if ( result == hoxRC_OK )
     {
-        this->AddRole( hoxRole( table->GetId(), assignedColor ) );
+        this->AddRole( hoxRole( pTable->GetId(), assignedColor ) );
     }
 
     return result;
 }
 
 hoxResult 
-hoxPlayer::JoinTableAs( hoxTable*     table,
-                        hoxColor requestColor )
+hoxPlayer::JoinTableAs( hoxTable_SPtr pTable,
+                        hoxColor      requestColor )
 {
-    wxCHECK_MSG( table != NULL, hoxRC_ERR, "The table is NULL." );
+    wxCHECK_MSG( pTable.get() != NULL, hoxRC_ERR, "The table is NULL." );
 
-    hoxResult result = table->AssignPlayerAs( this, requestColor );
+    hoxResult result = pTable->AssignPlayerAs( this, requestColor );
     if ( result == hoxRC_OK )
     {
-        this->AddRole( hoxRole( table->GetId(), requestColor ) );
+        this->AddRole( hoxRole( pTable->GetId(), requestColor ) );
     }
     return result;
 }
 
 hoxResult 
-hoxPlayer::LeaveTable( hoxTable* table )
+hoxPlayer::LeaveTable( hoxTable_SPtr pTable )
 {
     const char* FNAME = "hoxPlayer::LeaveTable";
 
-    wxCHECK_MSG(table != NULL, hoxRC_ERR, "The table is NULL." );
+    wxCHECK_MSG(pTable.get() != NULL, hoxRC_ERR, "The table is NULL." );
 
     wxLogDebug("%s: Player [%s] is leaving table [%s]...", 
-        FNAME, this->GetName().c_str(), table->GetId().c_str());
+        FNAME, this->GetName().c_str(), pTable->GetId().c_str());
 
-    table->OnLeave_FromPlayer( this );
-    this->RemoveRoleAtTable( table->GetId() );
+    pTable->OnLeave_FromPlayer( this );
+    this->RemoveRoleAtTable( pTable->GetId() );
 
     return hoxRC_OK;
 }
@@ -233,8 +233,8 @@ hoxPlayer::LeaveAllTables()
         m_roles.pop_front();
 
         // Find the table hosted on this system using the specified table-Id.
-        hoxTable* table = m_site->FindTable( tableId );
-        if ( table == NULL )
+        hoxTable_SPtr pTable = m_site->FindTable( tableId );
+        if ( pTable.get() == NULL )
         {
             wxLogError("%s: Failed to find table with ID = [%s].", FNAME, tableId.c_str());
             bErrorFound = true;
@@ -242,7 +242,7 @@ hoxPlayer::LeaveAllTables()
         }
 
         // Inform the table that this player is leaving...
-        this->LeaveTable( table );
+        this->LeaveTable( pTable );
     }
 
     return bErrorFound ? hoxRC_ERR : hoxRC_OK;
@@ -442,9 +442,9 @@ hoxPlayer::HandleIncomingData_Move( hoxCommand& command,
     wxLogDebug("%s: ENTER.", FNAME);
 
     // Find the table hosted on this system using the specified table-Id.
-    hoxTable* table = m_site->FindTable( tableId );
+    hoxTable_SPtr pTable = m_site->FindTable( tableId );
 
-    if ( table == NULL )
+    if ( pTable.get() == NULL )
     {
         wxLogError("%s: Table [%s] not found.", FNAME, tableId.c_str());
         response << "1\r\n"  // code
@@ -454,13 +454,13 @@ hoxPlayer::HandleIncomingData_Move( hoxCommand& command,
 
     /* Look up player */
 
-    if ( table->GetRedPlayer() != NULL && table->GetRedPlayer()->GetName() == playerId )
+    if ( pTable->GetRedPlayer() != NULL && pTable->GetRedPlayer()->GetName() == playerId )
     {
-        player = table->GetRedPlayer();
+        player = pTable->GetRedPlayer();
     }
-    else if ( table->GetBlackPlayer() != NULL && table->GetBlackPlayer()->GetName() == playerId )
+    else if ( pTable->GetBlackPlayer() != NULL && pTable->GetBlackPlayer()->GetName() == playerId )
     {
-        player = table->GetBlackPlayer();
+        player = pTable->GetBlackPlayer();
     }
     else
     {
@@ -472,7 +472,7 @@ hoxPlayer::HandleIncomingData_Move( hoxCommand& command,
     }
 
     // Inform our table...
-    table->OnMove_FromNetwork( player, moveStr );
+    pTable->OnMove_FromNetwork( player, moveStr );
 
     // Finally, return 'success'.
     response << "0\r\n"       // error-code = SUCCESS
@@ -501,9 +501,9 @@ hoxPlayer::HandleIncomingData_Leave( hoxCommand& command,
     requesterId = command.parameters["pid"];
 
     // Find the table hosted on this system using the specified table-Id.
-    hoxTable* table = m_site->FindTable( tableId );
+    hoxTable_SPtr pTable = m_site->FindTable( tableId );
 
-    if ( table == NULL )
+    if ( pTable.get() == NULL )
     {
         wxLogDebug("%s: *** WARN *** Table [%s] not found.", FNAME, tableId.c_str());
         response << "1\r\n"  // code
@@ -513,13 +513,13 @@ hoxPlayer::HandleIncomingData_Leave( hoxCommand& command,
 
     /* Create a LEAVE-event and send it to the table. */
 
-    if ( table->GetRedPlayer() != NULL && table->GetRedPlayer()->GetName() == requesterId )
+    if ( pTable->GetRedPlayer() != NULL && pTable->GetRedPlayer()->GetName() == requesterId )
     {
-        player = table->GetRedPlayer();
+        player = pTable->GetRedPlayer();
     }
-    else if ( table->GetBlackPlayer() != NULL && table->GetBlackPlayer()->GetName() == requesterId )
+    else if ( pTable->GetBlackPlayer() != NULL && pTable->GetBlackPlayer()->GetName() == requesterId )
     {
-        player = table->GetBlackPlayer();
+        player = pTable->GetBlackPlayer();
     }
     else
     {
@@ -531,12 +531,12 @@ hoxPlayer::HandleIncomingData_Leave( hoxCommand& command,
 
 
     // Inform our table...
-    table->OnLeave_FromNetwork( player, this );
+    pTable->OnLeave_FromNetwork( player, this );
     if ( this == player )
     {
         wxLogDebug("%s: Remove myself as Player [%s] from table [%s].", 
-            FNAME, this->GetName().c_str(), table->GetId().c_str());
-        this->RemoveRoleAtTable( table->GetId() );
+            FNAME, this->GetName().c_str(), pTable->GetId().c_str());
+        this->RemoveRoleAtTable( pTable->GetId() );
     }
 
 	// Finally, return 'success'.
@@ -556,7 +556,7 @@ hoxPlayer::HandleIncomingData_WallMsg( hoxCommand& command,
 {
     const char* FNAME = "hoxPlayer::HandleIncomingData_WallMsg";
     hoxResult   result = hoxRC_ERR;
-    hoxTable*   table = NULL;
+    hoxTable_SPtr pTable;
     hoxPlayer*  player = NULL;
 
     wxString message = command.parameters["msg"];
@@ -567,8 +567,8 @@ hoxPlayer::HandleIncomingData_WallMsg( hoxCommand& command,
 
     /* Lookup table */
 
-    table = m_site->FindTable( tableId );
-    if ( table == NULL )
+    pTable = m_site->FindTable( tableId );
+    if ( pTable.get() == NULL )
     {
         wxLogError("%s: Table [%s] not found.", FNAME, tableId.c_str());
         response << "1\r\n"  // code
@@ -588,7 +588,7 @@ hoxPlayer::HandleIncomingData_WallMsg( hoxCommand& command,
     }
 
     // Inform our table...
-    table->OnMessage_FromNetwork( playerId, message );
+    pTable->OnMessage_FromNetwork( playerId, message );
 
     // Finally, return 'success'.
     response << "0\r\n"       // error-code = SUCCESS
@@ -669,7 +669,7 @@ hoxPlayer::HandleIncomingData_Join( hoxCommand& command,
 {
     const char* FNAME = "hoxPlayer::HandleIncomingData_Join";
     hoxResult  result = hoxRC_ERR;
-    hoxTable*  table = NULL;
+    hoxTable_SPtr pTable;
     hoxPlayer* redPlayer = NULL;
     hoxPlayer* blackPlayer = NULL;
     wxString   iTimes, rTimes, bTimes;
@@ -681,8 +681,8 @@ hoxPlayer::HandleIncomingData_Join( hoxCommand& command,
     const wxString tableId = command.parameters["tid"];
 
     // Find the table hosted on this system using the specified table-Id.
-    table = m_site->FindTable( tableId );
-    if ( table == NULL )
+    pTable = m_site->FindTable( tableId );
+    if ( pTable.get() == NULL )
     {
         wxLogError("%s: Table [%s] not found.", FNAME, tableId.c_str());
         response << "1\r\n"  // code
@@ -694,7 +694,7 @@ hoxPlayer::HandleIncomingData_Join( hoxCommand& command,
     /* Setup players       */
     /***********************/
 
-    result = this->JoinTable( table );
+    result = this->JoinTable( pTable );
     if ( result != hoxRC_OK  )
     {
         wxLogError("%s: Failed to ask Table [%s] to join.", FNAME, tableId.c_str());
@@ -705,11 +705,11 @@ hoxPlayer::HandleIncomingData_Join( hoxCommand& command,
 
 	// Finally, return 'success'.
 
-    redPlayer = table->GetRedPlayer();
-    blackPlayer = table->GetBlackPlayer();
-	iTimes = hoxUtil::TimeInfoToString( table->GetInitialTime() );
-	rTimes = hoxUtil::TimeInfoToString( table->GetRedTime() );
-	bTimes = hoxUtil::TimeInfoToString( table->GetBlackTime() );
+    redPlayer = pTable->GetRedPlayer();
+    blackPlayer = pTable->GetBlackPlayer();
+	iTimes = hoxUtil::TimeInfoToString( pTable->GetInitialTime() );
+	rTimes = hoxUtil::TimeInfoToString( pTable->GetRedTime() );
+	bTimes = hoxUtil::TimeInfoToString( pTable->GetBlackTime() );
     if ( redPlayer != NULL ) {
         rid = redPlayer->GetName();
         rscore = wxString::Format("%d", redPlayer->GetScore());
@@ -752,7 +752,7 @@ hoxPlayer::HandleIncomingData_NewJoin( hoxCommand& command,
 {
     const char* FNAME = "hoxPlayer::HandleIncomingData_NewJoin";
     hoxResult result = hoxRC_ERR;
-    hoxTable*  table = NULL;
+    hoxTable_SPtr pTable;
     hoxPlayer* player = NULL;
 
     wxLogDebug("%s: ENTER.", FNAME);
@@ -764,8 +764,8 @@ hoxPlayer::HandleIncomingData_NewJoin( hoxCommand& command,
 
     /* Lookup Table. */
 
-    table = m_site->FindTable( tableId );
-    if ( table == NULL )
+    pTable = m_site->FindTable( tableId );
+    if ( pTable.get() == NULL )
     {
         wxLogError("%s: Table [%s] not found.", FNAME, tableId.c_str());
         response << "1\r\n"  // code
@@ -787,7 +787,7 @@ hoxPlayer::HandleIncomingData_NewJoin( hoxCommand& command,
      * NOTE: The player in this case can be different from THIS player.
      */
 
-    result = player->JoinTableAs( table, requestColor );
+    result = player->JoinTableAs( pTable, requestColor );
     if ( result != hoxRC_OK )
     {
         wxLogError("%s: Table denied the JOIN request as color [%d] from player [%s].", 
@@ -796,7 +796,7 @@ hoxPlayer::HandleIncomingData_NewJoin( hoxCommand& command,
                  << "Table " << tableId << " denied the JOIN request.\r\n";
         goto exit_label;
     }
-    wxASSERT_MSG( player->HasRole( hoxRole(table->GetId(), requestColor) ),
+    wxASSERT_MSG( player->HasRole( hoxRole(pTable->GetId(), requestColor) ),
                   "Player must play the specified color");
 
 	// Finally, return 'success'.
@@ -816,7 +816,7 @@ hoxPlayer::HandleIncomingData_New( hoxCommand& command,
 {
     const char* FNAME = "hoxPlayer::HandleIncomingData_New";
     hoxResult result = hoxRC_ERR;   // Assume: failure.
-    hoxTable* table = NULL;
+    hoxTable_SPtr pTable;
     wxString newTableId;
 
     wxLogDebug("%s: ENTER.", FNAME);

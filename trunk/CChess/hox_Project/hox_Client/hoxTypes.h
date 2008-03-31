@@ -48,8 +48,10 @@ class wxSocketBase;
 /**
  * Typedef(s)
  */
-typedef std::list<hoxPlayer*>  hoxPlayerList;
-typedef std::list<hoxTable*>   hoxTableList; 
+typedef boost::shared_ptr<hoxTable> hoxTable_SPtr;
+
+typedef std::list<hoxPlayer*>     hoxPlayerList;
+typedef std::list<hoxTable_SPtr>  hoxTableList; 
 
 typedef std::auto_ptr<hoxConnection> hoxConnection_APtr;
 
