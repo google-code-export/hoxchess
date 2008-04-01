@@ -79,6 +79,7 @@ public:
     hoxBoard( wxWindow*        parent,
               const wxString&  piecesPath,
               hoxIReferee_SPtr referee,
+              hoxTable_SPtr    pTable,
               const wxPoint&   pos = wxDefaultPosition, 
               const wxSize&    size = wxDefaultSize );
 
@@ -102,6 +103,12 @@ public:
      * a message, which may require the end-user's attention, occurs.
      */
     virtual void OnBoardMsg( const wxString& message );
+
+    /**
+     * A callback function invoked by the core Board when
+     * it wants to know whether a Piece can move next.
+     */
+    virtual bool OnBoardAskMovePermission( const hoxPieceInfo& pieceInfo );
 
     /*********************************
      * My custom event handler.
@@ -142,8 +149,6 @@ public:
      * My MAIN public API
      *********************************/
 
-    void SetTable( hoxTable_SPtr pTable );
-
     void ToggleViewSide();
 
 private:
@@ -165,10 +170,10 @@ private:
     void _OnValidMove( const hoxMove& move,
 		               bool           bSetupMode = false );
 
-    void _updateStatus();
+    void _UpdateStatus();
 
-    void _ResetTimerUI();  // Reset times to start a new game.
-    void _UpdateTimerUI();
+    void _SyncTimerWithTable();
+    void _OnTimerUpdated();
 
 private:
     hoxCoreBoard*     m_coreBoard;  // The "core" board.
@@ -189,6 +194,12 @@ private:
 	hoxTimeInfo       m_initialTime; // *** Initial time.
 	hoxTimeInfo       m_blackTime;   // Black's time.
 	hoxTimeInfo       m_redTime;     // Red's time.
+
+    /* The flag to indicate whether all UI elements have been created.
+     * NOTE: This flag is needed because we do not automatically create
+     *       those elements in the constructor.
+     */
+    bool              m_bUICreated;
 
     /* Player Info(s) + timers UI */
 

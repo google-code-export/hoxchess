@@ -821,9 +821,9 @@ hoxRemoteSite::CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo)
 	hoxBoard* pBoard = new hoxBoard( childFrame, 
 		                             PIECES_PATH, 
 		                             pTable->GetReferee(),
+                                     pTable,
         					         wxDefaultPosition,
 							         childFrame->GetSize() );
-	pBoard->SetTable( pTable );
     pTable->ViewBoard( pBoard );
     
     childFrame->SetTable( pTable );
