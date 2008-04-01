@@ -68,6 +68,8 @@ public:
         virtual void OnBoardMove( const hoxMove& move,
 			                      hoxGameStatus  status ) = 0;
         virtual void OnBoardMsg( const wxString& message ) = 0;
+        
+        virtual bool OnBoardAskMovePermission( const hoxPieceInfo& pieceInfo ) = 0;
     };
 
 public:
@@ -94,9 +96,9 @@ public:
     void LoadPieces();
 
     /**
-     * Start a game.
+     * Reset the Board.
      */
-    void StartGame();
+    void ResetBoard();
 
     /**
      * Set Owner of this Board.
@@ -242,7 +244,7 @@ private:
     hoxIReferee_SPtr m_referee; // The Referee of the game.
     BoardOwner*      m_owner;   // This Board's owner.
 
-    hoxColor   m_localColor;
+    hoxColor         m_localColor;
             /* The color (player-role) of the "local" player. */
 
     /* Variables used when a piece is dragged by the mouse. */
@@ -266,14 +268,6 @@ private:
     /* End-Game tracking */
     bool            m_isGameOver;
 
-    /*********************************
-     * Variables for Testing-purpose *
-     *********************************/
-
-    bool            m_TEST_skipColorCheck;
-            /* If true, then we skip checking for Color (Turn)
-             * when a piece is moved by the Mouse.
-             */
 
     DECLARE_DYNAMIC_CLASS(hoxCoreBoard)
     DECLARE_EVENT_TABLE()

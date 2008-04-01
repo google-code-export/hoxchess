@@ -94,7 +94,6 @@ hoxCoreBoard::hoxCoreBoard( wxWindow*        parent,
         , m_latestPiece( NULL )
         , m_historyIndex( HISTORY_INDEX_UNKNOWN )
         , m_isGameOver( false )
-        , m_TEST_skipColorCheck( true )
 {
     /* NOTE: We move this PNG code since to outside to avoid
      *       having duplicate handles if there are more than
@@ -343,37 +342,25 @@ hoxCoreBoard::LoadPieces()
 }
 
 void 
-hoxCoreBoard::StartGame()
+hoxCoreBoard::ResetBoard()
 {
-    /* Testing-mode is over -:)
-     * Game begins...
-     */
-    m_TEST_skipColorCheck = false;
-
-    /* If the Board is in GAME-REVIEW mode, 
-     * leave it. 
-     */
+    /* If the Board is in GAME-REVIEW mode, leave it. */
     this->DoGameReview_BEGIN();
     m_historyMoves.clear();
-
-    /* Tell the Referee to reset the game. */
-    m_referee->ResetGame();
 
     /* Initialize other stated-info. */
     m_latestPiece = NULL;
 
     /* Clear the Game-Over state in the last game, if any. */
-    if ( m_isGameOver )
-    {
-        m_isGameOver  = false;
+    m_isGameOver = false;
 
-        this->LoadPieces();
+    /* Reload the Pieces according to the Referee. */
+    this->LoadPieces();
 
-         wxClientDC dc(this);
-        _DrawWorkSpace( dc );
-        _DrawBoard( dc );
-        _DrawAllPieces( dc );
-    }
+     wxClientDC dc(this);
+    _DrawWorkSpace( dc );
+    _DrawBoard( dc );
+    _DrawAllPieces( dc );
 }
 
 void 
@@ -596,6 +583,12 @@ hoxCoreBoard::_OnPieceMoved( hoxPiece*          piece,
 bool 
 hoxCoreBoard::_CanPieceMoveNext( hoxPiece* piece ) const
 {
+    if (   m_owner != NULL 
+        && !m_owner->OnBoardAskMovePermission( piece->GetInfo() ) )
+	{
+        return false;
+    }
+
     if ( m_isGameOver )
         return false;
 
@@ -603,15 +596,10 @@ hoxCoreBoard::_CanPieceMoveNext( hoxPiece* piece ) const
         return false;
 
     if ( m_referee->GetNextColor() != piece->GetColor() )
-    {
         return false;
-    }
 
-    if ( ! m_TEST_skipColorCheck )
-    {
-        if ( piece->GetColor() != m_localColor )
-            return false;
-    }
+    if ( piece->GetColor() != m_localColor )
+        return false;
 
     return true;
 }

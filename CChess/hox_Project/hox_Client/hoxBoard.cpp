@@ -98,6 +98,7 @@ END_EVENT_TABLE()
 hoxBoard::hoxBoard( wxWindow*        parent,
                     const wxString&  piecesPath,
                     hoxIReferee_SPtr referee,
+                    hoxTable_SPtr    pTable,
                     const wxPoint&   pos  /* = wxDefaultPosition */, 
                     const wxSize&    size /* = wxDefaultSize */)
         : wxPanel( parent, 
@@ -107,17 +108,28 @@ hoxBoard::hoxBoard( wxWindow*        parent,
                    wxFULL_REPAINT_ON_RESIZE )
         , m_coreBoard( NULL )
         , m_referee( referee )
+        , m_pTable( pTable )
         , m_status( hoxGAME_STATUS_OPEN )
 		, m_timer( NULL )
+        , m_bUICreated( false )
 {
     const char* FNAME = "hoxBoard::hoxBoard";
     wxLogDebug("%s: ENTER.", FNAME);
+    
     wxCHECK_RET( m_referee.get() != NULL, "A Referee must be set." );
+    wxCHECK_RET( m_pTable.get() != NULL, "A Table must be set." );
 
     /* Create the core board. */
     m_coreBoard = new hoxCoreBoard( this, m_referee );
     m_coreBoard->SetBoardOwner( this );
     m_coreBoard->SetPiecesPath( piecesPath );
+
+    /* Sync timer with Table's. */
+    _SyncTimerWithTable();
+
+    /* A timer to keep track of the time. */
+    m_timer = new wxTimer( this );
+    m_timer->Start( hoxTIME_ONE_SECOND_INTERVAL );
 
 	// *** NOTE: By default, the Board is NOT visible.
     wxPanel::Show( false );  // invoke the parent's API.
@@ -137,7 +149,17 @@ hoxBoard::~hoxBoard()
         m_timer = NULL;
     }
 
-    delete m_coreBoard;
+    if ( m_coreBoard != NULL )
+    {
+        m_coreBoard->Close();
+            /* NOTE: This has to be used instead of "delete" or "Destroy()"
+             *       function to process pending events.
+             *
+             * See http://docs.wxwidgets.org/stable/wx_windowdeletionoverview.html#windowdeletionoverview
+             */
+
+        m_coreBoard = NULL;
+    }
 }
 
 void 
@@ -147,10 +169,10 @@ hoxBoard::OnBoardMove( const hoxMove& move,
     _OnValidMove( move );
 
     /* Inform the Table of the new move. */
-    wxCHECK_RET(m_pTable, "The table is NULL." );
+
 	const hoxTimeInfo playerTime = ( move.piece.color == hoxCOLOR_RED
-		                         ? m_redTime
-			    				 : m_blackTime );
+		                            ? m_redTime
+			    				    : m_blackTime );
     m_pTable->OnMove_FromBoard( move, 
 		                        status,
 			 				    playerTime );
@@ -162,6 +184,25 @@ hoxBoard::OnBoardMsg( const wxString& message )
     const wxString who = "** Board **";  // NOTE: This Board's name.
 
     _PostToWallOutput( who, message ); 
+}
+
+bool
+hoxBoard::OnBoardAskMovePermission( const hoxPieceInfo& pieceInfo )
+{
+    /* Check for Game-Status. */
+    if (    m_status != hoxGAME_STATUS_READY 
+         && m_status != hoxGAME_STATUS_IN_PROGRESS )
+    {
+        return false;
+    }
+
+    /* Check for the "next" Color. */
+    if ( pieceInfo.color != m_referee->GetNextColor() )
+    {
+        return false;
+    }
+
+    return true;  // OK. The Piece can be moved.
 }
 
 void 
@@ -208,11 +249,7 @@ hoxBoard::OnPlayerJoin( wxCommandEvent &event )
         m_coreBoard->SetLocalColor( playerColor );
     }
 
-    /* Update the game-status.
-     * Also, start the game if there are a RED and a BLACK players.
-     */
-
-    _updateStatus();
+    _UpdateStatus(); // Update the game-status.
 }
 
 void 
@@ -237,6 +274,8 @@ hoxBoard::OnPlayerLeave( wxCommandEvent &event )
     }
 
     _RemovePlayerFromList( playerId );
+
+    _UpdateStatus(); // Update the game-status.
 }
 
 void 
@@ -320,7 +359,6 @@ hoxBoard::OnDrawRequest( wxCommandEvent &event )
     if ( answer == wxYES )
     {
 	    /* Inform the Table. */
-	    wxCHECK_RET(m_pTable.get() != NULL, "The table is NULL." );
 	    m_pTable->OnDrawResponse_FromBoard( true );
 
 	    /* Set Game's status to DRAW */
@@ -368,8 +406,12 @@ hoxBoard::OnGameOver( wxCommandEvent &event )
 void 
 hoxBoard::OnGameReset( wxCommandEvent &event )
 {
+    m_coreBoard->ResetBoard();
+    
+    _SyncTimerWithTable();
+
     m_status = hoxGAME_STATUS_OPEN;
-	_updateStatus();
+	_UpdateStatus();
 
 	/* Display the "reset" message. */
     const wxString boardMessage = "Game Reset"; 
@@ -379,18 +421,12 @@ hoxBoard::OnGameReset( wxCommandEvent &event )
 void 
 hoxBoard::OnTableUpdate( wxCommandEvent &event )
 {
-    const wxString sEvent = event.GetString();
-    const hoxTimeInfo newTimeInfo = 
-        hoxUtil::StringToTimeInfo( sEvent );
-
-    m_initialTime = newTimeInfo;
-    m_redTime     = m_initialTime;
-    m_blackTime   = m_initialTime;
-
-    _UpdateTimerUI();
+    /* Sync timer. */
+    _SyncTimerWithTable();
 
 	/* Display a notification message. */
-    const wxString boardMessage = "Timer changed to " + sEvent; 
+    const wxString boardMessage =
+        "Timer changed to " + hoxUtil::TimeInfoToString( m_initialTime ); 
 	this->OnBoardMsg( boardMessage );
 }
 
@@ -458,32 +494,24 @@ hoxBoard::OnButtonOptions( wxCommandEvent &event )
 void 
 hoxBoard::OnButtonResign( wxCommandEvent &event )
 {
-    /* Let the table handle this action. */
-    wxCHECK_RET(m_pTable.get() != NULL, "The table is NULL." );
     m_pTable->OnResignCommand_FromBoard();
 }
 
 void 
 hoxBoard::OnButtonDraw( wxCommandEvent &event )
 {
-    /* Let the table handle this action. */
-    wxCHECK_RET(m_pTable.get() != NULL, "The table is NULL." );
     m_pTable->OnDrawCommand_FromBoard();
 }
 
 void 
 hoxBoard::OnButtonReset( wxCommandEvent &event )
 {
-    /* Let the table handle this action. */
-    wxCHECK_RET(m_pTable.get() != NULL, "The table is NULL." );
     m_pTable->OnResetCommand_FromBoard();
 }
 
 void 
 hoxBoard::OnButtonJoin( wxCommandEvent &event )
 {
-    /* Let the table handle this action. */
-    wxCHECK_RET(m_pTable.get() != NULL, "The table is NULL." );
     m_pTable->OnJoinCommand_FromBoard();
 }
 
@@ -506,7 +534,7 @@ hoxBoard::OnTimer( wxTimerEvent& event )
 		if ( m_redTime.nMove > 0 ) --m_redTime.nMove;
     }
 
-    _UpdateTimerUI();
+    _OnTimerUpdated();
 }
 
 bool 
@@ -520,14 +548,17 @@ hoxBoard::Show( bool show /* = true */ )
         /* Create the whole panel with player-info + timers */
         _CreateBoardPanel();
 
+        /* Indicate that all UI elements have been created. */
+        m_bUICreated = true;
+
         /* Set its background color. */
         wxColour bgPanelCol = wxTheColourDatabase->Find(_T("SKY BLUE"));
         if ( bgPanelCol.Ok() ) {
             this->SetBackgroundColour(bgPanelCol);
         }
 
-		/* Display timer. */
-		_UpdateTimerUI();
+        /* NOTE: Force Timer Updated event!!! */
+        _OnTimerUpdated();
     }
 
     return wxPanel::Show( show );  // invoke the parent's API.
@@ -536,7 +567,7 @@ hoxBoard::Show( bool show /* = true */ )
 void 
 hoxBoard::_SetRedInfo( const hoxPlayerInfo* playerInfo )
 {
-    if ( ! this->IsShown() ) return; // Do nothing if not visible.
+    if ( ! m_bUICreated ) return;
 
     wxString info;
 
@@ -557,7 +588,7 @@ hoxBoard::_SetRedInfo( const hoxPlayerInfo* playerInfo )
 void 
 hoxBoard::_SetBlackInfo( const hoxPlayerInfo* playerInfo )
 {
-    if ( ! this->IsShown() ) return; // Do nothing if not visible.
+    if ( ! m_bUICreated ) return;
 
     wxString info;
 
@@ -878,19 +909,6 @@ hoxBoard::_LayoutBoardPanel( bool viewInverted )
 }
 
 void 
-hoxBoard::SetTable( hoxTable_SPtr pTable ) 
-{ 
-    m_pTable = pTable;
-
-    /* A timer to keep track of the time. */
-    m_timer = new wxTimer( this );
-    m_timer->Start( hoxTIME_ONE_SECOND_INTERVAL );
-
-    /* Set default game-times. */
-    _ResetTimerUI();
-}
-
-void 
 hoxBoard::ToggleViewSide()
 {
     const char* FNAME = "hoxBoard::ToggleViewSide";
@@ -934,13 +952,7 @@ void
 hoxBoard::_AddPlayerToList( const wxString& playerId,
                             int             playerScore )
 {
-    const char* FNAME = "hoxBoard::_AddPlayerToList";
-
-    if ( ! this->IsShown() )
-    {
-        wxLogDebug("%s: Board is not shown. Do nothing.", FNAME);
-        return;
-    }
+    if ( ! m_bUICreated ) return;
 
 	/* Remove the old item, if any. */
 	_RemovePlayerFromList( playerId );
@@ -952,13 +964,7 @@ hoxBoard::_AddPlayerToList( const wxString& playerId,
 void 
 hoxBoard::_RemovePlayerFromList( const wxString& playerId )
 {
-    const char* FNAME = "hoxBoard::_RemovePlayerFromList";
-
-    if ( ! this->IsShown() )
-    {
-        wxLogDebug("%s: Board is not shown. Do nothing.", FNAME);
-        return;
-    }
+    if ( ! m_bUICreated ) return;
 
     const int idCount = m_playerListBox->GetCount();
 
@@ -1025,18 +1031,15 @@ hoxBoard::_OnValidMove( const hoxMove& move,
 }
 
 void
-hoxBoard::_updateStatus()
+hoxBoard::_UpdateStatus()
 {
-    /* Start the game if there are a RED and a BLACK players */
+    /* Update Table-Status based on Player availability. */
 
     if ( m_status == hoxGAME_STATUS_OPEN )
     {
         if ( !m_redId.empty() && !m_blackId.empty() )
         {
             m_status = hoxGAME_STATUS_READY;
-            _ResetTimerUI();
-            _UpdateTimerUI();
-            m_coreBoard->StartGame();
         }
     }
     else if ( m_status == hoxGAME_STATUS_READY )
@@ -1049,30 +1052,22 @@ hoxBoard::_updateStatus()
 }
 
 void
-hoxBoard::_ResetTimerUI()
+hoxBoard::_SyncTimerWithTable()
 {
-    /* Set default game-times. */
+    /* Sync timer with Table's. */
 
-	if ( m_pTable.get() != NULL )
-	{
-		m_initialTime = m_pTable->GetInitialTime();
-		m_blackTime   = m_pTable->GetBlackTime();
-		m_redTime     = m_pTable->GetRedTime();
-	}
-	else
-	{
-		m_initialTime.nGame = hoxTIME_DEFAULT_GAME_TIME;
-		m_initialTime.nMove = hoxTIME_DEFAULT_MOVE_TIME;
-		m_initialTime.nFree = hoxTIME_DEFAULT_FREE_TIME;
+	m_initialTime = m_pTable->GetInitialTime();
+	m_blackTime   = m_pTable->GetBlackTime();
+	m_redTime     = m_pTable->GetRedTime();
 
-		m_blackTime = m_initialTime;
-		m_redTime   = m_initialTime;
-	}
+    _OnTimerUpdated();  // Update UI.
 }
 
 void 
-hoxBoard::_UpdateTimerUI()
+hoxBoard::_OnTimerUpdated()
 {
+    if ( ! m_bUICreated ) return;
+
     // Game times.
 	m_blackGameTime->SetLabel( hoxUtil::FormatTime( m_blackTime.nGame ) );
     m_redGameTime->SetLabel(   hoxUtil::FormatTime( m_redTime.nGame ) );

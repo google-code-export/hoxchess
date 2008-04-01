@@ -532,7 +532,7 @@ hoxTable::OnUpdate_FromPlayer( hoxPlayer*         player,
     m_redTime     = m_initialTime;
     m_blackTime   = m_initialTime;
 
-    _PostBoard_UpdateEvent( player, m_initialTime );
+    _PostBoard_UpdateEvent( player );
 }
 
 void
@@ -794,14 +794,12 @@ hoxTable::_PostBoard_ScoreEvent( hoxPlayer*  player ) const
 }
 
 void
-hoxTable::_PostBoard_UpdateEvent( hoxPlayer*         player,
-                                  const hoxTimeInfo& newTimeInfo ) const
+hoxTable::_PostBoard_UpdateEvent( hoxPlayer* player ) const
 {
 	if ( m_board == NULL )
 		return;
 
     wxCommandEvent event( hoxEVT_BOARD_TABLE_UPDATE );
-    event.SetString( hoxUtil::TimeInfoToString( newTimeInfo ) );
     wxPostEvent( m_board, event );
 }
 
@@ -1060,6 +1058,8 @@ hoxTable::_FindPlayer( const wxString& playerId )
 void
 hoxTable::_ResetGame()
 {
+    m_referee->ResetGame();
+
     m_redTime   = m_initialTime;
     m_blackTime = m_initialTime;
 }

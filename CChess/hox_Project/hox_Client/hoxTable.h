@@ -366,8 +366,7 @@ private:
 
     void _PostBoard_ScoreEvent( hoxPlayer*  player ) const;
 
-    void _PostBoard_UpdateEvent( hoxPlayer*         player,
-                                 const hoxTimeInfo& newTimeInfo ) const;
+    void _PostBoard_UpdateEvent( hoxPlayer* player ) const;
 
     /**
      * Inform other Players that a new Player just joined the Table.
