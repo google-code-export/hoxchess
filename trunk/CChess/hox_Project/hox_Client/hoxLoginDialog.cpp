@@ -34,7 +34,8 @@
 
 enum
 {
-    HOX_ID_LOGIN = 100
+    HOX_ID_SITE_TYPE = 100,
+    HOX_ID_LOGIN
 };
 
 // The Site-Type Selection
@@ -46,20 +47,35 @@ enum SiteTypeSelection
 
     SITETYPE_SELECTION_CHESSCAPE    = 0,
     SITETYPE_SELECTION_HOXCHESS     = 1,
-    SITETYPE_SELECTION_HTTP_POLLING = 2
+    //SITETYPE_SELECTION_HTTP_POLLING = 2,
+
+    SITETYPE_SELECTION_MAX    // MAX Site marker!!!
 };
 
-static wxString s_siteTypes[] =
+struct SiteInfo
 {
-    "Chesscape.com",
-    "HOXChess Server",
-    "HTTP Polling (experiment!!!)"
+    hoxSiteType type;
+    wxString    sId;
+    wxString    sDisplayName;
+    wxString    sAddress;
+    wxString    sPort;
+    wxString    sUsername;
+    wxString    sPassword;
+};
+
+/* Default sites info. */
+static SiteInfo s_siteList[] =
+{
+    { hoxSITE_TYPE_CHESSCAPE, "Chesscape", "Chesscape.com", "games.chesscape.com", "3534", "", "" },
+    { hoxSITE_TYPE_REMOTE, "HOXChess", "HOXChess Server", "", "8000", "", "" },
+    { hoxSITE_TYPE_HTTP, "HttpPolling", "HTTP Polling", "www.playxiangqi.com", "80", "", "" }
 };
 
 // ----------------------------------------------------------------------------
 // Declare event-handler table
 // ----------------------------------------------------------------------------
 BEGIN_EVENT_TABLE(hoxLoginDialog, wxDialog)
+    EVT_RADIOBOX(HOX_ID_SITE_TYPE, hoxLoginDialog::OnSiteSelected)
     EVT_BUTTON(HOX_ID_LOGIN, hoxLoginDialog::OnButtonLogin)
 END_EVENT_TABLE()
 
@@ -80,19 +96,17 @@ hoxLoginDialog::hoxLoginDialog( wxWindow*       parent,
 	/* Read existing login-info from Configuration. */
 
 	wxConfig* config = wxGetApp().GetConfig();
-	int      siteChoice    = SITETYPE_SELECTION_CHESSCAPE;
-	wxString serverAddress = "games.chesscape.com";
-	wxString serverPort    = "3534";
-	wxString userName;
-	wxString password;
+	int      siteChoice = SITETYPE_SELECTION_CHESSCAPE;
 
-	config->Read("/Sites/Chesscape/username", &userName);
-	config->Read("/Sites/Chesscape/password", &password);
-	_GetDefaultLoginInfo( siteChoice,
-						  serverAddress,
-						  serverPort,
-						  userName,
-						  password );
+    _GetDefaultLoginInfo( siteChoice );
+
+    /* Get the list of Display Names of Sites. */
+
+    wxArrayString siteTypes;
+    for ( int i = 0; i < SITETYPE_SELECTION_MAX; ++i )
+    {
+        siteTypes.Add( s_siteList[i].sDisplayName );
+    }
 
 	/* Create a layout. */
 
@@ -101,12 +115,11 @@ hoxLoginDialog::hoxLoginDialog( wxWindow*       parent,
     /* Site-Type. */
 
     m_radioSiteTypes = new wxRadioBox( this, 
-									   wxID_ANY, 
+									   HOX_ID_SITE_TYPE, 
 									   _("Site T&ype"), 
 									   wxPoint(10,10), 
 									   wxDefaultSize, 
-									   WXSIZEOF(s_siteTypes), 
-									   s_siteTypes, 
+                                       siteTypes,
 									   1, 
 									   wxRA_SPECIFY_COLS );
     topSizer->Add( 
@@ -124,14 +137,14 @@ hoxLoginDialog::hoxLoginDialog( wxWindow*       parent,
     m_textCtrlAddress = new wxTextCtrl( 
 		this, 
 		wxID_ANY,
-        serverAddress,
+        s_siteList[siteChoice].sAddress,
         wxDefaultPosition,
         wxSize(200, wxDefaultCoord ));
 
 	m_textCtrlPort = new wxTextCtrl(
 		this, 
 		wxID_ANY,
-        serverPort,
+        s_siteList[siteChoice].sPort,
         wxDefaultPosition,
         wxSize(50, wxDefaultCoord ));
 
@@ -166,14 +179,14 @@ hoxLoginDialog::hoxLoginDialog( wxWindow*       parent,
     m_textCtrlUserName = new wxTextCtrl( 
 		this, 
 		wxID_ANY,
-        userName,   // default value
+        s_siteList[siteChoice].sUsername,
         wxDefaultPosition,
         wxSize(130, wxDefaultCoord ));
 
 	m_textCtrlPassword = new wxTextCtrl(
 		this, 
 		wxID_ANY,
-        password, // default value
+        s_siteList[siteChoice].sPassword,
         wxDefaultPosition,
         wxSize(100, wxDefaultCoord ),
 		wxTE_PASSWORD);
@@ -225,27 +238,48 @@ hoxLoginDialog::hoxLoginDialog( wxWindow*       parent,
 }
 
 void 
+hoxLoginDialog::OnSiteSelected(wxCommandEvent& event)
+{
+    const char* FNAME = "hoxLoginDialog::OnSiteSelected";
+    int nSelectedType = m_radioSiteTypes->GetSelection();
+
+    if ( nSelectedType < 0 || nSelectedType >= SITETYPE_SELECTION_MAX )
+    {
+        wxLogError("%s: Unknown site choice [%d].", FNAME, nSelectedType);
+        return;
+    }
+#if 0
+    bool bAddressEnabled = true;
+    if ( nSelectedType == SITETYPE_SELECTION_CHESSCAPE )
+    {
+        bAddressEnabled = false;
+    }
+    m_textCtrlAddress->Enable( bAddressEnabled );
+    m_textCtrlPort->Enable( bAddressEnabled );
+#endif
+
+    m_textCtrlAddress->SetValue( s_siteList[nSelectedType].sAddress );
+    m_textCtrlPort->SetValue( s_siteList[nSelectedType].sPort );
+    m_textCtrlUserName->SetValue( s_siteList[nSelectedType].sUsername );
+    m_textCtrlPassword->SetValue( s_siteList[nSelectedType].sPassword );
+}
+
+void 
 hoxLoginDialog::OnButtonLogin(wxCommandEvent& event)
 {
-	/* Determine the selected Server-Type */
+    const char* FNAME = "hoxLoginDialog::OnButtonLogin";
 
-    switch ( m_radioSiteTypes->GetSelection() )
+	/* Determine the selected Site-Type */
+
+    int nSelectedType = m_radioSiteTypes->GetSelection();
+
+    if ( nSelectedType < 0 || nSelectedType >= SITETYPE_SELECTION_MAX )
     {
-        case SITETYPE_SELECTION_CHESSCAPE:  
-			m_selectedSiteType = hoxSITE_TYPE_CHESSCAPE; 
-			break;
-
-        case SITETYPE_SELECTION_HOXCHESS:  
-			m_selectedSiteType = hoxSITE_TYPE_REMOTE; 
-			break;
-
-        case SITETYPE_SELECTION_HTTP_POLLING:
-			m_selectedSiteType = hoxSITE_TYPE_HTTP; 
-			break;
-
-        default:
-            wxFAIL_MSG( _("Unexpected radio box selection") );
+        wxLogError("%s: Unknown site choice [%d].", FNAME, nSelectedType);
+        return;
     }
+
+    m_selectedSiteType = s_siteList[nSelectedType].type;
 
 	/* Determine Server-Address (Name/IP and Port) */
 
@@ -268,25 +302,21 @@ hoxLoginDialog::OnButtonLogin(wxCommandEvent& event)
 
 	/* Save login-info for next-time use */
 
-	_SaveDefaultLoginInfo( m_radioSiteTypes->GetSelection(),
-						   m_selectedAddress,
-						   m_textCtrlPort->GetValue(),
-						   m_selectedUserName,
-						   m_selectedPassword );
+    s_siteList[nSelectedType].sAddress  = m_selectedAddress;
+    s_siteList[nSelectedType].sPort     = m_textCtrlPort->GetValue();
+    s_siteList[nSelectedType].sUsername = m_selectedUserName;
+    s_siteList[nSelectedType].sPassword = m_selectedPassword;
+
+	_SaveDefaultLoginInfo( nSelectedType );
 
     Close();
 }
 
 bool 
-hoxLoginDialog::_GetDefaultLoginInfo( int&      siteChoice,
-									  wxString& serverAddress,
-									  wxString& serverPort,
-									  wxString& userName,
-									  wxString& password )
+hoxLoginDialog::_GetDefaultLoginInfo( int& siteChoice )
 {
 	const char* FNAME = "hoxLoginDialog::_GetDefaultLoginInfo";
 
-	/* Read the existing settings from Configuration. */
 	wxConfig* config = wxGetApp().GetConfig();
 
 	if ( ! config->Read( "/Sites/siteChoice", &siteChoice) )
@@ -294,71 +324,45 @@ hoxLoginDialog::_GetDefaultLoginInfo( int&      siteChoice,
 
 	/* Based on the choice, read the server-info + user-Info. */
 
-	wxString siteKey;
-
-    switch ( siteChoice )
+    if ( siteChoice < 0 || siteChoice >= SITETYPE_SELECTION_MAX )
     {
-        case SITETYPE_SELECTION_CHESSCAPE:    siteKey = "Chesscape";   break;
-        case SITETYPE_SELECTION_HOXCHESS:     siteKey = "HOXChess";    break;
-        case SITETYPE_SELECTION_HTTP_POLLING: siteKey = "HttpPolling"; break;
-        default:
-			wxLogDebug("%s: Unknown site choice [%d].", FNAME, siteChoice);
-			return false;
+        wxLogError("%s: Unknown site choice [%d].", FNAME, siteChoice);
+        return false;
     }
 
-	config->SetPath( "/Sites/" + siteKey );
+    for ( int i = 0; i < SITETYPE_SELECTION_MAX; ++i )
+    {
+	    config->SetPath( "/Sites/" + s_siteList[i].sId );
 
-	if ( ! config->Read("serverAddress", &serverAddress) )
-		return false;  // not found.
-
-	if ( ! config->Read("serverPort", &serverPort) )
-		return false;  // not found.
-
-	if ( ! config->Read("username", &userName) )
-		return false;  // not found.
-
-	if ( ! config->Read("password", &password) )
-		return false;  // not found.
+        config->Read("serverAddress", &(s_siteList[i].sAddress));
+	    config->Read("serverPort",    &(s_siteList[i].sPort));
+	    config->Read("username",      &(s_siteList[i].sUsername));
+	    config->Read("password",      &(s_siteList[i].sPassword));
+    }
 
 	return true;   // found old settings?
 }
 
 bool 
-hoxLoginDialog::_SaveDefaultLoginInfo( const int       siteChoice,
-									   const wxString& serverAddress,
-									   const wxString& serverPort,
-									   const wxString& userName,
-									   const wxString& password )
+hoxLoginDialog::_SaveDefaultLoginInfo( const int siteChoice )
 {
 	const char* FNAME = "hoxLoginDialog::_SaveDefaultLoginInfo";
 
-	/* Read the existing settings from Configuration. */
 	wxConfig* config = wxGetApp().GetConfig();
 
 	config->Write("/Sites/siteChoice", siteChoice);
 
-	/* Based on the choice, read the server-info + user-Info. */
-
-	wxString siteKey;
-
-    switch ( siteChoice )
+    for ( int i = 0; i < SITETYPE_SELECTION_MAX; ++i )
     {
-        case SITETYPE_SELECTION_CHESSCAPE:    siteKey = "Chesscape";   break;
-        case SITETYPE_SELECTION_HOXCHESS:     siteKey = "HOXChess";    break;
-        case SITETYPE_SELECTION_HTTP_POLLING: siteKey = "HttpPolling"; break;
-        default:
-			wxLogDebug("%s: Unknown site choice [%d].", FNAME, siteChoice);
-			return false;
+	    config->SetPath( "/Sites/" + s_siteList[i].sId );
+
+        config->Write("serverAddress", s_siteList[i].sAddress);
+	    config->Write("serverPort",    s_siteList[i].sPort);
+	    config->Write("username",      s_siteList[i].sUsername);
+	    config->Write("password",      s_siteList[i].sPassword);
     }
 
-	config->SetPath( "/Sites/" + siteKey );
-
-	config->Write("serverAddress", serverAddress);
-	config->Write("serverPort", serverPort);
-	config->Write("username", userName);
-	config->Write("password", password);
-
-	return true;   // found old settings?
+	return true;   // OK
 }
 
 /************************* END OF FILE ***************************************/
