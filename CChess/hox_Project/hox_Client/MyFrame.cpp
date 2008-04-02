@@ -331,7 +331,15 @@ MyFrame::OnOpenServer( wxCommandEvent& event )
 {
     const char* FNAME = "MyFrame::OnOpenServer";
     wxLogDebug("%s: ENTER.", FNAME);
-
+#if 1
+////////////////////////////////////////
+    wxMessageBox( _("Temporarily disabled in this release"),
+                 _("About HOXChess"),
+                 wxOK | wxICON_WARNING,
+                 this );
+    return;
+////////////////////////////////////////
+#else
     /* Ask user for server's port-number... */
 
     long minPort = 1024;
@@ -357,6 +365,7 @@ MyFrame::OnOpenServer( wxCommandEvent& event )
 
     wxGetApp().OpenServer( (int) nPort );
     wxLogStatus("Server listening for connections at port [%d].", (int)nPort);
+#endif
 }
 
 void 

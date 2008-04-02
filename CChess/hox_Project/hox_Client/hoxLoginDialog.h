@@ -48,6 +48,7 @@ public:
                     wxWindowID       id, 
                     const wxString&  title );
 
+    void OnSiteSelected(wxCommandEvent& event);
     void OnButtonLogin(wxCommandEvent& event);
 
     CommandId      GetSelectedCommand()  const { return m_selectedCommand; }
@@ -58,17 +59,9 @@ public:
 	const wxString GetSelectedPassword() const { return m_selectedPassword; }
 
 private:
-	bool _GetDefaultLoginInfo( int&      siteChoice,
-							   wxString& serverAddress,
-							   wxString& serverPort,
-							   wxString& userName,
-							   wxString& password );
+	bool _GetDefaultLoginInfo( int& siteChoice );
 
-	bool _SaveDefaultLoginInfo( const int       siteChoice,
-							    const wxString& serverAddress,
-							    const wxString& serverPort,
-							    const wxString& userName,
-							    const wxString& password );
+	bool _SaveDefaultLoginInfo( const int siteChoice );
 
 private:
 	wxRadioBox*  m_radioSiteTypes;
