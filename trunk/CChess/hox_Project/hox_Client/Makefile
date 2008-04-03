@@ -20,7 +20,6 @@ SOURCES := \
 	hoxLocalPlayer.cpp \
 	hoxLoginDialog.cpp \
 	hoxMyPlayer.cpp \
-	hoxNaiveReferee.cpp \
 	hoxNetworkAPI.cpp \
 	hoxPiece.cpp \
 	hoxPlayer.cpp \
@@ -36,8 +35,10 @@ SOURCES := \
 	hoxTableMgr.cpp \
 	hoxTablesDialog.cpp \
 	hoxThreadConnection.cpp \
-	hoxUtility.cpp \
+	hoxUtil.cpp \
 	hoxSite.cpp \
+	hoxOptionDialog.cpp \
+	hoxTypes.cpp \
 	MyApp.cpp \
 	MyChild.cpp \
 	MyFrame.cpp
@@ -54,4 +55,3 @@ $(PROGRAM): $(OBJECTS)
 
 clean:
 	rm -rf $(PROGRAM) $(OBJECTS)
-
