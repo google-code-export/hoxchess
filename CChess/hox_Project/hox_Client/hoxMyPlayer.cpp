@@ -85,11 +85,14 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 
         /* Close the connection and logout.
          */
-        this->LeaveAllTables();
-        this->DisconnectFromNetworkServer();
-        remoteSite->OnResponse_LOGOUT( response );
-        wxLogDebug("%s: END (exception).", FNAME);
-        return;  // *** Exit immediately.
+        if ( m_bLoginSuccess )
+        {
+            this->LeaveAllTables();
+            this->DisconnectFromNetworkServer();
+            remoteSite->OnResponse_LOGOUT( response );
+            wxLogDebug("%s: END (exception).", FNAME);
+            return;  // *** Exit immediately.
+        }
     }
 
     /* Handle other type of data. */
@@ -123,7 +126,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
             // Post the error on the Board.
             pTable->PostSystemMessage( sMessage );
         }
-        return;  // *** Exit immediately.
+        // *** Allow to continue
     }
 
     switch ( command.type )
