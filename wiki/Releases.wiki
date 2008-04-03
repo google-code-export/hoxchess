@@ -2,6 +2,19 @@
 
 _All releases can be found from_ [http://code.google.com/p/hoxchess/downloads/list this Downloads page]
 
+  * *April 03, 2008* 
+    * Released *HOXChess 0.4.0.0* of the _source_ code.
+    * The major feature introduced in this release is the ability to connect to my _upcoming_ Xiangqi server.
+    * Other noticeable changes:
+      * Improved the Login-Dialog to make it more user friendly.
+      * Added the Options-Dialog to change a Table's Timers (Game/Move/Free).
+      * Rewrote the Connection-derived classes to use TWO-THREAD (per connection) model.
+      * Included _boost::shared_ptr_ to help managing memory.
+      * Added the RESET and RESIGN actions to the Table's Board.
+    * The list of features that are disabled/removed:
+      * Disabled the (local) server component - I am thinking about removing this feature completely in the subsequent releases.
+      * Disabled the HTTP-Polling site.
+
   * *January 03, 2008* 
     * Released *HOXChess 0.3.0.0* of the _source_ code.
     * The major change in this release is the ability to _connect to the free_ [http://www.chesscape.com Chesscape server]
