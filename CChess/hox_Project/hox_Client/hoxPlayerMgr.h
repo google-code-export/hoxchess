@@ -28,7 +28,6 @@
 #define __INCLUDED_HOX_PLAYER_MGR_H_
 
 #include "hoxPlayer.h"
-#include "hoxRemotePlayer.h"
 #include "hoxHttpPlayer.h"
 #include "hoxMyPlayer.h"
 #include "hoxChesscapePlayer.h"
@@ -53,9 +52,6 @@ public:
 
     hoxMyPlayer* CreateMyPlayer( const wxString& name,
                                  int             score = 1500 );
-
-    hoxRemotePlayer* CreateRemotePlayer( const wxString& name,
-                                         int             score = 1500 );
 
     hoxPlayer* CreateDummyPlayer( const wxString& name,
                                   int             score = 1500 );

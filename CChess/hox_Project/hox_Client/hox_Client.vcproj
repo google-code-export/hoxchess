@@ -245,27 +245,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\hoxRemoteConnection.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\hoxRemotePlayer.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\hoxServer.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\hoxSite.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\hoxSocketConnection.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\hoxSocketServer.cpp"
 				>
 			</File>
 			<File
@@ -391,27 +375,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\hoxRemoteConnection.h"
-				>
-			</File>
-			<File
-				RelativePath=".\hoxRemotePlayer.h"
-				>
-			</File>
-			<File
-				RelativePath=".\hoxServer.h"
-				>
-			</File>
-			<File
 				RelativePath=".\hoxSite.h"
 				>
 			</File>
 			<File
 				RelativePath=".\hoxSocketConnection.h"
-				>
-			</File>
-			<File
-				RelativePath=".\hoxSocketServer.h"
 				>
 			</File>
 			<File

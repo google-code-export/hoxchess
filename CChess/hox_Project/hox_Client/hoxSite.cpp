@@ -26,7 +26,6 @@
 
 #include "hoxSite.h"
 #include "MyApp.h"
-#include "hoxServer.h"
 #include "hoxUtil.h"
 #include "hoxSocketConnection.h"
 #include "hoxHttpConnection.h"
@@ -125,175 +124,6 @@ hoxSite::ShowProgressDialog( bool bShow /* = true */ )
         }
     }
 }
-
-// --------------------------------------------------------------------------
-// hoxLocalSite
-// --------------------------------------------------------------------------
-
-
-hoxLocalSite::hoxLocalSite(const hoxServerAddress& address)
-        : hoxSite( hoxSITE_TYPE_LOCAL, address )
-        , m_server( NULL )
-        , m_isOpened( false )
-		, m_nNextTableId( 0 )
-{
-}
-
-hoxLocalSite::~hoxLocalSite()
-{
-}
-
-const wxString 
-hoxLocalSite::GetName() const
-{
-    wxString name;
-
-    name.Printf("Local Site (%d)", m_address.port);
-    return name;
-}
-
-hoxResult 
-hoxLocalSite::OpenServer()
-{
-    const char* FNAME = "hoxLocalSite::OpenServer";
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    if ( m_server != NULL )
-    {
-        wxLogDebug("%s: The server have been created. END.", FNAME);
-        return hoxRC_OK;
-    }
-
-    m_server = new hoxServer( this );
-
-	if ( hoxRC_OK !=  m_server->StartServer( m_address.port ) )
-	{
-        wxLogError("%s: Failed to start socker-server thread.", FNAME);
-        return hoxRC_ERR;
-	}
-
-    m_isOpened = true;
-
-    return hoxRC_OK;
-}
-
-hoxResult
-hoxLocalSite::Close()
-{
-    const char* FNAME = "hoxLocalSite::Close";
-
-	if ( m_siteClosing )
-	{
-		wxLogDebug("%s: Site [%s] is already being closed. END.", FNAME, this->GetName().c_str());
-		return hoxRC_OK;
-	}
-	m_siteClosing = true;
-
-	m_playerMgr.OnSiteClosing();
-
-	if ( m_playerMgr.GetNumberOfPlayers() == 0 )	
-	{
-		_DoCloseSite();
-	}
-
-    return hoxRC_OK;
-}
-
-hoxResult 
-hoxLocalSite::CreateNewTableAsPlayer( wxString&          newTableId, 
-                                      hoxPlayer*         player,
-									  const hoxTimeInfo& initialTime )
-{
-    const char* FNAME = "hoxLocalSite::CreateNewTableAsPlayer";
-    hoxTable_SPtr pTable;
-
-    wxLogDebug("%s: ENTER.", FNAME);
-
-	/* Generate a new Table-Id */
-	newTableId = _GenerateTableId();
-
-    /* Create a new table without a frame. */
-    pTable = m_tableMgr.CreateTable( newTableId );
-	pTable->SetInitialTime( initialTime );
-    pTable->SetRedTime( initialTime );
-	pTable->SetBlackTime( initialTime );
-
-    /* Add the specified player to the table. */
-    hoxResult result = player->JoinTableAs( pTable, hoxCOLOR_RED );
-    wxASSERT( result == hoxRC_OK  );
-
-    /* Update UI. */
-    wxGetApp().GetFrame()->UpdateSiteTreeUI();
-
-    return hoxRC_OK;
-}
-
-void 
-hoxLocalSite::Handle_DisconnectFromPlayer( hoxPlayer* player )
-{
-    const char* FNAME = "hoxLocalSite::Handle_DisconnectFromPlayer";
-    wxLogDebug("%s: ENTER.", FNAME);
-
-	/* Inform the server. */
-    wxLogDebug("%s: Posting DISCONNECT request to remove the new client connection.", FNAME);
-    hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_LOGOUT ) );
-    apRequest->parameters["pid"] = player->GetName();
-    m_server->AddRequest( apRequest );
-
-	wxLogDebug("%s: END.", FNAME);
-}
-
-void 
-hoxLocalSite::Handle_ShutdownReadyFromPlayer( const wxString& playerId )
-{
-    const char* FNAME = "hoxLocalSite::Handle_ShutdownReadyFromPlayer";
-    wxLogDebug("%s: ENTER. (%s)", FNAME, playerId.c_str());
-
-	hoxPlayer* player = this->FindPlayer( playerId );
-	if ( player == NULL )
-	{
-		wxLogDebug("%s: *** WARN *** Player [%s] not found. END.", FNAME, playerId.c_str());
-		return;
-	}
-
-	this->DeletePlayer( player );
-
-    /* Perform the actual closing. */
-	if ( m_playerMgr.GetNumberOfPlayers() == 0 )	
-	{
-		wxLogDebug("%s: The number of players = 0. Closing site...", FNAME);
-		_DoCloseSite();
-	}
-}
-
-void 
-hoxLocalSite::_DoCloseSite()
-{
-	const char* FNAME = "hoxLocalSite::_DoCloseSite";
-
-	wxLogDebug("%s: ENTER.", FNAME);
-
-	if ( m_server != NULL )
-	{
-		m_server->CloseServer();
-		delete m_server;
-		m_server = NULL;
-	}
-
-	m_isOpened = false;
-
-	wxCommandEvent event( hoxEVT_APP_SITE_CLOSE_READY );
-	event.SetEventObject( this );
-	wxPostEvent( &(wxGetApp()), event );
-}
-
-const wxString 
-hoxLocalSite::_GenerateTableId()
-{
-	++m_nNextTableId;
-	return wxString::Format("%d", m_nNextTableId);
-}
-
 
 // --------------------------------------------------------------------------
 // hoxRemoteSite
@@ -945,7 +775,6 @@ hoxSiteManager::GetInstance()
 
 /* private */
 hoxSiteManager::hoxSiteManager()
-	: m_localSite( NULL )
 {
 
 }
@@ -966,13 +795,6 @@ hoxSiteManager::CreateSite( hoxSiteType             siteType,
 
 	switch ( siteType )
 	{
-	case hoxSITE_TYPE_LOCAL:
-	{
-        hoxLocalSite* localSite = new hoxLocalSite( address );
-		m_localSite = localSite;  // *** Save this local site.
-		site = localSite;
-		break;
-	}
 	case hoxSITE_TYPE_REMOTE:
 	{
 		hoxRemoteSite* remoteSite = new hoxRemoteSite( address );
@@ -1021,8 +843,7 @@ hoxSiteManager::FindRemoteSite( const hoxServerAddress& address ) const
     for ( hoxSiteList::const_iterator it = m_sites.begin();
                                       it != m_sites.end(); ++it )
     {
-        if (   (*it)->GetType() != hoxSITE_TYPE_LOCAL
-            && (*it)->GetAddress() == address )
+        if ( (*it)->GetAddress() == address )
         {
             return (hoxRemoteSite*) (*it);
         }
@@ -1042,9 +863,6 @@ hoxSiteManager::DeleteSite( hoxSite* site )
 
     delete site;
     m_sites.remove( site );
-
-    if ( site == m_localSite )
-        m_localSite = NULL;
 }
 
 void 

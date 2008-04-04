@@ -58,8 +58,8 @@ BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
 	EVT_UPDATE_UI(MDI_NEW_TABLE, MyFrame::OnUpdateNewTable)
     EVT_UPDATE_UI(MDI_CLOSE_TABLE, MyFrame::OnUpdateCloseTable)
 
-    EVT_MENU(MDI_OPEN_SERVER, MyFrame::OnOpenServer)
-    EVT_MENU(MDI_CLOSE_SERVER, MyFrame::OnCloseServer)
+    EVT_MENU(MDI_DISCONNECT_SERVER, MyFrame::OnDisconnectServer)
+	EVT_UPDATE_UI(MDI_DISCONNECT_SERVER, MyFrame::OnUpdateDisconnectServer)
     EVT_MENU(MDI_CONNECT_SERVER, MyFrame::OnConnectServer)
     EVT_MENU(MDI_LIST_TABLES, MyFrame::OnListTables)
 	EVT_UPDATE_UI(MDI_LIST_TABLES, MyFrame::OnUpdateListTables)
@@ -168,7 +168,7 @@ MyFrame::MyFrame( wxWindow*        parent,
     this->SetupMenu();
     this->SetupStatusBar();
 
-	wxLogStatus( wxString::Format("%s is ready.", HOX_APP_NAME) );
+	wxLogStatus("%s is ready.", HOX_APP_NAME);
 }
 
 MyFrame::~MyFrame()
@@ -274,8 +274,7 @@ MyFrame::OnUpdateNewTable(wxUpdateUIEvent& event)
     hoxTable_SPtr selectedTable;
     hoxSite* selectedSite = _GetSelectedSite(selectedTable);
 
-    if (   selectedSite != NULL 
-		&& selectedSite->GetType() != hoxSITE_TYPE_LOCAL )
+    if ( selectedSite != NULL )
 	{
 		unsigned int actionFlags = selectedSite->GetCurrentActionFlags();
 		if ( (actionFlags & hoxSITE_ACTION_NEW) != 0 )
@@ -299,8 +298,7 @@ MyFrame::OnUpdateListTables(wxUpdateUIEvent& event)
     hoxTable_SPtr selectedTable;
     hoxSite*  selectedSite = _GetSelectedSite(selectedTable);
 
-	bool bEnabled = (    selectedSite != NULL 
-		              && selectedSite->GetType() != hoxSITE_TYPE_LOCAL );
+	bool bEnabled = ( selectedSite != NULL );
 
     event.Enable( bEnabled );
 }
@@ -327,51 +325,9 @@ MyFrame::OnChildClose( MyChild*      child,
 }
 
 void 
-MyFrame::OnOpenServer( wxCommandEvent& event )
+MyFrame::OnDisconnectServer( wxCommandEvent& event )
 {
-    const char* FNAME = "MyFrame::OnOpenServer";
-    wxLogDebug("%s: ENTER.", FNAME);
-#if 1
-////////////////////////////////////////
-    wxMessageBox( _("Temporarily disabled in this release"),
-                 _("About HOXChess"),
-                 wxOK | wxICON_WARNING,
-                 this );
-    return;
-////////////////////////////////////////
-#else
-    /* Ask user for server's port-number... */
-
-    long minPort = 1024;
-    long maxPort = 64000;
-    long defaultPort = hoxNETWORK_DEFAULT_SERVER_PORT;
-
-    long nPort = wxGetNumberFromUser( 
-        _("Enter the port at which the server will be listening:"),
-        wxString::Format("Port [%d - %d]", minPort, maxPort), 
-        _("Server's Port ..."),
-        defaultPort,
-        minPort,
-        maxPort,
-        this,  // parent 
-        wxDefaultPosition 
-        );
-
-    if ( nPort == -1 ) // invalid or user cancels?
-    {
-        wxLogDebug("%s: User enters an invalid port or has canceled.", FNAME);
-        return;
-    }
-
-    wxGetApp().OpenServer( (int) nPort );
-    wxLogStatus("Server listening for connections at port [%d].", (int)nPort);
-#endif
-}
-
-void 
-MyFrame::OnCloseServer( wxCommandEvent& event )
-{
-    const char* FNAME = "MyFrame::OnCloseServer";
+    const char* FNAME = "MyFrame::OnDisconnectServer";
     wxLogDebug("%s: ENTER.", FNAME);
 
     /* Find out which site is selected. */
@@ -392,6 +348,17 @@ MyFrame::OnCloseServer( wxCommandEvent& event )
 
     /* Close the site itself. */
     wxGetApp().CloseServer( selectedSite );
+}
+
+void 
+MyFrame::OnUpdateDisconnectServer(wxUpdateUIEvent& event)
+{
+    hoxTable_SPtr selectedTable;
+    hoxSite*  selectedSite = _GetSelectedSite(selectedTable);
+
+	bool bEnabled = ( selectedSite != NULL );
+
+    event.Enable( bEnabled );
 }
 
 void 
@@ -473,16 +440,13 @@ MyFrame::OnListTables( wxCommandEvent& event )
     if ( selectedSite == NULL )
         return;
 
-    if ( selectedSite->GetType() != hoxSITE_TYPE_LOCAL )
-    {
-        hoxRemoteSite* remoteSite = (hoxRemoteSite*) selectedSite;
+    hoxRemoteSite* remoteSite = (hoxRemoteSite*) selectedSite;
 
-        hoxResult result = remoteSite->QueryForNetworkTables();
-        if ( result != hoxRC_OK )
-        {
-            wxLogError("%s: Failed to query for LIST of tables from the server.", FNAME);
-            return;
-        }
+    hoxResult result = remoteSite->QueryForNetworkTables();
+    if ( result != hoxRC_OK )
+    {
+        wxLogError("%s: Failed to query for LIST of tables from the server.", FNAME);
+        return;
     }
 }
 
@@ -563,7 +527,7 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
     // File menu.
     wxMenu* file_menu = new wxMenu;
     file_menu->Append(MDI_CONNECT_SERVER, _("Connect Server...\tCtrl-L"), _("Connect to remote server"));
-    file_menu->Append(MDI_CLOSE_SERVER, _("&Close Server\tCtrl-D"), _("Close the server"));
+    file_menu->Append(MDI_DISCONNECT_SERVER, _("&Disconnect Server\tCtrl-D"), _("Disconnect from remote server"));
     file_menu->AppendSeparator();
 	file_menu->Append(MDI_LIST_TABLES, _("List &Tables\tCtrl-T"), _("Get the list of tables"));
     file_menu->Append(MDI_NEW_TABLE, _("&New Table\tCtrl-N"), _("Create New Table"));
@@ -573,8 +537,6 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
 
     /* Server menu. */
     wxMenu* server_menu = new wxMenu;
-    server_menu->Append(MDI_OPEN_SERVER, _("&Open Server...\tCtrl-O"), _("Open server for remote access"));
-    server_menu->AppendSeparator();
     server_menu->AppendCheckItem(MDI_SHOW_SERVERS_WINDOW, _("Server&s Window\tCtrl-S"));
 
     /* View menu (only if a Table exits) */
@@ -633,50 +595,32 @@ MyFrame::OnContextMenu( wxContextMenuEvent& event )
     }
     else if ( selectedSite != NULL )
     {
-        if ( selectedSite->GetType() == hoxSITE_TYPE_LOCAL )
-        {
-            hoxLocalSite* localSite = (hoxLocalSite*) selectedSite;
-            if ( localSite->IsOpened() )
-            {
-                menu.Append(MDI_CLOSE_SERVER, _("&Close Server...\tCtrl-C"), 
-                                              _("Close local server"));
-            }
-        }
-        else /* Remote */
-        {
-            hoxRemoteSite* remoteSite = (hoxRemoteSite*) selectedSite;
-			unsigned int actionFlags = remoteSite->GetCurrentActionFlags();
+        hoxRemoteSite* remoteSite = (hoxRemoteSite*) selectedSite;
+		unsigned int actionFlags = remoteSite->GetCurrentActionFlags();
 
-			if ( (actionFlags & hoxSITE_ACTION_CONNECT) != 0 )
-			{
-				menu.Append(MDI_CONNECT_SERVER, _("Connect Remote Server...\tCtrl-L"), 
-					                            _("Connect to remote server"));
-			}
-			if ( (actionFlags & hoxSITE_ACTION_DISCONNECT) != 0 )
-			{
-                menu.Append(MDI_CLOSE_SERVER, _("&Disconnect Server\tCtrl-D"), 
-                                              _("Disconnect from remote server"));
-			}
-			if ( (actionFlags & hoxSITE_ACTION_LIST) != 0 )
-			{
-                menu.Append(MDI_LIST_TABLES, _("List &Tables\tCtrl-T"), 
-                                             _("Get the list of tables"));
-			}
-			if ( (actionFlags & hoxSITE_ACTION_NEW) != 0 )
-			{
-				menu.Append(MDI_NEW_TABLE, _("&New Table\tCtrl-N"), 
-					                       _("Create New Table"));
-			}
-        }
+		if ( (actionFlags & hoxSITE_ACTION_CONNECT) != 0 )
+		{
+			menu.Append(MDI_CONNECT_SERVER, _("Connect Remote Server...\tCtrl-L"), 
+				                            _("Connect to remote server"));
+		}
+		if ( (actionFlags & hoxSITE_ACTION_DISCONNECT) != 0 )
+		{
+            menu.Append(MDI_DISCONNECT_SERVER, _("&Disconnect Server\tCtrl-D"), 
+                                               _("Disconnect from remote server"));
+		}
+		if ( (actionFlags & hoxSITE_ACTION_LIST) != 0 )
+		{
+            menu.Append(MDI_LIST_TABLES, _("List &Tables\tCtrl-T"), 
+                                         _("Get the list of tables"));
+		}
+		if ( (actionFlags & hoxSITE_ACTION_NEW) != 0 )
+		{
+			menu.Append(MDI_NEW_TABLE, _("&New Table\tCtrl-N"), 
+				                       _("Create New Table"));
+		}
     }
 	else
 	{
-		if ( hoxSiteManager::GetInstance()->GetLocalSite() == NULL )
-		{
-			menu.Append(MDI_OPEN_SERVER, _("&Open Server...\tCtrl-O"), 
-										 _("Open server for remote access"));
-		}
-
 		menu.Append(MDI_CONNECT_SERVER, _("Connect Remote Server...\tCtrl-L"), 
 			                            _("Connect to remote server"));
 	}

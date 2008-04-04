@@ -79,18 +79,6 @@ hoxPlayerMgr::CreateMyPlayer( const wxString& name,
     return player;
 }
 
-hoxRemotePlayer*
-hoxPlayerMgr::CreateRemotePlayer( const wxString& name,
-                                  int             score /* = 1500 */)
-{
-    hoxRemotePlayer* player 
-        = new hoxRemotePlayer( name, hoxPLAYER_TYPE_REMOTE, score );
-    player->SetSite( m_site );
-    m_players.push_back( player );
-
-    return player;
-}
-
 hoxPlayer*
 hoxPlayerMgr::CreateDummyPlayer( const wxString& name,
                                  int             score /* = 1500 */)

@@ -31,13 +31,10 @@
 #include <wx/laywin.h>   // wxSashLayoutWindow
 #include <wx/treectrl.h>
 #include <list>
-#include "hoxEnums.h"
 #include "hoxTypes.h"
 
 /* Forward declarations */
-class hoxTable;
 class MyChild;
-class hoxLocalPlayer;
 class hoxSite;
 
 // menu items ids
@@ -48,9 +45,6 @@ enum
 
     MDI_NEW_TABLE = hoxUI_ID_RANGE_FRAME,
     MDI_CLOSE_TABLE,
-
-    MDI_OPEN_SERVER,    // Open server
-    MDI_CLOSE_SERVER,   // Close server
 
     MDI_CONNECT_SERVER, // Connect to server
     MDI_DISCONNECT_SERVER, // Disconnect from server
@@ -109,8 +103,8 @@ public:
 	void OnUpdateNewTable(wxUpdateUIEvent& event);
     void OnUpdateCloseTable(wxUpdateUIEvent& event);
 
-    void OnOpenServer(wxCommandEvent& event);
-    void OnCloseServer(wxCommandEvent& event);
+    void OnDisconnectServer(wxCommandEvent& event);
+    void OnUpdateDisconnectServer(wxUpdateUIEvent& event);
     void OnConnectServer(wxCommandEvent& event);
     void OnListTables(wxCommandEvent& event);
 	void OnUpdateListTables(wxUpdateUIEvent& event);
