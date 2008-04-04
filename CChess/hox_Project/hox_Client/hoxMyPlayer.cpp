@@ -73,7 +73,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 
     const hoxResponse_APtr response( wxDynamicCast(event.GetEventObject(), hoxResponse) );
 
-    hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
+    hoxSite* site = this->GetSite();
     hoxTable_SPtr  pTable;
 
     /* Handle error-code. */
@@ -89,7 +89,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
         {
             this->LeaveAllTables();
             this->DisconnectFromNetworkServer();
-            remoteSite->OnResponse_LOGOUT( response );
+            site->OnResponse_LOGOUT( response );
             wxLogDebug("%s: END (exception).", FNAME);
             return;  // *** Exit immediately.
         }
@@ -120,7 +120,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
         const wxString sMessage = "Request " + sType + " failed with code = " + sCode;
         wxLogDebug("%s: %s.", FNAME, sMessage.c_str());
 
-        pTable = remoteSite->FindTable( sTableId );
+        pTable = site->FindTable( sTableId );
         if ( pTable.get() != NULL )
         {
             // Post the error on the Board.
@@ -152,12 +152,12 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
                     m_bLoginSuccess = true;
                 }
             }
-            remoteSite->OnResponse_LOGIN( response );
+            site->OnResponse_LOGIN( response );
             break;
         }
         case hoxREQUEST_LOGOUT:
         {
-            remoteSite->OnResponse_LOGOUT( response );
+            site->OnResponse_LOGOUT( response );
             break;
         }
         case hoxREQUEST_LIST:
@@ -171,7 +171,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 				    FNAME, sContent.c_str());
 			    response->code = result;
 		    }
-	        remoteSite->DisplayListOfTables( *pTableList );
+	        site->DisplayListOfTables( *pTableList );
             break;
         }
         case hoxREQUEST_I_TABLE:
@@ -185,7 +185,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 				    FNAME, sType.c_str(), sContent.c_str());
                 break;
 		    }
-		    remoteSite->JoinNewTable( *pTableInfo );
+		    site->JoinNewTable( *pTableInfo );
 		    break;
         }
         case hoxREQUEST_LEAVE:
@@ -241,10 +241,10 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 		    }
             wxLogDebug("%s: Player [%s] joined Table [%s] as [%d].", FNAME, 
                 playerId.c_str(), tableId.c_str(), joinColor);
-            result = remoteSite->OnPlayerJoined( tableId, 
-                                                 playerId, 
-                                                 nPlayerScore,
-                                                 joinColor );
+            result = site->OnPlayerJoined( tableId, 
+                                           playerId, 
+                                           nPlayerScore,
+                                           joinColor );
             if ( result != hoxRC_OK )
             {
                 wxLogDebug("%s: *** ERROR *** Failed to ask table to join as color [%d].", 
@@ -399,7 +399,7 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
 
     const hoxResponse_APtr apResponse( wxDynamicCast(event.GetEventObject(), hoxResponse) );
 
-    hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
+    hoxSite* site = this->GetSite();
     
     const wxString sType = hoxUtil::RequestTypeToString(apResponse->type);
     const wxString sContent = apResponse->content;
@@ -412,7 +412,7 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
             {
                 wxLogDebug("%s: *** WARN *** Failed to login. Error = [%s].", 
                     FNAME, sContent.c_str());
-                remoteSite->OnResponse_LOGIN( apResponse );
+                site->OnResponse_LOGIN( apResponse );
             }
             break;
         }

@@ -415,10 +415,10 @@ hoxPlayer::HandleIncomingData_Disconnect( hoxCommand& command )
 	/* Shutdown the connection. */
 	wxLogDebug("%s: Shutdown the connection for player [%s]...", FNAME, playerId.c_str());
 	this->ShutdownConnection();
-
+#if 0
     /* Inform the site about this event. */
     m_site->Handle_DisconnectFromPlayer( this );
-
+#endif
 	/* Finally, return 'success'. */
     result = hoxRC_OK;
 
@@ -834,6 +834,7 @@ hoxPlayer::HandleIncomingData_New( hoxCommand& command,
     }
 
     /* Create a new Table. */
+#if 0
     result = m_site->CreateNewTableAsPlayer( newTableId, this, initialTime );
     if ( result != hoxRC_OK )
     {
@@ -842,7 +843,7 @@ hoxPlayer::HandleIncomingData_New( hoxCommand& command,
                  << "Failed to create a new table." << "\r\n";
         goto exit_label;
     }
-
+#endif
 	/* Finally, return 'success'. */
 	response << "0\r\n"       // error-code = SUCCESS
 	         << "INFO: (NEW) The new table-Id = [" << newTableId << "]\r\n"
