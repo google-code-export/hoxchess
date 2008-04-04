@@ -103,6 +103,10 @@ private:
 	bool _HandleTableCmd_GameOver(hoxTable_SPtr   pTable,
 		                          const wxString& cmdStr);
 	bool _HandleTableCmd_OfferDraw(hoxTable_SPtr pTable);
+	bool _HandleTableCmd_Clients(hoxTable_SPtr   pTable,
+		                         const wxString& cmdStr);
+	bool _HandleTableCmd_Unjoin(hoxTable_SPtr   pTable,
+		                        const wxString& cmdStr);
 	bool _HandleTableMsg(const wxString& cmdStr);
 
 	/* Private event-handlers */

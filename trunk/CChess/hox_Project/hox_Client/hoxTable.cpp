@@ -525,6 +525,23 @@ hoxTable::OnLeave_FromPlayer( hoxPlayer* player )
 }
 
 void
+hoxTable::OnLeave_FromPlayer( const wxString& sPlayerId )
+{
+    const char* FNAME = "hoxTable::OnLeave_FromPlayer";
+    wxLogDebug("%s: ENTER. (Player-Id = [%s])", FNAME, sPlayerId.c_str());
+
+    /* Lookup the player */
+    hoxPlayer* foundPlayer = _FindPlayer( sPlayerId );
+    if ( foundPlayer == NULL )
+    {
+        wxLogDebug("%s: *** WARN *** Player with Id = [%s] not found.", FNAME, sPlayerId.c_str());
+        return;
+    }
+
+    this->UnassignPlayer( foundPlayer );
+}
+
+void
 hoxTable::OnUpdate_FromPlayer( hoxPlayer*         player,
                                const hoxTimeInfo& newTimeInfo )
 {
@@ -574,6 +591,17 @@ hoxTable::ToggleViewSide()
 {
 	wxCHECK_RET(m_board, "The Board is not yet set.");
     m_board->ToggleViewSide();
+}
+
+hoxColor
+hoxTable::GetPlayerRole( const wxString& sPlayerId ) const
+{
+    hoxPlayer* foundPlayer = _FindPlayer( sPlayerId );
+    
+    if ( foundPlayer == NULL ) return hoxCOLOR_UNKNOWN;
+    if ( foundPlayer == m_redPlayer ) return  hoxCOLOR_RED;
+    if ( foundPlayer == m_blackPlayer ) return  hoxCOLOR_BLACK;
+    return  hoxCOLOR_NONE;
 }
 
 void
@@ -1041,10 +1069,10 @@ hoxTable::_RemovePlayer( hoxPlayer* player )
 }
 
 hoxPlayer* 
-hoxTable::_FindPlayer( const wxString& playerId )
+hoxTable::_FindPlayer( const wxString& playerId ) const
 {
-    for (hoxPlayerList::iterator it = m_players.begin(); 
-                                 it != m_players.end(); ++it)
+    for (hoxPlayerList::const_iterator it = m_players.begin(); 
+                                       it != m_players.end(); ++it)
     {
         if ( (*it)->GetName() == playerId )
         {

@@ -261,6 +261,11 @@ public:
     void OnLeave_FromPlayer( hoxPlayer* player );
 
     /**
+     * Callback function from a player (By ID) who is leaving the table.
+     */
+    void OnLeave_FromPlayer( const wxString& sPlayerId );
+
+    /**
      * Callback function from a player who just updated the Options (Table).
      *
      * @param player The Player who just updated the Options.
@@ -285,6 +290,8 @@ public:
     void ToggleViewSide();
 
     hoxSite* GetSite() const { return m_site; }
+
+    hoxColor GetPlayerRole( const wxString& sPlayerId ) const;
 
 private:
     /**
@@ -422,7 +429,7 @@ private:
 
     void       _AddPlayer( hoxPlayer* player, hoxColor role );
     void       _RemovePlayer( hoxPlayer* player );
-    hoxPlayer* _FindPlayer( const wxString& playerId );
+    hoxPlayer* _FindPlayer( const wxString& playerId ) const;
 
     void       _ResetGame();
 
