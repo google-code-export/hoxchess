@@ -41,7 +41,7 @@
  * The Application's Name and Version.
  */
 #define HOX_APP_NAME  "HOXChess"
-#define HOX_VERSION   "0.4.0.0"
+#define HOX_VERSION   "0.4.1.0"
 
 /**
  * The default path of all the pieces' images.
@@ -132,7 +132,6 @@ enum hoxSiteType
 {
     hoxSITE_TYPE_UNKNOWN = -1,
 
-    hoxSITE_TYPE_LOCAL,
     hoxSITE_TYPE_REMOTE,
     hoxSITE_TYPE_HTTP,
 
@@ -151,10 +150,6 @@ enum hoxPlayerType
              * Specifically, he can make Move(s) using the mouse
              * on the local computer.
              * In principle, there can ONLY one local player.
-             */
-
-    hoxPLAYER_TYPE_REMOTE,    
-            /* Any player who is remotely logging into this computer.
              */
 
     hoxPLAYER_TYPE_DUMMY       

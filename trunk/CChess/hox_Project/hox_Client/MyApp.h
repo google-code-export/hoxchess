@@ -41,8 +41,6 @@
  *  - hoxReferee    - The Referee of a Table. 
  *  - hoxPlayer     - The interface to a Player.
  *  - hoxConnection - The Connection used by a Player for network traffic.
- *  - hoxSocketServer - The server-component listening for new connections.
- *  - hoxServer     - The server-component managed all remote connections.
  */
 
 #ifndef __INCLUDED_MY_APP_H_
@@ -82,7 +80,6 @@ public:
      * My own API
      *********************************/
 
-    void OpenServer(int nPort);
     void CloseServer( hoxSite* site );
 
     void ConnectRemoteServer( const hoxSiteType       siteType,

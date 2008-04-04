@@ -132,29 +132,6 @@ MyApp::OnExit()
 }
 
 void 
-MyApp::OpenServer(int nPort) 
-{ 
-    const char* FNAME = "MyApp::OpenServer";
-    wxLogDebug("%s: ENTER.", FNAME);
-
-	hoxLocalSite* localSite = hoxSiteManager::GetInstance()->GetLocalSite();
-
-	if ( localSite == NULL )
-    {
-        hoxServerAddress address( "127.0.0.1", nPort ); 
-		localSite = static_cast<hoxLocalSite*>( 
-			hoxSiteManager::GetInstance()->CreateSite( hoxSITE_TYPE_LOCAL, 
-			                                           address,
-													   "" /* No Username */,
-													   "" /* No Password */) );
-    }
-
-    localSite->OpenServer();
-
-    m_frame->UpdateSiteTreeUI();
-}
-
-void 
 MyApp::CloseServer( hoxSite* site )
 {
     const char* FNAME = "MyApp::CloseServer";

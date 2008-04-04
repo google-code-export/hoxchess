@@ -778,8 +778,6 @@ hoxPlayer::HandleIncomingData_NewJoin( hoxCommand& command,
     player = m_site->FindPlayer( playerId );
     if ( player == NULL )
     {
-        /* The site that THIS Player belongs must be remote. */
-        wxASSERT_MSG( m_site->GetType() != hoxSITE_TYPE_LOCAL, "The site must be remote.");
         player = m_site->CreateDummyPlayer( playerId );
     }
 

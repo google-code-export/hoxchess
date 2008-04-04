@@ -52,9 +52,6 @@ enum hoxSiteAction
 	hoxSITE_ACTION_CLOSE          = ( (unsigned int) 1 << 5 )
 };
 
-/* Forward declarations */
-class hoxServer;
-
 /**
  * The Site.
  */
@@ -109,45 +106,9 @@ protected:
     wxProgressDialog*  m_dlgProgress;
 
 	bool               m_siteClosing;    // The Site is being closed?
-
-    friend class hoxSocketServer;
-    friend class hoxServer;
 };
 
 typedef std::list<hoxSite*>  hoxSiteList;
-
-/**
- * The LOCAL Site.
- */
-class hoxLocalSite : public hoxSite
-{
-public:
-    hoxLocalSite(const hoxServerAddress& address);
-    virtual ~hoxLocalSite();
-
-    virtual const wxString GetName() const;
-
-    virtual hoxResult OpenServer();
-    virtual hoxResult Close();
-    bool IsOpened() const { return m_isOpened; }
-
-    virtual hoxResult CreateNewTableAsPlayer(wxString&          newTableId, 
-		                                     hoxPlayer*         player,
-		                                     const hoxTimeInfo& initialTime);
-	
-	virtual void Handle_DisconnectFromPlayer( hoxPlayer* player );
-	virtual void Handle_ShutdownReadyFromPlayer( const wxString& playerId );
-
-private:
-	void           _DoCloseSite();
-	const wxString _GenerateTableId();
-
-private:
-    hoxServer*   m_server;
-    bool         m_isOpened;
-
-	int          m_nNextTableId; // To generate new Table-Id.
-};
 
 /**
  * The REMOTE Site.
@@ -255,7 +216,6 @@ public:
 	void Close();
 
 	const hoxSiteList& GetSites() const { return m_sites; }
-	hoxLocalSite* GetLocalSite() const { return m_localSite; }
 
 private:
     hoxSiteManager();
@@ -263,11 +223,6 @@ private:
 
 private:
 	hoxSiteList     m_sites;
-	
-	hoxLocalSite*   m_localSite;  
-		/* The "cache" variable, pointing to the LOCAL site, for easy access. 
-		 * NOTE: Currently, we only allow to have AT MOST one local site.
-		 */
 };
 
 #endif /* __INCLUDED_HOX_SITE_H_ */
