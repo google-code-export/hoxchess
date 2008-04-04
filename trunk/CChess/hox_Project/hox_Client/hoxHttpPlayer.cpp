@@ -217,11 +217,11 @@ hoxHttpPlayer::_HandleEventFromNetwork( const hoxNetworkEvent& networkEvent )
 			const wxString playerId = networkEvent.content.BeforeFirst(separator);
 			const int      playerScore = ::atoi(networkEvent.content.AfterFirst(separator));
 
-            hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
-            hoxResult result = remoteSite->OnPlayerJoined( tableId, 
-                                                           playerId, 
-                                                           playerScore,
-                                                           requestColor );
+            hoxSite* site = this->GetSite();
+            hoxResult result = site->OnPlayerJoined( tableId, 
+                                                     playerId, 
+                                                     playerScore,
+                                                     requestColor );
             if ( result != hoxRC_OK )
             {
                 wxLogDebug("%s: *** ERROR *** Failed to ask table to join as color [%d].", FNAME, requestColor);

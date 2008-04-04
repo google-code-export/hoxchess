@@ -33,7 +33,6 @@
 #include "hoxTypes.h"
 #include "hoxPlayerMgr.h"
 #include "hoxTableMgr.h"
-#include "hoxMyPlayer.h"
 #include "hoxLocalPlayer.h"
 
 /**
@@ -66,16 +65,31 @@ public:
     hoxServerAddress GetAddress() const { return m_address; }
 
     virtual const wxString GetName() const { return "_Unknown_"; }
-    virtual hoxResult Close() = 0;
 
-    virtual hoxResult CreateNewTable(wxString& newTableId) { return hoxRC_ERR; }
-    virtual hoxResult CreateNewTableAsPlayer(wxString&          newTableId, 
-		                                     hoxPlayer*         player,
-											 const hoxTimeInfo& initialTime) 
-        { return hoxRC_ERR; }
+    virtual hoxResult Connect() = 0;
+    virtual hoxResult Close() = 0;   // TODO: Should be renamed to "Disconnect()"
 
-    virtual hoxResult CloseTable(hoxTable_SPtr pTable);
+    virtual bool IsConnected() const = 0;
+
+    virtual hoxResult QueryForNetworkTables() = 0;
+    virtual hoxResult CreateNewTable() = 0;
+
+	virtual hoxResult OnPlayerJoined(const wxString&   tableId,
+		                             const wxString&   playerId,
+                                     const int         playerScore,
+									 const hoxColor    requestColor) = 0;
+
+	virtual hoxResult JoinNewTable(const hoxNetworkTableInfo& tableInfo) = 0;
+    virtual hoxResult JoinExistingTable(const hoxNetworkTableInfo& tableInfo) = 0;
+    virtual hoxResult DisplayListOfTables(const hoxNetworkTableInfoList& tableList) = 0;
+
+    virtual void OnResponse_LOGIN( const hoxResponse_APtr& response ) = 0;
+	virtual void OnResponse_LOGOUT( const hoxResponse_APtr& response ) = 0;
+
+    hoxResult CloseTable(hoxTable_SPtr pTable);
+    
     const hoxTableList& GetTables() const { return m_tableMgr.GetTables(); } 
+    
     hoxTable_SPtr FindTable( const wxString& tableId ) const
         { return m_tableMgr.FindTable( tableId ); }
 
@@ -88,10 +102,9 @@ public:
 
     virtual void DeletePlayer( hoxPlayer* player );
 
-	virtual void Handle_DisconnectFromPlayer( hoxPlayer* player );
-	virtual void Handle_ShutdownReadyFromPlayer( const wxString& playerId );
+	virtual void Handle_ShutdownReadyFromPlayer( const wxString& playerId ) = 0;
 
-	virtual unsigned int GetCurrentActionFlags() const { return 0; }
+	virtual unsigned int GetCurrentActionFlags() const = 0;
 
 protected:
     void ShowProgressDialog( bool bShow = true );
@@ -126,10 +139,10 @@ public:
     virtual hoxResult Close();
 
     virtual bool IsConnected() const;
-    virtual hoxResult QueryForNetworkTables();
-    virtual hoxResult CreateNewTable(wxString& newTableId);
 
-	// Handle event in which a Player just joins an EXISTING Table.
+    virtual hoxResult QueryForNetworkTables();
+    virtual hoxResult CreateNewTable();
+
 	virtual hoxResult OnPlayerJoined(const wxString&   tableId,
 		                             const wxString&   playerId,
                                      const int         playerScore,
@@ -148,10 +161,11 @@ public:
 
 	virtual unsigned int GetCurrentActionFlags() const;
 
-    virtual hoxTable_SPtr CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo);
-
     virtual void OnResponse_LOGIN( const hoxResponse_APtr& response );
 	virtual void OnResponse_LOGOUT( const hoxResponse_APtr& response );
+
+private:
+    hoxTable_SPtr _CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo);
 
 protected:
     hoxLocalPlayer*      m_player;
@@ -207,7 +221,7 @@ public:
 				         const wxString&         userName,
 						 const wxString&         password );
 
-	hoxRemoteSite* FindRemoteSite( const hoxServerAddress& address ) const;
+	hoxSite* FindSite( const hoxServerAddress& address ) const;
 	
 	int GetNumberOfSites() const { return (int) m_sites.size(); }
 

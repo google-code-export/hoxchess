@@ -148,57 +148,26 @@ MyApp::ConnectRemoteServer( const hoxSiteType       siteType,
 							const wxString&         password )
 {
     const char* FNAME = "MyApp::ConnectRemoteServer";
-    hoxRemoteSite* remoteSite = NULL;
+    hoxSite* site = NULL;
 
     /* Search for existing site. */
-	remoteSite = hoxSiteManager::GetInstance()->FindRemoteSite( address );
+	site = hoxSiteManager::GetInstance()->FindSite( address );
 
-    /* Create a new Remote site if necessary. */
-    if ( remoteSite == NULL )
+    /* Create a new site if necessary. */
+    if ( site == NULL )
     {
-		switch ( siteType )
-		{
-			case hoxSITE_TYPE_HTTP:
-			{
-				wxASSERT(    address.name == HOX_HTTP_SERVER_HOSTNAME 
-			              && address.port == HOX_HTTP_SERVER_PORT );
-				break;
-			}
-			case hoxSITE_TYPE_CHESSCAPE:
-			{
-				wxASSERT(    address.name == "games.chesscape.com"
-		  	              && address.port == 3534 );
-				break;
-			}
-			case hoxSITE_TYPE_REMOTE:
-			{
-				break;
-			}
-			default:
-				wxLogError("Unsupported site-type [%d].", (int)siteType);
-				return;
-
-		} // switch ( siteType ) 
-
-		remoteSite = static_cast<hoxRemoteSite*>( 
-			hoxSiteManager::GetInstance()->CreateSite( siteType, 
-													   address,
-													   userName,
-													   password ) );
+		site = hoxSiteManager::GetInstance()->CreateSite( siteType, 
+			     										  address,
+													      userName,
+													      password );
     }
 
-	if ( remoteSite == NULL )
-	{
-        wxLogError("%s: Failed to create a site for the remote server [%s:%d].", 
-            FNAME, address.name.c_str(), address.port);
-		return;
-	}
+    wxCHECK_RET(site != NULL, "Failed to create a Site");
 
-    /* Connect to the Remote site. */
-    if ( remoteSite->Connect() != hoxRC_OK )
+    /* Connect to the site. */
+    if ( site->Connect() != hoxRC_OK )
     {
-        wxLogError("%s: Failed to connect to the remote server [%s:%d].", 
-            FNAME, address.name.c_str(), address.port);
+        wxLogError("%s: Failed to connect to server [%s].", FNAME, address.c_str());
     }
 
     m_frame->UpdateSiteTreeUI();

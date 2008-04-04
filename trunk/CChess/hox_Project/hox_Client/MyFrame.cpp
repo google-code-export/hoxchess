@@ -245,8 +245,7 @@ MyFrame::OnNewTable( wxCommandEvent& event )
     if ( selectedSite == NULL )
         return;
 
-    wxString newTableId;
-    if ( hoxRC_OK != selectedSite->CreateNewTable( newTableId ) )
+    if ( hoxRC_OK != selectedSite->CreateNewTable() )
     {
         wxLogError("%s: Failed to create a new Table.", FNAME);
     }
@@ -440,9 +439,7 @@ MyFrame::OnListTables( wxCommandEvent& event )
     if ( selectedSite == NULL )
         return;
 
-    hoxRemoteSite* remoteSite = (hoxRemoteSite*) selectedSite;
-
-    hoxResult result = remoteSite->QueryForNetworkTables();
+    hoxResult result = selectedSite->QueryForNetworkTables();
     if ( result != hoxRC_OK )
     {
         wxLogError("%s: Failed to query for LIST of tables from the server.", FNAME);
@@ -595,8 +592,7 @@ MyFrame::OnContextMenu( wxContextMenuEvent& event )
     }
     else if ( selectedSite != NULL )
     {
-        hoxRemoteSite* remoteSite = (hoxRemoteSite*) selectedSite;
-		unsigned int actionFlags = remoteSite->GetCurrentActionFlags();
+		unsigned int actionFlags = selectedSite->GetCurrentActionFlags();
 
 		if ( (actionFlags & hoxSITE_ACTION_CONNECT) != 0 )
 		{

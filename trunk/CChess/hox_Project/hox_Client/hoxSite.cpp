@@ -71,22 +71,6 @@ hoxSite::CloseTable(hoxTable_SPtr pTable)
     return hoxRC_OK;
 }
 
-void 
-hoxSite::Handle_DisconnectFromPlayer( hoxPlayer* player )
-{
-    const char* FNAME = "hoxSite::Handle_DisconnectFromPlayer";
-    
-	wxLogDebug("%s: ENTER. Do nothing. END.", FNAME);
-}
-
-void 
-hoxSite::Handle_ShutdownReadyFromPlayer( const wxString& playerId )
-{
-    const char* FNAME = "hoxSite::Handle_ShutdownReadyFromPlayer";
-    
-	wxLogDebug("%s: ENTER. Do nothing. END.", FNAME);
-}
-
 void
 hoxSite::ShowProgressDialog( bool bShow /* = true */ )
 {
@@ -258,7 +242,7 @@ hoxRemoteSite::JoinNewTable(const hoxNetworkTableInfo& tableInfo)
 	if ( pTable.get() == NULL )
 	{
         wxLogDebug("%s: Create a new Table [%s].", FNAME, tableId.c_str());
-        pTable = this->CreateNewTableWithGUI( tableInfo );
+        pTable = _CreateNewTableWithGUI( tableInfo );
 	}
 
 	/* Determine which color (or role) my player will have. */
@@ -472,19 +456,9 @@ hoxRemoteSite::IsConnected() const
 }
 
 hoxResult 
-hoxRemoteSite::CreateNewTable( wxString& newTableId )
+hoxRemoteSite::CreateNewTable()
 {
-    const char* FNAME = "hoxRemoteSite::CreateNewTable";
-    hoxResult result;
-
-    result = m_player->OpenNewNetworkTable();
-    if ( result != hoxRC_OK )
-    {
-        wxLogError("%s: Failed to open a new Table on the remote server.", FNAME);
-        return hoxRC_ERR;
-    }
-
-    return hoxRC_OK;
+    return m_player->OpenNewNetworkTable();
 }
 
 hoxResult 
@@ -507,7 +481,7 @@ hoxRemoteSite::JoinExistingTable(const hoxNetworkTableInfo& tableInfo)
     /* Create a new table. */
     /***********************/
 
-    pTable = this->CreateNewTableWithGUI( tableInfo );
+    pTable = _CreateNewTableWithGUI( tableInfo );
 
     /***********************/
     /* Setup players       */
@@ -632,9 +606,9 @@ hoxRemoteSite::GetCurrentActionFlags() const
 }
 
 hoxTable_SPtr
-hoxRemoteSite::CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo)
+hoxRemoteSite::_CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo)
 {
-    const char* FNAME = "hoxRemoteSite::CreateNewTableWithGUI";
+    const char* FNAME = "hoxRemoteSite::_CreateNewTableWithGUI";
     hoxTable_SPtr pTable;
     wxString  tableId = tableInfo.id;
 
@@ -836,16 +810,15 @@ hoxSiteManager::CreateSite( hoxSiteType             siteType,
 	return site;
 }
 
-hoxRemoteSite*
-hoxSiteManager::FindRemoteSite( const hoxServerAddress& address ) const
+hoxSite*
+hoxSiteManager::FindSite( const hoxServerAddress& address ) const
 {
-    /* Search for existing REMOTE site. */
     for ( hoxSiteList::const_iterator it = m_sites.begin();
                                       it != m_sites.end(); ++it )
     {
         if ( (*it)->GetAddress() == address )
         {
-            return (hoxRemoteSite*) (*it);
+            return (*it);
         }
     }
 

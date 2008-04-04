@@ -96,10 +96,9 @@ hoxChesscapePlayer::QueryForNetworkTables()
 		pTableList->push_back( (*it) );
 	}
 	
-    // Inform the site.
     std::auto_ptr<hoxNetworkTableInfoList> autoPtr_tablelist( pTableList );  // prevent memory leak!
-    hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
-    remoteSite->DisplayListOfTables( *pTableList );
+    hoxSite* site = this->GetSite();
+    site->DisplayListOfTables( *pTableList );
 
 	return hoxRC_OK;
 }
@@ -169,7 +168,7 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 	wxString command;
 	wxString paramsStr;
 
-    hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
+    hoxSite* site = this->GetSite();
 
     /* Handle error-code. */
 
@@ -182,7 +181,7 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
          */
         this->LeaveAllTables();
         this->DisconnectFromNetworkServer();
-        remoteSite->OnResponse_LOGOUT( response );
+        site->OnResponse_LOGOUT( response );
         wxLogDebug("%s: END (exception).", FNAME);
         return;  // *** Exit immediately.
     }
@@ -208,7 +207,7 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 		    wxLogDebug("%s: *** WARN *** LOGIN return code = [%s].", FNAME, paramsStr.c_str());
 		    response->code = hoxRC_ERR;
 		    response->content.Printf("LOGIN returns code = [%s].", paramsStr.c_str());
-            remoteSite->OnResponse_LOGIN( response );
+            site->OnResponse_LOGIN( response );
             m_bRequestingLogin = false;
             return;  // *** DONE !!!!!!!!!!!!!!!!!
 	    }
@@ -224,7 +223,7 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 			    name.c_str(), score.c_str(), role.c_str());
 		    wxASSERT( name == this->GetName() );
 		    this->SetScore( ::atoi( score.c_str() ) );
-            remoteSite->OnResponse_LOGIN( response );
+            site->OnResponse_LOGIN( response );
             m_bRequestingLogin = false;
             return;  // *** DONE !!!!!!!!!!!!!!!!!
         }
@@ -232,7 +231,7 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 	//else if ( command == "logout" )
 	//{
 	//	wxLogDebug("%s: LOGOUT 's response received.", FNAME);
- //       remoteSite->OnResponse_LOGOUT( response );
+ //       site->OnResponse_LOGOUT( response );
 	//	return;  // *** DONE !!!!!!!!!!!!!!!!!
 	//}
     /////////////////////////////////////////////////////////////
@@ -806,8 +805,8 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 		pTableInfo->redTime.nFree   = pTableInfo->initialTime.nFree;
 
 		// Inform the site.
-		hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
-		remoteSite->JoinExistingTable( *pTableInfo );
+		hoxSite* site = this->GetSite();
+		site->JoinExistingTable( *pTableInfo );
 	}
 
 	return true;
@@ -964,15 +963,15 @@ hoxChesscapePlayer::_HandleTableCmd_Clients( hoxTable_SPtr   pTable,
         const wxString tableId = pTable->GetId();
         int      nPlayerScore = 1500;
         hoxColor joinColor = hoxCOLOR_NONE;
-        hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
+        hoxSite* site = this->GetSite();
 
         wxLogDebug("%s: Player [%s] joined Table [%s] as [%d].", FNAME, 
             sPlayerId.c_str(), tableId.c_str(), joinColor);
 
-        hoxResult result = remoteSite->OnPlayerJoined( tableId, 
-                                             sPlayerId, 
-                                             nPlayerScore,
-                                             joinColor );
+        hoxResult result = site->OnPlayerJoined( tableId, 
+                                                 sPlayerId, 
+                                                 nPlayerScore,
+                                                 joinColor );
         if ( result != hoxRC_OK )
         {
             wxLogDebug("%s: *** ERROR *** Failed to ask table to join as color [%d].", 
@@ -1074,6 +1073,8 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 	const char* FNAME = "hoxChesscapePlayer::_OnTableUpdated";
 	hoxResult result;
 
+    hoxSite* site = this->GetSite();
+
 	/* If this Player is requesting for a NEW table, then check if the input
 	 * table is a "NEW-EMPTY" table.
 	 */
@@ -1085,18 +1086,16 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 		m_bRequestingNewTable = false;
 
 		// Inform the Site of the response.
-		hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
         hoxNetworkTableInfo newInfo( tableInfo );
         if ( newInfo.redTime.IsEmpty() ) newInfo.redTime = newInfo.initialTime;
         if ( newInfo.blackTime.IsEmpty() ) newInfo.blackTime = newInfo.initialTime;
-		remoteSite->JoinNewTable( newInfo );
+		site->JoinNewTable( newInfo );
 		return;  // *** Done.
 	}
 
 	/* Check if this is MY table. */
 
 	hoxColor myCurrentColor = hoxCOLOR_NONE;
-	hoxSite*       site = this->GetSite();
 	hoxTable_SPtr  pTable;
 	const wxString tableId = tableInfo.id;
 
@@ -1187,7 +1186,7 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
     hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
     std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
 
-    hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
+    hoxSite* site = this->GetSite();
 
     const wxString sType = hoxUtil::RequestTypeToString(response->type);
 

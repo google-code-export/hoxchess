@@ -155,9 +155,9 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
     wxLogDebug("%s: ENTER.", FNAME);
 
     hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
-    std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
+    hoxResponse_APtr response( response_raw ); // take care memory leak!
 
-    hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
+    hoxSite* site = this->GetSite();
 
     const wxString sType = hoxUtil::RequestTypeToString(response->type);
 
@@ -172,7 +172,7 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
 					FNAME, response->content.c_str());
 				response->code = result;
 			}
-            remoteSite->OnResponse_LOGIN( response );
+            site->OnResponse_LOGIN( response );
             return;  // *** DONE !!!!!!!!!!!!!!!!!
         }
         case hoxREQUEST_LIST:
@@ -187,7 +187,7 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
 				response->code = result;
 			}
             std::auto_ptr<hoxNetworkTableInfoList> autoPtr_tablelist( pTableList );  // prevent memory leak!
-            remoteSite->DisplayListOfTables( *pTableList );
+            site->DisplayListOfTables( *pTableList );
             return;  // *** DONE !!!!!!!!!!!!!!!!!
 		}
         case hoxREQUEST_JOIN:
@@ -201,7 +201,7 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
 					FNAME, response->content.c_str());
 				response->code = result;
 			}
-			remoteSite->JoinExistingTable( *pTableInfo );
+			site->JoinExistingTable( *pTableInfo );
 			return;  // *** DONE !!!!!!!!!!!!!!!!!
 		}
         case hoxREQUEST_NEW:
@@ -216,7 +216,7 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
 				response->code = result;
                 return;
 			}
-			remoteSite->JoinNewTable( *pTableInfo );
+			site->JoinNewTable( *pTableInfo );
 			return;  // *** DONE !!!!!!!!!!!!!!!!!
 		}
         case hoxREQUEST_OUT_DATA:
