@@ -646,7 +646,9 @@ hoxChesscapePlayer::_HandleTableCmd( const wxString& cmdStr )
 	const char* FNAME = "hoxChesscapePlayer::_HandleTableCmd";
 
 	wxString tCmd = cmdStr.BeforeFirst(0x10);
-	const wxString subCmdStr = cmdStr.AfterFirst(0x10);
+	wxString subCmdStr = cmdStr.AfterFirst(0x10);
+    if (!subCmdStr.empty() && subCmdStr[subCmdStr.size()-1] == 0x10)
+        subCmdStr = subCmdStr.substr(0, subCmdStr.size()-1);
 	wxLogDebug("%s: Processing tCmd = [%s]...", FNAME, tCmd.c_str());
 	
 	if ( tCmd == "Settings" )
@@ -677,6 +679,8 @@ hoxChesscapePlayer::_HandleTableCmd( const wxString& cmdStr )
 	else if ( tCmd == "Move" )      _HandleTableCmd_Move( pTable, subCmdStr );
 	else if ( tCmd == "GameOver" )  _HandleTableCmd_GameOver( pTable, subCmdStr );
 	else if ( tCmd == "OfferDraw" ) _HandleTableCmd_OfferDraw( pTable );
+    else if ( tCmd == "Clients" )   _HandleTableCmd_Clients( pTable, subCmdStr );
+    else if ( tCmd == "Unjoin" )    _HandleTableCmd_Unjoin( pTable, subCmdStr );
 	else
 	{
 		wxLogDebug("%s: *** Ignore this Table-command = [%s].", FNAME, tCmd.c_str());
@@ -932,6 +936,82 @@ hoxChesscapePlayer::_HandleTableCmd_OfferDraw( hoxTable_SPtr pTable )
 	wxLogDebug("%s: Inform table of player [%s] is offering Draw-Request.", 
 		FNAME, whoOffered->GetName().c_str());
 	pTable->OnDrawRequest_FromNetwork( whoOffered );
+
+	return true;
+}
+
+bool 
+hoxChesscapePlayer::_HandleTableCmd_Clients( hoxTable_SPtr   pTable,
+	                                         const wxString& cmdStr )
+{
+	const char* FNAME = "hoxChesscapePlayer::_HandleTableCmd_Clients";
+
+	wxString delims;
+	delims += 0x10;
+	// ... Do not return empty tokens
+	wxStringTokenizer tkz( cmdStr, delims, wxTOKEN_STRTOK );
+	int tokenPosition = 0;
+	wxString sPlayerId;
+
+	while ( tkz.HasMoreTokens() )
+	{
+		sPlayerId = tkz.GetNextToken();
+
+        const hoxColor currentRole = pTable->GetPlayerRole( sPlayerId );
+        if ( currentRole != hoxCOLOR_UNKNOWN )
+            continue;
+
+        const wxString tableId = pTable->GetId();
+        int      nPlayerScore = 1500;
+        hoxColor joinColor = hoxCOLOR_NONE;
+        hoxRemoteSite* remoteSite = static_cast<hoxRemoteSite*>( this->GetSite() );
+
+        wxLogDebug("%s: Player [%s] joined Table [%s] as [%d].", FNAME, 
+            sPlayerId.c_str(), tableId.c_str(), joinColor);
+
+        hoxResult result = remoteSite->OnPlayerJoined( tableId, 
+                                             sPlayerId, 
+                                             nPlayerScore,
+                                             joinColor );
+        if ( result != hoxRC_OK )
+        {
+            wxLogDebug("%s: *** ERROR *** Failed to ask table to join as color [%d].", 
+                FNAME, joinColor);
+            // *** break;
+        }
+	}		
+
+	return true;
+}
+
+bool 
+hoxChesscapePlayer::_HandleTableCmd_Unjoin( hoxTable_SPtr   pTable,
+	                                        const wxString& cmdStr )
+{
+	const char* FNAME = "hoxChesscapePlayer::_HandleTableCmd_Unjoin";
+
+	const wxString sPlayerId = cmdStr;
+    hoxPlayer* leavePlayer = NULL;
+
+    /////////////////////
+    hoxSite* site = this->GetSite();
+	if ( sPlayerId == this->GetName() ) // this Player?
+	{
+		leavePlayer = this;
+	}
+    else
+    {
+        leavePlayer = site->FindPlayer( sPlayerId );
+        if ( leavePlayer == NULL )
+        {
+            int nPlayerScore = 1500;  // *** FIXME
+		    leavePlayer = site->CreateDummyPlayer( sPlayerId, nPlayerScore );
+        }
+    }
+
+	wxLogDebug("%s: Inform table that [%s] just left.", FNAME, sPlayerId.c_str());
+    pTable->OnLeave_FromNetwork( leavePlayer, this );
+    /////////////////////
 
 	return true;
 }
