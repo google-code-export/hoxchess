@@ -36,7 +36,8 @@ hoxTableMgr::~hoxTableMgr()
 }
 
 hoxTable_SPtr
-hoxTableMgr::CreateTable( const wxString& tableId )
+hoxTableMgr::CreateTable( const wxString& tableId,
+                          hoxSite*        site )
 {
     /* Create a Referee */
     hoxIReferee_SPtr referee( new hoxReferee() );
@@ -46,7 +47,7 @@ hoxTableMgr::CreateTable( const wxString& tableId )
      * NOTE: Since this App can function as a server, it is important
      *       to have a notion of a Table withOUT a Board (or Table's GUI).
      */
-    hoxTable_SPtr pTable( new hoxTable( m_site, tableId, referee ) );
+    hoxTable_SPtr pTable( new hoxTable( site, tableId, referee ) );
 
     /* Save this table to our list */
     m_tables.push_back( pTable);
