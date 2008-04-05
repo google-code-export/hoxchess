@@ -43,7 +43,6 @@ class hoxPlayer;
 class hoxConnection;
 class hoxTable;
 class hoxIReferee;
-class wxSocketBase;
 
 /**
  * Typedef(s)

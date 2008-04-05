@@ -87,7 +87,7 @@ hoxChesscapePlayer::QueryForNetworkTables()
 	wxLogDebug("%s: ENTER.", FNAME);
 
 	/* Clone the "cache" list and return the cloned */
-	hoxNetworkTableInfoList* pTableList = new hoxNetworkTableInfoList;
+    std::auto_ptr<hoxNetworkTableInfoList> pTableList( new hoxNetworkTableInfoList );
 
 	for ( hoxNetworkTableInfoList::const_iterator it = m_networkTables.begin();
 		                                          it != m_networkTables.end(); 
@@ -96,7 +96,6 @@ hoxChesscapePlayer::QueryForNetworkTables()
 		pTableList->push_back( (*it) );
 	}
 	
-    std::auto_ptr<hoxNetworkTableInfoList> autoPtr_tablelist( pTableList );  // prevent memory leak!
     hoxSite* site = this->GetSite();
     site->DisplayListOfTables( *pTableList );
 

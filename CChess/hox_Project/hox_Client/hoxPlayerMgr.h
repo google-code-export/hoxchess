@@ -73,11 +73,7 @@ public:
      */
     int GetNumberOfPlayers() { return (int) m_players.size(); }
 
-    void     SetSite(hoxSite* site) { m_site = site; }
-    hoxSite* GetSite() const        { return m_site; }
-
 private:
-    hoxSite*        m_site;
     hoxPlayerList   m_players;  // The list of all players in the system.
 };
 

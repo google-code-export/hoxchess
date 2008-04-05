@@ -50,7 +50,7 @@ hoxSite::hoxSite( hoxSiteType             type,
         , m_dlgProgress( NULL )
 		, m_siteClosing( false )
 {
-    m_playerMgr.SetSite( this );
+    //m_playerMgr.SetSite( this );
     m_tableMgr.SetSite( this );
 }
 
@@ -154,7 +154,6 @@ hoxRemoteSite::OnResponse_LOGIN( const hoxResponse_APtr& response )
             hoxUtil::ResultToStr(response->code),
             response->content.c_str());
         this->Handle_ShutdownReadyFromPlayer( m_player ? m_player->GetName() : "" );
-        return;
     }
 }
 
@@ -765,46 +764,41 @@ hoxSiteManager::CreateSite( hoxSiteType             siteType,
 						    const wxString&         password )
 {
 	const char* FNAME = "hoxSiteManager::CreateSite";
-	hoxSite* site = NULL;
+	hoxSite*           site = NULL;
+    hoxLocalPlayer*    localPlayer = NULL;
+    hoxConnection_APtr connection;
 
 	switch ( siteType )
 	{
 	case hoxSITE_TYPE_REMOTE:
 	{
-		hoxRemoteSite* remoteSite = new hoxRemoteSite( address );
-		hoxLocalPlayer* localPlayer = remoteSite->CreateLocalPlayer( userName );
-		localPlayer->SetPassword( password );
-        hoxConnection_APtr connection( new hoxSocketConnection( address,
-                                                                localPlayer ) );
-		localPlayer->SetConnection( connection );
-		site = remoteSite;
+		site = new hoxRemoteSite( address );
+		localPlayer = site->CreateLocalPlayer( userName );
+        connection.reset( new hoxSocketConnection( address, localPlayer ) );
 		break;
 	}
 	case hoxSITE_TYPE_HTTP:
 	{
-		hoxRemoteSite* remoteSite = new hoxHTTPSite( address );
-		hoxLocalPlayer* localPlayer = remoteSite->CreateLocalPlayer( userName );
-		localPlayer->SetPassword( password );
-        hoxConnection_APtr connection( new hoxHttpConnection( address,
-                                                              localPlayer ) );
-		localPlayer->SetConnection( connection );
-		site = remoteSite;
+		site = new hoxHTTPSite( address );
+		localPlayer = site->CreateLocalPlayer( userName );
+        connection.reset( new hoxHttpConnection( address, localPlayer ) );
 		break;
 	}
 	case hoxSITE_TYPE_CHESSCAPE:
 	{
-		hoxRemoteSite* remoteSite = new hoxChesscapeSite( address );
-		hoxLocalPlayer* localPlayer = remoteSite->CreateLocalPlayer( userName );
-		localPlayer->SetPassword( password );
-        hoxConnection_APtr connection( new hoxChesscapeConnection( address,
-                                                                   localPlayer ) );
-		localPlayer->SetConnection( connection );
-		site = remoteSite;
+		site = new hoxChesscapeSite( address );
+		localPlayer = site->CreateLocalPlayer( userName );
+        connection.reset( new hoxChesscapeConnection( address, localPlayer ) );
 		break;
 	}
 	default:
-		break;
+        wxLogError("%s: Unsupported Site-Type [%d].", siteType);
+		return NULL;   // *** Exit with error immediately.
 	}
+
+	localPlayer->SetPassword( password );
+    localPlayer->SetSite( site );
+	localPlayer->SetConnection( connection );
 
     m_sites.push_back( site );
 	return site;

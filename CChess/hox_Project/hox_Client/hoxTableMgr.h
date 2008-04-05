@@ -47,7 +47,6 @@ public:
     const hoxTableList& GetTables() const { return m_tables; } 
 
     void     SetSite(hoxSite* site) { m_site = site; }
-    hoxSite* GetSite() const        { return m_site; }
 
 private:
     hoxSite*        m_site;

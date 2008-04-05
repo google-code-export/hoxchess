@@ -104,6 +104,8 @@ public:
 
 	virtual void Handle_ShutdownReadyFromPlayer( const wxString& playerId ) = 0;
 
+    virtual hoxLocalPlayer* CreateLocalPlayer(const wxString& playerName) = 0;
+
 	virtual unsigned int GetCurrentActionFlags() const = 0;
 
 protected:
@@ -156,7 +158,6 @@ public:
 
 	virtual void Handle_ShutdownReadyFromPlayer( const wxString& playerId );
 
-	/* TODO: Need to review this API... */
     virtual hoxLocalPlayer* CreateLocalPlayer(const wxString& playerName);
 
 	virtual unsigned int GetCurrentActionFlags() const;
@@ -183,7 +184,6 @@ public:
     hoxHTTPSite(const hoxServerAddress& address);
     virtual ~hoxHTTPSite();
 
-	/* TODO: Need to review this API... */
     virtual hoxLocalPlayer* CreateLocalPlayer(const wxString& playerName);
 };
 
@@ -196,7 +196,6 @@ public:
     hoxChesscapeSite(const hoxServerAddress& address);
     virtual ~hoxChesscapeSite();
 
-	/* TODO: Need to review this API... */
     virtual hoxLocalPlayer* CreateLocalPlayer(const wxString& playerName);
 
 	virtual unsigned int GetCurrentActionFlags() const;
