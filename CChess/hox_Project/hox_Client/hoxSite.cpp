@@ -56,12 +56,6 @@ hoxSite::~hoxSite()
 {
 }
 
-void 
-hoxSite::DeletePlayer( hoxPlayer* player )
-{ 
-	m_playerMgr.DeletePlayer( player ); 
-}
-
 hoxResult 
 hoxSite::CloseTable(hoxTable_SPtr pTable)
 {
@@ -543,17 +537,6 @@ hoxRemoteSite::JoinExistingTable(const hoxNetworkTableInfo& tableInfo)
 	wxGetApp().GetFrame()->UpdateSiteTreeUI();
 
 	return hoxRC_OK;
-}
-
-void 
-hoxRemoteSite::DeletePlayer( hoxPlayer* player )
-{
-	if ( m_player == player )
-	{
-		m_player = NULL;
-	}
-
-	this->hoxSite::DeletePlayer( player );
 }
 
 void 

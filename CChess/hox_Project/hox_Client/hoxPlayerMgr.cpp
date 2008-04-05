@@ -86,19 +86,6 @@ hoxPlayerMgr::CreateDummyPlayer( const wxString& name,
     return player;
 }
 
-void 
-hoxPlayerMgr::DeletePlayer( hoxPlayer* player )
-{
-    const char* FNAME = "hoxPlayerMgr::DeletePlayer";
-
-    wxCHECK_RET( player != NULL, "The player should not be NULL." );
-    
-    wxLogDebug("%s: Deleting player [%s]...", FNAME, player->GetName().c_str());
-
-    delete player;
-    m_players.remove( player );
-}
-
 hoxPlayer* 
 hoxPlayerMgr::FindPlayer( const wxString& playerId ) const
 {
