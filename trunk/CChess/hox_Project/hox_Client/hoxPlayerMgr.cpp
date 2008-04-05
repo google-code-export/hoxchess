@@ -30,7 +30,6 @@
 
 
 hoxPlayerMgr::hoxPlayerMgr()
-        : m_site( NULL )
 {
 }
 
@@ -49,7 +48,6 @@ hoxPlayerMgr::CreateHTTPPlayer( const wxString& name,
 {
     hoxHttpPlayer* player 
         = new hoxHttpPlayer( name, hoxPLAYER_TYPE_LOCAL, score );
-    player->SetSite( m_site );
     m_players.push_back( player );
 
     return player;
@@ -61,7 +59,6 @@ hoxPlayerMgr::CreateChesscapePlayer( const wxString& name,
 {
     hoxChesscapePlayer* player 
         = new hoxChesscapePlayer( name, hoxPLAYER_TYPE_LOCAL, score );
-    player->SetSite( m_site );
     m_players.push_back( player );
 
     return player;
@@ -73,7 +70,6 @@ hoxPlayerMgr::CreateMyPlayer( const wxString& name,
 {
     hoxMyPlayer* player 
         = new hoxMyPlayer( name, hoxPLAYER_TYPE_LOCAL, score );
-    player->SetSite( m_site );
     m_players.push_back( player );
 
     return player;
@@ -85,7 +81,6 @@ hoxPlayerMgr::CreateDummyPlayer( const wxString& name,
 {
     hoxPlayer* player 
         = new hoxPlayer( name, hoxPLAYER_TYPE_DUMMY, score );
-    player->SetSite( m_site );
     m_players.push_back( player );
 
     return player;

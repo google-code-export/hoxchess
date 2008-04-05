@@ -177,7 +177,7 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
         }
         case hoxREQUEST_LIST:
 		{
-			hoxNetworkTableInfoList* pTableList = new hoxNetworkTableInfoList;
+            std::auto_ptr<hoxNetworkTableInfoList> pTableList( new hoxNetworkTableInfoList );
 			result = hoxNetworkAPI::ParseNetworkTables( response->content,
 														*pTableList );
 			if ( result != hoxRC_OK )
@@ -186,7 +186,6 @@ hoxLocalPlayer::OnConnectionResponse( wxCommandEvent& event )
 					FNAME, response->content.c_str());
 				response->code = result;
 			}
-            std::auto_ptr<hoxNetworkTableInfoList> autoPtr_tablelist( pTableList );  // prevent memory leak!
             site->DisplayListOfTables( *pTableList );
             return;  // *** DONE !!!!!!!!!!!!!!!!!
 		}
