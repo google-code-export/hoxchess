@@ -56,8 +56,6 @@ public:
     hoxPlayer* CreateDummyPlayer( const wxString& name,
                                   int             score = 1500 );
 
-    void DeletePlayer( hoxPlayer* player );
-
     /**
      * @return NULL if not found.
      */

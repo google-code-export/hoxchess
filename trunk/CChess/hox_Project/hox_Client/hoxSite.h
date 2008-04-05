@@ -100,8 +100,6 @@ public:
 		                          int             score = 1500 )
         { return m_playerMgr.CreateDummyPlayer( playerId, score ); }
 
-    virtual void DeletePlayer( hoxPlayer* player );
-
 	virtual void Handle_ShutdownReadyFromPlayer( const wxString& playerId ) = 0;
 
     virtual hoxLocalPlayer* CreateLocalPlayer(const wxString& playerName) = 0;
@@ -154,8 +152,6 @@ public:
     virtual hoxResult JoinExistingTable(const hoxNetworkTableInfo& tableInfo);
     virtual hoxResult DisplayListOfTables(const hoxNetworkTableInfoList& tableList);
 
-	virtual void DeletePlayer( hoxPlayer* player );
-
 	virtual void Handle_ShutdownReadyFromPlayer( const wxString& playerId );
 
     virtual hoxLocalPlayer* CreateLocalPlayer(const wxString& playerName);
@@ -171,8 +167,6 @@ private:
 protected:
     hoxLocalPlayer*      m_player;
             /* The player that this Host uses to connect to the server. */
-
-    friend class hoxResponseHandler;
 };
 
 /**
