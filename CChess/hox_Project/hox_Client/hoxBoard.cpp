@@ -88,6 +88,9 @@ BEGIN_EVENT_TABLE(hoxBoard, wxPanel)
     EVT_BUTTON(ID_ACTION_RESET, hoxBoard::OnButtonReset)
 	EVT_BUTTON(ID_ACTION_JOIN, hoxBoard::OnButtonJoin)
 
+    EVT_UPDATE_UI(ID_ACTION_RESIGN, hoxBoard::OnUpdateUI_ActionResign)
+    EVT_UPDATE_UI(ID_ACTION_DRAW, hoxBoard::OnUpdateUI_ActionDraw)
+
     EVT_TIMER(wxID_ANY, hoxBoard::OnTimer)    
 END_EVENT_TABLE()
 
@@ -513,6 +516,20 @@ void
 hoxBoard::OnButtonJoin( wxCommandEvent &event )
 {
     m_pTable->OnJoinCommand_FromBoard();
+}
+
+void
+hoxBoard::OnUpdateUI_ActionResign( wxUpdateUIEvent& event )
+{
+	bool bMenuEnabled = ( m_status == hoxGAME_STATUS_IN_PROGRESS );
+    event.Enable( bMenuEnabled );
+}
+
+void
+hoxBoard::OnUpdateUI_ActionDraw( wxUpdateUIEvent& event )
+{
+	bool bMenuEnabled = ( m_status == hoxGAME_STATUS_IN_PROGRESS );
+    event.Enable( bMenuEnabled );
 }
 
 void 

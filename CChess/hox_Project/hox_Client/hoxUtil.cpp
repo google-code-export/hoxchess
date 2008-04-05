@@ -146,7 +146,6 @@ hoxUtil::RequestTypeToString( const hoxRequestType requestType )
     {
         case hoxREQUEST_UNKNOWN:     return "UNKNOWN";
 
-        case hoxREQUEST_ACCEPT:      return "ACCEPT";
         case hoxREQUEST_PLAYER_DATA: return "PLAYER_DATA";
         case hoxREQUEST_LOGIN:       return "LOGIN";
         case hoxREQUEST_LOGOUT:      return "LOGOUT";
@@ -182,7 +181,6 @@ hoxUtil::StringToRequestType( const wxString& input )
 {
     if ( input == "UNKNOWN" )     return hoxREQUEST_UNKNOWN;
 
-    if ( input == "ACCEPT" )      return hoxREQUEST_ACCEPT;
     if ( input == "PLAYER_DATA" ) return hoxREQUEST_PLAYER_DATA;
     if ( input == "LOGIN" )       return hoxREQUEST_LOGIN;
     if ( input == "LOGOUT" )      return hoxREQUEST_LOGOUT;

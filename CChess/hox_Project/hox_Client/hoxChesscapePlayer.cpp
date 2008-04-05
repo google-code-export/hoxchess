@@ -644,7 +644,7 @@ hoxChesscapePlayer::_HandleTableCmd( const wxString& cmdStr )
 {
 	const char* FNAME = "hoxChesscapePlayer::_HandleTableCmd";
 
-	wxString tCmd = cmdStr.BeforeFirst(0x10);
+	const wxString tCmd = cmdStr.BeforeFirst(0x10);
 	wxString subCmdStr = cmdStr.AfterFirst(0x10);
     if (!subCmdStr.empty() && subCmdStr[subCmdStr.size()-1] == 0x10)
         subCmdStr = subCmdStr.substr(0, subCmdStr.size()-1);
@@ -775,7 +775,7 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 	 * TODO: Ignore INCREMENT game-time for now.
 	 */
 	if (  ! m_pendingJoinTableId.empty()
-		 && nRedGameTime > 0 && nBlackGameTime > 0 )
+		 /* && nRedGameTime > 0 && nBlackGameTime > 0 */ )
 	{
 		hoxNetworkTableInfo* pTableInfo = NULL;
 		if ( ! _FindTableById( m_pendingJoinTableId, pTableInfo ) ) // not found?

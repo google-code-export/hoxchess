@@ -190,7 +190,6 @@ enum hoxNetworkContant
     */
 
     hoxNETWORK_MAX_MSG_SIZE         = (5 * 1024), // 5-KByte buffer
-    hoxNETWORK_DEFAULT_SERVER_PORT  = 3000
 };
 
 /**
@@ -218,15 +217,8 @@ enum hoxSocketContant
     * !!! Do not change the values the following !!!
     */
 
-    hoxSOCKET_CLIENT_SOCKET_TIMEOUT = 10,   // 10 seconds
+    hoxSOCKET_CLIENT_SOCKET_TIMEOUT = (15 * 60),  // 15 minutes
                 /* Timeout applied to client -> server connection */
-
-    hoxSOCKET_SERVER_ACCEPT_TIMEOUT = 5,    // 5 seconds
-                /* Timeout applied to server-socket which is waiting  
-                 * by wxSocketServer::Accept() for new incoming client 
-                 * connections. This timeout is needed so that the server
-                 * can process the SHUTDOWN request.
-                 */
 
     hoxSOCKET_HTTP_POLL_INTERVAL = 5,  // 5 seconds
                 /* HTTP Polling interval for HTTP Connection */
@@ -262,8 +254,6 @@ enum hoxNetworkEvenType
 enum hoxRequestType
 {
     hoxREQUEST_UNKNOWN = -1,
-
-    hoxREQUEST_ACCEPT,
 
     hoxREQUEST_PLAYER_DATA,
         /* Network data incoming from a remote player */
@@ -314,27 +304,6 @@ enum hoxRequestType
 };
 
 /**
- * Request flags to communicate with Connection Thread.
- */
-enum hoxRequestFlag
-{
-    hoxREQUEST_FLAG_NONE        = 0,
-    hoxREQUEST_FLAG_KEEP_ALIVE  = 1  // NOTE: This flag is not being used now.
-};
-
-/**
- * Response flags to communicate back to the sender.
- */
-enum hoxResponseFlag
-{
-    hoxRESPONSE_FLAG_NONE             = 0,
-
-    hoxRESPONSE_FLAG_CONNECTION_LOST  = 1 
-        /* To signal that the connection to the server has been lost. */
-
-};
-
-/**
  * Ranges for UI_IDs (in order to avoid conflict.)
  */
 enum hoxUI_ID_Range
@@ -343,14 +312,5 @@ enum hoxUI_ID_Range
 	hoxUI_ID_RANGE_BOARD = wxID_HIGHEST + 200
 };
 
-
-/**
- * Other constants.
- */
-enum
-{
-    // id for sockets
-    CLIENT_SOCKET_ID
-};
 
 #endif /* __INCLUDED_HOX_ENUMS_H_ */

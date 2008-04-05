@@ -137,6 +137,9 @@ public:
     void OnButtonReset( wxCommandEvent &event );
 	void OnButtonJoin( wxCommandEvent &event );
 
+    void OnUpdateUI_ActionResign( wxUpdateUIEvent& event );
+    void OnUpdateUI_ActionDraw( wxUpdateUIEvent& event );
+
     void OnTimer( wxTimerEvent& event );
 
     /****************************************

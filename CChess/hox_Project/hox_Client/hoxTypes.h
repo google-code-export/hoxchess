@@ -81,25 +81,6 @@ class hoxRole
 typedef std::list<hoxRole>     hoxRoleList; 
 
 /**
- * Representing a player + his role (color).
- * NOTE: This class is similar to hoxRole but I will cleanup later...
- */
-class hoxPlayerAndRole
-{
-public:
-    hoxPlayer*    player;
-    hoxColor      role;
-
-    hoxPlayerAndRole() : player(NULL), role(hoxCOLOR_NONE) {}
-    hoxPlayerAndRole(hoxPlayer* p, hoxColor r) : player(p), role(r) {}
-    bool operator==(const hoxPlayerAndRole& other) const
-    {
-        return ( (player == other.player) && (role == other.role) );
-    }
-};
-typedef std::list<hoxPlayerAndRole>  hoxPlayerAndRoleList;
-
-/**
  * Representing a piece's info.
  */
 class hoxPieceInfo
@@ -269,24 +250,18 @@ class hoxRequest : public wxObject
 {
 public:
     hoxRequestType  type;
-    int             flags;
     wxEvtHandler*   sender;
-    wxSocketBase*   socket;  // TODO Put it here temporarily
-    wxSocketNotify  socketEvent;
 	hoxCommand::Parameters parameters;
 
     hoxRequest() : type( hoxREQUEST_UNKNOWN )
-                 , flags( hoxREQUEST_FLAG_NONE )
-                 , sender( NULL )
-                 , socket( NULL )
-                 , socketEvent( wxSOCKET_INPUT ) {}
+                 , sender( NULL ) {}
 
     hoxRequest(hoxRequestType t, wxEvtHandler* s = NULL) 
                     : type( t )
-                    , flags( hoxREQUEST_FLAG_NONE )
-                    , sender( s )
-                    , socket( NULL )
-                    , socketEvent( wxSOCKET_INPUT ) {}
+                    , sender( s ) {}
+
+    const wxString ToString() const;
+
 };
 typedef std::auto_ptr<hoxRequest> hoxRequest_APtr;
 typedef std::list<hoxRequest*>    hoxRequestList;
@@ -297,17 +272,14 @@ public:
     hoxRequestType   type;
     hoxResult        code;
     wxString         content;
-    int              flags;
     wxEvtHandler*    sender;
 
     hoxResponse() : type( hoxREQUEST_UNKNOWN )
                   , code( hoxRC_UNKNOWN )
-                  , flags( hoxRESPONSE_FLAG_NONE )
                   , sender( NULL ) {}
     hoxResponse(hoxRequestType t, wxEvtHandler* s = NULL) 
                   : type( t )
                   , code( hoxRC_UNKNOWN )
-                  , flags( hoxRESPONSE_FLAG_NONE )
                   , sender( s ) {}
 };
 typedef std::auto_ptr<hoxResponse>     hoxResponse_APtr;
