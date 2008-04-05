@@ -31,9 +31,6 @@
 
 IMPLEMENT_DYNAMIC_CLASS(hoxSocketConnection, hoxConnection)
 
-static const wxString
-_RequestToString( const hoxRequest& request );
-
 // ----------------------------------------------------------------------------
 // hoxSocketWriter
 // ----------------------------------------------------------------------------
@@ -60,9 +57,7 @@ hoxSocketWriter::hoxSocketWriter( hoxPlayer*              player,
     m_socket = new wxSocketClient( socketFlags );
 
     m_socket->Notify( false /* Disable socket-events */ );
-    m_socket->SetTimeout( 10*60  // 10 minutes 
-                          //hoxSOCKET_CLIENT_SOCKET_TIMEOUT
-                         );
+    m_socket->SetTimeout( hoxSOCKET_CLIENT_SOCKET_TIMEOUT );
 }
 
 hoxSocketWriter::~hoxSocketWriter()
@@ -210,19 +205,16 @@ hoxSocketWriter::HandleRequest( hoxRequest_APtr apRequest )
     hoxResponse_APtr apResponse( new hoxResponse(requestType, 
                                                  apRequest->sender) );
 
+    const wxString sRequest = apRequest->ToString();
+
     switch( requestType )
     {
         case hoxREQUEST_LOGIN:
         {
             result = _Login( m_serverAddress,
-                             _RequestToString( *apRequest ),
+                             sRequest,
                              apResponse->content );
-            if ( result == hoxRC_HANDLED )
-            {
-                result = hoxRC_OK;  // Consider "success".
-                break;
-            }
-            else if ( result != hoxRC_OK )
+            if ( result != hoxRC_OK )
             {
                 wxLogDebug("%s: *** ERROR *** Failed to connect to server.", FNAME);
                 break;
@@ -250,7 +242,7 @@ hoxSocketWriter::HandleRequest( hoxRequest_APtr apRequest )
                 break;
             }
             result = _WriteLine( m_socket, 
-                                 _RequestToString( *apRequest ) );
+                                 sRequest );
             break;
         }
         default:
@@ -574,29 +566,6 @@ hoxSocketConnection::IsConnected() const
 { 
     return (    m_writer.get() != NULL 
              && m_writer->IsConnected() );
-}
-
-
-// ----------------------------------------------------------------------------
-// Other API
-// ----------------------------------------------------------------------------
-
-
-const wxString 
-_RequestToString( const hoxRequest& request )
-{
-	wxString result;
-
-	result += "op=" + hoxUtil::RequestTypeToString( request.type );
-
-	hoxCommand::Parameters::const_iterator it;
-	for ( it = request.parameters.begin();
-		  it != request.parameters.end(); ++it )
-	{
-		result += "&" + it->first + "=" + it->second;
-	}
-	
-	return result;
 }
 
 /************************* END OF FILE ***************************************/

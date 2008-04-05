@@ -47,14 +47,6 @@ namespace hoxNetworkAPI
         wxSocketBase* m_sock;
     };
 
-
-    hoxResult SendRequest( wxSocketBase*   sock, 
-                           const wxString& request,
-                           wxString&       response );
-
-    hoxResult SendOutData( wxSocketBase*   sock, 
-                           const wxString& contentStr );
-
     hoxResult ParseCommand( const wxString& commandStr, 
                             hoxCommand&     command );
 
@@ -83,12 +75,6 @@ namespace hoxNetworkAPI
                                   int&                 returnCode,
                                   wxString&            returnMsg,
                                   hoxNetworkEventList& networkEvents );
-
-    hoxResult ReadCommand( wxSocketBase* sock, 
-                           hoxCommand&   command );
-
-    hoxResult ReadLine( wxSocketBase* sock, 
-                        wxString&     result );
 
     hoxResult WriteLine( wxSocketBase*   sock,
                          const wxString& message );

@@ -28,6 +28,29 @@
 #include "hoxTypes.h"
 #include "hoxUtil.h"
 
+
+// ----------------------------------------------------------------------------
+// hoxRequest
+// ----------------------------------------------------------------------------
+
+const wxString
+hoxRequest::ToString() const
+{
+	wxString result;
+
+	result += "op=" + hoxUtil::RequestTypeToString( this->type );
+
+	for ( hoxCommand::Parameters::const_iterator it = this->parameters.begin();
+		                                         it != this->parameters.end();
+                                               ++it )
+	{
+		result += "&" + it->first + "=" + it->second;
+	}
+	
+	return result;
+}
+
+
 // ----------------------------------------------------------------------------
 // hoxRequestQueue
 // ----------------------------------------------------------------------------
