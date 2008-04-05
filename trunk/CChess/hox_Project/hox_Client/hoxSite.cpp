@@ -50,8 +50,6 @@ hoxSite::hoxSite( hoxSiteType             type,
         , m_dlgProgress( NULL )
 		, m_siteClosing( false )
 {
-    //m_playerMgr.SetSite( this );
-    m_tableMgr.SetSite( this );
 }
 
 hoxSite::~hoxSite()
@@ -615,7 +613,7 @@ hoxRemoteSite::_CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo)
     MyChild* childFrame = wxGetApp().GetFrame()->CreateFrameForTable( tableId );
 
     /* Create a new table with the newly created Frame. */
-    pTable = m_tableMgr.CreateTable( tableId );
+    pTable = m_tableMgr.CreateTable( tableId, this );
 	pTable->SetInitialTime( tableInfo.initialTime );
     pTable->SetBlackTime( tableInfo.blackTime );
     pTable->SetRedTime( tableInfo.redTime );

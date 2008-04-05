@@ -40,16 +40,14 @@ public:
     hoxTableMgr();
     ~hoxTableMgr();
 
-    hoxTable_SPtr CreateTable( const wxString& tableId );
+    hoxTable_SPtr CreateTable( const wxString& tableId,
+                               hoxSite*        site );
     void RemoveTable( hoxTable_SPtr pTable );
     
     hoxTable_SPtr FindTable( const wxString& tableId ) const;
     const hoxTableList& GetTables() const { return m_tables; } 
 
-    void     SetSite(hoxSite* site) { m_site = site; }
-
 private:
-    hoxSite*        m_site;
     hoxTableList    m_tables; // The list of all tables in the system.
 };
 
