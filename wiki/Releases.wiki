@@ -5,6 +5,7 @@ _All releases can be found from_ [http://code.google.com/p/hoxchess/downloads/li
   * *April 08, 2008* 
     * Released *HOXChess 0.4.1.0* of the _source_ code.
     * Xiangqi fans now have the option to connect to my _new_ Xiangqi server at *games.playxiangqi.com* (with the static IP _209.20.66.220_)
+      * To play on this server, you need to create _a Blog account_ at [http://www.playxiangqi.com/blog/wp-login.php?action=register this page]
     * Major changes are:
       * Support JOIN and UNJOIN event for _Chesscape_ server
       * Remove the SERVER component from this Application.
