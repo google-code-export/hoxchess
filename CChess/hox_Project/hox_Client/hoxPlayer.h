@@ -122,7 +122,7 @@ public:
      * Request to join a Table.
      * Upon returned, the Player will be assigned a role.
      *
-     * @param table The Table to join.
+     * @param pTable The Table to join.
      */
     virtual hoxResult JoinTable( hoxTable_SPtr pTable );
 
