@@ -2,6 +2,15 @@
 
 _All releases can be found from_ [http://code.google.com/p/hoxchess/downloads/list this Downloads page]
 
+  * *April 08, 2008* 
+    * Released *HOXChess 0.4.1.0* of the _source_ code.
+    * Xiangqi fans now have the option to connect to my _new_ Xiangqi server at *games.playxiangqi.com* (with the static IP _209.20.66.220_)
+    * Major changes are:
+      * Support JOIN and UNJOIN event for _Chesscape_ server
+      * Remove the SERVER component from this Application.
+      * Enable/Disable DRAW/RESIGN action based on the Player's role
+      * Using the static IP *209.20.66.220* as the default IP for my _HOXServer_ server in the Login dialog (*games.playxiangqi.com* may now be used instead).
+
   * *April 03, 2008* 
     * Released *HOXChess 0.4.0.0* of the _source_ code.
     * The major feature introduced in this release is the ability to connect to my _upcoming_ Xiangqi server.
