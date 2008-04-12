@@ -41,18 +41,12 @@
  * The Application's Name and Version.
  */
 #define HOX_APP_NAME  "HOXChess"
-#define HOX_VERSION   "0.4.1.0"
+#define HOX_VERSION   "0.4.2.0"
 
 /**
  * The default path of all the pieces' images.
  */
 #define PIECES_PATH "../pieces"
-
-/**
- * The default HTTP server (hostname and port).
- */
-#define HOX_HTTP_SERVER_HOSTNAME  "www.playxiangqi.com"
-#define HOX_HTTP_SERVER_PORT      80
 
 /**
  * Results (... Return-Code)
@@ -133,7 +127,6 @@ enum hoxSiteType
     hoxSITE_TYPE_UNKNOWN = -1,
 
     hoxSITE_TYPE_REMOTE,
-    hoxSITE_TYPE_HTTP,
 
 	/* Other third-party sites */
 
@@ -217,35 +210,9 @@ enum hoxSocketContant
     * !!! Do not change the values the following !!!
     */
 
-    hoxSOCKET_CLIENT_SOCKET_TIMEOUT = (15 * 60),  // 15 minutes
+    hoxSOCKET_CLIENT_SOCKET_TIMEOUT = (15 * 60)  // 15 minutes
                 /* Timeout applied to client -> server connection */
 
-    hoxSOCKET_HTTP_POLL_INTERVAL = 5,  // 5 seconds
-                /* HTTP Polling interval for HTTP Connection */
-
-    hoxSOCKET_HTTP_TIMEOUT = 5         // 5 seconds
-                /* Timeout applied to HTTP client -> HTTP server connection */
-
-};
-
-/**
- * Network event-types.
- */
-enum hoxNetworkEvenType
-{
-   /*
-    * !!! Do not change the values the following !!!
-    *     as they are matched with those on the HTTP server.
-    */
-
-    hoxNETWORK_EVENT_TYPE_NEW_PLAYER_RED       = 1,
-    hoxNETWORK_EVENT_TYPE_NEW_PLAYER_BLACK     = 2,
-	hoxNETWORK_EVENT_TYPE_NEW_PLAYER_NONE      = 3,  // Observer
-    hoxNETWORK_EVENT_TYPE_LEAVE_PLAYER_RED     = 4,
-    hoxNETWORK_EVENT_TYPE_LEAVE_PLAYER_BLACK   = 5,
-	hoxNETWORK_EVENT_TYPE_LEAVE_PLAYER_NONE    = 6,  // Observer
-    hoxNETWORK_EVENT_TYPE_NEW_MOVE             = 7,
-    hoxNETWORK_EVENT_TYPE_NEW_WALL_MSG         = 8
 };
 
 /**

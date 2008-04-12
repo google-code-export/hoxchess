@@ -56,7 +56,6 @@
 class hoxLog;
 class hoxPlayer;
 class hoxTable;
-class hoxHttpPlayer;
 class hoxMyPlayer;
 
 DECLARE_EVENT_TYPE(hoxEVT_APP_SITE_CLOSE_READY, wxID_ANY)

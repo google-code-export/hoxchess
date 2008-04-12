@@ -170,18 +170,6 @@ protected:
 };
 
 /**
- * The HTTP (remote) Site.
- */
-class hoxHTTPSite : public hoxRemoteSite
-{
-public:
-    hoxHTTPSite(const hoxServerAddress& address);
-    virtual ~hoxHTTPSite();
-
-    virtual hoxLocalPlayer* CreateLocalPlayer(const wxString& playerName);
-};
-
-/**
  * The Chesscape (remote) Site.
  */
 class hoxChesscapeSite : public hoxRemoteSite

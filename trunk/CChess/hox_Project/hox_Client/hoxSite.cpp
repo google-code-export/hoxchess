@@ -617,32 +617,6 @@ hoxRemoteSite::_CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo)
 }
 
 // --------------------------------------------------------------------------
-// hoxHTTPSite
-// --------------------------------------------------------------------------
-
-hoxHTTPSite::hoxHTTPSite( const hoxServerAddress& address )
-        : hoxRemoteSite( address, hoxSITE_TYPE_HTTP )
-{
-    const char* FNAME = "hoxHTTPSite::hoxHTTPSite";
-    wxLogDebug("%s: ENTER.", FNAME);
-}
-
-hoxHTTPSite::~hoxHTTPSite()
-{
-    const char* FNAME = "hoxHTTPSite::~hoxHTTPSite";
-    wxLogDebug("%s: ENTER.", FNAME);
-}
-
-hoxLocalPlayer* 
-hoxHTTPSite::CreateLocalPlayer( const wxString& playerName )
-{
-	wxCHECK_MSG(m_player == NULL, NULL, "The player has already been set.");
-
-	m_player = m_playerMgr.CreateHTTPPlayer( playerName );
-	return m_player;
-}
-
-// --------------------------------------------------------------------------
 // hoxChesscapeSite
 // --------------------------------------------------------------------------
 
@@ -756,13 +730,6 @@ hoxSiteManager::CreateSite( hoxSiteType             siteType,
 		site = new hoxRemoteSite( address );
 		localPlayer = site->CreateLocalPlayer( userName );
         connection.reset( new hoxSocketConnection( address, localPlayer ) );
-		break;
-	}
-	case hoxSITE_TYPE_HTTP:
-	{
-		site = new hoxHTTPSite( address );
-		localPlayer = site->CreateLocalPlayer( userName );
-        connection.reset( new hoxHttpConnection( address, localPlayer ) );
 		break;
 	}
 	case hoxSITE_TYPE_CHESSCAPE:
