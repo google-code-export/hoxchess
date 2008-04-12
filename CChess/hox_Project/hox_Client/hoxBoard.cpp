@@ -376,29 +376,8 @@ hoxBoard::OnGameOver( wxCommandEvent &event )
     const char* FNAME = "hoxBoard::OnGameOver";
 
 	const int gameStatus = event.GetInt();
-	wxString boardMessage; 
-
-	switch ( gameStatus )
-	{
-		case hoxGAME_STATUS_RED_WIN:
-		{
-			boardMessage = "Game Over. " + m_redId + " won."; 
-			break;
-		}
-		case hoxGAME_STATUS_BLACK_WIN:
-		{
-			boardMessage = "Game Over. " + m_blackId + " won."; 
-			break;
-		}
-		case hoxGAME_STATUS_DRAWN:
-		{
-			boardMessage = "Game drawn."; 
-			break;
-		}
-		default:
-			wxLogDebug("%s: Unsupported game-status [%d].", gameStatus );
-			return;
-	}
+	
+    const wxString boardMessage = _GetGameOverMessage( gameStatus );
 
 	/* Display the status */
 	m_status = (hoxGameStatus) gameStatus; // TODO: Force it!!!
@@ -1098,5 +1077,37 @@ hoxBoard::_OnTimerUpdated()
 	m_redFreeTime->SetLabel(   hoxUtil::FormatTime( m_redTime.nFree ) );
 }
 
+wxString
+hoxBoard::_GetGameOverMessage( const int gameStatus ) const
+{
+    const char* FNAME = "hoxBoard::_GetGameOverMessage";
+	wxString boardMessage; 
+
+	switch ( gameStatus )
+	{
+		case hoxGAME_STATUS_RED_WIN:
+		{
+			boardMessage = "Game Over. " + m_redId + " won."; 
+			break;
+		}
+		case hoxGAME_STATUS_BLACK_WIN:
+		{
+			boardMessage = "Game Over. " + m_blackId + " won."; 
+			break;
+		}
+		case hoxGAME_STATUS_DRAWN:
+		{
+			boardMessage = "Game drawn."; 
+			break;
+		}
+		default:
+        {
+			wxLogDebug("%s: Unsupported game-status [%d].", FNAME, gameStatus );
+            boardMessage = "Game over: !!! UNKNOWN !!!";
+        }
+	}
+
+    return boardMessage;
+}
 
 /************************* END OF FILE ***************************************/

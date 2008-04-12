@@ -65,14 +65,12 @@ hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
             }
 			break;
 		}
-
         case hoxREQUEST_LOGOUT:
 		{
 			const wxString login = apRequest->parameters["pid"]; 
             result = _Logout(login);
 			break;
 		}
-
         case hoxREQUEST_JOIN:
 		{
 		    const wxString tableId = apRequest->parameters["tid"];
@@ -83,45 +81,43 @@ hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
 			response->content = tableId;
             break;
 		}
-
         case hoxREQUEST_PLAYER_STATUS:
 		{
 		    const wxString playerStatus = apRequest->parameters["status"];
             result = _UpdateStatus( playerStatus );
             break;
 		}
-
         case hoxREQUEST_LEAVE:
 		{
             result = _Leave();
             break;
 		}
-
         case hoxREQUEST_MOVE:
 		{
             result = _Move( apRequest );
             break;
 		}
-
         case hoxREQUEST_NEW:
 		{
             result = _New();
             break;
 		}
-
         case hoxREQUEST_MSG:
 		{
             result = _WallMessage( apRequest );
             break;
 		}
-
+        case hoxREQUEST_RESIGN:
+		{
+            result = _Resign();
+            break;
+		}
         case hoxREQUEST_DRAW:
 		{
 			const wxString drawResponse = apRequest->parameters["draw_response"];
             result = _Draw( drawResponse );
             break;
 		}
-
         default:
             wxLogDebug("%s: *** WARN *** Unsupported Request [%s].", 
                 FNAME, hoxUtil::RequestTypeToString(apRequest->type).c_str());
@@ -418,6 +414,27 @@ hoxChesscapeWriter::_WallMessage( hoxRequest_APtr apRequest )
 	wxLogDebug("%s: Sending MESSAGE [%s] request...", FNAME, message.c_str());
 	wxString cmdRequest;
 	cmdRequest.Printf("\x02\x10tMsg?%s\x10\x03", message.c_str());
+
+    return hoxNetworkAPI::WriteLine( m_socket, cmdRequest );
+}
+
+hoxResult
+hoxChesscapeWriter::_Resign()
+{
+    const char* FNAME = "hoxChesscapeWriter::_Resign";
+
+    if ( ! this->IsConnected() )
+    {
+        // NOTE: The connection could have been closed if the server is down.
+        wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
+        return hoxRC_ERR;
+    }
+
+    /* Send RESIGN request. */
+
+	wxLogDebug("%s: Sending RESIGN (the current table) request...", FNAME);
+	wxString cmdRequest;
+    cmdRequest.Printf("\x02\x10tCmd?Resign\x10\x03");
 
     return hoxNetworkAPI::WriteLine( m_socket, cmdRequest );
 }

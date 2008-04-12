@@ -136,20 +136,39 @@ hoxChesscapePlayer::OnRequest_FromTable( hoxRequest_APtr apRequest )
 {
     const char* FNAME = "hoxChesscapePlayer::OnRequest_FromTable";
 
-    if ( apRequest->type == hoxREQUEST_MOVE )
+    switch ( apRequest->type )
     {
-	    /* If this Play is playing and this is his first Move, then
-	     * update his Status to "Playing".
-	     */
-	    if ( ! m_bSentMyFirstMove )
-	    {
-		    m_bSentMyFirstMove = true;
+        case hoxREQUEST_MOVE:
+        {
+	        /* If this Play is playing and this is his first Move, then
+	         * update his Status to "Playing".
+	         */
+	        if ( ! m_bSentMyFirstMove )
+	        {
+		        m_bSentMyFirstMove = true;
 
-		    wxLogDebug("%s: Sending Player-Status on the 1st Move...", FNAME);
-		    hoxRequest_APtr apStatusRequest( new hoxRequest( hoxREQUEST_PLAYER_STATUS, this ) );
-		    apStatusRequest->parameters["status"] = "P";
-		    this->AddRequestToConnection( apStatusRequest );
-	    }
+		        wxLogDebug("%s: Sending Player-Status on the 1st Move...", FNAME);
+		        hoxRequest_APtr apStatusRequest( new hoxRequest( hoxREQUEST_PLAYER_STATUS, this ) );
+		        apStatusRequest->parameters["status"] = "P";
+		        this->AddRequestToConnection( apStatusRequest );
+	        }
+            break;
+        }
+        case hoxREQUEST_RESIGN:
+        {
+            const wxString tableId = apRequest->parameters["tid"];
+	        hoxTable_SPtr pTable = this->GetSite()->FindTable( tableId );
+            wxCHECK_RET(pTable.get() != NULL, "Table not found");
+
+            hoxColor myRole = pTable->GetPlayerRole( this->GetName() );
+            hoxGameStatus gameStatus = ( myRole == hoxCOLOR_RED
+                                        ? hoxGAME_STATUS_BLACK_WIN 
+                                        : hoxGAME_STATUS_RED_WIN );
+            pTable->OnGameOver_FromNetwork( this, gameStatus );
+            break;
+        }
+        default:
+            break; // Do nothing for other requests.
     }
 
     this->hoxPlayer::OnRequest_FromTable( apRequest );
