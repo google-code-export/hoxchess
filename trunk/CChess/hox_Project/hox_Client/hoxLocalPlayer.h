@@ -29,7 +29,6 @@
 
 #include <wx/wx.h>
 #include "hoxPlayer.h"
-#include "hoxEnums.h"
 #include "hoxTypes.h"
 
 /* 
@@ -69,18 +68,6 @@ public:
     virtual hoxResult JoinNetworkTable( const wxString& tableId );
     virtual hoxResult OpenNewNetworkTable();
     virtual hoxResult LeaveNetworkTable( const wxString& tableId );
-
-    /*******************************
-     * Event-handler API
-     *******************************/
-
-	virtual void OnConnectionResponse( wxCommandEvent& event ); 
-
-protected:
-    virtual hoxResult HandleResponseEvent_Connect( wxCommandEvent& event );
-
-protected:
-	wxString    m_sessionId;  // Session-Id (i.e., auth-token)
 
 private:
 
