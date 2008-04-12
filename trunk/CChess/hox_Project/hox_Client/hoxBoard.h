@@ -178,6 +178,8 @@ private:
     void _SyncTimerWithTable();
     void _OnTimerUpdated();
 
+    wxString _GetGameOverMessage( const int gameStatus ) const;
+
 private:
     hoxCoreBoard*     m_coreBoard;  // The "core" board.
     hoxIReferee_SPtr  m_referee;    // The Referee.
