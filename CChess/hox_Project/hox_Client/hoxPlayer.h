@@ -31,7 +31,6 @@
 
 /* Forward declarations */
 class hoxSite;
-class hoxTable;
 
 // ----------------------------------------------------------------------------
 // The Player class
@@ -139,18 +138,6 @@ public:
     virtual hoxResult LeaveAllTables();
 
 protected:
-    /**
-     * Handle the incoming data from the connection.
-     */
-    virtual hoxResult HandleIncomingData( const wxString& commandStr );
-	virtual hoxResult HandleIncomingData_Disconnect( hoxCommand& command );
-    virtual hoxResult HandleIncomingData_Move( hoxCommand& command, wxString& response );
-    virtual hoxResult HandleIncomingData_Leave( hoxCommand& command, wxString& response );
-    virtual hoxResult HandleIncomingData_WallMsg( hoxCommand& command, wxString& response );
-    virtual hoxResult HandleIncomingData_List( hoxCommand& command, wxString& response );
-    virtual hoxResult HandleIncomingData_Join( hoxCommand& command, wxString& response );
-    virtual hoxResult HandleIncomingData_NewJoin( hoxCommand& command, wxString& response );
-    virtual hoxResult HandleIncomingData_New( hoxCommand& command, wxString& response );
 
     virtual void StartConnection();
     virtual void ShutdownConnection();
