@@ -144,7 +144,7 @@ hoxRemoteSite::OnResponse_LOGIN( const hoxResponse_APtr& response )
             hoxUtil::RequestTypeToString(response->type).c_str(), 
             hoxUtil::ResultToStr(response->code),
             response->content.c_str());
-        this->Handle_ShutdownReadyFromPlayer( m_player ? m_player->GetName() : "" );
+        this->Handle_ShutdownReadyFromPlayer();
     }
 }
 
@@ -539,7 +539,7 @@ hoxRemoteSite::JoinExistingTable(const hoxNetworkTableInfo& tableInfo)
 }
 
 void 
-hoxRemoteSite::Handle_ShutdownReadyFromPlayer( const wxString& playerId )
+hoxRemoteSite::Handle_ShutdownReadyFromPlayer()
 {
     const char* FNAME = "hoxRemoteSite::Handle_ShutdownReadyFromPlayer";
     wxLogDebug("%s: ENTER.", FNAME);
@@ -549,6 +549,16 @@ hoxRemoteSite::Handle_ShutdownReadyFromPlayer( const wxString& playerId )
 		wxLogDebug("%s: Player is NULL. Shutdown must have already been processed.", FNAME);
 		return;
 	}
+
+    /* Close all the Frames of Tables. */
+    const hoxTableList& tables = this->GetTables();
+    while ( !tables.empty() )
+    {
+        const wxString sTableId = tables.front()->GetId();
+        wxLogDebug("%s: Delete Frame of Table [%s]...", FNAME, sTableId.c_str());
+        wxGetApp().GetFrame()->DeleteFrameOfTable( sTableId );
+            // NOTE: The call above already delete the Table.
+    }
 
 	/* Must set the local player to NULL immediately to handle "re-entrance"
 	 * because the DISCONNECT call below can go to sleep...

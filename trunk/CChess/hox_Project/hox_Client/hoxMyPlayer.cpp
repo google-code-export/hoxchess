@@ -89,7 +89,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
         {
             this->LeaveAllTables();
             this->DisconnectFromNetworkServer();
-            site->OnResponse_LOGOUT( response );
+            site->Handle_ShutdownReadyFromPlayer();
             wxLogDebug("%s: END (exception).", FNAME);
             return;  // *** Exit immediately.
         }

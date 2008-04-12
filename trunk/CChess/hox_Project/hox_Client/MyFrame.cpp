@@ -24,7 +24,6 @@
 // Description:     The main Frame of the App.
 /////////////////////////////////////////////////////////////////////////////
 
-#include <wx/numdlg.h>
 #include "MyFrame.h"
 #include "MyChild.h"
 #include "MyApp.h"    // To access wxGetApp()
@@ -669,6 +668,28 @@ MyFrame::CreateFrameForTable( wxString& requestTableId )
     m_children.push_back( childFrame );
 
     return childFrame;
+}
+
+void
+MyFrame::DeleteFrameOfTable( const wxString& sTableId )
+{
+    MyChild* foundChild = NULL;
+
+    for ( MyChildList::const_iterator it = m_children.begin();
+                                      it != m_children.end(); ++it )
+    {
+        if ( (*it)->IsMyTable( sTableId ) )
+        {
+            foundChild = ( *it );
+            break;
+        }
+    }
+
+    if ( foundChild != NULL )
+    {
+        foundChild->Close( true /* force */ );
+        // NOTE: The call above already delete the child.
+    }
 }
 
 void 

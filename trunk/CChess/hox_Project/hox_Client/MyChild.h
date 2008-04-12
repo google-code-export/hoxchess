@@ -56,6 +56,8 @@ public:
     
     hoxSite* GetSite() const;
 
+    bool IsMyTable( const wxString& sTableId ) const;
+
 private:
     void _SetupMenu();
     void _SetupStatusBar();
