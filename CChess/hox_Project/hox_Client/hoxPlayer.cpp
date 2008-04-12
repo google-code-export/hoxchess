@@ -369,7 +369,7 @@ hoxPlayer::_PostSite_ShutdownReady()
 	const char* FNAME  = "hoxPlayer::_PostSite_ShutdownReady";
 	wxLogDebug("%s: ENTER.", FNAME);
 
-    m_site->Handle_ShutdownReadyFromPlayer( this->GetName() );
+    m_site->Handle_ShutdownReadyFromPlayer();
 }
 
 /************************* END OF FILE ***************************************/

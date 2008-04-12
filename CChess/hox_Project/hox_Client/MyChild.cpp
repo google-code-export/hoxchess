@@ -30,7 +30,6 @@
 #include "hoxTable.h"
 #include "hoxSite.h"
 #include "hoxPlayer.h"
-#include "hoxTableMgr.h"
 
 #if !defined(__WXMSW__)
     #include "icons/chart.xpm"
@@ -161,6 +160,15 @@ MyChild::GetSite() const
         return m_pTable->GetSite();
 
     return NULL;
+}
+
+bool
+MyChild::IsMyTable( const wxString& sTableId ) const
+{
+    if ( m_pTable.get() != NULL )
+        return (m_pTable->GetId() == sTableId);
+
+    return false;
 }
 
 /************************* END OF FILE ***************************************/

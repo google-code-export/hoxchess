@@ -138,6 +138,13 @@ public:
      */
     MyChild* CreateFrameForTable( wxString& requestTableId );
 
+    /**
+     * Delete the GUI Frame of a given Table.
+     *
+     * @param sTableId The table-Id whose frame needs to be deleted.
+     */
+    void DeleteFrameOfTable( const wxString& sTableId );
+
     class SiteTreeItemData : public wxTreeItemData
     {
     public:

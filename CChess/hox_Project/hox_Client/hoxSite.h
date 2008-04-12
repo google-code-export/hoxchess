@@ -100,7 +100,7 @@ public:
 		                          int             score = 1500 )
         { return m_playerMgr.CreateDummyPlayer( playerId, score ); }
 
-	virtual void Handle_ShutdownReadyFromPlayer( const wxString& playerId ) = 0;
+	virtual void Handle_ShutdownReadyFromPlayer() = 0;
 
     virtual hoxLocalPlayer* CreateLocalPlayer(const wxString& playerName) = 0;
 
@@ -152,7 +152,7 @@ public:
     virtual hoxResult JoinExistingTable(const hoxNetworkTableInfo& tableInfo);
     virtual hoxResult DisplayListOfTables(const hoxNetworkTableInfoList& tableList);
 
-	virtual void Handle_ShutdownReadyFromPlayer( const wxString& playerId );
+	virtual void Handle_ShutdownReadyFromPlayer();
 
     virtual hoxLocalPlayer* CreateLocalPlayer(const wxString& playerName);
 
