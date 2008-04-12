@@ -28,7 +28,6 @@
 #include "MyApp.h"
 #include "hoxUtil.h"
 #include "hoxSocketConnection.h"
-#include "hoxHttpConnection.h"
 #include "hoxChesscapeConnection.h"
 #include "hoxChesscapePlayer.h"
 #include "MyFrame.h"
