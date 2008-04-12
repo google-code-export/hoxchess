@@ -28,7 +28,6 @@
 #define __INCLUDED_HOX_PLAYER_MGR_H_
 
 #include "hoxPlayer.h"
-#include "hoxHttpPlayer.h"
 #include "hoxMyPlayer.h"
 #include "hoxChesscapePlayer.h"
 
@@ -43,9 +42,6 @@ class hoxPlayerMgr
 public:
     hoxPlayerMgr();
     ~hoxPlayerMgr();
-
-    hoxHttpPlayer* CreateHTTPPlayer( const wxString& name,
-                                     int             score = 1500 );
 
     hoxChesscapePlayer* CreateChesscapePlayer( const wxString& name,
                                                int             score = 1500 );

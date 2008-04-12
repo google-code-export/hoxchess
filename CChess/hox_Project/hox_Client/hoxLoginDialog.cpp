@@ -47,7 +47,6 @@ enum SiteTypeSelection
 
     SITETYPE_SELECTION_CHESSCAPE    = 0,
     SITETYPE_SELECTION_HOXCHESS     = 1,
-    //SITETYPE_SELECTION_HTTP_POLLING = 2,
 
     SITETYPE_SELECTION_MAX    // MAX Site marker!!!
 };
@@ -68,7 +67,6 @@ static SiteInfo s_siteList[] =
 {
     { hoxSITE_TYPE_CHESSCAPE, "Chesscape", "Chesscape.com", "games.chesscape.com", "3534", "", "" },
     { hoxSITE_TYPE_REMOTE, "HOXChess", "HOXChess Server", "209.20.66.220", "8000", "", "" },
-    { hoxSITE_TYPE_HTTP, "HttpPolling", "HTTP Polling", "www.playxiangqi.com", "80", "", "" }
 };
 
 // ----------------------------------------------------------------------------

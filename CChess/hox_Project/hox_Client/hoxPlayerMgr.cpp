@@ -42,17 +42,6 @@ hoxPlayerMgr::~hoxPlayerMgr()
     }
 }
 
-hoxHttpPlayer*
-hoxPlayerMgr::CreateHTTPPlayer( const wxString& name,
-                                int             score /* = 1500 */)
-{
-    hoxHttpPlayer* player 
-        = new hoxHttpPlayer( name, hoxPLAYER_TYPE_LOCAL, score );
-    m_players.push_back( player );
-
-    return player;
-}
-
 hoxChesscapePlayer*
 hoxPlayerMgr::CreateChesscapePlayer( const wxString& name,
                                      int             score /* = 1500 */)
