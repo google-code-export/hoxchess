@@ -192,8 +192,6 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
     const char* FNAME = "hoxChesscapePlayer::OnConnectionResponse_PlayerData";
     hoxResult result = hoxRC_OK;
 
-    wxLogDebug("%s: ENTER.", FNAME);
-
     const hoxResponse_APtr response( wxDynamicCast(event.GetEventObject(), hoxResponse) );
 	wxString command;
 	wxString paramsStr;
@@ -221,7 +219,7 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 	if ( ! _ParseIncomingCommand( response->content, command, paramsStr ) ) // failed?
 	{
 		wxLogDebug("%s: *** WARN *** Failed to parse incoming command.", FNAME);
-		goto exit_label;
+		return;  // *** Exit immediately.
 	}
 
 	/* Processing the command... */
@@ -229,8 +227,7 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
     /////////////////////////////////////////////////////////////
     if ( m_bRequestingLogin )  // LOGIN pending?
 	{
-		wxLogDebug("%s: LOGIN 's response received.", FNAME);
-		wxLogDebug("%s: ... response = [%s].", FNAME, response->content.c_str());
+		wxLogDebug("%s: LOGIN 's response received [%s].", FNAME, response->content.c_str());
 
 	    if ( command == "code" )
 	    {
@@ -274,11 +271,8 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 	else if ( command == "tMsg" )	       _HandleTableMsg( paramsStr );
 	else
 	{
-		wxLogDebug("%s: Ignore other command = [%s].", FNAME, command.c_str());
+		wxLogDebug("%s: * INFO * Ignore other command = [%s].", FNAME, command.c_str());
 	}
-
-exit_label:
-    wxLogDebug("%s: END.", FNAME);
 }
 
 bool 
@@ -804,8 +798,7 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 	/* Set the game times. 
 	 * TODO: Ignore INCREMENT game-time for now.
 	 */
-	if (  ! m_pendingJoinTableId.empty()
-		 /* && nRedGameTime > 0 && nBlackGameTime > 0 */ )
+	if (  ! m_pendingJoinTableId.empty() )
 	{
 		hoxNetworkTableInfo* pTableInfo = NULL;
 		if ( ! _FindTableById( m_pendingJoinTableId, pTableInfo ) ) // not found?
@@ -1020,27 +1013,15 @@ hoxChesscapePlayer::_HandleTableCmd_Unjoin( hoxTable_SPtr   pTable,
 	const char* FNAME = "hoxChesscapePlayer::_HandleTableCmd_Unjoin";
 
 	const wxString sPlayerId = cmdStr;
-    hoxPlayer* leavePlayer = NULL;
+    const int      nPlayerScore = 1500;  // *** FIXME
 
-    /////////////////////
     hoxSite* site = this->GetSite();
-	if ( sPlayerId == this->GetName() ) // this Player?
-	{
-		leavePlayer = this;
-	}
-    else
-    {
-        leavePlayer = site->FindPlayer( sPlayerId );
-        if ( leavePlayer == NULL )
-        {
-            int nPlayerScore = 1500;  // *** FIXME
-		    leavePlayer = site->CreateDummyPlayer( sPlayerId, nPlayerScore );
-        }
-    }
+    hoxPlayer* player = site->GetPlayerById( sPlayerId, 
+                                             nPlayerScore );
+    wxCHECK_MSG(player != NULL, false, "Unexpected NULL player");
 
 	wxLogDebug("%s: Inform table that [%s] just left.", FNAME, sPlayerId.c_str());
-    pTable->OnLeave_FromNetwork( leavePlayer, this );
-    /////////////////////
+    pTable->OnLeave_FromNetwork( player, this );
 
 	return true;
 }
@@ -1141,7 +1122,7 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 		return;
 	}
 
-    /* Update the new Timers. */
+    /* Update the Table with the new Timers. */
     pTable->OnUpdate_FromPlayer( this, tableInfo.initialTime );
 
 	/* Find out if any new Player just "sit" at the Table. */
@@ -1150,55 +1131,47 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 	hoxPlayer* currentBlackPlayer = pTable->GetBlackPlayer();
 	const wxString currentRedId = currentRedPlayer ? currentRedPlayer->GetName() : "";
 	const wxString currentBlackId = currentBlackPlayer ? currentBlackPlayer->GetName() : "";
-	bool bNewRed   = false;  // A new Player just 'sit' as RED.
-	bool bNewBlack = false;  // A new Player just 'sit' as BLACK.
+	bool bSitRed   = false;  // A new Player just 'sit' as RED.
+	bool bSitBlack = false;  // A new Player just 'sit' as BLACK.
+    bool bUnsitRed   = false;  // The RED Player just 'unsit'.
+    bool bUnsitBlack = false;  // The BLACK Player just 'unsit'.
 
-	if (  ! tableInfo.redId.empty() && tableInfo.redId != currentRedId )
-	{
-		bNewRed = true;
-	}
-	else if (  ! tableInfo.blackId.empty() && tableInfo.blackId != currentBlackId )
-	{
-		bNewBlack = true;
-	}
+	bSitRed   = ( ! tableInfo.redId.empty()   && tableInfo.redId   != currentRedId );
+	bSitBlack = ( ! tableInfo.blackId.empty() && tableInfo.blackId != currentBlackId );
 
-	/* Handle the new 'sitting' RED player */
+    bUnsitRed   = ( currentRedPlayer != NULL   && tableInfo.redId.empty() );
+    bUnsitBlack = ( currentBlackPlayer != NULL && tableInfo.blackId.empty() );
+
+	/* New 'SIT' event. */
 
 	hoxPlayer* newRedPlayer = NULL;
+	hoxPlayer* newBlackPlayer = NULL;
 
-	if ( bNewRed )
+	if ( bSitRed )
 	{
-		if ( tableInfo.redId == this->GetName() ) // this Player?
-		{
-			newRedPlayer = this;
-		}
-		else  // Other player?
-		{
-			newRedPlayer = site->CreateDummyPlayer( tableInfo.redId, // TODO: should be "GetXXX" instead.
-				                                    ::atoi( tableInfo.redScore.c_str() ) ); 
-		}
-
+        newRedPlayer = site->GetPlayerById( tableInfo.redId,
+			                                ::atoi( tableInfo.redScore.c_str() ) ); 
 		result = newRedPlayer->JoinTableAs( pTable, hoxCOLOR_RED );
 		wxASSERT( result == hoxRC_OK  );
 	}
-
-	/* Handle the new 'sitting' BLACK player */
-
-	hoxPlayer* newBlackPlayer = NULL;
-
-	if ( bNewBlack )
+	if ( bSitBlack )
 	{
-		if ( tableInfo.blackId == this->GetName() ) // this Player?
-		{
-			newBlackPlayer = this;
-		}
-		else  // Other player?
-		{
-			newBlackPlayer = site->CreateDummyPlayer( tableInfo.blackId, // TODO: should be "GetXXX" instead.
-			                                          ::atoi( tableInfo.blackScore.c_str() ) );
-		}
-
+        newBlackPlayer = site->GetPlayerById( tableInfo.blackId,
+		                                      ::atoi( tableInfo.blackScore.c_str() ) );
 		result = newBlackPlayer->JoinTableAs( pTable, hoxCOLOR_BLACK );
+		wxASSERT( result == hoxRC_OK  );
+	}
+
+	/* New 'UNSIT' event. */
+
+	if ( bUnsitRed )
+	{
+		result = currentRedPlayer->JoinTableAs( pTable, hoxCOLOR_NONE );
+		wxASSERT( result == hoxRC_OK  );
+	}
+	if ( bUnsitBlack )
+	{
+		result = currentBlackPlayer->JoinTableAs( pTable, hoxCOLOR_NONE );
 		wxASSERT( result == hoxRC_OK  );
 	}
 

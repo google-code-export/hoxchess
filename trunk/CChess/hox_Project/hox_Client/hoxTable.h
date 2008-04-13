@@ -299,7 +299,6 @@ private:
      *
      * @note This function is required instead of calling "delete" to
      *       avoid memory leak issues.
-     *
      */
     void _CloseBoard();
 

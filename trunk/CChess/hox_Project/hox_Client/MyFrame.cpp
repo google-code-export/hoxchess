@@ -624,28 +624,19 @@ MyFrame::OnContextMenu( wxContextMenuEvent& event )
 }
 
 MyChild* 
-MyFrame::CreateFrameForTable( wxString& requestTableId )
+MyFrame::CreateFrameForTable( const wxString& sTableId )
 {
     const char* FNAME = "MyFrame::CreateFrameForTable";
     MyChild*  childFrame = NULL;
     wxString  effectiveTableId;
     wxString  windowTitle;
 
+    wxASSERT( ! sTableId.empty() );
+
     m_nChildren++; // for tracking purpose.
 
-    /* Generate a table's Id if required. */
-    if ( requestTableId.empty() )
-    {
-        requestTableId.Printf("%d", m_nChildren );
-        wxLogDebug("%s: Generated a new table-Id [%s].", FNAME, requestTableId.c_str());  
-    }
-
-    /* TODO: We should check if the new Id has already been taken
-     *       by an existing Table.
-     */
-
     /* Generate the Window's title for the new Table. */
-    windowTitle.Printf("Table #%s", requestTableId.c_str());
+    windowTitle.Printf("Table #%s", sTableId.c_str());
 
 	/* Load the default layout. */
 	wxPoint defaultPosition = wxDefaultPosition;

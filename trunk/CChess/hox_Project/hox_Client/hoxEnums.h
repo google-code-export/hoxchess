@@ -97,9 +97,9 @@ enum hoxColor
     hoxCOLOR_BLACK, // BLACK color.
 
     hoxCOLOR_NONE 
-        /* TODO: This type actually does not make sense for 'Piece',
+        /* NOTE: This type actually does not make sense for 'Piece',
          *       only for "Player". It is used to indicate the role 
-         *       of a player who is currently only observe the game,
+         *       of a player who is currently only observing the game,
          *       not playing.
          */
 };

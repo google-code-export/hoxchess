@@ -30,7 +30,6 @@
 
 #include "hoxBoard.h"
 #include "hoxCoreBoard.h"
-#include "hoxEnums.h"
 #include "hoxUtil.h"
 #include "hoxReferee.h"
 #include "hoxTypes.h"
@@ -102,6 +101,7 @@ hoxBoard::hoxBoard( wxWindow*        parent,
                     const wxString&  piecesPath,
                     hoxIReferee_SPtr referee,
                     hoxTable_SPtr    pTable,
+                    const wxString&  ownerId,
                     const wxPoint&   pos  /* = wxDefaultPosition */, 
                     const wxSize&    size /* = wxDefaultSize */)
         : wxPanel( parent, 
@@ -113,14 +113,16 @@ hoxBoard::hoxBoard( wxWindow*        parent,
         , m_referee( referee )
         , m_pTable( pTable )
         , m_status( hoxGAME_STATUS_OPEN )
+        , m_ownerId( ownerId )
 		, m_timer( NULL )
         , m_bUICreated( false )
 {
     const char* FNAME = "hoxBoard::hoxBoard";
     wxLogDebug("%s: ENTER.", FNAME);
     
-    wxCHECK_RET( m_referee.get() != NULL, "A Referee must be set." );
-    wxCHECK_RET( m_pTable.get() != NULL, "A Table must be set." );
+    wxCHECK_RET( m_referee.get() != NULL, "A Referee must be set" );
+    wxCHECK_RET( m_pTable.get() != NULL, "A Table must be set" );
+    wxCHECK_RET( !m_ownerId.empty(), "An Owner must be set" );
 
     /* Create the core board. */
     m_coreBoard = new hoxCoreBoard( this, m_referee );
@@ -270,10 +272,6 @@ hoxBoard::OnPlayerLeave( wxCommandEvent &event )
     else if ( playerId == m_blackId ) // Check BLACK
     {
         _SetBlackInfo( NULL );
-    }
-    else
-    {
-        m_observerIds.remove( playerId );
     }
 
     _RemovePlayerFromList( playerId );
@@ -500,14 +498,16 @@ hoxBoard::OnButtonJoin( wxCommandEvent &event )
 void
 hoxBoard::OnUpdateUI_ActionResign( wxUpdateUIEvent& event )
 {
-	bool bMenuEnabled = ( m_status == hoxGAME_STATUS_IN_PROGRESS );
+	bool bMenuEnabled = ( m_status == hoxGAME_STATUS_IN_PROGRESS
+                        && _IsOwnerPlaying() );
     event.Enable( bMenuEnabled );
 }
 
 void
 hoxBoard::OnUpdateUI_ActionDraw( wxUpdateUIEvent& event )
 {
-	bool bMenuEnabled = ( m_status == hoxGAME_STATUS_IN_PROGRESS );
+	bool bMenuEnabled = ( m_status == hoxGAME_STATUS_IN_PROGRESS
+                        && _IsOwnerPlaying() );
     event.Enable( bMenuEnabled );
 }
 
@@ -1108,6 +1108,13 @@ hoxBoard::_GetGameOverMessage( const int gameStatus ) const
 	}
 
     return boardMessage;
+}
+
+bool
+hoxBoard::_IsOwnerPlaying() const
+{
+    return (    m_ownerId == m_redId 
+             || m_ownerId == m_blackId );
 }
 
 /************************* END OF FILE ***************************************/

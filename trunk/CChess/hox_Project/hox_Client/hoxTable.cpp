@@ -218,7 +218,7 @@ void
 hoxTable::OnJoinCommand_FromBoard()
 {
     const char* FNAME = "hoxTable::OnJoinCommand_FromBoard";
-	wxLogDebug("%s: Received a JOIN request from Board's local-player.", FNAME);
+	wxLogDebug("%s: Received a JOIN request from Board.", FNAME);
 
     /* Get the Board Player (or the Board's owner) because he is the
      * one that sent the Message.

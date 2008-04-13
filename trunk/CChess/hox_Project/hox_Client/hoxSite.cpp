@@ -48,6 +48,7 @@ hoxSite::hoxSite( hoxSiteType             type,
         , m_address( address)
         , m_dlgProgress( NULL )
 		, m_siteClosing( false )
+        , m_player( NULL )
 {
 }
 
@@ -60,6 +61,19 @@ hoxSite::CloseTable(hoxTable_SPtr pTable)
 {
     m_tableMgr.RemoveTable( pTable );
     return hoxRC_OK;
+}
+
+hoxPlayer*
+hoxSite::GetPlayerById( const wxString& sPlayerId,
+                        const int       nScore )
+{
+    hoxPlayer* player = this->FindPlayer( sPlayerId );
+    if ( player == NULL )
+    {
+	    player = this->CreateDummyPlayer( sPlayerId, nScore );
+    }
+    wxASSERT( player != NULL );
+    return player;
 }
 
 void
@@ -107,7 +121,6 @@ hoxSite::ShowProgressDialog( bool bShow /* = true */ )
 hoxRemoteSite::hoxRemoteSite(const hoxServerAddress& address,
                              hoxSiteType             type /*= hoxSITE_TYPE_REMOTE*/)
         : hoxSite( type, address )
-        , m_player( NULL )
 {
     const char* FNAME = "hoxRemoteSite::hoxRemoteSite";
     wxLogDebug("%s: ENTER.", FNAME);
@@ -599,7 +612,7 @@ hoxRemoteSite::_CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo)
 {
     const char* FNAME = "hoxRemoteSite::_CreateNewTableWithGUI";
     hoxTable_SPtr pTable;
-    wxString  tableId = tableInfo.id;
+    const wxString tableId = tableInfo.id;
 
     /* Create a GUI Frame for the new Table. */
     MyChild* childFrame = wxGetApp().GetFrame()->CreateFrameForTable( tableId );
@@ -615,6 +628,7 @@ hoxRemoteSite::_CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo)
 		                             PIECES_PATH, 
 		                             pTable->GetReferee(),
                                      pTable,
+                                     m_player->GetName(),
         					         wxDefaultPosition,
 							         childFrame->GetSize() );
     pTable->ViewBoard( pBoard );
