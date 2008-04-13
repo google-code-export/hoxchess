@@ -89,6 +89,8 @@ BEGIN_EVENT_TABLE(hoxBoard, wxPanel)
 
     EVT_UPDATE_UI(ID_ACTION_RESIGN, hoxBoard::OnUpdateUI_ActionResign)
     EVT_UPDATE_UI(ID_ACTION_DRAW, hoxBoard::OnUpdateUI_ActionDraw)
+    EVT_UPDATE_UI(ID_ACTION_RESET, hoxBoard::OnUpdateUI_ActionReset)
+    EVT_UPDATE_UI(ID_ACTION_JOIN, hoxBoard::OnUpdateUI_ActionJoin)
 
     EVT_TIMER(wxID_ANY, hoxBoard::OnTimer)    
 END_EVENT_TABLE()
@@ -103,7 +105,8 @@ hoxBoard::hoxBoard( wxWindow*        parent,
                     hoxTable_SPtr    pTable,
                     const wxString&  ownerId,
                     const wxPoint&   pos  /* = wxDefaultPosition */, 
-                    const wxSize&    size /* = wxDefaultSize */)
+                    const wxSize&    size /* = wxDefaultSize */,
+                    unsigned int     featureFlags /* = hoxBOARD_FEATURE_ALL */ )
         : wxPanel( parent, 
                    wxID_ANY, 
                    pos, 
@@ -114,6 +117,7 @@ hoxBoard::hoxBoard( wxWindow*        parent,
         , m_pTable( pTable )
         , m_status( hoxGAME_STATUS_OPEN )
         , m_ownerId( ownerId )
+        , m_featureFlags( featureFlags )
 		, m_timer( NULL )
         , m_bUICreated( false )
 {
@@ -499,7 +503,7 @@ void
 hoxBoard::OnUpdateUI_ActionResign( wxUpdateUIEvent& event )
 {
 	bool bMenuEnabled = ( m_status == hoxGAME_STATUS_IN_PROGRESS
-                        && _IsOwnerPlaying() );
+                        && _IsOwnerSeated() );
     event.Enable( bMenuEnabled );
 }
 
@@ -507,7 +511,25 @@ void
 hoxBoard::OnUpdateUI_ActionDraw( wxUpdateUIEvent& event )
 {
 	bool bMenuEnabled = ( m_status == hoxGAME_STATUS_IN_PROGRESS
-                        && _IsOwnerPlaying() );
+                        && _IsOwnerSeated() );
+    event.Enable( bMenuEnabled );
+}
+
+void
+hoxBoard::OnUpdateUI_ActionReset( wxUpdateUIEvent& event )
+{
+	bool bMenuEnabled = ( m_status != hoxGAME_STATUS_IN_PROGRESS
+                        && _IsOwnerSeated()
+                        && (m_featureFlags & hoxBOARD_FEATURE_RESET) );
+    event.Enable( bMenuEnabled );
+}
+
+void
+hoxBoard::OnUpdateUI_ActionJoin( wxUpdateUIEvent& event )
+{
+    bool bSeatAvailable = ( m_redId.empty() || m_blackId.empty() );
+	bool bMenuEnabled = ( m_status != hoxGAME_STATUS_IN_PROGRESS
+                        && ( _IsOwnerSeated() || bSeatAvailable ) );
     event.Enable( bMenuEnabled );
 }
 
@@ -1111,7 +1133,7 @@ hoxBoard::_GetGameOverMessage( const int gameStatus ) const
 }
 
 bool
-hoxBoard::_IsOwnerPlaying() const
+hoxBoard::_IsOwnerSeated() const
 {
     return (    m_ownerId == m_redId 
              || m_ownerId == m_blackId );

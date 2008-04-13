@@ -76,6 +76,14 @@ hoxSite::GetPlayerById( const wxString& sPlayerId,
     return player;
 }
 
+unsigned int
+hoxSite::GetBoardFeatureFlags() const
+{
+	unsigned int flags = hoxBoard::hoxBOARD_FEATURE_ALL;
+
+	return flags;
+}
+
 void
 hoxSite::ShowProgressDialog( bool bShow /* = true */ )
 {
@@ -624,13 +632,15 @@ hoxRemoteSite::_CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo)
     pTable->SetRedTime( tableInfo.redTime );
 	
 	wxLogDebug("%s: Creating a new Board...", FNAME);
+    unsigned int boardFeatureFlags = this->GetBoardFeatureFlags();
 	hoxBoard* pBoard = new hoxBoard( childFrame, 
 		                             PIECES_PATH, 
 		                             pTable->GetReferee(),
                                      pTable,
                                      m_player->GetName(),
         					         wxDefaultPosition,
-							         childFrame->GetSize() );
+							         childFrame->GetSize(),
+                                     boardFeatureFlags );
     pTable->ViewBoard( pBoard );
     
     childFrame->SetTable( pTable );
@@ -700,6 +710,17 @@ hoxChesscapeSite::GetCurrentActionFlags() const
 			flags &= ~hoxSITE_ACTION_JOIN;
 		}
     }
+
+	return flags;
+}
+
+unsigned int
+hoxChesscapeSite::GetBoardFeatureFlags() const
+{
+	unsigned int flags = hoxBoard::hoxBOARD_FEATURE_ALL;
+
+    /* Disable the RESET feature. */
+    flags &= ~hoxBoard::hoxBOARD_FEATURE_RESET;
 
 	return flags;
 }

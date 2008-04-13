@@ -34,9 +34,6 @@
 #include "hoxTypes.h"
 #include "hoxCoreBoard.h"
 
-/* Forward declarations */
-class hoxTable;
-
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_JOIN, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_LEAVE, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_SCORE, wxID_ANY)
@@ -73,6 +70,22 @@ class hoxBoard : public wxPanel
                , public hoxCoreBoard::BoardOwner
 {
 public:
+    /**
+     * The Board's Feature flags.
+     */
+    enum FeatureEnum
+    {
+	    /* NOTE: The numeric values are of the 32-bitmap ones. */
+
+        hoxBOARD_FEATURE_RESET        = ( (unsigned int) 1 ),
+                /* RESET action */
+
+
+        hoxBOARD_FEATURE_ALL = 0xffffffff
+                /* Special flag: ALL FEATURES enabled. */
+    };
+
+public:
     /* Construct an "hidden" Board. */
     hoxBoard( wxWindow*        parent,
               const wxString&  piecesPath,
@@ -80,7 +93,8 @@ public:
               hoxTable_SPtr    pTable,
               const wxString&  ownerId,
               const wxPoint&   pos = wxDefaultPosition, 
-              const wxSize&    size = wxDefaultSize );
+              const wxSize&    size = wxDefaultSize,
+              unsigned int     featureFlags = hoxBOARD_FEATURE_ALL );
 
     virtual ~hoxBoard();
 
@@ -138,6 +152,8 @@ public:
 
     void OnUpdateUI_ActionResign( wxUpdateUIEvent& event );
     void OnUpdateUI_ActionDraw( wxUpdateUIEvent& event );
+    void OnUpdateUI_ActionReset( wxUpdateUIEvent& event );
+    void OnUpdateUI_ActionJoin( wxUpdateUIEvent& event );
 
     void OnTimer( wxTimerEvent& event );
 
@@ -180,9 +196,10 @@ private:
     wxString _GetGameOverMessage( const int gameStatus ) const;
 
     /**
-     * Check if the Owner is currently playing.
+     * Check if the Owner is currently seated 
+     * (e.g. having role of RED or BLACK).
      */
-    bool _IsOwnerPlaying() const;
+    bool _IsOwnerSeated() const;
 
 private:
     hoxCoreBoard*     m_coreBoard;  // The "core" board.
@@ -201,6 +218,10 @@ private:
 
     wxString          m_redId;
     wxString          m_blackId;
+
+    /* Features */
+
+    unsigned int      m_featureFlags;
 
     /* Timers */
 

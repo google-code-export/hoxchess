@@ -118,6 +118,8 @@ public:
 	virtual unsigned int GetCurrentActionFlags() const = 0;
 
 protected:
+    virtual unsigned int GetBoardFeatureFlags() const;
+
     void ShowProgressDialog( bool bShow = true );
 
 protected:
@@ -193,6 +195,9 @@ public:
 	virtual unsigned int GetCurrentActionFlags() const;
 
     virtual void OnResponse_LOGIN( const hoxResponse_APtr& response );
+
+protected:
+    virtual unsigned int GetBoardFeatureFlags() const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
