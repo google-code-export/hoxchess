@@ -132,11 +132,9 @@ public:
     /**
      * Create a GUI Frame that can be used as a frame for a new Table.
      *
-     * @param requestTableId If this Id is specified (NOT empty), then this
-     *                       function will use it. Otherwise, a new table-Id
-     *                       is created and is returned to the caller.
+     * @param sTableId The Table's Id.
      */
-    MyChild* CreateFrameForTable( wxString& requestTableId );
+    MyChild* CreateFrameForTable( const wxString& sTableId );
 
     /**
      * Delete the GUI Frame of a given Table.

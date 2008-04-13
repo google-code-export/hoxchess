@@ -93,8 +93,19 @@ public:
     hoxTable_SPtr FindTable( const wxString& tableId ) const
         { return m_tableMgr.FindTable( tableId ); }
 
+    /**
+     * Find the Player by ID first.
+     * If not found, then return a NULL pointer.
+     */
     hoxPlayer* FindPlayer( const wxString& playerId ) const
         { return m_playerMgr.FindPlayer( playerId ); }
+
+    /**
+     * Find the Player by ID first.
+     * If not found, then create a new DUMMY player with the given score.
+     */
+    hoxPlayer* GetPlayerById( const wxString& sPlayerId,
+                              const int       nScore );
 
     hoxPlayer* CreateDummyPlayer( const wxString& playerId,
 		                          int             score = 1500 )
@@ -119,6 +130,9 @@ protected:
     wxProgressDialog*  m_dlgProgress;
 
 	bool               m_siteClosing;    // The Site is being closed?
+
+    hoxLocalPlayer*    m_player;
+            /* The player that this Host uses to connect to the server. */
 };
 
 typedef std::list<hoxSite*>  hoxSiteList;
@@ -163,10 +177,6 @@ public:
 
 private:
     hoxTable_SPtr _CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo);
-
-protected:
-    hoxLocalPlayer*      m_player;
-            /* The player that this Host uses to connect to the server. */
 };
 
 /**

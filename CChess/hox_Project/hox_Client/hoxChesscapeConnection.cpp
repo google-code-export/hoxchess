@@ -235,13 +235,13 @@ hoxChesscapeWriter::_Join( hoxRequest_APtr apRequest )
 
 	/* Extract parameters. */
     const wxString tableId = apRequest->parameters["tid"];
-	const bool hasRole = (apRequest->parameters["joined"] == "1");
+	const bool bJoined = (apRequest->parameters["joined"] == "1");
 	const hoxColor requestColor = 
 		hoxUtil::StringToColor( apRequest->parameters["color"] );
 
     /* Send JOIN request if the player is NOT in the table. */
 
-	if ( ! hasRole )
+	if ( ! bJoined )
 	{
 		wxLogDebug("%s: Sending JOIN request with table-Id = [%s]...", FNAME, tableId.c_str());
 		wxString cmdRequest;
@@ -257,6 +257,8 @@ hoxChesscapeWriter::_Join( hoxRequest_APtr apRequest )
 	wxString requestSeat;
 	if      ( requestColor == hoxCOLOR_RED )   requestSeat = "RedSeat";
 	else if ( requestColor == hoxCOLOR_BLACK ) requestSeat = "BlkSeat";
+    else if (    bJoined  /* NOTE: Assuming having RED or BLACK role!!! */
+              && requestColor == hoxCOLOR_NONE )  requestSeat = "StandUp";
 
 	if ( ! requestSeat.empty() )
 	{

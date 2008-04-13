@@ -31,8 +31,6 @@
 #ifndef __INCLUDED_HOX_BOARD_H_
 #define __INCLUDED_HOX_BOARD_H_
 
-#include <wx/wx.h>
-#include <list>
 #include "hoxTypes.h"
 #include "hoxCoreBoard.h"
 
@@ -80,6 +78,7 @@ public:
               const wxString&  piecesPath,
               hoxIReferee_SPtr referee,
               hoxTable_SPtr    pTable,
+              const wxString&  ownerId,
               const wxPoint&   pos = wxDefaultPosition, 
               const wxSize&    size = wxDefaultSize );
 
@@ -180,6 +179,11 @@ private:
 
     wxString _GetGameOverMessage( const int gameStatus ) const;
 
+    /**
+     * Check if the Owner is currently playing.
+     */
+    bool _IsOwnerPlaying() const;
+
 private:
     hoxCoreBoard*     m_coreBoard;  // The "core" board.
     hoxIReferee_SPtr  m_referee;    // The Referee.
@@ -189,9 +193,14 @@ private:
 
     /* Players */
 
+    const wxString    m_ownerId;
+            /* The Id of the Board-Owner.
+             * NOTE: The concept of ownership is required to trigger
+             *       ACTIONs (draw, resign,...) on the Board.
+             */
+
     wxString          m_redId;
     wxString          m_blackId;
-    hoxStringList     m_observerIds;
 
     /* Timers */
 
