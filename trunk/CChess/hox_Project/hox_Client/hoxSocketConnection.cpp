@@ -214,11 +214,6 @@ hoxSocketWriter::HandleRequest( hoxRequest_APtr apRequest )
             result = _Login( m_serverAddress,
                              sRequest,
                              apResponse->content );
-            if ( result != hoxRC_OK )
-            {
-                wxLogDebug("%s: *** ERROR *** Failed to connect to server.", FNAME);
-                break;
-            }
             break;
         }
 		case hoxREQUEST_LOGOUT:   /* fall through */

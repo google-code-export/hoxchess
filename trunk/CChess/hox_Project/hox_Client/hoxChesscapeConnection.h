@@ -47,20 +47,17 @@ private:
     void        _StartReader( wxSocketClient* socket );
 
     // ------
-    hoxResult   _Login(const wxString& login, 
-		               const wxString& password);
-    hoxResult   _Logout();
-    hoxResult   _Join(const wxString& tableId,
-		              const bool      hasRole, // already at table?
-		              hoxColor   requestColor);
-    hoxResult   _UpdateStatus(const wxString& playerStatus);
-	hoxResult   _Leave();
-	hoxResult   _Move(hoxRequest_APtr apRequest);
-    hoxResult   _New();
-	hoxResult   _WallMessage(hoxRequest_APtr apRequest);
-    hoxResult   _Update(hoxRequest_APtr apRequest);
-    hoxResult   _Resign();
-	hoxResult   _Draw( const wxString& drawResponse );
+    hoxResult   _Login( hoxRequest_APtr apRequest );
+    hoxResult   _Logout( hoxRequest_APtr apRequest );
+    hoxResult   _Join( hoxRequest_APtr apRequest );
+    hoxResult   _UpdateStatus( hoxRequest_APtr apRequest );
+	hoxResult   _Leave( hoxRequest_APtr apRequest );
+	hoxResult   _Move( hoxRequest_APtr apRequest );
+    hoxResult   _New( hoxRequest_APtr apRequest );
+	hoxResult   _WallMessage( hoxRequest_APtr apRequest );
+    hoxResult   _Update( hoxRequest_APtr apRequest );
+    hoxResult   _Resign( hoxRequest_APtr apRequest );
+	hoxResult   _Draw( hoxRequest_APtr apRequest );
 
 private:
 
