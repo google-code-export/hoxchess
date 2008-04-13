@@ -49,45 +49,48 @@ hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
 {
     const char* FNAME = "hoxChesscapeWriter::HandleRequest";
     hoxResult    result = hoxRC_ERR;
-    hoxResponse_APtr response( new hoxResponse(apRequest->type, 
+    const hoxRequestType requestType = apRequest->type;
+    hoxResponse_APtr response( new hoxResponse(requestType, 
                                                apRequest->sender) );
 
-    switch( apRequest->type )
+    /* Check whether the connection has been established for
+     * non-login requests.
+     */
+
+    if (   !m_bConnected
+        && requestType != hoxREQUEST_LOGIN )
+    {
+        wxLogDebug("%s: * INFO * Connection not yet established or has been closed.", FNAME);
+        return;   // *** Fine. Do nothing.
+    }
+
+    /* Process the request. */
+
+    switch( requestType )
     {
         case hoxREQUEST_LOGIN:
 		{
-			const wxString login = apRequest->parameters["pid"]; 
-		    const wxString password = apRequest->parameters["password"];
-            result = _Login(login, password);
-            if ( result == hoxRC_HANDLED )
-            {
-                result = hoxRC_OK;  // Consider "success".
-            }
+            result = _Login( apRequest );
 			break;
 		}
         case hoxREQUEST_LOGOUT:
 		{
-            result = _Logout();
+            result = _Logout( apRequest );
 			break;
 		}
         case hoxREQUEST_JOIN:
 		{
-		    const wxString tableId = apRequest->parameters["tid"];
-			const bool hasRole = (apRequest->parameters["joined"] == "1");
-			const hoxColor requestColor = 
-				hoxUtil::StringToColor( apRequest->parameters["color"] );
-            result = _Join(tableId, hasRole, requestColor);
+            result = _Join( apRequest );
             break;
 		}
         case hoxREQUEST_PLAYER_STATUS:
 		{
-		    const wxString playerStatus = apRequest->parameters["status"];
-            result = _UpdateStatus( playerStatus );
+            result = _UpdateStatus( apRequest );
             break;
 		}
         case hoxREQUEST_LEAVE:
 		{
-            result = _Leave();
+            result = _Leave( apRequest );
             break;
 		}
         case hoxREQUEST_MOVE:
@@ -97,7 +100,7 @@ hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
 		}
         case hoxREQUEST_NEW:
 		{
-            result = _New();
+            result = _New( apRequest );
             break;
 		}
         case hoxREQUEST_MSG:
@@ -112,18 +115,17 @@ hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
 		}
         case hoxREQUEST_RESIGN:
 		{
-            result = _Resign();
+            result = _Resign( apRequest );
             break;
 		}
         case hoxREQUEST_DRAW:
 		{
-			const wxString drawResponse = apRequest->parameters["draw_response"];
-            result = _Draw( drawResponse );
+            result = _Draw( apRequest );
             break;
 		}
         default:
             wxLogDebug("%s: *** WARN *** Unsupported Request [%s].", 
-                FNAME, hoxUtil::RequestTypeToString(apRequest->type).c_str());
+                FNAME, hoxUtil::RequestTypeToString(requestType).c_str());
             result = hoxRC_NOT_SUPPORTED;
             break;
     }
@@ -131,7 +133,7 @@ hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
     if ( result != hoxRC_OK )
     {
         wxLogDebug("%s: * INFO * Request [%s]: return error-code = [%s]...", 
-            FNAME, hoxUtil::RequestTypeToString(apRequest->type).c_str(), 
+            FNAME, hoxUtil::RequestTypeToString(requestType).c_str(), 
             hoxUtil::ResultToStr(result));
     }
 }
@@ -169,16 +171,19 @@ hoxChesscapeWriter::_StartReader( wxSocketClient* socket )
 }
 
 hoxResult
-hoxChesscapeWriter::_Login( const wxString& login, 
-		                    const wxString& password )
+hoxChesscapeWriter::_Login( hoxRequest_APtr apRequest )
 {
     const char* FNAME = "hoxChesscapeWriter::_Login";
 
     if ( m_bConnected )
     {
         wxLogDebug("%s: The connection already established. END.", FNAME);
-        return hoxRC_HANDLED;
+        return hoxRC_OK;
     }
+
+	/* Extract parameters. */
+	const wxString login = apRequest->parameters["pid"]; 
+    const wxString password = apRequest->parameters["password"];
 
     /* Get the server address. */
     wxIPV4address addr;
@@ -212,18 +217,9 @@ hoxChesscapeWriter::_Login( const wxString& login,
 }
 
 hoxResult
-hoxChesscapeWriter::_Logout()
+hoxChesscapeWriter::_Logout( hoxRequest_APtr apRequest )
 {
     const char* FNAME = "hoxChesscapeWriter::_Logout";
-
-    if ( ! this->IsConnected() )
-    {
-        // NOTE: The connection could have been closed if the server is down.
-        wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
-        return hoxRC_OK;   // *** Fine. Do nothing.
-    }
-
-    /* Send LOGOUT request. */
 
 	wxLogDebug("%s: Sending LOGOUT request...", FNAME);
 	wxString cmdRequest;
@@ -233,18 +229,15 @@ hoxChesscapeWriter::_Logout()
 }
 
 hoxResult
-hoxChesscapeWriter::_Join( const wxString& tableId,
-						   const bool      hasRole,
-						   hoxColor        requestColor )
+hoxChesscapeWriter::_Join( hoxRequest_APtr apRequest )
 {
     const char* FNAME = "hoxChesscapeWriter::_Join";
 
-    if ( ! this->IsConnected() )
-    {
-        // NOTE: The connection could have been closed if the server is down.
-        wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
-        return hoxRC_ERR;
-    }
+	/* Extract parameters. */
+    const wxString tableId = apRequest->parameters["tid"];
+	const bool hasRole = (apRequest->parameters["joined"] == "1");
+	const hoxColor requestColor = 
+		hoxUtil::StringToColor( apRequest->parameters["color"] );
 
     /* Send JOIN request if the player is NOT in the table. */
 
@@ -281,19 +274,14 @@ hoxChesscapeWriter::_Join( const wxString& tableId,
 }
 
 hoxResult
-hoxChesscapeWriter::_UpdateStatus( const wxString& playerStatus )
+hoxChesscapeWriter::_UpdateStatus( hoxRequest_APtr apRequest )
 {
     const char* FNAME = "hoxChesscapeWriter::_UpdateStatus";
 
-    if ( ! this->IsConnected() )
-    {
-        // NOTE: The connection could have been closed if the server is down.
-        wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
-        return hoxRC_ERR;
-    }
+    /* Extract parameters. */
+    const wxString playerStatus = apRequest->parameters["status"];
 
-    /* Send UPDATE-STATUS request. */
-
+    /* Send request. */
 	wxLogDebug("%s: Sending UPDATE-STATUS request with status = [%s]...", 
 		FNAME, playerStatus.c_str());
 	wxString cmdRequest;
@@ -303,18 +291,9 @@ hoxChesscapeWriter::_UpdateStatus( const wxString& playerStatus )
 }
 
 hoxResult
-hoxChesscapeWriter::_Leave()
+hoxChesscapeWriter::_Leave( hoxRequest_APtr apRequest )
 {
     const char* FNAME = "hoxChesscapeWriter::_Leave";
-
-    if ( ! this->IsConnected() )
-    {
-        // NOTE: The connection could have been closed if the server is down.
-        wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
-        return hoxRC_ERR;
-    }
-
-    /* Send LEAVE (table) request. */
 
 	wxLogDebug("%s: Sending LEAVE (the current table) request...", FNAME);
 	wxString cmdRequest;
@@ -324,18 +303,9 @@ hoxChesscapeWriter::_Leave()
 }
 
 hoxResult
-hoxChesscapeWriter::_New()
+hoxChesscapeWriter::_New( hoxRequest_APtr apRequest )
 {
     const char* FNAME = "hoxChesscapeWriter::_New";
-
-    if ( ! this->IsConnected() )
-    {
-        // NOTE: The connection could have been closed if the server is down.
-        wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
-        return hoxRC_ERR;
-    }
-
-    /* Send NEW (table) request. */
 
 	wxLogDebug("%s: Sending NEW (the current table) request...", FNAME);
 	wxString cmdRequest;
@@ -350,13 +320,6 @@ hoxResult
 hoxChesscapeWriter::_Move( hoxRequest_APtr apRequest )
 {
     const char* FNAME = "hoxChesscapeWriter::_Move";
-
-    if ( ! this->IsConnected() )
-    {
-        // NOTE: The connection could have been closed if the server is down.
-        wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
-        return hoxRC_ERR;
-    }
 
 	/* Extract parameters. */
 	const wxString moveStr     = apRequest->parameters["move"];
@@ -401,13 +364,6 @@ hoxChesscapeWriter::_WallMessage( hoxRequest_APtr apRequest )
 {
     const char* FNAME = "hoxChesscapeWriter::_WallMessage";
 
-    if ( ! this->IsConnected() )
-    {
-        // NOTE: The connection could have been closed if the server is down.
-        wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
-        return hoxRC_ERR;
-    }
-
 	/* Extract parameters. */
 	const wxString message = apRequest->parameters["msg"];
 
@@ -424,13 +380,6 @@ hoxResult
 hoxChesscapeWriter::_Update( hoxRequest_APtr apRequest )
 {
     const char* FNAME = "hoxChesscapeWriter::_Update";
-
-    if ( ! this->IsConnected() )
-    {
-        // NOTE: The connection could have been closed if the server is down.
-        wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
-        return hoxRC_ERR;
-    }
 
 	/* Extract parameters. */
     const wxString sTimes = apRequest->parameters["itimes"];
@@ -463,18 +412,9 @@ hoxChesscapeWriter::_Update( hoxRequest_APtr apRequest )
 }
 
 hoxResult
-hoxChesscapeWriter::_Resign()
+hoxChesscapeWriter::_Resign( hoxRequest_APtr apRequest )
 {
     const char* FNAME = "hoxChesscapeWriter::_Resign";
-
-    if ( ! this->IsConnected() )
-    {
-        // NOTE: The connection could have been closed if the server is down.
-        wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
-        return hoxRC_ERR;
-    }
-
-    /* Send RESIGN request. */
 
 	wxLogDebug("%s: Sending RESIGN (the current table) request...", FNAME);
 	wxString cmdRequest;
@@ -484,16 +424,12 @@ hoxChesscapeWriter::_Resign()
 }
 
 hoxResult   
-hoxChesscapeWriter::_Draw( const wxString& drawResponse )
+hoxChesscapeWriter::_Draw( hoxRequest_APtr apRequest )
 {
     const char* FNAME = "hoxChesscapeWriter::_Draw";
 
-    if ( ! this->IsConnected() )
-    {
-        // NOTE: The connection could have been closed if the server is down.
-        wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
-        return hoxRC_ERR;
-    }
+    /* Extract parameters. */
+    const wxString drawResponse = apRequest->parameters["draw_response"];
 
 	/* Send the response to a DRAW request, if asked.
 	 * Otherwise, send DRAW request. 
