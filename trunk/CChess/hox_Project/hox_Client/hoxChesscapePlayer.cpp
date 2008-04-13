@@ -167,6 +167,18 @@ hoxChesscapePlayer::OnRequest_FromTable( hoxRequest_APtr apRequest )
             pTable->OnGameOver_FromNetwork( this, gameStatus );
             break;
         }
+        case hoxREQUEST_UPDATE:
+        {
+	        /* Send the current color (role) along with the new timers.
+	         */
+            const wxString tableId = apRequest->parameters["tid"];
+	        hoxTable_SPtr pTable = this->GetSite()->FindTable( tableId );
+            wxCHECK_RET(pTable.get() != NULL, "Table not found");
+
+            hoxColor myRole = pTable->GetPlayerRole( this->GetName() );
+            apRequest->parameters["color"] = hoxUtil::ColorToString( myRole );
+            break;
+        }
         default:
             break; // Do nothing for other requests.
     }
@@ -1128,6 +1140,9 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 		wxLogDebug("%s: *** ERROR *** Table [%s] not found.", FNAME, tableId.c_str());
 		return;
 	}
+
+    /* Update the new Timers. */
+    pTable->OnUpdate_FromPlayer( this, tableInfo.initialTime );
 
 	/* Find out if any new Player just "sit" at the Table. */
 
