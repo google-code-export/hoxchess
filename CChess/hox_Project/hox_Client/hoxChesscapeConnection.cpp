@@ -107,6 +107,11 @@ hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
             result = _WallMessage( apRequest );
             break;
 		}
+        case hoxREQUEST_UPDATE:
+		{
+            result = _Update( apRequest );
+            break;
+		}
         case hoxREQUEST_RESIGN:
 		{
             result = _Resign();
@@ -232,8 +237,8 @@ hoxChesscapeWriter::_Logout( const wxString& login )
 
 hoxResult
 hoxChesscapeWriter::_Join( const wxString& tableId,
-							   const bool      hasRole,
-							   hoxColor   requestColor )
+						   const bool      hasRole,
+						   hoxColor        requestColor )
 {
     const char* FNAME = "hoxChesscapeWriter::_Join";
 
@@ -414,6 +419,48 @@ hoxChesscapeWriter::_WallMessage( hoxRequest_APtr apRequest )
 	wxLogDebug("%s: Sending MESSAGE [%s] request...", FNAME, message.c_str());
 	wxString cmdRequest;
 	cmdRequest.Printf("\x02\x10tMsg?%s\x10\x03", message.c_str());
+
+    return hoxNetworkAPI::WriteLine( m_socket, cmdRequest );
+}
+
+hoxResult   
+hoxChesscapeWriter::_Update( hoxRequest_APtr apRequest )
+{
+    const char* FNAME = "hoxChesscapeWriter::_Update";
+
+    if ( ! this->IsConnected() )
+    {
+        // NOTE: The connection could have been closed if the server is down.
+        wxLogDebug("%s: Connection not yet established or has been closed.", FNAME);
+        return hoxRC_ERR;
+    }
+
+	/* Extract parameters. */
+    const wxString sTimes = apRequest->parameters["itimes"];
+    hoxTimeInfo timeInfo = hoxUtil::StringToTimeInfo( sTimes );
+
+    int nType     = 0;   // TODO (Private vs. Public)
+    int nNotRated = 0;   // TODO: FIXED = "Rated".
+    int nGameTime = timeInfo.nGame * 1000;
+    int nFreeTime = timeInfo.nFree * 1000;
+
+    /* Send UPDATE request. */
+
+    wxLogDebug("%s: Sending UPDATE-GAME: itimes = [%s] request...", FNAME, sTimes.c_str());
+	wxString cmdRequest;
+	cmdRequest.Printf("\x02\x10tCmd?UpdateGame\x10%d\x10%d\x10T\x10%d\x10%d\x10%d\x10%d\x10\x03",
+        nType, nNotRated, nGameTime, nFreeTime, nGameTime, nGameTime);
+
+    /* !!!! Append the current Role to the request. */
+
+	const hoxColor currentColor = 
+		hoxUtil::StringToColor( apRequest->parameters["color"] );
+
+    wxString currentSeat;
+	if      ( currentColor == hoxCOLOR_RED )    currentSeat = "RedSeat";
+	else if ( currentColor == hoxCOLOR_BLACK )  currentSeat = "BlkSeat";
+
+    cmdRequest += wxString::Format("\x02\x10tCmd?%s\x10\x03", currentSeat.c_str());
 
     return hoxNetworkAPI::WriteLine( m_socket, cmdRequest );
 }

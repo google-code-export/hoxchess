@@ -161,9 +161,14 @@ hoxOptionDialog::OnButtonSave(wxCommandEvent& event)
 		return;
 	}
 
+    /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     * NOTE: Allow Move-time to be zero since some site such as Chesscape
+     *       supports the so-called "infinite" Move-Time.
+     * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     */
     sValue = m_textCtrlTime_Move->GetValue();
     m_newTimeInfo.nMove = ::atoi( sValue.c_str() );
-	if ( m_newTimeInfo.nMove <= 0  )
+	if ( m_newTimeInfo.nMove < 0  )
 	{
 		wxLogError("Move Time [%s] is invalid.", sValue.c_str());
 		return;

@@ -59,6 +59,7 @@ private:
 	hoxResult   _Move(hoxRequest_APtr apRequest);
     hoxResult   _New();
 	hoxResult   _WallMessage(hoxRequest_APtr apRequest);
+    hoxResult   _Update(hoxRequest_APtr apRequest);
     hoxResult   _Resign();
 	hoxResult   _Draw( const wxString& drawResponse );
 
