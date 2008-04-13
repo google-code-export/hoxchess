@@ -257,10 +257,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\hoxThreadConnection.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\hoxTypes.cpp"
 				>
 			</File>
@@ -376,10 +372,6 @@
 			</File>
 			<File
 				RelativePath=".\hoxTablesDialog.h"
-				>
-			</File>
-			<File
-				RelativePath=".\hoxThreadConnection.h"
 				>
 			</File>
 			<File

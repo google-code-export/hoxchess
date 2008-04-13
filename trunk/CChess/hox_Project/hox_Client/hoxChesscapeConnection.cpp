@@ -58,7 +58,7 @@ hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
 		{
 			const wxString login = apRequest->parameters["pid"]; 
 		    const wxString password = apRequest->parameters["password"];
-            result = _Login(login, password, response->content);
+            result = _Login(login, password);
             if ( result == hoxRC_HANDLED )
             {
                 result = hoxRC_OK;  // Consider "success".
@@ -67,8 +67,7 @@ hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
 		}
         case hoxREQUEST_LOGOUT:
 		{
-			const wxString login = apRequest->parameters["pid"]; 
-            result = _Logout(login);
+            result = _Logout();
 			break;
 		}
         case hoxREQUEST_JOIN:
@@ -78,7 +77,6 @@ hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
 			const hoxColor requestColor = 
 				hoxUtil::StringToColor( apRequest->parameters["color"] );
             result = _Join(tableId, hasRole, requestColor);
-			response->content = tableId;
             break;
 		}
         case hoxREQUEST_PLAYER_STATUS:
@@ -172,8 +170,7 @@ hoxChesscapeWriter::_StartReader( wxSocketClient* socket )
 
 hoxResult
 hoxChesscapeWriter::_Login( const wxString& login, 
-		                    const wxString& password,
-                            wxString&       responseStr )
+		                    const wxString& password )
 {
     const char* FNAME = "hoxChesscapeWriter::_Login";
 
@@ -215,7 +212,7 @@ hoxChesscapeWriter::_Login( const wxString& login,
 }
 
 hoxResult
-hoxChesscapeWriter::_Logout( const wxString& login )
+hoxChesscapeWriter::_Logout()
 {
     const char* FNAME = "hoxChesscapeWriter::_Logout";
 
@@ -228,7 +225,7 @@ hoxChesscapeWriter::_Logout( const wxString& login )
 
     /* Send LOGOUT request. */
 
-	wxLogDebug("%s: Sending LOGOUT request for login [%s]...", FNAME, login.c_str());
+	wxLogDebug("%s: Sending LOGOUT request...", FNAME);
 	wxString cmdRequest;
 	cmdRequest.Printf("\x02\x10%s\x10\x03", "logout?");
 

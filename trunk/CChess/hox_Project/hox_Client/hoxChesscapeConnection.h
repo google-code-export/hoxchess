@@ -48,9 +48,8 @@ private:
 
     // ------
     hoxResult   _Login(const wxString& login, 
-		               const wxString& password,
-					   wxString&       responseStr);
-    hoxResult   _Logout(const wxString& login);
+		               const wxString& password);
+    hoxResult   _Logout();
     hoxResult   _Join(const wxString& tableId,
 		              const bool      hasRole, // already at table?
 		              hoxColor   requestColor);
