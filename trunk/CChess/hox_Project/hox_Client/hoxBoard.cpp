@@ -448,15 +448,28 @@ hoxBoard::OnButtonHistory_END( wxCommandEvent &event )
 void 
 hoxBoard::OnButtonOptions( wxCommandEvent &event )
 {
-    if (    m_status != hoxGAME_STATUS_OPEN 
-         && m_status != hoxGAME_STATUS_READY )
+    unsigned int optionDlgFlags = 0;
+
+    /* Player-Checking: Make sure the board Player satifies one of the 
+     *                  following conditions:
+	 *  (1) He is the RED player, or...
+     *  (2) He is the BLACK player and there is no RED player.
+	 */
+
+    bool bChangeAllowed = (    m_ownerId == m_redId 
+		                   || (m_ownerId == m_blackId && m_redId.empty()) );
+
+    bool bGameNotStarted = (    m_status == hoxGAME_STATUS_OPEN 
+                             || m_status == hoxGAME_STATUS_READY );
+
+
+    if ( !bChangeAllowed || !bGameNotStarted )
     {
-        wxLogWarning("Game is already in progress or has ended.\n"
-                     "Table Options are disabled at this time.");
-        return;
+        optionDlgFlags |= hoxOptionDialog::hoxOPTION_READONLY_FLAG;
     }
 
-    hoxOptionDialog optionDlg( this, wxID_ANY, "Table Options", m_pTable );
+    hoxOptionDialog optionDlg( this, wxID_ANY, "Table Options",
+                               m_pTable, optionDlgFlags );
     optionDlg.ShowModal();
 
     hoxOptionDialog::CommandId selectedCommand = optionDlg.GetSelectedCommand();
