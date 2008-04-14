@@ -27,11 +27,7 @@
 #ifndef __INCLUDED_HOX_OPTION_DIALOG_H_
 #define __INCLUDED_HOX_OPTION_DIALOG_H_
 
-#include <wx/wx.h>
 #include "hoxTypes.h"
-
-/* Forward declarations. */
-class hoxTable;
 
 // ----------------------------------------------------------------------------
 // The Option-Dialog class
@@ -40,6 +36,17 @@ class hoxTable;
 class hoxOptionDialog : public wxDialog
 {
 public:
+    /**
+     * The Dialog's flags.
+     */
+    enum OptionFlagEnum
+    {
+	    /* NOTE: The numeric values are of the 32-bitmap ones. */
+
+        hoxOPTION_READONLY_FLAG        = ( (unsigned int) 1 )
+                /* Read-Only options */
+    };
+
     enum CommandId
     {
 	    COMMAND_ID_CANCEL,
@@ -49,7 +56,8 @@ public:
     hoxOptionDialog( wxWindow*           parent, 
                      wxWindowID          id, 
                      const wxString&     title,
-                     const hoxTable_SPtr pTable );
+                     const hoxTable_SPtr pTable,
+                     unsigned int        optionFlags = 0 );
 
     void OnButtonSave(wxCommandEvent& event);
 

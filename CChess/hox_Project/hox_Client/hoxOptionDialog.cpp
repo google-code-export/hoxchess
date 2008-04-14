@@ -52,7 +52,8 @@ END_EVENT_TABLE()
 hoxOptionDialog::hoxOptionDialog( wxWindow*           parent, 
                                   wxWindowID          id, 
                                   const wxString&     title,
-                                  const hoxTable_SPtr pTable )
+                                  const hoxTable_SPtr pTable,
+                                  unsigned int        optionFlags /* = 0 */ )
         : wxDialog( parent, id, title, wxDefaultPosition, wxDefaultSize, 
 		            wxDEFAULT_DIALOG_STYLE )
         , m_selectedCommand( COMMAND_ID_CANCEL )
@@ -125,21 +126,22 @@ hoxOptionDialog::hoxOptionDialog( wxWindow*           parent,
 
     wxBoxSizer* buttonSizer = new wxBoxSizer( wxHORIZONTAL );
 
-    buttonSizer->Add( 
-		new wxButton(this, HOX_ID_SAVE, _("&Save Options")),
-        0,                // make vertically unstretchable
-        wxALIGN_CENTER ); // no border and centre horizontally);
+	wxButton* buttonSave   = new wxButton(this, HOX_ID_SAVE, _("&Save Options"));
+    wxButton* buttonCancel = new wxButton(this, wxID_CANCEL, _("&Cancel"));
+
+	/* Disable certain buttons based on the input Option Flags. */
+	buttonSave->Enable( (optionFlags & hoxOPTION_READONLY_FLAG) == 0 );
+
+    buttonSizer->Add( buttonSave,
+                      wxSizerFlags().Proportion(0).Align(wxALIGN_CENTER));
 
     buttonSizer->AddSpacer(20);
 
-    buttonSizer->Add( 
-		new wxButton(this, wxID_CANCEL, _("&Cancel")),
-        0,                // make vertically unstretchable
-        wxALIGN_CENTER ); // no border and centre horizontally);
+    buttonSizer->Add( buttonCancel,
+                      wxSizerFlags().Proportion(0).Align(wxALIGN_CENTER));
 
-    topSizer->Add(
-		buttonSizer,
-		wxSizerFlags().Border(wxALL, 10).Align(wxALIGN_CENTER));
+    topSizer->Add( buttonSizer,
+		           wxSizerFlags().Border(wxALL, 10).Align(wxALIGN_CENTER));
 
     SetSizer( topSizer );      // use the sizer for layout
 	topSizer->SetSizeHints( this );   // set size hints to honour minimum size
