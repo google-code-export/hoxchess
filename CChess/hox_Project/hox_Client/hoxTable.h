@@ -112,6 +112,9 @@ public:
      */
     void ViewBoard( hoxBoard* pBoard );
 
+	void SetRatedGame(const bool bRated) { m_bRated = bRated; }
+	bool IsRatedGame() const { return m_bRated; }
+
 	void SetInitialTime(const hoxTimeInfo& timeInfo) { m_initialTime = timeInfo; }
 	const hoxTimeInfo GetInitialTime() const { return m_initialTime; }
 
@@ -150,7 +153,8 @@ public:
      * Callback function from the Board to let this Table know about
      * OPTIONS-command button that has been pressed by the "local" player.
      */
-    void OnOptionsCommand_FromBoard( const hoxTimeInfo& newTimeInfo );
+    void OnOptionsCommand_FromBoard( const bool         bRatedGame,
+                                     const hoxTimeInfo& newTimeInfo );
 
     /**
      * Callback function from the Board to let this Table know about
@@ -269,9 +273,11 @@ public:
      * Callback function from a player who just updated the Options (Table).
      *
      * @param player The Player who just updated the Options.
+     * @param bRatedGame The Rated/Non-Rated Game option.
      * @param newTimeInfo The new initial Time-Info.
      */
     void OnUpdate_FromPlayer( hoxPlayer*         player,
+                              const bool         bRatedGame,
                               const hoxTimeInfo& newTimeInfo );
 
     /**
@@ -444,6 +450,9 @@ private:
     hoxPlayerList    m_players;
     hoxPlayer*       m_redPlayer;
     hoxPlayer*       m_blackPlayer;
+
+    // Rated (or Non-Rated) Game.
+    bool             m_bRated;
 
 	// Timers
 	hoxTimeInfo      m_initialTime; // *** Initial time.

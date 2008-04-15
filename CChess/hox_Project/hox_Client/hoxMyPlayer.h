@@ -71,6 +71,7 @@ private:
     hoxResult _ParseTableUpdateEvent( const wxString& sContent,
                                       hoxTable_SPtr&  pTable,
                                       hoxPlayer*&     player,
+                                      bool&           bRatedGame,
                                       hoxTimeInfo&    newTimeInfo );
 
     hoxResult _ParsePlayerJoinEvent( const wxString& sContent,

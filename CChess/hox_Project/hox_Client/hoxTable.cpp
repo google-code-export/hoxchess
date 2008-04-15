@@ -46,6 +46,7 @@ hoxTable::hoxTable( hoxSite*         site,
         , m_board( board )
         , m_redPlayer( NULL )
         , m_blackPlayer( NULL )
+        , m_bRated( true )
 {
     const char* FNAME = "hoxTable::hoxTable";
     wxLogDebug("%s: ENTER.", FNAME);
@@ -244,7 +245,8 @@ hoxTable::OnJoinCommand_FromBoard()
 }
 
 void
-hoxTable::OnOptionsCommand_FromBoard( const hoxTimeInfo& newTimeInfo )
+hoxTable::OnOptionsCommand_FromBoard( const bool         bRatedGame,
+                                      const hoxTimeInfo& newTimeInfo )
 {
     const char* FNAME = "hoxTable::OnOptionsCommand_FromBoard";
 	wxLogDebug("%s: ENTER.", FNAME);
@@ -274,6 +276,7 @@ hoxTable::OnOptionsCommand_FromBoard( const hoxTimeInfo& newTimeInfo )
     hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_UPDATE ) );
 	apRequest->parameters["tid"] = m_id;
 	apRequest->parameters["pid"] = boardPlayer->GetName();
+    apRequest->parameters["rated"] = bRatedGame ? "1" : "0";
     apRequest->parameters["itimes"] = hoxUtil::TimeInfoToString( newTimeInfo );
 
     boardPlayer->OnRequest_FromTable( apRequest );
@@ -543,8 +546,11 @@ hoxTable::OnLeave_FromPlayer( const wxString& sPlayerId )
 
 void
 hoxTable::OnUpdate_FromPlayer( hoxPlayer*         player,
+                               const bool         bRatedGame,
                                const hoxTimeInfo& newTimeInfo )
 {
+    m_bRated = bRatedGame;
+
     m_initialTime = newTimeInfo;
     m_redTime     = m_initialTime;
     m_blackTime   = m_initialTime;

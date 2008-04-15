@@ -65,10 +65,25 @@ hoxOptionDialog::hoxOptionDialog( wxWindow*           parent,
 
     wxBoxSizer* topSizer = new wxBoxSizer( wxVERTICAL );
 
-	/* User-Login. */
+	/* Rated/Non-Rated Game. */
+
+    wxBoxSizer* ratedGameSizer = new wxBoxSizer( wxHORIZONTAL );
+
+    m_checkBoxRatedGame = new wxCheckBox(this, wxID_ANY, _("&Rated Game"));
+    m_bRatedGame = m_pTable->IsRatedGame();
+    m_checkBoxRatedGame->SetValue( m_bRatedGame );
+
+    ratedGameSizer->Add( m_checkBoxRatedGame,
+                         wxSizerFlags().Align(wxALIGN_LEFT) );
+
+    topSizer->Add(
+		ratedGameSizer, 
+		wxSizerFlags().Border(wxALL, 10).Align(wxALIGN_LEFT).Expand());
+
+	/* Timers. */
 
 	wxBoxSizer* timerSizer = new wxStaticBoxSizer(
-		new wxStaticBox(this, wxID_ANY, _T("&Timers")), 
+		new wxStaticBox(this, wxID_ANY, _("&Timers")), 
 		wxHORIZONTAL );
 
     m_textCtrlTime_Game = new wxTextCtrl( 
@@ -93,7 +108,7 @@ hoxOptionDialog::hoxOptionDialog( wxWindow*           parent,
         wxSize(50, wxDefaultCoord ));
 
     timerSizer->Add( 
-        new wxStaticText(this, wxID_ANY, _T("Game: \n(minutes)")),
+        new wxStaticText(this, wxID_ANY, _("Game: \n(minutes)")),
 		wxSizerFlags().Align(wxALIGN_LEFT).Border(wxTOP, 10));
 
     timerSizer->Add( 
@@ -102,7 +117,7 @@ hoxOptionDialog::hoxOptionDialog( wxWindow*           parent,
 
     timerSizer->AddSpacer(20);
     timerSizer->Add( 
-        new wxStaticText(this, wxID_ANY, _T("Move: \n(seconds)")),
+        new wxStaticText(this, wxID_ANY, _("Move: \n(seconds)")),
 		wxSizerFlags().Align(wxALIGN_LEFT).Border(wxTOP, 10));
 
     timerSizer->Add( 
@@ -111,7 +126,7 @@ hoxOptionDialog::hoxOptionDialog( wxWindow*           parent,
 
     timerSizer->AddSpacer(20);
     timerSizer->Add( 
-		new wxStaticText(this, wxID_ANY, _T("Free: \n(seconds)")),
+		new wxStaticText(this, wxID_ANY, _("Free: \n(seconds)")),
 		wxSizerFlags().Align(wxALIGN_LEFT).Border(wxTOP, 10));
 
     timerSizer->Add( 
@@ -153,6 +168,10 @@ hoxOptionDialog::OnButtonSave(wxCommandEvent& event)
     const char* FNAME = "hoxOptionDialog::OnButtonSave";
     wxString sValue;
 
+    /* Determine the new Rated/Non-Rated Game option. */
+    
+    m_bRatedGame = m_checkBoxRatedGame->GetValue();
+
 	/* Determine the new Timers. */
 
     sValue = m_textCtrlTime_Game->GetValue();
@@ -184,8 +203,9 @@ hoxOptionDialog::OnButtonSave(wxCommandEvent& event)
 		return;
 	}
 
-    wxLogDebug("%s: Table [%s]: The new Timers = [%s].", FNAME,
+    wxLogDebug("%s: Table [%s]: New Rated-Game = [%d], Timers = [%s].", FNAME,
         m_pTable->GetId().c_str(),
+        m_bRatedGame,
         hoxUtil::TimeInfoToString(m_newTimeInfo).c_str());
 
 	/* Return the SAVE command. */

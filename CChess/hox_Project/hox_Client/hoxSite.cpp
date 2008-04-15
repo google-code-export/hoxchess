@@ -627,6 +627,7 @@ hoxRemoteSite::_CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo)
 
     /* Create a new table with the newly created Frame. */
     pTable = m_tableMgr.CreateTable( tableId, this );
+    pTable->SetRatedGame( tableInfo.gameType == hoxGAME_TYPE_RATED );
 	pTable->SetInitialTime( tableInfo.initialTime );
     pTable->SetBlackTime( tableInfo.blackTime );
     pTable->SetRedTime( tableInfo.redTime );

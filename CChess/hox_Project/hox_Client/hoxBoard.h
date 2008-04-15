@@ -190,7 +190,7 @@ private:
 
     void _UpdateStatus();
 
-    void _SyncTimerWithTable();
+    void _SyncInfoWithTable();
     void _OnTimerUpdated();
 
     wxString _GetGameOverMessage( const int gameStatus ) const;
@@ -222,6 +222,9 @@ private:
     /* Features */
 
     unsigned int      m_featureFlags;
+
+    /* Rated/Non-Rated Game option. */
+    bool              m_bRated;
 
     /* Timers */
 

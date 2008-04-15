@@ -388,7 +388,7 @@ hoxChesscapeWriter::_Update( hoxRequest_APtr apRequest )
     hoxTimeInfo timeInfo = hoxUtil::StringToTimeInfo( sTimes );
 
     int nType     = 0;   // TODO (Private vs. Public)
-    int nNotRated = 0;   // TODO: FIXED = "Rated".
+    int nNotRated = (apRequest->parameters["rated"] != "1");
     int nGameTime = timeInfo.nGame * 1000;
     int nFreeTime = timeInfo.nFree * 1000;
 
