@@ -723,6 +723,7 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 	int tokenPosition = 0;
 	wxString redId;
 	wxString blackId;
+    hoxGameType gameType = hoxGAME_TYPE_UNKNOWN;
 	long nInitialGameTime = 0;
 	long nInitialFreeTime = 0;
 	long nRedGameTime = 0;
@@ -735,7 +736,18 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 		switch ( tokenPosition++ )
 		{
 			case 0: /* Ignore for now */ break;
-			case 1: /* Ignore for now */ break;
+			case 1: /* Table-type: Rated / Nonrated / Solo-Black / Solo-Red */
+            {
+				if      ( token == "0" ) gameType = hoxGAME_TYPE_RATED;
+				else if ( token == "1" ) gameType = hoxGAME_TYPE_NONRATED;
+				else if ( token == "4"  /* This is the Depth (level of difficulty) */
+					   || token == "5"
+		               || token == "6"
+					   || token == "7"
+					   || token == "8" ) gameType = hoxGAME_TYPE_SOLO;
+				else /* unknown */       gameType = hoxGAME_TYPE_UNKNOWN;
+				break;
+            }
 			case 2:
 			{
 				if ( token != "T" )
@@ -817,6 +829,8 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 			if ( pTableInfo->blackId.empty() ) pTableInfo->blackId = "COMPUTER";
 			if ( pTableInfo->redId.empty() )   pTableInfo->redId = "COMPUTER";
 		}
+
+        pTableInfo->gameType = gameType;
 
 		pTableInfo->initialTime.nGame = (int) (nInitialGameTime / 1000 );
 		pTableInfo->initialTime.nFree = (int) (nInitialFreeTime / 1000);
@@ -1122,8 +1136,11 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 		return;
 	}
 
-    /* Update the Table with the new Timers. */
-    pTable->OnUpdate_FromPlayer( this, tableInfo.initialTime );
+    /* Update the Table with the new Rated/Non-Rated Game and Timers. */
+
+    const bool bRatedGame = (tableInfo.gameType  == hoxGAME_TYPE_RATED);
+    pTable->OnUpdate_FromPlayer( this,
+                                 bRatedGame, tableInfo.initialTime );
 
 	/* Find out if any new Player just "sit" at the Table. */
 

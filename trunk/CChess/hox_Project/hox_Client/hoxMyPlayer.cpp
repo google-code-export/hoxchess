@@ -208,10 +208,11 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
         case hoxREQUEST_UPDATE:
         {
             hoxPlayer*    player = NULL;
+            bool          bRatedGame = true;
             hoxTimeInfo   newTimeInfo;
 
 		    result = _ParseTableUpdateEvent( sContent,
-									         pTable, player, newTimeInfo );
+									         pTable, player, bRatedGame, newTimeInfo );
 		    if ( result != hoxRC_OK )
 		    {
 			    wxLogDebug("%s: Failed to parse [%s]'s event [%s].",
@@ -221,7 +222,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
             wxLogDebug("%s: Player [%s] updated Timers to [%s] in Table [%s].", FNAME, 
                 player->GetName().c_str(), hoxUtil::TimeInfoToString(newTimeInfo).c_str(),
                 pTable->GetId().c_str());
-            pTable->OnUpdate_FromPlayer( player, newTimeInfo );
+            pTable->OnUpdate_FromPlayer( player, bRatedGame, newTimeInfo );
             break;
         }
         case hoxREQUEST_E_JOIN:
@@ -554,6 +555,7 @@ hoxResult
 hoxMyPlayer::_ParseTableUpdateEvent( const wxString& sContent,
                                      hoxTable_SPtr&  pTable,
                                      hoxPlayer*&     player,
+                                     bool&           bRatedGame,
                                      hoxTimeInfo&    newTimeInfo )
 {
     const char* FNAME = "hoxMyPlayer::_ParseTableUpdateEvent";
@@ -562,6 +564,7 @@ hoxMyPlayer::_ParseTableUpdateEvent( const wxString& sContent,
 
     pTable.reset();
     player = NULL;
+    bRatedGame = true;
 
     /* Parse the input string. */
 
@@ -577,7 +580,8 @@ hoxMyPlayer::_ParseTableUpdateEvent( const wxString& sContent,
 		{
 			case 0: tableId = token;  break;
 			case 1: playerId = token;  break;
-            case 2: newTimeInfo = hoxUtil::StringToTimeInfo(token); break; 
+            case 2: bRatedGame = (token == "1");  break;
+            case 3: newTimeInfo = hoxUtil::StringToTimeInfo(token); break; 
 			default: /* Ignore the rest. */ break;
 		}
 	}		

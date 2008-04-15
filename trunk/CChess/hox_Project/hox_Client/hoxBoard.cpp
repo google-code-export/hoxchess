@@ -118,6 +118,7 @@ hoxBoard::hoxBoard( wxWindow*        parent,
         , m_status( hoxGAME_STATUS_OPEN )
         , m_ownerId( ownerId )
         , m_featureFlags( featureFlags )
+        , m_bRated( true )
 		, m_timer( NULL )
         , m_bUICreated( false )
 {
@@ -133,8 +134,8 @@ hoxBoard::hoxBoard( wxWindow*        parent,
     m_coreBoard->SetBoardOwner( this );
     m_coreBoard->SetPiecesPath( piecesPath );
 
-    /* Sync timer with Table's. */
-    _SyncTimerWithTable();
+    /* Sync Info (Rated/Non-Rated + Timers) with Table's. */
+    _SyncInfoWithTable();
 
     /* A timer to keep track of the time. */
     m_timer = new wxTimer( this );
@@ -392,7 +393,7 @@ hoxBoard::OnGameReset( wxCommandEvent &event )
 {
     m_coreBoard->ResetBoard();
     
-    _SyncTimerWithTable();
+    _SyncInfoWithTable();
 
     m_status = hoxGAME_STATUS_OPEN;
 	_UpdateStatus();
@@ -405,11 +406,22 @@ hoxBoard::OnGameReset( wxCommandEvent &event )
 void 
 hoxBoard::OnTableUpdate( wxCommandEvent &event )
 {
-    /* Sync timer. */
-    _SyncTimerWithTable();
+    /* Sync Info (Rated/Non-Rated + Timers) with Table's. */
+    _SyncInfoWithTable();
 
-	/* Display a notification message. */
-    const wxString boardMessage =
+	/* Display a notification message regarding the 
+     * new Rated/Non-Rated Game option.
+     */
+    const hoxGameType gameType = ( m_bRated ? hoxGAME_TYPE_RATED 
+                                            : hoxGAME_TYPE_NONRATED );
+    wxString boardMessage =
+        "Game-Type changed to " + hoxUtil::GameTypeToString( gameType ); 
+	this->OnBoardMsg( boardMessage );
+
+	/* Display a notification message regarding 
+     * the new Timer.
+     */
+    boardMessage =
         "Timer changed to " + hoxUtil::TimeInfoToString( m_initialTime ); 
 	this->OnBoardMsg( boardMessage );
 }
@@ -478,8 +490,11 @@ hoxBoard::OnButtonOptions( wxCommandEvent &event )
     {
         case hoxOptionDialog::COMMAND_ID_SAVE:
         {
+            const bool        bRatedGame  = optionDlg.IsRatedGame();
             const hoxTimeInfo newTimeInfo = optionDlg.GetNewTimeInfo();
-            m_pTable->OnOptionsCommand_FromBoard( newTimeInfo );
+            
+            m_pTable->OnOptionsCommand_FromBoard( bRatedGame, 
+                                                  newTimeInfo );
             break;
         }
         default:
@@ -1083,8 +1098,12 @@ hoxBoard::_UpdateStatus()
 }
 
 void
-hoxBoard::_SyncTimerWithTable()
+hoxBoard::_SyncInfoWithTable()
 {
+    /* Sync Rated/Non-Rated Game option with Table's. */
+    
+    m_bRated = m_pTable->IsRatedGame();
+
     /* Sync timer with Table's. */
 
 	m_initialTime = m_pTable->GetInitialTime();

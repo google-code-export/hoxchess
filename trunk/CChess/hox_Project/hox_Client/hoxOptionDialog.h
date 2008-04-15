@@ -62,9 +62,12 @@ public:
     void OnButtonSave(wxCommandEvent& event);
 
     CommandId      GetSelectedCommand()  const { return m_selectedCommand; }
+    bool           IsRatedGame() const { return m_bRatedGame; }
 	hoxTimeInfo    GetNewTimeInfo() const { return m_newTimeInfo; }
 
 private:
+    wxCheckBox*         m_checkBoxRatedGame;
+
     wxTextCtrl*         m_textCtrlTime_Game;
     wxTextCtrl*         m_textCtrlTime_Move;
     wxTextCtrl*         m_textCtrlTime_Free;
@@ -72,6 +75,7 @@ private:
     CommandId           m_selectedCommand; // Save / Cancel ?
     
     const hoxTable_SPtr m_pTable;
+    bool                m_bRatedGame;  // Rated/Non-Rated Game.
     hoxTimeInfo         m_newTimeInfo;
 
     DECLARE_EVENT_TABLE()
