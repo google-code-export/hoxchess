@@ -154,41 +154,6 @@ hoxPlayer::FindRoleAtTable( const wxString& tableId,
 	return false; // role not found.
 }
 
-/**
- * @note We can check the player's color afterwards to 
- *       see which role the player has.
- */
-hoxResult 
-hoxPlayer::JoinTable( hoxTable_SPtr pTable )
-{
-    const char* FNAME = "hoxPlayer::JoinTable";
-
-    wxCHECK_MSG( pTable.get() != NULL, hoxRC_ERR, "The table is NULL." );
-    // TODO: Check for duplicate!!! (join same table twice)
-    hoxColor assignedColor;
-    bool     informOthers = true;
-
-    /* NOTE: Except for dummy players, this player will inform other
-     *       about his presence.
-     */
-    if ( this->GetType() == hoxPLAYER_TYPE_DUMMY )
-    {
-        wxLogDebug("%s: Dummy player [%s] will not inform others about his JOIN.", 
-            FNAME, this->GetName().c_str());
-        informOthers = false;
-    }
-
-    hoxResult result = pTable->AssignPlayer( this, 
-                                             assignedColor, 
-                                             informOthers );
-    if ( result == hoxRC_OK )
-    {
-        this->AddRole( hoxRole( pTable->GetId(), assignedColor ) );
-    }
-
-    return result;
-}
-
 hoxResult 
 hoxPlayer::JoinTableAs( hoxTable_SPtr pTable,
                         hoxColor      requestColor )

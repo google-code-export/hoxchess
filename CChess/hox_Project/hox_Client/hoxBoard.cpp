@@ -225,16 +225,17 @@ hoxBoard::OnPlayerJoin( wxCommandEvent &event )
     hoxPlayerInfo_APtr apPlayerInfo( wxDynamicCast(event.GetEventObject(), hoxPlayerInfo) );
     wxCHECK_RET(apPlayerInfo.get(), "Player cannot be NULL.");
 
-    const wxString playerId = apPlayerInfo->id;
+    const wxString playerId    = apPlayerInfo->id;
+    const int      nPlayerRole = event.GetInt();
     hoxColor       playerColor = hoxCOLOR_UNKNOWN;
 
-    if ( event.GetInt() == hoxCOLOR_RED )
+    if ( nPlayerRole == hoxCOLOR_RED )
     {
         playerColor = hoxCOLOR_RED;
         _SetRedInfo( apPlayerInfo.get() );
         if ( playerId == m_blackId ) _SetBlackInfo( NULL );
     } 
-    else if ( event.GetInt() == hoxCOLOR_BLACK )
+    else if ( nPlayerRole == hoxCOLOR_BLACK )
     {
         playerColor = hoxCOLOR_BLACK;
         _SetBlackInfo( apPlayerInfo.get() );
@@ -247,7 +248,12 @@ hoxBoard::OnPlayerJoin( wxCommandEvent &event )
         if ( playerId == m_blackId ) _SetBlackInfo( NULL );
     }
 
-    _AddPlayerToList( playerId, apPlayerInfo->score );
+    bool bNewlyJoined = _AddPlayerToList( playerId, apPlayerInfo->score );
+    if ( bNewlyJoined )
+    {
+        const wxString sMessage = wxString::Format("%s joined", playerId.c_str());
+        _PostToSystemOutput( sMessage );
+    }
 
     /* Update the LOCAL - color on the core Board so that it knows
      * who is allowed to make a Move using the mouse.
@@ -281,7 +287,12 @@ hoxBoard::OnPlayerLeave( wxCommandEvent &event )
         _SetBlackInfo( NULL );
     }
 
-    _RemovePlayerFromList( playerId );
+    bool bRemoved = _RemovePlayerFromList( playerId );
+    if ( bRemoved )
+    {
+        const wxString sMessage = wxString::Format("%s left", playerId.c_str());
+        _PostToSystemOutput( sMessage );
+    }
 
     _UpdateStatus(); // Update the game-status.
 }
@@ -313,9 +324,7 @@ void
 hoxBoard::OnSystemOutput( wxCommandEvent &event )
 {
     const wxString sMessage = event.GetString();
-
-    m_systemOutput->SetDefaultStyle( wxTextAttr(*wxBLUE) );
-    m_systemOutput->AppendText( wxString::Format("%s\n", sMessage.c_str()) );
+    _PostToSystemOutput( sMessage );
 }
 
 void 
@@ -888,7 +897,7 @@ hoxBoard::_CreateBoardPanel()
 
     m_wallSizer->Add(
         m_systemOutput,
-        2,            // Proportion
+        1,            // Proportion
         wxEXPAND |    // make horizontally stretchable
         wxRIGHT|wxLEFT, // and make border
         1 );         // set border width
@@ -1017,44 +1026,64 @@ hoxBoard::ToggleViewSide()
     m_boardSizer->Layout();
 }
 
-void 
+bool 
 hoxBoard::_AddPlayerToList( const wxString& playerId,
-                            int             playerScore )
+                            const int       playerScore )
 {
-    if ( ! m_bUICreated ) return;
+    if ( ! m_bUICreated ) return false;
 
 	/* Remove the old item, if any. */
-	_RemovePlayerFromList( playerId );
+	bool bRemoved = _RemovePlayerFromList( playerId );
 
     const wxString info = wxString::Format("%s (%d)", playerId.c_str(), playerScore);
     m_playerListBox->Append( info );
+
+    /* If the Player was NOT found (to be removed) before being inserted,
+     * then he has just joined this Board.
+     */
+    return ( ! bRemoved );
 }
 
-void 
+bool 
 hoxBoard::_RemovePlayerFromList( const wxString& playerId )
 {
-    if ( ! m_bUICreated ) return;
+    if ( ! m_bUICreated ) return false;
 
     const int idCount = m_playerListBox->GetCount();
-
     for ( int i = 0; i < idCount; ++i )
     {
         if ( m_playerListBox->GetString(i).StartsWith(playerId) )
         {
             m_playerListBox->Delete( i );
-            break;
+            return true;
         }
     }
+    return false;
+}
+
+void 
+hoxBoard::_PostToSystemOutput( const wxString& sMessage )
+{
+    m_systemOutput->SetDefaultStyle( wxTextAttr(*wxBLUE) );
+    m_systemOutput->AppendText( wxString::Format("*%s\n", sMessage.c_str()) );
+
+    /* NOTE:
+     *    Make sure that the last line is at the bottom of the wxTextCtrl
+     *    so that new messages are visiable to the Player.
+     *    This technique was learned from the following site:
+     *        http://wiki.wxwidgets.org/WxTextCtrl#Scrolling
+     */
+    m_systemOutput->ScrollLines(1);
 }
 
 void 
 hoxBoard::_PostToWallOutput( const wxString& who,
-                             const wxString& message )
+                             const wxString& sMessage )
 {
     m_wallOutput->SetDefaultStyle( wxTextAttr(*wxBLACK) );
     m_wallOutput->AppendText( wxString::Format("[%s] ", who.c_str()) );
     m_wallOutput->SetDefaultStyle( wxTextAttr(*wxBLUE) );
-    m_wallOutput->AppendText( wxString::Format("%s\n", message.c_str()) );
+    m_wallOutput->AppendText( wxString::Format("%s\n", sMessage.c_str()) );
 }
 
 void 

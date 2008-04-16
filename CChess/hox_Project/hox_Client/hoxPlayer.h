@@ -118,14 +118,6 @@ public:
      ***************************/
 
     /**
-     * Request to join a Table.
-     * Upon returned, the Player will be assigned a role.
-     *
-     * @param pTable The Table to join.
-     */
-    virtual hoxResult JoinTable( hoxTable_SPtr pTable );
-
-    /**
      * Request to join a Table as a specified role.
      *
      * @param pTable       The Table to join.
