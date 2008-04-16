@@ -40,6 +40,8 @@
 #include "bitmaps/quit.xpm"
 #include "bitmaps/delete.xpm"
 #include "bitmaps/folder_open.xpm"
+#include "bitmaps/connect.xpm"
+#include "bitmaps/disconnect.xpm"
 
 IMPLEMENT_DYNAMIC_CLASS(MyFrame, wxMDIParentFrame)
 
@@ -488,6 +490,14 @@ MyFrame::OnLogSashDrag(wxSashEvent& event)
 void 
 MyFrame::InitToolBar(wxToolBar* toolBar)
 {
+    toolBar->AddTool( MDI_CONNECT_SERVER, _("Connect"), 
+                      wxBitmap(connect_xpm), _("Connect Server"));
+
+    toolBar->AddTool( MDI_DISCONNECT_SERVER, _("Disconnect"), 
+                      wxBitmap(disconnect_xpm), _("Disconnect Server"));
+
+    toolBar->AddSeparator();
+
 	toolBar->AddTool( MDI_LIST_TABLES, _("List"), 
 		              wxBitmap(folder_open_xpm), _("List Tables"));
 

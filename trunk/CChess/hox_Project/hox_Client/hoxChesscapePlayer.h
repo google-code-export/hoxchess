@@ -113,6 +113,9 @@ private:
 
 	void _OnTableUpdated( const hoxNetworkTableInfo& tableInfo );
 
+    /* Other private helpers */
+
+    hoxGameType _stringToGameType( const wxString& sInput ) const;
 
 private:
 	/* Chesscape server sends a list of tables upon login.

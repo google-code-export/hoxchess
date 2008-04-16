@@ -320,14 +320,7 @@ hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
 				break;
 
 			case 5: /* Table-type: Rated / Nonrated / Solo-Black / Solo-Red */
-				if      ( token == "0" ) tableInfo.gameType = hoxGAME_TYPE_RATED;
-				else if ( token == "1" ) tableInfo.gameType = hoxGAME_TYPE_NONRATED;
-				else if ( token == "4"  /* This is the Depth (level of difficulty) */
-					   || token == "5"
-		               || token == "6"
-					   || token == "7"
-					   || token == "8" ) tableInfo.gameType = hoxGAME_TYPE_SOLO;
-				else /* unknown */       tableInfo.gameType = hoxGAME_TYPE_UNKNOWN;
+                tableInfo.gameType = _stringToGameType( token );
 				break;
 
 			case 6: /* Players-info */
@@ -738,14 +731,7 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 			case 0: /* Ignore for now */ break;
 			case 1: /* Table-type: Rated / Nonrated / Solo-Black / Solo-Red */
             {
-				if      ( token == "0" ) gameType = hoxGAME_TYPE_RATED;
-				else if ( token == "1" ) gameType = hoxGAME_TYPE_NONRATED;
-				else if ( token == "4"  /* This is the Depth (level of difficulty) */
-					   || token == "5"
-		               || token == "6"
-					   || token == "7"
-					   || token == "8" ) gameType = hoxGAME_TYPE_SOLO;
-				else /* unknown */       gameType = hoxGAME_TYPE_UNKNOWN;
+                gameType = _stringToGameType( token );
 				break;
             }
 			case 2:
@@ -1198,6 +1184,20 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 	{
 		pTable->ToggleViewSide();
 	}
+}
+
+hoxGameType
+hoxChesscapePlayer::_stringToGameType( const wxString& sInput ) const
+{
+    if      ( sInput == "0" ) return hoxGAME_TYPE_RATED;
+    else if ( sInput == "1" ) return hoxGAME_TYPE_NONRATED;
+    else if ( sInput == "4"  /* This is the Depth (level of difficulty) */
+	       || sInput == "5"
+           || sInput == "6"
+	       || sInput == "7"
+	       || sInput == "8" ) return hoxGAME_TYPE_SOLO;
+
+    return /* unknown */ hoxGAME_TYPE_UNKNOWN;
 }
 
 void 
