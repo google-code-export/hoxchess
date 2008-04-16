@@ -524,6 +524,24 @@ hoxChesscapePlayer::_UpdateTableInList( const wxString&      tableStr,
 	{
 		wxLogDebug("%s: Insert a new table [%s].", FNAME, tableInfo.id.c_str());
 		m_networkTables.push_back( tableInfo );
+        
+        hoxTable_SPtr pTable = _getMyTable();
+        if ( pTable.get() != NULL )
+        {
+            wxString message;
+            if ( ! tableInfo.redId.empty() ) 
+            {
+                message.Printf("open %s %s %s", tableInfo.id.c_str(), 
+                    tableInfo.redId.c_str(), tableInfo.redScore.c_str());
+            }
+            else if ( ! tableInfo.blackId.empty() ) 
+            {
+                message.Printf("open %s %s %s", tableInfo.id.c_str(), 
+                    tableInfo.blackId.c_str(), tableInfo.blackScore.c_str());
+            }
+            if ( !message.empty() )
+                pTable->OnSystemMsg_FromNetwork( message );
+        }
 	}
 	else // found?
 	{
@@ -601,7 +619,6 @@ hoxChesscapePlayer::_HandleCmd_Show(const wxString& cmdStr)
 
 	/* Clear out the existing table-list. */
 	
-	wxLogDebug("%s: Clear out the existing table-list.", FNAME);
 	m_networkTables.clear();
 
 	/* Create a new table-list. */
@@ -674,20 +691,11 @@ hoxChesscapePlayer::_HandleTableCmd( const wxString& cmdStr )
 
 	/* NOTE: The Chesscape server only support 1 table for now. */
 
-	const hoxRoleList roles = this->GetRoles();
-	if ( roles.empty() )
-	{
-		wxLogDebug("%s: *** WARN *** This player [%s] has not joined any table yet.", 
-			FNAME, this->GetName().c_str());
-		return false;
-	}
-	wxString tableId = roles.front().tableId;
-
-	// Find the table hosted on this system using the specified table-Id.
-	hoxTable_SPtr pTable = this->GetSite()->FindTable( tableId );
+    hoxTable_SPtr pTable = _getMyTable();
 	if ( pTable.get() == NULL )
 	{
-		wxLogDebug("%s: *** WARN *** Table [%s] not found.", FNAME, tableId.c_str());
+		wxLogDebug("%s: *** WARN *** This player [%s] not yet joined any table.", 
+			FNAME, this->GetName().c_str());
 		return false;
 	}
 
@@ -1033,20 +1041,11 @@ hoxChesscapePlayer::_HandleTableMsg( const wxString& cmdStr )
 
 	/* NOTE: The Chesscape server only support 1 table for now. */
 
-	const hoxRoleList roles = this->GetRoles();
-	if ( roles.empty() )
-	{
-		wxLogDebug("%s: *** WARN *** This player [%s] has not joined any table yet.", 
-			FNAME, this->GetName().c_str());
-		return false;
-	}
-	wxString tableId = roles.front().tableId;
-
-	// Find the table hosted on this system using the specified table-Id.
-	hoxTable_SPtr pTable = this->GetSite()->FindTable( tableId );
+    hoxTable_SPtr pTable = _getMyTable();
 	if ( pTable.get() == NULL )
 	{
-		wxLogDebug("%s: *** WARN *** Table [%s] not found.", FNAME, tableId.c_str());
+		wxLogDebug("%s: *** WARN *** This player [%s] not yet joined any table.", 
+			FNAME, this->GetName().c_str());
 		return false;
 	}
 
@@ -1198,6 +1197,22 @@ hoxChesscapePlayer::_stringToGameType( const wxString& sInput ) const
 	       || sInput == "8" ) return hoxGAME_TYPE_SOLO;
 
     return /* unknown */ hoxGAME_TYPE_UNKNOWN;
+}
+
+hoxTable_SPtr
+hoxChesscapePlayer::_getMyTable() const
+{
+    hoxTable_SPtr pTable; // An "empty" pointer.
+
+	/* NOTE: The Chesscape server only support 1 table for now. */
+
+	const hoxRoleList roles = this->GetRoles();
+	if ( ! roles.empty() )
+	{
+	    pTable = this->GetSite()->FindTable( roles.front().tableId );
+    }
+
+    return pTable;
 }
 
 void 

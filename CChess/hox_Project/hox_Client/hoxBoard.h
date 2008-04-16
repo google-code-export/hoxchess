@@ -37,6 +37,7 @@
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_JOIN, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_LEAVE, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_SCORE, wxID_ANY)
+DECLARE_EVENT_TYPE(hoxEVT_BOARD_SYSTEM_OUTPUT, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_WALL_OUTPUT, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_NEW_MOVE, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_DRAW_REQUEST, wxID_ANY)
@@ -130,6 +131,7 @@ public:
     void OnPlayerJoin( wxCommandEvent &event );
     void OnPlayerLeave( wxCommandEvent &event );
     void OnPlayerScore( wxCommandEvent &event );
+    void OnSystemOutput( wxCommandEvent &event );
     void OnWallOutput( wxCommandEvent &event );
 	void OnNewMove( wxCommandEvent &event );
 	void OnDrawRequest( wxCommandEvent &event );
@@ -250,13 +252,14 @@ private:
     wxStaticText*     m_blackFreeTime;  // Black's Free-time UI.
     wxStaticText*     m_redFreeTime;    // Red's Free-time UI.
 
-    /* Controls for our Wall */
+    /* UI-Controls for non-board parts. */
 
     wxListBox*        m_playerListBox;
+    wxTextCtrl*       m_systemOutput;
     wxTextCtrl*       m_wallOutput;
     wxTextCtrl*       m_wallInput;
 
-    /* Convenient variables. */
+    /* UI-Layout variables. */
 
     wxBoxSizer*       m_mainSizer;
     wxBoxSizer*       m_boardSizer;

@@ -218,6 +218,14 @@ public:
                                 const wxString&  message );
 
     /**
+     * Callback function from the NETWORK Player to let this Table know about
+     * the newly-received System-Message(s).
+     *
+     * @param message The message that are being sent from the network.
+     */
+    void OnSystemMsg_FromNetwork( const wxString&  message );
+
+    /**
      * Callback function from the NETWORK player to let the Table know that
      * a player who just left the table.
      *

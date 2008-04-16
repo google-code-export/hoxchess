@@ -58,6 +58,7 @@ enum
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_PLAYER_JOIN )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_PLAYER_LEAVE )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_PLAYER_SCORE )
+DEFINE_EVENT_TYPE( hoxEVT_BOARD_SYSTEM_OUTPUT )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_WALL_OUTPUT )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_NEW_MOVE )
 DEFINE_EVENT_TYPE( hoxEVT_BOARD_DRAW_REQUEST )
@@ -69,6 +70,7 @@ BEGIN_EVENT_TABLE(hoxBoard, wxPanel)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_JOIN, hoxBoard::OnPlayerJoin)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_LEAVE, hoxBoard::OnPlayerLeave)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_SCORE, hoxBoard::OnPlayerScore)
+    EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_SYSTEM_OUTPUT, hoxBoard::OnSystemOutput)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_WALL_OUTPUT, hoxBoard::OnWallOutput)
 	EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_NEW_MOVE, hoxBoard::OnNewMove)
 	EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_DRAW_REQUEST, hoxBoard::OnDrawRequest)
@@ -305,6 +307,15 @@ hoxBoard::OnPlayerScore( wxCommandEvent &event )
 
     /* NOTE: This action "add" can be used as an "update" action. */
     _AddPlayerToList( playerId, apPlayerInfo->score );
+}
+
+void 
+hoxBoard::OnSystemOutput( wxCommandEvent &event )
+{
+    const wxString sMessage = event.GetString();
+
+    m_systemOutput->SetDefaultStyle( wxTextAttr(*wxBLUE) );
+    m_systemOutput->AppendText( wxString::Format("%s\n", sMessage.c_str()) );
 }
 
 void 
@@ -777,10 +788,16 @@ hoxBoard::_CreateBoardPanel()
 
     m_playerListBox = new wxListBox( boardPanel, wxID_ANY );
 
+    m_systemOutput = new wxTextCtrl( boardPanel, wxID_ANY, _T(""),
+                                     wxDefaultPosition, wxDefaultSize,
+                                     wxTE_MULTILINE | wxRAISED_BORDER | wxTE_READONLY 
+                                     | wxHSCROLL | wxTE_RICH /* needed for Windows */ );
+
     m_wallOutput = new wxTextCtrl( boardPanel, wxID_ANY, _T(""),
                                    wxDefaultPosition, wxDefaultSize,
                                    wxTE_MULTILINE | wxRAISED_BORDER | wxTE_READONLY 
                                    | wxHSCROLL | wxTE_RICH /* needed for Windows */ );
+
     m_wallInput  = new wxTextCtrl( boardPanel, ID_BOARD_WALL_INPUT, _T(""),
                                    wxDefaultPosition, wxDefaultSize,
                                    wxTE_PROCESS_ENTER | wxSUNKEN_BORDER );
@@ -864,14 +881,21 @@ hoxBoard::_CreateBoardPanel()
 
     m_wallSizer->Add(
         m_playerListBox,
-        1,            // fixed-size vertically
+        1,            // Proportion
+        wxEXPAND |    // make horizontally stretchable
+        wxRIGHT|wxLEFT, // and make border
+        1 );         // set border width
+
+    m_wallSizer->Add(
+        m_systemOutput,
+        2,            // Proportion
         wxEXPAND |    // make horizontally stretchable
         wxRIGHT|wxLEFT, // and make border
         1 );         // set border width
 
     m_wallSizer->Add(
         m_wallOutput,
-        3,            // fixed-size vertically
+        3,            // Proportion
         wxEXPAND |    // make horizontally stretchable
         wxRIGHT|wxLEFT, // and make border
         1 );         // set border width
@@ -901,7 +925,6 @@ hoxBoard::_CreateBoardPanel()
 
     /* Setup the main size */
     boardPanel->SetSizer( m_mainSizer );      // use the sizer for layout
-    //m_mainSizer->SetSizeHints( boardPanel );   // set size hints to honour minimum size
 }
 
 void 

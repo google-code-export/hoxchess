@@ -116,6 +116,8 @@ private:
     /* Other private helpers */
 
     hoxGameType _stringToGameType( const wxString& sInput ) const;
+    
+    hoxTable_SPtr _getMyTable() const; // Chesscape only supports 1 Table.
 
 private:
 	/* Chesscape server sends a list of tables upon login.
