@@ -15,8 +15,6 @@ SOURCES := \
 	hoxChesscapePlayer.cpp \
 	hoxConnection.cpp \
 	hoxCoreBoard.cpp \
-	hoxHttpConnection.cpp \
-	hoxHttpPlayer.cpp \
 	hoxLocalPlayer.cpp \
 	hoxLoginDialog.cpp \
 	hoxMyPlayer.cpp \
@@ -26,15 +24,10 @@ SOURCES := \
 	hoxPlayerMgr.cpp \
 	hoxPosition.cpp \
 	hoxReferee.cpp \
-	hoxRemoteConnection.cpp \
-	hoxRemotePlayer.cpp \
-	hoxServer.cpp \
 	hoxSocketConnection.cpp \
-	hoxSocketServer.cpp \
 	hoxTable.cpp \
 	hoxTableMgr.cpp \
 	hoxTablesDialog.cpp \
-	hoxThreadConnection.cpp \
 	hoxUtil.cpp \
 	hoxSite.cpp \
 	hoxOptionDialog.cpp \
