@@ -64,43 +64,8 @@ hoxTable::~hoxTable()
 }
 
 hoxResult 
-hoxTable::AssignPlayer( hoxPlayer*     player,
-                        hoxColor& assignedColor,
-                        bool           informOthers /* = true */)
-{
-    hoxResult result = hoxRC_OK;
-
-    wxCHECK_MSG( player != NULL, hoxRC_ERR, "The player is NULL." );
-
-    assignedColor = hoxCOLOR_NONE; // Default: Observer's Role.
-
-    /* Assign to play RED if possible. */
-    if ( m_redPlayer == NULL )
-    {
-        assignedColor = hoxCOLOR_RED;
-    }
-    /* Assign to play BLACK if possible. */
-    else if ( m_blackPlayer == NULL )
-    {
-        assignedColor = hoxCOLOR_BLACK;
-    }
-    /* Default: ... The player will join as an Observer. */
-
-    /* Update our player-list */
-    _AddPlayer( player, assignedColor );
-
-    /* Inform other players about the new Player */
-    if ( informOthers )
-    {
-        _PostAll_JoinEvent( player, assignedColor );
-    }
-
-    return hoxRC_OK;
-}
-
-hoxResult 
-hoxTable::AssignPlayerAs( hoxPlayer*     player,
-                          hoxColor  requestColor )
+hoxTable::AssignPlayerAs( hoxPlayer* player,
+                          hoxColor   requestColor )
 {
     const char* FNAME = "hoxTable::AssignPlayerAs";
 
@@ -121,10 +86,8 @@ hoxTable::AssignPlayerAs( hoxPlayer*     player,
     /* Update our player-list */
     _AddPlayer( player, requestColor );
 
-    /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-     * NOTE: Unlike the other call, we will NOT inform other players about 
-     * the new Player 
-     * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
+    /* Inform the Board. */
+    _PostBoard_PlayerEvent( hoxEVT_BOARD_PLAYER_JOIN, player, requestColor );
 
     return hoxRC_OK;
 }
@@ -469,17 +432,8 @@ hoxTable::OnSystemMsg_FromNetwork( const wxString&  message )
     const char* FNAME = "hoxTable::OnSystemMsg_FromNetwork";
     wxLogDebug("%s: ENTER.", FNAME);
 
-    /* Post the message to the Board. */
-	if ( m_board == NULL )
-		return;
-
-    wxString eventString;
-    eventString.Printf("*%s", message.c_str());
-
-    /* Post the message on the System-Output of the "local" Board. */
-    wxCommandEvent event( hoxEVT_BOARD_SYSTEM_OUTPUT );
-    event.SetString( eventString );
-    wxPostEvent( m_board, event );
+    /* Post the SYSTEM message to the Board. */
+    _PostBoard_SystemMsgEvent( message );
 }
 
 void 
@@ -768,7 +722,7 @@ hoxTable::_PostBoard_PlayerEvent( wxEventType commandType,
 
 void 
 hoxTable::_PostBoard_MessageEvent( hoxPlayer*      player,
-                                   const wxString& message ) const
+                                   const wxString& sMessage ) const
 {
 	if ( m_board == NULL )
 		return;
@@ -779,11 +733,23 @@ hoxTable::_PostBoard_MessageEvent( hoxPlayer*      player,
     who = (   player != NULL 
             ? player->GetName() 
             : "*Table*" );
-    eventString.Printf("%s %s", who.c_str(), message.c_str());
+    eventString.Printf("%s %s", who.c_str(), sMessage.c_str());
 
     /* Post the message on the Wall-Output of the "local" Board. */
     wxCommandEvent event( hoxEVT_BOARD_WALL_OUTPUT );
     event.SetString( eventString );
+    wxPostEvent( m_board, event );
+}
+
+void
+hoxTable::_PostBoard_SystemMsgEvent( const wxString& sMessage ) const
+{
+	if ( m_board == NULL )
+		return;
+
+    /* Post the message on the System-Output of the "local" Board. */
+    wxCommandEvent event( hoxEVT_BOARD_SYSTEM_OUTPUT );
+    event.SetString( sMessage );
     wxPostEvent( m_board, event );
 }
 
@@ -1048,9 +1014,6 @@ hoxTable::_AddPlayer( hoxPlayer* player,
         if ( m_redPlayer   == player ) m_redPlayer = NULL;
         if ( m_blackPlayer == player ) m_blackPlayer = NULL;
     }
-
-    // Inform the Board.
-    _PostBoard_PlayerEvent( hoxEVT_BOARD_PLAYER_JOIN, player, role );
 }
 
 void 

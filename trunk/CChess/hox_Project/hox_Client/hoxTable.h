@@ -68,28 +68,13 @@ public:
     hoxIReferee_SPtr GetReferee() const { return m_referee; }
 
     /**
-     * Assign a player to this Table.
-     *
-     * @param player The Player that is requesting to join the Table.
-     * @param assignedColor The assigned Color of the Player if 
-     *                      the JOIN is allowed.
-     * @param informOthers By default, other players will be informed about
-     *                     this new event.
-     */
-    hoxResult AssignPlayer( hoxPlayer*     player,
-                            hoxColor& assignedColor,
-                            bool           informOthers = true );
-
-    /**
      * Attempt to assign a player to this Table as a specified role.
-     *
-     * @note Currently, the Table will NOT inform other Player about this event.
      *
      * @param player The Player that is requesting to join the Table.
      * @param requestColor The requested Color the Player wants to join as.
      */
-    hoxResult AssignPlayerAs( hoxPlayer*     player,
-                              hoxColor  requestColor );
+    hoxResult AssignPlayerAs( hoxPlayer* player,
+                              hoxColor   requestColor );
 
     /**
      * Unseat a given player from this table.
@@ -372,7 +357,9 @@ private:
                                  int         extraCode = wxID_ANY ) const;
 
     void _PostBoard_MessageEvent( hoxPlayer*      player,
-                                  const wxString& message ) const;
+                                  const wxString& sMessage ) const;
+
+    void _PostBoard_SystemMsgEvent( const wxString& sMessage ) const;
 
     void _PostBoard_MoveEvent( const wxString& moveStr,
 		                       bool            bSetupMode = false ) const;

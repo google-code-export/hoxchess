@@ -178,11 +178,30 @@ private:
     void _CreateBoardPanel();
     void _LayoutBoardPanel( bool viewInverted );
     
-    void _AddPlayerToList( const wxString& playerId, int playerScore );
-    void _RemovePlayerFromList( const wxString& playerId );
+    /**
+     * Add a Player's Id to the Player-List GUI.
+     * @return true if the Player is NEWLY inserted.
+     */
+    bool _AddPlayerToList( const wxString& playerId,
+                           const int       playerScore );
 
+    /**
+     * Remove a Player's Id from the Player-List GUI.
+     * @return true if the Player was actually there and removed.
+     */
+    bool _RemovePlayerFromList( const wxString& playerId );
+
+    /**
+     * Post a System-message (i.e, triggered by JOINED/LEFT events,...) 
+     * to the System-Output GUI.
+     */
+    void _PostToSystemOutput( const wxString& sMessage );
+
+    /**
+     * Post a Wall-message (i.e, CHAT message,...) to the Wall-Output GUI.
+     */
     void _PostToWallOutput( const wxString& who,
-                            const wxString& message );
+                            const wxString& sMessage );
 
     /**
      * A helper to do various task whenever a valid Move has been made.
