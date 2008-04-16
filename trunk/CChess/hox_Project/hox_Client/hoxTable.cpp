@@ -464,6 +464,25 @@ hoxTable::OnMessage_FromNetwork( const wxString&  playerId,
 }
 
 void 
+hoxTable::OnSystemMsg_FromNetwork( const wxString&  message )
+{
+    const char* FNAME = "hoxTable::OnSystemMsg_FromNetwork";
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    /* Post the message to the Board. */
+	if ( m_board == NULL )
+		return;
+
+    wxString eventString;
+    eventString.Printf("*%s", message.c_str());
+
+    /* Post the message on the System-Output of the "local" Board. */
+    wxCommandEvent event( hoxEVT_BOARD_SYSTEM_OUTPUT );
+    event.SetString( eventString );
+    wxPostEvent( m_board, event );
+}
+
+void 
 hoxTable::OnLeave_FromNetwork( hoxPlayer* leavePlayer,
                                hoxPlayer* informer )
 {
