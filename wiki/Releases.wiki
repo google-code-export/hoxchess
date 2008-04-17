@@ -2,6 +2,20 @@
 
 _All releases can be found from_ [http://code.google.com/p/hoxchess/downloads/list this Downloads page]
 
+  * *April 17, 2008* 
+    * Released *HOXChess 0.4.2.0* of the _source_ code and Windows Binary _Installer_
+    * Major changes are:
+      * Chesscape: Support RESIGN button within the Board
+      * Support Rated/Non-Rated Game option in both Chesscape and HOXServer
+      * Added two new tool bar icons for _Connect_ and _Disconnect_
+      * Added the *System-Message Area* in the Board
+      * HOXServer: Replaced the static IP with *games.playxiangqi.com* 
+      * Resized the Piece Images from 50 x 50 to 45 x 45 (in pixels)
+      * Changed the look of the core Board:
+         * Draw mirror lines around the initial positions of Cannons and Pawns
+         * Change the Board's foreground and background colors
+      * Removed support for HTTP-Polling site
+
   * *April 08, 2008* 
     * Released *HOXChess 0.4.1.0* of the _source_ code.
     * Xiangqi fans now have the option to connect to my _new_ Xiangqi server at *games.playxiangqi.com* (with the static IP _209.20.66.220_)
