@@ -35,15 +35,21 @@
 // Constants
 // ----------------------------------------------------------------------------
 
+/* Use the Color-Mixer tool from the following site to generate the colors:
+ *       http://colormixers.com/mixers/cmr/
+ */
+static const wxColor hoxBOARD_COLOR_BACKGROUND(64, 64, 64);
+static const wxColor hoxBOARD_COLOR_FOREGROUND(255, 255, 255);
+
 enum Constants
 {
-  // Dragging modes
-  DRAG_MODE_NONE,
-  DRAG_MODE_START,
-  DRAG_MODE_DRAGGING,
+    // Dragging modes
+    DRAG_MODE_NONE,
+    DRAG_MODE_START,
+    DRAG_MODE_DRAGGING,
 
-  NUM_HORIZON_CELL  = 8,  // Do not change the value!!!
-  NUM_VERTICAL_CELL = 9   // Do not change the value!!!
+    NUM_HORIZON_CELL  = 8,  // Do not change the value!!!
+    NUM_VERTICAL_CELL = 9   // Do not change the value!!!
 };
 
 // ----------------------------------------------------------------------------
@@ -196,8 +202,8 @@ hoxCoreBoard::_DrawBoard( wxDC& dc )
 {
     wxSize totalSize = GetClientSize();   // of this Board
 
-    dc.SetPen( *wxRED_PEN );
-    dc.SetBrush( *wxLIGHT_GREY_BRUSH );
+    dc.SetBrush( wxBrush( hoxBOARD_COLOR_BACKGROUND ) );
+    dc.SetPen( wxPen( hoxBOARD_COLOR_FOREGROUND ) );
 
     // --- Get the board's max-dimension.
     wxCoord borderW = totalSize.GetWidth() - 2*m_borderX;
@@ -211,7 +217,6 @@ hoxCoreBoard::_DrawBoard( wxDC& dc )
     wxCoord boardH = m_cellS * NUM_VERTICAL_CELL;
 
     // *** Paint the board with a background's color.
-    dc.SetBrush( *wxWHITE_BRUSH );
     dc.DrawRectangle( m_borderX, m_borderY, boardW, boardH );
 
     // Draw vertial lines.
@@ -250,21 +255,67 @@ hoxCoreBoard::_DrawBoard( wxDC& dc )
 
     // Draw crossing lines at the red-palace.
     dc.DrawLine(m_borderX+3*m_cellS, m_borderY+9*m_cellS, 
-    m_borderX+5*m_cellS, m_borderY+7*m_cellS);
+                m_borderX+5*m_cellS, m_borderY+7*m_cellS);
     dc.DrawLine(m_borderX+3*m_cellS, m_borderY+7*m_cellS, 
-    m_borderX+5*m_cellS, m_borderY+9*m_cellS);
+                m_borderX+5*m_cellS, m_borderY+9*m_cellS);
 
     // Draw crossing lines at the black-palace.
     dc.DrawLine(m_borderX+3*m_cellS, m_borderY,
-    m_borderX+5*m_cellS, m_borderY+2*m_cellS);
+                m_borderX+5*m_cellS, m_borderY+2*m_cellS);
     dc.DrawLine(m_borderX+3*m_cellS, m_borderY+2*m_cellS, 
-    m_borderX+5*m_cellS, m_borderY);
+                m_borderX+5*m_cellS, m_borderY);
+
+    // Draw the "miror" lines for Cannon and Pawn.
+    const int nSize  = m_cellS / 7;  // The "miror" 's size.
+    const int nSpace = 3;            // The "miror" 's space (how close/far).
+    
+    int locations[][2] = { { 1, 2 }, { 7, 2 },
+                           { 0, 3 }, { 2, 3 }, { 4, 3 }, { 6, 3 }, { 8, 3 },
+                           { 0, 6 }, { 2, 6 }, { 4, 6 }, { 6, 6 }, { 8, 6 },
+                           { 1, 7 }, { 7, 7 },
+                         };
+    wxPoint mirrors[3];
+    for ( int i = 0; i < 14; ++i )
+    {
+        wxPoint oriPoint( m_borderX+locations[i][0]*m_cellS, 
+                          m_borderY+locations[i][1]*m_cellS );
+        bool bNoLeft = ( locations[i][0] == 0 )
+                    && ( locations[i][1] == 3 || locations[i][1] == 6 );
+        bool bNoRight = ( locations[i][0] == 8 )
+                     && ( locations[i][1] == 3 || locations[i][1] == 6 );
+
+        if ( !bNoLeft )
+        {
+            mirrors[0] = wxPoint( oriPoint.x - nSpace, oriPoint.y - nSpace - nSize );
+            mirrors[1] = wxPoint( oriPoint.x - nSpace, oriPoint.y - nSpace );
+            mirrors[2] = wxPoint( oriPoint.x - nSpace - nSize, oriPoint.y - nSpace );
+            dc.DrawLines(3, mirrors);
+
+            mirrors[0] = wxPoint( oriPoint.x - nSpace - nSize, oriPoint.y + nSpace );
+            mirrors[1] = wxPoint( oriPoint.x - nSpace, oriPoint.y + nSpace );
+            mirrors[2] = wxPoint( oriPoint.x - nSpace, oriPoint.y + nSpace + nSize );
+            dc.DrawLines(3, mirrors);
+        }
+
+        if ( !bNoRight )
+        {
+            mirrors[0] = wxPoint( oriPoint.x + nSpace, oriPoint.y - nSpace - nSize );
+            mirrors[1] = wxPoint( oriPoint.x + nSpace, oriPoint.y - nSpace );
+            mirrors[2] = wxPoint( oriPoint.x + nSpace + nSize, oriPoint.y - nSpace );
+            dc.DrawLines(3, mirrors);
+
+            mirrors[0] = wxPoint( oriPoint.x + nSpace, oriPoint.y + nSpace + nSize );
+            mirrors[1] = wxPoint( oriPoint.x + nSpace, oriPoint.y + nSpace );
+            mirrors[2] = wxPoint( oriPoint.x + nSpace + nSize, oriPoint.y + nSpace );
+            dc.DrawLines(3, mirrors);
+        }
+    }
 
     // Delete lines at the 'river' by drawing lines with
     // the background's color.
     y1 = m_borderY + 4*m_cellS;
     y2 = y1 + m_cellS;
-    dc.SetPen( *wxWHITE_PEN );
+    dc.SetPen( wxPen( hoxBOARD_COLOR_BACKGROUND ) );
     for (line = 1; line < NUM_VERTICAL_CELL-1; ++line)
     {
         x1 = m_borderX + line * m_cellS;
