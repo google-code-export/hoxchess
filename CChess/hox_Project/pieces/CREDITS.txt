@@ -1,0 +1,9 @@
+These images were downloaded from the following site:
+------------------------------------------------------
++ http://ajaxchess.pragmaticlogic.com/
+
+The original images are 50x50 (pixel) in size.
+
+I applied the following transformation:
+----------------------------------------
++ Using GIMP in Ubuntu 7.10 to resize the images from 50x50 to 45x45 (pixels)
