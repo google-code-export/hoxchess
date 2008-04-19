@@ -68,9 +68,12 @@ public:
 private:
 	bool _ParseTableInfoString( const wxString&      tableStr,
 		                        hoxNetworkTableInfo& tableInfo ) const;
-	bool _ParsePlayersInfoString( const wxString&      playersInfoStr,
-		                          hoxNetworkTableInfo& tableInfo ) const;
-	bool _DoesTableExist( const wxString& tableId ) const;
+	bool _ParseTablePlayersString( const wxString&      playersInfoStr,
+		                           hoxNetworkTableInfo& tableInfo ) const;
+	void _ParsePlayerStatsString( const wxString&  sStatsStr,
+		                          hoxPlayerStats&  playerStats ) const;
+
+    bool _DoesTableExist( const wxString& tableId ) const;
 	bool _FindTableById( const wxString&      tableId,
 		                 hoxNetworkTableInfo*& pTableInfo ) const;
 	bool _AddTableToList( const wxString& tableStr ) const;
@@ -103,6 +106,7 @@ private:
 	bool _HandleCmd_Update(const wxString& cmdStr,
 		                   hoxNetworkTableInfo* pTableInfo = NULL);
 	bool _HandleCmd_UpdateRating(const wxString& cmdStr);
+	bool _HandleCmd_PlayerInfo(const wxString& cmdStr);
 
 	bool _HandleTableCmd(const wxString& cmdStr);
 	bool _HandleTableCmd_Settings(const wxString& cmdStr);

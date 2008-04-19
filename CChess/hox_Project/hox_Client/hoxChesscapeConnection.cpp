@@ -83,6 +83,11 @@ hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
             result = _Join( apRequest );
             break;
 		}
+        case hoxREQUEST_PLAYER_INFO:
+		{
+            result = _GetPlayerInfo( apRequest );
+            break;
+		}
         case hoxREQUEST_PLAYER_STATUS:
 		{
             result = _UpdateStatus( apRequest );
@@ -273,6 +278,23 @@ hoxChesscapeWriter::_Join( hoxRequest_APtr apRequest )
 	}
 
     return hoxRC_OK;
+}
+
+hoxResult
+hoxChesscapeWriter::_GetPlayerInfo( hoxRequest_APtr apRequest )
+{
+    const char* FNAME = __FUNCTION__;
+
+    /* Extract parameters. */
+    const wxString sPlayerId = apRequest->parameters["info_pid"];
+
+    /* Send request. */
+	wxLogDebug("%s: Sending PLAYER-INFO request for player = [%s]...", 
+		FNAME, sPlayerId.c_str());
+	wxString cmdRequest;
+	cmdRequest.Printf("\x02\x10playerInfo?%s\x10\x03", sPlayerId.c_str());
+
+    return hoxNetworkAPI::WriteLine( m_socket, cmdRequest );
 }
 
 hoxResult

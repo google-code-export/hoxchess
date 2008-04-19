@@ -355,5 +355,22 @@ typedef std::auto_ptr<hoxPlayerInfo> hoxPlayerInfo_APtr;
 typedef boost::shared_ptr<hoxPlayerInfo> hoxPlayerInfo_SPtr;
 typedef std::list<hoxPlayerInfo_SPtr> hoxPlayerInfoList;
 
+// ----------------------------------------------------------------------------
+// hoxPlayerStats
+// ----------------------------------------------------------------------------
+
+class hoxPlayerStats : public wxObject
+{
+public:
+    wxString       id;      // The player's ID.
+    int            score;   // The player's Score.
+    int            wins;    // The # of games won.
+    int            losses;  // The # of games lost.
+    int            draws;   // The # of games drawn.
+
+    hoxPlayerStats( const wxString& i = "" )
+            : id(i), score(1500), wins(0), losses(0), draws(0) {}
+};
+typedef std::auto_ptr<hoxPlayerStats> hoxPlayerStats_APtr;
 
 #endif /* __INCLUDED_HOX_TYPES_H_ */
