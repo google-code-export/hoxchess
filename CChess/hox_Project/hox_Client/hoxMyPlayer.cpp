@@ -114,13 +114,23 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 
     wxLogDebug("%s: Received a command [%s].", FNAME, sType.c_str());
 
+    /* Lookup Table if the Table-Id is provided. */
+    if ( ! sTableId.empty() )
+    {
+        pTable = site->FindTable( sTableId );
+        if ( pTable.get() == NULL )
+        {
+            wxLogDebug("%s: *INFO* Table [%s] not found.", FNAME, sTableId.c_str());
+            // *** Still allow to continue!
+        }
+    }
+
     /* Handle the error-code. */
     if ( sCode != "0" ) // failed?
     {
         const wxString sMessage = "Request " + sType + " failed with code = " + sCode;
         wxLogDebug("%s: %s.", FNAME, sMessage.c_str());
 
-        pTable = site->FindTable( sTableId );
         if ( pTable.get() != NULL )
         {
             // Post the error on the Board.
@@ -375,6 +385,29 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
             wxLogDebug("%s: Inform Table [%s] of past Moves [%s].", FNAME, 
                 pTable->GetId().c_str(), sContent.c_str());
             pTable->OnPastMoves_FromNetwork( this, moves );
+            break;
+        }
+        case hoxREQUEST_PLAYER_INFO:
+        {
+            if ( pTable.get() == NULL ) break;
+
+            hoxPlayerStats  playerStats;
+
+		    result = _ParsePlayerInfoEvent( sContent,
+									        playerStats );
+		    if ( result != hoxRC_OK )
+		    {
+			    wxLogDebug("%s: Failed to parse PLAYER_INFO's event [%s].", FNAME, sContent.c_str());
+                break;
+		    }
+            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            // *** NOTE: The HOXServer does not support player's statistics yet.
+            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            const wxString sMessage = wxString::Format("*INFO: %s %d W%d D%d L%d",
+                playerStats.id.c_str(),
+                playerStats.score,
+                playerStats.wins, playerStats.draws, playerStats.losses);
+            pTable->PostSystemMessage( sMessage );
             break;
         }
         default:
@@ -962,6 +995,33 @@ hoxMyPlayer::_ParsePastMovesEvent( const wxString& sContent,
     _ParseMovesString( sMoves, moves );
 
 	return hoxRC_OK;
+}
+
+hoxResult
+hoxMyPlayer::_ParsePlayerInfoEvent( const wxString& sContent,
+                                    hoxPlayerStats& playerStats )
+{
+    const char* FNAME = __FUNCTION__;
+
+    /* Parse the input string. */
+
+	// ... Do not return empty tokens
+	wxStringTokenizer tkz( sContent, ";", wxTOKEN_STRTOK );
+	int tokenPosition = 0;
+	wxString token;
+
+	while ( tkz.HasMoreTokens() )
+	{
+		token = tkz.GetNextToken();
+		switch ( tokenPosition++ )
+		{
+			case 0: playerStats.id = token;  break;
+            case 1: playerStats.score = ::atoi( token.c_str() ); break;
+			default: /* Ignore the rest. */ break;
+		}
+	}		
+
+    return hoxRC_OK;
 }
 
 hoxResult

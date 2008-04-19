@@ -1311,8 +1311,9 @@ hoxChesscapePlayer::_HandleCmd_PlayerInfo( const wxString& cmdStr )
     hoxTable_SPtr pTable = _getMyTable();
 	if ( pTable.get() != NULL )
 	{
-        wxString sMessage = wxString::Format("*INFO: %s W%d D%d L%d",
+        const wxString sMessage = wxString::Format("*INFO: %s %d W%d D%d L%d",
             playerStats.id.c_str(),
+            playerStats.score,
             playerStats.wins, playerStats.draws, playerStats.losses);
             
         pTable->PostSystemMessage( sMessage );
