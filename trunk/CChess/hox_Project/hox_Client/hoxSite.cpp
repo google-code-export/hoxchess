@@ -27,6 +27,7 @@
 #include "hoxSite.h"
 #include "MyApp.h"
 #include "hoxUtil.h"
+#include "hoxMyPlayer.h"
 #include "hoxSocketConnection.h"
 #include "hoxChesscapeConnection.h"
 #include "hoxChesscapePlayer.h"
@@ -174,7 +175,7 @@ hoxRemoteSite::OnResponse_LOGOUT( const hoxResponse_APtr& response )
 {
     const char* FNAME = "hoxRemoteSite::OnResponse_LOGOUT";
 
-	wxLogDebug("%s: Received DISCONNECT's response [%d: %s].", 
+	wxLogDebug("%s: Received LOGOUT's response [%d: %s].", 
 		FNAME, response->code, response->content.c_str());
     if ( m_player != NULL )
     {
@@ -684,11 +685,26 @@ hoxChesscapeSite::OnResponse_LOGIN( const hoxResponse_APtr& response )
 
     this->ShowProgressDialog( false );
 
-	/* Do nothing. */
+    /* If error, then close the Site. */
+
     if ( response->code != hoxRC_OK )
     {
-		wxLogWarning("Login failed with response = [%s].", response->content.c_str());
-        return;
+        wxLogError("%s: The response's code for [%s] is ERROR [%s: %s].", 
+            FNAME, 
+            hoxUtil::RequestTypeToString(response->type).c_str(), 
+            hoxUtil::ResultToStr(response->code),
+            response->content.c_str());
+        
+        /* NOTE:
+         *   Explicitly send a LOGOUT command to close the connection because
+         *   Chesscape server does not automatically close the connection
+         *   after a login-failure.
+         */
+        
+        if ( m_player != NULL )
+        {
+            m_player->DisconnectFromNetworkServer();
+        }
     }
 }
 

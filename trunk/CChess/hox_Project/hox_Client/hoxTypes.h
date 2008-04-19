@@ -352,6 +352,8 @@ public:
             : id(""), type(hoxPLAYER_TYPE_DUMMY), score(1500) {}
 };
 typedef std::auto_ptr<hoxPlayerInfo> hoxPlayerInfo_APtr;
+typedef boost::shared_ptr<hoxPlayerInfo> hoxPlayerInfo_SPtr;
+typedef std::list<hoxPlayerInfo_SPtr> hoxPlayerInfoList;
 
 
 #endif /* __INCLUDED_HOX_TYPES_H_ */

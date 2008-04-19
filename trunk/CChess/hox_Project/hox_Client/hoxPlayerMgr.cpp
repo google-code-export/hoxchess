@@ -26,6 +26,8 @@
 
 #include "hoxPlayerMgr.h"
 #include "MyApp.h"          // wxGetApp()
+#include "hoxMyPlayer.h"
+#include "hoxChesscapePlayer.h"
 #include <algorithm>   // std::find
 
 
