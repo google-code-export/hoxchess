@@ -41,7 +41,7 @@
  * The Application's Name and Version.
  */
 #define HOX_APP_NAME  "HOXChess"
-#define HOX_VERSION   "0.4.2.0"
+#define HOX_VERSION   "0.4.3.0"
 
 /**
  * The default path of all the pieces' images.
@@ -259,6 +259,9 @@ enum hoxRequestType
 
     hoxREQUEST_I_MOVES,
         /* Info about the "past/history" Moves */
+
+    hoxREQUEST_PLAYER_INFO,
+        /* Info request for a given Player */
 
     hoxREQUEST_PLAYER_STATUS,
         /* Event generated from a Player when his Status is changed. */

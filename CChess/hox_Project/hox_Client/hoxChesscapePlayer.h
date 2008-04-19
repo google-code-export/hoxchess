@@ -27,9 +27,7 @@
 #ifndef __INCLUDED_HOX_CHESSCAPE_PLAYER_H_
 #define __INCLUDED_HOX_CHESSCAPE_PLAYER_H_
 
-#include <wx/wx.h>
 #include "hoxLocalPlayer.h"
-#include "hoxEnums.h"
 #include "hoxTypes.h"
 
 /**
@@ -80,14 +78,26 @@ private:
 	bool _UpdateTableInList( const wxString& tableStr,
 		                     hoxNetworkTableInfo* pTableInfo = NULL );
 
+	void _ParseLoginInfoString( const wxString& cmdStr,
+                                wxString&       name,
+                                wxString&       score,
+                                wxString&       role ) const;
+    void _AddPlayerToList( const wxString& sPlayerId,
+                           const int       nPlayerScore ) const;
+	void _UpdatePlayerInList( const wxString& sPlayerId,
+		                      const int       nPlayerScore );
+	hoxPlayerInfo_SPtr _FindPlayerById( const wxString& sPlayerId ) const;
+    void _RemovePlayerFromList( const wxString& sPlayerId ) const;
+
 	bool _ParseIncomingCommand(const wxString& contentStr,
 		                       wxString&       command,
 							   wxString&       paramsStr) const;
-	bool _HandleCmd_Login(const wxString& cmdStr,
-                          wxString&       name,
-                          wxString&       score,
-                          wxString&       role) const;
-
+	bool _HandleCmd_Login(const hoxResponse_APtr& response,
+                          const wxString&         cmdStr);
+	bool _HandleCmd_Code(const hoxResponse_APtr& response,
+                         const wxString&         cmdStr);
+	bool _HandleCmd_Logout(const wxString& cmdStr);
+    bool _HandleCmd_Clients(const wxString& cmdStr);
 	bool _HandleCmd_Show(const wxString& cmdStr);
 	bool _HandleCmd_Unshow(const wxString& cmdStr);
 	bool _HandleCmd_Update(const wxString& cmdStr,
@@ -125,6 +135,13 @@ private:
 	 * Thus, this player needs to maintain a "cache" list of tables.
 	 */
 	mutable hoxNetworkTableInfoList  m_networkTables;
+
+	/* Chesscape server sends a list of players upon login.
+	 * After that, it only sends updates for each player
+     * regarding score, status, ...
+	 * Thus, this player needs to maintain a "cache" list of players.
+	 */
+	mutable hoxPlayerInfoList        m_networkPlayers;
 
 	wxString                         m_pendingJoinTableId;
 			/* The Id of the table that this player is requesting to join. */

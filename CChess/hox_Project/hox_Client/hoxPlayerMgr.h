@@ -28,11 +28,11 @@
 #define __INCLUDED_HOX_PLAYER_MGR_H_
 
 #include "hoxPlayer.h"
-#include "hoxMyPlayer.h"
-#include "hoxChesscapePlayer.h"
 
 /* Forward declarations */
 class hoxSite;
+class hoxMyPlayer;
+class hoxChesscapePlayer;
 
 /**
  * A Player-Manager that manages a group of players.
