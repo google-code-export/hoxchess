@@ -367,6 +367,23 @@ hoxTable::OnDrawResponse_FromBoard( bool bAcceptDraw )
     boardPlayer->OnRequest_FromTable( apRequest );
 }
 
+void
+hoxTable::OnPlayerInfoRequest_FromBoard( const wxString& sPlayerId )
+{
+    /* Get the Board Player (or the Board's owner) because he is the
+     * one that sent the Request.
+     */
+    hoxPlayer* boardPlayer = _GetBoardPlayer();
+    wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
+
+    hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_PLAYER_INFO ) );
+	apRequest->parameters["tid"] = m_id;
+	apRequest->parameters["pid"] = boardPlayer->GetName();
+    apRequest->parameters["info_pid"] = sPlayerId;
+
+    boardPlayer->OnRequest_FromTable( apRequest );
+}
+
 void 
 hoxTable::OnMove_FromNetwork( hoxPlayer*       player,
                               const wxString&  moveStr )

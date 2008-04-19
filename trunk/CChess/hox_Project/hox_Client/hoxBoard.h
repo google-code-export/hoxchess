@@ -159,6 +159,8 @@ public:
 
     void OnTimer( wxTimerEvent& event );
 
+    void OnPlayerListBox_LMouseDClick();
+
     /****************************************
      * Override the parent (wxPanel) 's API.
      ****************************************/
@@ -273,7 +275,9 @@ private:
 
     /* UI-Controls for non-board parts. */
 
-    wxListBox*        m_playerListBox;
+    class PlayerListCtrl;
+    PlayerListCtrl*   m_playerListBox;
+
     wxTextCtrl*       m_systemOutput;
     wxTextCtrl*       m_wallOutput;
     wxTextCtrl*       m_wallInput;

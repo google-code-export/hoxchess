@@ -50,6 +50,7 @@ private:
     hoxResult   _Login( hoxRequest_APtr apRequest );
     hoxResult   _Logout( hoxRequest_APtr apRequest );
     hoxResult   _Join( hoxRequest_APtr apRequest );
+    hoxResult   _GetPlayerInfo( hoxRequest_APtr apRequest );
     hoxResult   _UpdateStatus( hoxRequest_APtr apRequest );
 	hoxResult   _Leave( hoxRequest_APtr apRequest );
 	hoxResult   _Move( hoxRequest_APtr apRequest );

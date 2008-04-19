@@ -232,6 +232,7 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 	else if ( command == "unshow" )        _HandleCmd_Unshow( paramsStr );
 	else if ( command == "update" )        _HandleCmd_Update( paramsStr );
 	else if ( command == "updateRating" )  _HandleCmd_UpdateRating( paramsStr );
+    else if ( command == "playerInfo" )    _HandleCmd_PlayerInfo( paramsStr );
 	else if ( command == "tCmd" )	       _HandleTableCmd( paramsStr );
 	else if ( command == "tMsg" )	       _HandleTableMsg( paramsStr );
 	else
@@ -290,7 +291,7 @@ hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
 
 			case 6: /* Players-info */
 			{
-				_ParsePlayersInfoString( token, tableInfo );
+				_ParseTablePlayersString( token, tableInfo );
 				break;
 			}
 
@@ -320,7 +321,7 @@ hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
 }
 
 bool 
-hoxChesscapePlayer::_ParsePlayersInfoString( 
+hoxChesscapePlayer::_ParseTablePlayersString( 
 								const wxString&      playersInfoStr,
 	                            hoxNetworkTableInfo& tableInfo ) const
 {
@@ -385,6 +386,50 @@ hoxChesscapePlayer::_ParsePlayersInfoString(
 	}
 
 	return true;
+}
+
+void
+hoxChesscapePlayer::_ParsePlayerStatsString( const wxString&  sStatsStr,
+	                                         hoxPlayerStats&  playerStats ) const
+{
+	wxString delims;
+	delims += 0x10;
+	// ... Do not return empty tokens
+	wxStringTokenizer tkz( sStatsStr, delims, wxTOKEN_STRTOK );
+	int tokenPosition = 0;
+	wxString token;
+
+	while ( tkz.HasMoreTokens() )
+	{
+		token = tkz.GetNextToken();
+		switch ( tokenPosition++ )
+		{
+			case 0: /* Id */
+				playerStats.id = token; 
+				break;
+
+			case 1: /* Score */
+                playerStats.score = ::atoi( token.c_str() );
+				break;
+
+			case 2: /* Completed Games: Ignored!!! */ break;
+            case 3: /* Resigned Games: Ignored!!! */ break;
+
+			case 4: /* Wins */
+                playerStats.wins = ::atoi( token.c_str() );
+				break;
+
+			case 5: /* Losses */
+                playerStats.losses = ::atoi( token.c_str() );
+				break;
+
+			case 6: /* Draws */
+                playerStats.draws = ::atoi( token.c_str() );
+				break;
+
+			default: /* Ignore the rest. */ break;
+		}
+	}		
 }
 
 bool 
@@ -1249,6 +1294,31 @@ hoxChesscapePlayer::_HandleCmd_UpdateRating( const wxString& cmdStr )
     _UpdatePlayerInList( who, nScore );
 
 	return true;
+}
+
+bool 
+hoxChesscapePlayer::_HandleCmd_PlayerInfo( const wxString& cmdStr )
+{
+	const char* FNAME = __FUNCTION__;
+	wxLogDebug("%s: ENTER. [%s].", FNAME, cmdStr.c_str());
+
+    hoxPlayerStats playerStats;
+
+    _ParsePlayerStatsString( cmdStr, playerStats );
+
+    /* Display the player's statictics on the Board. */
+
+    hoxTable_SPtr pTable = _getMyTable();
+	if ( pTable.get() != NULL )
+	{
+        wxString sMessage = wxString::Format("*INFO: %s W%d D%d L%d",
+            playerStats.id.c_str(),
+            playerStats.wins, playerStats.draws, playerStats.losses);
+            
+        pTable->PostSystemMessage( sMessage );
+	}
+
+    return true;
 }
 
 void 

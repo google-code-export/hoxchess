@@ -97,6 +97,126 @@ BEGIN_EVENT_TABLE(hoxBoard, wxPanel)
     EVT_TIMER(wxID_ANY, hoxBoard::OnTimer)    
 END_EVENT_TABLE()
 
+
+// ----------------------------------------------------------------------------
+// hoxBoard::PlayerListCtrl class
+// ----------------------------------------------------------------------------
+
+/**
+ * A GUI List-control containing the list of Players who
+ * are currently at THIS Board.
+ */
+class hoxBoard::PlayerListCtrl : public wxListCtrl
+{
+public:
+    PlayerListCtrl( hoxBoard* parent )
+            : wxListCtrl( parent,
+                          wxID_ANY,
+                          wxDefaultPosition,
+                          wxDefaultSize,
+                          wxLC_REPORT | wxLC_SINGLE_SEL )
+            , m_pBoard( parent )
+    {
+        wxString columns[] = { "Id", "Rating" };
+
+	    for ( long colIndex = 0; colIndex < WXSIZEOF( columns ); ++colIndex )
+	    {
+		    this->InsertColumn( colIndex, columns[colIndex] );
+	    }
+    }
+
+    bool AddPlayer( const wxString& sPlayerId,
+                    const int       nPlayerScore )
+    {
+	    /* Remove the old item, if any. */
+	    bool bRemoved = this->RemovePlayer( sPlayerId );
+
+        long   itemIndex = 0;
+	    long   colIndex = 0;
+
+	    itemIndex = this->InsertItem( itemIndex, sPlayerId );
+
+	    this->SetItem( itemIndex, ++colIndex,
+                       wxString::Format("%d", nPlayerScore));
+
+        /* If the Player was NOT found (to be removed) before being inserted,
+         * then he has just joined this Board.
+         */
+        return ( ! bRemoved );
+    }
+
+    bool RemovePlayer( const wxString& sPlayerId )
+    {
+        const int nCount = this->GetItemCount();
+        for ( int i = 0; i < nCount; ++i )
+        {
+            if ( _GetCellContent( i, 0 ) == sPlayerId ) // matched?
+            {
+                this->DeleteItem( i );
+                return true;
+            }
+        }
+        return false;
+    }
+
+    wxString GetSelectedPlayer()
+    {
+        wxString sPlayerId;  // The selected Player-Id.
+
+        long nSelectedItem = this->GetNextItem( -1,
+                                                wxLIST_NEXT_ALL,
+                                                wxLIST_STATE_SELECTED );
+        if ( nSelectedItem != -1 ) // Got a selected item?
+        {
+            sPlayerId = _GetCellContent( nSelectedItem, 0 );
+        }
+        return sPlayerId;
+    }
+
+    void OnLMouseDClick( wxMouseEvent& event )
+    {
+        m_pBoard->OnPlayerListBox_LMouseDClick();
+    }
+
+private:
+    /**
+     * CREDITS: The following code was extracted from this site:
+     * http://wiki.wxwidgets.org/WxListCtrl#Get_the_string_contents_of_a_.22cell.22_in_a_LC_REPORT_wxListCtrl
+     */
+    wxString _GetCellContent( const long row_number,
+                              const int  column )
+    {
+        wxListItem     row_info;  
+        wxString       cell_contents_string;
+
+        // Set what row it is (m_itemId is a member of the regular wxListCtrl class)
+        row_info.m_itemId = row_number;
+        // Set what column of that row we want to query for information.
+        row_info.m_col = column;
+        // Set text mask
+        row_info.m_mask = wxLIST_MASK_TEXT;
+
+        // Get the info and store it in row_info variable.   
+        GetItem( row_info );
+
+        // Extract the text out that cell
+        cell_contents_string = row_info.m_text; 
+
+        return cell_contents_string;
+    }
+
+private:
+    hoxBoard*     m_pBoard;   // The parent Board.
+
+    DECLARE_EVENT_TABLE()
+
+}; // END of hoxBoard::PlayerListCtrl
+
+BEGIN_EVENT_TABLE(hoxBoard::PlayerListCtrl, wxListCtrl)
+    EVT_LEFT_DCLICK(hoxBoard::PlayerListCtrl::OnLMouseDClick)
+END_EVENT_TABLE()
+
+
 // ----------------------------------------------------------------------------
 // hoxBoard
 // ----------------------------------------------------------------------------
@@ -603,6 +723,22 @@ hoxBoard::OnTimer( wxTimerEvent& event )
     _OnTimerUpdated();
 }
 
+void
+hoxBoard::OnPlayerListBox_LMouseDClick()
+{
+    const char* FNAME = __FUNCTION__;
+
+    /* Get the selected Player. */
+
+    const wxString sPlayerId = m_playerListBox->GetSelectedPlayer();
+
+    if ( ! sPlayerId.empty() ) // got a selected Player?
+    {
+        wxLogDebug("%s: Request Info for Player [%s]...", FNAME, sPlayerId.c_str());
+        m_pTable->OnPlayerInfoRequest_FromBoard( sPlayerId );
+    }
+}
+
 bool 
 hoxBoard::Show( bool show /* = true */ )
 {
@@ -795,7 +931,7 @@ hoxBoard::_CreateBoardPanel()
      * Create Wall's contents.
      *********************************/
 
-    m_playerListBox = new wxListBox( boardPanel, wxID_ANY );
+	m_playerListBox = new PlayerListCtrl( this );
 
     m_systemOutput = new wxTextCtrl( boardPanel, wxID_ANY, _T(""),
                                      wxDefaultPosition, wxDefaultSize,
@@ -1032,16 +1168,7 @@ hoxBoard::_AddPlayerToList( const wxString& playerId,
 {
     if ( ! m_bUICreated ) return false;
 
-	/* Remove the old item, if any. */
-	bool bRemoved = _RemovePlayerFromList( playerId );
-
-    const wxString info = wxString::Format("%s (%d)", playerId.c_str(), playerScore);
-    m_playerListBox->Append( info );
-
-    /* If the Player was NOT found (to be removed) before being inserted,
-     * then he has just joined this Board.
-     */
-    return ( ! bRemoved );
+    return m_playerListBox->AddPlayer( playerId, playerScore );
 }
 
 bool 
@@ -1049,16 +1176,7 @@ hoxBoard::_RemovePlayerFromList( const wxString& playerId )
 {
     if ( ! m_bUICreated ) return false;
 
-    const int idCount = m_playerListBox->GetCount();
-    for ( int i = 0; i < idCount; ++i )
-    {
-        if ( m_playerListBox->GetString(i).StartsWith(playerId) )
-        {
-            m_playerListBox->Delete( i );
-            return true;
-        }
-    }
-    return false;
+    return m_playerListBox->RemovePlayer( playerId );
 }
 
 void 
