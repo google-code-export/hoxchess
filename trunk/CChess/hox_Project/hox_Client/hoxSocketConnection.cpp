@@ -216,17 +216,18 @@ hoxSocketWriter::HandleRequest( hoxRequest_APtr apRequest )
                              apResponse->content );
             break;
         }
-		case hoxREQUEST_LOGOUT:   /* fall through */
-        case hoxREQUEST_OUT_DATA: /* fall through */
-        case hoxREQUEST_MOVE:     /* fall through */
-        case hoxREQUEST_LIST:     /* fall through */
-        case hoxREQUEST_NEW:      /* fall through */
-        case hoxREQUEST_JOIN:     /* fall through */
-        case hoxREQUEST_LEAVE:    /* fall through */
-        case hoxREQUEST_UPDATE:   /* fall through */
-        case hoxREQUEST_RESIGN:   /* fall through */
-        case hoxREQUEST_DRAW:     /* fall through */
-        case hoxREQUEST_RESET:    /* fall through */
+		case hoxREQUEST_LOGOUT:       /* fall through */
+        case hoxREQUEST_OUT_DATA:     /* fall through */
+        case hoxREQUEST_MOVE:         /* fall through */
+        case hoxREQUEST_LIST:         /* fall through */
+        case hoxREQUEST_NEW:          /* fall through */
+        case hoxREQUEST_JOIN:         /* fall through */
+        case hoxREQUEST_LEAVE:        /* fall through */
+        case hoxREQUEST_UPDATE:       /* fall through */
+        case hoxREQUEST_RESIGN:       /* fall through */
+        case hoxREQUEST_DRAW:         /* fall through */
+        case hoxREQUEST_RESET:        /* fall through */
+        case hoxREQUEST_PLAYER_INFO:  /* fall through */
         case hoxREQUEST_MSG:
         {
             if ( ! m_bConnected )
