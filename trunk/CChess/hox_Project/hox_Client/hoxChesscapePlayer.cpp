@@ -577,6 +577,10 @@ hoxChesscapePlayer::_AddPlayerToList( const wxString& sPlayerId,
 
     wxLogDebug("%s: ... Added: [%s %d]", FNAME, sPlayerId.c_str(), nPlayerScore);
     m_networkPlayers.push_back( pPlayerInfo );
+
+    /* Inform the Site. */
+    hoxSite* site = this->GetSite();
+    site->OnPlayerLoggedIn( sPlayerId, nPlayerScore );
 }
 
 void
@@ -771,6 +775,10 @@ hoxChesscapePlayer::_HandleCmd_Logout( const wxString& cmdStr )
     const wxString who = cmdStr.BeforeFirst( 0x10 );
 
     _RemovePlayerFromList( who );
+
+    /* Inform the Site. */
+    hoxSite* site = this->GetSite();
+    site->OnPlayerLoggedOut( who );
 
     return true;
 }

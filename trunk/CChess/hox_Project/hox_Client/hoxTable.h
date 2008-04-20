@@ -172,6 +172,12 @@ public:
     void OnPlayerInfoRequest_FromBoard( const wxString& sPlayerId );
 
     /**
+     * Callback function from the Board to let this Table know about
+     * the Player-Invite Request.
+     */
+    void OnPlayerInviteRequest_FromBoard( const wxString& sPlayerId );
+
+    /**
      * Callback function from the NETWORK Player to let this Table know about
      * the newly-received "remote" Moves.
      *

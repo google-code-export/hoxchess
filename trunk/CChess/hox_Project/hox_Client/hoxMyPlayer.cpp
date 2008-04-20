@@ -387,6 +387,26 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
             pTable->OnPastMoves_FromNetwork( this, moves );
             break;
         }
+        case hoxREQUEST_INVITE:
+        {
+            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            // *** NOTE: The HOXServer does not support INVITATION yet.
+            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            const wxString sMessage =
+                wxString::Format("*INVITE: [%s] (NOT YET SUPPORTED!)", sContent.c_str());
+            if ( pTable.get() != NULL )
+            {
+                pTable->PostSystemMessage( sMessage );
+            }
+            else
+            {
+                ::wxMessageBox( sMessage,
+                                _("Invitation from Player"),
+                                wxOK | wxICON_INFORMATION,
+                                NULL /* No parent */ );
+            }
+            break;
+        }
         case hoxREQUEST_PLAYER_INFO:
         {
             if ( pTable.get() == NULL ) break;

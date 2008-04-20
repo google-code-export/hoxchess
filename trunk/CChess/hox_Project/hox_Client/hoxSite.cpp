@@ -37,7 +37,6 @@
 #include "hoxTablesDialog.h"
 #include "hoxBoard.h"
 
-
 // --------------------------------------------------------------------------
 // hoxSite
 // --------------------------------------------------------------------------
@@ -660,12 +659,21 @@ hoxChesscapeSite::hoxChesscapeSite( const hoxServerAddress& address )
 {
     const char* FNAME = "hoxChesscapeSite::hoxChesscapeSite";
     wxLogDebug("%s: ENTER.", FNAME);
+
+    hoxPlayersUI* playersUI = wxGetApp().GetFrame()->GetSitePlayersUI();
+    playersUI->SetOwner( this );
+    playersUI->Enable();
 }
 
 hoxChesscapeSite::~hoxChesscapeSite()
 {
     const char* FNAME = "hoxChesscapeSite::~hoxChesscapeSite";
     wxLogDebug("%s: ENTER.", FNAME);
+
+    hoxPlayersUI* playersUI = wxGetApp().GetFrame()->GetSitePlayersUI();
+    playersUI->RemoveAllPlayers();
+    playersUI->Disable();
+    playersUI->SetOwner( NULL );
 }
 
 hoxLocalPlayer* 
@@ -740,6 +748,51 @@ hoxChesscapeSite::GetBoardFeatureFlags() const
     flags &= ~hoxBoard::hoxBOARD_FEATURE_RESET;
 
 	return flags;
+}
+
+void
+hoxChesscapeSite::OnPlayerLoggedIn( const wxString& sPlayerId,
+                                    const int       nPlayerScore )
+{
+    hoxPlayersUI* playersUI = wxGetApp().GetFrame()->GetSitePlayersUI();
+    playersUI->AddPlayer( sPlayerId, nPlayerScore );
+}
+
+void
+hoxChesscapeSite::OnPlayerLoggedOut( const wxString& sPlayerId )
+{
+    hoxPlayersUI* playersUI = wxGetApp().GetFrame()->GetSitePlayersUI();
+    playersUI->RemovePlayer( sPlayerId );
+}
+
+void
+hoxChesscapeSite::OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
+                                    const wxString&         sPlayerId )
+{
+    const char* FNAME = __FUNCTION__;
+
+    if ( m_player == NULL ) return;
+
+    switch ( eventType )
+    {
+    case hoxPlayersUI::EVENT_TYPE_INFO:
+    {
+        const wxString sInfo = "Player: " + sPlayerId;
+        ::wxMessageBox( sInfo,
+                        _("Player Information"),
+                        wxOK | wxICON_INFORMATION,
+                        wxGetApp().GetFrame() );
+        break;
+    }
+    case hoxPlayersUI::EVENT_TYPE_INVITE:
+    {
+        m_player->InvitePlayer( sPlayerId );
+        break;
+    }
+    default:
+        wxLogDebug("%s: Unsupported eventType [%d].", FNAME, eventType);
+        break;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
