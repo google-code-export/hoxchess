@@ -33,6 +33,7 @@
 
 #include "hoxTypes.h"
 #include "hoxCoreBoard.h"
+#include "hoxPlayersUI.h"
 
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_JOIN, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_LEAVE, wxID_ANY)
@@ -69,6 +70,7 @@ DECLARE_EVENT_TYPE(hoxEVT_BOARD_TABLE_UPDATE, wxID_ANY)
  */
 class hoxBoard : public wxPanel
                , public hoxCoreBoard::BoardOwner
+               , public hoxPlayersUI::UIOwner
 {
 public:
     /**
@@ -124,6 +126,13 @@ public:
      */
     virtual bool OnBoardAskMovePermission( const hoxPieceInfo& pieceInfo );
 
+    /*************************************************
+     * Implement hoxPlayersUI::UIOwner 's interface.
+     *************************************************/
+
+    virtual void OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
+                                   const wxString&         sPlayerId );
+
     /*********************************
      * My custom event handler.
      *********************************/
@@ -159,7 +168,8 @@ public:
 
     void OnTimer( wxTimerEvent& event );
 
-    void OnPlayerListBox_LMouseDClick();
+    void OnPlayerListBox_PlayerInfo();
+    void OnPlayerListBox_PlayerInvite();
 
     /****************************************
      * Override the parent (wxPanel) 's API.
@@ -275,8 +285,7 @@ private:
 
     /* UI-Controls for non-board parts. */
 
-    class PlayerListCtrl;
-    PlayerListCtrl*   m_playerListBox;
+    hoxPlayersUI*     m_playerListBox;
 
     wxTextCtrl*       m_systemOutput;
     wxTextCtrl*       m_wallOutput;

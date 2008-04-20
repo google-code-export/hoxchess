@@ -260,6 +260,9 @@ enum hoxRequestType
     hoxREQUEST_I_MOVES,
         /* Info about the "past/history" Moves */
 
+    hoxREQUEST_INVITE,
+        /* Invite request for a given Player */
+
     hoxREQUEST_PLAYER_INFO,
         /* Info request for a given Player */
 

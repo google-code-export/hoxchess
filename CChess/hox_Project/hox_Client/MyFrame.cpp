@@ -30,6 +30,7 @@
 #include "hoxTable.h"
 #include "hoxUtil.h"
 #include "hoxLoginDialog.h"
+#include "hoxPlayersUI.h"
 
 #if !defined(__WXMSW__)
     #include "icons/hoxchess.xpm"
@@ -105,52 +106,8 @@ MyFrame::MyFrame( wxWindow*        parent,
 
     SetIcon( wxICON(hoxchess) );
 
-	int defaultSizeX;
-	if ( ! _GetDefaultSitesLayout( defaultSizeX ) ) // not found?
-	{
-		defaultSizeX = 200;
-	}
-
-    // A window to the left of the client window
-    m_sitesWindow = new wxSashLayoutWindow( this, 
-		                                    ID_WINDOW_SITES,
-                                            wxDefaultPosition, 
-											wxDefaultSize,
-                                            wxNO_BORDER | wxSW_3D | wxCLIP_CHILDREN);
-    m_sitesWindow->SetDefaultSize(wxSize(defaultSizeX, -1));
-    m_sitesWindow->SetOrientation(wxLAYOUT_VERTICAL);
-    m_sitesWindow->SetAlignment(wxLAYOUT_LEFT);
-    m_sitesWindow->SetBackgroundColour(wxColour(0, 0, 255));
-    m_sitesWindow->SetSashVisible(wxSASH_RIGHT, true);
-    m_sitesWindow->SetExtraBorderSize(2);
-
-    m_sitesTree = new wxTreeCtrl( m_sitesWindow, 
-                                  ID_TREE_SITES,
-                                  wxDefaultPosition, wxDefaultSize,
-                                  wxTR_DEFAULT_STYLE | wxNO_BORDER);
-
-    wxTreeItemId root = m_sitesTree->AddRoot( "Sites" );
-    this->UpdateSiteTreeUI();
-
-    // A window containing our log-text.
-    m_logWindow = new wxSashLayoutWindow( 
-                            this, 
-                            ID_WINDOW_LOG,
-                            wxDefaultPosition, 
-                            wxDefaultSize,
-                            wxNO_BORDER | wxSW_3D | wxCLIP_CHILDREN );
-    m_logWindow->SetDefaultSize(wxSize(-1, 180));  // TODO: Hard-coded.
-    m_logWindow->SetOrientation(wxLAYOUT_HORIZONTAL);
-    m_logWindow->SetAlignment(wxLAYOUT_BOTTOM);
-    m_logWindow->SetBackgroundColour(wxColour(0, 0, 255));
-    m_logWindow->SetSashVisible(wxSASH_TOP, true);
-    m_logWindow->Show( false );
-
-    m_logText = new wxTextCtrl( 
-            m_logWindow, wxID_ANY, 
-            "A Log Window (currently not being used due to its instabilities)",
-            wxDefaultPosition, wxDefaultSize,
-            wxTE_MULTILINE | wxSUNKEN_BORDER );
+    _CreateSitesUI();
+    _CreateLogUI();
 
     // Create toolbar.
     CreateToolBar(wxNO_BORDER | wxTB_FLAT | wxTB_HORIZONTAL);
@@ -163,8 +120,6 @@ MyFrame::MyFrame( wxWindow*        parent,
     entries[2].Set(wxACCEL_CTRL, (int) 'A', MDI_ABOUT);
     wxAcceleratorTable accel(3, entries);
     SetAcceleratorTable(accel);
-
-    m_nChildren = 0;
 
     this->SetupMenu();
     this->SetupStatusBar();
@@ -316,7 +271,6 @@ MyFrame::OnChildClose( MyChild*      child,
 	/* Save the layout. */
 	_SaveDefaultTableLayout( child->GetSize() );
 
-    m_nChildren--;
     pTable->OnClose_FromSystem();
     m_children.remove( child );
 
@@ -643,8 +597,6 @@ MyFrame::CreateFrameForTable( const wxString& sTableId )
 
     wxASSERT( ! sTableId.empty() );
 
-    m_nChildren++; // for tracking purpose.
-
     /* Generate the Window's title for the new Table. */
     windowTitle.Printf("Table #%s", sTableId.c_str());
 
@@ -735,6 +687,75 @@ MyFrame::UpdateSiteTreeUI()
 
     /* Make Sites visible. */
     m_sitesTree->Expand(rootId);
+}
+
+void
+MyFrame::_CreateSitesUI()
+{
+	int defaultSizeX;
+	if ( ! _GetDefaultSitesLayout( defaultSizeX ) ) // not found?
+	{
+		defaultSizeX = 200;
+	}
+
+    // A window to the left of the client window
+    m_sitesWindow = new wxSashLayoutWindow( this, 
+		                                    ID_WINDOW_SITES,
+                                            wxDefaultPosition, 
+											wxDefaultSize,
+                                            wxNO_BORDER | wxSW_3D | wxCLIP_CHILDREN );
+    m_sitesWindow->SetDefaultSize(wxSize(defaultSizeX, -1));
+    m_sitesWindow->SetOrientation(wxLAYOUT_VERTICAL);
+    m_sitesWindow->SetAlignment(wxLAYOUT_LEFT);
+    m_sitesWindow->SetBackgroundColour(wxColour(0, 0, 255));
+    m_sitesWindow->SetSashVisible(wxSASH_RIGHT, true);
+    m_sitesWindow->SetExtraBorderSize(2);
+
+    wxPanel* sitesPanel = new wxPanel( m_sitesWindow, wxID_ANY );
+    wxBoxSizer* sitesMainSizer = new wxBoxSizer( wxVERTICAL );
+
+    m_sitesTree = new wxTreeCtrl( sitesPanel,
+                                  ID_TREE_SITES,
+                                  wxDefaultPosition, wxDefaultSize,
+                                  wxTR_DEFAULT_STYLE | wxNO_BORDER );
+    m_sitesTree->AddRoot( "Sites" );
+    this->UpdateSiteTreeUI();
+
+    sitesMainSizer->Add( m_sitesTree,
+                         wxSizerFlags(1).Expand().Border(wxALL, 1) );
+
+    m_playersUI = new hoxPlayersUI( sitesPanel );
+
+    sitesMainSizer->Add( m_playersUI,
+                         wxSizerFlags(3).Expand().Border(wxALL, 1) );
+    m_playersUI->Disable();  // Disable until a Site exists.
+
+    sitesPanel->SetSizer( sitesMainSizer ); // use the sizer for layout
+}
+
+void
+MyFrame::_CreateLogUI()
+{
+    // A window containing our log-text.
+    m_logWindow = new wxSashLayoutWindow( 
+                            this, 
+                            ID_WINDOW_LOG,
+                            wxDefaultPosition, 
+                            wxDefaultSize,
+                            wxNO_BORDER | wxSW_3D | wxCLIP_CHILDREN );
+    m_logWindow->SetDefaultSize(wxSize(-1, 180));  // TODO: Hard-coded.
+    m_logWindow->SetOrientation(wxLAYOUT_HORIZONTAL);
+    m_logWindow->SetAlignment(wxLAYOUT_BOTTOM);
+    m_logWindow->SetBackgroundColour(wxColour(0, 0, 255));
+    m_logWindow->SetSashVisible(wxSASH_TOP, true);
+    m_logWindow->Show( false );
+
+    m_logText = new wxTextCtrl( 
+            m_logWindow, wxID_ANY, 
+            "A Log Window (currently not being used due to its instabilities)",
+            wxDefaultPosition, wxDefaultSize,
+            wxTE_MULTILINE | wxSUNKEN_BORDER );
+
 }
 
 void     

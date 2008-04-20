@@ -83,6 +83,11 @@ hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
             result = _Join( apRequest );
             break;
 		}
+        case hoxREQUEST_INVITE:
+		{
+            result = _Invite( apRequest );
+            break;
+		}
         case hoxREQUEST_PLAYER_INFO:
 		{
             result = _GetPlayerInfo( apRequest );
@@ -278,6 +283,23 @@ hoxChesscapeWriter::_Join( hoxRequest_APtr apRequest )
 	}
 
     return hoxRC_OK;
+}
+
+hoxResult
+hoxChesscapeWriter::_Invite( hoxRequest_APtr apRequest )
+{
+    const char* FNAME = __FUNCTION__;
+
+    /* Extract parameters. */
+    const wxString sPlayerId = apRequest->parameters["invitee"];
+
+    /* Send request. */
+	wxLogDebug("%s: Sending INVITE request for player = [%s]...", 
+		FNAME, sPlayerId.c_str());
+	wxString cmdRequest;
+	cmdRequest.Printf("\x02\x10tCmd?Invite\x10%s\x10\x03", sPlayerId.c_str());
+
+    return hoxNetworkAPI::WriteLine( m_socket, cmdRequest );
 }
 
 hoxResult

@@ -34,6 +34,7 @@
 #include "hoxPlayerMgr.h"
 #include "hoxTableMgr.h"
 #include "hoxLocalPlayer.h"
+#include "hoxPlayersUI.h"
 
 /**
  * The Site's Actions that are enabled at a given time.
@@ -55,6 +56,7 @@ enum hoxSiteAction
  * The Site.
  */
 class hoxSite : public wxObject
+              , public hoxPlayersUI::UIOwner
 {
 public:
     hoxSite( hoxSiteType             type, 
@@ -117,6 +119,17 @@ public:
 
 	virtual unsigned int GetCurrentActionFlags() const = 0;
 
+    virtual void OnPlayerLoggedIn( const wxString& sPlayerId,
+                                   const int       nPlayerScore ) = 0;
+    virtual void OnPlayerLoggedOut( const wxString& sPlayerId ) = 0;
+
+    /*************************************************
+     * Implement hoxPlayersUI::UIOwner 's interface.
+     *************************************************/
+
+    virtual void OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
+                                   const wxString&         sPlayerId ) = 0;
+
 protected:
     virtual unsigned int GetBoardFeatureFlags() const;
 
@@ -177,6 +190,20 @@ public:
     virtual void OnResponse_LOGIN( const hoxResponse_APtr& response );
 	virtual void OnResponse_LOGOUT( const hoxResponse_APtr& response );
 
+    virtual void OnPlayerLoggedIn( const wxString& sPlayerId,
+                                   const int       nPlayerScore )
+        {}
+    virtual void OnPlayerLoggedOut( const wxString& sPlayerId )
+        {}
+
+    /*************************************************
+     * Implement hoxPlayersUI::UIOwner 's interface.
+     *************************************************/
+
+    virtual void OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
+                                   const wxString&         sPlayerId )
+        {}
+
 private:
     hoxTable_SPtr _CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo);
 };
@@ -195,6 +222,17 @@ public:
 	virtual unsigned int GetCurrentActionFlags() const;
 
     virtual void OnResponse_LOGIN( const hoxResponse_APtr& response );
+
+    virtual void OnPlayerLoggedIn( const wxString& sPlayerId,
+                                   const int       nPlayerScore );
+    virtual void OnPlayerLoggedOut( const wxString& sPlayerId );
+
+    /*************************************************
+     * Implement hoxPlayersUI::UIOwner 's interface.
+     *************************************************/
+
+    virtual void OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
+                                   const wxString&         sPlayerId );
 
 protected:
     virtual unsigned int GetBoardFeatureFlags() const;

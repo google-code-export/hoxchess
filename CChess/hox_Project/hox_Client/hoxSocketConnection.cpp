@@ -227,6 +227,7 @@ hoxSocketWriter::HandleRequest( hoxRequest_APtr apRequest )
         case hoxREQUEST_RESIGN:       /* fall through */
         case hoxREQUEST_DRAW:         /* fall through */
         case hoxREQUEST_RESET:        /* fall through */
+        case hoxREQUEST_INVITE:       /* fall through */
         case hoxREQUEST_PLAYER_INFO:  /* fall through */
         case hoxREQUEST_MSG:
         {

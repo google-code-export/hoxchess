@@ -229,6 +229,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hoxPlayersUI.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\hoxPosition.cpp"
 				>
 			</File>
@@ -344,6 +348,10 @@
 			</File>
 			<File
 				RelativePath=".\hoxPlayerMgr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\hoxPlayersUI.h"
 				>
 			</File>
 			<File

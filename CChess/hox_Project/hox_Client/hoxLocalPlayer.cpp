@@ -142,4 +142,16 @@ hoxLocalPlayer::LeaveNetworkTable( const wxString& tableId )
     return hoxRC_OK;
 }
 
+hoxResult
+hoxLocalPlayer::InvitePlayer( const wxString& sInviteeId )
+{
+    hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_INVITE ) );
+	apRequest->parameters["pid"] = this->GetName();  // Invitor
+    apRequest->parameters["invitee"] = sInviteeId;   // Invitor
+
+    this->AddRequestToConnection( apRequest );
+
+    return hoxRC_OK;
+}
+
 /************************* END OF FILE ***************************************/

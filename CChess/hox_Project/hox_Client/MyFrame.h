@@ -36,6 +36,7 @@
 /* Forward declarations */
 class MyChild;
 class hoxSite;
+class hoxPlayersUI;
 
 // menu items ids
 enum
@@ -66,6 +67,10 @@ enum
  * Log events
  */
 DECLARE_EVENT_TYPE(hoxEVT_FRAME_LOG_MSG, wxID_ANY)
+
+// ---------------------------------------------------------------------------
+// MyFrame class
+// ---------------------------------------------------------------------------
 
 /**
  * The main (MDI) frame acting as the App's main GUI.
@@ -136,6 +141,8 @@ public:
      */
     MyChild* CreateFrameForTable( const wxString& sTableId );
 
+    hoxPlayersUI* GetSitePlayersUI() const { return m_playersUI; }
+
     /**
      * Delete the GUI Frame of a given Table.
      *
@@ -169,6 +176,9 @@ public:
     void UpdateSiteTreeUI();
 
 private:
+    void _CreateSitesUI();
+    void _CreateLogUI();
+
     /**
      * Close all children (child-frame) of a specified Site.
      */
@@ -186,15 +196,15 @@ public: /* Static API */
     static wxMenuBar* Create_Menu_Bar( bool hasTable = false );
 
 private:
-    // Servers.
+    // Sites.
     wxSashLayoutWindow* m_sitesWindow;
     wxTreeCtrl*         m_sitesTree;
+    hoxPlayersUI*       m_playersUI;
 
     // Logging.  
     wxSashLayoutWindow* m_logWindow; // To contain the log-text below.
     wxTextCtrl*         m_logText;   // Log window for debugging purpose.
 
-    int                 m_nChildren;   // The number of child-frames.
     MyChildList         m_children;
 
     DECLARE_DYNAMIC_CLASS(MyFrame)
