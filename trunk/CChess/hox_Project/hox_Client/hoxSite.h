@@ -74,7 +74,6 @@ public:
     virtual bool IsConnected() const = 0;
 
     virtual hoxResult QueryForNetworkTables() = 0;
-    virtual hoxResult CreateNewTable() = 0;
 
 	virtual hoxResult OnPlayerJoined(const wxString&   tableId,
 		                             const wxString&   playerId,
@@ -123,16 +122,6 @@ public:
                                    const int       nPlayerScore ) = 0;
     virtual void OnPlayerLoggedOut( const wxString& sPlayerId ) = 0;
 
-    /*************************************************
-     * Implement hoxPlayersUI::UIOwner 's interface.
-     *************************************************/
-
-    virtual void OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
-                                   const wxString&         sPlayerId ) = 0;
-
-protected:
-    virtual unsigned int GetBoardFeatureFlags() const;
-
     /**
      * On the LOCAL player's request to join a Table.
      */
@@ -142,6 +131,16 @@ protected:
      * On the LOCAL player's request to create a new Table.
      */
     virtual void OnLocalRequest_NEW() = 0;
+
+    /*************************************************
+     * Implement hoxPlayersUI::UIOwner 's interface.
+     *************************************************/
+
+    virtual void OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
+                                   const wxString&         sPlayerId ) = 0;
+
+protected:
+    virtual unsigned int GetBoardFeatureFlags() const;
 
     void ShowProgressDialog( bool bShow = true );
 
@@ -180,7 +179,6 @@ public:
     virtual bool IsConnected() const;
 
     virtual hoxResult QueryForNetworkTables();
-    virtual hoxResult CreateNewTable();
 
 	virtual hoxResult OnPlayerJoined(const wxString&   tableId,
 		                             const wxString&   playerId,
@@ -214,7 +212,6 @@ public:
                                    const wxString&         sPlayerId )
         {}
 
-protected:
     virtual void OnLocalRequest_JOIN( const wxString& sTableId );
     virtual void OnLocalRequest_NEW();
 
@@ -241,6 +238,9 @@ public:
                                    const int       nPlayerScore );
     virtual void OnPlayerLoggedOut( const wxString& sPlayerId );
 
+    virtual void OnLocalRequest_JOIN( const wxString& sTableId );
+    virtual void OnLocalRequest_NEW();
+
     /*************************************************
      * Implement hoxPlayersUI::UIOwner 's interface.
      *************************************************/
@@ -250,9 +250,6 @@ public:
 
 protected:
     virtual unsigned int GetBoardFeatureFlags() const;
-
-    virtual void OnLocalRequest_JOIN( const wxString& sTableId );
-    virtual void OnLocalRequest_NEW();
 };
 
 ///////////////////////////////////////////////////////////////////////////////
