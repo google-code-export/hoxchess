@@ -1387,20 +1387,11 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 
 	/* Check if this is MY table. */
 
-	hoxColor myCurrentColor = hoxCOLOR_NONE;
-	hoxTable_SPtr  pTable;
-	const wxString tableId = tableInfo.id;
+    hoxTable_SPtr pTable = this->FindTable( tableInfo.id );
 
-	if ( ! this->FindRoleAtTable( tableInfo.id, myCurrentColor ) ) // not found?
+    if ( pTable.get() == NULL ) // not found?
 	{
 		return;  // Not my table. Fine. Do nothing.
-	}
-
-	pTable = site->FindTable( tableId );
-	if ( pTable == NULL ) // not found?
-	{
-		wxLogDebug("%s: *** ERROR *** Table [%s] not found.", FNAME, tableId.c_str());
-		return;
 	}
 
     /* Update the Table with the new Rated/Non-Rated Game and Timers. */
@@ -1484,15 +1475,9 @@ hoxChesscapePlayer::_stringToGameType( const wxString& sInput ) const
 hoxTable_SPtr
 hoxChesscapePlayer::_getMyTable() const
 {
-    hoxTable_SPtr pTable; // An "empty" pointer.
-
 	/* NOTE: The Chesscape server only support 1 table for now. */
 
-	const hoxRoleList roles = this->GetRoles();
-	if ( ! roles.empty() )
-	{
-	    pTable = this->GetSite()->FindTable( roles.front().tableId );
-    }
+    hoxTable_SPtr pTable = this->GetFrontTable();
 
     return pTable;
 }

@@ -29,9 +29,9 @@
 #define __INCLUDED_HOX_TYPES_H_
 
 #include <wx/wx.h>
-#include <wx/socket.h>
 #include <boost/shared_ptr.hpp>
 #include <list>
+#include <set>
 #include <vector>
 #include <map>
 
@@ -51,33 +51,13 @@ typedef boost::shared_ptr<hoxTable> hoxTable_SPtr;
 
 typedef std::list<hoxPlayer*>     hoxPlayerList;
 typedef std::list<hoxTable_SPtr>  hoxTableList; 
+typedef std::set<hoxTable_SPtr>   hoxTableSet;
 
 typedef std::auto_ptr<hoxConnection> hoxConnection_APtr;
 
 typedef boost::shared_ptr<hoxIReferee> hoxIReferee_SPtr;
 
 typedef std::list<wxString> hoxStringList;
-
-/**
- * Representing a player's role.
- * NOTE: A play can have multiple roles.
- *       If he has none, then he must be in a place called "Lobby".
- */
-class hoxRole
-{
-  public:
-    wxString          tableId;
-    hoxColor          color;  // RED, BLACK, or NONE (OBSERVER)
-
-    hoxRole( const wxString& id, hoxColor c) : tableId( id ), color( c )
-        { }
-
-    bool operator==(const hoxRole& other) const
-    {
-        return ( (tableId == other.tableId) && (color == other.color) );
-    }
-};
-typedef std::list<hoxRole>     hoxRoleList; 
 
 /**
  * Representing a piece's info.
@@ -212,23 +192,6 @@ class hoxNetworkTableInfo
 		}
 };
 typedef std::list<hoxNetworkTableInfo> hoxNetworkTableInfoList;
-
-/**
- * A network event.
- */
-class hoxNetworkEvent
-{
-  public:
-    wxString  id;         // event-Id.
-    wxString  pid;        // player-Id (whom this event belongs to).
-    wxString  tid;        // table-Id (if applicable).
-    int       type;       // event-type.
-    wxString  content;    // event-content.
-
-    hoxNetworkEvent() { }
-};
-typedef std::list<hoxNetworkEvent*> hoxNetworkEventList;
-
 
 //////////////////////////////////////////////////////////////////
 // Data-types required for Connection Thread.

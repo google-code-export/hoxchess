@@ -74,14 +74,21 @@ public:
     wxString      GetName() const { return m_info.id; }
     hoxPlayerType GetType() const { return m_info.type; }
 
-    const hoxRoleList& GetRoles() const { return m_roles; }
-    void               AddRole( hoxRole role );
-    void               RemoveRole( hoxRole role );
-    bool               RemoveRoleAtTable( const wxString& tableId );
-    bool               HasRole( hoxRole role );
-	bool               HasRoleAtTable( const wxString& tableId ) const;
-	bool               FindRoleAtTable( const wxString& tableId, 
-		                                hoxColor&  assignedColor ) const;
+    /**
+     * Get the 'front' table.
+     *
+     * @note This API is needed because most online Sites allow a Player to
+     *       join AT MOST one table at any time.
+     * @return An 'empty' pointer if the Player has not joined any Table.
+     */
+    hoxTable_SPtr GetFrontTable() const;
+
+    /**
+     * Find a Table by a Table-Id.
+     *
+     * @return An 'empty' pointer if such a Table was not found.
+     */
+    hoxTable_SPtr FindTable( const wxString& sTableId ) const;
 
     int                GetScore() const    { return m_info.score; }
     void               SetScore(int score) { m_info.score = score; }
@@ -149,14 +156,13 @@ private:
             /* The connection to "outside" world.
              * For Dummy player, it will be NULL.
              * NOTE: This variable is placed here even though some players
-             *       (such as Host and Dummy) do not need it because most
+             *       (such as 'Dummy') do not need it because most
              *       players do. Also, placing it here simplifies the code
              *       and design.
              */
 
-    hoxRoleList    m_roles;
-            /* Which tables, which side (color) I am playing (RED or BLACK)?
-             */
+    hoxTableSet    m_tables;
+            /* Which tables this Player has joined. */
 
 	wxString       m_password; // The player's login-password.
 
