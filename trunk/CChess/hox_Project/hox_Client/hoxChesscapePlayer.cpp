@@ -902,10 +902,8 @@ hoxChesscapePlayer::_HandleTableCmd( const wxString& cmdStr )
         subCmdStr = subCmdStr.substr(0, subCmdStr.size()-1);
 	wxLogDebug("%s: Processing tCmd = [%s]...", FNAME, tCmd.c_str());
 	
-	if ( tCmd == "Settings" )
-	{
-		return _HandleTableCmd_Settings( subCmdStr );
-	}
+	if      ( tCmd == "Settings" ) return _HandleTableCmd_Settings( subCmdStr );
+	else if ( tCmd == "Invite" )   return _HandleTableCmd_Invite( subCmdStr );
 
 	/* NOTE: The Chesscape server only support 1 table for now. */
 
@@ -1059,6 +1057,37 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 	}
 
 	return true;
+}
+
+bool 
+hoxChesscapePlayer::_HandleTableCmd_Invite( const wxString& cmdStr )
+{
+	const char* FNAME = __FUNCTION__;
+    wxLogDebug("%s: ENTER. cmdStr = [%s].", FNAME, cmdStr.c_str());
+
+	const wxString sInvitorId = cmdStr.BeforeFirst(0x10);
+	const wxString sTableId = cmdStr.AfterFirst(0x10);
+
+    const wxString sMessage =
+        wxString::Format("*INVITE from [%s] to join Table [%s].",
+        sInvitorId.c_str(),
+        sTableId.c_str());
+
+    hoxTable_SPtr pTable = _getMyTable();
+
+    if ( pTable.get() != NULL )
+    {
+        pTable->PostSystemMessage( sMessage );
+    }
+    else
+    {
+        ::wxMessageBox( sMessage,
+                        _("Invitation from Player"),
+                        wxOK | wxICON_INFORMATION,
+                        NULL /* No parent */ );
+    }
+
+    return true;
 }
 
 bool 
