@@ -117,13 +117,12 @@ MyChild::OnClose(wxCloseEvent& event)
 
     wxCHECK_RET( m_pTable.get() != NULL, "The table must have been set." );
     
-    MyFrame* parent = wxGetApp().GetFrame();
-    wxCHECK_RET( parent, "We should be able to cast...");
-    bool bAllowedToClose = parent->OnChildClose( this, m_pTable );
+    MyFrame* frame = wxGetApp().GetFrame();
+    bool bAllowedToClose = frame->OnChildClose( this, m_pTable );
 
     if ( !bAllowedToClose )
     {
-        wxLogDebug("%s: The parent did not allow me to close. END.", FNAME);
+        wxLogDebug("%s: The Frame did not allow me to close. END.", FNAME);
         return;
     }
 
@@ -131,7 +130,7 @@ MyChild::OnClose(wxCloseEvent& event)
     site->CloseTable( m_pTable );
     m_pTable.reset();
 
-    parent->UpdateSiteTreeUI();
+    frame->UpdateSiteTreeUI();
 
     event.Skip(); // let the search for the event handler should continue...
 
