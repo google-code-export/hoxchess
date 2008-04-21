@@ -110,6 +110,7 @@ private:
 
 	bool _HandleTableCmd(const wxString& cmdStr);
 	bool _HandleTableCmd_Settings(const wxString& cmdStr);
+    bool _HandleTableCmd_Invite(const wxString& cmdStr);
 	bool _HandleTableCmd_PastMoves(hoxTable_SPtr   pTable,
 		                           const wxString& cmdStr);
 	bool _HandleTableCmd_Move(hoxTable_SPtr   pTable,

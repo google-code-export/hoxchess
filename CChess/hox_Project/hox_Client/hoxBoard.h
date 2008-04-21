@@ -168,9 +168,6 @@ public:
 
     void OnTimer( wxTimerEvent& event );
 
-    void OnPlayerListBox_PlayerInfo();
-    void OnPlayerListBox_PlayerInvite();
-
     /****************************************
      * Override the parent (wxPanel) 's API.
      ****************************************/

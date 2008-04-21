@@ -629,38 +629,6 @@ hoxBoard::OnTimer( wxTimerEvent& event )
     _OnTimerUpdated();
 }
 
-void
-hoxBoard::OnPlayerListBox_PlayerInfo()
-{
-    const char* FNAME = __FUNCTION__;
-
-    /* Get the selected Player. */
-
-    const wxString sPlayerId = m_playerListBox->GetSelectedPlayer();
-
-    if ( ! sPlayerId.empty() ) // got a selected Player?
-    {
-        wxLogDebug("%s: Request Info for Player [%s]...", FNAME, sPlayerId.c_str());
-        m_pTable->OnPlayerInfoRequest_FromBoard( sPlayerId );
-    }
-}
-
-void
-hoxBoard::OnPlayerListBox_PlayerInvite()
-{
-    const char* FNAME = __FUNCTION__;
-
-    /* Get the selected Player. */
-
-    const wxString sPlayerId = m_playerListBox->GetSelectedPlayer();
-
-    if ( ! sPlayerId.empty() ) // got a selected Player?
-    {
-        wxLogDebug("%s: Invite Player [%s]...", FNAME, sPlayerId.c_str());
-        m_pTable->OnPlayerInviteRequest_FromBoard( sPlayerId );
-    }
-}
-
 bool 
 hoxBoard::Show( bool show /* = true */ )
 {
