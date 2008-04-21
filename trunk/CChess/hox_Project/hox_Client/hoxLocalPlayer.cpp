@@ -108,7 +108,8 @@ hoxResult
 hoxLocalPlayer::JoinNetworkTable( const wxString& tableId )
 {
 	/* Check if this Player is already AT the Table. */
-	bool hasRole = this->HasRoleAtTable( tableId );
+    hoxTable_SPtr pTable = this->FindTable( tableId );
+    bool hasRole = ( pTable.get() != NULL );
 
     hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_JOIN ) );
 	apRequest->parameters["pid"] = this->GetName();

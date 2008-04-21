@@ -75,83 +75,36 @@ hoxPlayer::~hoxPlayer()
     }
 }
 
-void               
-hoxPlayer::AddRole( hoxRole role )
+hoxTable_SPtr
+hoxPlayer::GetFrontTable() const
 {
-    for ( hoxRoleList::iterator it = m_roles.begin();
-                                it != m_roles.end();
-                              ++it )
+    hoxTable_SPtr pTable;  // Default: An 'empty' pointer.
+
+    hoxTableSet::const_iterator front_it = m_tables.begin();
+    if ( front_it != m_tables.end() )
     {
-        if ( it->tableId == role.tableId )
+        pTable = (*front_it);
+    }
+
+    return pTable;
+}
+
+hoxTable_SPtr
+hoxPlayer::FindTable( const wxString& sTableId ) const
+{
+    hoxTable_SPtr pTable;
+
+    for ( hoxTableSet::const_iterator it = m_tables.begin();
+                                      it != m_tables.end(); ++it )
+    {
+        if ( (*it)->GetId() == sTableId )
         {
-			it->color = role.color;
-			return;  // *** DONE.
+            pTable = (*it);
+            break;
         }
     }
 
-    m_roles.push_back( role );
-}
-
-void               
-hoxPlayer::RemoveRole( hoxRole role )
-{
-    wxASSERT( this->HasRole( role ) );
-    m_roles.remove( role );
-
-    if ( m_siteClosing && m_roles.empty() )
-    {
-		_PostSite_ShutdownReady();
-    }
-}
-
-bool
-hoxPlayer::RemoveRoleAtTable( const wxString& tableId )
-{
-    for ( hoxRoleList::iterator it = m_roles.begin();
-                                it != m_roles.end();
-                              ++it )
-    {
-        if ( it->tableId == tableId )
-        {
-			this->RemoveRole( *it );
-            return true; // role found.
-        }
-    }
-
-    return false;  // role not found.
-}
-
-bool               
-hoxPlayer::HasRole( hoxRole role )
-{
-    hoxRoleList::iterator found 
-        = std::find( m_roles.begin(), m_roles.end(), role );
-    return ( found != m_roles.end() );
-}
-
-bool
-hoxPlayer::HasRoleAtTable( const wxString& tableId ) const
-{
-	hoxColor assignedColor;
-	return this->FindRoleAtTable( tableId, assignedColor );
-}
-
-bool
-hoxPlayer::FindRoleAtTable( const wxString& tableId, 
-	                        hoxColor&  assignedColor ) const
-{
-    for ( hoxRoleList::const_iterator it = m_roles.begin();
-                                      it != m_roles.end();
-                                    ++it )
-    {
-        if ( it->tableId == tableId )
-        {
-			assignedColor = it->color;
-            return true; // role found.
-        }
-    }
-
-	return false; // role not found.
+    return pTable;
 }
 
 hoxResult 
@@ -163,7 +116,7 @@ hoxPlayer::JoinTableAs( hoxTable_SPtr pTable,
     hoxResult result = pTable->AssignPlayerAs( this, requestColor );
     if ( result == hoxRC_OK )
     {
-        this->AddRole( hoxRole( pTable->GetId(), requestColor ) );
+        m_tables.insert( pTable );  // Make a copy.
     }
     return result;
 }
@@ -171,7 +124,7 @@ hoxPlayer::JoinTableAs( hoxTable_SPtr pTable,
 hoxResult 
 hoxPlayer::LeaveTable( hoxTable_SPtr pTable )
 {
-    const char* FNAME = "hoxPlayer::LeaveTable";
+    const char* FNAME = __FUNCTION__;
 
     wxCHECK_MSG(pTable.get() != NULL, hoxRC_ERR, "The table is NULL." );
 
@@ -179,7 +132,7 @@ hoxPlayer::LeaveTable( hoxTable_SPtr pTable )
         FNAME, this->GetName().c_str(), pTable->GetId().c_str());
 
     pTable->OnLeave_FromPlayer( this );
-    this->RemoveRoleAtTable( pTable->GetId() );
+    m_tables.erase( pTable );
 
     return hoxRC_OK;
 }
@@ -187,30 +140,22 @@ hoxPlayer::LeaveTable( hoxTable_SPtr pTable )
 hoxResult 
 hoxPlayer::LeaveAllTables()
 {
-    const char* FNAME = "hoxPlayer::LeaveAllTables";
-    bool bErrorFound = false;
+    const char* FNAME = __FUNCTION__;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    while ( ! m_roles.empty() )
+    while ( ! m_tables.empty() )
     {
-        const wxString tableId = m_roles.front().tableId;
-        m_roles.pop_front();
+        hoxTable_SPtr pTable = *(m_tables.begin());
 
-        // Find the table hosted on this system using the specified table-Id.
-        hoxTable_SPtr pTable = m_site->FindTable( tableId );
-        if ( pTable.get() == NULL )
-        {
-            wxLogError("%s: Failed to find table with ID = [%s].", FNAME, tableId.c_str());
-            bErrorFound = true;
-            continue;
-        }
-
-        // Inform the table that this player is leaving...
+        /* Inform the table that this player is leaving...
+         * NOTE: This call also removes the Table from the player's
+         *       internal table-list.
+         */
         this->LeaveTable( pTable );
     }
 
-    return bErrorFound ? hoxRC_ERR : hoxRC_OK;
+    return hoxRC_OK;
 }
 
 void 
@@ -234,7 +179,13 @@ hoxPlayer::ResetConnection()
 void 
 hoxPlayer::OnClose_FromTable( const wxString& tableId )
 {
-    this->RemoveRoleAtTable( tableId );
+    /* Remove reference to the Table with such Id. */
+
+    hoxTable_SPtr pTable = this->FindTable( tableId );
+    if ( pTable.get() != NULL )
+    {
+        m_tables.erase( pTable );
+    }
 }
 
 void 
@@ -261,7 +212,7 @@ hoxPlayer::OnClosing_FromSite()
 
     m_siteClosing = true; // *** Turn it ON!
 
-    if ( m_roles.empty() )
+    if ( m_tables.empty() )
     {
 		_PostSite_ShutdownReady();
     }

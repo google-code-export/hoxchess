@@ -29,71 +29,18 @@
 
 #include <wx/wx.h>
 #include <wx/socket.h>
-#include "hoxEnums.h"
 #include "hoxTypes.h"
 
 namespace hoxNetworkAPI
 {
-    /**
-     * Providing exlusive access to the socket input by disabling 
-     * wxSOCKET_INPUT event and re-enabling it upon destruction.
-     */
-    class SocketInputLock
-    {
-    public:
-        SocketInputLock( wxSocketBase* sock );
-        ~SocketInputLock();
-    private:
-        wxSocketBase* m_sock;
-    };
-
     hoxResult ParseCommand( const wxString& commandStr, 
                             hoxCommand&     command );
 
-    hoxResult ParseSimpleResponse( const wxString& responseStr,
-                                   int&            returnCode,
-                                   wxString&       returnMsg );
-
-	hoxResult ParseConnectResponse( const wxString& responseStr,
-                                    int&            returnCode,
-                                    wxString&       returnMsg,
-									wxString&       sessionId,
-									int&            nScore );
-
-    hoxResult ParseNetworkTables( const wxString&          responseStr,
-                                  hoxNetworkTableInfoList& tableList );
     hoxResult ParseOneNetworkTable( const wxString&      tableStr,
                                     hoxNetworkTableInfo &tableInfo );
 
-    hoxResult ParseNewNetworkTable( const wxString&  responseStr,
-		                            hoxNetworkTableInfo &tableInfo );
-
-    hoxResult ParseJoinNetworkTable( const wxString&      responseStr,
-                                     hoxNetworkTableInfo& tableInfo );
-
-    hoxResult ParseNetworkEvents( const wxString&      responseStr,
-                                  int&                 returnCode,
-                                  wxString&            returnMsg,
-                                  hoxNetworkEventList& networkEvents );
-
     hoxResult WriteLine( wxSocketBase*   sock,
                          const wxString& message );
-
-    hoxResult WriteMsg( wxSocketBase*   sock,
-                        const wxString& message );
-
-    hoxResult ReadMsg( wxSocketBase* sock,
-                       wxString&     response );
-
-
-    /* PRIVATE */
-    hoxResult _ParseNetworkEventString( const wxString&  eventStr,
-                                        hoxNetworkEvent& networkEvent );
-
-    /**
-     * Convert a given socket-event to a (human-readable) string.
-     */
-    const wxString SocketEventToString( const wxSocketNotify socketEvent );
 
     /**
      * Convert a given socket-error to a (human-readable) string.
