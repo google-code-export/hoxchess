@@ -309,14 +309,12 @@ hoxRemoteSite::JoinNewTable(const hoxNetworkTableInfo& tableInfo)
 hoxResult
 hoxRemoteSite::DisplayListOfTables( const hoxNetworkTableInfoList& tableList )
 {
-    const char* FNAME = "hoxRemoteSite::DisplayListOfTables";
-    hoxResult   result;
-
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
 
     /* Show tables. */
     MyFrame* frame = wxGetApp().GetFrame();
-	unsigned int actionFlags = this->GetCurrentActionFlags();
+	const unsigned int actionFlags = this->GetCurrentActionFlags();
     hoxTablesDialog tablesDlg( frame, wxID_ANY, "Tables", tableList, actionFlags );
     tablesDlg.ShowModal();
     hoxTablesDialog::CommandId selectedCommand = tablesDlg.GetSelectedCommand();
@@ -328,31 +326,20 @@ hoxRemoteSite::DisplayListOfTables( const hoxNetworkTableInfoList& tableList )
     {
         case hoxTablesDialog::COMMAND_ID_JOIN:
         {
-            wxLogDebug("%s: Ask the server to allow me to JOIN table = [%s]", FNAME, selectedId.c_str());
-            result = m_player->JoinNetworkTable( selectedId );
-            if ( result != hoxRC_OK )
-            {
-                wxLogError("%s: Failed to JOIN a network table [%s].", FNAME, selectedId.c_str());
-            }
+            this->OnLocalRequest_JOIN( selectedId );
             break;
         }
 
         case hoxTablesDialog::COMMAND_ID_NEW:
         {
-            wxLogDebug("%s: Ask the server to open a new table.", FNAME);
-            result = m_player->OpenNewNetworkTable();
-            if ( result != hoxRC_OK )
-            {
-                wxLogError("%s: Failed to open a NEW network table.", FNAME);
-            }
+            this->OnLocalRequest_NEW();
             break;
         }
 
 		case hoxTablesDialog::COMMAND_ID_REFRESH:
         {
             wxLogDebug("%s: Get the latest list of tables...", FNAME);
-			result = this->QueryForNetworkTables();
-            if ( result != hoxRC_OK )
+            if ( hoxRC_OK != this->QueryForNetworkTables() )
             {
                 wxLogError("%s: Failed to get the list of tables.", FNAME);
             }
@@ -615,6 +602,35 @@ hoxRemoteSite::GetCurrentActionFlags() const
 	return flags;
 }
 
+void
+hoxRemoteSite::OnLocalRequest_JOIN( const wxString& sTableId )
+{
+    const char* FNAME = __FUNCTION__;
+    wxCHECK_RET( m_player != NULL, "Player is NULL" );
+
+    wxLogDebug("%s: Ask the server to allow me to JOIN table = [%s]",
+        FNAME, sTableId.c_str());
+
+    if ( hoxRC_OK != m_player->JoinNetworkTable( sTableId ) )
+    {
+        wxLogError("%s: Failed to JOIN a network table [%s].", FNAME, sTableId.c_str());
+    }
+}
+
+void
+hoxRemoteSite::OnLocalRequest_NEW()
+{
+    const char* FNAME = __FUNCTION__;
+    wxCHECK_RET( m_player != NULL, "Player is NULL" );
+
+    wxLogDebug("%s: Ask the server to open a new table.", FNAME);
+
+    if ( hoxRC_OK != m_player->OpenNewNetworkTable() )
+    {
+        wxLogError("%s: Failed to open a NEW network table.", FNAME);
+    }
+}
+
 hoxTable_SPtr
 hoxRemoteSite::_CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo)
 {
@@ -727,13 +743,16 @@ hoxChesscapeSite::GetCurrentActionFlags() const
     if ( this->IsConnected() )
     {
 		/* Chesscape can only support 1-table-at-a-time.
-		 * If there is alread a table, then disable NEW and JOIN actions.
+		 * If the Player is actively playing (RED or BLACK),
+         * then disable NEW and JOIN actions.
 		 */
-		if ( ! this->GetTables().empty() )
-		{
-			flags &= ~hoxSITE_ACTION_NEW;
-			flags &= ~hoxSITE_ACTION_JOIN;
-		}
+        wxString sTableId_NOT_USED;
+        const hoxColor myRole = m_player->GetFrontRole( sTableId_NOT_USED );
+        if ( myRole == hoxCOLOR_RED || myRole == hoxCOLOR_BLACK ) // playing?
+	    {
+		    flags &= ~hoxSITE_ACTION_NEW;
+		    flags &= ~hoxSITE_ACTION_JOIN;
+	    }
     }
 
 	return flags;
@@ -793,6 +812,70 @@ hoxChesscapeSite::OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
         wxLogDebug("%s: Unsupported eventType [%d].", FNAME, eventType);
         break;
     }
+}
+
+void
+hoxChesscapeSite::OnLocalRequest_JOIN( const wxString& sTableId )
+{
+    const char* FNAME = __FUNCTION__;
+
+	/* Chesscape can only support 1-table-at-a-time.
+	 * Thus, we need to close the Table that is observed (if any)
+     * before joining another Table.
+	 */
+
+    wxString       sObservedTableId;
+    const hoxColor myRole = m_player->GetFrontRole( sObservedTableId );
+
+    if ( myRole == hoxCOLOR_RED || myRole == hoxCOLOR_BLACK ) // playing?
+    {
+        wxLogWarning("Action not allowed: Cannot join a Table while playing at another.");
+        return;   // *** Exit immediately!
+    }
+
+    if ( myRole == hoxCOLOR_NONE )  // observing?
+    {
+        wxLogDebug("%s: Close the observed Table [%s] before joining another...",
+            FNAME, sObservedTableId.c_str());
+        wxGetApp().GetFrame()->DeleteFrameOfTable( sObservedTableId );
+            /* NOTE: The call above already delete the Table.
+             *       It also triggers the TABLE-CLOSING process.
+             */
+    }
+
+    this->hoxRemoteSite::OnLocalRequest_JOIN( sTableId );
+}
+
+void
+hoxChesscapeSite::OnLocalRequest_NEW()
+{
+    const char* FNAME = __FUNCTION__;
+
+	/* Chesscape can only support 1-table-at-a-time.
+	 * Thus, we need to close the Table that is observed (if any)
+     * before asking to create a new Table.
+	 */
+
+    wxString       sObservedTableId;
+    const hoxColor myRole = m_player->GetFrontRole( sObservedTableId );
+
+    if ( myRole == hoxCOLOR_RED || myRole == hoxCOLOR_BLACK ) // playing?
+    {
+        wxLogWarning("Action not allowed: Cannot create a new Table while playing at another.");
+        return;   // *** Exit immediately!
+    }
+
+    if ( myRole == hoxCOLOR_NONE )  // observing?
+    {
+        wxLogDebug("%s: Close the observed Table [%s] before creating a new one...",
+            FNAME, sObservedTableId.c_str());
+        wxGetApp().GetFrame()->DeleteFrameOfTable( sObservedTableId );
+            /* NOTE: The call above already delete the Table.
+             *       It also triggers the TABLE-CLOSING process.
+             */
+    }
+
+    this->hoxRemoteSite::OnLocalRequest_NEW();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

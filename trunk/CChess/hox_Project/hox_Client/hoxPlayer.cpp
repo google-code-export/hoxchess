@@ -89,6 +89,21 @@ hoxPlayer::GetFrontTable() const
     return pTable;
 }
 
+hoxColor
+hoxPlayer::GetFrontRole( wxString& sTableId ) const
+{
+    hoxColor      myRole = hoxCOLOR_UNKNOWN;
+    hoxTable_SPtr pTable = this->GetFrontTable();
+
+    if ( pTable.get() != NULL )
+    {
+        myRole = pTable->GetPlayerRole( this->GetName() );
+        sTableId = pTable->GetId();
+    }
+
+    return myRole;
+}
+
 hoxTable_SPtr
 hoxPlayer::FindTable( const wxString& sTableId ) const
 {

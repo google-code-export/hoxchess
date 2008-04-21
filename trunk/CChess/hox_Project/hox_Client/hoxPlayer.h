@@ -84,6 +84,16 @@ public:
     hoxTable_SPtr GetFrontTable() const;
 
     /**
+     * Get the 'front' role.
+     *
+     * @note This API is needed because most online Sites allow a Player to
+     *       join AT MOST one table at any time.
+     * @param sTableId [OUT] The Table-Id if there is such a Table.
+     * @return hoxCOLOR_UNKNOWN if the Player has not joined any Table.
+     */
+    hoxColor GetFrontRole( wxString& sTableId ) const;
+
+    /**
      * Find a Table by a Table-Id.
      *
      * @return An 'empty' pointer if such a Table was not found.

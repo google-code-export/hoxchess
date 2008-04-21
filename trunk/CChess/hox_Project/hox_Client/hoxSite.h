@@ -133,6 +133,16 @@ public:
 protected:
     virtual unsigned int GetBoardFeatureFlags() const;
 
+    /**
+     * On the LOCAL player's request to join a Table.
+     */
+    virtual void OnLocalRequest_JOIN( const wxString& sTableId ) = 0;
+
+    /**
+     * On the LOCAL player's request to create a new Table.
+     */
+    virtual void OnLocalRequest_NEW() = 0;
+
     void ShowProgressDialog( bool bShow = true );
 
 protected:
@@ -204,6 +214,10 @@ public:
                                    const wxString&         sPlayerId )
         {}
 
+protected:
+    virtual void OnLocalRequest_JOIN( const wxString& sTableId );
+    virtual void OnLocalRequest_NEW();
+
 private:
     hoxTable_SPtr _CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo);
 };
@@ -236,6 +250,9 @@ public:
 
 protected:
     virtual unsigned int GetBoardFeatureFlags() const;
+
+    virtual void OnLocalRequest_JOIN( const wxString& sTableId );
+    virtual void OnLocalRequest_NEW();
 };
 
 ///////////////////////////////////////////////////////////////////////////////
