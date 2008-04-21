@@ -198,12 +198,9 @@ MyFrame::OnNewTable( wxCommandEvent& event )
     hoxTable_SPtr selectedTable;
     hoxSite* selectedSite = _GetSelectedSite(selectedTable);
 
-    if ( selectedSite == NULL )
-        return;
-
-    if ( hoxRC_OK != selectedSite->CreateNewTable() )
+    if ( selectedSite != NULL )
     {
-        wxLogError("%s: Failed to create a new Table.", FNAME);
+        selectedSite->OnLocalRequest_NEW();
     }
 }
 

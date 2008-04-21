@@ -454,12 +454,6 @@ hoxRemoteSite::IsConnected() const
 }
 
 hoxResult 
-hoxRemoteSite::CreateNewTable()
-{
-    return m_player->OpenNewNetworkTable();
-}
-
-hoxResult 
 hoxRemoteSite::JoinExistingTable(const hoxNetworkTableInfo& tableInfo)
 {
     const char* FNAME = "hoxRemoteSite::JoinExistingTable";
