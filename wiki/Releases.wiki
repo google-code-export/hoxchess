@@ -2,6 +2,16 @@
 
 _All releases can be found from_ [http://code.google.com/p/hoxchess/downloads/list this Downloads page]
 
+  * *April 22, 2008* 
+    * Released *HOXChess 0.4.3.0* of the _source_ code and Windows Binary _Installer_
+    * Major changes are:
+      * Supported Player-INFO and INVITE features
+        * Player-Info can be obtained by double-clicking on the Player
+      * Implemented the LIST-of-ACTIVE-PLAYERS window
+      * Chesscape: Improved the user-playing experience by allowing JOIN/CREATE a different Table while observing another
+      * Supported JOIN/LEAVE (a table) events with the correct player-SCORE
+      * Chesscape: Auto disconnect from the server if failing to login.
+
   * *April 17, 2008* 
     * Released *HOXChess 0.4.2.0* of the _source_ code and Windows Binary _Installer_
     * Major changes are:
