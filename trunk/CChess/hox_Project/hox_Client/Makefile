@@ -32,6 +32,7 @@ SOURCES := \
 	hoxSite.cpp \
 	hoxOptionDialog.cpp \
 	hoxTypes.cpp \
+	hoxPlayersUI.cpp \
 	MyApp.cpp \
 	MyChild.cpp \
 	MyFrame.cpp
