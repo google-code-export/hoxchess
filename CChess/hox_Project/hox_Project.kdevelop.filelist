@@ -36,6 +36,8 @@ hox_Client/hoxPlayer.cpp
 hox_Client/hoxPlayer.h
 hox_Client/hoxPlayerMgr.cpp
 hox_Client/hoxPlayerMgr.h
+hox_Client/hoxPlayersUI.cpp
+hox_Client/hoxPlayersUI.h
 hox_Client/hoxPosition.cpp
 hox_Client/hoxPosition.h
 hox_Client/hoxReferee.cpp

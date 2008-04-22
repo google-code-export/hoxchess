@@ -635,10 +635,10 @@ hoxChesscapePlayer::_FindPlayerById( const wxString& sPlayerId ) const
 void
 hoxChesscapePlayer::_RemovePlayerFromList( const wxString& sPlayerId ) const
 {
-    hoxPlayerInfoList::const_iterator found_it = m_networkPlayers.end();
+    hoxPlayerInfoList::iterator found_it = m_networkPlayers.end();
 
-	for ( hoxPlayerInfoList::const_iterator it = m_networkPlayers.begin();
-		                                    it != m_networkPlayers.end(); ++it )
+	for ( hoxPlayerInfoList::iterator it = m_networkPlayers.begin();
+		                              it != m_networkPlayers.end(); ++it )
 	{
 		if ( (*it)->id == sPlayerId )
 		{
