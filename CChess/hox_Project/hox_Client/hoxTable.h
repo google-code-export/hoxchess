@@ -292,7 +292,7 @@ public:
     void OnClose_FromSystem();
 
     /**
-     * Post a sytem message to the Board..
+     * Post a sytem message to the Board.
      *
      * @param message The message that are being sent.
      */
