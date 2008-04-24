@@ -501,7 +501,7 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
     if ( hasTable )
     {
         view_menu = new wxMenu;
-        view_menu->Append(MDI_TOGGLE, _("&Toggle Table View\tCtrl-T"));
+        view_menu->Append(MDI_TOGGLE, _("Toggle Table &View\tCtrl-V"));
     }
 
     /* Help menu. */

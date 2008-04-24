@@ -25,10 +25,8 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxChesscapePlayer.h"
-#include "hoxNetworkAPI.h"
-#include "MyApp.h"      // wxGetApp()
-#include "MyFrame.h"
 #include "hoxUtil.h"
+#include "hoxSite.h"
 #include <wx/tokenzr.h>
 
 IMPLEMENT_DYNAMIC_CLASS(hoxChesscapePlayer, hoxLocalPlayer)
@@ -1077,7 +1075,7 @@ hoxChesscapePlayer::_HandleTableCmd_Invite( const wxString& cmdStr )
 
     if ( pTable.get() != NULL )
     {
-        pTable->PostSystemMessage( sMessage );
+        pTable->PostBoardMessage( sMessage );
     }
     else
     {
@@ -1280,7 +1278,7 @@ hoxChesscapePlayer::_HandleTableCmd_Unjoin( hoxTable_SPtr   pTable,
     wxCHECK_MSG(player != NULL, false, "Unexpected NULL player");
 
 	wxLogDebug("%s: Inform table that [%s] just left.", FNAME, sPlayerId.c_str());
-    pTable->OnLeave_FromNetwork( player, this );
+    pTable->OnLeave_FromNetwork( player );
 
 	return true;
 }
@@ -1353,7 +1351,7 @@ hoxChesscapePlayer::_HandleCmd_PlayerInfo( const wxString& cmdStr )
             playerStats.score,
             playerStats.wins, playerStats.draws, playerStats.losses);
             
-        pTable->PostSystemMessage( sMessage );
+        pTable->PostBoardMessage( sMessage );
 	}
 
     return true;

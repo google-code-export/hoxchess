@@ -134,7 +134,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
         if ( pTable.get() != NULL )
         {
             // Post the error on the Board.
-            pTable->PostSystemMessage( sMessage );
+            pTable->PostBoardMessage( sMessage );
         }
         // *** Allow to continue
     }
@@ -212,7 +212,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 		    }
             wxLogDebug("%s: Player [%s] left Table [%s].", FNAME, 
                 leavePlayer->GetName().c_str(), pTable->GetId().c_str());
-            pTable->OnLeave_FromNetwork( leavePlayer, this );
+            pTable->OnLeave_FromNetwork( leavePlayer );
             break;
         }
         case hoxREQUEST_UPDATE:
@@ -396,7 +396,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
                 wxString::Format("*INVITE: [%s] (NOT YET SUPPORTED!)", sContent.c_str());
             if ( pTable.get() != NULL )
             {
-                pTable->PostSystemMessage( sMessage );
+                pTable->PostBoardMessage( sMessage );
             }
             else
             {
@@ -427,7 +427,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
                 playerStats.id.c_str(),
                 playerStats.score,
                 playerStats.wins, playerStats.draws, playerStats.losses);
-            pTable->PostSystemMessage( sMessage );
+            pTable->PostBoardMessage( sMessage );
             break;
         }
         default:
