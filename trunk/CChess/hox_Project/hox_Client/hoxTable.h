@@ -131,8 +131,10 @@ public:
     /**
      * Callback function from the Board to let this Table know about
      * JOIN-command button that has been pressed by the "local" player.
+     *
+     * @param requestColor The requested Color (or Role).
      */
-    void OnJoinCommand_FromBoard();
+    void OnJoinCommand_FromBoard( const hoxColor requestColor );
 
     /**
      * Callback function from the Board to let this Table know about

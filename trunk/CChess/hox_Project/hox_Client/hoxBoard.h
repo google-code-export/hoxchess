@@ -159,12 +159,16 @@ public:
 	void OnButtonResign( wxCommandEvent &event );
     void OnButtonDraw( wxCommandEvent &event );
     void OnButtonReset( wxCommandEvent &event );
-	void OnButtonJoin( wxCommandEvent &event );
+    void OnButtonRed( wxCommandEvent &event );
+    void OnButtonBlack( wxCommandEvent &event );
+	void OnButtonNone( wxCommandEvent &event );
 
+    void OnUpdateUI_ActionRed( wxUpdateUIEvent& event );
+    void OnUpdateUI_ActionBlack( wxUpdateUIEvent& event );
+    void OnUpdateUI_ActionNone( wxUpdateUIEvent& event );
     void OnUpdateUI_ActionResign( wxUpdateUIEvent& event );
     void OnUpdateUI_ActionDraw( wxUpdateUIEvent& event );
     void OnUpdateUI_ActionReset( wxUpdateUIEvent& event );
-    void OnUpdateUI_ActionJoin( wxUpdateUIEvent& event );
 
     void OnTimer( wxTimerEvent& event );
 
@@ -270,6 +274,9 @@ private:
     bool              m_bUICreated;
 
     /* Player Info(s) + timers UI */
+
+    wxButton*         m_btnPlayRed;
+    wxButton*         m_btnPlayBlack;
 
     wxStaticText*     m_blackInfo;      // Black's info UI.
     wxStaticText*     m_redInfo;        // Red's info UI.

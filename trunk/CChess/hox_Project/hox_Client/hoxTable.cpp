@@ -179,9 +179,9 @@ hoxTable::OnMessage_FromBoard( const wxString& message )
 }
 
 void
-hoxTable::OnJoinCommand_FromBoard()
+hoxTable::OnJoinCommand_FromBoard( const hoxColor requestColor )
 {
-    const char* FNAME = "hoxTable::OnJoinCommand_FromBoard";
+    const char* FNAME = __FUNCTION__;
 	wxLogDebug("%s: Received a JOIN request from Board.", FNAME);
 
     /* Get the Board Player (or the Board's owner) because he is the
@@ -189,14 +189,6 @@ hoxTable::OnJoinCommand_FromBoard()
      */
     hoxPlayer* boardPlayer = _GetBoardPlayer();
     wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
-
-	/* Auto JOIN the table based on the seat availability. */
-
-	hoxColor requestColor = hoxCOLOR_NONE; // Default: observer
-
-	if      ( m_redPlayer   == NULL ) requestColor = hoxCOLOR_RED;
-	else if ( m_blackPlayer == NULL ) requestColor = hoxCOLOR_BLACK;
-    else                              requestColor = hoxCOLOR_NONE;
 
 	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_JOIN ) );
 	apRequest->parameters["tid"] = m_id;

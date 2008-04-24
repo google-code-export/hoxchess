@@ -1449,13 +1449,6 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 		result = currentBlackPlayer->JoinTableAs( pTable, hoxCOLOR_NONE );
 		wxASSERT( result == hoxRC_OK  );
 	}
-
-	/* Toggle board if this Player plays BLACK. */
-
-	if ( newBlackPlayer == this )
-	{
-		pTable->ToggleViewSide();
-	}
 }
 
 hoxGameType

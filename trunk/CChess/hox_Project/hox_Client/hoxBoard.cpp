@@ -46,11 +46,14 @@ enum
     ID_HISTORY_NEXT,
     ID_HISTORY_END,
 
+    ID_ACTION_RED,    // Play as RED
+    ID_ACTION_BLACK,  // Play as BLACK
+    ID_ACTION_NONE,   // Play as NONE (i.e., Unsit/Standup)
+
     ID_ACTION_OPTIONS,
     ID_ACTION_RESIGN,
 	ID_ACTION_DRAW,
-	ID_ACTION_RESET,
-	ID_ACTION_JOIN	
+	ID_ACTION_RESET
 };
 
 
@@ -87,12 +90,16 @@ BEGIN_EVENT_TABLE(hoxBoard, wxPanel)
     EVT_BUTTON(ID_ACTION_RESIGN, hoxBoard::OnButtonResign)
 	EVT_BUTTON(ID_ACTION_DRAW, hoxBoard::OnButtonDraw)
     EVT_BUTTON(ID_ACTION_RESET, hoxBoard::OnButtonReset)
-	EVT_BUTTON(ID_ACTION_JOIN, hoxBoard::OnButtonJoin)
+    EVT_BUTTON(ID_ACTION_RED, hoxBoard::OnButtonRed)
+    EVT_BUTTON(ID_ACTION_BLACK, hoxBoard::OnButtonBlack)
+	EVT_BUTTON(ID_ACTION_NONE, hoxBoard::OnButtonNone)
 
+    EVT_UPDATE_UI(ID_ACTION_RED, hoxBoard::OnUpdateUI_ActionRed)
+    EVT_UPDATE_UI(ID_ACTION_BLACK, hoxBoard::OnUpdateUI_ActionBlack)
+    EVT_UPDATE_UI(ID_ACTION_NONE, hoxBoard::OnUpdateUI_ActionNone)
     EVT_UPDATE_UI(ID_ACTION_RESIGN, hoxBoard::OnUpdateUI_ActionResign)
     EVT_UPDATE_UI(ID_ACTION_DRAW, hoxBoard::OnUpdateUI_ActionDraw)
     EVT_UPDATE_UI(ID_ACTION_RESET, hoxBoard::OnUpdateUI_ActionReset)
-    EVT_UPDATE_UI(ID_ACTION_JOIN, hoxBoard::OnUpdateUI_ActionJoin)
 
     EVT_TIMER(wxID_ANY, hoxBoard::OnTimer)    
 END_EVENT_TABLE()
@@ -124,7 +131,7 @@ hoxBoard::hoxBoard( wxWindow*        parent,
 		, m_timer( NULL )
         , m_bUICreated( false )
 {
-    const char* FNAME = "hoxBoard::hoxBoard";
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
     
     wxCHECK_RET( m_referee.get() != NULL, "A Referee must be set" );
@@ -149,7 +156,7 @@ hoxBoard::hoxBoard( wxWindow*        parent,
 
 hoxBoard::~hoxBoard()
 {
-    const char* FNAME = "hoxBoard::~hoxBoard";
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
 
     if ( m_timer != NULL )
@@ -246,7 +253,7 @@ hoxBoard::OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
 void 
 hoxBoard::OnPlayerJoin( wxCommandEvent &event )
 {
-    const char* FNAME = "hoxBoard::OnPlayerJoin";
+    const char* FNAME = __FUNCTION__;
 
     hoxPlayerInfo_APtr apPlayerInfo( wxDynamicCast(event.GetEventObject(), hoxPlayerInfo) );
     wxCHECK_RET(apPlayerInfo.get(), "Player cannot be NULL.");
@@ -272,6 +279,17 @@ hoxBoard::OnPlayerJoin( wxCommandEvent &event )
         playerColor = hoxCOLOR_NONE;
         if ( playerId == m_redId )   _SetRedInfo( NULL );
         if ( playerId == m_blackId ) _SetBlackInfo( NULL );
+    }
+
+    /* Toggle the view if necessary. There two cases:
+     *  (1) The owner just joined as RED, make sure the view is "normal".
+     *  (2) The owner just joined as BLACK, make sure the view is "inverted".
+     */
+    if (   playerId == m_ownerId 
+        && (   (playerColor == hoxCOLOR_RED && m_coreBoard->IsViewInverted())
+             ||(playerColor == hoxCOLOR_BLACK && !m_coreBoard->IsViewInverted()) ) )
+    {
+        this->ToggleViewSide();
     }
 
     bool bNewlyJoined = _AddPlayerToList( playerId, apPlayerInfo->score );
@@ -326,8 +344,6 @@ hoxBoard::OnPlayerLeave( wxCommandEvent &event )
 void 
 hoxBoard::OnPlayerScore( wxCommandEvent &event )
 {
-    const char* FNAME = "hoxBoard::OnPlayerScore";
-
     hoxPlayerInfo_APtr apPlayerInfo( wxDynamicCast(event.GetEventObject(), hoxPlayerInfo) );
     wxCHECK_RET(apPlayerInfo.get(), "Player cannot be NULL.");
 
@@ -366,7 +382,7 @@ hoxBoard::OnWallOutput( wxCommandEvent &event )
 void 
 hoxBoard::OnNewMove( wxCommandEvent &event )
 {
-	const char* FNAME = "hoxBoard::OnNewMove";
+	const char* FNAME = __FUNCTION__;
     hoxMove  move;
 
     const wxString moveStr = event.GetString();
@@ -390,8 +406,6 @@ hoxBoard::OnNewMove( wxCommandEvent &event )
 void 
 hoxBoard::OnDrawRequest( wxCommandEvent &event )
 {
-    const char* FNAME = "hoxBoard::OnDrawRequest";
-
     const wxString playerId = event.GetString();
 	const int bPopupRequest = event.GetInt(); // NOTE: force to boolean!
 
@@ -422,8 +436,6 @@ hoxBoard::OnDrawRequest( wxCommandEvent &event )
 void 
 hoxBoard::OnGameOver( wxCommandEvent &event )
 {
-    const char* FNAME = "hoxBoard::OnGameOver";
-
 	const int gameStatus = event.GetInt();
 	
     const wxString boardMessage = _GetGameOverMessage( gameStatus );
@@ -568,9 +580,47 @@ hoxBoard::OnButtonReset( wxCommandEvent &event )
 }
 
 void 
-hoxBoard::OnButtonJoin( wxCommandEvent &event )
+hoxBoard::OnButtonRed( wxCommandEvent &event )
 {
-    m_pTable->OnJoinCommand_FromBoard();
+    m_pTable->OnJoinCommand_FromBoard( hoxCOLOR_RED );
+}
+
+void 
+hoxBoard::OnButtonBlack( wxCommandEvent &event )
+{
+    m_pTable->OnJoinCommand_FromBoard( hoxCOLOR_BLACK );
+}
+
+void 
+hoxBoard::OnButtonNone( wxCommandEvent &event )
+{
+    m_pTable->OnJoinCommand_FromBoard( hoxCOLOR_NONE );
+}
+
+void
+hoxBoard::OnUpdateUI_ActionRed( wxUpdateUIEvent& event )
+{
+	bool bMenuEnabled = (  m_status != hoxGAME_STATUS_IN_PROGRESS
+                        && !_IsOwnerSeated()
+                        && m_redId.empty() );
+    event.Enable( bMenuEnabled );
+}
+
+void
+hoxBoard::OnUpdateUI_ActionBlack( wxUpdateUIEvent& event )
+{
+	bool bMenuEnabled = (  m_status != hoxGAME_STATUS_IN_PROGRESS
+                        && !_IsOwnerSeated()
+                        && m_blackId.empty() );
+    event.Enable( bMenuEnabled );
+}
+
+void
+hoxBoard::OnUpdateUI_ActionNone( wxUpdateUIEvent& event )
+{
+	bool bMenuEnabled = ( m_status != hoxGAME_STATUS_IN_PROGRESS
+                        && _IsOwnerSeated() );
+    event.Enable( bMenuEnabled );
 }
 
 void
@@ -595,15 +645,6 @@ hoxBoard::OnUpdateUI_ActionReset( wxUpdateUIEvent& event )
 	bool bMenuEnabled = ( m_status != hoxGAME_STATUS_IN_PROGRESS
                         && _IsOwnerSeated()
                         && (m_featureFlags & hoxBOARD_FEATURE_RESET) );
-    event.Enable( bMenuEnabled );
-}
-
-void
-hoxBoard::OnUpdateUI_ActionJoin( wxUpdateUIEvent& event )
-{
-    bool bSeatAvailable = ( m_redId.empty() || m_blackId.empty() );
-	bool bMenuEnabled = ( m_status != hoxGAME_STATUS_IN_PROGRESS
-                        && ( _IsOwnerSeated() || bSeatAvailable ) );
     event.Enable( bMenuEnabled );
 }
 
@@ -710,6 +751,11 @@ hoxBoard::_CreateBoardPanel()
      * Create players' info + timers 
      *********************************/
 
+    m_btnPlayRed = new wxButton( boardPanel, ID_ACTION_RED, "Play RED", 
+                                 wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT );
+    m_btnPlayBlack = new wxButton( boardPanel, ID_ACTION_BLACK, "Play BLACK", 
+                                   wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT );
+
     // Create players' info.
     m_blackInfo = new wxStaticText( boardPanel, wxID_ANY, "*", 
         wxDefaultPosition, wxSize(200,20), 
@@ -803,7 +849,7 @@ hoxBoard::_CreateBoardPanel()
         wxALIGN_LEFT | wxFIXED_MINSIZE );
 
     m_actionSizer->Add( 
-        new wxButton( boardPanel, ID_ACTION_JOIN, "Join", 
+        new wxButton( boardPanel, ID_ACTION_NONE, "Unsit", 
                       wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
         0,    // Unstretchable
         wxALIGN_LEFT | wxFIXED_MINSIZE );
@@ -852,6 +898,13 @@ hoxBoard::_CreateBoardPanel()
 
     // Add Black player-info
     m_blackSizer->Add(
+        m_btnPlayBlack,
+        1,            // make vertically stretchable
+        wxEXPAND |    // make horizontally stretchable
+        wxRIGHT|wxLEFT|wxTOP,  //   and make border
+        1 );         // set border width
+
+    m_blackSizer->Add(
         m_blackInfo,
         1,            // make vertically stretchable
         wxEXPAND |    // make horizontally stretchable
@@ -880,6 +933,14 @@ hoxBoard::_CreateBoardPanel()
         1 );         // set border width
 
     // Add Red player-info
+
+    m_redSizer->Add(
+        m_btnPlayRed,
+        1,            // make vertically stretchable
+        wxEXPAND |    // make horizontally stretchable
+        wxBOTTOM|wxRIGHT|wxLEFT,  //   and make border
+        1 );         // set border width
+
     m_redSizer->Add(
         m_redInfo,
         1,            // make vertically stretchable
@@ -1016,40 +1077,27 @@ hoxBoard::_LayoutBoardPanel( bool viewInverted )
 void 
 hoxBoard::ToggleViewSide()
 {
-    const char* FNAME = "hoxBoard::ToggleViewSide";
-
-    m_coreBoard->ToggleViewSide();
-
-    /* Invert view if the view has been displayed. 
-     * Right now, assume that if red-info text has been created,
-     * then the view has been displayed.
+    /* If the view has NOT been created, do nothing.
+     * Otherwise, invert it. 
      */
 
-    if ( m_redInfo == NULL )
-    {
-        wxLogDebug("%s: View not yet created. Do nothing for info-panels.", FNAME);
-        return;
-    }
+    if ( ! m_bUICreated ) return;
+
+    /* Invert the "core" board. */
+    bool bViewInverted = m_coreBoard->ToggleViewSide();
 
     /* Detach the sizers */
 
-    bool found;
+    m_boardSizer->Detach( m_redSizer );
+    m_boardSizer->Detach( m_coreBoard );
+    m_boardSizer->Detach( m_blackSizer );
+    m_boardSizer->Detach( m_commandSizer );
 
-    found = m_boardSizer->Detach( m_redSizer );
-    wxASSERT( found );
-    found = m_boardSizer->Detach( m_coreBoard );
-    wxASSERT( found );
-    found = m_boardSizer->Detach( m_blackSizer );
-    wxASSERT( found );
-    found = m_boardSizer->Detach( m_commandSizer );
-    wxASSERT( found );
+    /* Invert the Board's Panel. */
 
-    /* Invert */
+    _LayoutBoardPanel( bViewInverted );
 
-    bool viewInverted = m_coreBoard->IsViewInverted();
-    _LayoutBoardPanel( viewInverted );
-
-    // Force the layout update (just to make sure!).
+    /* Force the layout update (just to make sure!). */
     m_boardSizer->Layout();
 }
 
@@ -1195,7 +1243,7 @@ hoxBoard::_OnTimerUpdated()
 wxString
 hoxBoard::_GetGameOverMessage( const int gameStatus ) const
 {
-    const char* FNAME = "hoxBoard::_GetGameOverMessage";
+    const char* FNAME = __FUNCTION__;
 	wxString boardMessage; 
 
 	switch ( gameStatus )
