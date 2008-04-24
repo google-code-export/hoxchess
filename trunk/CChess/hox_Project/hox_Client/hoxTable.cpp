@@ -48,8 +48,8 @@ hoxTable::hoxTable( hoxSite*         site,
         , m_blackPlayer( NULL )
         , m_bRated( true )
 {
-    const char* FNAME = "hoxTable::hoxTable";
-    wxLogDebug("%s: ENTER.", FNAME);
+    const char* FNAME = __FUNCTION__;
+    wxLogDebug("%s: ENTER. (%s)", FNAME, m_id.c_str());
 
 	m_blackTime.nGame = hoxTIME_DEFAULT_GAME_TIME;
 	m_redTime.nGame   = hoxTIME_DEFAULT_GAME_TIME;
@@ -57,8 +57,8 @@ hoxTable::hoxTable( hoxSite*         site,
 
 hoxTable::~hoxTable()
 {
-    const char* FNAME = "hoxTable::~hoxTable";
-    wxLogDebug("%s: ENTER.", FNAME);
+    const char* FNAME = __FUNCTION__;
+    wxLogDebug("%s: ENTER. (%s)", FNAME, m_id.c_str());
 
     _CloseBoard();   // Close GUI Board.
 }
@@ -67,7 +67,7 @@ hoxResult
 hoxTable::AssignPlayerAs( hoxPlayer* player,
                           hoxColor   requestColor )
 {
-    const char* FNAME = "hoxTable::AssignPlayerAs";
+    const char* FNAME = __FUNCTION__;
 
     wxCHECK_MSG( player != NULL, hoxRC_ERR, "The player is NULL." );
 
@@ -92,33 +92,9 @@ hoxTable::AssignPlayerAs( hoxPlayer* player,
     return hoxRC_OK;
 }
 
-hoxResult 
-hoxTable::UnassignPlayer( hoxPlayer* player,
-                          hoxPlayer* informer /* = NULL */ )
-{
-    const char* FNAME = "hoxTable::UnassignPlayer";
-
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    wxCHECK_MSG( player, hoxRC_ERR, "The player is NULL." );
-
-    /* Inform other players about this event. 
-     * NOTE: This should be done BEFORE the player is removed
-     *       from the internal player-list.
-     */
-    _PostAll_LeaveEvent( player, informer );
-
-    /* Update our player-list */
-    _RemovePlayer( player );
-
-    return hoxRC_OK;
-}
-
 void 
 hoxTable::ViewBoard( hoxBoard* pBoard )
 {
-	const char* FNAME = "hoxTable::ViewBoard";
-
 	wxCHECK_RET(m_board == NULL, "The Board has already been set.");
 
     m_board = pBoard;
@@ -130,14 +106,13 @@ hoxTable::OnMove_FromBoard( const hoxMove&     move,
 						    hoxGameStatus      status,
 							const hoxTimeInfo& playerTime )
 {
-    const char* FNAME = "hoxTable::OnMove_FromBoard";
+    const char* FNAME = __FUNCTION__;
 
-    wxLogDebug("%s: Received new Move from Board.", FNAME);
     if ( m_redPlayer == NULL || m_blackPlayer == NULL )
     {
         const wxString msg = "Not enough players. Ignore Move.";
         wxLogDebug("%s: *** WARNING *** %s", FNAME, msg.c_str());
-        _PostBoard_MessageEvent( NULL /* System */, msg );
+        _PostBoard_MessageEvent( msg );
         return;
     }
 
@@ -147,20 +122,16 @@ hoxTable::OnMove_FromBoard( const hoxMove&     move,
     hoxPlayer* boardPlayer = _GetBoardPlayer();
     wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
 
-    /* Inform all players (including the Board's owner about the new Move */
-	_PostAll_MoveEvent( boardPlayer, 
-		                move.ToString(), 
-						false, /* coming from the Board, not network */
-						status,
-						playerTime );
+    /* Inform the Board's owner of the new Move. */
+    _PostPlayer_MoveEvent( boardPlayer,
+                           move.ToString(), 
+                           status,
+                           playerTime );
 }
 
 void
 hoxTable::OnMessage_FromBoard( const wxString& message )
 {
-    const char* FNAME = "hoxTable::OnMessage_FromBoard";
-    wxLogDebug("%s: Receive new Message from Board.", FNAME);
-
     /* Get the Board Player (or the Board's owner) because he is the
      * one that sent the Message.
      */
@@ -168,22 +139,20 @@ hoxTable::OnMessage_FromBoard( const wxString& message )
     wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
     
     /* Post the message on the Wall-Output of the "local" Board. */
-    _PostBoard_MessageEvent( boardPlayer, message );
+    _PostBoard_MessageEvent( message, boardPlayer );
 
-    /* Post the message to other players in the Table. 
-     * NOTE: We also indicate that this Message is coming from the physical
-     *       Board so that the Table will send notifications to ALL players
-     *       instead of skipping the sender + the Board player.
-     */
-    _PostAll_MessageEvent( boardPlayer, message, true /* fromBoard */ );
+    /* Inform the Board's Onwer. */
+	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_MSG ) );
+	apRequest->parameters["tid"] = m_id;
+	apRequest->parameters["pid"] = boardPlayer->GetName();
+	apRequest->parameters["msg"] = message;
+    
+    boardPlayer->OnRequest_FromTable( apRequest );
 }
 
 void
 hoxTable::OnJoinCommand_FromBoard( const hoxColor requestColor )
 {
-    const char* FNAME = __FUNCTION__;
-	wxLogDebug("%s: Received a JOIN request from Board.", FNAME);
-
     /* Get the Board Player (or the Board's owner) because he is the
      * one that sent the Message.
      */
@@ -203,8 +172,7 @@ void
 hoxTable::OnOptionsCommand_FromBoard( const bool         bRatedGame,
                                       const hoxTimeInfo& newTimeInfo )
 {
-    const char* FNAME = "hoxTable::OnOptionsCommand_FromBoard";
-	wxLogDebug("%s: ENTER.", FNAME);
+    const char* FNAME = __FUNCTION__;
 
     /* Get the Board Player (or the Board's owner) because he is the
      * one that issued the command.
@@ -240,8 +208,7 @@ hoxTable::OnOptionsCommand_FromBoard( const bool         bRatedGame,
 void
 hoxTable::OnResignCommand_FromBoard()
 {
-    const char* FNAME = "hoxTable::OnResignCommand_FromBoard";
-	wxLogDebug("%s: Received a RESIGN request from Board's local-player.", FNAME);
+    const char* FNAME = __FUNCTION__;
 
     /* Get the Board Player (or the Board's owner) because he is the
      * one that sent the Message.
@@ -270,8 +237,7 @@ hoxTable::OnResignCommand_FromBoard()
 void
 hoxTable::OnDrawCommand_FromBoard()
 {
-    const char* FNAME = "hoxTable::OnDrawCommand_FromBoard";
-	wxLogDebug("%s: Received a DRAW request from Board's local-player.", FNAME);
+    const char* FNAME = __FUNCTION__;
 
     /* Get the Board Player (or the Board's owner) because he is the
      * one that sent the Message.
@@ -301,8 +267,7 @@ hoxTable::OnDrawCommand_FromBoard()
 void
 hoxTable::OnResetCommand_FromBoard()
 {
-    const char* FNAME = "hoxTable::OnResetCommand_FromBoard";
-	wxLogDebug("%s: Received a RESET request from Board's local-player.", FNAME);
+    const char* FNAME = __FUNCTION__;
 
     /* Get the Board Player (or the Board's owner) because he is the
      * one that sent the Message.
@@ -331,8 +296,7 @@ hoxTable::OnResetCommand_FromBoard()
 void 
 hoxTable::OnDrawResponse_FromBoard( bool bAcceptDraw )
 {
-    const char* FNAME = "hoxTable::OnDrawResponse_FromBoard";
-	wxLogDebug("%s: Received a DRAW response [%d] from Board's local-player.", FNAME, bAcceptDraw);
+    const char* FNAME = __FUNCTION__;
 
     /* Get the Board Player (or the Board's owner) because he is the
      * one that sent the Message.
@@ -399,11 +363,6 @@ hoxTable::OnMove_FromNetwork( hoxPlayer*       player,
 {
     /* Inform the Board about this Move. */
 	_PostBoard_MoveEvent( moveStr );
-
-    /* Inform other players about the new Player */
-	_PostAll_MoveEvent( player, 
-						moveStr,
-						true /* coming from the network, not from Board */ );
 }
 
 void
@@ -419,27 +378,10 @@ hoxTable::OnPastMoves_FromNetwork( hoxPlayer*           player,
 }
 
 void 
-hoxTable::OnMessage_FromNetwork( hoxPlayer*       player,
-                                 const wxString&  message )
-{
-    const char* FNAME = "hoxTable::OnMessage_FromNetwork";
-
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    /* Post the message (from the player) to the Board. */
-    _PostBoard_MessageEvent( player, message );
-
-    /* Post the message to other players in the Table. */
-    _PostAll_MessageEvent( player, message );
-}
-
-void 
 hoxTable::OnMessage_FromNetwork( const wxString&  playerId,
                                  const wxString&  message )
 {
-    const char* FNAME = "hoxTable::OnMessage_FromNetwork";
-
-    wxLogDebug("%s: ENTER (by playerId).", FNAME);
+    const char* FNAME = __FUNCTION__;
 
     /* Lookup the player */
     hoxPlayer* foundPlayer = _FindPlayer( playerId );
@@ -449,35 +391,24 @@ hoxTable::OnMessage_FromNetwork( const wxString&  playerId,
         return;
     }
 
-    this->OnMessage_FromNetwork( foundPlayer, message );
+    /* Post the message to the Board. */
+    _PostBoard_MessageEvent( message, foundPlayer );
 }
 
 void 
 hoxTable::OnSystemMsg_FromNetwork( const wxString&  message )
 {
-    const char* FNAME = "hoxTable::OnSystemMsg_FromNetwork";
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    /* Post the SYSTEM message to the Board. */
     _PostBoard_SystemMsgEvent( message );
 }
 
 void 
-hoxTable::OnLeave_FromNetwork( hoxPlayer* leavePlayer,
-                               hoxPlayer* informer )
+hoxTable::OnLeave_FromNetwork( hoxPlayer* leavePlayer )
 {
-    const char* FNAME = "hoxTable::OnLeave_FromNetwork";
+    /* Update our player-list */
+    _RemovePlayer( leavePlayer );
 
-    wxLogDebug("%s: [%s] informing that [%s] just left the table.", 
-        FNAME, informer->GetName().c_str(), leavePlayer->GetName().c_str());
-
-    /* This step is not actually necessary but it is nice 
-     * to the debugger. 
-     */
-    hoxPlayer* actualInformer = 
-        ( leavePlayer == informer ? NULL : informer ); 
-
-    this->UnassignPlayer( leavePlayer, actualInformer );
+    /* Inform the Board. */
+    _PostBoard_PlayerEvent( hoxEVT_BOARD_PLAYER_LEAVE, leavePlayer );
 }
 
 void 
@@ -520,27 +451,11 @@ hoxTable::OnGameReset_FromNetwork()
 void 
 hoxTable::OnLeave_FromPlayer( hoxPlayer* player )
 {
-    const char* FNAME = "hoxTable::OnLeave_FromPlayer";
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
 
-    this->UnassignPlayer( player );
-}
-
-void
-hoxTable::OnLeave_FromPlayer( const wxString& sPlayerId )
-{
-    const char* FNAME = "hoxTable::OnLeave_FromPlayer";
-    wxLogDebug("%s: ENTER. (Player-Id = [%s])", FNAME, sPlayerId.c_str());
-
-    /* Lookup the player */
-    hoxPlayer* foundPlayer = _FindPlayer( sPlayerId );
-    if ( foundPlayer == NULL )
-    {
-        wxLogDebug("%s: *** WARN *** Player with Id = [%s] not found.", FNAME, sPlayerId.c_str());
-        return;
-    }
-
-    this->UnassignPlayer( foundPlayer );
+    /* Update our player-list */
+    _RemovePlayer( player );
 }
 
 void
@@ -569,7 +484,7 @@ hoxTable::OnScore_FromNetwork( hoxPlayer* player )
 void 
 hoxTable::OnClose_FromSystem()
 {
-    const char* FNAME = "hoxTable::OnClose_FromSystem";
+    const char* FNAME = __FUNCTION__;
     hoxPlayer* player = NULL;
 
     wxLogDebug("%s: ENTER. [%s].", FNAME, m_id.c_str());
@@ -586,9 +501,9 @@ hoxTable::OnClose_FromSystem()
 }
 
 void
-hoxTable::PostSystemMessage( const wxString&  message )
+hoxTable::PostBoardMessage( const wxString&  message )
 {
-    _PostBoard_MessageEvent( NULL /* System */, message );
+    _PostBoard_MessageEvent( message );
 }
 
 void 
@@ -633,7 +548,7 @@ hoxTable::_CloseBoard()
 void 
 hoxTable::_PostPlayer_CloseEvent( hoxPlayer* player ) const
 {
-    const char* FNAME = "hoxTable::_PostPlayer_CloseEvent";
+    const char* FNAME = __FUNCTION__;
 
     wxCHECK_RET( player, "The player is NULL." );
 
@@ -643,91 +558,20 @@ hoxTable::_PostPlayer_CloseEvent( hoxPlayer* player ) const
 }
 
 void 
-hoxTable::_PostPlayer_LeaveEvent( hoxPlayer* player,
-                                  hoxPlayer* leavePlayer ) const
-{
-    const char* FNAME = "hoxTable::_PostPlayer_LeaveEvent";
-
-    wxCHECK_RET( player, "The player is NULL." );
-    wxCHECK_RET( leavePlayer, "The 'leave' player is NULL." );
-
-    wxLogDebug("%s: Informing player [%s] about [%s] just left...", 
-        FNAME, player->GetName().c_str(), leavePlayer->GetName().c_str());
-
-	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_LEAVE ) );
-	apRequest->parameters["tid"] = m_id;
-	apRequest->parameters["pid"] = leavePlayer->GetName();
-
-    player->OnRequest_FromTable( apRequest );
-}
-
-void 
-hoxTable::_PostPlayer_JoinEvent( hoxPlayer*    player,
-                                 hoxPlayer*    newPlayer,
-                                 hoxColor newColor ) const
-{
-    const char* FNAME = "hoxTable::_PostPlayer_JoinEvent";
-
-    wxCHECK_RET( player, "The Player is NULL." );
-    wxCHECK_RET( newPlayer, "The new Player is NULL." );
-
-    wxLogDebug("%s: Informing player [%s] that a new Player [%s] just joined as [%d]...", 
-        FNAME, player->GetName().c_str(), newPlayer->GetName().c_str(), newColor);
-
-	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_E_JOIN ) );
-	apRequest->parameters["tid"] = m_id;
-	apRequest->parameters["pid"] = newPlayer->GetName();
-	apRequest->parameters["color"] = wxString::Format("%d", newColor);
-
-    player->OnRequest_FromTable( apRequest );
-}
-
-void 
 hoxTable::_PostPlayer_MoveEvent( hoxPlayer*         player,
-                                 hoxPlayer*         movePlayer,
                                  const wxString&    moveStr,
 								 hoxGameStatus      status /* = hoxGAME_STATUS_IN_PROGRESS */,
 								 const hoxTimeInfo& playerTime /* = hoxTimeInfo() */ ) const
 {
-    const char* FNAME = "hoxTable::_PostPlayer_MoveEvent";
-
-    wxCHECK_RET( player, "The Player is NULL." );
-    wxCHECK_RET( movePlayer, "The 'move' Player is NULL." );
-
-	/* Convert game's status into a string. */
     const wxString statusStr = hoxUtil::GameStatusToString( status );
 
-    wxLogDebug("%s: Informing player [%s] that [%s] just made a new Move [%s]...", 
-        FNAME, player->GetName().c_str(), movePlayer->GetName().c_str(), moveStr.c_str());
-	
 	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_MOVE ) );
 	apRequest->parameters["tid"] = m_id;
-	apRequest->parameters["pid"] = movePlayer->GetName();
+	apRequest->parameters["pid"] = player->GetName();
 	apRequest->parameters["move"] = moveStr;
 	apRequest->parameters["status"] = statusStr;
 	apRequest->parameters["game_time"] = wxString::Format("%d", playerTime.nGame);
 
-    player->OnRequest_FromTable( apRequest );
-}
-
-void 
-hoxTable::_PostPlayer_MessageEvent( hoxPlayer*      player,
-                                    hoxPlayer*      msgPlayer,
-                                    const wxString& message ) const
-{
-    const char* FNAME = "hoxTable::_PostPlayer_MessageEvent";
-
-    wxCHECK_RET( player, "The Player is NULL." );
-    wxCHECK_RET( msgPlayer, "The 'message' Player is NULL." );
-
-    wxLogDebug("%s: Informing player [%s] that [%s] just sent a Message [%s]...", 
-        FNAME, player->GetName().c_str(), msgPlayer->GetName().c_str(), message.c_str());
-
-	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_MSG ) );
-	apRequest->parameters["tid"] = m_id;
-	apRequest->parameters["pid"] = msgPlayer->GetName();
-	apRequest->parameters["msg"] = message;
-    
     player->OnRequest_FromTable( apRequest );
 }
 
@@ -747,8 +591,8 @@ hoxTable::_PostBoard_PlayerEvent( wxEventType commandType,
 }
 
 void 
-hoxTable::_PostBoard_MessageEvent( hoxPlayer*      player,
-                                   const wxString& sMessage ) const
+hoxTable::_PostBoard_MessageEvent( const wxString& sMessage,
+                                   hoxPlayer*      player ) const
 {
 	if ( m_board == NULL )
 		return;
@@ -756,12 +600,11 @@ hoxTable::_PostBoard_MessageEvent( hoxPlayer*      player,
     wxString who;
     wxString eventString;
 
-    who = (   player != NULL 
-            ? player->GetName() 
-            : "*Table*" );
+    who = ( player != NULL ? player->GetName() 
+                           : "*Table*" );
     eventString.Printf("%s %s", who.c_str(), sMessage.c_str());
 
-    /* Post the message on the Wall-Output of the "local" Board. */
+    /* Post the message on the Wall-Output of the Board. */
     wxCommandEvent event( hoxEVT_BOARD_WALL_OUTPUT );
     event.SetString( eventString );
     wxPostEvent( m_board, event );
@@ -848,155 +691,6 @@ hoxTable::_PostBoard_UpdateEvent( hoxPlayer* player ) const
     wxPostEvent( m_board, event );
 }
 
-void 
-hoxTable::_PostAll_JoinEvent( hoxPlayer*    newPlayer,
-                              hoxColor newColor ) const
-{
-    const char* FNAME = "hoxTable::_PostAll_JoinEvent";
-
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    for (hoxPlayerList::const_iterator it = m_players.begin(); 
-                                       it != m_players.end(); ++it)
-    {
-        if ( (*it) == newPlayer )
-        {
-            wxLogDebug("%s: Skip this Player since he is the new Player.", FNAME);
-            continue;
-        }
-
-        _PostPlayer_JoinEvent( (*it), newPlayer, newColor );
-    }
-}
-
-void 
-hoxTable::_PostAll_MoveEvent( hoxPlayer*         player,
-                              const wxString&    moveStr,
-							  bool               fromNetwork,
-							  hoxGameStatus      status /* = hoxGAME_STATUS_IN_PROGRESS */,
-							  const hoxTimeInfo& playerTime /* = hoxTimeInfo() */ ) const
-{
-    const char* FNAME = "hoxTable::_PostAll_MoveEvent";
-
-    /* Get the Board Player (or the Board's owner).
-     * Note: Currently, the Board player can be NULL because this Table
-     *       may be hosted on a remote server and the two main players
-     *       are all 'remote' players.
-     */
-    hoxPlayer* boardPlayer = _GetBoardPlayer();
-
-    for (hoxPlayerList::const_iterator it = m_players.begin(); 
-                                       it != m_players.end(); ++it)
-    {
-		/* Skip the sender and the Board-player if the Move is coming 
-		 * from the network. 
-		 */
-		if ( fromNetwork )
-		{
-			if ( (*it) == player )
-			{
-				//wxLogDebug("%s: Skip this Player [%s] since he just made this new Move.", 
-				//    FNAME, player->GetName().c_str());
-				continue;
-			}
-
-			if (   boardPlayer != NULL 
-				&& (*it) == boardPlayer )
-			{
-				//wxLogDebug("%s: Skip this Player [%s] since he is Board player.", 
-				//    FNAME, boardPlayer->GetName().c_str() );
-				continue;
-			}
-		}
-
-		/* Skip dummy player.
-		 * Although this is not necesary but I do it here to avoid
-		 * seeing a lot of debug messages.
-		 */
-		if ( (*it)->GetType() == hoxPLAYER_TYPE_DUMMY )
-		{
-            //wxLogDebug("%s: Skip this Player [%s] since he is a DUMMY player.", 
-            //    FNAME, it->player->GetName().c_str() );
-			continue;
-		}
-
-        _PostPlayer_MoveEvent( (*it), player, moveStr, status, playerTime );
-    }
-}
-
-void 
-hoxTable::_PostAll_MessageEvent( hoxPlayer*      player,
-                                 const wxString& message,
-                                 bool            fromBoard /* =  false */) const
-{
-    const char* FNAME = "hoxTable::_PostAll_MessageEvent";
-
-    /* Get the Board Player (or the Board's owner).
-     * Note: Currently, the Board player can be NULL because this Table
-     *       may be hosted on a remote server and the two main players
-     *       are all 'remote' players.
-     */
-    hoxPlayer* boardPlayer = _GetBoardPlayer();
-    
-    if ( fromBoard ) // Message coming from the physical Board?
-    {
-        wxCHECK_RET( boardPlayer != NULL && boardPlayer == player,
-                     "The sender should be the Board player.");
-    }
-
-    for (hoxPlayerList::const_iterator it = m_players.begin(); 
-                                       it != m_players.end(); ++it)
-    {
-        if ( ! fromBoard )
-        {
-            if ( (*it) == player )
-            {
-                wxLogDebug("%s: Skip this Player [%s] since he just sent this new Message.", 
-                    FNAME, player->GetName().c_str());
-                continue;
-            }
-
-            if (   boardPlayer != NULL 
-                && (*it) == boardPlayer )
-            {
-                wxLogDebug("%s: Skip this Player [%s] since he is Board player.", 
-                    FNAME, boardPlayer->GetName().c_str() );
-                continue;
-            }
-        }
-
-        _PostPlayer_MessageEvent( (*it), player, message );
-    }
-}
-
-void 
-hoxTable::_PostAll_LeaveEvent( hoxPlayer* player,
-                               hoxPlayer* informer /* = NULL */ ) const
-{
-    const char* FNAME = "hoxTable::_PostAll_LeaveEvent";
-
-    for (hoxPlayerList::const_iterator it = m_players.begin(); 
-                                       it != m_players.end(); ++it)
-    {
-        if ( (*it) == player )
-        {
-            wxLogDebug("%s: Skip this Player [%s] since he already left the Table.", 
-                FNAME, player->GetName().c_str());
-            continue;
-        }
-
-        if (   informer != NULL 
-            && (*it) == informer )
-        {
-            wxLogDebug("%s: Skip this Player [%s] since he is the event's informer.", 
-                FNAME, informer->GetName().c_str() );
-            continue;
-        }
-
-        _PostPlayer_LeaveEvent( (*it), player );
-    }
-}
-
 hoxPlayer* 
 hoxTable::_GetBoardPlayer() const
 {
@@ -1045,41 +739,30 @@ hoxTable::_AddPlayer( hoxPlayer* player,
 void 
 hoxTable::_RemovePlayer( hoxPlayer* player )
 {
-    const char* FNAME = "hoxTable::_RemovePlayer";
-    bool bFound = false;   // For debugging purpose only.
+    const char* FNAME = __FUNCTION__;
 
     wxCHECK_RET(player != NULL, "Play cannot be NULL.");
     wxLogDebug("%s: ENTER. [%s]", FNAME, player->GetName().c_str());
 
-    hoxPlayer* foundItem = NULL;
+    hoxPlayerList::iterator found_it = m_players.end();
     for (hoxPlayerList::iterator it = m_players.begin(); 
                                  it != m_players.end(); ++it)
     {
         if ( (*it) == player )
         {
-            foundItem = *it;
-            bFound = true;
+            found_it = it;
             break;
         }
     }
 
-    m_players.remove( foundItem );
-
-    wxLogDebug("%s: Player found or not = [%d].", FNAME, bFound);
-    wxLogDebug("%s: # of remaining players = [%d].", FNAME, (int) m_players.size());
+    if ( found_it != m_players.end() )
+    {
+        m_players.erase( found_it );
+    }
 
     // Update our "cache" variables.
-    if ( m_redPlayer == player )
-    {
-        m_redPlayer = NULL;
-    }
-    else if ( m_blackPlayer == player )
-    {
-        m_blackPlayer = NULL;
-    }
-
-    // Inform the Board.
-    _PostBoard_PlayerEvent( hoxEVT_BOARD_PLAYER_LEAVE, player );
+    if      ( m_redPlayer == player )   m_redPlayer = NULL;
+    else if ( m_blackPlayer == player ) m_blackPlayer = NULL;
 }
 
 hoxPlayer* 

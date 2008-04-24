@@ -31,7 +31,6 @@
 #define __INCLUDED_HOX_TABLE_H_
 
 #include <wx/wx.h>
-#include "hoxEnums.h"
 #include "hoxTypes.h"
 
 /* Forward declarations */
@@ -75,17 +74,6 @@ public:
      */
     hoxResult AssignPlayerAs( hoxPlayer* player,
                               hoxColor   requestColor );
-
-    /**
-     * Unseat a given player from this table.
-     *
-     * @param player The player to be unseated.
-     * @param informer The Player that informs the Table about that face that
-     *                 a player wants to be unseated.
-     *                 If NULL, then the leaving player is also the informer.
-     */
-    hoxResult UnassignPlayer( hoxPlayer* player,
-                              hoxPlayer* informer = NULL );
 
     hoxPlayer* GetRedPlayer() const { return m_redPlayer; }
     hoxPlayer* GetBlackPlayer() const { return m_blackPlayer; }
@@ -206,13 +194,9 @@ public:
      * Callback function from the NETWORK Player to let this Table know about
      * the newly-received Wall-Message(s).
      *
-     * @param player The Player who generates the message.
+     * @param playerId The Id of the Player who generates the message.
      * @param message The message that are being sent from the network.
      */
-    void OnMessage_FromNetwork( hoxPlayer*       player,
-                                const wxString&  message );
-
-    // TODO: We should delete the API.
     void OnMessage_FromNetwork( const wxString&  playerId,
                                 const wxString&  message );
 
@@ -229,10 +213,8 @@ public:
      * a player who just left the table.
      *
      * @param leavePlayer The Player that just left the table.
-     * @param informer The Player that informs the Table about this event.
      */
-    void OnLeave_FromNetwork( hoxPlayer* leavePlayer,
-                              hoxPlayer* informer );
+    void OnLeave_FromNetwork( hoxPlayer* leavePlayer );
 
     /**
      * Callback function from the NETWORK Player to let this Table know about
@@ -272,11 +254,6 @@ public:
     void OnLeave_FromPlayer( hoxPlayer* player );
 
     /**
-     * Callback function from a player (By ID) who is leaving the table.
-     */
-    void OnLeave_FromPlayer( const wxString& sPlayerId );
-
-    /**
      * Callback function from a player who just updated the Options (Table).
      *
      * @param player The Player who just updated the Options.
@@ -294,11 +271,11 @@ public:
     void OnClose_FromSystem();
 
     /**
-     * Post a sytem message to the Board.
+     * Post a Board message (without an Owner).
      *
      * @param message The message that are being sent.
      */
-    void PostSystemMessage( const wxString&  message );
+    void PostBoardMessage( const wxString&  message );
 
     void ToggleViewSide();
 
@@ -322,56 +299,32 @@ private:
     void _PostPlayer_CloseEvent( hoxPlayer* player ) const;
 
     /**
-     * Post (inform) a player that a Player just left the table.
-     *
-     * @param player      The Player to be informed.
-     * @param leavePlayer The Player that just left the table.
-     */
-    void _PostPlayer_LeaveEvent( hoxPlayer*  player,
-                                 hoxPlayer*  leavePlayer ) const;
-
-    /**
-     * Post (inform) a player that a new Player just joined the table.
-     *
-     * @param player    The Player to be informed.
-     * @param newPlayer The Player that just joined the table.
-     * @param newColor  The color (role) that the new Play will have.
-     */
-    void _PostPlayer_JoinEvent( hoxPlayer*    player,
-                                hoxPlayer*    newPlayer,
-                                hoxColor newColor ) const;
-
-    /**
      * Post (inform) a player that a new Move has just been made.
      *
      * @param player    The Player to be informed.
-     * @param movePlayer The Player that just made the Move.
      * @param moveStr  The string containing the new Move.
 	 * @param status  The game's status.
+     * @param playerTime The remaining Player's Time.
      */
     void _PostPlayer_MoveEvent( hoxPlayer*         player,
-                                hoxPlayer*         movePlayer,
                                 const wxString&    moveStr,
 								hoxGameStatus      status = hoxGAME_STATUS_IN_PROGRESS,
 								const hoxTimeInfo& playerTime = hoxTimeInfo() ) const;
-
-    /**
-     * Post (inform) a player that a new Message has just been sent.
-     *
-     * @param player    The Player to be informed.
-     * @param msgPlayer The Player that just sent the Message.
-     * @param message   The string containing the new Message.
-     */
-    void _PostPlayer_MessageEvent( hoxPlayer*      player,
-                                   hoxPlayer*      msgPlayer,
-                                   const wxString& message ) const;
 
     void _PostBoard_PlayerEvent( wxEventType commandType, 
                                  hoxPlayer*  player,
                                  int         extraCode = wxID_ANY ) const;
 
-    void _PostBoard_MessageEvent( hoxPlayer*      player,
-                                  const wxString& sMessage ) const;
+    /**
+     * Post a message to the Wall (or Chat) Area.
+     *
+     * @param sMessage The string containing the new Message.
+     * @param player   The sender. If NULL, then a predefined string
+     *                 (such as "*Table*") will be used as the name
+     *                 of the sender.
+     */
+    void _PostBoard_MessageEvent( const wxString& sMessage,
+                                  hoxPlayer*      player = NULL ) const;
 
     void _PostBoard_SystemMsgEvent( const wxString& sMessage ) const;
 
@@ -388,53 +341,6 @@ private:
     void _PostBoard_ScoreEvent( hoxPlayer*  player ) const;
 
     void _PostBoard_UpdateEvent( hoxPlayer* player ) const;
-
-    /**
-     * Inform other Players that a new Player just joined the Table.
-     *
-     * @param newPlayer The Player that just joined the table.
-     * @param newColor  The color (role) that the new Play will have.
-     */
-    void _PostAll_JoinEvent( hoxPlayer*    newPlayer,
-                             hoxColor newColor ) const;
-
-    /**
-     * Inform other Players that a new Move was just made.
-     *
-     * @param player  The Player that just made the Move.
-     * @param moveStr The string containing the new Move.
-	 * @param fromNetwork Indicating whether the Move is coming from the network.
-	 * @param status  The game's status.
-     */
-    void _PostAll_MoveEvent( hoxPlayer*         player,
-                             const wxString&    moveStr,
-							 bool               fromNetwork,
-							 hoxGameStatus      status = hoxGAME_STATUS_IN_PROGRESS,
-							 const hoxTimeInfo& playerTime = hoxTimeInfo() ) const;
-
-    /**
-     * Inform other Players that a new Message was just sent.
-     *
-     * @param player  The Player that just sent the Message.
-     * @param message The string containing the new Message.
-     * @param fromBoard If true, then the Message is coming from the Board.
-     *                  In this case, the Table should inform ALL players
-     *                  currently at the Table (instead of skipping the
-     *                  sender and skipping the Board-player.)
-     */
-    void _PostAll_MessageEvent( hoxPlayer*      player,
-                                const wxString& message,
-                                bool            fromBoard = false ) const;
-
-    /**
-     * Inform other Players that a Player just left the Table.
-     *
-     * @param player  The Player that just left the Table.
-     * @param informer The Player that informs the Table about this event.
-     *                 If NULL, then the leaving player is also the informer.
-     */
-    void _PostAll_LeaveEvent( hoxPlayer* player,
-                              hoxPlayer* informer = NULL ) const;
 
     /**
      * The the player who has physically control of the Board.

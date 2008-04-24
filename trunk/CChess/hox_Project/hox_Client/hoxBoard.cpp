@@ -1141,6 +1141,14 @@ hoxBoard::_PostToWallOutput( const wxString& who,
     m_wallOutput->AppendText( wxString::Format("[%s] ", who.c_str()) );
     m_wallOutput->SetDefaultStyle( wxTextAttr(*wxBLUE) );
     m_wallOutput->AppendText( wxString::Format("%s\n", sMessage.c_str()) );
+
+    /* NOTE:
+     *    Make sure that the last line is at the bottom of the wxTextCtrl
+     *    so that new messages are visiable to the Player.
+     *    This technique was learned from the following site:
+     *        http://wiki.wxwidgets.org/WxTextCtrl#Scrolling
+     */
+    m_wallOutput->ScrollLines(1);
 }
 
 void 
