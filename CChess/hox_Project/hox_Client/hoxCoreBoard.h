@@ -143,7 +143,14 @@ public:
      * My 'other' (less important) public API
      ******************************************/
 
-    void ToggleViewSide();  // Toggle view side: Red/Black is at the bottom.
+    /**
+     * Toggle view side: Red/Black is at the bottom.
+     *
+     * @return true if the Board's view is inverted after the action
+     *              has been carried out.
+     */
+    bool ToggleViewSide();
+
     bool IsViewInverted() const { return m_bViewInverted; }
     void SetGameOver( bool isGameOver = true );
 

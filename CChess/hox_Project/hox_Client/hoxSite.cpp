@@ -223,16 +223,6 @@ hoxRemoteSite::OnPlayerJoined( const wxString&  tableId,
         return hoxRC_ERR;
     }
 
-	/* Toggle board if the new joined Player is I (this site's player) 
-     * and I play BLACK.
-     */
-
-    if (    player == this->m_player 
-         && requestColor == hoxCOLOR_BLACK )
-	{
-		pTable->ToggleViewSide();
-	}
-
 	return hoxRC_OK;
 }
 
@@ -292,14 +282,6 @@ hoxRemoteSite::JoinNewTable(const hoxNetworkTableInfo& tableInfo)
         result = player->JoinTableAs( pTable, hoxCOLOR_BLACK );
         wxCHECK( result == hoxRC_OK, hoxRC_ERR  );
     }
-
-	/* Toggle board if I play BLACK.
-     */
-
-    if ( myColor == hoxCOLOR_BLACK )
-	{
-		pTable->ToggleViewSide();
-	}
 
 	wxGetApp().GetFrame()->UpdateSiteTreeUI();
 
@@ -526,13 +508,6 @@ hoxRemoteSite::JoinExistingTable(const hoxNetworkTableInfo& tableInfo)
 	{
 		result = m_player->JoinTableAs( pTable, myColor );
 		wxASSERT( result == hoxRC_OK  );
-	}
-
-	/* Toggle board if I play BLACK. */
-
-	if ( myColor == hoxCOLOR_BLACK )
-	{
-		pTable->ToggleViewSide();
 	}
 
 	wxGetApp().GetFrame()->UpdateSiteTreeUI();

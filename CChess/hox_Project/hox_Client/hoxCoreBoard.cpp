@@ -1022,8 +1022,7 @@ hoxCoreBoard::_FindAndCapturePieceAt( const hoxPosition& position )
     return capturedPiece;
 }
 
-// toggle view side: Red/Black is at the bottom.
-void 
+bool
 hoxCoreBoard::ToggleViewSide()
 {
     m_bViewInverted = !m_bViewInverted;
@@ -1032,6 +1031,8 @@ hoxCoreBoard::ToggleViewSide()
     _DrawWorkSpace( dc );
     _DrawBoard( dc );
     _DrawAllPieces( dc );
+
+    return m_bViewInverted;
 }
 
 wxSize 
