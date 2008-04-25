@@ -101,7 +101,7 @@ MyFrame::MyFrame( wxWindow*        parent,
                   const long       style )
        : wxMDIParentFrame( parent, id, title, pos, size, style )
 {
-    const char* FNAME = "MyFrame::MyFrame";
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
 
     SetIcon( wxICON(hoxchess) );
@@ -134,7 +134,7 @@ MyFrame::~MyFrame()
 void 
 MyFrame::OnClose(wxCloseEvent& event)
 {
-    const char* FNAME = "MyFrame::OnClose";
+    const char* FNAME = __FUNCTION__;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -193,7 +193,7 @@ MyFrame::OnAbout( wxCommandEvent& event )
 void 
 MyFrame::OnNewTable( wxCommandEvent& event )
 {
-    const char* FNAME = "MyFrame::OnNewTable";
+    const char* FNAME = __FUNCTION__;
 
     hoxTable_SPtr selectedTable;
     hoxSite* selectedSite = _GetSelectedSite(selectedTable);
@@ -207,7 +207,7 @@ MyFrame::OnNewTable( wxCommandEvent& event )
 void 
 MyFrame::OnCloseTable( wxCommandEvent& event )
 {
-    const char* FNAME = "MyFrame::OnCloseTable";
+    const char* FNAME = __FUNCTION__;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -255,15 +255,15 @@ MyFrame::OnUpdateListTables(wxUpdateUIEvent& event)
     event.Enable( bEnabled );
 }
 
-bool
-MyFrame::OnChildClose( MyChild*      child, 
+void
+MyFrame::OnChildClose( wxCloseEvent& event,
+                       MyChild*      child, 
                        hoxTable_SPtr pTable )
 {
-    const char* FNAME = "MyFrame::OnChildClose";
-
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
 
-    wxCHECK_MSG( pTable.get() != NULL, true, "The table is NULL." );
+    wxCHECK_RET( pTable.get() != NULL, "The table is NULL." );
 
 	/* Save the layout. */
 	_SaveDefaultTableLayout( child->GetSize() );
@@ -271,14 +271,21 @@ MyFrame::OnChildClose( MyChild*      child,
     pTable->OnClose_FromSystem();
     m_children.remove( child );
 
+    /* Inform the Site. */
+    hoxSite* site = pTable->GetSite();
+    site->CloseTable( pTable );
+
+    this->UpdateSiteTreeUI();
+
+    event.Skip(); // let the search for the event handler should continue...
+
     wxLogDebug("%s: END.", FNAME);
-    return true;
 }
 
 void 
 MyFrame::OnDisconnectServer( wxCommandEvent& event )
 {
-    const char* FNAME = "MyFrame::OnDisconnectServer";
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
 
     /* Find out which site is selected. */
@@ -315,7 +322,7 @@ MyFrame::OnUpdateDisconnectServer(wxUpdateUIEvent& event)
 void 
 MyFrame::OnConnectServer( wxCommandEvent& event )
 {
-    const char* FNAME = "MyFrame::OnConnectServer";
+    const char* FNAME = __FUNCTION__;
 
 	/* Ask the user for the server' address and login-info. */
 
@@ -348,7 +355,6 @@ void
 MyFrame::OnShowServersWindow( wxCommandEvent& event )
 {
     m_sitesWindow->Show( ! m_sitesWindow->IsShown() );
-    //m_sitesWindow->SetDefaultSize(wxSize(200, -1));
 
     wxLayoutAlgorithm layout;
     layout.LayoutMDIFrame(this);
@@ -382,8 +388,7 @@ MyFrame::OnUpdateLogWindow( wxUpdateUIEvent& event )
 void 
 MyFrame::OnListTables( wxCommandEvent& event )
 {
-    const char* FNAME = "MyFrame::OnListTables";
-    wxLogDebug("%s: ENTER.", FNAME);
+    const char* FNAME = __FUNCTION__;
 
     hoxTable_SPtr selectedTable;
     hoxSite* selectedSite = _GetSelectedSite(selectedTable);
@@ -404,8 +409,6 @@ MyFrame::OnSize(wxSizeEvent& event)
 {
     wxLayoutAlgorithm layout;
     layout.LayoutMDIFrame(this);
-    //wxString mySize = wxString::Format("%d x %d", event.GetSize().GetWidth(), event.GetSize().GetHeight());
-    //wxLogStatus(mySize);
 }
 
 void 
@@ -472,7 +475,6 @@ MyFrame::InitToolBar(wxToolBar* toolBar)
 void
 MyFrame::SetupMenu()
 {
-    // Associate the menu bar with the frame
     wxMenuBar* menu_bar = MyFrame::Create_Menu_Bar();
     SetMenuBar( menu_bar );
 }
@@ -587,7 +589,6 @@ MyFrame::OnContextMenu( wxContextMenuEvent& event )
 MyChild* 
 MyFrame::CreateFrameForTable( const wxString& sTableId )
 {
-    const char* FNAME = "MyFrame::CreateFrameForTable";
     MyChild*  childFrame = NULL;
     wxString  effectiveTableId;
     wxString  windowTitle;

@@ -129,7 +129,9 @@ public:
      *       for the permission to close.
      *       !!! BE CAREFUL with recursive calls. !!!
      */
-    bool OnChildClose(MyChild* child, hoxTable_SPtr pTable);
+    void OnChildClose( wxCloseEvent& event,
+                       MyChild*      child,
+                       hoxTable_SPtr pTable );
 
     void OnFrameLogMsgEvent( wxCommandEvent &event );
     void OnContextMenu( wxContextMenuEvent& event );

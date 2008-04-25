@@ -35,11 +35,6 @@
     #include "icons/chart.xpm"
 #endif
 
-// ----------------------------------------------------------------------------
-// constants
-// ----------------------------------------------------------------------------
-
-
 // Note that MDI_NEW_TABLE and MDI_ABOUT commands get passed
 // to the parent window for processing, so no need to
 // duplicate event handlers here.
@@ -77,14 +72,13 @@ MyChild::MyChild( wxMDIParentFrame* parent,
 
 MyChild::~MyChild()
 {
-    const char* FNAME = "MyChild::~MyChild";
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
 }
 
 void 
 MyChild::_SetupMenu()
 {
-    // Associate the menu bar with the frame
     wxMenuBar* menu_bar = MyFrame::Create_Menu_Bar( true /* hasTable */);
     SetMenuBar( menu_bar );
 }
@@ -110,37 +104,20 @@ MyChild::OnToggle( wxCommandEvent& event )
 }
 
 void 
-MyChild::OnClose(wxCloseEvent& event)
+MyChild::OnClose( wxCloseEvent& event )
 {
-    const char* FNAME = "MyChild::OnClose";
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
 
     wxCHECK_RET( m_pTable.get() != NULL, "The table must have been set." );
     
-    MyFrame* frame = wxGetApp().GetFrame();
-    bool bAllowedToClose = frame->OnChildClose( this, m_pTable );
-
-    if ( !bAllowedToClose )
-    {
-        wxLogDebug("%s: The Frame did not allow me to close. END.", FNAME);
-        return;
-    }
-
-    hoxSite* site = m_pTable->GetSite();
-    site->CloseTable( m_pTable );
-    m_pTable.reset();
-
-    frame->UpdateSiteTreeUI();
-
-    event.Skip(); // let the search for the event handler should continue...
+    wxGetApp().GetFrame()->OnChildClose( event, this, m_pTable );
 
     wxLogDebug("%s: END.", FNAME);
 }
 
 void MyChild::OnSize(wxSizeEvent& event)
 {
-    //wxString mySize = wxString::Format("%d x %d", event.GetSize().GetWidth(), event.GetSize().GetHeight());
-    //wxLogStatus(mySize);
     event.Skip(); // let the search for the event handler should continue...
 }
 
