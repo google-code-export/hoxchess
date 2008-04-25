@@ -27,7 +27,6 @@
 #ifndef __INCLUDED_MY_CHILD_H_
 #define __INCLUDED_MY_CHILD_H_
 
-#include <wx/wx.h>
 #include "hoxTypes.h"
 
 /* Forward declarations */

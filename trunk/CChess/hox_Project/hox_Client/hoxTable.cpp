@@ -491,9 +491,9 @@ hoxTable::OnClose_FromSystem()
 
     while ( ! m_players.empty() )
     {
-        player = m_players.front();
+        player = *(m_players.begin());
 
-        _PostPlayer_CloseEvent( player );
+        player->OnClose_FromTable( m_id );
         _RemovePlayer( player );
     }
 
@@ -543,18 +543,6 @@ hoxTable::_CloseBoard()
         
         m_board = NULL;
     }
-}
-
-void 
-hoxTable::_PostPlayer_CloseEvent( hoxPlayer* player ) const
-{
-    const char* FNAME = __FUNCTION__;
-
-    wxCHECK_RET( player, "The player is NULL." );
-
-    wxLogDebug("%s: Informing player [%s] about the Table [%s] being closed...", 
-        FNAME, player->GetName().c_str(), m_id.c_str());
-    player->OnClose_FromTable( m_id );
 }
 
 void 
@@ -694,8 +682,8 @@ hoxTable::_PostBoard_UpdateEvent( hoxPlayer* player ) const
 hoxPlayer* 
 hoxTable::_GetBoardPlayer() const
 {
-    for (hoxPlayerList::const_iterator it = m_players.begin(); 
-                                       it != m_players.end(); ++it)
+    for (hoxPlayerSet::const_iterator it = m_players.begin(); 
+                                      it != m_players.end(); ++it)
     {
         if ( (*it)->GetType() == hoxPLAYER_TYPE_LOCAL )
         {
@@ -710,13 +698,7 @@ void
 hoxTable::_AddPlayer( hoxPlayer* player, 
                       hoxColor   role )
 {
-    hoxPlayerList::iterator found_it = 
-        std::find( m_players.begin(), m_players.end(), player );
-
-    if ( found_it == m_players.end() )  // not found?
-	{
-		m_players.push_back( player );
-	}
+    m_players.insert( player );
 
     // "Cache" the RED and BLACK players for easy access.
     if ( role == hoxCOLOR_RED )
@@ -744,21 +726,7 @@ hoxTable::_RemovePlayer( hoxPlayer* player )
     wxCHECK_RET(player != NULL, "Play cannot be NULL.");
     wxLogDebug("%s: ENTER. [%s]", FNAME, player->GetName().c_str());
 
-    hoxPlayerList::iterator found_it = m_players.end();
-    for (hoxPlayerList::iterator it = m_players.begin(); 
-                                 it != m_players.end(); ++it)
-    {
-        if ( (*it) == player )
-        {
-            found_it = it;
-            break;
-        }
-    }
-
-    if ( found_it != m_players.end() )
-    {
-        m_players.erase( found_it );
-    }
+    m_players.erase( player );
 
     // Update our "cache" variables.
     if      ( m_redPlayer == player )   m_redPlayer = NULL;
@@ -768,8 +736,8 @@ hoxTable::_RemovePlayer( hoxPlayer* player )
 hoxPlayer* 
 hoxTable::_FindPlayer( const wxString& playerId ) const
 {
-    for (hoxPlayerList::const_iterator it = m_players.begin(); 
-                                       it != m_players.end(); ++it)
+    for (hoxPlayerSet::const_iterator it = m_players.begin(); 
+                                      it != m_players.end(); ++it)
     {
         if ( (*it)->GetName() == playerId )
         {

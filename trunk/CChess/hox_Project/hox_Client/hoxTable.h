@@ -293,12 +293,6 @@ private:
     void _CloseBoard();
 
     /**
-     * Post (inform) a player about the fact that this table is 
-     * about to be closed.
-     */
-    void _PostPlayer_CloseEvent( hoxPlayer* player ) const;
-
-    /**
      * Post (inform) a player that a new Move has just been made.
      *
      * @param player    The Player to be informed.
@@ -362,7 +356,7 @@ private:
     hoxBoard*        m_board;    // The (OPTIONAL) Board.
 
     // Players
-    hoxPlayerList    m_players;
+    hoxPlayerSet     m_players;  // Players + Observers
     hoxPlayer*       m_redPlayer;
     hoxPlayer*       m_blackPlayer;
 

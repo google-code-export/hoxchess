@@ -50,6 +50,7 @@ class hoxIReferee;
 typedef boost::shared_ptr<hoxTable> hoxTable_SPtr;
 
 typedef std::list<hoxPlayer*>     hoxPlayerList;
+typedef std::set<hoxPlayer*>      hoxPlayerSet;
 typedef std::list<hoxTable_SPtr>  hoxTableList; 
 typedef std::set<hoxTable_SPtr>   hoxTableSet;
 
