@@ -59,6 +59,7 @@ public:
 	void OnButtonClose(wxCommandEvent& event);
 
 	void OnClose(wxCloseEvent& event);
+    void OnListItemDClick(wxListEvent& event);
 
     CommandId GetSelectedCommand() const { return m_selectedCommand; }
     wxString GetSelectedId() const { return m_selectId; }
@@ -68,10 +69,12 @@ private:
 	bool _SaveDefaultLayout( const wxPoint& position, const wxSize& size );
 
 private:
-	wxListCtrl* m_listCtrlTables;
+	wxListCtrl*   m_listCtrlTables;
 
-    CommandId   m_selectedCommand;
-    wxString    m_selectId;
+    CommandId     m_selectedCommand;
+    wxString      m_selectId;
+
+    unsigned int  m_actionFlags;
 
     DECLARE_EVENT_TABLE()
 };

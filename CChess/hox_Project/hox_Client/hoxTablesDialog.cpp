@@ -29,7 +29,7 @@
 #include "MyApp.h"    // wxGetApp()
 
 // ----------------------------------------------------------------------------
-// constants
+// Constants
 // ----------------------------------------------------------------------------
 
 enum
@@ -50,6 +50,7 @@ BEGIN_EVENT_TABLE(hoxTablesDialog, wxDialog)
 	EVT_BUTTON(ID_CLOSE_DIALOG, hoxTablesDialog::OnButtonClose)
 	
 	EVT_CLOSE(hoxTablesDialog::OnClose)
+    EVT_LIST_ITEM_ACTIVATED(wxID_ANY, hoxTablesDialog::OnListItemDClick)
 END_EVENT_TABLE()
 
 //-----------------------------------------------------------------------------
@@ -73,6 +74,7 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*                      parent,
         : wxDialog( parent, id, title, wxDefaultPosition, wxDefaultSize, 
 		            wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER )
         , m_selectedCommand( COMMAND_ID_UNKNOWN )
+        , m_actionFlags( actionFlags )
 {
     wxBoxSizer* topSizer = new wxBoxSizer( wxVERTICAL );
 
@@ -176,8 +178,8 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*                      parent,
 	wxButton* buttonClose   = new wxButton(this, ID_CLOSE_DIALOG, _("&Close"));
 
 	/* Disable certain buttons based on the input Action Flags. */
-	buttonNew->Enable(  (actionFlags & hoxSITE_ACTION_NEW)  != 0 );
-	buttonJoin->Enable( (actionFlags & hoxSITE_ACTION_JOIN) != 0 );
+	buttonNew->Enable(  (m_actionFlags & hoxSITE_ACTION_NEW)  != 0 );
+	buttonJoin->Enable( (m_actionFlags & hoxSITE_ACTION_JOIN) != 0 );
 
     wxBoxSizer* buttonSizer = new wxBoxSizer( wxHORIZONTAL );
 
@@ -214,9 +216,15 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*                      parent,
 }
 
 void 
-hoxTablesDialog::OnButtonJoin(wxCommandEvent& event)
+hoxTablesDialog::OnButtonJoin( wxCommandEvent& event )
 {
-    const char* FNAME = "hoxTablesDialog::OnButtonJoin";
+    const char* FNAME = __FUNCTION__;
+
+    if ( (m_actionFlags & hoxSITE_ACTION_JOIN) == 0 )
+    {
+        wxLogDebug("%s: JOIN action is disabled. Ignore command.", FNAME);
+        return;
+    }
 
 	/* Get the 1st selected item. */
 
@@ -238,34 +246,42 @@ hoxTablesDialog::OnButtonJoin(wxCommandEvent& event)
 }
 
 void 
-hoxTablesDialog::OnButtonNew(wxCommandEvent& event)
+hoxTablesDialog::OnButtonNew( wxCommandEvent& event )
 {
     m_selectedCommand = COMMAND_ID_NEW;
     Close();
 }
 
 void 
-hoxTablesDialog::OnButtonRefresh(wxCommandEvent& event)
+hoxTablesDialog::OnButtonRefresh( wxCommandEvent& event )
 {
     m_selectedCommand = COMMAND_ID_REFRESH;
     Close();
 }
 
 void 
-hoxTablesDialog::OnButtonClose(wxCommandEvent& event)
+hoxTablesDialog::OnButtonClose( wxCommandEvent& event )
 {
     Close();
 	event.Skip(); // Let the search for the event handler should continue.
 }
 
 void 
-hoxTablesDialog::OnClose(wxCloseEvent& event)
+hoxTablesDialog::OnClose( wxCloseEvent& event )
 {
 	wxPoint position = this->GetPosition(); 
 	wxSize  size     = this->GetSize();
 
 	_SaveDefaultLayout( position, size );
 	event.Skip(); // Let the search for the event handler should continue.
+}
+
+void
+hoxTablesDialog::OnListItemDClick( wxListEvent& event )
+{
+    wxCommandEvent DUMMY_event;
+    
+    this->OnButtonJoin( DUMMY_event );
 }
 
 bool 
