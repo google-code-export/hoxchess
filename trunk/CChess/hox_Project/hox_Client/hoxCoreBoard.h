@@ -200,8 +200,6 @@ private:
      */
     void _MovePieceToPoint(hoxPiece* piece, const wxPoint& point);
 
-    void _OnPieceMoved(hoxPiece* piece, const hoxPosition& newPos);
-
     /**
      * Check if a given piece has the right to move 'next'.
      */
@@ -267,7 +265,7 @@ private:
      */
     hoxMoveVector   m_historyMoves; // All (past) Moves made so far.
     enum HistoryIndex {   // TODO: Temporarily defined here.
-        HISTORY_INDEX_UNKNOWN  = -2,
+        HISTORY_INDEX_END      = -2,
         HISTORY_INDEX_BEGIN    = -1
     };
     int             m_historyIndex; // Which Move the user is reviewing.
