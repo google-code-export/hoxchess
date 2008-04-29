@@ -98,7 +98,7 @@ hoxCoreBoard::hoxCoreBoard( wxWindow*        parent,
         , m_draggedPiece( NULL )
         , m_dragImage( NULL )
         , m_latestPiece( NULL )
-        , m_historyIndex( HISTORY_INDEX_UNKNOWN )
+        , m_historyIndex( HISTORY_INDEX_END )
         , m_isGameOver( false )
 {
     /* NOTE: We move this PNG code since to outside to avoid
@@ -569,6 +569,13 @@ hoxCoreBoard::_PointToPosition( const hoxPiece* piece,
         pos.y = (p4.y - m_borderY) / m_cellS;
     }
 
+    // Convert to the 'real' position since we can be in the *inverted* view.
+    if ( m_bViewInverted )
+    {
+        pos.x = 8 - pos.x;
+        pos.y = 9 - pos.y;
+    }
+
     return pos;
 }
 
@@ -576,25 +583,10 @@ void
 hoxCoreBoard::_MovePieceToPoint( hoxPiece*      piece, 
                                  const wxPoint& point )
 {
-    hoxPosition newPos = _PointToPosition(piece, point);
+    const hoxPosition newPos = _PointToPosition(piece, point);
 
-    // Convert to the 'real' position since we can be in the *inverted* view.
-    if ( m_bViewInverted )
-    {
-        newPos.x = 8 - newPos.x;
-        newPos.y = 9 - newPos.y;
-    }
-
-    // Call the "piece moved" handler.
-    _OnPieceMoved(piece, newPos);
-}
-
-void 
-hoxCoreBoard::_OnPieceMoved( hoxPiece*          piece, 
-                             const hoxPosition& newPos )
-{
-    hoxMove       move;   // Make a new Move
-    hoxGameStatus gameStatus = hoxGAME_STATUS_IN_PROGRESS;
+    hoxMove           move;   // Make a new Move
+    hoxGameStatus     gameStatus = hoxGAME_STATUS_UNKNOWN;
 
     /* Ask the referee to check if the move is valid. */
 
@@ -646,9 +638,6 @@ hoxCoreBoard::_CanPieceMoveNext( hoxPiece* piece ) const
     if ( _IsBoardInReviewMode() )
         return false;
 
-    if ( m_referee->GetNextColor() != piece->GetColor() )
-        return false;
-
     if ( piece->GetColor() != m_localColor )
         return false;
 
@@ -658,50 +647,47 @@ hoxCoreBoard::_CanPieceMoveNext( hoxPiece* piece ) const
 bool 
 hoxCoreBoard::_IsBoardInReviewMode() const
 {
-    if (      m_historyIndex == HISTORY_INDEX_UNKNOWN
-         ||   m_historyIndex == (int)m_historyMoves.size() - 1 )
-    {
-        return false;
-    }
-
-    return true;
+    return ( m_historyIndex != HISTORY_INDEX_END );
 }
 
 bool 
 hoxCoreBoard::DoMove( hoxMove& move )
 {
-    const char* FNAME = "hoxCoreBoard::DoMove";
+    const char* FNAME = __FUNCTION__;
 
-    /* Since this Move comes in from an external source (i.e., not from
-     * the physical owner), make sure the Board is at the END state
-     * before attempting the Move.
-     */
-    this->DoGameReview_END();
+    /* Validate the Move */
 
-	/* Validate the Move */
-
-    hoxPiece* piece = _FindPieceAt( move.piece.position );
-    wxCHECK_MSG( piece != NULL, false, "Piece is not found." );
-    
-    hoxGameStatus status;
-    if ( ! m_referee->ValidateMove( move, status ) )
+    hoxGameStatus gameStatus = hoxGAME_STATUS_UNKNOWN;
+    if ( ! m_referee->ValidateMove( move, gameStatus ) )
     {
         _PrintDebug( wxString::Format("%s: Move is not valid!!!", FNAME) );
         return false;
     }
 
-    if ( status != hoxGAME_STATUS_IN_PROGRESS)
-        SetGameOver( true );
-
-    /* Ask the core Board to perform the Move. */
-    if ( ! this->_MovePieceTo( piece, move.newPosition ) )
+    if ( gameStatus != hoxGAME_STATUS_IN_PROGRESS)
     {
-        wxLogWarning("%s: The core Board failed to perform the Move.", FNAME);
-        return false;
+        SetGameOver( true );
     }
 
     /* Keep track the list of all Moves. */
     _RecordMove( move );
+
+    /* Do not update the Pieces on Board if we are in the review mode. */
+    if ( _IsBoardInReviewMode() )
+    {
+        return true;
+    }
+
+    /* Ask the core Board to perform the Move. */
+
+    hoxPiece* piece = _FindPieceAt( move.piece.position );
+    wxCHECK_MSG( piece != NULL, false, "Piece is not found." );
+
+    if ( ! _MovePieceTo( piece, move.newPosition ) )
+    {
+        _PrintDebug( wxString::Format("%s: Piece could not be moved.", FNAME) );
+        return false;
+    }
 
     return true;
 }
@@ -749,7 +735,7 @@ hoxCoreBoard::DoGameReview_BEGIN()
 bool 
 hoxCoreBoard::DoGameReview_PREV()
 {
-    const char* FNAME = "hoxCoreBoard::DoGameReview_PREV";
+    const char* FNAME = __FUNCTION__;
 
     if ( m_historyMoves.empty() )
     {
@@ -757,7 +743,7 @@ hoxCoreBoard::DoGameReview_PREV()
         return false;
     }
 
-    if ( m_historyIndex == HISTORY_INDEX_UNKNOWN ) // not yet set?
+    if ( m_historyIndex == HISTORY_INDEX_END ) // at the END mark?
     {
         // Get the latest move.
         m_historyIndex = (int) (m_historyMoves.size() - 1);
@@ -813,22 +799,15 @@ hoxCoreBoard::DoGameReview_PREV()
 bool 
 hoxCoreBoard::DoGameReview_NEXT()
 {
-    const char* FNAME = "hoxCoreBoard::DoGameReview_NEXT";
-
     if ( m_historyMoves.empty() )
     {
         //wxLogDebug("%s: No Moves made yet.", FNAME);
         return false;
     }
 
-    if ( m_historyIndex == HISTORY_INDEX_UNKNOWN ) // not yet set?
+    if ( m_historyIndex == HISTORY_INDEX_END ) // at the END mark?
     {
         //wxLogDebug("%s: No PREV done. Do nothing. END.", FNAME);
-        return false;
-    }
-    else if ( m_historyIndex == (int)m_historyMoves.size() - 1 )
-    {
-        //wxLogDebug("%s: The index is already at END. Do nothing. END.", FNAME);
         return false;
     }
 
@@ -837,6 +816,11 @@ hoxCoreBoard::DoGameReview_NEXT()
     wxCHECK_MSG( m_historyIndex >= 0 && m_historyIndex < (int)m_historyMoves.size(), 
                  false, "Invalid index." );
     const hoxMove move = m_historyMoves[m_historyIndex];
+
+    if ( m_historyIndex == (int)m_historyMoves.size() - 1 )
+    {
+        m_historyIndex = HISTORY_INDEX_END;
+    }
 
     /* Move the piece from ORIGINAL --> NEW position. */
 
@@ -1038,7 +1022,6 @@ hoxCoreBoard::ToggleViewSide()
 wxSize 
 hoxCoreBoard::GetBestBoardSize( const int proposedHeight ) const
 {
-    const char* FNAME = "hoxCoreBoard::GetBestBoardSize";
     wxSize totalSize( proposedHeight, proposedHeight );
 
     // --- Get the board's max-dimension.
@@ -1065,8 +1048,6 @@ hoxCoreBoard::GetBestBoardSize( const int proposedHeight ) const
 wxSize 
 hoxCoreBoard::DoGetBestSize() const
 {
-    const char* FNAME = "hoxCoreBoard::DoGetBestSize";
-
     wxSize availableSize = GetParent()->GetClientSize();    
 
     int proposedHeight = 
@@ -1084,7 +1065,6 @@ void
 hoxCoreBoard::_RecordMove( const hoxMove& move )
 {
     m_historyMoves.push_back( move );
-    m_historyIndex = HISTORY_INDEX_UNKNOWN; // Clear PREVIEW mode.
 }
 
 void      
@@ -1096,7 +1076,7 @@ hoxCoreBoard::SetGameOver( bool isGameOver /* = true */ )
 
 /**
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- * TODO: This API exists ONLY to help printing debug-message related to
+ * NOTE: This API exists ONLY to help printing debug-message related to
  *       this Board.  wxLogXXX() is not used because its output can be
  *       hidden and may not be visible to the end-users.
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

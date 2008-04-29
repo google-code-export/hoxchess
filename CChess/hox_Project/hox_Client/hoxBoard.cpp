@@ -306,8 +306,8 @@ hoxBoard::OnPlayerJoin( wxCommandEvent &event )
     hoxPlayerType playerType = apPlayerInfo->type;
     if ( playerType == hoxPLAYER_TYPE_LOCAL )
     {
-        wxLogDebug("%s: Update the core Board's local-color to [%d].", 
-            FNAME, playerColor);
+        wxLogDebug("%s: Update the core Board's local-color to [%s].", 
+            FNAME, hoxUtil::ColorToString(playerColor).c_str());
         m_coreBoard->SetLocalColor( playerColor );
     }
 
