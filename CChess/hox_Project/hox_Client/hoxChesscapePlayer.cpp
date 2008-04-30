@@ -57,20 +57,20 @@ hoxChesscapePlayer::hoxChesscapePlayer( const wxString& name,
 			, m_bRequestingNewTable( false )
 			, m_bSentMyFirstMove( false )
 { 
-    const char* FNAME = "hoxChesscapePlayer::hoxChesscapePlayer";
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
 }
 
 hoxChesscapePlayer::~hoxChesscapePlayer() 
 {
-    const char* FNAME = "hoxChesscapePlayer::~hoxChesscapePlayer";
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
 }
 
 hoxResult
 hoxChesscapePlayer::ConnectToNetworkServer()
 {
-	const char* FNAME = "hoxChesscapePlayer::ConnectToNetworkServer";
+	const char* FNAME = __FUNCTION__;
 	wxLogDebug("%s: ENTER.", FNAME);
 
     m_bRequestingLogin = true;
@@ -81,7 +81,7 @@ hoxChesscapePlayer::ConnectToNetworkServer()
 hoxResult 
 hoxChesscapePlayer::QueryForNetworkTables()
 {
-	const char* FNAME = "hoxChesscapePlayer::QueryForNetworkTables";
+	const char* FNAME = __FUNCTION__;
 	wxLogDebug("%s: ENTER.", FNAME);
 
 	/* Clone the "cache" list and return the cloned */
@@ -132,7 +132,7 @@ hoxChesscapePlayer::OpenNewNetworkTable()
 void 
 hoxChesscapePlayer::OnRequest_FromTable( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = "hoxChesscapePlayer::OnRequest_FromTable";
+    const char* FNAME = __FUNCTION__;
 
     switch ( apRequest->type )
     {
@@ -187,7 +187,7 @@ hoxChesscapePlayer::OnRequest_FromTable( hoxRequest_APtr apRequest )
 void 
 hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 {
-    const char* FNAME = "hoxChesscapePlayer::OnConnectionResponse_PlayerData";
+    const char* FNAME = __FUNCTION__;
     hoxResult result = hoxRC_OK;
 
     const hoxResponse_APtr response( wxDynamicCast(event.GetEventObject(), hoxResponse) );
@@ -243,7 +243,7 @@ bool
 hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
 	                                       hoxNetworkTableInfo& tableInfo ) const
 {
-	const char* FNAME = "hoxChesscapePlayer::_ParseTableInfoString";
+	const char* FNAME = __FUNCTION__;
 	wxString delims;
 	delims += 0x10;
 	// ... Do not return empty tokens
@@ -458,7 +458,7 @@ hoxChesscapePlayer::_FindTableById( const wxString&       tableId,
 bool 
 hoxChesscapePlayer::_AddTableToList( const wxString& tableStr ) const
 {
-	const char* FNAME = "hoxChesscapePlayer::_AddTableToList";
+	const char* FNAME = __FUNCTION__;
 	hoxNetworkTableInfo tableInfo;
 
 	if ( ! _ParseTableInfoString( tableStr,
@@ -477,8 +477,6 @@ hoxChesscapePlayer::_AddTableToList( const wxString& tableStr ) const
 bool 
 hoxChesscapePlayer::_RemoveTableFromList( const wxString& tableId ) const
 {
-	const char* FNAME = "hoxChesscapePlayer::_RemoveTableFromList";
-
 	for ( hoxNetworkTableInfoList::iterator it = m_networkTables.begin();
 		                                    it != m_networkTables.end(); 
 										  ++it )
@@ -497,7 +495,7 @@ bool
 hoxChesscapePlayer::_UpdateTableInList( const wxString&      tableStr,
 									    hoxNetworkTableInfo* pTableInfo /* = NULL */ )
 {
-	const char* FNAME = "hoxChesscapePlayer::_UpdateTableInList";
+	const char* FNAME = __FUNCTION__;
 	hoxNetworkTableInfo tableInfo;
 
 	if ( ! _ParseTableInfoString( tableStr,
@@ -567,7 +565,7 @@ void
 hoxChesscapePlayer::_AddPlayerToList( const wxString& sPlayerId,
                                       const int       nPlayerScore ) const
 {
-    const char* FNAME = "hoxChesscapePlayer::_AddPlayerToList";
+    const char* FNAME = __FUNCTION__;
 
     hoxPlayerInfo_SPtr pPlayerInfo( new hoxPlayerInfo() );
     pPlayerInfo->id = sPlayerId;
@@ -656,7 +654,7 @@ hoxChesscapePlayer::_ParseIncomingCommand( const wxString& contentStr,
 										   wxString&       command,
 										   wxString&       paramsStr ) const
 {
-	const char* FNAME = "hoxChesscapePlayer::_ParseIncomingCommand";
+	const char* FNAME = __FUNCTION__;
 
 	/* CHECK: The first character must be 0x10 */
 	if ( contentStr.empty() || contentStr[0] != 0x10 )
@@ -681,7 +679,7 @@ hoxChesscapePlayer::_ParseLoginInfoString( const wxString& cmdStr,
 	                                       wxString&       score,
 	                                       wxString&       role ) const
 {
-    const char* FNAME = "hoxChesscapePlayer::_ParseLoginInfoString";
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
 
 	wxString delims;
@@ -709,7 +707,7 @@ bool
 hoxChesscapePlayer::_HandleCmd_Login( const hoxResponse_APtr& response,
                                       const wxString&         cmdStr )
 {
-	const char* FNAME = "hoxChesscapePlayer::_HandleCmd_Login";
+	const char* FNAME = __FUNCTION__;
 	wxLogDebug("%s: ENTER.", FNAME);
 
     hoxSite* site = this->GetSite();
@@ -746,7 +744,7 @@ bool
 hoxChesscapePlayer::_HandleCmd_Code( const hoxResponse_APtr& response,
                                      const wxString&         cmdStr )
 {
-	const char* FNAME = "hoxChesscapePlayer::_HandleCmd_Code";
+	const char* FNAME = __FUNCTION__;
 	wxLogDebug("%s: ENTER.", FNAME);
 
     hoxSite* site = this->GetSite();
@@ -767,7 +765,7 @@ hoxChesscapePlayer::_HandleCmd_Code( const hoxResponse_APtr& response,
 bool
 hoxChesscapePlayer::_HandleCmd_Logout( const wxString& cmdStr )
 {
-	const char* FNAME = "hoxChesscapePlayer::_HandleCmd_Logout";
+	const char* FNAME = __FUNCTION__;
 	wxLogDebug("%s: ENTER.", FNAME);
 
     const wxString who = cmdStr.BeforeFirst( 0x10 );
@@ -784,7 +782,7 @@ hoxChesscapePlayer::_HandleCmd_Logout( const wxString& cmdStr )
 bool 
 hoxChesscapePlayer::_HandleCmd_Clients( const wxString& cmdStr )
 {
-	const char* FNAME = "hoxChesscapePlayer::_HandleCmd_Clients";
+	const char* FNAME = __FUNCTION__;
 	wxLogDebug("%s: ENTER.", FNAME);
 
 	/* Clear out the existing table-list. */
@@ -830,7 +828,7 @@ hoxChesscapePlayer::_HandleCmd_Clients( const wxString& cmdStr )
 bool 
 hoxChesscapePlayer::_HandleCmd_Show(const wxString& cmdStr)
 {
-	const char* FNAME = "hoxChesscapePlayer::_HandleCmd_Show";
+	const char* FNAME = __FUNCTION__;
 	wxLogDebug("%s: ENTER.", FNAME);
 
 	/* Clear out the existing table-list. */
@@ -855,7 +853,7 @@ hoxChesscapePlayer::_HandleCmd_Show(const wxString& cmdStr)
 bool 
 hoxChesscapePlayer::_HandleCmd_Unshow(const wxString& cmdStr)
 {
-	const char* FNAME = "hoxChesscapePlayer::_HandleCmd_Unshow";
+	const char* FNAME = __FUNCTION__;
 
 	const wxString tableId = cmdStr.BeforeFirst(0x10);
 	wxLogDebug("%s: Processing UNSHOW [%s] command...", FNAME, tableId.c_str());
@@ -873,7 +871,7 @@ bool
 hoxChesscapePlayer::_HandleCmd_Update( const wxString&      cmdStr,
 									   hoxNetworkTableInfo* pTableInfo /* = NULL */)
 {
-	const char* FNAME = "hoxChesscapePlayer::_HandleCmd_Update";
+	const char* FNAME = __FUNCTION__;
 
 	wxString updateCmd = cmdStr.BeforeFirst(0x10);
 
@@ -892,7 +890,7 @@ hoxChesscapePlayer::_HandleCmd_Update( const wxString&      cmdStr,
 bool 
 hoxChesscapePlayer::_HandleTableCmd( const wxString& cmdStr )
 {
-	const char* FNAME = "hoxChesscapePlayer::_HandleTableCmd";
+	const char* FNAME = __FUNCTION__;
 
 	const wxString tCmd = cmdStr.BeforeFirst(0x10);
 	wxString subCmdStr = cmdStr.AfterFirst(0x10);
@@ -930,7 +928,7 @@ hoxChesscapePlayer::_HandleTableCmd( const wxString& cmdStr )
 bool 
 hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 {
-	const char* FNAME = "hoxChesscapePlayer::_HandleTableCmd_Settings";
+	const char* FNAME = __FUNCTION__;
 	wxString delims;
 	delims += 0x10;
 	wxStringTokenizer tkz( cmdStr, delims, wxTOKEN_STRTOK ); // No empty tokens
@@ -1016,7 +1014,6 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 		nRedGameTime, nBlackGameTime);
 
 	/* Set the game times. 
-	 * TODO: Ignore INCREMENT game-time for now.
 	 */
 	if (  ! m_pendingJoinTableId.empty() )
 	{
@@ -1051,7 +1048,7 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 
 		// Inform the site.
 		hoxSite* site = this->GetSite();
-		site->JoinExistingTable( *pTableInfo );
+		site->JoinLocalPlayerToTable( *pTableInfo );
 	}
 
 	return true;
@@ -1092,7 +1089,7 @@ bool
 hoxChesscapePlayer::_HandleTableCmd_PastMoves( hoxTable_SPtr   pTable,
 	                                           const wxString& cmdStr )
 {
-	const char* FNAME = "hoxChesscapePlayer::_HandleTableCmd_PastMoves";
+	const char* FNAME = __FUNCTION__;
     hoxStringList moves;
 
     /* Get the list of Past Moves. */
@@ -1118,7 +1115,7 @@ bool
 hoxChesscapePlayer::_HandleTableCmd_Move( hoxTable_SPtr   pTable,
 	                                      const wxString& cmdStr )
 {
-	const char* FNAME = "hoxChesscapePlayer::_HandleTableCmd_Move";
+	const char* FNAME = __FUNCTION__;
 	wxString moveStr;
 	wxString moveParam;
 
@@ -1159,7 +1156,7 @@ bool
 hoxChesscapePlayer::_HandleTableCmd_GameOver( hoxTable_SPtr   pTable,
 	                                          const wxString& cmdStr )
 {
-	const char* FNAME = "hoxChesscapePlayer::_HandleTableCmd_GameOver";
+	const char* FNAME = __FUNCTION__;
 	hoxGameStatus gameStatus;
 
 	const wxString statusStr = cmdStr.BeforeFirst(0x10);
@@ -1191,7 +1188,7 @@ hoxChesscapePlayer::_HandleTableCmd_GameOver( hoxTable_SPtr   pTable,
 bool 
 hoxChesscapePlayer::_HandleTableCmd_OfferDraw( hoxTable_SPtr pTable )
 {
-	const char* FNAME = "hoxChesscapePlayer::_HandleTableCmd_OfferDraw";
+	const char* FNAME = __FUNCTION__;
 
 	/* Make sure that this Player is playing... */
 
@@ -1219,7 +1216,7 @@ bool
 hoxChesscapePlayer::_HandleTableCmd_Clients( hoxTable_SPtr   pTable,
 	                                         const wxString& cmdStr )
 {
-	const char* FNAME = "hoxChesscapePlayer::_HandleTableCmd_Clients";
+	const char* FNAME = __FUNCTION__;
 
 	wxString delims;
 	delims += 0x10;
@@ -1234,7 +1231,7 @@ hoxChesscapePlayer::_HandleTableCmd_Clients( hoxTable_SPtr   pTable,
 		sPlayerId = tkz.GetNextToken();
 
         const hoxColor currentRole = pTable->GetPlayerRole( sPlayerId );
-        if ( currentRole != hoxCOLOR_UNKNOWN )
+        if ( currentRole != hoxCOLOR_UNKNOWN )  // already joined the Table?
             continue;
 
         pPlayerInfo = _FindPlayerById( sPlayerId );
@@ -1267,7 +1264,7 @@ bool
 hoxChesscapePlayer::_HandleTableCmd_Unjoin( hoxTable_SPtr   pTable,
 	                                        const wxString& cmdStr )
 {
-	const char* FNAME = "hoxChesscapePlayer::_HandleTableCmd_Unjoin";
+	const char* FNAME = __FUNCTION__;
 
 	const wxString sPlayerId = cmdStr;
     const int      nPlayerScore = 1500;  // *** FIXME
@@ -1286,7 +1283,7 @@ hoxChesscapePlayer::_HandleTableCmd_Unjoin( hoxTable_SPtr   pTable,
 bool 
 hoxChesscapePlayer::_HandleTableMsg( const wxString& cmdStr )
 {
-	const char* FNAME = "hoxChesscapePlayer::_HandleTableMsg";
+	const char* FNAME = __FUNCTION__;
 
 	/* NOTE: The Chesscape server only support 1 table for now. */
 
@@ -1311,7 +1308,7 @@ hoxChesscapePlayer::_HandleTableMsg( const wxString& cmdStr )
 bool 
 hoxChesscapePlayer::_HandleCmd_UpdateRating( const wxString& cmdStr )
 {
-	const char* FNAME = "hoxChesscapePlayer::_HandleCmd_UpdateRating";
+	const char* FNAME = __FUNCTION__;
 
 	/* TODO: Update THIS Player's rating only. */
 
@@ -1360,7 +1357,7 @@ hoxChesscapePlayer::_HandleCmd_PlayerInfo( const wxString& cmdStr )
 void 
 hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 {
-	const char* FNAME = "hoxChesscapePlayer::_OnTableUpdated";
+	const char* FNAME = __FUNCTION__;
 	hoxResult result;
 
     hoxSite* site = this->GetSite();
@@ -1379,7 +1376,7 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
         hoxNetworkTableInfo newInfo( tableInfo );
         if ( newInfo.redTime.IsEmpty() ) newInfo.redTime = newInfo.initialTime;
         if ( newInfo.blackTime.IsEmpty() ) newInfo.blackTime = newInfo.initialTime;
-		site->JoinNewTable( newInfo );
+		site->JoinLocalPlayerToTable( newInfo );
 		return;  // *** Done.
 	}
 
@@ -1476,7 +1473,7 @@ hoxChesscapePlayer::_getMyTable() const
 void 
 hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 {
-    const char* FNAME = "hoxChesscapePlayer::OnConnectionResponse";
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
 
     hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
