@@ -80,8 +80,7 @@ public:
                                      const int         playerScore,
 									 const hoxColor    requestColor) = 0;
 
-	virtual hoxResult JoinNewTable(const hoxNetworkTableInfo& tableInfo) = 0;
-    virtual hoxResult JoinExistingTable(const hoxNetworkTableInfo& tableInfo) = 0;
+	virtual hoxResult JoinLocalPlayerToTable(const hoxNetworkTableInfo& tableInfo) = 0;
     virtual hoxResult DisplayListOfTables(const hoxNetworkTableInfoList& tableList) = 0;
 
     virtual void OnResponse_LOGIN( const hoxResponse_APtr& response ) = 0;
@@ -185,8 +184,7 @@ public:
                                      const int         playerScore,
 									 const hoxColor    requestColor);
 
-	virtual hoxResult JoinNewTable(const hoxNetworkTableInfo& tableInfo);
-    virtual hoxResult JoinExistingTable(const hoxNetworkTableInfo& tableInfo);
+	virtual hoxResult JoinLocalPlayerToTable(const hoxNetworkTableInfo& tableInfo);
     virtual hoxResult DisplayListOfTables(const hoxNetworkTableInfoList& tableList);
 
 	virtual void Handle_ShutdownReadyFromPlayer();

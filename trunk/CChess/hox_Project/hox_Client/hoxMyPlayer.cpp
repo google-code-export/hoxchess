@@ -195,7 +195,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 				    FNAME, sType.c_str(), sContent.c_str());
                 break;
 		    }
-		    site->JoinNewTable( *pTableInfo );
+		    site->JoinLocalPlayerToTable( *pTableInfo );
 		    break;
         }
         case hoxREQUEST_LEAVE:

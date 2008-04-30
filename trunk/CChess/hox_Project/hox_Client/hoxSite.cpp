@@ -57,7 +57,7 @@ hoxSite::~hoxSite()
 }
 
 hoxResult 
-hoxSite::CloseTable(hoxTable_SPtr pTable)
+hoxSite::CloseTable( hoxTable_SPtr pTable )
 {
     m_tableMgr.RemoveTable( pTable );
     return hoxRC_OK;
@@ -87,7 +87,7 @@ hoxSite::GetBoardFeatureFlags() const
 void
 hoxSite::ShowProgressDialog( bool bShow /* = true */ )
 {
-    const char* FNAME = "hoxSite::ShowProgressDialog";
+    const char* FNAME = __FUNCTION__;
 
     if ( bShow )
     {
@@ -130,13 +130,13 @@ hoxRemoteSite::hoxRemoteSite(const hoxServerAddress& address,
                              hoxSiteType             type /*= hoxSITE_TYPE_REMOTE*/)
         : hoxSite( type, address )
 {
-    const char* FNAME = "hoxRemoteSite::hoxRemoteSite";
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
 }
 
 hoxRemoteSite::~hoxRemoteSite()
 {
-    const char* FNAME = "hoxRemoteSite::~hoxRemoteSite";
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
 }
 
@@ -152,16 +152,13 @@ hoxRemoteSite::CreateLocalPlayer( const wxString& playerName )
 void 
 hoxRemoteSite::OnResponse_LOGIN( const hoxResponse_APtr& response )
 {
-    const char* FNAME = "hoxRemoteSite::OnResponse_LOGIN";
-
     this->ShowProgressDialog( false );
 
     /* If error, then close the Site. */
 
     if ( response->code != hoxRC_OK )
     {
-        wxLogError("%s: The response's code for [%s] is ERROR [%s: %s].", 
-            FNAME, 
+        wxLogError("The response's code for [%s] is ERROR [%s: %s].", 
             hoxUtil::RequestTypeToString(response->type).c_str(), 
             hoxUtil::ResultToStr(response->code),
             response->content.c_str());
@@ -172,7 +169,7 @@ hoxRemoteSite::OnResponse_LOGIN( const hoxResponse_APtr& response )
 void 
 hoxRemoteSite::OnResponse_LOGOUT( const hoxResponse_APtr& response )
 {
-    const char* FNAME = "hoxRemoteSite::OnResponse_LOGOUT";
+    const char* FNAME = __FUNCTION__;
 
 	wxLogDebug("%s: Received LOGOUT's response [%d: %s].", 
 		FNAME, response->code, response->content.c_str());
@@ -188,10 +185,9 @@ hoxRemoteSite::OnPlayerJoined( const wxString&  tableId,
                                const int        playerScore,
 				 			   const hoxColor   requestColor)
 {
-    const char* FNAME = "hoxRemoteSite::OnPlayerJoined";
-	hoxResult   result;
+    const char* FNAME = __FUNCTION__;
     hoxTable_SPtr pTable;
-    hoxPlayer*  player = NULL;
+    hoxPlayer*    player = NULL;
 
 	/* Lookup the Table.
      * Make sure that it must be already created.
@@ -199,37 +195,24 @@ hoxRemoteSite::OnPlayerJoined( const wxString&  tableId,
 	pTable = this->FindTable( tableId );
 	if ( pTable.get() == NULL )
 	{
-        wxLogDebug("%s: *** WARN *** The table [%s] does NOT exist.", FNAME, tableId.c_str());
+        wxLogDebug("%s: *** WARN *** Table [%s] NOT exist.", FNAME, tableId.c_str());
 		return hoxRC_ERR;
 	}
 
-	/* Lookup the Player.
-     * If not found, then create a new "dummy" player.
+	/* Lookup the Player (create a new "dummy" player if necessary).
      */
-    player = this->FindPlayer( playerId );
-	if ( player == NULL )
-	{
-        player = this->CreateDummyPlayer( playerId, playerScore );
-	}
+    player = this->GetPlayerById( playerId, playerScore );
+    wxASSERT( player != NULL );
 
     /* Attempt to join the table with the requested color.
      */
-    result = player->JoinTableAs( pTable, requestColor );
-    if ( result != hoxRC_OK )
-    {
-        wxLogDebug("%s: *** ERROR *** Failed to ask table to join [%s] as color [%d].", 
-            FNAME, playerId.c_str(), requestColor);
-        // NOTE: If a new player was created, just leave it as is.
-        return hoxRC_ERR;
-    }
-
-	return hoxRC_OK;
+    return player->JoinTableAs( pTable, requestColor );
 }
 
 hoxResult 
-hoxRemoteSite::JoinNewTable(const hoxNetworkTableInfo& tableInfo)
+hoxRemoteSite::JoinLocalPlayerToTable( const hoxNetworkTableInfo& tableInfo )
 {
-	const char* FNAME = "hoxRemoteSite::JoinNewTable";
+	const char* FNAME = __FUNCTION__;
     hoxResult      result;
     hoxTable_SPtr  pTable;
     const wxString tableId = tableInfo.id;
@@ -266,41 +249,36 @@ hoxRemoteSite::JoinNewTable(const hoxNetworkTableInfo& tableInfo)
 
     if ( !redId.empty() && pTable->GetRedPlayer() == NULL )
     {
-	    if ( NULL == (player = this->FindPlayer( redId )) )
-	    {
-            player = this->CreateDummyPlayer( redId, ::atoi(tableInfo.redScore) );
-	    }
+        player = this->GetPlayerById( redId, ::atoi(tableInfo.redScore) );
+        wxASSERT( player != NULL );
         result = player->JoinTableAs( pTable, hoxCOLOR_RED );
-        wxCHECK( result == hoxRC_OK, hoxRC_ERR  );
     }
     if ( !blackId.empty() && pTable->GetBlackPlayer() == NULL )
     {
-	    if ( NULL == (player = this->FindPlayer( blackId )) )
-	    {
-            player = this->CreateDummyPlayer( blackId, ::atoi(tableInfo.blackScore) );
-	    }
+        player = this->GetPlayerById( blackId, ::atoi(tableInfo.blackScore) );
+	    wxASSERT( player != NULL );
         result = player->JoinTableAs( pTable, hoxCOLOR_BLACK );
-        wxCHECK( result == hoxRC_OK, hoxRC_ERR  );
     }
 
 	wxGetApp().GetFrame()->UpdateSiteTreeUI();
 
-	return hoxRC_OK;
+	return result;
 }
 
 hoxResult
 hoxRemoteSite::DisplayListOfTables( const hoxNetworkTableInfoList& tableList )
 {
     const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
 
     /* Show tables. */
     MyFrame* frame = wxGetApp().GetFrame();
 	const unsigned int actionFlags = this->GetCurrentActionFlags();
+    
     hoxTablesDialog tablesDlg( frame, wxID_ANY, "Tables", tableList, actionFlags );
     tablesDlg.ShowModal();
+    
     hoxTablesDialog::CommandId selectedCommand = tablesDlg.GetSelectedCommand();
-    wxString selectedId = tablesDlg.GetSelectedId();
+    const wxString selectedId = tablesDlg.GetSelectedId();
 
     /* Find out which command the use wants to execute... */
 
@@ -353,8 +331,7 @@ hoxRemoteSite::GetName() const
 hoxResult 
 hoxRemoteSite::Connect()
 {
-    const char* FNAME = "hoxRemoteSite::Connect";
-    hoxResult result;
+    const char* FNAME = __FUNCTION__;
 
     if ( this->IsConnected() )
     {
@@ -366,21 +343,14 @@ hoxRemoteSite::Connect()
 
     this->ShowProgressDialog( true );
 
-    result = m_player->ConnectToNetworkServer();
-    if ( result != hoxRC_OK )
-    {
-        wxLogError("%s: Failed to connect to server.", FNAME);
-        return hoxRC_ERR;
-    }
-
-    return hoxRC_OK;
+    return m_player->ConnectToNetworkServer();
 }
 
 hoxResult 
 hoxRemoteSite::Close()
 {
-    const char* FNAME = "hoxRemoteSite::Close";
-	hoxResult result;
+    const char* FNAME = __FUNCTION__;
+	hoxResult result = hoxRC_OK;
     wxLogDebug("%s: ENTER.", FNAME);
 
 	if ( m_siteClosing )
@@ -392,24 +362,16 @@ hoxRemoteSite::Close()
 
 	if ( m_player != NULL )
 	{
-		/* Inform the remote server that the player is logging-out. 
-		 */
 		result = m_player->DisconnectFromNetworkServer();
-		if ( result != hoxRC_OK )
-		{
-			wxLogError("%s: Failed to connect to server.", FNAME);
-			return hoxRC_ERR;
-		}
 	}
 
-    return hoxRC_OK;
+    return result;
 }
 
 hoxResult 
 hoxRemoteSite::QueryForNetworkTables()
 {
-    const char* FNAME = "hoxRemoteSite::QueryForNetworkTables";
-    hoxResult result;
+    const char* FNAME = __FUNCTION__;
 
     if ( ! this->IsConnected() )
     {
@@ -417,14 +379,7 @@ hoxRemoteSite::QueryForNetworkTables()
         return hoxRC_ERR;
     }
 
-    result = m_player->QueryForNetworkTables();
-    if ( result != hoxRC_OK )
-    {
-        wxLogError("%s: Failed to query for tables.", FNAME);
-        return hoxRC_ERR;
-    }
-
-    return hoxRC_OK;
+    return m_player->QueryForNetworkTables();
 }
 
 bool 
@@ -435,90 +390,10 @@ hoxRemoteSite::IsConnected() const
              && m_player->GetConnection()->IsConnected() );
 }
 
-hoxResult 
-hoxRemoteSite::JoinExistingTable(const hoxNetworkTableInfo& tableInfo)
-{
-    const char* FNAME = "hoxRemoteSite::JoinExistingTable";
-	hoxResult   result;
-    hoxTable_SPtr pTable;
-    wxString    tableId = tableInfo.id;
-
-	/* Make sure that no Table with the specified Id is created yet. */
-	pTable = this->FindTable( tableId );
-	if ( pTable.get() != NULL )
-	{
-		wxLogWarning("This Site should only handle JOIN (existing) table.");
-		return hoxRC_ERR;
-	}
-	
-    /***********************/
-    /* Create a new table. */
-    /***********************/
-
-    pTable = _CreateNewTableWithGUI( tableInfo );
-
-    /***********************/
-    /* Setup players       */
-    /***********************/
-
-	hoxColor myColor = hoxCOLOR_NONE;
-    hoxPlayer*    red_player = NULL;
-    hoxPlayer*    black_player = NULL;
-	int           score = 0;
-
-	/* Determine which color my player should play (RED/BLACK/OBSERVER)? */
-
-	if ( tableInfo.redId == m_player->GetName() )
-	{
-		myColor = hoxCOLOR_RED;
-		red_player = m_player;
-	}
-	else if ( tableInfo.blackId == m_player->GetName() )
-	{
-		myColor = hoxCOLOR_BLACK;
-		black_player = m_player;
-	}
-
-	/* Create additional Dummy player(s) as required. */
-
-	if ( red_player == NULL && !tableInfo.redId.empty() )
-	{
-		score = ::atoi( tableInfo.redScore.c_str() ); 
-		red_player = m_playerMgr.CreateDummyPlayer( tableInfo.redId, score);
-	}
-	if ( black_player == NULL && !tableInfo.blackId.empty() )
-	{
-		score = ::atoi( tableInfo.blackScore.c_str() ); 
-		black_player = m_playerMgr.CreateDummyPlayer( tableInfo.blackId, score);
-	}
-
-    /* Join the players at the table. */
-
-    if ( red_player != NULL )
-    {
-        result = red_player->JoinTableAs( pTable, hoxCOLOR_RED );
-        wxASSERT( result == hoxRC_OK  );
-    }
-    if ( black_player != NULL )
-    {
-        result = black_player->JoinTableAs( pTable, hoxCOLOR_BLACK );
-        wxASSERT( result == hoxRC_OK  );
-    }
-	if ( myColor == hoxCOLOR_NONE )
-	{
-		result = m_player->JoinTableAs( pTable, myColor );
-		wxASSERT( result == hoxRC_OK  );
-	}
-
-	wxGetApp().GetFrame()->UpdateSiteTreeUI();
-
-	return hoxRC_OK;
-}
-
 void 
 hoxRemoteSite::Handle_ShutdownReadyFromPlayer()
 {
-    const char* FNAME = "hoxRemoteSite::Handle_ShutdownReadyFromPlayer";
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
 
 	if ( m_player == NULL )
@@ -603,7 +478,7 @@ hoxRemoteSite::OnLocalRequest_NEW()
 hoxTable_SPtr
 hoxRemoteSite::_CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo)
 {
-    const char* FNAME = "hoxRemoteSite::_CreateNewTableWithGUI";
+    const char* FNAME = __FUNCTION__;
     hoxTable_SPtr pTable;
     const wxString tableId = tableInfo.id;
 
@@ -642,7 +517,7 @@ hoxRemoteSite::_CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo)
 hoxChesscapeSite::hoxChesscapeSite( const hoxServerAddress& address )
         : hoxRemoteSite( address, hoxSITE_TYPE_CHESSCAPE )
 {
-    const char* FNAME = "hoxChesscapeSite::hoxChesscapeSite";
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
 
     hoxPlayersUI* playersUI = wxGetApp().GetFrame()->GetSitePlayersUI();
@@ -652,7 +527,7 @@ hoxChesscapeSite::hoxChesscapeSite( const hoxServerAddress& address )
 
 hoxChesscapeSite::~hoxChesscapeSite()
 {
-    const char* FNAME = "hoxChesscapeSite::~hoxChesscapeSite";
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
 
     hoxPlayersUI* playersUI = wxGetApp().GetFrame()->GetSitePlayersUI();
@@ -673,17 +548,13 @@ hoxChesscapeSite::CreateLocalPlayer( const wxString& playerName )
 void 
 hoxChesscapeSite::OnResponse_LOGIN( const hoxResponse_APtr& response )
 {
-    const char* FNAME = "hoxChesscapeSite::OnResponse_LOGIN";
-    wxLogDebug("%s: ENTER.", FNAME);
-
     this->ShowProgressDialog( false );
 
     /* If error, then close the Site. */
 
     if ( response->code != hoxRC_OK )
     {
-        wxLogError("%s: The response's code for [%s] is ERROR [%s: %s].", 
-            FNAME, 
+        wxLogError("The response's code for [%s] is ERROR [%s: %s].", 
             hoxUtil::RequestTypeToString(response->type).c_str(), 
             hoxUtil::ResultToStr(response->code),
             response->content.c_str());
@@ -884,7 +755,7 @@ hoxSiteManager::CreateSite( hoxSiteType             siteType,
 				            const wxString&         userName,
 						    const wxString&         password )
 {
-	const char* FNAME = "hoxSiteManager::CreateSite";
+	const char* FNAME = __FUNCTION__;
 	hoxSite*           site = NULL;
     hoxLocalPlayer*    localPlayer = NULL;
     hoxConnection_APtr connection;
@@ -936,7 +807,7 @@ hoxSiteManager::FindSite( const hoxServerAddress& address ) const
 void
 hoxSiteManager::DeleteSite( hoxSite* site )
 {
-    const char* FNAME = "hoxSiteManager::DeleteSite";
+    const char* FNAME = __FUNCTION__;
 
     wxCHECK_RET( site != NULL, "The Site must not be NULL." );
     
@@ -949,7 +820,7 @@ hoxSiteManager::DeleteSite( hoxSite* site )
 void 
 hoxSiteManager::Close()
 {
-    const char* FNAME = "hoxSiteManager::Close";
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
 
     for ( hoxSiteList::iterator it = m_sites.begin();
