@@ -150,7 +150,6 @@ hoxUtil::RequestTypeToString( const hoxRequestType requestType )
         case hoxREQUEST_LOGIN:       return "LOGIN";
         case hoxREQUEST_LOGOUT:      return "LOGOUT";
         case hoxREQUEST_SHUTDOWN:    return "SHUTDOWN";
-        case hoxREQUEST_POLL:        return "POLL";
         case hoxREQUEST_MOVE:        return "MOVE";
         case hoxREQUEST_LIST:        return "LIST";
         case hoxREQUEST_NEW:         return "NEW";
@@ -168,7 +167,6 @@ hoxUtil::RequestTypeToString( const hoxRequestType requestType )
         case hoxREQUEST_INVITE:      return "INVITE";
         case hoxREQUEST_PLAYER_INFO:   return "PLAYER_INFO";
 		case hoxREQUEST_PLAYER_STATUS: return "PLAYER_STATUS";
-        case hoxREQUEST_OUT_DATA:    return "OUT_DATA";
         case hoxREQUEST_MSG:         return "MSG";
 
         default:                     return "UNKNOWN";
@@ -187,7 +185,6 @@ hoxUtil::StringToRequestType( const wxString& input )
     if ( input == "LOGIN" )       return hoxREQUEST_LOGIN;
     if ( input == "LOGOUT" )      return hoxREQUEST_LOGOUT;
     if ( input == "SHUTDOWN" )    return hoxREQUEST_SHUTDOWN;
-    if ( input == "POLL" )        return hoxREQUEST_POLL;
     if ( input == "MOVE" )        return hoxREQUEST_MOVE;
     if ( input == "LIST" )        return hoxREQUEST_LIST;
     if ( input == "NEW" )         return hoxREQUEST_NEW;
@@ -205,7 +202,6 @@ hoxUtil::StringToRequestType( const wxString& input )
     if ( input == "INVITE" )      return hoxREQUEST_INVITE;
     if ( input == "PLAYER_INFO" )   return hoxREQUEST_PLAYER_INFO;
 	if ( input == "PLAYER_STATUS" ) return hoxREQUEST_PLAYER_STATUS;
-    if ( input == "OUT_DATA" )    return hoxREQUEST_OUT_DATA;
     if ( input == "MSG" )         return hoxREQUEST_MSG;
 
     return hoxREQUEST_UNKNOWN;

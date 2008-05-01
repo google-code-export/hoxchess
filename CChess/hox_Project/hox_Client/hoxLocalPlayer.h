@@ -27,7 +27,6 @@
 #ifndef __INCLUDED_HOX_LOCAL_PLAYER_H_
 #define __INCLUDED_HOX_LOCAL_PLAYER_H_
 
-#include <wx/wx.h>
 #include "hoxPlayer.h"
 #include "hoxTypes.h"
 

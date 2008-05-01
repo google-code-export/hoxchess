@@ -228,7 +228,6 @@ enum hoxRequestType
     hoxREQUEST_LOGIN,
     hoxREQUEST_LOGOUT,
     hoxREQUEST_SHUTDOWN,
-    hoxREQUEST_POLL,
     hoxREQUEST_MOVE,
     hoxREQUEST_LIST,
     hoxREQUEST_NEW,
@@ -268,9 +267,6 @@ enum hoxRequestType
 
     hoxREQUEST_PLAYER_STATUS,
         /* Event generated from a Player when his Status is changed. */
-
-    hoxREQUEST_OUT_DATA,
-        /* Outgoing data to be sent out */
 
     hoxREQUEST_MSG
         /* Message generated (incoming) from a physical Table */

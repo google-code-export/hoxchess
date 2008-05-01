@@ -27,9 +27,7 @@
 #ifndef __INCLUDED_HOX_MY_PLAYER_H_
 #define __INCLUDED_HOX_MY_PLAYER_H_
 
-#include <wx/wx.h>
 #include "hoxLocalPlayer.h"
-#include "hoxEnums.h"
 #include "hoxTypes.h"
 
 /**
@@ -55,11 +53,16 @@ public:
     void OnConnectionResponse( wxCommandEvent& event ); 
 
 private:
-    hoxResult _HandleResponseEvent_LOGIN( const wxString& sContent );
+    void _HandleResponseEvent_LOGIN( const wxString&         sCode,
+                                     const wxString&         sContent,
+                                     const hoxResponse_APtr& apResponse );
 
-    hoxResult _ParsePlayerLoginEvent( const wxString& sContent,
-                                      wxString&       playerId,
-                                      int&            nPlayerScore );
+    void _HandleResponseEvent_LOGOUT( const wxString&         sContent,
+                                      const hoxResponse_APtr& apResponse );
+
+    void _ParsePlayerLoginEvent( const wxString& sContent,
+                                 wxString&       playerId,
+                                 int&            nPlayerScore );
 
     hoxResult _ParseNetworkTables( const wxString&          responseStr,
                                    hoxNetworkTableInfoList& tableList );

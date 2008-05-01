@@ -171,12 +171,27 @@ hoxRemoteSite::OnResponse_LOGOUT( const hoxResponse_APtr& response )
 {
     const char* FNAME = __FUNCTION__;
 
-	wxLogDebug("%s: Received LOGOUT's response [%d: %s].", 
-		FNAME, response->code, response->content.c_str());
+	wxLogDebug("%s: ENTER. (%d: %s).",
+        FNAME, response->code, response->content.c_str());
     if ( m_player != NULL )
     {
         m_player->OnClosing_FromSite();
     }
+}
+
+void
+hoxRemoteSite::OnPlayerLoggedIn( const wxString& sPlayerId,
+                                 const int       nPlayerScore )
+{
+    hoxPlayersUI* playersUI = wxGetApp().GetFrame()->GetSitePlayersUI();
+    playersUI->AddPlayer( sPlayerId, nPlayerScore );
+}
+
+void
+hoxRemoteSite::OnPlayerLoggedOut( const wxString& sPlayerId )
+{
+    hoxPlayersUI* playersUI = wxGetApp().GetFrame()->GetSitePlayersUI();
+    playersUI->RemovePlayer( sPlayerId );
 }
 
 hoxResult
@@ -607,21 +622,6 @@ hoxChesscapeSite::GetBoardFeatureFlags() const
     flags &= ~hoxBoard::hoxBOARD_FEATURE_RESET;
 
 	return flags;
-}
-
-void
-hoxChesscapeSite::OnPlayerLoggedIn( const wxString& sPlayerId,
-                                    const int       nPlayerScore )
-{
-    hoxPlayersUI* playersUI = wxGetApp().GetFrame()->GetSitePlayersUI();
-    playersUI->AddPlayer( sPlayerId, nPlayerScore );
-}
-
-void
-hoxChesscapeSite::OnPlayerLoggedOut( const wxString& sPlayerId )
-{
-    hoxPlayersUI* playersUI = wxGetApp().GetFrame()->GetSitePlayersUI();
-    playersUI->RemovePlayer( sPlayerId );
 }
 
 void

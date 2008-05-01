@@ -197,10 +197,8 @@ public:
 	virtual void OnResponse_LOGOUT( const hoxResponse_APtr& response );
 
     virtual void OnPlayerLoggedIn( const wxString& sPlayerId,
-                                   const int       nPlayerScore )
-        {}
-    virtual void OnPlayerLoggedOut( const wxString& sPlayerId )
-        {}
+                                   const int       nPlayerScore );
+    virtual void OnPlayerLoggedOut( const wxString& sPlayerId );
 
     /*************************************************
      * Implement hoxPlayersUI::UIOwner 's interface.
@@ -231,10 +229,6 @@ public:
 	virtual unsigned int GetCurrentActionFlags() const;
 
     virtual void OnResponse_LOGIN( const hoxResponse_APtr& response );
-
-    virtual void OnPlayerLoggedIn( const wxString& sPlayerId,
-                                   const int       nPlayerScore );
-    virtual void OnPlayerLoggedOut( const wxString& sPlayerId );
 
     virtual void OnLocalRequest_JOIN( const wxString& sTableId );
     virtual void OnLocalRequest_NEW();

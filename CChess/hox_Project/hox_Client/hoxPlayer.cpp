@@ -66,7 +66,7 @@ hoxPlayer::hoxPlayer( const wxString& name,
 
 hoxPlayer::~hoxPlayer() 
 {
-    const char* FNAME = "hoxPlayer::~hoxPlayer";
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER. (%s)", FNAME, this->GetName().c_str());
 
     if ( m_connection.get() != NULL )
@@ -176,7 +176,7 @@ hoxPlayer::LeaveAllTables()
 void 
 hoxPlayer::ResetConnection()
 { 
-    const char* FNAME = "hoxPlayer::ResetConnection";
+    const char* FNAME = __FUNCTION__;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -206,7 +206,7 @@ hoxPlayer::OnClose_FromTable( const wxString& tableId )
 void 
 hoxPlayer::OnRequest_FromTable( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = "hoxPlayer::OnRequest_FromTable";
+    const char* FNAME = __FUNCTION__;
 
     if ( m_connection.get() == NULL )
     {
@@ -221,7 +221,7 @@ hoxPlayer::OnRequest_FromTable( hoxRequest_APtr apRequest )
 void 
 hoxPlayer::OnClosing_FromSite()
 {
-    const char* FNAME = "hoxPlayer::OnClosing_FromSite";
+    const char* FNAME = __FUNCTION__;
 
     wxLogDebug("%s: ENTER. (player = [%s])", FNAME, this->GetName().c_str());
 
@@ -229,14 +229,14 @@ hoxPlayer::OnClosing_FromSite()
 
     if ( m_tables.empty() )
     {
-		_PostSite_ShutdownReady();
+        m_site->Handle_ShutdownReadyFromPlayer();
     }
 }
 
 bool 
 hoxPlayer::SetConnection( hoxConnection_APtr connection )
 {
-    const char* FNAME = "hoxPlayer::SetConnection";
+    const char* FNAME = __FUNCTION__;
 
     if ( m_connection.get() != NULL )
     {
@@ -254,7 +254,7 @@ hoxPlayer::SetConnection( hoxConnection_APtr connection )
 void 
 hoxPlayer::StartConnection()
 {
-    const char* FNAME = "hoxPlayer::StartConnection";
+    const char* FNAME = __FUNCTION__;
 
     wxCHECK_RET( m_connection.get() != NULL, "The connection must have been set." );
 
@@ -264,7 +264,7 @@ hoxPlayer::StartConnection()
 void 
 hoxPlayer::ShutdownConnection()
 {
-    const char* FNAME = "hoxPlayer::ShutdownConnection";
+    const char* FNAME = __FUNCTION__;
 
     wxLogDebug("%s: Player [%s] requesting the Connection to be shutdowned...", 
         FNAME, this->GetName().c_str());
@@ -275,7 +275,7 @@ hoxPlayer::ShutdownConnection()
 void 
 hoxPlayer::AddRequestToConnection( hoxRequest_APtr apRequest )
 { 
-    const char* FNAME = "hoxPlayer::AddRequestToConnection";
+    const char* FNAME = __FUNCTION__;
 
     if ( m_connection.get() == NULL )
     {
@@ -292,15 +292,6 @@ hoxPlayer::AddRequestToConnection( hoxRequest_APtr apRequest )
         wxLogDebug("%s: Request the Connection thread to be shutdowned...", FNAME);
         m_connection->Shutdown();
     }
-}
-
-void 
-hoxPlayer::_PostSite_ShutdownReady()
-{
-	const char* FNAME  = "hoxPlayer::_PostSite_ShutdownReady";
-	wxLogDebug("%s: ENTER.", FNAME);
-
-    m_site->Handle_ShutdownReadyFromPlayer();
 }
 
 /************************* END OF FILE ***************************************/

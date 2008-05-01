@@ -583,26 +583,15 @@ void
 hoxChesscapePlayer::_UpdatePlayerInList( const wxString& sPlayerId,
 	                                     const int       nPlayerScore )
 {
-	/* Find the player from our list. */
-
-	hoxPlayerInfoList::iterator found_it = m_networkPlayers.end();
-
-	for ( hoxPlayerInfoList::iterator it = m_networkPlayers.begin();
-		                              it != m_networkPlayers.end(); ++it )
-	{
-		if ( (*it)->id == sPlayerId )
-		{
-			found_it = it;
-			break;
-		}
-	}
-
 	/* If the player was found, update the info.
      * Otherwise, add as NEW.
      */
-	if ( found_it != m_networkPlayers.end() ) // found?
+
+    hoxPlayerInfo_SPtr pPlayerInfo = _FindPlayerById( sPlayerId );
+
+	if ( pPlayerInfo.get() != NULL ) // found?
 	{
-        (*found_it)->score = nPlayerScore;
+        pPlayerInfo->score = nPlayerScore;
     }
     else
     {
@@ -629,23 +618,13 @@ hoxChesscapePlayer::_FindPlayerById( const wxString& sPlayerId ) const
 }
 
 void
-hoxChesscapePlayer::_RemovePlayerFromList( const wxString& sPlayerId ) const
+hoxChesscapePlayer::_RemovePlayerFromList( const wxString& sPlayerId )
 {
-    hoxPlayerInfoList::iterator found_it = m_networkPlayers.end();
+    hoxPlayerInfo_SPtr pPlayerInfo = _FindPlayerById( sPlayerId );
 
-	for ( hoxPlayerInfoList::iterator it = m_networkPlayers.begin();
-		                              it != m_networkPlayers.end(); ++it )
-	{
-		if ( (*it)->id == sPlayerId )
-		{
-			found_it = it;
-			break;
-		}
-	}
-
-    if ( found_it != m_networkPlayers.end() )  // found?
+    if ( pPlayerInfo.get() != NULL ) // found?
     {
-        m_networkPlayers.erase( found_it );
+        m_networkPlayers.remove( pPlayerInfo );
     }
 }
 
@@ -731,11 +710,9 @@ hoxChesscapePlayer::_HandleCmd_Login( const hoxResponse_APtr& response,
         this->SetScore( nScore );
         site->OnResponse_LOGIN( response );
     }
-    else
-    {
-        /* Update our internal player-list. */
-        _UpdatePlayerInList( name, nScore );
-    }
+
+    /* Update our internal player-list. */
+    _UpdatePlayerInList( name, nScore );
 
     return true;
 }
@@ -1488,7 +1465,6 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 		case hoxREQUEST_JOIN:      /* fall through */
 		case hoxREQUEST_NEW:       /* fall through */
 		case hoxREQUEST_LEAVE:     /* fall through */
-		case hoxREQUEST_OUT_DATA:
 		{
 			wxLogDebug("%s: [%s] 's response received. END.", FNAME, sType.c_str());
 			break;
