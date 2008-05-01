@@ -62,7 +62,7 @@ hoxSocketWriter::hoxSocketWriter( hoxPlayer*              player,
 
 hoxSocketWriter::~hoxSocketWriter()
 {
-    const char* FNAME = "hoxSocketWriter::~hoxSocketWriter";
+    const char* FNAME = __FUNCTION__;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -74,7 +74,7 @@ hoxSocketWriter::~hoxSocketWriter()
 bool
 hoxSocketWriter::AddRequest( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = "hoxSocketWriter::AddRequest";
+    const char* FNAME = __FUNCTION__;
 
     if ( m_shutdownRequested )
     {
@@ -91,7 +91,7 @@ hoxSocketWriter::AddRequest( hoxRequest_APtr apRequest )
 void
 hoxSocketWriter::_StartReader( wxSocketClient* socket )
 {
-    const char* FNAME = "hoxSocketWriter::_StartReader";
+    const char* FNAME = __FUNCTION__;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -123,7 +123,7 @@ hoxSocketWriter::_StartReader( wxSocketClient* socket )
 hoxRequest_APtr
 hoxSocketWriter::_GetRequest()
 {
-    const char* FNAME = "hoxSocketWriter::_GetRequest";
+    const char* FNAME = __FUNCTION__;
 
     hoxRequest_APtr apRequest = m_requests.PopFront();
     wxCHECK_MSG(apRequest.get() != NULL, apRequest, "At least one request must exist");
@@ -164,7 +164,7 @@ hoxSocketWriter::_GetRequest()
 void*
 hoxSocketWriter::Entry()
 {
-    const char* FNAME = "hoxSocketWriter::Entry";
+    const char* FNAME = __FUNCTION__;
     hoxRequest_APtr apRequest;
 
     wxLogDebug("%s: ENTER.", FNAME);
@@ -199,7 +199,7 @@ hoxSocketWriter::Entry()
 void
 hoxSocketWriter::HandleRequest( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = "hoxSocketWriter::HandleRequest";
+    const char* FNAME = __FUNCTION__;
     hoxResult    result = hoxRC_ERR;
     const hoxRequestType requestType = apRequest->type;
     hoxResponse_APtr apResponse( new hoxResponse(requestType, 
@@ -269,7 +269,7 @@ hoxSocketWriter::_Login( const hoxServerAddress& serverAddress,
                          const wxString&         sRequest,
                          wxString&               sResponse )
 {
-    const char* FNAME = "hoxSocketWriter::_Login";
+    const char* FNAME = __FUNCTION__;
 
     if ( m_bConnected )
     {
@@ -309,7 +309,7 @@ hoxSocketWriter::_Login( const hoxServerAddress& serverAddress,
 void
 hoxSocketWriter::_Disconnect()
 {
-    const char* FNAME = "hoxSocketWriter::_Disconnect";
+    const char* FNAME = __FUNCTION__;
 
     if ( m_socket != NULL )
     {
@@ -324,7 +324,7 @@ hoxResult
 hoxSocketWriter::_WriteLine( wxSocketBase*   sock, 
                              const wxString& contentStr )
 {
-    const char* FNAME = "hoxSocketWriter::_WriteLine";
+    const char* FNAME = __FUNCTION__;
 
 	wxLogDebug("%s: Sending a request over the network...", FNAME);
 	wxString sRequest;
@@ -343,14 +343,14 @@ hoxSocketReader::hoxSocketReader( hoxPlayer* player )
         , m_socket( NULL )
         , m_shutdownRequested( false )
 {
-    const char* FNAME = "hoxSocketReader::hoxSocketReader";
+    const char* FNAME = __FUNCTION__;
 
     wxLogDebug("%s: ENTER.", FNAME);
 }
 
 hoxSocketReader::~hoxSocketReader()
 {
-    const char* FNAME = "hoxSocketReader::~hoxSocketReader";
+    const char* FNAME = __FUNCTION__;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -362,7 +362,7 @@ hoxSocketReader::~hoxSocketReader()
 void*
 hoxSocketReader::Entry()
 {
-    const char* FNAME = "hoxSocketReader::Entry";
+    const char* FNAME = __FUNCTION__;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -398,7 +398,7 @@ hoxResult
 hoxSocketReader::ReadLine( wxSocketBase* sock, 
                            wxString&     result )
 {
-    const char* FNAME = "hoxSocketReader::ReadLine";
+    const char* FNAME = __FUNCTION__;
     wxString commandStr;
 
     result = "";
@@ -482,7 +482,7 @@ hoxSocketConnection::hoxSocketConnection( const hoxServerAddress& serverAddress,
         : hoxConnection( player )
         , m_serverAddress( serverAddress )
 {
-    const char* FNAME = "hoxSocketConnection::hoxSocketConnection";
+    const char* FNAME = __FUNCTION__;
 
     wxLogDebug("%s: ENTER.", FNAME);
     wxLogDebug("%s: END.", FNAME);
@@ -490,7 +490,7 @@ hoxSocketConnection::hoxSocketConnection( const hoxServerAddress& serverAddress,
 
 hoxSocketConnection::~hoxSocketConnection()
 {
-    const char* FNAME = "hoxSocketConnection::~hoxSocketConnection";
+    const char* FNAME = __FUNCTION__;
 
     wxLogDebug("%s: ENTER.", FNAME);
     wxLogDebug("%s: END.", FNAME);
@@ -499,7 +499,7 @@ hoxSocketConnection::~hoxSocketConnection()
 void
 hoxSocketConnection::Start()
 {
-    const char* FNAME = "hoxSocketConnection::Start";
+    const char* FNAME = __FUNCTION__;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -510,7 +510,7 @@ hoxSocketConnection::Start()
 void
 hoxSocketConnection::StartWriter()
 {
-    const char* FNAME = "hoxSocketConnection::StartWriter";
+    const char* FNAME = __FUNCTION__;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -539,7 +539,7 @@ hoxSocketConnection::StartWriter()
 void
 hoxSocketConnection::Shutdown()
 {
-    const char* FNAME = "hoxSocketConnection::Shutdown";
+    const char* FNAME = __FUNCTION__;
 
     m_shutdownRequested = true;
 
