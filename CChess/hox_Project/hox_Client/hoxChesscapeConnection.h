@@ -61,6 +61,8 @@ private:
     hoxResult   _Resign( hoxRequest_APtr apRequest );
 	hoxResult   _Draw( hoxRequest_APtr apRequest );
 
+    // ------
+    hoxResult _WriteLine( const wxString& cmdRequest );
 private:
 
     // no copy ctor/assignment operator

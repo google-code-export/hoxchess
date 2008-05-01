@@ -47,7 +47,7 @@ hoxChesscapeWriter::~hoxChesscapeWriter()
 void 
 hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = "hoxChesscapeWriter::HandleRequest";
+    const char* FNAME = __FUNCTION__;
     hoxResult    result = hoxRC_ERR;
     const hoxRequestType requestType = apRequest->type;
     hoxResponse_APtr response( new hoxResponse(requestType, 
@@ -151,7 +151,7 @@ hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
 void
 hoxChesscapeWriter::_StartReader( wxSocketClient* socket )
 {
-    const char* FNAME = "hoxChesscapeWriter::_StartReader";
+    const char* FNAME = __FUNCTION__;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -183,7 +183,7 @@ hoxChesscapeWriter::_StartReader( wxSocketClient* socket )
 hoxResult
 hoxChesscapeWriter::_Login( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = "hoxChesscapeWriter::_Login";
+    const char* FNAME = __FUNCTION__;
 
     if ( m_bConnected )
     {
@@ -221,27 +221,27 @@ hoxChesscapeWriter::_Login( hoxRequest_APtr apRequest )
     // Send LOGIN request.
 	wxLogDebug("%s: Sending LOGIN request over the network...", FNAME);
 	wxString loginRequest;
-	loginRequest.Printf("\x02\x10uLogin?0\x10%s\x10%s\x10\x03", login.c_str(), password.c_str());
+	loginRequest.Printf("uLogin?0\x10%s\x10%s", login.c_str(), password.c_str());
 
-	return hoxNetworkAPI::WriteLine( m_socket, loginRequest );
+	return _WriteLine( loginRequest );
 }
 
 hoxResult
 hoxChesscapeWriter::_Logout( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = "hoxChesscapeWriter::_Logout";
+    const char* FNAME = __FUNCTION__;
 
 	wxLogDebug("%s: Sending LOGOUT request...", FNAME);
 	wxString cmdRequest;
-	cmdRequest.Printf("\x02\x10%s\x10\x03", "logout?");
+	cmdRequest.Printf("%s", "logout?");
 
-	return hoxNetworkAPI::WriteLine( m_socket, cmdRequest );
+	return _WriteLine( cmdRequest );
 }
 
 hoxResult
 hoxChesscapeWriter::_Join( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = "hoxChesscapeWriter::_Join";
+    const char* FNAME = __FUNCTION__;
 
 	/* Extract parameters. */
     const wxString tableId = apRequest->parameters["tid"];
@@ -255,9 +255,9 @@ hoxChesscapeWriter::_Join( hoxRequest_APtr apRequest )
 	{
 		wxLogDebug("%s: Sending JOIN request with table-Id = [%s]...", FNAME, tableId.c_str());
 		wxString cmdRequest;
-		cmdRequest.Printf("\x02\x10join?%s\x10\x03", tableId.c_str());
+		cmdRequest.Printf("join?%s", tableId.c_str());
 
-		if ( hoxRC_OK != hoxNetworkAPI::WriteLine( m_socket, cmdRequest ) )
+		if ( hoxRC_OK != _WriteLine( cmdRequest ) )
 		{
 			return hoxRC_ERR;
 		}
@@ -274,9 +274,9 @@ hoxChesscapeWriter::_Join( hoxRequest_APtr apRequest )
 	{
 		wxLogDebug("%s: Sending REQUEST-SEAT request with seat = [%s]...", FNAME, requestSeat.c_str());
 		wxString cmdRequest;
-		cmdRequest.Printf("\x02\x10tCmd?%s\x10\x03", requestSeat.c_str());
+		cmdRequest.Printf("tCmd?%s", requestSeat.c_str());
 
-		if ( hoxRC_OK != hoxNetworkAPI::WriteLine( m_socket, cmdRequest ) )
+		if ( hoxRC_OK != _WriteLine( cmdRequest ) )
 		{
 			return hoxRC_ERR;
 		}
@@ -297,9 +297,9 @@ hoxChesscapeWriter::_Invite( hoxRequest_APtr apRequest )
 	wxLogDebug("%s: Sending INVITE request for player = [%s]...", 
 		FNAME, sPlayerId.c_str());
 	wxString cmdRequest;
-	cmdRequest.Printf("\x02\x10tCmd?Invite\x10%s\x10\x03", sPlayerId.c_str());
+	cmdRequest.Printf("tCmd?Invite\x10%s", sPlayerId.c_str());
 
-    return hoxNetworkAPI::WriteLine( m_socket, cmdRequest );
+    return _WriteLine( cmdRequest );
 }
 
 hoxResult
@@ -314,15 +314,15 @@ hoxChesscapeWriter::_GetPlayerInfo( hoxRequest_APtr apRequest )
 	wxLogDebug("%s: Sending PLAYER-INFO request for player = [%s]...", 
 		FNAME, sPlayerId.c_str());
 	wxString cmdRequest;
-	cmdRequest.Printf("\x02\x10playerInfo?%s\x10\x03", sPlayerId.c_str());
+	cmdRequest.Printf("playerInfo?%s", sPlayerId.c_str());
 
-    return hoxNetworkAPI::WriteLine( m_socket, cmdRequest );
+    return _WriteLine( cmdRequest );
 }
 
 hoxResult
 hoxChesscapeWriter::_UpdateStatus( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = "hoxChesscapeWriter::_UpdateStatus";
+    const char* FNAME = __FUNCTION__;
 
     /* Extract parameters. */
     const wxString playerStatus = apRequest->parameters["status"];
@@ -331,41 +331,41 @@ hoxChesscapeWriter::_UpdateStatus( hoxRequest_APtr apRequest )
 	wxLogDebug("%s: Sending UPDATE-STATUS request with status = [%s]...", 
 		FNAME, playerStatus.c_str());
 	wxString cmdRequest;
-	cmdRequest.Printf("\x02\x10updateStatus?%s\x10\x03", playerStatus.c_str());
+	cmdRequest.Printf("updateStatus?%s", playerStatus.c_str());
 
-    return hoxNetworkAPI::WriteLine( m_socket, cmdRequest );
+    return _WriteLine( cmdRequest );
 }
 
 hoxResult
 hoxChesscapeWriter::_Leave( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = "hoxChesscapeWriter::_Leave";
+    const char* FNAME = __FUNCTION__;
 
 	wxLogDebug("%s: Sending LEAVE (the current table) request...", FNAME);
 	wxString cmdRequest;
-	cmdRequest.Printf("\x02\x10%s\x10\x03", "closeTable?");
+	cmdRequest.Printf("%s", "closeTable?");
 
-    return hoxNetworkAPI::WriteLine( m_socket, cmdRequest );
+    return _WriteLine( cmdRequest );
 }
 
 hoxResult
 hoxChesscapeWriter::_New( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = "hoxChesscapeWriter::_New";
+    const char* FNAME = __FUNCTION__;
 
 	wxLogDebug("%s: Sending NEW (the current table) request...", FNAME);
 	wxString cmdRequest;
-	cmdRequest.Printf("\x02\x10%s\x10%d\x10\x03", 
+	cmdRequest.Printf("%s\x10%d", 
 		"create?com.chesscape.server.xiangqi.TableHandler",
 		0 /* Rated Table */ );
 
-    return hoxNetworkAPI::WriteLine( m_socket, cmdRequest );
+    return _WriteLine( cmdRequest );
 }
 
 hoxResult   
 hoxChesscapeWriter::_Move( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = "hoxChesscapeWriter::_Move";
+    const char* FNAME = __FUNCTION__;
 
 	/* Extract parameters. */
 	const wxString moveStr     = apRequest->parameters["move"];
@@ -377,10 +377,10 @@ hoxChesscapeWriter::_Move( hoxRequest_APtr apRequest )
 
 	wxLogDebug("%s: Sending MOVE [%s] request...", FNAME, moveStr.c_str());
 	wxString cmdRequest;
-	cmdRequest.Printf("\x02\x10tCmd?Move\x10%s\x10%d\x10\x03", 
+	cmdRequest.Printf("tCmd?Move\x10%s\x10%d", 
 		moveStr.c_str(), gameTime);
 
-	if ( hoxRC_OK != hoxNetworkAPI::WriteLine( m_socket, cmdRequest ) )
+	if ( hoxRC_OK != _WriteLine( cmdRequest ) )
 	{
 		return hoxRC_ERR;
 	}
@@ -393,10 +393,10 @@ hoxChesscapeWriter::_Move( hoxRequest_APtr apRequest )
         || gameStatus == hoxGAME_STATUS_BLACK_WIN )
 	{
 		wxLogDebug("%s: Sending GAME-STATUS [%s] request...", FNAME, statusStr.c_str());
-		cmdRequest.Printf("\x02\x10tCmd?%s\x10\x03",
+		cmdRequest.Printf("tCmd?%s",
 			"Winner" /* FIXME: Hard-code */);
 
-		if ( hoxRC_OK != hoxNetworkAPI::WriteLine( m_socket, cmdRequest ) )
+		if ( hoxRC_OK != _WriteLine( cmdRequest ) )
 		{
 			return hoxRC_ERR;
 		}
@@ -408,7 +408,7 @@ hoxChesscapeWriter::_Move( hoxRequest_APtr apRequest )
 hoxResult   
 hoxChesscapeWriter::_WallMessage( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = "hoxChesscapeWriter::_WallMessage";
+    const char* FNAME = __FUNCTION__;
 
 	/* Extract parameters. */
 	const wxString message = apRequest->parameters["msg"];
@@ -417,15 +417,15 @@ hoxChesscapeWriter::_WallMessage( hoxRequest_APtr apRequest )
 
 	wxLogDebug("%s: Sending MESSAGE [%s] request...", FNAME, message.c_str());
 	wxString cmdRequest;
-	cmdRequest.Printf("\x02\x10tMsg?%s\x10\x03", message.c_str());
+	cmdRequest.Printf("tMsg?%s", message.c_str());
 
-    return hoxNetworkAPI::WriteLine( m_socket, cmdRequest );
+    return _WriteLine( cmdRequest );
 }
 
 hoxResult   
 hoxChesscapeWriter::_Update( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = "hoxChesscapeWriter::_Update";
+    const char* FNAME = __FUNCTION__;
 
 	/* Extract parameters. */
     const wxString sTimes = apRequest->parameters["itimes"];
@@ -440,10 +440,15 @@ hoxChesscapeWriter::_Update( hoxRequest_APtr apRequest )
 
     wxLogDebug("%s: Sending UPDATE-GAME: itimes = [%s] request...", FNAME, sTimes.c_str());
 	wxString cmdRequest;
-	cmdRequest.Printf("\x02\x10tCmd?UpdateGame\x10%d\x10%d\x10T\x10%d\x10%d\x10%d\x10%d\x10\x03",
+	cmdRequest.Printf("tCmd?UpdateGame\x10%d\x10%d\x10T\x10%d\x10%d\x10%d\x10%d",
         nType, nNotRated, nGameTime, nFreeTime, nGameTime, nGameTime);
 
-    /* !!!! Append the current Role to the request. */
+    if ( hoxRC_OK != _WriteLine( cmdRequest ) )
+	{
+		return hoxRC_ERR;
+	}
+
+    /* Also, send the current Role. */
 
 	const hoxColor currentColor = 
 		hoxUtil::StringToColor( apRequest->parameters["color"] );
@@ -452,27 +457,27 @@ hoxChesscapeWriter::_Update( hoxRequest_APtr apRequest )
 	if      ( currentColor == hoxCOLOR_RED )    currentSeat = "RedSeat";
 	else if ( currentColor == hoxCOLOR_BLACK )  currentSeat = "BlkSeat";
 
-    cmdRequest += wxString::Format("\x02\x10tCmd?%s\x10\x03", currentSeat.c_str());
+    cmdRequest.Printf("tCmd?%s", currentSeat.c_str());
 
-    return hoxNetworkAPI::WriteLine( m_socket, cmdRequest );
+    return _WriteLine( cmdRequest );
 }
 
 hoxResult
 hoxChesscapeWriter::_Resign( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = "hoxChesscapeWriter::_Resign";
+    const char* FNAME = __FUNCTION__;
 
 	wxLogDebug("%s: Sending RESIGN (the current table) request...", FNAME);
 	wxString cmdRequest;
-    cmdRequest.Printf("\x02\x10tCmd?Resign\x10\x03");
+    cmdRequest.Printf("tCmd?Resign");
 
-    return hoxNetworkAPI::WriteLine( m_socket, cmdRequest );
+    return _WriteLine( cmdRequest );
 }
 
 hoxResult   
 hoxChesscapeWriter::_Draw( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = "hoxChesscapeWriter::_Draw";
+    const char* FNAME = __FUNCTION__;
 
     /* Extract parameters. */
     const wxString drawResponse = apRequest->parameters["draw_response"];
@@ -494,9 +499,18 @@ hoxChesscapeWriter::_Draw( hoxRequest_APtr apRequest )
 
 	wxLogDebug("%s: Sending DRAW command [%s]...", FNAME, drawCmd.c_str());
 	wxString cmdRequest;
-	cmdRequest.Printf("\x02\x10tCmd?%s\x10\x03", drawCmd.c_str());
+	cmdRequest.Printf("tCmd?%s", drawCmd.c_str());
 
-    return hoxNetworkAPI::WriteLine( m_socket, cmdRequest );
+    return _WriteLine( cmdRequest );
+}
+
+hoxResult
+hoxChesscapeWriter::_WriteLine( const wxString& cmdRequest )
+{
+	wxString sFormattedCmd;
+
+	sFormattedCmd.Printf("\x02\x10%s\x10\x03", cmdRequest.c_str());
+    return hoxNetworkAPI::WriteLine( m_socket, sFormattedCmd );
 }
 
 //-----------------------------------------------------------------------------
@@ -506,7 +520,7 @@ hoxChesscapeWriter::_Draw( hoxRequest_APtr apRequest )
 hoxChesscapeReader::hoxChesscapeReader( hoxPlayer* player )
             : hoxSocketReader( player )
 {
-    const char* FNAME = "hoxChesscapeReader::hoxChesscapeReader";
+    const char* FNAME = __FUNCTION__;
 
     wxLogDebug("%s: ENTER.", FNAME);
 }
@@ -519,7 +533,7 @@ hoxResult
 hoxChesscapeReader::ReadLine( wxSocketBase* sock, 
                               wxString&     result )
 {
-    const char* FNAME = "hoxChesscapeReader::ReadLine";
+    const char* FNAME = __FUNCTION__;
     wxString commandStr;
 
 	/* Read a line between '0x02' and '0x03' */
@@ -583,7 +597,7 @@ hoxChesscapeConnection::hoxChesscapeConnection( const hoxServerAddress& serverAd
                                                 hoxPlayer*              player )
         : hoxSocketConnection( serverAddress, player )
 {
-    const char* FNAME = "hoxChesscapeConnection::hoxChesscapeConnection";
+    const char* FNAME = __FUNCTION__;
 
     wxLogDebug("%s: ENTER.", FNAME);
     wxLogDebug("%s: END.", FNAME);
@@ -591,7 +605,7 @@ hoxChesscapeConnection::hoxChesscapeConnection( const hoxServerAddress& serverAd
 
 hoxChesscapeConnection::~hoxChesscapeConnection()
 {
-    const char* FNAME = "hoxChesscapeConnection::~hoxChesscapeConnection";
+    const char* FNAME = __FUNCTION__;
 
     wxLogDebug("%s: ENTER.", FNAME);
     wxLogDebug("%s: END.", FNAME);
@@ -600,7 +614,7 @@ hoxChesscapeConnection::~hoxChesscapeConnection()
 void
 hoxChesscapeConnection::StartWriter()
 {
-    const char* FNAME = "hoxChesscapeConnection::StartWriter";
+    const char* FNAME = __FUNCTION__;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
