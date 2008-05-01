@@ -154,9 +154,6 @@ protected:
     virtual void AddRequestToConnection( hoxRequest_APtr apRequest );
 
 private:
-	void _PostSite_ShutdownReady();
-
-private:
     hoxPlayerInfo   m_info;   
             /* Basic player's info (ID, Type, Score,...) */
 

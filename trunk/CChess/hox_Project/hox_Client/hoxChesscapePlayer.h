@@ -90,7 +90,7 @@ private:
 	void _UpdatePlayerInList( const wxString& sPlayerId,
 		                      const int       nPlayerScore );
 	hoxPlayerInfo_SPtr _FindPlayerById( const wxString& sPlayerId ) const;
-    void _RemovePlayerFromList( const wxString& sPlayerId ) const;
+    void _RemovePlayerFromList( const wxString& sPlayerId );
 
 	bool _ParseIncomingCommand(const wxString& contentStr,
 		                       wxString&       command,

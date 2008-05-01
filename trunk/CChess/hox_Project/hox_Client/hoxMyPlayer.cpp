@@ -53,35 +53,35 @@ hoxMyPlayer::hoxMyPlayer( const wxString& name,
             : hoxLocalPlayer( name, type, score )
             , m_bLoginSuccess( false )
 { 
-    const char* FNAME = "hoxMyPlayer::hoxMyPlayer";
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
 }
 
 hoxMyPlayer::~hoxMyPlayer() 
 {
-    const char* FNAME = "hoxMyPlayer::~hoxMyPlayer";
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
 }
 
 void 
 hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 {
-    const char* FNAME = "hoxMyPlayer::OnConnectionResponse_PlayerData";
+    const char* FNAME = __FUNCTION__;
     hoxResult result = hoxRC_OK;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
-    const hoxResponse_APtr response( wxDynamicCast(event.GetEventObject(), hoxResponse) );
+    const hoxResponse_APtr apResponse( wxDynamicCast(event.GetEventObject(), hoxResponse) );
 
     hoxSite* site = this->GetSite();
     hoxTable_SPtr  pTable;
 
     /* Handle error-code. */
 
-    if ( response->code != hoxRC_OK )
+    if ( apResponse->code != hoxRC_OK )
     {
         wxLogDebug("%s: *** WARN *** Received error-code [%s].", 
-            FNAME, hoxUtil::ResultToStr(response->code));
+            FNAME, hoxUtil::ResultToStr(apResponse->code));
 
         /* Close the connection and logout.
          */
@@ -97,7 +97,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 
     /* Handle other type of data. */
 
-    const wxString commandStr = response->content;
+    const wxString commandStr = apResponse->content;
     hoxCommand  command;
 
     result = hoxNetworkAPI::ParseCommand( commandStr, command );
@@ -143,31 +143,12 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
     {
         case hoxREQUEST_LOGIN:
 		{
-            if ( sCode != "0" )  // error?
-            {
-                wxLogDebug("%s: *** WARN *** Failed to login. Error = [%s: %s].", 
-                    FNAME, sCode.c_str(), sContent.c_str());
-                response->code = hoxRC_ERR;
-                wxLogDebug("%s: *** INFO *** Shutdown connection due to LOGIN failure...", FNAME);
-            }
-            else
-            {
-                result = _HandleResponseEvent_LOGIN( sContent );
-			    if ( result != hoxRC_OK )
-			    {
-				    wxLogDebug("%s: *** WARN *** Failed to handle [%s] 's response [%s].", 
-                        FNAME, sType.c_str(), sContent.c_str());
-				    response->code = result;
-                } else {
-                    m_bLoginSuccess = true;
-                }
-            }
-            site->OnResponse_LOGIN( response );
+            _HandleResponseEvent_LOGIN( sCode, sContent, apResponse );
             break;
         }
         case hoxREQUEST_LOGOUT:
         {
-            site->OnResponse_LOGOUT( response );
+            _HandleResponseEvent_LOGOUT( sContent, apResponse );
             break;
         }
         case hoxREQUEST_LIST:
@@ -179,7 +160,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 		    {
 			    wxLogDebug("%s: *** WARN *** Failed to parse LIST's response [%s].", 
 				    FNAME, sContent.c_str());
-			    response->code = result;
+			    apResponse->code = result;
 		    }
 	        site->DisplayListOfTables( *pTableList );
             break;
@@ -442,7 +423,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 void 
 hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
 {
-    const char* FNAME = "hoxMyPlayer::OnConnectionResponse";
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
 
     /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -480,50 +461,85 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
     wxLogDebug("%s: END.", FNAME);
 }
 
-hoxResult 
-hoxMyPlayer::_HandleResponseEvent_LOGIN( const wxString& sContent )
+void 
+hoxMyPlayer::_HandleResponseEvent_LOGIN( const wxString&         sCode,
+                                         const wxString&         sContent,
+                                         const hoxResponse_APtr& apResponse )
 {
-    const char* FNAME = "hoxMyPlayer::_HandleResponseEvent_LOGIN";
-    hoxResult   result;
-    wxString    playerId;
-	int         nScore = 0;
+    const char* FNAME = __FUNCTION__;
 
-    wxLogDebug("%s: ENTER.", FNAME);
+    hoxSite* site = this->GetSite();
 
-    result = _ParsePlayerLoginEvent( sContent,
-									 playerId,
-								     nScore );
-    if ( result != hoxRC_OK )
+    /* Error handling. */
+
+    if ( sCode != "0" )  // error?
     {
-        wxLogDebug("%s: *** WARN *** Failed to parse LOGIN event [%s]. (%d)", 
-            FNAME, sContent.c_str(), result);
-        return hoxRC_ERR;
+        wxLogDebug("%s: *** WARN *** Received LOGIN error = [%s: %s].", 
+            FNAME, sCode.c_str(), sContent.c_str());
+        apResponse->code = hoxRC_ERR;
+        site->OnResponse_LOGIN( apResponse );
+        return;
     }
 
-    wxLogDebug("%s: LOGIN event: Player Id = [%s], Score = [%d].",
-        FNAME, playerId.c_str(), nScore);
+    /* Handle data. */
 
-    if ( playerId == this->GetName() )
+    wxString  sPlayerId;
+	int       nPlayerScore = 0;
+
+    _ParsePlayerLoginEvent( sContent,
+						    sPlayerId, nPlayerScore );
+
+    if ( sPlayerId == this->GetName() )
     {
-        wxLogDebug("%s: Set my score = [%d].", FNAME, nScore);
-        this->SetScore( nScore );
+        m_bLoginSuccess = true;  // *** Record this LOGIN event.
+
+        wxLogDebug("%s: Set my score = [%d].", FNAME, nPlayerScore);
+        this->SetScore( nPlayerScore );
+        
+        apResponse->code = hoxRC_OK;
+        site->OnResponse_LOGIN( apResponse );
     }
     else
     {
-        wxLogDebug("%s: Got LOGIN event from other player [%s].", FNAME, playerId.c_str());
-        // NOTE: Do nothing.
+        wxLogDebug("%s: Received LOGIN from other [%s %d].",
+            FNAME, sPlayerId.c_str(), nPlayerScore);
     }
 
-    return hoxRC_OK;
+    /* Inform the Site. */
+    site->OnPlayerLoggedIn( sPlayerId, nPlayerScore );
 }
 
-hoxResult
+void 
+hoxMyPlayer::_HandleResponseEvent_LOGOUT( const wxString&         sContent,
+                                          const hoxResponse_APtr& apResponse )
+{
+    const char* FNAME = __FUNCTION__;
+
+    hoxSite* site = this->GetSite();
+
+    /* Handle data. */
+
+    const wxString sPlayerId = sContent.BeforeFirst('\n');
+
+    if ( sPlayerId == this->GetName() )
+    {
+        m_bLoginSuccess = false;  // *** Record this LOGOUT event.
+        site->OnResponse_LOGOUT( apResponse );
+        // *** NOTE: No need to inform the Site since THIS player
+        //     has logged out.
+    }
+    else
+    {
+        wxLogDebug("%s: Received LOGOUT from other [%s].", FNAME, sPlayerId.c_str());
+        site->OnPlayerLoggedOut( sPlayerId );  /* Inform the Site. */
+    }
+}
+
+void
 hoxMyPlayer::_ParsePlayerLoginEvent( const wxString& sContent,
                                      wxString&       playerId,
                                      int&            nPlayerScore )
 {
-    const char* FNAME = "hoxMyPlayer::_ParsePlayerLoginEvent";
-
     playerId     = "";
     nPlayerScore = 0;
 
@@ -544,15 +560,13 @@ hoxMyPlayer::_ParsePlayerLoginEvent( const wxString& sContent,
 			default: /* Ignore the rest. */ break;
 		}
 	}		
-
-	return hoxRC_OK;
 }
 
 hoxResult
 hoxMyPlayer::_ParseNetworkTables( const wxString&          responseStr,
                                    hoxNetworkTableInfoList& tableList )
 {
-    const char* FNAME = "hoxMyPlayer::_ParseNetworkTables";
+    const char* FNAME = __FUNCTION__;
     hoxResult  result = hoxRC_ERR;
 
     wxLogDebug("%s: ENTER.", FNAME);
@@ -578,7 +592,7 @@ hoxMyPlayer::_ParsePlayerLeaveEvent( const wxString& sContent,
                                      hoxTable_SPtr&  pTable,
                                      hoxPlayer*&     player )
 {
-    const char* FNAME = "hoxMyPlayer::_ParsePlayerLeaveEvent";
+    const char* FNAME = __FUNCTION__;
     const wxString tableId = sContent.BeforeFirst(';');
     const wxString playerId = sContent.AfterFirst(';');
 
@@ -611,7 +625,7 @@ hoxMyPlayer::_ParseTableUpdateEvent( const wxString& sContent,
                                      bool&           bRatedGame,
                                      hoxTimeInfo&    newTimeInfo )
 {
-    const char* FNAME = "hoxMyPlayer::_ParseTableUpdateEvent";
+    const char* FNAME = __FUNCTION__;
     wxString tableId;
     wxString playerId;
 
@@ -665,7 +679,7 @@ hoxMyPlayer::_ParsePlayerJoinEvent( const wxString& sContent,
                                     int&            nPlayerScore,
                                     hoxColor&       color)
 {
-    const char* FNAME = "hoxMyPlayer::_ParsePlayerJoinEvent";
+    const char* FNAME = __FUNCTION__;
 
     nPlayerScore = 0;
     color        = hoxCOLOR_NONE; // Default = observer.
@@ -699,7 +713,7 @@ hoxMyPlayer::_ParsePlayerMsgEvent( const wxString& sContent,
                                    wxString&       playerId,
                                    wxString&       message )
 {
-    const char* FNAME = "hoxMyPlayer::_ParsePlayerMsgEvent";
+    const char* FNAME = __FUNCTION__;
     wxString tableId;
 
     pTable.reset();
@@ -742,7 +756,7 @@ hoxMyPlayer::_ParsePlayerMoveEvent( const wxString& sContent,
                                     hoxPlayer*&     player,
                                     wxString&       sMove )
 {
-    const char* FNAME = "hoxMyPlayer::_ParsePlayerMoveEvent";
+    const char* FNAME = __FUNCTION__;
     wxString tableId;
     wxString playerId;
 
@@ -793,7 +807,7 @@ hoxMyPlayer::_ParsePlayerDrawEvent( const wxString& sContent,
                                     hoxTable_SPtr&  pTable,
                                     hoxPlayer*&     player )
 {
-    const char* FNAME = "hoxMyPlayer::_ParsePlayerDrawEvent";
+    const char* FNAME = __FUNCTION__;
     wxString tableId;
     wxString playerId;
 
@@ -843,7 +857,7 @@ hoxMyPlayer::_ParsePlayerEndEvent( const wxString& sContent,
                                    hoxGameStatus&  gameStatus,
                                    wxString&       sReason )
 {
-    const char* FNAME = "hoxMyPlayer::_ParsePlayerEndEvent";
+    const char* FNAME = __FUNCTION__;
     wxString tableId;
     wxString sStatus;  // Game-status.
 
@@ -888,7 +902,7 @@ hoxResult
 hoxMyPlayer::_ParsePlayerResetEvent( const wxString& sContent,
                                      hoxTable_SPtr&  pTable )
 {
-    const char* FNAME = "hoxMyPlayer::_ParsePlayerResetEvent";
+    const char* FNAME = __FUNCTION__;
     wxString tableId;
 
     pTable.reset();
@@ -927,7 +941,7 @@ hoxMyPlayer::_ParsePlayerScoreEvent( const wxString& sContent,
                                      hoxPlayer*&     player,
                                      int&            nScore )
 {
-    const char* FNAME = "hoxMyPlayer::_ParsePlayerScoreEvent";
+    const char* FNAME = __FUNCTION__;
     wxString tableId;
     wxString playerId;
 
@@ -978,7 +992,7 @@ hoxMyPlayer::_ParsePastMovesEvent( const wxString& sContent,
                                    hoxTable_SPtr&  pTable,
                                    hoxStringList&  moves )
 {
-    const char* FNAME = "hoxMyPlayer::_ParsePastMovesEvent";
+    const char* FNAME = __FUNCTION__;
     wxString tableId;
     wxString sMoves;
 

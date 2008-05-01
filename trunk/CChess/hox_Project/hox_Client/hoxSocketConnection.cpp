@@ -217,7 +217,6 @@ hoxSocketWriter::HandleRequest( hoxRequest_APtr apRequest )
             break;
         }
 		case hoxREQUEST_LOGOUT:       /* fall through */
-        case hoxREQUEST_OUT_DATA:     /* fall through */
         case hoxREQUEST_MOVE:         /* fall through */
         case hoxREQUEST_LIST:         /* fall through */
         case hoxREQUEST_NEW:          /* fall through */
