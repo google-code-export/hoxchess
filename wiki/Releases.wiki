@@ -2,6 +2,19 @@
 
 _All releases can be found from_ [http://code.google.com/p/hoxchess/downloads/list this Downloads page]
 
+  * *May 03, 2008* 
+    * Released *HOXChess 0.4.4.0* of the _source_ code and Windows Binary _Installer_
+    * Major changes are:
+      * Improved the JOIN/UNJON action inside the Board
+        * Added two buttons: *Play-RED* and *Play-BLACK* in addition to *Unsit*
+      * Supported *REVIEW* mode while accepting incoming Moves from the network.
+      * Table-List Dialog: Implemented _double-click_ to join a table.
+      * Fixed the issue that new chat messages are hidden when the Window is full. 
+      * Changed the shortcut key of Toggle-Board-View from Ctrl+T to Ctrl+V
+        * This is done to avoid conflict with that of getting the list of Tables
+      * PlayXiangqi.com: Partially support LOGIN/LOGOUT events.
+      * Performed a lot of code cleanup
+
   * *April 22, 2008* 
     * Released *HOXChess 0.4.3.0* of the _source_ code and Windows Binary _Installer_
     * Major changes are:
