@@ -12,7 +12,7 @@ _All releases can be found from_ [http://code.google.com/p/hoxchess/downloads/li
       * Fixed the issue that new chat messages are hidden when the Window is full. 
       * Changed the shortcut key of Toggle-Board-View from Ctrl+T to Ctrl+V
         * This is done to avoid conflict with that of getting the list of Tables
-      * PlayXiangqi.com: Partially support LOGIN/LOGOUT events.
+      * [http://www.playxiangqi.com PlayXiangqi.com]: Partially support LOGIN/LOGOUT events.
       * Performed a lot of code cleanup
 
   * *April 22, 2008* 
