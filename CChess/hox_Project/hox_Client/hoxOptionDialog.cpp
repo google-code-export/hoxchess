@@ -70,7 +70,7 @@ hoxOptionDialog::hoxOptionDialog( wxWindow*           parent,
     wxBoxSizer* ratedGameSizer = new wxBoxSizer( wxHORIZONTAL );
 
     m_checkBoxRatedGame = new wxCheckBox(this, wxID_ANY, _("&Rated Game"));
-    m_bRatedGame = m_pTable->IsRatedGame();
+    m_bRatedGame = ( m_pTable->GetGameType() == hoxGAME_TYPE_RATED );
     m_checkBoxRatedGame->SetValue( m_bRatedGame );
 
     ratedGameSizer->Add( m_checkBoxRatedGame,

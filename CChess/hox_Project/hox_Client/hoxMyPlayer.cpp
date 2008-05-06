@@ -213,7 +213,9 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
             wxLogDebug("%s: Player [%s] updated Timers to [%s] in Table [%s].", FNAME, 
                 player->GetName().c_str(), hoxUtil::TimeInfoToString(newTimeInfo).c_str(),
                 pTable->GetId().c_str());
-            pTable->OnUpdate_FromPlayer( player, bRatedGame, newTimeInfo );
+            pTable->OnUpdate_FromPlayer( player,
+                                         bRatedGame ? hoxGAME_TYPE_RATED : hoxGAME_TYPE_NONRATED,
+                                         newTimeInfo );
             break;
         }
         case hoxREQUEST_E_JOIN:

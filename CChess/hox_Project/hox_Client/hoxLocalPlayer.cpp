@@ -26,6 +26,7 @@
 
 #include "hoxLocalPlayer.h"
 #include "hoxUtil.h"
+#include "hoxTable.h"
 
 DEFINE_EVENT_TYPE(hoxEVT_CONNECTION_RESPONSE)
 
@@ -66,9 +67,15 @@ hoxLocalPlayer::OnClose_FromTable( const wxString& tableId )
 
     wxLogDebug("%s: ENTER. Table-Id = [%s].", FNAME, tableId.c_str());
 
-    this->LeaveNetworkTable( tableId );
-
-    this->hoxPlayer::OnClose_FromTable( tableId );
+    hoxTable_SPtr pTable = this->FindTable( tableId );
+    if ( pTable.get() != NULL )
+    {
+        if ( pTable->GetGameType() != hoxGAME_TYPE_PRACTICE )
+        {
+            this->LeaveNetworkTable( tableId );
+        }
+        this->hoxPlayer::OnClose_FromTable( tableId );
+    }
 }
 
 hoxResult 

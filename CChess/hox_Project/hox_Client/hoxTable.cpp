@@ -46,7 +46,7 @@ hoxTable::hoxTable( hoxSite*         site,
         , m_board( board )
         , m_redPlayer( NULL )
         , m_blackPlayer( NULL )
-        , m_bRated( true )
+        , m_gameType( hoxGAME_TYPE_RATED )
 {
     const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER. (%s)", FNAME, m_id.c_str());
@@ -460,10 +460,10 @@ hoxTable::OnLeave_FromPlayer( hoxPlayer* player )
 
 void
 hoxTable::OnUpdate_FromPlayer( hoxPlayer*         player,
-                               const bool         bRatedGame,
+                               const hoxGameType  gameType,
                                const hoxTimeInfo& newTimeInfo )
 {
-    m_bRated = bRatedGame;
+    m_gameType = gameType;
 
     m_initialTime = newTimeInfo;
     m_redTime     = m_initialTime;
