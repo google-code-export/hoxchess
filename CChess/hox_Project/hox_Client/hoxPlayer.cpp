@@ -67,7 +67,7 @@ hoxPlayer::hoxPlayer( const wxString& name,
 hoxPlayer::~hoxPlayer() 
 {
     const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER. (%s)", FNAME, this->GetName().c_str());
+    wxLogDebug("%s: ENTER. (%s)", FNAME, this->GetId().c_str());
 
     if ( m_connection.get() != NULL )
     {
@@ -97,7 +97,7 @@ hoxPlayer::GetFrontRole( wxString& sTableId ) const
 
     if ( pTable.get() != NULL )
     {
-        myRole = pTable->GetPlayerRole( this->GetName() );
+        myRole = pTable->GetPlayerRole( this->GetId() );
         sTableId = pTable->GetId();
     }
 
@@ -144,7 +144,7 @@ hoxPlayer::LeaveTable( hoxTable_SPtr pTable )
     wxCHECK_MSG(pTable.get() != NULL, hoxRC_ERR, "The table is NULL." );
 
     wxLogDebug("%s: Player [%s] is leaving table [%s]...", 
-        FNAME, this->GetName().c_str(), pTable->GetId().c_str());
+        FNAME, this->GetId().c_str(), pTable->GetId().c_str());
 
     pTable->OnLeave_FromPlayer( this );
     m_tables.erase( pTable );
@@ -223,7 +223,7 @@ hoxPlayer::OnClosing_FromSite()
 {
     const char* FNAME = __FUNCTION__;
 
-    wxLogDebug("%s: ENTER. (player = [%s])", FNAME, this->GetName().c_str());
+    wxLogDebug("%s: ENTER. (player = [%s])", FNAME, this->GetId().c_str());
 
     m_siteClosing = true; // *** Turn it ON!
 
@@ -241,11 +241,11 @@ hoxPlayer::SetConnection( hoxConnection_APtr connection )
     if ( m_connection.get() != NULL )
     {
         wxLogDebug("%s: Connection already set to this Player [%s]. Fine. END.", 
-            FNAME, GetName().c_str());
+            FNAME, this->GetId().c_str());
         return false;
     }
 
-    wxLogDebug("%s: Assign the connection to this user [%s]", FNAME, GetName().c_str());
+    wxLogDebug("%s: Assign the connection to this user [%s]", FNAME, this->GetId().c_str());
     m_connection = connection;
 
     return true;
@@ -267,7 +267,7 @@ hoxPlayer::ShutdownConnection()
     const char* FNAME = __FUNCTION__;
 
     wxLogDebug("%s: Player [%s] requesting the Connection to be shutdowned...", 
-        FNAME, this->GetName().c_str());
+        FNAME, this->GetId().c_str());
     hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_SHUTDOWN ) );
     this->AddRequestToConnection( apRequest );
 }

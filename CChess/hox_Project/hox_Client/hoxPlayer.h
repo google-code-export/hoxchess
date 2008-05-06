@@ -71,7 +71,7 @@ public:
      * Accessor API
      ***************************/
 
-    wxString      GetName() const { return m_info.id; }
+    wxString      GetId()   const { return m_info.id; }
     hoxPlayerType GetType() const { return m_info.type; }
 
     /**

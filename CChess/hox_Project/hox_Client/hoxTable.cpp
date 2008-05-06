@@ -79,7 +79,7 @@ hoxTable::AssignPlayerAs( hoxPlayer* player,
     if ( ! bRequestOK )
     {
         wxLogDebug("%s: *** WARN *** Failed to handle request-to-join from [%s].", 
-            FNAME, player->GetName().c_str());
+            FNAME, player->GetId().c_str());
         return hoxRC_ERR;
     }
 
@@ -144,7 +144,7 @@ hoxTable::OnMessage_FromBoard( const wxString& message )
     /* Inform the Board's Onwer. */
 	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_MSG ) );
 	apRequest->parameters["tid"] = m_id;
-	apRequest->parameters["pid"] = boardPlayer->GetName();
+	apRequest->parameters["pid"] = boardPlayer->GetId();
 	apRequest->parameters["msg"] = message;
     
     boardPlayer->OnRequest_FromTable( apRequest );
@@ -161,7 +161,7 @@ hoxTable::OnJoinCommand_FromBoard( const hoxColor requestColor )
 
 	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_JOIN ) );
 	apRequest->parameters["tid"] = m_id;
-	apRequest->parameters["pid"] = boardPlayer->GetName();
+	apRequest->parameters["pid"] = boardPlayer->GetId();
 	apRequest->parameters["color"] = hoxUtil::ColorToString( requestColor );
 	apRequest->parameters["joined"] = "1";
 
@@ -192,13 +192,13 @@ hoxTable::OnOptionsCommand_FromBoard( const bool         bRatedGame,
     if ( ! bActionAllowed )
 	{
 		wxLogWarning("Player [%s] is not allowed to change Options.", 
-            boardPlayer->GetName().c_str());
+            boardPlayer->GetId().c_str());
 		return;
 	}
 
     hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_UPDATE ) );
 	apRequest->parameters["tid"] = m_id;
-	apRequest->parameters["pid"] = boardPlayer->GetName();
+	apRequest->parameters["pid"] = boardPlayer->GetId();
     apRequest->parameters["rated"] = bRatedGame ? "1" : "0";
     apRequest->parameters["itimes"] = hoxUtil::TimeInfoToString( newTimeInfo );
 
@@ -223,13 +223,13 @@ hoxTable::OnResignCommand_FromBoard()
 	if (   boardPlayer != m_redPlayer 
 		&& boardPlayer != m_blackPlayer )
 	{
-		wxLogWarning("The Player [%s] is not playing.", boardPlayer->GetName().c_str());
+		wxLogWarning("The Player [%s] is not playing.", boardPlayer->GetId().c_str());
 		return;
 	}
 
 	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_RESIGN ) );
 	apRequest->parameters["tid"] = m_id;
-	apRequest->parameters["pid"] = boardPlayer->GetName();
+	apRequest->parameters["pid"] = boardPlayer->GetId();
 
     boardPlayer->OnRequest_FromTable( apRequest );
 }
@@ -252,13 +252,13 @@ hoxTable::OnDrawCommand_FromBoard()
 	if (   boardPlayer != m_redPlayer 
 		&& boardPlayer != m_blackPlayer )
 	{
-		wxLogWarning("The Player [%s] is not playing.", boardPlayer->GetName().c_str());
+		wxLogWarning("The Player [%s] is not playing.", boardPlayer->GetId().c_str());
 		return;
 	}
 
 	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_DRAW ) );
 	apRequest->parameters["tid"] = m_id;
-	apRequest->parameters["pid"] = boardPlayer->GetName();
+	apRequest->parameters["pid"] = boardPlayer->GetId();
 	apRequest->parameters["draw_response"] = "";
 
     boardPlayer->OnRequest_FromTable( apRequest );
@@ -282,13 +282,13 @@ hoxTable::OnResetCommand_FromBoard()
 	if (   boardPlayer != m_redPlayer 
 		&& boardPlayer != m_blackPlayer )
 	{
-		wxLogWarning("The Player [%s] is not playing.", boardPlayer->GetName().c_str());
+		wxLogWarning("The Player [%s] is not playing.", boardPlayer->GetId().c_str());
 		return;
 	}
 
 	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_RESET ) );
 	apRequest->parameters["tid"] = m_id;
-	apRequest->parameters["pid"] = boardPlayer->GetName();
+	apRequest->parameters["pid"] = boardPlayer->GetId();
 
     boardPlayer->OnRequest_FromTable( apRequest );
 }
@@ -311,13 +311,13 @@ hoxTable::OnDrawResponse_FromBoard( bool bAcceptDraw )
 	if (   boardPlayer != m_redPlayer 
 		&& boardPlayer != m_blackPlayer )
 	{
-		wxLogWarning("The Player [%s] is not playing.", boardPlayer->GetName().c_str());
+		wxLogWarning("The Player [%s] is not playing.", boardPlayer->GetId().c_str());
 		return;
 	}
 
 	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_DRAW ) );
 	apRequest->parameters["tid"] = m_id;
-	apRequest->parameters["pid"] = boardPlayer->GetName();
+	apRequest->parameters["pid"] = boardPlayer->GetId();
 	apRequest->parameters["draw_response"] = (bAcceptDraw ? "1" : "0");
 
     boardPlayer->OnRequest_FromTable( apRequest );
@@ -334,7 +334,7 @@ hoxTable::OnPlayerInfoRequest_FromBoard( const wxString& sPlayerId )
 
     hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_PLAYER_INFO ) );
 	apRequest->parameters["tid"] = m_id;
-	apRequest->parameters["pid"] = boardPlayer->GetName();
+	apRequest->parameters["pid"] = boardPlayer->GetId();
     apRequest->parameters["info_pid"] = sPlayerId;
 
     boardPlayer->OnRequest_FromTable( apRequest );
@@ -351,7 +351,7 @@ hoxTable::OnPlayerInviteRequest_FromBoard( const wxString& sPlayerId )
 
     hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_INVITE ) );
 	apRequest->parameters["tid"] = m_id;
-	apRequest->parameters["pid"] = boardPlayer->GetName();
+	apRequest->parameters["pid"] = boardPlayer->GetId();
     apRequest->parameters["invitee"] = sPlayerId;
 
     boardPlayer->OnRequest_FromTable( apRequest );
@@ -555,7 +555,7 @@ hoxTable::PostPlayer_MoveEvent( hoxPlayer*         player,
 
 	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_MOVE ) );
 	apRequest->parameters["tid"] = m_id;
-	apRequest->parameters["pid"] = player->GetName();
+	apRequest->parameters["pid"] = player->GetId();
 	apRequest->parameters["move"] = moveStr;
 	apRequest->parameters["status"] = statusStr;
 	apRequest->parameters["game_time"] = wxString::Format("%d", playerTime.nGame);
@@ -588,7 +588,7 @@ hoxTable::_PostBoard_MessageEvent( const wxString& sMessage,
     wxString who;
     wxString eventString;
 
-    who = ( player != NULL ? player->GetName() 
+    who = ( player != NULL ? player->GetId() 
                            : "*Table*" );
     eventString.Printf("%s %s", who.c_str(), sMessage.c_str());
 
@@ -631,7 +631,7 @@ hoxTable::_PostBoard_DrawRequestEvent( hoxPlayer* fromPlayer,
 		return;
 
     wxCommandEvent event( hoxEVT_BOARD_DRAW_REQUEST );
-    event.SetString( fromPlayer->GetName() );
+    event.SetString( fromPlayer->GetId() );
     event.SetInt( (int) bPopupRequest );
     wxPostEvent( m_board, event );
 }
@@ -725,7 +725,7 @@ hoxTable::_RemovePlayer( hoxPlayer* player )
     const char* FNAME = __FUNCTION__;
 
     wxCHECK_RET(player != NULL, "Play cannot be NULL.");
-    wxLogDebug("%s: ENTER. [%s]", FNAME, player->GetName().c_str());
+    wxLogDebug("%s: ENTER. [%s]", FNAME, player->GetId().c_str());
 
     m_players.erase( player );
 
@@ -740,7 +740,7 @@ hoxTable::_FindPlayer( const wxString& playerId ) const
     for (hoxPlayerSet::const_iterator it = m_players.begin(); 
                                       it != m_players.end(); ++it)
     {
-        if ( (*it)->GetName() == playerId )
+        if ( (*it)->GetId() == playerId )
         {
             return (*it);
         }
