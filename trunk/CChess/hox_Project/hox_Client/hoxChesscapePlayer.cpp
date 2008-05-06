@@ -1366,11 +1366,10 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 		return;  // Not my table. Fine. Do nothing.
 	}
 
-    /* Update the Table with the new Rated/Non-Rated Game and Timers. */
+    /* Update the Table with the new Game-Type and Timers. */
 
-    const bool bRatedGame = (tableInfo.gameType  == hoxGAME_TYPE_RATED);
     pTable->OnUpdate_FromPlayer( this,
-                                 bRatedGame, tableInfo.initialTime );
+                                 tableInfo.gameType, tableInfo.initialTime );
 
 	/* Find out if any new Player just "sit" at the Table. */
 

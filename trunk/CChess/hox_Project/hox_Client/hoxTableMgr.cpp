@@ -52,7 +52,7 @@ hoxTableMgr::CreateTable( const wxString& tableId,
                          ? new hoxPracticeTable( site, tableId, referee )
                          : new hoxTable( site, tableId, referee ) );
     
-    pTable->SetRatedGame( gameType == hoxGAME_TYPE_RATED );
+    pTable->SetGameType( gameType );
 
     /* Save this table to our list */
     m_tables.push_back( pTable);

@@ -1219,7 +1219,7 @@ hoxBoard::_SyncInfoWithTable()
 {
     /* Sync Rated/Non-Rated Game option with Table's. */
     
-    m_bRated = m_pTable->IsRatedGame();
+    m_bRated = ( m_pTable->GetGameType() == hoxGAME_TYPE_RATED );
 
     /* Sync timer with Table's. */
 

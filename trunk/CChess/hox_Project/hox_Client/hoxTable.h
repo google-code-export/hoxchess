@@ -85,8 +85,8 @@ public:
      */
     void ViewBoard( hoxBoard* pBoard );
 
-	void SetRatedGame(const bool bRated) { m_bRated = bRated; }
-	bool IsRatedGame() const { return m_bRated; }
+	void SetGameType(const hoxGameType gameType) { m_gameType = gameType; }
+	hoxGameType GetGameType() const { return m_gameType; }
 
 	void SetInitialTime(const hoxTimeInfo& timeInfo) { m_initialTime = timeInfo; }
 	const hoxTimeInfo GetInitialTime() const { return m_initialTime; }
@@ -257,11 +257,11 @@ public:
      * Callback function from a player who just updated the Options (Table).
      *
      * @param player The Player who just updated the Options.
-     * @param bRatedGame The Rated/Non-Rated Game option.
+     * @param gameType The Game-Type option.
      * @param newTimeInfo The new initial Time-Info.
      */
     void OnUpdate_FromPlayer( hoxPlayer*         player,
-                              const bool         bRatedGame,
+                              const hoxGameType  gameType,
                               const hoxTimeInfo& newTimeInfo );
 
     /**
@@ -361,8 +361,8 @@ protected:
     hoxPlayer*       m_redPlayer;
     hoxPlayer*       m_blackPlayer;
 
-    // Rated (or Non-Rated) Game.
-    bool             m_bRated;
+    // Rated / Unrated / Solo / Practice
+    hoxGameType      m_gameType;
 
 	// Timers
 	hoxTimeInfo      m_initialTime; // *** Initial time.
