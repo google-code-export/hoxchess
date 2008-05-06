@@ -49,20 +49,20 @@ hoxLocalPlayer::hoxLocalPlayer( const wxString& name,
                                 int             score )
             : hoxPlayer( name, type, score )
 { 
-    const char* FNAME = "hoxLocalPlayer::hoxLocalPlayer";
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
 }
 
 hoxLocalPlayer::~hoxLocalPlayer() 
 {
-    const char* FNAME = "hoxLocalPlayer::~hoxLocalPlayer";
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
 }
 
 void 
 hoxLocalPlayer::OnClose_FromTable( const wxString& tableId )
 {
-    const char* FNAME = "hoxLocalPlayer::OnClose_FromTable";
+    const char* FNAME = __FUNCTION__;
 
     wxLogDebug("%s: ENTER. Table-Id = [%s].", FNAME, tableId.c_str());
 
@@ -126,7 +126,8 @@ hoxLocalPlayer::OpenNewNetworkTable()
 {
     hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_NEW ) );
 	apRequest->parameters["pid"] = this->GetName();
-	apRequest->parameters["itimes"] = "1500/300/20"; // TODO: Hard-coded initial times.
+    const hoxTimeInfo timeInfo( 1500, 300, 20 ); // TODO: Hard-coded time-info.
+    apRequest->parameters["itimes"] = hoxUtil::TimeInfoToString( timeInfo );
     this->AddRequestToConnection( apRequest );
 
     return hoxRC_OK;

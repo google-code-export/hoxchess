@@ -33,6 +33,7 @@
 class hoxSite;
 class hoxMyPlayer;
 class hoxChesscapePlayer;
+class hoxAIPlayer;
 
 /**
  * A Player-Manager that manages a group of players.
@@ -51,6 +52,9 @@ public:
 
     hoxPlayer* CreateDummyPlayer( const wxString& name,
                                   int             score = 1500 );
+
+    hoxAIPlayer* CreateAIPlayer( const wxString& name,
+                                 int             score = 1500 );
 
     /**
      * @return NULL if not found.

@@ -106,9 +106,9 @@ public:
 	 * @param status The game's status.
 	 * @param playerTime The time of the Player that made the Move.
      */
-    void OnMove_FromBoard( const hoxMove&     move,
-		                   hoxGameStatus      status,
-						   const hoxTimeInfo& playerTime );
+    virtual void OnMove_FromBoard( const hoxMove&     move,
+		                           hoxGameStatus      status,
+					     	       const hoxTimeInfo& playerTime );
 
     /**
      * Callback function from the Board to let this Table know about
@@ -283,15 +283,7 @@ public:
 
     hoxColor GetPlayerRole( const wxString& sPlayerId ) const;
 
-private:
-    /**
-     * Close the GUI Board.
-     *
-     * @note This function is required instead of calling "delete" to
-     *       avoid memory leak issues.
-     */
-    void _CloseBoard();
-
+protected:
     /**
      * Post (inform) a player that a new Move has just been made.
      *
@@ -300,10 +292,19 @@ private:
 	 * @param status  The game's status.
      * @param playerTime The remaining Player's Time.
      */
-    void _PostPlayer_MoveEvent( hoxPlayer*         player,
-                                const wxString&    moveStr,
-								hoxGameStatus      status = hoxGAME_STATUS_IN_PROGRESS,
-								const hoxTimeInfo& playerTime = hoxTimeInfo() ) const;
+    void PostPlayer_MoveEvent( hoxPlayer*         player,
+                               const wxString&    moveStr,
+							   hoxGameStatus      status = hoxGAME_STATUS_IN_PROGRESS,
+							   const hoxTimeInfo& playerTime = hoxTimeInfo() ) const;
+
+private:
+    /**
+     * Close the GUI Board.
+     *
+     * @note This function is required instead of calling "delete" to
+     *       avoid memory leak issues.
+     */
+    void _CloseBoard();
 
     void _PostBoard_PlayerEvent( wxEventType commandType, 
                                  hoxPlayer*  player,
@@ -347,7 +348,7 @@ private:
 
     void       _ResetGame();
 
-private:
+protected:
     hoxSite*         m_site;
     const wxString   m_id;       // The table's ID.
 
@@ -367,6 +368,35 @@ private:
 	hoxTimeInfo      m_initialTime; // *** Initial time.
     hoxTimeInfo      m_blackTime;   // Black's time.
 	hoxTimeInfo      m_redTime;     // Red's time.
+};
+
+
+/**
+ * A PRACTICE Table in which the local player is playing with his computer.
+ *
+ */
+class hoxPracticeTable : public hoxTable
+{
+public:
+    hoxPracticeTable( hoxSite*          site,
+                      const wxString&   id,
+                      hoxIReferee_SPtr  referee,
+                      hoxBoard*         board = NULL );
+    
+    virtual ~hoxPracticeTable();
+
+    /**
+     * Callback function from the Board to let this Table know about
+     * physical (Board) Moves.
+     *
+     * @param move The current design assumes that the Board has contacted
+     *             the referee to validate the Move.
+	 * @param status The game's status.
+	 * @param playerTime The time of the Player that made the Move.
+     */
+    virtual void OnMove_FromBoard( const hoxMove&     move,
+		                           hoxGameStatus      status,
+					     	       const hoxTimeInfo& playerTime );
 };
 
 #endif /* __INCLUDED_HOX_TABLE_H_ */

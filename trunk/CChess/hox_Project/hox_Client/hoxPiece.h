@@ -35,7 +35,7 @@
 
 // hoxPiece
 
-class hoxPiece: public wxObject
+class hoxPiece : public wxObject
 {
 public:
     hoxPiece( const hoxPieceInfo& info );

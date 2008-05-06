@@ -128,12 +128,15 @@ hoxUtil::ResultToStr( const hoxResult result )
 }
 
 wxString 
-hoxUtil::GenerateRandomString()
+hoxUtil::GenerateRandomString( const wxString& sPrefix /* = "SomeString" */ )
 {
     ::srand( ::time(NULL) );
     int someNumber = ::rand();
 
-    return wxString("SomeString") << someNumber;
+    wxString sRandom = sPrefix;
+    sRandom << someNumber;
+
+    return sRandom;
 }
 
 /**
@@ -220,6 +223,7 @@ hoxUtil::GameTypeToString( const hoxGameType gameType )
         case hoxGAME_TYPE_RATED:       return "Rated";
 		case hoxGAME_TYPE_NONRATED:    return "Nonrated";
 		case hoxGAME_TYPE_SOLO:        return "Solo";
+        case hoxGAME_TYPE_PRACTICE:    return "Practice";
 
         default:                       return "UNKNOWN";
     }

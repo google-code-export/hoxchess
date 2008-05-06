@@ -58,7 +58,7 @@ class hoxIReferee
      *   + Which side (RED or BLACK) should move next.
      */
     virtual void GetGameState( hoxPieceInfoList& pieceInfoList,
-                               hoxColor&    nextColor ) = 0;
+                               hoxColor&         nextColor ) = 0;
 
     /**
      * Get the NEXT color, which specifies who (RED or BLACK) should
@@ -71,6 +71,14 @@ class hoxIReferee
      * @return an invalid Move if the string is "invalid".
      */
     virtual hoxMove StringToMove( const wxString& sMove ) const = 0;
+
+    /**
+     * Get all available Moves of the NEXT color.
+     * @param moves The [OUT] returned vector containing the list of
+     *              valid 'next' Moves.
+     * @note The returned vector is empty if the game is over.
+     */
+    virtual void GetAvailableNextMoves( hoxMoveVector& moves ) const = 0;
 };
 
 #endif /* __INCLUDED_HOX_IREFEREE_H_ */

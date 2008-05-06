@@ -46,8 +46,9 @@ namespace hoxUtil
 
     /**
      * A helper to generate a random string.
+     * @param sPrefix The OPTIONAL input prefix.
      */
-    wxString GenerateRandomString();
+    wxString GenerateRandomString( const wxString& sPrefix = "SomeString" );
 
     /**
      * Convert a given request-type to a (human-readable) string.

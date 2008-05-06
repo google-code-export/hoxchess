@@ -107,10 +107,6 @@ public:
     hoxPlayer* GetPlayerById( const wxString& sPlayerId,
                               const int       nScore );
 
-    hoxPlayer* CreateDummyPlayer( const wxString& playerId,
-		                          int             score = 1500 )
-        { return m_playerMgr.CreateDummyPlayer( playerId, score ); }
-
 	virtual void Handle_ShutdownReadyFromPlayer() = 0;
 
     virtual hoxLocalPlayer* CreateLocalPlayer(const wxString& playerName) = 0;
@@ -130,6 +126,11 @@ public:
      * On the LOCAL player's request to create a new Table.
      */
     virtual void OnLocalRequest_NEW() = 0;
+
+    /**
+     * On the LOCAL player's request to create a new PRACTICE Table.
+     */
+    virtual void OnLocalRequest_PRACTICE() = 0;
 
     /*************************************************
      * Implement hoxPlayersUI::UIOwner 's interface.
@@ -210,6 +211,7 @@ public:
 
     virtual void OnLocalRequest_JOIN( const wxString& sTableId );
     virtual void OnLocalRequest_NEW();
+    virtual void OnLocalRequest_PRACTICE();
 
 private:
     hoxTable_SPtr _CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo);
@@ -232,6 +234,7 @@ public:
 
     virtual void OnLocalRequest_JOIN( const wxString& sTableId );
     virtual void OnLocalRequest_NEW();
+    virtual void OnLocalRequest_PRACTICE();
 
     /*************************************************
      * Implement hoxPlayersUI::UIOwner 's interface.

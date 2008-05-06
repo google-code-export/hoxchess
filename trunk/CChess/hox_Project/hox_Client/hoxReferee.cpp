@@ -100,6 +100,7 @@ namespace BoardInfoAPI
 
         virtual bool IsValidMove(const hoxPosition& newPos) const;
         virtual bool DoesNextMoveExist() const;
+        virtual void GetAvailableNextMoves( hoxMoveVector& moves ) const;
 
         bool HasColor( hoxColor c ) const { return (m_info.color == c); }
         bool HasType(  hoxPieceType  t ) const { return (m_info.type  == t); }
@@ -239,6 +240,8 @@ namespace BoardInfoAPI
 
         bool GetPieceAtPosition( const hoxPosition& position, 
                                  hoxPieceInfo&      pieceInfo ) const;
+
+        void GetAvailableNextMoves( hoxMoveVector& moves ) const;
 
         // ------------ Other Public API -------
         bool   Simulation_IsValidMove(const hoxMove& move);
@@ -414,6 +417,23 @@ Board::GetPieceAtPosition( const hoxPosition& position,
     pieceInfo.position = piece->GetPosition();
 
     return true;
+}
+
+void
+Board::GetAvailableNextMoves( hoxMoveVector& moves ) const
+{
+    /* Go through all Pieces of the 'next' color.
+     * For each Piece, get all the potential Moves.
+     */
+
+    for ( PieceList::const_iterator it = m_pieces.begin(); 
+                                    it != m_pieces.end(); ++it )
+    {
+        if ( (*it)->HasColor( m_nextColor ) )
+        {
+            (*it)->GetAvailableNextMoves( moves );
+        }
+    }
 }
 
 /**
@@ -666,7 +686,7 @@ bool
 Board::ValidateMove( hoxMove&       move,
                      hoxGameStatus& status )
 {
-    const char* FNAME = "Board::ValidateMove";
+    const char* FNAME = __FUNCTION__;
 
     /* Check for 'turn' */
 
@@ -840,6 +860,39 @@ Piece::DoesNextMoveExist() const
     PositionList_Clear( positions ); // Release memory.
 
     return nextMoveExits;
+}
+
+void
+Piece::GetAvailableNextMoves( hoxMoveVector& moves ) const
+{
+    /* Generate all potential 'next' positions. */
+
+    PositionList positions;  // all potential 'next' positions.
+
+    this->GetPotentialNextPositions( positions );
+
+    /* For each potential 'next' position, check if this piece can 
+     * actually move there. 
+     */
+
+    hoxMove move;
+    move.piece = this->m_info;
+
+    for ( PositionList::const_iterator it = positions.begin();
+                                       it != positions.end(); ++it )
+    {
+        if ( ! (*it)->IsValid() ) continue;
+
+        move.newPosition = *(*it);
+        
+        /* Ask the Board to validate this Move in Simulation mode. */
+        if ( m_board->Simulation_IsValidMove( move ) )
+        {
+            moves.push_back( move );
+        }
+    }
+
+    PositionList_Clear( positions ); // Release memory.
 }
 
 //-----------------------------------------------------------------------------
@@ -1402,7 +1455,6 @@ bool
 hoxReferee::ValidateMove( hoxMove&      move,
                          hoxGameStatus& status )
 {
-    wxCHECK_MSG(m_board, false, "The Board is NULL.");
     return m_board->ValidateMove( move, status );
 }
 
@@ -1410,7 +1462,6 @@ void
 hoxReferee::GetGameState( hoxPieceInfoList& pieceInfoList,
                           hoxColor&         nextColor )
 {
-    wxCHECK_RET(m_board, "The Board is NULL.");
     return m_board->GetGameState( pieceInfoList, nextColor );
 }
 
@@ -1423,7 +1474,7 @@ hoxReferee::GetNextColor()
 hoxMove
 hoxReferee::StringToMove( const wxString& sMove ) const
 {
-    const char* FNAME = "hoxReferee::StringToMove";
+    const char* FNAME = __FUNCTION__;
     hoxMove move;
 
     /* NOTE: Move-string has the format of "xyXY" */
@@ -1440,8 +1491,8 @@ hoxReferee::StringToMove( const wxString& sMove ) const
 
     /* Lookup a Piece based on "fromPosition". */
 
-    if ( ! _GetPieceAtPosition( move.piece.position, 
-                                move.piece ) )
+    if ( ! m_board->GetPieceAtPosition( move.piece.position, 
+                                        move.piece ) )
     {
         wxLogDebug("%s: Failed to locate piece at the position.", FNAME);
         return hoxMove();  // Error: return an invalid Move.
@@ -1450,12 +1501,10 @@ hoxReferee::StringToMove( const wxString& sMove ) const
     return move;
 }
 
-bool 
-hoxReferee::_GetPieceAtPosition( const hoxPosition& position, 
-                                 hoxPieceInfo&      pieceInfo ) const
+void
+hoxReferee::GetAvailableNextMoves( hoxMoveVector& moves ) const
 {
-    wxCHECK_MSG(m_board, false, "The Board is NULL.");
-    return m_board->GetPieceAtPosition( position, pieceInfo );
+    m_board->GetAvailableNextMoves( moves );
 }
 
 /************************* END OF FILE ***************************************/
