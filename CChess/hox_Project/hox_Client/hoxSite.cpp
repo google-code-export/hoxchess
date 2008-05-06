@@ -31,6 +31,7 @@
 #include "hoxSocketConnection.h"
 #include "hoxChesscapeConnection.h"
 #include "hoxChesscapePlayer.h"
+#include "hoxAIPlayer.h"
 #include "MyFrame.h"
 #include "MyChild.h"
 #include "hoxNetworkAPI.h"
@@ -70,7 +71,7 @@ hoxSite::GetPlayerById( const wxString& sPlayerId,
     hoxPlayer* player = this->FindPlayer( sPlayerId );
     if ( player == NULL )
     {
-	    player = this->CreateDummyPlayer( sPlayerId, nScore );
+	    player = m_playerMgr.CreateDummyPlayer( sPlayerId, nScore );
     }
     wxASSERT( player != NULL );
     return player;
@@ -490,8 +491,55 @@ hoxRemoteSite::OnLocalRequest_NEW()
     }
 }
 
+void
+hoxRemoteSite::OnLocalRequest_PRACTICE()
+{
+    const char* FNAME = __FUNCTION__;
+    wxCHECK_RET( m_player != NULL, "Player is NULL" );
+
+    /* Generate new unique IDs for:
+     *   (1) This PRACTICE-Table, and
+     *   (2) The new AI Player.
+     */
+    const wxString sTableId = hoxUtil::GenerateRandomString("PRACTICE_");
+    const wxString sAIId    = hoxUtil::GenerateRandomString("AI_");
+
+    /* Set the default Table's attributes. */
+
+    hoxNetworkTableInfo tableInfo;
+
+    tableInfo.id = sTableId;
+    tableInfo.gameType = hoxGAME_TYPE_PRACTICE;
+
+    const hoxTimeInfo timeInfo( 1500, 300, 20 );
+	tableInfo.initialTime = timeInfo;
+    tableInfo.redTime     = tableInfo.initialTime;
+    tableInfo.blackTime   = tableInfo.initialTime;
+
+    /* Create an "empty" PRACTICE Table. */
+
+    wxLogDebug("%s: Create a PRACTICE Table [%s]...", FNAME, sTableId.c_str());
+    hoxTable_SPtr pTable = _CreateNewTableWithGUI( tableInfo );
+
+    /* Assign Players to the Table.
+     *
+     * NOTE: Hard-coded player-roles:
+     *     + LOCAL player - play RED
+     *     + AI player    - play BLACK
+     */
+    
+    hoxResult result;
+
+    result = m_player->JoinTableAs( pTable, hoxCOLOR_RED );
+    wxASSERT( result == hoxRC_OK );
+
+    hoxPlayer* pAIPlayer = m_playerMgr.CreateAIPlayer( sAIId );
+    result = pAIPlayer->JoinTableAs( pTable, hoxCOLOR_BLACK );
+    wxASSERT( result == hoxRC_OK );
+}
+
 hoxTable_SPtr
-hoxRemoteSite::_CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo)
+hoxRemoteSite::_CreateNewTableWithGUI( const hoxNetworkTableInfo& tableInfo )
 {
     const char* FNAME = __FUNCTION__;
     hoxTable_SPtr pTable;
@@ -501,8 +549,9 @@ hoxRemoteSite::_CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo)
     MyChild* childFrame = wxGetApp().GetFrame()->CreateFrameForTable( tableId );
 
     /* Create a new table with the newly created Frame. */
-    pTable = m_tableMgr.CreateTable( tableId, this );
-    pTable->SetRatedGame( tableInfo.gameType == hoxGAME_TYPE_RATED );
+    pTable = m_tableMgr.CreateTable( tableId, 
+                                     this,
+                                     tableInfo.gameType );
 	pTable->SetInitialTime( tableInfo.initialTime );
     pTable->SetBlackTime( tableInfo.blackTime );
     pTable->SetRedTime( tableInfo.redTime );
@@ -716,6 +765,17 @@ hoxChesscapeSite::OnLocalRequest_NEW()
     }
 
     this->hoxRemoteSite::OnLocalRequest_NEW();
+}
+
+void
+hoxChesscapeSite::OnLocalRequest_PRACTICE()
+{
+    const char* FNAME = __FUNCTION__;
+    wxCHECK_RET( m_player != NULL, "Player is NULL" );
+
+    wxLogDebug("%s: Create a new PRACTICE Table...", FNAME);
+
+    /* FIXME: Do nothing for now. */
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -54,6 +54,8 @@ enum
     MDI_SHOW_SERVERS_WINDOW,
     MDI_SHOW_LOG_WINDOW,
 
+    MDI_PRACTICE, // Practice with your computer
+
     MDI_TOGGLE,   // toggle view
     MDI_CHILD_QUIT,
 
@@ -119,6 +121,9 @@ public:
 
     void OnShowLogWindow(wxCommandEvent& event);
     void OnUpdateLogWindow(wxUpdateUIEvent& event);
+
+    void OnPractice(wxCommandEvent& event);
+    void OnUpdatePractice(wxUpdateUIEvent& event);
 
     void OnQuit(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);

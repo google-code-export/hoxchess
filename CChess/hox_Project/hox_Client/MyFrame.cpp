@@ -72,6 +72,9 @@ BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
     EVT_MENU(MDI_SHOW_LOG_WINDOW, MyFrame::OnShowLogWindow)
     EVT_UPDATE_UI(MDI_SHOW_LOG_WINDOW, MyFrame::OnUpdateLogWindow)
 
+    EVT_MENU(MDI_PRACTICE, MyFrame::OnPractice)
+    EVT_UPDATE_UI(MDI_PRACTICE, MyFrame::OnUpdatePractice)
+
     EVT_MENU(MDI_QUIT, MyFrame::OnQuit)
 
     EVT_CLOSE(MyFrame::OnClose)
@@ -193,8 +196,6 @@ MyFrame::OnAbout( wxCommandEvent& event )
 void 
 MyFrame::OnNewTable( wxCommandEvent& event )
 {
-    const char* FNAME = __FUNCTION__;
-
     hoxTable_SPtr selectedTable;
     hoxSite* selectedSite = _GetSelectedSite(selectedTable);
 
@@ -386,6 +387,29 @@ MyFrame::OnUpdateLogWindow( wxUpdateUIEvent& event )
 }
 
 void 
+MyFrame::OnPractice( wxCommandEvent& event )
+{
+    hoxTable_SPtr selectedTable;
+    hoxSite* selectedSite = _GetSelectedSite(selectedTable);
+
+    if ( selectedSite != NULL )
+    {
+        selectedSite->OnLocalRequest_PRACTICE();
+    }
+}
+
+void 
+MyFrame::OnUpdatePractice( wxUpdateUIEvent& event )
+{
+    hoxTable_SPtr selectedTable;
+    hoxSite*  selectedSite = _GetSelectedSite(selectedTable);
+
+	bool bEnabled = ( selectedSite != NULL );
+
+    event.Enable( bEnabled );
+}
+
+void 
 MyFrame::OnListTables( wxCommandEvent& event )
 {
     const char* FNAME = __FUNCTION__;
@@ -494,20 +518,18 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
     file_menu->AppendSeparator();
     file_menu->Append(MDI_QUIT, _("&Exit\tAlt-X"), _("Quit the program"));
 
-    /* Server menu. */
-    wxMenu* server_menu = new wxMenu;
-    server_menu->AppendCheckItem(MDI_SHOW_SERVERS_WINDOW, _("Server&s Window\tCtrl-S"));
-
-    /* View menu (only if a Table exits) */
-    wxMenu* view_menu = NULL;
+    /* View menu. */
+    wxMenu* view_menu = new wxMenu;
+    view_menu->AppendCheckItem(MDI_SHOW_SERVERS_WINDOW, _("Site&s View\tCtrl-S"));
     if ( hasTable )
     {
-        view_menu = new wxMenu;
         view_menu->Append(MDI_TOGGLE, _("Toggle Table &View\tCtrl-V"));
     }
 
     /* Help menu. */
     wxMenu* help_menu = new wxMenu;
+    help_menu->Append(MDI_PRACTICE, _("&Practice with Computer\tCtrl-P"), _("Practice with your commputer"));
+    help_menu->AppendSeparator();
     help_menu->AppendCheckItem(MDI_SHOW_LOG_WINDOW, _("Lo&g Window\tCtrl-G"));
     help_menu->AppendSeparator();
     help_menu->Append(MDI_ABOUT, _("&About HOXChess\tF1"));
@@ -515,9 +537,7 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
     /* The main menu bar */
     wxMenuBar* menu_bar = new wxMenuBar;
     menu_bar->Append(file_menu, _("&File"));
-    menu_bar->Append(server_menu, _("&Server"));
-    if ( view_menu != NULL )
-        menu_bar->Append(view_menu, _("&View"));
+    menu_bar->Append(view_menu, _("&View"));
     menu_bar->Append(help_menu, _("&Help"));
 
     return menu_bar;

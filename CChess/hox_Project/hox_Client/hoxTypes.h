@@ -140,11 +140,12 @@ typedef std::vector<hoxMove>  hoxMoveVector;
 class hoxTimeInfo
 {
   public:
-    int  nGame;  // Game-time.
-    int  nMove;  // Move-time.
-    int  nFree;  // Free-time.
+    int  nGame;  // Game-time (in seconds).
+    int  nMove;  // Move-time (in seconds).
+    int  nFree;  // Free-time (in seconds).
 
-	hoxTimeInfo() : nGame(0), nMove(0), nFree(0) {}
+	hoxTimeInfo( int g = 0, int m = 0, int f = 0 ) 
+        : nGame( g ), nMove( m ), nFree( f ) {}
 	void Clear()
 		{
 			nGame = 0;

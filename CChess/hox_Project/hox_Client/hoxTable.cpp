@@ -123,10 +123,10 @@ hoxTable::OnMove_FromBoard( const hoxMove&     move,
     wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
 
     /* Inform the Board's owner of the new Move. */
-    _PostPlayer_MoveEvent( boardPlayer,
-                           move.ToString(), 
-                           status,
-                           playerTime );
+    PostPlayer_MoveEvent( boardPlayer,
+                          move.ToString(), 
+                          status,
+                          playerTime );
 }
 
 void
@@ -546,10 +546,10 @@ hoxTable::_CloseBoard()
 }
 
 void 
-hoxTable::_PostPlayer_MoveEvent( hoxPlayer*         player,
-                                 const wxString&    moveStr,
-								 hoxGameStatus      status /* = hoxGAME_STATUS_IN_PROGRESS */,
-								 const hoxTimeInfo& playerTime /* = hoxTimeInfo() */ ) const
+hoxTable::PostPlayer_MoveEvent( hoxPlayer*         player,
+                                const wxString&    moveStr,
+							    hoxGameStatus      status /* = hoxGAME_STATUS_IN_PROGRESS */,
+							    const hoxTimeInfo& playerTime /* = hoxTimeInfo() */ ) const
 {
     const wxString statusStr = hoxUtil::GameStatusToString( status );
 
@@ -700,7 +700,8 @@ hoxTable::_AddPlayer( hoxPlayer* player,
 {
     m_players.insert( player );
 
-    // "Cache" the RED and BLACK players for easy access.
+    /* "Cache" the RED and BLACK players for easy access. */
+
     if ( role == hoxCOLOR_RED )
     {
         m_redPlayer = player;
@@ -756,4 +757,57 @@ hoxTable::_ResetGame()
     m_redTime   = m_initialTime;
     m_blackTime = m_initialTime;
 }
+
+
+// ----------------------------------------------------------------------------
+//
+//                    hoxPracticeTable
+//
+// ----------------------------------------------------------------------------
+
+hoxPracticeTable::hoxPracticeTable( hoxSite*          site,
+                                    const wxString&   id,
+                                    hoxIReferee_SPtr  referee,
+                                    hoxBoard*         board /* = NULL */ )
+        : hoxTable( site, id, referee, board )
+{
+    const char* FNAME = __FUNCTION__;
+    wxLogDebug("%s: ENTER. (%s)", FNAME, m_id.c_str());
+}
+    
+hoxPracticeTable::~hoxPracticeTable()
+{
+    const char* FNAME = __FUNCTION__;
+    wxLogDebug("%s: ENTER. (%s)", FNAME, m_id.c_str());
+}
+
+void
+hoxPracticeTable::OnMove_FromBoard( const hoxMove&     move,
+		                            hoxGameStatus      status,
+				 	     	        const hoxTimeInfo& playerTime )
+{
+    const char* FNAME = __FUNCTION__;
+    wxLogDebug("%s: ENTER. Move = [%s].", FNAME, move.ToString().c_str());
+
+    /* Get the AI Player. */
+
+    hoxPlayer* aiPlayer = NULL;
+    if ( m_redPlayer && m_redPlayer->GetType() == hoxPLAYER_TYPE_AI )
+    {
+        aiPlayer = m_redPlayer;
+    }
+    else if ( m_blackPlayer && m_blackPlayer->GetType() == hoxPLAYER_TYPE_AI )
+    {
+        aiPlayer = m_blackPlayer;
+    }
+    wxCHECK_RET(aiPlayer, "The AI Player cannot be NULL.");
+
+    /* Inform the AI Player of the new Move. */
+
+    PostPlayer_MoveEvent( aiPlayer,
+                          move.ToString(), 
+                          status,
+                          playerTime );
+}
+
 /************************* END OF FILE ***************************************/

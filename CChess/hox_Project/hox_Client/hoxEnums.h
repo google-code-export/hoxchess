@@ -41,7 +41,7 @@
  * The Application's Name and Version.
  */
 #define HOX_APP_NAME  "HOXChess"
-#define HOX_VERSION   "0.4.4.0"
+#define HOX_VERSION   "0.5.0.0"
 
 /**
  * The default path of all the pieces' images.
@@ -145,11 +145,17 @@ enum hoxPlayerType
              * In principle, there can ONLY one local player.
              */
 
-    hoxPLAYER_TYPE_DUMMY       
+    hoxPLAYER_TYPE_DUMMY,
             /* Dummy player representing a Network (remote) player.
              * This player is created just to make sure that a table
              * being played have 2 players.
              */
+
+    hoxPLAYER_TYPE_AI      
+            /* Artificial Intelligent (AI) player representing the
+             * local computer.
+             */
+
 };
 
 /**
@@ -170,7 +176,9 @@ enum hoxGameType
 
     hoxGAME_TYPE_RATED,
     hoxGAME_TYPE_NONRATED,
-    hoxGAME_TYPE_SOLO     // vs. COMPUTER
+    hoxGAME_TYPE_SOLO,    // vs. 'remote' COMPUTER
+
+    hoxGAME_TYPE_PRACTICE // vs. 'local' COMPUTER
 };
 
 /**
