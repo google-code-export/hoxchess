@@ -192,7 +192,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
                 break;
 		    }
             wxLogDebug("%s: Player [%s] left Table [%s].", FNAME, 
-                leavePlayer->GetName().c_str(), pTable->GetId().c_str());
+                leavePlayer->GetId().c_str(), pTable->GetId().c_str());
             pTable->OnLeave_FromNetwork( leavePlayer );
             break;
         }
@@ -211,7 +211,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
                 break;
 		    }
             wxLogDebug("%s: Player [%s] updated Timers to [%s] in Table [%s].", FNAME, 
-                player->GetName().c_str(), hoxUtil::TimeInfoToString(newTimeInfo).c_str(),
+                player->GetId().c_str(), hoxUtil::TimeInfoToString(newTimeInfo).c_str(),
                 pTable->GetId().c_str());
             pTable->OnUpdate_FromPlayer( player,
                                          bRatedGame ? hoxGAME_TYPE_RATED : hoxGAME_TYPE_NONRATED,
@@ -279,7 +279,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
                 break;
 		    }
             wxLogDebug("%s: Player [%s] sent move [%s] in Table [%s].", FNAME, 
-                movePlayer->GetName().c_str(), sMove.c_str(), pTable->GetId().c_str());
+                movePlayer->GetId().c_str(), sMove.c_str(), pTable->GetId().c_str());
             pTable->OnMove_FromNetwork( movePlayer, sMove );
             break;
         }
@@ -296,7 +296,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
                 break;
 		    }
             wxLogDebug("%s: Inform table of player [%s] offering Draw-Request.", 
-                FNAME, offerPlayer->GetName().c_str());
+                FNAME, offerPlayer->GetId().c_str());
             pTable->OnDrawRequest_FromNetwork( offerPlayer );
             break;
         }
@@ -348,7 +348,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
                 break;
 		    }
             wxLogDebug("%s: Inform table [%s] of player [%s] new Score [%d].", 
-                FNAME, pTable->GetId().c_str(), player->GetName().c_str(), nScore);
+                FNAME, pTable->GetId().c_str(), player->GetId().c_str(), nScore);
             player->SetScore( nScore );
             pTable->OnScore_FromNetwork( player );
             break;
@@ -491,7 +491,7 @@ hoxMyPlayer::_HandleResponseEvent_LOGIN( const wxString&         sCode,
     _ParsePlayerLoginEvent( sContent,
 						    sPlayerId, nPlayerScore );
 
-    if ( sPlayerId == this->GetName() )
+    if ( sPlayerId == this->GetId() )
     {
         m_bLoginSuccess = true;  // *** Record this LOGIN event.
 
@@ -523,7 +523,7 @@ hoxMyPlayer::_HandleResponseEvent_LOGOUT( const wxString&         sContent,
 
     const wxString sPlayerId = sContent.BeforeFirst('\n');
 
-    if ( sPlayerId == this->GetName() )
+    if ( sPlayerId == this->GetId() )
     {
         m_bLoginSuccess = false;  // *** Record this LOGOUT event.
         site->OnResponse_LOGOUT( apResponse );

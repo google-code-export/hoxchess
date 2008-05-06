@@ -84,7 +84,7 @@ hoxLocalPlayer::ConnectToNetworkServer()
     this->StartConnection();
 
     hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_LOGIN ) );
-	apRequest->parameters["pid"] = this->GetName();
+	apRequest->parameters["pid"] = this->GetId();
 	apRequest->parameters["password"] = this->GetPassword();
     this->AddRequestToConnection( apRequest );
 
@@ -95,7 +95,7 @@ hoxResult
 hoxLocalPlayer::DisconnectFromNetworkServer()
 {
     hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_LOGOUT ) );
-	apRequest->parameters["pid"] = this->GetName();
+	apRequest->parameters["pid"] = this->GetId();
 	this->AddRequestToConnection( apRequest );
 
     return hoxRC_OK;
@@ -105,7 +105,7 @@ hoxResult
 hoxLocalPlayer::QueryForNetworkTables()
 {
     hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_LIST ) );
-	apRequest->parameters["pid"] = this->GetName();
+	apRequest->parameters["pid"] = this->GetId();
     this->AddRequestToConnection( apRequest );
 
     return hoxRC_OK;
@@ -119,7 +119,7 @@ hoxLocalPlayer::JoinNetworkTable( const wxString& tableId )
     bool hasRole = ( pTable.get() != NULL );
 
     hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_JOIN ) );
-	apRequest->parameters["pid"] = this->GetName();
+	apRequest->parameters["pid"] = this->GetId();
 	apRequest->parameters["tid"] = tableId;
     apRequest->parameters["color"] = hoxUtil::ColorToString( hoxCOLOR_NONE ); // Observer.
 	apRequest->parameters["joined"] = hasRole ? "1" : "0";
@@ -132,7 +132,7 @@ hoxResult
 hoxLocalPlayer::OpenNewNetworkTable()
 {
     hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_NEW ) );
-	apRequest->parameters["pid"] = this->GetName();
+	apRequest->parameters["pid"] = this->GetId();
     const hoxTimeInfo timeInfo( 1500, 300, 20 ); // TODO: Hard-coded time-info.
     apRequest->parameters["itimes"] = hoxUtil::TimeInfoToString( timeInfo );
     this->AddRequestToConnection( apRequest );
@@ -144,7 +144,7 @@ hoxResult
 hoxLocalPlayer::LeaveNetworkTable( const wxString& tableId )
 {
     hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_LEAVE ) );
-	apRequest->parameters["pid"] = this->GetName();
+	apRequest->parameters["pid"] = this->GetId();
 	apRequest->parameters["tid"] = tableId;
     this->AddRequestToConnection( apRequest );
 
@@ -155,7 +155,7 @@ hoxResult
 hoxLocalPlayer::InvitePlayer( const wxString& sInviteeId )
 {
     hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_INVITE ) );
-	apRequest->parameters["pid"] = this->GetName();  // Invitor
+	apRequest->parameters["pid"] = this->GetId();  // Invitor
     apRequest->parameters["invitee"] = sInviteeId;   // Invitor
 
     this->AddRequestToConnection( apRequest );

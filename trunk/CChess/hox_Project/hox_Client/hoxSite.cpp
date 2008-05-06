@@ -249,8 +249,8 @@ hoxRemoteSite::JoinLocalPlayerToTable( const hoxNetworkTableInfo& tableInfo )
 	
 	hoxColor myColor = hoxCOLOR_UNKNOWN;
 
-	if      ( redId == m_player->GetName() )   myColor = hoxCOLOR_RED;
-	else if ( blackId == m_player->GetName() ) myColor = hoxCOLOR_BLACK;
+	if      ( redId == m_player->GetId() )   myColor = hoxCOLOR_RED;
+	else if ( blackId == m_player->GetId() ) myColor = hoxCOLOR_BLACK;
     else 	                                   myColor = hoxCOLOR_NONE;
 
 	/****************************
@@ -562,7 +562,7 @@ hoxRemoteSite::_CreateNewTableWithGUI( const hoxNetworkTableInfo& tableInfo )
 		                             PIECES_PATH, 
 		                             pTable->GetReferee(),
                                      pTable,
-                                     m_player->GetName(),
+                                     m_player->GetId(),
         					         wxDefaultPosition,
 							         childFrame->GetSize(),
                                      boardFeatureFlags );

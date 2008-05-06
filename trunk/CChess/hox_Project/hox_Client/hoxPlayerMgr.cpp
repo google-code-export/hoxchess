@@ -95,7 +95,7 @@ hoxPlayerMgr::FindPlayer( const wxString& playerId ) const
     for ( hoxPlayerList::const_iterator it = m_players.begin();
                                         it != m_players.end(); ++it )
     {
-        if ( playerId == (*it)->GetName() )
+        if ( playerId == (*it)->GetId() )
         {
             return (*it);
         }

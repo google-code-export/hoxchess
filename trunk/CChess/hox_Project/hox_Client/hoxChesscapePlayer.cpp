@@ -158,7 +158,7 @@ hoxChesscapePlayer::OnRequest_FromTable( hoxRequest_APtr apRequest )
 	        hoxTable_SPtr pTable = this->GetSite()->FindTable( tableId );
             wxCHECK_RET(pTable.get() != NULL, "Table not found");
 
-            hoxColor myRole = pTable->GetPlayerRole( this->GetName() );
+            hoxColor myRole = pTable->GetPlayerRole( this->GetId() );
             hoxGameStatus gameStatus = ( myRole == hoxCOLOR_RED
                                         ? hoxGAME_STATUS_BLACK_WIN 
                                         : hoxGAME_STATUS_RED_WIN );
@@ -173,7 +173,7 @@ hoxChesscapePlayer::OnRequest_FromTable( hoxRequest_APtr apRequest )
 	        hoxTable_SPtr pTable = this->GetSite()->FindTable( tableId );
             wxCHECK_RET(pTable.get() != NULL, "Table not found");
 
-            hoxColor myRole = pTable->GetPlayerRole( this->GetName() );
+            hoxColor myRole = pTable->GetPlayerRole( this->GetId() );
             apRequest->parameters["color"] = hoxUtil::ColorToString( myRole );
             break;
         }
@@ -702,7 +702,7 @@ hoxChesscapePlayer::_HandleCmd_Login( const hoxResponse_APtr& response,
     if ( m_bRequestingLogin )  // LOGIN pending?
     {
         m_bRequestingLogin = false;
-        wxASSERT( name == this->GetName() );
+        wxASSERT( name == this->GetId() );
 
         response->code = hoxRC_OK;
         response->content.Printf("LOGIN is OK. name=[%s], score=[%d], role=[%s]", 
@@ -884,7 +884,7 @@ hoxChesscapePlayer::_HandleTableCmd( const wxString& cmdStr )
 	if ( pTable.get() == NULL )
 	{
 		wxLogDebug("%s: *** WARN *** This player [%s] not yet joined any table.", 
-			FNAME, this->GetName().c_str());
+			FNAME, this->GetId().c_str());
 		return false;
 	}
 
@@ -1183,7 +1183,7 @@ hoxChesscapePlayer::_HandleTableCmd_OfferDraw( hoxTable_SPtr pTable )
 	}
 
 	wxLogDebug("%s: Inform table of player [%s] is offering Draw-Request.", 
-		FNAME, whoOffered->GetName().c_str());
+		FNAME, whoOffered->GetId().c_str());
 	pTable->OnDrawRequest_FromNetwork( whoOffered );
 
 	return true;
@@ -1268,7 +1268,7 @@ hoxChesscapePlayer::_HandleTableMsg( const wxString& cmdStr )
 	if ( pTable.get() == NULL )
 	{
 		wxLogDebug("%s: *** WARN *** This player [%s] not yet joined any table.", 
-			FNAME, this->GetName().c_str());
+			FNAME, this->GetId().c_str());
 		return false;
 	}
 
@@ -1293,7 +1293,7 @@ hoxChesscapePlayer::_HandleCmd_UpdateRating( const wxString& cmdStr )
 	const wxString rating = cmdStr.AfterFirst( 0x10 ).BeforeLast( 0x10 );
     const int nScore = ::atoi( rating.c_str() );
 
-	if ( who == this->GetName() )
+	if ( who == this->GetId() )
 	{
 		this->SetScore( nScore );
 	}
@@ -1375,8 +1375,8 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 
 	hoxPlayer* currentRedPlayer = pTable->GetRedPlayer();
 	hoxPlayer* currentBlackPlayer = pTable->GetBlackPlayer();
-	const wxString currentRedId = currentRedPlayer ? currentRedPlayer->GetName() : "";
-	const wxString currentBlackId = currentBlackPlayer ? currentBlackPlayer->GetName() : "";
+	const wxString currentRedId = currentRedPlayer ? currentRedPlayer->GetId() : "";
+	const wxString currentBlackId = currentBlackPlayer ? currentBlackPlayer->GetId() : "";
 	bool bSitRed   = false;  // A new Player just 'sit' as RED.
 	bool bSitBlack = false;  // A new Player just 'sit' as BLACK.
     bool bUnsitRed   = false;  // The RED Player just 'unsit'.
