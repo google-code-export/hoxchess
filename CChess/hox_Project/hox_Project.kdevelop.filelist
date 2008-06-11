@@ -6,6 +6,8 @@ hox_Client/MyChild.cpp
 hox_Client/MyChild.h
 hox_Client/MyFrame.cpp
 hox_Client/MyFrame.h
+hox_Client/hoxAIPlayer.cpp
+hox_Client/hoxAIPlayer.h
 hox_Client/hoxBoard.cpp
 hox_Client/hoxBoard.h
 hox_Client/hoxChesscapeConnection.cpp
