@@ -33,6 +33,7 @@ SOURCES := \
 	hoxOptionDialog.cpp \
 	hoxTypes.cpp \
 	hoxPlayersUI.cpp \
+	hoxAIPlayer.cpp \
 	MyApp.cpp \
 	MyChild.cpp \
 	MyFrame.cpp
