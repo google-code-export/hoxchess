@@ -243,6 +243,7 @@ hoxRemoteSite::JoinLocalPlayerToTable( const hoxNetworkTableInfo& tableInfo )
 	{
         wxLogDebug("%s: Create a new Table [%s].", FNAME, tableId.c_str());
         pTable = _CreateNewTableWithGUI( tableInfo );
+        wxGetApp().GetFrame()->AddTableToSite( this, pTable );
 	}
 
 	/* Determine which color (or role) my player will have. */
@@ -275,8 +276,6 @@ hoxRemoteSite::JoinLocalPlayerToTable( const hoxNetworkTableInfo& tableInfo )
 	    wxASSERT( player != NULL );
         result = player->JoinTableAs( pTable, hoxCOLOR_BLACK );
     }
-
-	wxGetApp().GetFrame()->UpdateSiteTreeUI();
 
 	return result;
 }

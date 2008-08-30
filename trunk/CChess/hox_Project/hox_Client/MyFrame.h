@@ -29,13 +29,13 @@
 
 #include <wx/wx.h>
 #include <wx/laywin.h>   // wxSashLayoutWindow
-#include <wx/treectrl.h>
 #include <list>
 #include "hoxTypes.h"
 
 /* Forward declarations */
 class MyChild;
 class hoxSite;
+class hoxSitesUI;
 class hoxPlayersUI;
 
 // menu items ids
@@ -157,30 +157,12 @@ public:
      */
     void DeleteFrameOfTable( const wxString& sTableId );
 
-    class SiteTreeItemData : public wxTreeItemData
-    {
-    public:
-        SiteTreeItemData(hoxSite* site = NULL) : m_site(site) {}
-        ~SiteTreeItemData() {}
-
-        hoxSite* GetSite() const { return m_site; }
-
-    private:
-        hoxSite*  m_site;
-    };
-
-    class TableTreeItemData : public wxTreeItemData
-    {
-    public:
-        TableTreeItemData(hoxTable_SPtr table) : m_table(table) {}
-        ~TableTreeItemData() {}
-
-        hoxTable_SPtr GetTable() const { return m_table; }
-
-    private:
-        hoxTable_SPtr  m_table;
-    };
-    void UpdateSiteTreeUI();
+    void AddSite( hoxSite* site );
+    void RemoveSite( hoxSite* site );
+    bool AddTableToSite( hoxSite*      site,
+                         hoxTable_SPtr pTable );
+    bool RemoveTableFromSite( hoxSite*      site,
+                              hoxTable_SPtr pTable );
 
 private:
     void _CreateSitesUI();
@@ -205,7 +187,7 @@ public: /* Static API */
 private:
     // Sites.
     wxSashLayoutWindow* m_sitesWindow;
-    wxTreeCtrl*         m_sitesTree;
+    hoxSitesUI*         m_sitesUI;
     hoxPlayersUI*       m_playersUI;
 
     // Logging.  

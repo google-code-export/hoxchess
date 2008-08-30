@@ -30,6 +30,7 @@
 #include "hoxTable.h"
 #include "hoxUtil.h"
 #include "hoxLoginDialog.h"
+#include "hoxSitesUI.h"
 #include "hoxPlayersUI.h"
 
 #if !defined(__WXMSW__)
@@ -274,9 +275,8 @@ MyFrame::OnChildClose( wxCloseEvent& event,
 
     /* Inform the Site. */
     hoxSite* site = pTable->GetSite();
+    this->RemoveTableFromSite( site, pTable );
     site->CloseTable( pTable );
-
-    this->UpdateSiteTreeUI();
 
     event.Skip(); // let the search for the event handler should continue...
 
@@ -663,48 +663,30 @@ MyFrame::DeleteFrameOfTable( const wxString& sTableId )
     }
 }
 
-void 
-MyFrame::UpdateSiteTreeUI()
+void
+MyFrame::AddSite( hoxSite* site )
 {
-    wxTreeItemId  rootId = m_sitesTree->GetRootItem();
-    wxTreeItemId  siteId;
-    wxTreeItemId  tableId;
+    m_sitesUI->AddSite( site );
+}
 
-    /* Delete the old tree's content */
-    m_sitesTree->DeleteChildren( rootId );
+void
+MyFrame::RemoveSite( hoxSite* site )
+{
+    m_sitesUI->RemoveSite( site );
+}
 
-    /* Add new Sites */
-	const hoxSiteList& sites = hoxSiteManager::GetInstance()->GetSites();
+bool
+MyFrame::AddTableToSite( hoxSite*      site,
+                         hoxTable_SPtr pTable )
+{
+    return m_sitesUI->AddTableToSite( site, pTable );
+}
 
-    for ( hoxSiteList::const_iterator it = sites.begin();
-                                      it != sites.end(); ++it )
-    {
-        siteId = m_sitesTree->AppendItem(rootId, (*it)->GetName());
-        SiteTreeItemData* itemData = new SiteTreeItemData( *it );
-        m_sitesTree->SetItemData(siteId, itemData);
-
-        const hoxTableList& tables = (*it)->GetTables();
-        for ( hoxTableList::const_iterator table_it = tables.begin();
-                                           table_it != tables.end(); 
-                                         ++table_it )
-        {
-            wxString tableStr;
-            tableStr.Printf("Table #%s", (*table_it)->GetId().c_str());
-            tableId = m_sitesTree->AppendItem(siteId, tableStr);
-
-            TableTreeItemData* itemData = new TableTreeItemData( *table_it );
-            m_sitesTree->SetItemData(tableId, itemData);
-        }
-    }
-
-    /* Select the 1st site, if any. */
-    if ( sites.size() == 1 )
-    {
-        m_sitesTree->SelectItem( siteId );
-    }
-
-    /* Make Sites visible. */
-    m_sitesTree->Expand(rootId);
+bool
+MyFrame::RemoveTableFromSite( hoxSite*      site,
+                              hoxTable_SPtr pTable )
+{
+    return m_sitesUI->RemoveTableFromSite( site, pTable );
 }
 
 void
@@ -732,14 +714,9 @@ MyFrame::_CreateSitesUI()
     wxPanel* sitesPanel = new wxPanel( m_sitesWindow, wxID_ANY );
     wxBoxSizer* sitesMainSizer = new wxBoxSizer( wxVERTICAL );
 
-    m_sitesTree = new wxTreeCtrl( sitesPanel,
-                                  ID_TREE_SITES,
-                                  wxDefaultPosition, wxDefaultSize,
-                                  wxTR_DEFAULT_STYLE | wxNO_BORDER );
-    m_sitesTree->AddRoot( "Sites" );
-    this->UpdateSiteTreeUI();
+    m_sitesUI = new hoxSitesUI( sitesPanel );
 
-    sitesMainSizer->Add( m_sitesTree,
+    sitesMainSizer->Add( m_sitesUI,
                          wxSizerFlags(1).Expand().Border(wxALL, 1) );
 
     m_playersUI = new hoxPlayersUI( sitesPanel );
@@ -806,40 +783,7 @@ MyFrame::_CloseChildrenOfSite(hoxSite* site)
 hoxSite* 
 MyFrame::_GetSelectedSite(hoxTable_SPtr& selectedTable) const
 {
-    selectedTable.reset();
-
-    hoxSite* selectedSite = NULL;
-
-    wxTreeItemId selectedItem = m_sitesTree->GetSelection();
-    wxTreeItemId rootId = m_sitesTree->GetRootItem();
-    int depth = -1;
-
-    // Get item's depth.
-    wxTreeItemId itemId = selectedItem;
-    for ( itemId = selectedItem; 
-          itemId.IsOk(); 
-          itemId = m_sitesTree->GetItemParent( itemId ) )
-    {
-        ++depth;
-        if ( itemId == rootId )
-            break;
-    }
-
-    if ( depth == 2 ) // table selected?
-    {
-        wxTreeItemData* itemData = m_sitesTree->GetItemData(selectedItem);
-        TableTreeItemData* tableData = (TableTreeItemData*) itemData;
-        selectedTable = tableData->GetTable();
-        selectedSite = selectedTable->GetSite();
-    }
-    else if ( depth == 1 ) // site selected?
-    {
-        wxTreeItemData* itemData = m_sitesTree->GetItemData(selectedItem);
-        SiteTreeItemData* siteData = (SiteTreeItemData*) itemData;
-        selectedSite = siteData->GetSite();
-    }
-
-    return selectedSite;
+    return m_sitesUI->GetSelectedSite( selectedTable );
 }
 
 bool 

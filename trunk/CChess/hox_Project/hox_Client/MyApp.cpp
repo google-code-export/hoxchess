@@ -173,7 +173,7 @@ MyApp::ConnectRemoteServer( const hoxSiteType       siteType,
         wxLogError("%s: Failed to connect to server [%s].", FNAME, address.c_str());
     }
 
-    m_frame->UpdateSiteTreeUI();
+    m_frame->AddSite( site );
 }
 
 void 
@@ -197,9 +197,8 @@ MyApp::OnCloseReady_FromSite( wxCommandEvent&  event )
     hoxSite* site = wx_reinterpret_cast(hoxSite*, event.GetEventObject());
     wxCHECK_RET(site, "Site cannot be NULL.");
 
-	hoxSiteManager::GetInstance()->DeleteSite( site );
-
-	m_frame->UpdateSiteTreeUI();
+    m_frame->RemoveSite( site );
+    hoxSiteManager::GetInstance()->DeleteSite( site );
 
     /* Initiate the App's shutdown if there is no more sites. */
 	if (   m_appClosing 
