@@ -115,7 +115,7 @@ MyApp::OnInit()
 int 
 MyApp::OnExit()
 {
-    const char* FNAME = "MyApp::OnExit";
+    const char* FNAME = __FUNCTION__;
 
     wxLogDebug("%s: ENTER.", FNAME);
 
@@ -137,7 +137,7 @@ MyApp::OnExit()
 void 
 MyApp::CloseServer( hoxSite* site )
 {
-    const char* FNAME = "MyApp::CloseServer";
+    const char* FNAME = __FUNCTION__;
 
 	wxLogDebug("%s: ENTER. (%s)", FNAME, site->GetName().c_str());
 
@@ -150,7 +150,7 @@ MyApp::ConnectRemoteServer( const hoxSiteType       siteType,
 					        const wxString&         userName,
 							const wxString&         password )
 {
-    const char* FNAME = "MyApp::ConnectRemoteServer";
+    const char* FNAME = __FUNCTION__;
     hoxSite* site = NULL;
 
     /* Search for existing site. */
@@ -172,14 +172,12 @@ MyApp::ConnectRemoteServer( const hoxSiteType       siteType,
     {
         wxLogError("%s: Failed to connect to server [%s].", FNAME, address.c_str());
     }
-
-    m_frame->AddSite( site );
 }
 
 void 
 MyApp::OnSystemClose()
 {
-    const char* FNAME = "MyApp::OnSystemClose";
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
 
 	m_appClosing = true;
@@ -190,14 +188,12 @@ MyApp::OnSystemClose()
 void 
 MyApp::OnCloseReady_FromSite( wxCommandEvent&  event )
 {
-    const char* FNAME = "MyApp::OnCloseReady_FromSite";
-
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
 
     hoxSite* site = wx_reinterpret_cast(hoxSite*, event.GetEventObject());
     wxCHECK_RET(site, "Site cannot be NULL.");
 
-    m_frame->RemoveSite( site );
     hoxSiteManager::GetInstance()->DeleteSite( site );
 
     /* Initiate the App's shutdown if there is no more sites. */

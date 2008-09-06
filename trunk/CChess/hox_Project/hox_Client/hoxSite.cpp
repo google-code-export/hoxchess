@@ -37,6 +37,7 @@
 #include "hoxNetworkAPI.h"
 #include "hoxTablesDialog.h"
 #include "hoxBoard.h"
+#include "hoxSitesUI.h"
 
 // --------------------------------------------------------------------------
 // hoxSite
@@ -60,6 +61,7 @@ hoxSite::~hoxSite()
 hoxResult 
 hoxSite::CloseTable( hoxTable_SPtr pTable )
 {
+    hoxSiteManager::GetInstance()->OnTableUIRemoved( this, pTable );
     m_tableMgr.RemoveTable( pTable );
     return hoxRC_OK;
 }
@@ -243,7 +245,7 @@ hoxRemoteSite::JoinLocalPlayerToTable( const hoxNetworkTableInfo& tableInfo )
 	{
         wxLogDebug("%s: Create a new Table [%s].", FNAME, tableId.c_str());
         pTable = _CreateNewTableWithGUI( tableInfo );
-        wxGetApp().GetFrame()->AddTableToSite( this, pTable );
+        hoxSiteManager::GetInstance()->OnTableUICreated( this, pTable );
 	}
 
 	/* Determine which color (or role) my player will have. */
@@ -799,6 +801,7 @@ hoxSiteManager::GetInstance()
 
 /* private */
 hoxSiteManager::hoxSiteManager()
+        : m_sitesUI( NULL )
 {
 
 }
@@ -845,6 +848,7 @@ hoxSiteManager::CreateSite( hoxSiteType             siteType,
 	localPlayer->SetConnection( connection );
 
     m_sites.push_back( site );
+    if ( m_sitesUI != NULL ) m_sitesUI->AddSite( site );
 	return site;
 }
 
@@ -872,6 +876,7 @@ hoxSiteManager::DeleteSite( hoxSite* site )
     
     wxLogDebug("%s: Deleting site [%s]...", FNAME, site->GetName().c_str());
 
+    if ( m_sitesUI != NULL ) m_sitesUI->RemoveSite( site );
     delete site;
     m_sites.remove( site );
 }
@@ -887,6 +892,20 @@ hoxSiteManager::Close()
     {
 		(*it)->Close();
     }
+}
+
+void
+hoxSiteManager::OnTableUICreated( hoxSite*      site,
+                                  hoxTable_SPtr pTable )
+{
+    if ( m_sitesUI != NULL ) m_sitesUI->AddTableToSite( site, pTable );
+}
+
+void
+hoxSiteManager::OnTableUIRemoved( hoxSite*      site,
+                                  hoxTable_SPtr pTable )
+{
+    if ( m_sitesUI != NULL ) m_sitesUI->RemoveTableFromSite( site, pTable );
 }
 
 /************************* END OF FILE ***************************************/

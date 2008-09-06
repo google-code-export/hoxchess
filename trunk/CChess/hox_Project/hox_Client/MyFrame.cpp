@@ -275,7 +275,6 @@ MyFrame::OnChildClose( wxCloseEvent& event,
 
     /* Inform the Site. */
     hoxSite* site = pTable->GetSite();
-    this->RemoveTableFromSite( site, pTable );
     site->CloseTable( pTable );
 
     event.Skip(); // let the search for the event handler should continue...
@@ -664,32 +663,6 @@ MyFrame::DeleteFrameOfTable( const wxString& sTableId )
 }
 
 void
-MyFrame::AddSite( hoxSite* site )
-{
-    m_sitesUI->AddSite( site );
-}
-
-void
-MyFrame::RemoveSite( hoxSite* site )
-{
-    m_sitesUI->RemoveSite( site );
-}
-
-bool
-MyFrame::AddTableToSite( hoxSite*      site,
-                         hoxTable_SPtr pTable )
-{
-    return m_sitesUI->AddTableToSite( site, pTable );
-}
-
-bool
-MyFrame::RemoveTableFromSite( hoxSite*      site,
-                              hoxTable_SPtr pTable )
-{
-    return m_sitesUI->RemoveTableFromSite( site, pTable );
-}
-
-void
 MyFrame::_CreateSitesUI()
 {
 	int defaultSizeX;
@@ -718,6 +691,7 @@ MyFrame::_CreateSitesUI()
 
     sitesMainSizer->Add( m_sitesUI,
                          wxSizerFlags(1).Expand().Border(wxALL, 1) );
+    hoxSiteManager::GetInstance()->SetUI( m_sitesUI );
 
     m_playersUI = new hoxPlayersUI( sitesPanel );
 
