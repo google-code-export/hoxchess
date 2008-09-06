@@ -30,7 +30,7 @@
 
 DEFINE_EVENT_TYPE(hoxEVT_CONNECTION_RESPONSE)
 
-IMPLEMENT_ABSTRACT_CLASS(hoxLocalPlayer, hoxPlayer)
+IMPLEMENT_DYNAMIC_CLASS(hoxLocalPlayer, hoxPlayer)
 
 BEGIN_EVENT_TABLE(hoxLocalPlayer, hoxPlayer)
     // empty

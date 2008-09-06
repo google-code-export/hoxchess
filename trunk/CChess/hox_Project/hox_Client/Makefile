@@ -22,7 +22,6 @@ SOURCES := \
 	hoxPiece.cpp \
 	hoxPlayer.cpp \
 	hoxPlayerMgr.cpp \
-	hoxPosition.cpp \
 	hoxReferee.cpp \
 	hoxSocketConnection.cpp \
 	hoxTable.cpp \

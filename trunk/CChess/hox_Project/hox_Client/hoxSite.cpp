@@ -49,12 +49,8 @@ hoxSite::hoxSite( hoxSiteType             type,
         : m_type( type )
         , m_address( address)
         , m_dlgProgress( NULL )
-		, m_siteClosing( false )
+		, m_siteDisconnecting( false )
         , m_player( NULL )
-{
-}
-
-hoxSite::~hoxSite()
 {
 }
 
@@ -123,6 +119,114 @@ hoxSite::ShowProgressDialog( bool bShow /* = true */ )
             }
         }
     }
+}
+
+hoxTable_SPtr
+hoxSite::CreateNewTableWithGUI( const hoxNetworkTableInfo& tableInfo )
+{
+    const char* FNAME = __FUNCTION__;
+    hoxTable_SPtr pTable;
+    const wxString tableId = tableInfo.id;
+
+    /* Create a GUI Frame for the new Table. */
+    MyChild* childFrame = wxGetApp().GetFrame()->CreateFrameForTable( tableId );
+
+    /* Create a new table with the newly created Frame. */
+    pTable = m_tableMgr.CreateTable( tableId, 
+                                     this,
+                                     tableInfo.gameType );
+	pTable->SetInitialTime( tableInfo.initialTime );
+    pTable->SetBlackTime( tableInfo.blackTime );
+    pTable->SetRedTime( tableInfo.redTime );
+	
+	wxLogDebug("%s: Creating a new Board...", FNAME);
+    unsigned int boardFeatureFlags = this->GetBoardFeatureFlags();
+	hoxBoard* pBoard = new hoxBoard( childFrame, 
+		                             PIECES_PATH, 
+		                             pTable->GetReferee(),
+                                     pTable,
+                                     m_player->GetId(),
+        					         wxDefaultPosition,
+							         childFrame->GetSize(),
+                                     boardFeatureFlags );
+    pTable->ViewBoard( pBoard );
+    
+    childFrame->SetTable( pTable );
+    childFrame->Show( true );
+
+    hoxSiteManager::GetInstance()->OnTableUICreated( this, pTable );
+
+    return pTable;
+}
+
+// --------------------------------------------------------------------------
+// hoxLocalSite
+// --------------------------------------------------------------------------
+
+hoxLocalPlayer* 
+hoxLocalSite::CreateLocalPlayer( const wxString& playerName )
+{
+	wxCHECK_MSG(m_player == NULL, NULL, "The player has already been set.");
+
+	m_player = m_playerMgr.CreateLocalPlayer( playerName );
+	return m_player;
+}
+
+unsigned int 
+hoxLocalSite::GetCurrentActionFlags() const
+{
+	unsigned int flags = 0;
+
+    flags |= hoxSITE_ACTION_PRACTICE;
+
+	return flags;
+}
+
+void
+hoxLocalSite::OnLocalRequest_PRACTICE()
+{
+    const char* FNAME = __FUNCTION__;
+    wxCHECK_RET( m_player != NULL, "Player is NULL" );
+
+    /* Generate new unique IDs for:
+     *   (1) This PRACTICE-Table, and
+     *   (2) The new AI Player.
+     */
+    const wxString sTableId = hoxUtil::GenerateRandomString("PRACTICE_");
+    const wxString sAIId    = hoxUtil::GenerateRandomString("AI_");
+
+    /* Set the default Table's attributes. */
+
+    hoxNetworkTableInfo tableInfo;
+
+    tableInfo.id = sTableId;
+    tableInfo.gameType = hoxGAME_TYPE_PRACTICE;
+
+    const hoxTimeInfo timeInfo( 1500, 300, 20 );
+	tableInfo.initialTime = timeInfo;
+    tableInfo.redTime     = tableInfo.initialTime;
+    tableInfo.blackTime   = tableInfo.initialTime;
+
+    /* Create an "empty" PRACTICE Table. */
+
+    wxLogDebug("%s: Create a PRACTICE Table [%s]...", FNAME, sTableId.c_str());
+    hoxTable_SPtr pTable = this->CreateNewTableWithGUI( tableInfo );
+
+    /* Assign Players to the Table.
+     *
+     * NOTE: Hard-coded player-roles:
+     *     + LOCAL player - play RED
+     *     + AI player    - play BLACK
+     */
+    
+    hoxResult result;
+
+    result = m_player->JoinTableAs( pTable, hoxCOLOR_RED );
+    wxASSERT( result == hoxRC_OK );
+
+    hoxPlayer* pAIPlayer = m_playerMgr.CreateAIPlayer( sAIId );
+    result = pAIPlayer->JoinTableAs( pTable, hoxCOLOR_BLACK );
+    wxASSERT( result == hoxRC_OK );
 }
 
 // --------------------------------------------------------------------------
@@ -244,8 +348,7 @@ hoxRemoteSite::JoinLocalPlayerToTable( const hoxNetworkTableInfo& tableInfo )
 	if ( pTable.get() == NULL )
 	{
         wxLogDebug("%s: Create a new Table [%s].", FNAME, tableId.c_str());
-        pTable = _CreateNewTableWithGUI( tableInfo );
-        hoxSiteManager::GetInstance()->OnTableUICreated( this, pTable );
+        pTable = this->CreateNewTableWithGUI( tableInfo );
 	}
 
 	/* Determine which color (or role) my player will have. */
@@ -331,20 +434,6 @@ hoxRemoteSite::DisplayListOfTables( const hoxNetworkTableInfoList& tableList )
     return hoxRC_OK;
 }
 
-const wxString 
-hoxRemoteSite::GetName() const
-{
-    wxString name;
-
-	name.Printf("%s:%d", m_address.name.c_str(), m_address.port);
-	//if ( ! this->IsConnected() )
-	//{
-	//	name += " (disconnected)";		
-	//}
-
-    return name;
-}
-
 hoxResult 
 hoxRemoteSite::Connect()
 {
@@ -364,18 +453,19 @@ hoxRemoteSite::Connect()
 }
 
 hoxResult 
-hoxRemoteSite::Close()
+hoxRemoteSite::Disconnect()
 {
     const char* FNAME = __FUNCTION__;
 	hoxResult result = hoxRC_OK;
     wxLogDebug("%s: ENTER.", FNAME);
 
-	if ( m_siteClosing )
+	if ( m_siteDisconnecting )
 	{
-		wxLogDebug("%s: Site [%s] is already being closed. END.", FNAME, this->GetName().c_str());
+		wxLogDebug("%s: Site [%s] is already being disconnected. END.",
+            FNAME, this->GetName().c_str());
 		return hoxRC_OK;
 	}
-	m_siteClosing = true;
+	m_siteDisconnecting = true;
 
 	if ( m_player != NULL )
 	{
@@ -498,81 +588,9 @@ hoxRemoteSite::OnLocalRequest_PRACTICE()
     const char* FNAME = __FUNCTION__;
     wxCHECK_RET( m_player != NULL, "Player is NULL" );
 
-    /* Generate new unique IDs for:
-     *   (1) This PRACTICE-Table, and
-     *   (2) The new AI Player.
-     */
-    const wxString sTableId = hoxUtil::GenerateRandomString("PRACTICE_");
-    const wxString sAIId    = hoxUtil::GenerateRandomString("AI_");
+    wxLogDebug("%s: Create a new PRACTICE Table...", FNAME);
 
-    /* Set the default Table's attributes. */
-
-    hoxNetworkTableInfo tableInfo;
-
-    tableInfo.id = sTableId;
-    tableInfo.gameType = hoxGAME_TYPE_PRACTICE;
-
-    const hoxTimeInfo timeInfo( 1500, 300, 20 );
-	tableInfo.initialTime = timeInfo;
-    tableInfo.redTime     = tableInfo.initialTime;
-    tableInfo.blackTime   = tableInfo.initialTime;
-
-    /* Create an "empty" PRACTICE Table. */
-
-    wxLogDebug("%s: Create a PRACTICE Table [%s]...", FNAME, sTableId.c_str());
-    hoxTable_SPtr pTable = _CreateNewTableWithGUI( tableInfo );
-
-    /* Assign Players to the Table.
-     *
-     * NOTE: Hard-coded player-roles:
-     *     + LOCAL player - play RED
-     *     + AI player    - play BLACK
-     */
-    
-    hoxResult result;
-
-    result = m_player->JoinTableAs( pTable, hoxCOLOR_RED );
-    wxASSERT( result == hoxRC_OK );
-
-    hoxPlayer* pAIPlayer = m_playerMgr.CreateAIPlayer( sAIId );
-    result = pAIPlayer->JoinTableAs( pTable, hoxCOLOR_BLACK );
-    wxASSERT( result == hoxRC_OK );
-}
-
-hoxTable_SPtr
-hoxRemoteSite::_CreateNewTableWithGUI( const hoxNetworkTableInfo& tableInfo )
-{
-    const char* FNAME = __FUNCTION__;
-    hoxTable_SPtr pTable;
-    const wxString tableId = tableInfo.id;
-
-    /* Create a GUI Frame for the new Table. */
-    MyChild* childFrame = wxGetApp().GetFrame()->CreateFrameForTable( tableId );
-
-    /* Create a new table with the newly created Frame. */
-    pTable = m_tableMgr.CreateTable( tableId, 
-                                     this,
-                                     tableInfo.gameType );
-	pTable->SetInitialTime( tableInfo.initialTime );
-    pTable->SetBlackTime( tableInfo.blackTime );
-    pTable->SetRedTime( tableInfo.redTime );
-	
-	wxLogDebug("%s: Creating a new Board...", FNAME);
-    unsigned int boardFeatureFlags = this->GetBoardFeatureFlags();
-	hoxBoard* pBoard = new hoxBoard( childFrame, 
-		                             PIECES_PATH, 
-		                             pTable->GetReferee(),
-                                     pTable,
-                                     m_player->GetId(),
-        					         wxDefaultPosition,
-							         childFrame->GetSize(),
-                                     boardFeatureFlags );
-    pTable->ViewBoard( pBoard );
-    
-    childFrame->SetTable( pTable );
-    childFrame->Show( true );
-
-    return pTable;
+    /* FIXME: Do nothing for now. */
 }
 
 // --------------------------------------------------------------------------
@@ -768,17 +786,6 @@ hoxChesscapeSite::OnLocalRequest_NEW()
     this->hoxRemoteSite::OnLocalRequest_NEW();
 }
 
-void
-hoxChesscapeSite::OnLocalRequest_PRACTICE()
-{
-    const char* FNAME = __FUNCTION__;
-    wxCHECK_RET( m_player != NULL, "Player is NULL" );
-
-    wxLogDebug("%s: Create a new PRACTICE Table...", FNAME);
-
-    /* FIXME: Do nothing for now. */
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 // --------------------------------------------------------------------------
@@ -803,12 +810,6 @@ hoxSiteManager::GetInstance()
 hoxSiteManager::hoxSiteManager()
         : m_sitesUI( NULL )
 {
-
-}
-
-hoxSiteManager::~hoxSiteManager()
-{
-
 }
 
 hoxSite* 
@@ -824,6 +825,13 @@ hoxSiteManager::CreateSite( hoxSiteType             siteType,
 
 	switch ( siteType )
 	{
+	case hoxSITE_TYPE_LOCAL:
+	{
+		site = new hoxLocalSite( address );
+		localPlayer = site->CreateLocalPlayer( userName );
+        connection.reset( new hoxLocalConnection( localPlayer ) );
+		break;
+	}
 	case hoxSITE_TYPE_REMOTE:
 	{
 		site = new hoxRemoteSite( address );
@@ -839,7 +847,7 @@ hoxSiteManager::CreateSite( hoxSiteType             siteType,
 		break;
 	}
 	default:
-        wxLogError("%s: Unsupported Site-Type [%d].", siteType);
+        wxLogError("%s: Unsupported Site-Type [%d].", FNAME, siteType);
 		return NULL;   // *** Exit with error immediately.
 	}
 
@@ -850,6 +858,18 @@ hoxSiteManager::CreateSite( hoxSiteType             siteType,
     m_sites.push_back( site );
     if ( m_sitesUI != NULL ) m_sitesUI->AddSite( site );
 	return site;
+}
+
+void
+hoxSiteManager::CreateLocalSite()
+{
+    const hoxServerAddress localAddress("127.0.0.1", 0);
+    const wxString         localUserName = "LOCAL_USER";
+    const wxString         localPassword;
+    this->CreateSite( hoxSITE_TYPE_LOCAL, 
+            		  localAddress,
+					  localUserName,
+					  localPassword );
 }
 
 hoxSite*
@@ -881,6 +901,29 @@ hoxSiteManager::DeleteSite( hoxSite* site )
     m_sites.remove( site );
 }
 
+void
+hoxSiteManager::DeleteLocalSite()
+{
+    const char* FNAME = __FUNCTION__;
+
+    hoxSite* localSite = NULL;
+
+    for ( hoxSiteList::iterator it = m_sites.begin();
+                                it != m_sites.end(); ++it )
+    {
+		if ( (*it)->GetType() == hoxSITE_TYPE_LOCAL )
+        {
+            localSite = (*it);
+            break;
+        }
+    }
+
+    if ( localSite != NULL )
+    {
+        this->DeleteSite( localSite );
+    }
+}
+
 void 
 hoxSiteManager::Close()
 {
@@ -890,7 +933,7 @@ hoxSiteManager::Close()
     for ( hoxSiteList::iterator it = m_sites.begin();
                                 it != m_sites.end(); ++it )
     {
-		(*it)->Close();
+		(*it)->Disconnect();
     }
 }
 

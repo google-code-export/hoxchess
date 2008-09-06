@@ -45,6 +45,7 @@ enum
     MDI_ABOUT = wxID_ABOUT,
 
     MDI_NEW_TABLE = hoxUI_ID_RANGE_FRAME,
+    MDI_PRACTICE, // New Table to practice with the local computer
     MDI_CLOSE_TABLE,
 
     MDI_CONNECT_SERVER, // Connect to server
@@ -53,8 +54,6 @@ enum
 
     MDI_SHOW_SERVERS_WINDOW,
     MDI_SHOW_LOG_WINDOW,
-
-    MDI_PRACTICE, // Practice with your computer
 
     MDI_TOGGLE,   // toggle view
     MDI_CHILD_QUIT,
@@ -166,7 +165,8 @@ private:
      */
     void     _CloseChildrenOfSite(hoxSite* site);
 
-    hoxSite* _GetSelectedSite(hoxTable_SPtr& selectedTable) const;
+    hoxSite* _GetSelectedSite() const;
+    hoxSite* _GetSelectedSiteAndTable( hoxTable_SPtr& selectedTable ) const;
 
 	bool _GetDefaultSitesLayout( int& sizeX );
 	bool _SaveDefaultSitesLayout( const int sizeX );

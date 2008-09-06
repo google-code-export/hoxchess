@@ -79,12 +79,10 @@ public:
      * My own API
      *********************************/
 
-    void CloseServer( hoxSite* site );
-
-    void ConnectRemoteServer( const hoxSiteType       siteType,
-		                      const hoxServerAddress& address,
-							  const wxString&         userName,
-							  const wxString&         password );
+    void ConnectToServer( const hoxSiteType       siteType,
+		                  const hoxServerAddress& address,
+						  const wxString&         userName,
+						  const wxString&         password );
 
     void OnSystemClose();
 	void OnCloseReady_FromSite( wxCommandEvent&  event ); 

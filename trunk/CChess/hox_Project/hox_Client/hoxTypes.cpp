@@ -28,6 +28,41 @@
 #include "hoxTypes.h"
 #include "hoxUtil.h"
 
+// ----------------------------------------------------------------------------
+// hoxPosition
+// ----------------------------------------------------------------------------
+
+bool
+hoxPosition::operator==(const hoxPosition& pos) const
+{
+    return (x == pos.x && y == pos.y);
+}
+
+bool 
+hoxPosition::IsValid() const 
+{ 
+    return (x >= 0 && x <= 8 && y >= 0 && y <= 9); 
+}
+
+bool 
+hoxPosition::IsInsidePalace(hoxColor color) const 
+{ 
+    if (color == hoxCOLOR_BLACK)
+    {
+        return (x >= 3 && x <= 5 && y >= 0 && y <= 2); 
+    }
+    else  // Red?
+    {
+        return (x >= 3 && x <= 5 && y >= 7 && y <= 9); 
+    }
+}
+
+bool 
+hoxPosition::IsInsideCountry(hoxColor color) const 
+{ 
+    if (color == hoxCOLOR_BLACK) return (y >= 0 && y <= 4);
+    else  /* Red? */             return (y >= 5 && y <= 9);
+}
 
 // ----------------------------------------------------------------------------
 // hoxRequest
@@ -61,7 +96,7 @@ hoxRequestQueue::hoxRequestQueue()
 
 hoxRequestQueue::~hoxRequestQueue()
 {
-    const char* FNAME = "hoxRequestQueue::~hoxRequestQueue";
+    const char* FNAME = __FUNCTION__;
 
     while ( ! m_list.empty() )
     {

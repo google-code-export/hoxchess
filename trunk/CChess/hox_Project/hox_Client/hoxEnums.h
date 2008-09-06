@@ -126,6 +126,7 @@ enum hoxSiteType
 {
     hoxSITE_TYPE_UNKNOWN = -1,
 
+    hoxSITE_TYPE_LOCAL,
     hoxSITE_TYPE_REMOTE,
 
 	/* Other third-party sites */

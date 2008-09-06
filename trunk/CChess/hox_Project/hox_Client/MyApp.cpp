@@ -106,6 +106,9 @@ MyApp::OnInit()
         return false;
     }
 
+    // Create the LOCAL site.
+    hoxSiteManager::GetInstance()->CreateLocalSite();
+
     // success: wxApp::OnRun() will be called which will enter the main message
     // loop and the application will run. If we returned false here, the
     // application would exit immediately.
@@ -135,20 +138,10 @@ MyApp::OnExit()
 }
 
 void 
-MyApp::CloseServer( hoxSite* site )
-{
-    const char* FNAME = __FUNCTION__;
-
-	wxLogDebug("%s: ENTER. (%s)", FNAME, site->GetName().c_str());
-
-    site->Close();
-}
-
-void 
-MyApp::ConnectRemoteServer( const hoxSiteType       siteType,
-		                    const hoxServerAddress& address,
-					        const wxString&         userName,
-							const wxString&         password )
+MyApp::ConnectToServer( const hoxSiteType       siteType,
+		                const hoxServerAddress& address,
+					    const wxString&         userName,
+						const wxString&         password )
 {
     const char* FNAME = __FUNCTION__;
     hoxSite* site = NULL;
@@ -181,6 +174,9 @@ MyApp::OnSystemClose()
     wxLogDebug("%s: ENTER.", FNAME);
 
 	m_appClosing = true;
+
+    // Delete the LOCAL site.
+    hoxSiteManager::GetInstance()->DeleteLocalSite();
 
 	hoxSiteManager::GetInstance()->Close();
 }

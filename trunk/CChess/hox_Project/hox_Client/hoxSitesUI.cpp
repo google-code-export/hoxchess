@@ -159,6 +159,8 @@ hoxSitesUI::AddTableToSite( hoxSite*      site,
     ItemData_TABLE* itemData = new ItemData_TABLE( pTable );
     this->SetItemData(tableItemId, itemData);
 
+    this->SelectItem( tableItemId );
+
     return true;  // Added!
 }
 

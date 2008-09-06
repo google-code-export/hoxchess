@@ -64,4 +64,29 @@ private:
     DECLARE_ABSTRACT_CLASS(hoxConnection)
 };
 
+// ----------------------------------------------------------------------------
+// hoxLocalConnection
+// ----------------------------------------------------------------------------
+
+/**
+ * The connection to the LOCAL machine.
+ */
+class hoxLocalConnection : public hoxConnection
+{
+public:
+    hoxLocalConnection( hoxPlayer* player = NULL );
+    virtual ~hoxLocalConnection() {}
+
+    virtual void Start() {}
+    virtual void Shutdown() {}
+    virtual bool AddRequest( hoxRequest_APtr apRequest )
+        { return true; }
+    virtual bool IsConnected() const
+        { return true; }
+
+private:
+
+    DECLARE_DYNAMIC_CLASS(hoxLocalConnection)
+};
+
 #endif /* __INCLUDED_HOX_CONNECTION_H_ */

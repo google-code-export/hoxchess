@@ -45,5 +45,15 @@ hoxConnection::~hoxConnection()
     wxLogDebug("%s: ENTER.", FNAME);
 }
 
+//-----------------------------------------------------------------------------
+// hoxLocalConnection
+//-----------------------------------------------------------------------------
+
+IMPLEMENT_DYNAMIC_CLASS(hoxLocalConnection, hoxConnection)
+
+hoxLocalConnection::hoxLocalConnection( hoxPlayer* player /* = NULL */ )
+        : hoxConnection( player )
+{
+}
 
 /************************* END OF FILE ***************************************/
