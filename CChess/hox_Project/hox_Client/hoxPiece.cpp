@@ -30,7 +30,6 @@
 #include "hoxPiece.h"
 #include "hoxEnums.h"
 #include "hoxUtil.h"
-#include "hoxPosition.h"
 
 // -----------------------------------------------------------------------
 // hoxPiece

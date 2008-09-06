@@ -27,11 +27,7 @@
 #ifndef __INCLUDED_HOX_PIECE_H_
 #define __INCLUDED_HOX_PIECE_H_
 
-#include <wx/wx.h>
-
-#include "hoxEnums.h"
 #include "hoxTypes.h"
-#include "hoxPosition.h"
 
 // hoxPiece
 

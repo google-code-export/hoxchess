@@ -197,8 +197,7 @@ MyFrame::OnAbout( wxCommandEvent& event )
 void 
 MyFrame::OnNewTable( wxCommandEvent& event )
 {
-    hoxTable_SPtr selectedTable;
-    hoxSite* selectedSite = _GetSelectedSite(selectedTable);
+    hoxSite* selectedSite = _GetSelectedSite();
 
     if ( selectedSite != NULL )
     {
@@ -225,8 +224,7 @@ void
 MyFrame::OnUpdateNewTable(wxUpdateUIEvent& event)
 {
 	bool enableMenu = false;
-    hoxTable_SPtr selectedTable;
-    hoxSite* selectedSite = _GetSelectedSite(selectedTable);
+    hoxSite* selectedSite = _GetSelectedSite();
 
     if ( selectedSite != NULL )
 	{
@@ -249,8 +247,7 @@ MyFrame::OnUpdateCloseTable(wxUpdateUIEvent& event)
 void 
 MyFrame::OnUpdateListTables(wxUpdateUIEvent& event)
 {
-    hoxTable_SPtr selectedTable;
-    hoxSite*  selectedSite = _GetSelectedSite(selectedTable);
+    hoxSite*  selectedSite = _GetSelectedSite();
 
 	bool bEnabled = ( selectedSite != NULL );
 
@@ -290,8 +287,7 @@ MyFrame::OnDisconnectServer( wxCommandEvent& event )
 
     /* Find out which site is selected. */
 
-    hoxTable_SPtr selectedTable;
-    hoxSite* selectedSite = _GetSelectedSite(selectedTable);
+    hoxSite* selectedSite = _GetSelectedSite();
 
     if ( selectedSite == NULL )
     {
@@ -304,17 +300,17 @@ MyFrame::OnDisconnectServer( wxCommandEvent& event )
      */
     _CloseChildrenOfSite( selectedSite );
 
-    /* Close the site itself. */
-    wxGetApp().CloseServer( selectedSite );
+    /* Disconnect the site itself. */
+    selectedSite->Disconnect();
 }
 
 void 
 MyFrame::OnUpdateDisconnectServer(wxUpdateUIEvent& event)
 {
-    hoxTable_SPtr selectedTable;
-    hoxSite*  selectedSite = _GetSelectedSite(selectedTable);
+    hoxSite*  selectedSite = _GetSelectedSite();
 
-	bool bEnabled = ( selectedSite != NULL );
+	bool bEnabled = ( selectedSite != NULL
+                   && selectedSite->GetType() != hoxSITE_TYPE_LOCAL );
 
     event.Enable( bEnabled );
 }
@@ -345,10 +341,10 @@ MyFrame::OnConnectServer( wxCommandEvent& event )
 
     /* Start connecting... */
     
-	wxGetApp().ConnectRemoteServer( siteType,
-		                            serverAddress,
-									userName,
-									password );
+	wxGetApp().ConnectToServer( siteType,
+		                        serverAddress,
+							    userName,
+								password );
 }
 
 void 
@@ -388,8 +384,7 @@ MyFrame::OnUpdateLogWindow( wxUpdateUIEvent& event )
 void 
 MyFrame::OnPractice( wxCommandEvent& event )
 {
-    hoxTable_SPtr selectedTable;
-    hoxSite* selectedSite = _GetSelectedSite(selectedTable);
+    hoxSite* selectedSite = _GetSelectedSite();
 
     if ( selectedSite != NULL )
     {
@@ -400,10 +395,17 @@ MyFrame::OnPractice( wxCommandEvent& event )
 void 
 MyFrame::OnUpdatePractice( wxUpdateUIEvent& event )
 {
-    hoxTable_SPtr selectedTable;
-    hoxSite*  selectedSite = _GetSelectedSite(selectedTable);
+	bool bEnabled = false;
+    hoxSite* selectedSite = _GetSelectedSite();
 
-	bool bEnabled = ( selectedSite != NULL );
+    if ( selectedSite != NULL )
+	{
+		unsigned int actionFlags = selectedSite->GetCurrentActionFlags();
+		if ( (actionFlags & hoxSITE_ACTION_PRACTICE) != 0 )
+		{
+			bEnabled = true;
+		}
+	}
 
     event.Enable( bEnabled );
 }
@@ -413,8 +415,7 @@ MyFrame::OnListTables( wxCommandEvent& event )
 {
     const char* FNAME = __FUNCTION__;
 
-    hoxTable_SPtr selectedTable;
-    hoxSite* selectedSite = _GetSelectedSite(selectedTable);
+    hoxSite* selectedSite = _GetSelectedSite();
 
     if ( selectedSite == NULL )
         return;
@@ -513,6 +514,8 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
     file_menu->AppendSeparator();
 	file_menu->Append(MDI_LIST_TABLES, _("List &Tables\tCtrl-T"), _("Get the list of tables"));
     file_menu->Append(MDI_NEW_TABLE, _("&New Table\tCtrl-N"), _("Create New Table"));
+    file_menu->Append(MDI_PRACTICE, _("&Practice with Computer\tCtrl-P"),
+                                    _("Practice with your local Computer"));
     file_menu->Append(MDI_CLOSE_TABLE, _("&Close Table\tCtrl-C"), _("Close Table"));
     file_menu->AppendSeparator();
     file_menu->Append(MDI_QUIT, _("&Exit\tAlt-X"), _("Quit the program"));
@@ -527,8 +530,6 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
 
     /* Help menu. */
     wxMenu* help_menu = new wxMenu;
-    help_menu->Append(MDI_PRACTICE, _("&Practice with Computer\tCtrl-P"), _("Practice with your commputer"));
-    help_menu->AppendSeparator();
     help_menu->AppendCheckItem(MDI_SHOW_LOG_WINDOW, _("Lo&g Window\tCtrl-G"));
     help_menu->AppendSeparator();
     help_menu->Append(MDI_ABOUT, _("&About HOXChess\tF1"));
@@ -564,7 +565,7 @@ MyFrame::OnContextMenu( wxContextMenuEvent& event )
     wxMenu menu;
 
     hoxTable_SPtr selectedTable;
-    hoxSite* selectedSite = _GetSelectedSite(selectedTable);
+    hoxSite* selectedSite = _GetSelectedSiteAndTable(selectedTable);
 
     if ( selectedTable.get() != NULL )
     {
@@ -594,6 +595,11 @@ MyFrame::OnContextMenu( wxContextMenuEvent& event )
 		{
 			menu.Append(MDI_NEW_TABLE, _("&New Table\tCtrl-N"), 
 				                       _("Create New Table"));
+		}
+		if ( (actionFlags & hoxSITE_ACTION_PRACTICE) != 0 )
+		{
+			menu.Append(MDI_PRACTICE, _("&Practice with Computer\tCtrl-P"),
+                                      _("Practice with your local Computer"));
 		}
     }
 	else
@@ -755,7 +761,14 @@ MyFrame::_CloseChildrenOfSite(hoxSite* site)
 }
 
 hoxSite* 
-MyFrame::_GetSelectedSite(hoxTable_SPtr& selectedTable) const
+MyFrame::_GetSelectedSite() const
+{
+    hoxTable_SPtr selectedTable;  // Not used!
+    return m_sitesUI->GetSelectedSite( selectedTable );
+}
+
+hoxSite* 
+MyFrame::_GetSelectedSiteAndTable(hoxTable_SPtr& selectedTable) const
 {
     return m_sitesUI->GetSelectedSite( selectedTable );
 }

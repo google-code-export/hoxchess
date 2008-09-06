@@ -36,7 +36,6 @@
 #include <map>
 
 #include "hoxEnums.h"
-#include "hoxPosition.h"
 
 /* Forward declarations */
 class hoxPlayer;
@@ -59,6 +58,29 @@ typedef std::auto_ptr<hoxConnection> hoxConnection_APtr;
 typedef boost::shared_ptr<hoxIReferee> hoxIReferee_SPtr;
 
 typedef std::list<wxString> hoxStringList;
+
+/**
+ * Representing a piece's position.
+ */
+class hoxPosition
+{
+public:
+    char x;
+    char y;
+
+    hoxPosition(char xx = -1, char yy = -1) : x(xx), y(yy) {}
+
+    bool operator==(const hoxPosition& pos) const;
+    bool operator!=(const hoxPosition& pos) const { return !( *this == pos ); }
+
+    bool IsValid() const;
+    bool IsInsidePalace(hoxColor color) const;
+    
+    /**
+     * Check if the piece is inside one's country (not yet cross the river).
+     */
+    bool IsInsideCountry(hoxColor color) const;
+};
 
 /**
  * Representing a piece's info.

@@ -36,7 +36,7 @@
 DECLARE_EVENT_TYPE(hoxEVT_CONNECTION_RESPONSE, wxID_ANY)
 
 /**
- * The abstract LOCAL player.
+ * The LOCAL player.
  */
 class hoxLocalPlayer :  public hoxPlayer
 {
@@ -72,7 +72,7 @@ public:
 
 private:
 
-    DECLARE_ABSTRACT_CLASS(hoxLocalPlayer)
+    DECLARE_DYNAMIC_CLASS(hoxLocalPlayer)
 	DECLARE_EVENT_TABLE()
 };
 

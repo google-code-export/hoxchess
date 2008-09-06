@@ -89,6 +89,17 @@ hoxPlayerMgr::CreateAIPlayer( const wxString& name,
     return player;
 }
 
+hoxLocalPlayer*
+hoxPlayerMgr::CreateLocalPlayer( const wxString& name,
+                                 int             score /* = 1500 */)
+{
+    hoxLocalPlayer* player 
+        = new hoxLocalPlayer( name, hoxPLAYER_TYPE_LOCAL, score );
+    m_players.push_back( player );
+
+    return player;
+}
+
 hoxPlayer* 
 hoxPlayerMgr::FindPlayer( const wxString& playerId ) const
 {

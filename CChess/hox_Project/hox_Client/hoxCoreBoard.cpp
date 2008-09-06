@@ -26,7 +26,6 @@
 
 #include "hoxCoreBoard.h"
 #include "hoxEnums.h"
-#include "hoxPosition.h"
 #include "hoxPiece.h"
 #include "hoxUtil.h"
 #include "hoxReferee.h"

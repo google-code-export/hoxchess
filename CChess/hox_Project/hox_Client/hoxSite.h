@@ -49,7 +49,8 @@ enum hoxSiteAction
 	hoxSITE_ACTION_LIST           = ( (unsigned int) 1 << 2 ),
 	hoxSITE_ACTION_NEW            = ( (unsigned int) 1 << 3 ),
     hoxSITE_ACTION_JOIN           = ( (unsigned int) 1 << 4 ),
-	hoxSITE_ACTION_CLOSE          = ( (unsigned int) 1 << 5 )
+	hoxSITE_ACTION_CLOSE          = ( (unsigned int) 1 << 5 ),
+    hoxSITE_ACTION_PRACTICE       = ( (unsigned int) 1 << 6 )
 };
 
 /**
@@ -61,15 +62,16 @@ class hoxSite : public wxObject
 public:
     hoxSite( hoxSiteType             type, 
              const hoxServerAddress& address );
-    virtual ~hoxSite();
+    virtual ~hoxSite() {}
 
     hoxSiteType GetType() const { return m_type; }
     hoxServerAddress GetAddress() const { return m_address; }
 
-    virtual const wxString GetName() const { return "_Unknown_"; }
+    virtual const wxString GetName() const
+        { return wxString( m_address.c_str() ); }
 
     virtual hoxResult Connect() = 0;
-    virtual hoxResult Close() = 0;   // TODO: Should be renamed to "Disconnect()"
+    virtual hoxResult Disconnect() = 0;
 
     virtual bool IsConnected() const = 0;
 
@@ -144,6 +146,8 @@ protected:
 
     void ShowProgressDialog( bool bShow = true );
 
+    hoxTable_SPtr CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo);
+
 protected:
     const hoxSiteType  m_type;
 
@@ -153,13 +157,73 @@ protected:
 
     wxProgressDialog*  m_dlgProgress;
 
-	bool               m_siteClosing;    // The Site is being closed?
+	bool               m_siteDisconnecting; // The Site is being disconnected?
 
     hoxLocalPlayer*    m_player;
             /* The player that this Host uses to connect to the server. */
 };
 
 typedef std::list<hoxSite*>  hoxSiteList;
+
+/**
+ * The LOCAL Site.
+ */
+class hoxLocalSite : public hoxSite
+{
+public:
+    hoxLocalSite(const hoxServerAddress& address,
+                 hoxSiteType             type = hoxSITE_TYPE_LOCAL)
+            : hoxSite( type, address ) {}
+    virtual ~hoxLocalSite() {}
+
+    virtual hoxResult Connect()  { return hoxRC_OK; }
+    virtual hoxResult Disconnect() { return hoxRC_OK; }
+
+    virtual bool IsConnected() const { return true; }
+
+    virtual hoxResult QueryForNetworkTables() { return hoxRC_OK; }
+
+	virtual hoxResult OnPlayerJoined(const wxString&   tableId,
+		                             const wxString&   playerId,
+                                     const int         playerScore,
+									 const hoxColor    requestColor)
+        { return hoxRC_OK; }
+
+	virtual hoxResult JoinLocalPlayerToTable(const hoxNetworkTableInfo& tableInfo)
+        { return hoxRC_OK; }
+    virtual hoxResult DisplayListOfTables(const hoxNetworkTableInfoList& tableList)
+        { return hoxRC_OK; }
+
+    virtual void Handle_ShutdownReadyFromPlayer()
+        {}
+    virtual hoxLocalPlayer* CreateLocalPlayer(const wxString& playerName);
+
+	virtual unsigned int GetCurrentActionFlags() const;
+
+    virtual void OnResponse_LOGIN( const hoxResponse_APtr& response )
+        {}
+	virtual void OnResponse_LOGOUT( const hoxResponse_APtr& response )
+        {}
+    virtual void OnPlayerLoggedIn( const wxString& sPlayerId,
+                                   const int       nPlayerScore )
+        {}
+    virtual void OnPlayerLoggedOut( const wxString& sPlayerId )
+        {}
+
+    /*************************************************
+     * Implement hoxPlayersUI::UIOwner 's interface.
+     *************************************************/
+
+    virtual void OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
+                                   const wxString&         sPlayerId )
+        {}
+
+    virtual void OnLocalRequest_JOIN( const wxString& sTableId )
+        {}
+    virtual void OnLocalRequest_NEW()
+        {}
+    virtual void OnLocalRequest_PRACTICE();
+};
 
 /**
  * The REMOTE Site.
@@ -171,10 +235,8 @@ public:
                   hoxSiteType             type = hoxSITE_TYPE_REMOTE);
     virtual ~hoxRemoteSite();
 
-    virtual const wxString GetName() const;
-
     virtual hoxResult Connect();
-    virtual hoxResult Close();
+    virtual hoxResult Disconnect();
 
     virtual bool IsConnected() const;
 
@@ -212,9 +274,6 @@ public:
     virtual void OnLocalRequest_JOIN( const wxString& sTableId );
     virtual void OnLocalRequest_NEW();
     virtual void OnLocalRequest_PRACTICE();
-
-private:
-    hoxTable_SPtr _CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo);
 };
 
 /**
@@ -234,7 +293,6 @@ public:
 
     virtual void OnLocalRequest_JOIN( const wxString& sTableId );
     virtual void OnLocalRequest_NEW();
-    virtual void OnLocalRequest_PRACTICE();
 
     /*************************************************
      * Implement hoxPlayersUI::UIOwner 's interface.
@@ -262,22 +320,23 @@ class hoxSiteManager
 {
 public:
 	static hoxSiteManager* GetInstance();
-    ~hoxSiteManager();
+    ~hoxSiteManager() {}
 
 	hoxSite* CreateSite( hoxSiteType             siteType, 
 		                 const hoxServerAddress& address,
 				         const wxString&         userName,
 						 const wxString&         password );
 
+    void CreateLocalSite();
+
 	hoxSite* FindSite( const hoxServerAddress& address ) const;
 	
 	int GetNumberOfSites() const { return (int) m_sites.size(); }
 
 	void DeleteSite( hoxSite* site );
+    void DeleteLocalSite();
 
 	void Close();
-
-	const hoxSiteList& GetSites() const { return m_sites; }
 
     void SetUI( hoxSitesUI* sitesUI ) { m_sitesUI = sitesUI; }
     void OnTableUICreated( hoxSite*      site,
