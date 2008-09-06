@@ -157,13 +157,6 @@ public:
      */
     void DeleteFrameOfTable( const wxString& sTableId );
 
-    void AddSite( hoxSite* site );
-    void RemoveSite( hoxSite* site );
-    bool AddTableToSite( hoxSite*      site,
-                         hoxTable_SPtr pTable );
-    bool RemoveTableFromSite( hoxSite*      site,
-                              hoxTable_SPtr pTable );
-
 private:
     void _CreateSitesUI();
     void _CreateLogUI();

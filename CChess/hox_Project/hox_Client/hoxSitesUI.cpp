@@ -60,32 +60,28 @@ hoxSitesUI::GetSelectedSite( hoxTable_SPtr& selectedTable ) const
     hoxSite* selectedSite = NULL;
 
     wxTreeItemId selectedItem = this->GetSelection();
-    wxTreeItemId rootId = this->GetRootItem();
-    int depth = -1;
 
-    // Get item's depth.
-    wxTreeItemId itemId = selectedItem;
+    wxTreeItemId itemId;
+    ItemData*    itemData = NULL;
+
     for ( itemId = selectedItem; 
           itemId.IsOk(); 
           itemId = this->GetItemParent( itemId ) )
     {
-        ++depth;
-        if ( itemId == rootId )
+        itemData = (ItemData*) this->GetItemData(itemId);
+        if (    itemData != NULL
+             && itemData->type == TREE_ITEM_TYPE_SITE )
+        {
+            selectedSite = ((ItemData_SITE*) itemData)->site;
             break;
-    }
-
-    if ( depth == 2 ) // table selected?
-    {
-        wxTreeItemData* itemData = this->GetItemData(selectedItem);
-        TableTreeItemData* tableData = (TableTreeItemData*) itemData;
-        selectedTable = tableData->GetTable();
-        selectedSite = selectedTable->GetSite();
-    }
-    else if ( depth == 1 ) // site selected?
-    {
-        wxTreeItemData* itemData = this->GetItemData(selectedItem);
-        SiteTreeItemData* siteData = (SiteTreeItemData*) itemData;
-        selectedSite = siteData->GetSite();
+        }
+        else if ( itemData != NULL
+             &&   itemData->type == TREE_ITEM_TYPE_TABLE )
+        {
+            selectedTable = ((ItemData_TABLE*) itemData)->pTable;
+            selectedSite = selectedTable->GetSite();
+            break;
+        }
     }
 
     return selectedSite;
@@ -108,7 +104,7 @@ hoxSitesUI::AddSite( hoxSite* site )
 
     /* Set the Site's Item-Data to be used as a key identifying this Site.
      */
-    SiteTreeItemData* itemData = new SiteTreeItemData( site );
+    ItemData_SITE* itemData = new ItemData_SITE( site );
     this->SetItemData(siteTreeId, itemData);
 
     /* Select the first site if there is only one. */
@@ -160,7 +156,7 @@ hoxSitesUI::AddTableToSite( hoxSite*      site,
 
     /* Set the Table's Item-Data to be used as a key identifying this Table.
      */
-    TableTreeItemData* itemData = new TableTreeItemData( pTable );
+    ItemData_TABLE* itemData = new ItemData_TABLE( pTable );
     this->SetItemData(tableItemId, itemData);
 
     return true;  // Added!
@@ -203,8 +199,7 @@ hoxSitesUI::_FindSite( hoxSite*      site,
     {
         wxTreeItemData* itemData = this->GetItemData( itemId );
         if (   itemData != NULL
-            //&& itemData->type == TREE_ITEM_TYPE_SITE 
-            && ((SiteTreeItemData*) itemData)->GetSite() == site  )
+            && ((ItemData_SITE*) itemData)->site == site  )
         {
             return true;
         }
@@ -226,8 +221,7 @@ hoxSitesUI::_FindTableInSite( const wxTreeItemId& siteItemId,
     {
         wxTreeItemData* itemData = this->GetItemData( itemId );
         if (   itemData != NULL
-            //&& itemData->type == TREE_ITEM_TYPE_SITE 
-            && ((TableTreeItemData*) itemData)->GetTable() == pTable  )
+            && ((ItemData_TABLE*) itemData)->pTable == pTable  )
         {
             return true;
         }

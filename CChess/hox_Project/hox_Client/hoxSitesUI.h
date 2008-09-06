@@ -39,29 +39,36 @@ class hoxSite;
 
 class hoxSitesUI : public wxTreeCtrl
 {
-public:
-    class SiteTreeItemData : public wxTreeItemData
+private:
+    enum TreeItemType
     {
-    public:
-        SiteTreeItemData(hoxSite* site = NULL) : m_site(site) {}
-        ~SiteTreeItemData() {}
-
-        hoxSite* GetSite() const { return m_site; }
-
-    private:
-        hoxSite*  m_site;
+        TREE_ITEM_TYPE_SITE,
+        TREE_ITEM_TYPE_TABLE
     };
 
-    class TableTreeItemData : public wxTreeItemData
+    class ItemData : public wxTreeItemData
+    {
+        public:
+            ItemData( TreeItemType t ) : type( t ) {}
+            TreeItemType  type;
+    };
+
+    class ItemData_SITE : public ItemData
     {
     public:
-        TableTreeItemData(hoxTable_SPtr table) : m_table(table) {}
-        ~TableTreeItemData() {}
+        ItemData_SITE( hoxSite* s = NULL )
+            : ItemData( TREE_ITEM_TYPE_SITE )
+            , site(s) {}
+        hoxSite*  site;
+    };
 
-        hoxTable_SPtr GetTable() const { return m_table; }
-
-    private:
-        hoxTable_SPtr  m_table;
+    class ItemData_TABLE : public ItemData
+    {
+    public:
+        ItemData_TABLE( hoxTable_SPtr table )
+            :ItemData( TREE_ITEM_TYPE_TABLE )
+            , pTable(table) {}
+        hoxTable_SPtr  pTable;
     };
 
 public:

@@ -249,6 +249,11 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+/*
+ * Forward declaration
+ */
+class hoxSitesUI;
+
 /**
  * The Site-Manager.
  * This is implemented as a singleton since we only need one instance.
@@ -274,12 +279,19 @@ public:
 
 	const hoxSiteList& GetSites() const { return m_sites; }
 
+    void SetUI( hoxSitesUI* sitesUI ) { m_sitesUI = sitesUI; }
+    void OnTableUICreated( hoxSite*      site,
+                           hoxTable_SPtr pTable );
+    void OnTableUIRemoved( hoxSite*      site,
+                           hoxTable_SPtr pTable );
+
 private:
     hoxSiteManager();
 	static hoxSiteManager* m_instance;
 
 private:
 	hoxSiteList     m_sites;
+    hoxSitesUI*     m_sitesUI;
 };
 
 #endif /* __INCLUDED_HOX_SITE_H_ */
