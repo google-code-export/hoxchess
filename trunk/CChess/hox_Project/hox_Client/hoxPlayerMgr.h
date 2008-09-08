@@ -57,6 +57,9 @@ public:
     hoxAIPlayer* CreateAIPlayer( const wxString& name,
                                  int             score = 1500 );
 
+    hoxAIPlayer* CreateTSITOPlayer( const wxString& name,
+                                    int             score = 1500 );
+
     hoxLocalPlayer* CreateLocalPlayer( const wxString& name,
                                        int             score = 1500 );
 

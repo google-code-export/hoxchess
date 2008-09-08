@@ -78,9 +78,11 @@ hoxAIPlayer::OnRequest_FromTable( hoxRequest_APtr apRequest )
             bool bValid = m_referee->ValidateMove( move, gameStatus );
             wxASSERT( bValid );
 
+            this->OnOpponentMove( move );
+
             if ( gameStatus == hoxGAME_STATUS_IN_PROGRESS )
             {
-                hoxMove myNextMove = _generateNextMove();
+                hoxMove myNextMove = generateNextMove();
                 wxLogDebug("%s: Generated next Move = [%s].", FNAME, myNextMove.ToString().c_str());
 
                 bValid = m_referee->ValidateMove( myNextMove, gameStatus );
@@ -101,8 +103,14 @@ hoxAIPlayer::OnRequest_FromTable( hoxRequest_APtr apRequest )
     }
 }
 
+void
+hoxAIPlayer::OnOpponentMove( const hoxMove& move )
+{
+    // Do nothing.
+}
+
 hoxMove
-hoxAIPlayer::_generateNextMove()
+hoxAIPlayer::generateNextMove()
 {
     const hoxMove invalidMove;  // Returned if no Move can be generated.
 

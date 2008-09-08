@@ -18,51 +18,46 @@
  ***************************************************************************/
 
 /////////////////////////////////////////////////////////////////////////////
-// Name:            hoxAIPlayer.h
-// Created:         05/04/2008
+// Name:            hoxTSITOPlayer.h
+// Created:         09/07/2008
 //
-// Description:     The Artificial Intelligent (AI) Player.
+// Description:     The AI Player based on the open-source Xiangqi Engine
+//                  called TSITO 
+//                     http://xiangqi-engine.sourceforge.net/tsito.html
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_AI_PLAYER_H_
-#define __INCLUDED_HOX_AI_PLAYER_H_
+#ifndef __INCLUDED_HOX_TSITO_PLAYER_H__
+#define __INCLUDED_HOX_TSITO_PLAYER_H__
 
-#include "hoxPlayer.h"
-#include "hoxTypes.h"
+#include "hoxAIPlayer.h"
 
 /**
- * The AI player.
+ * The TSITO AI player.
  */
-class hoxAIPlayer :  public hoxPlayer
+class hoxTSITOPlayer :  public hoxAIPlayer
 {
 public:
-    hoxAIPlayer(); // DUMMY default constructor required for event handler.
-    hoxAIPlayer( const wxString& name,
-                 hoxPlayerType   type,
-                 int             score );
+    hoxTSITOPlayer() {} // DUMMY default constructor required for event handler.
+    hoxTSITOPlayer( const wxString& name,
+                    hoxPlayerType   type,
+                    int             score );
 
-    virtual ~hoxAIPlayer();
-
-	/*******************************
-     * Table-event handlers
-     *******************************/
-
-    virtual void OnRequest_FromTable( hoxRequest_APtr apRequest );
+    virtual ~hoxTSITOPlayer();
 
 protected:
     virtual void OnOpponentMove( const hoxMove& move );
     virtual hoxMove generateNextMove();
 
-protected:
-    hoxIReferee_SPtr  m_referee;
-        /* Currently, this is a very simple-minded AI Player
-         * who only selects Moves randomly from the list
-         * of current valid Moves.
-         * This Referee helps to return the list of valid Moves.
+private:
+    class TSITO_Engine;
+    TSITO_Engine*  m_tsito_engine;
+        /* NOTE: I cannot use std::auto_ptr<...> here because
+         *       it generates a compiler error
          */
 
-    DECLARE_DYNAMIC_CLASS(hoxAIPlayer)
+
+    DECLARE_DYNAMIC_CLASS(hoxTSITOPlayer)
     DECLARE_EVENT_TABLE()
 };
 
-#endif /* __INCLUDED_HOX_AI_PLAYER_H_ */
+#endif /* __INCLUDED_HOX_TSITO_PLAYER_H__ */

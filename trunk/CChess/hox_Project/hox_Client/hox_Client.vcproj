@@ -265,6 +265,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hoxTSITOPlayer.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\hoxTypes.cpp"
 				>
 			</File>
@@ -391,6 +395,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hoxTSITOPlayer.h"
+				>
+			</File>
+			<File
 				RelativePath=".\hoxTypes.h"
 				>
 			</File>
@@ -418,6 +426,86 @@
 			>
 			<File
 				RelativePath=".\hox_Client.rc"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="tsito"
+			>
+			<File
+				RelativePath=".\tsito\Board.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tsito\Board.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tsito\Engine.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tsito\Engine.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tsito\Evaluator.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tsito\Evaluator.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tsito\HashTable.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tsito\Lawyer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tsito\Lawyer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tsito\Move.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tsito\Move.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tsito\OpeningBook.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tsito\OpeningBook.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tsito\Options.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tsito\Options.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tsito\Timer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tsito\Timer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tsito\Transposition.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tsito\Transposition.h"
 				>
 			</File>
 		</Filter>
