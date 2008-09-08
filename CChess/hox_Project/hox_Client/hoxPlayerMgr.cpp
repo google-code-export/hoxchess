@@ -29,6 +29,7 @@
 #include "hoxMyPlayer.h"
 #include "hoxChesscapePlayer.h"
 #include "hoxAIPlayer.h"
+#include "hoxTSITOPlayer.h"
 #include <algorithm>   // std::find
 
 
@@ -84,6 +85,17 @@ hoxPlayerMgr::CreateAIPlayer( const wxString& name,
 {
     hoxAIPlayer* player =
         new hoxAIPlayer( name, hoxPLAYER_TYPE_AI, score );
+    m_players.push_back( player );
+
+    return player;
+}
+
+hoxAIPlayer*
+hoxPlayerMgr::CreateTSITOPlayer( const wxString& name,
+                                 int             score /*= 1500 */ )
+{
+    hoxAIPlayer* player =
+        new hoxTSITOPlayer( name, hoxPLAYER_TYPE_AI, score );
     m_players.push_back( player );
 
     return player;
