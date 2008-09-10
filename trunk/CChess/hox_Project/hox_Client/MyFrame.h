@@ -84,7 +84,7 @@ class MyFrame : public wxMDIParentFrame
     typedef std::list<MyChild*> MyChildList;
 
 public:
-    MyFrame();  // Dummy default constructor required for RTTI info.
+    MyFrame() {} // Dummy default constructor required for RTTI info.
     MyFrame( wxWindow*          parent, 
              const wxWindowID   id, 
              const wxString&    title,
@@ -92,7 +92,7 @@ public:
              const wxSize&      size, 
              const long         style );
 
-    ~MyFrame();
+    ~MyFrame() {}
 
     // -----
     void SetupMenu();

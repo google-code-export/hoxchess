@@ -33,6 +33,8 @@
 #include "hoxSitesUI.h"
 #include "hoxPlayersUI.h"
 
+#include <wx/splitter.h>
+
 #if !defined(__WXMSW__)
     #include "icons/hoxchess.xpm"
 #endif
@@ -92,11 +94,6 @@ END_EVENT_TABLE()
 // MyFrame
 // ---------------------------------------------------------------------------
 
-MyFrame::MyFrame()
-{
-    wxFAIL_MSG( "This default constructor is never meant to be used." );
-}
-
 MyFrame::MyFrame( wxWindow*        parent,
                   const wxWindowID id,
                   const wxString&  title,
@@ -128,11 +125,7 @@ MyFrame::MyFrame( wxWindow*        parent,
     this->SetupMenu();
     this->SetupStatusBar();
 
-	wxLogStatus("%s is ready.", HOX_APP_NAME);
-}
-
-MyFrame::~MyFrame()
-{
+	wxLogStatus("%s %s is ready.", HOX_APP_NAME, HOX_VERSION);
 }
 
 void 
@@ -615,7 +608,6 @@ MyChild*
 MyFrame::CreateFrameForTable( const wxString& sTableId )
 {
     MyChild*  childFrame = NULL;
-    wxString  effectiveTableId;
     wxString  windowTitle;
 
     wxASSERT( ! sTableId.empty() );
@@ -690,22 +682,17 @@ MyFrame::_CreateSitesUI()
     m_sitesWindow->SetSashVisible(wxSASH_RIGHT, true);
     m_sitesWindow->SetExtraBorderSize(2);
 
-    wxPanel* sitesPanel = new wxPanel( m_sitesWindow, wxID_ANY );
-    wxBoxSizer* sitesMainSizer = new wxBoxSizer( wxVERTICAL );
-
-    m_sitesUI = new hoxSitesUI( sitesPanel );
-
-    sitesMainSizer->Add( m_sitesUI,
-                         wxSizerFlags(1).Expand().Border(wxALL, 1) );
+    wxSplitterWindow* splitter = new wxSplitterWindow(
+                                    m_sitesWindow, wxID_ANY,
+                                    wxDefaultPosition, wxDefaultSize,
+                                    wxSP_3D | wxSP_LIVE_UPDATE );
+    m_sitesUI = new hoxSitesUI( splitter );
     hoxSiteManager::GetInstance()->SetUI( m_sitesUI );
 
-    m_playersUI = new hoxPlayersUI( sitesPanel );
-
-    sitesMainSizer->Add( m_playersUI,
-                         wxSizerFlags(3).Expand().Border(wxALL, 1) );
+    m_playersUI = new hoxPlayersUI( splitter );
     m_playersUI->Disable();  // Disable until a Site exists.
 
-    sitesPanel->SetSizer( sitesMainSizer ); // use the sizer for layout
+    splitter->SplitHorizontally( m_sitesUI, m_playersUI, 100 );
 }
 
 void
