@@ -54,7 +54,7 @@ private:
     int                  maxPly;  // also user configurable.
     std::vector<Move>    killer1;
     std::vector<Move>    killer2;
-    std::vector<Move>    moveSortPriorityTable;
+    std::vector<Move>    _priorityTable;
     int                  nullMoveReductionFactor;
     short                _searchAborted;
 
@@ -75,9 +75,9 @@ private:
     bool        _useOpeningBook;
     bool        _displayThinking;
 
-    bool        quiesc; // perform quiescence search or not
-    bool        qnull;  // null cutoff in quiescence
-    bool        qhash;  // use table in quiescence
+    bool        _useQuiescence; // perform quiescence search or not
+    bool        _useQNull;      // null cutoff in quiescence
+    bool        _useQHash;      // use table in quiescence
 
     int         searchMethod; // Tells system which algorithm to use
     bool        allowNull;    // If false then null move will never be tried.
@@ -148,15 +148,6 @@ public:
 
     // OptionObserver requirements
     void optionChanged(const std::string& whatOption);
-
-    // In case compareMoves needs to access 
-    friend bool compareMoves(Move& m1, Move &m2);
 };
-
-/*
- * Move ordering sort predicate used by list to sort moves.
- * Major hackery - would like to get rid of this.
- */
-bool compareMoves(Move& m1, Move& m2);
 
 #endif /* __ENGINE_H__ */

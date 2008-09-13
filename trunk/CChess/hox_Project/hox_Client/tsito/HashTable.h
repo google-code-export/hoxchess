@@ -1,7 +1,7 @@
 #ifndef __HASHTABLE_H__
 #define __HASHTABLE_H__
 
-#include	<iostream>
+#include <iostream>
 
 using namespace std;
 /*
@@ -15,23 +15,35 @@ using namespace std;
 template<class T>
 class HashTable
 {
-  T		*content;
-  unsigned int	mask;
+private:
+    T*            _content;
+    unsigned int  _mask;
 
- public:
-  HashTable(unsigned int bitcount) // size is a count of bits, not actual size.
+public:
+    /**
+     * @param  size - is a count of bits, not actual size.
+     */
+    HashTable( unsigned int bitcount )
+        : _content( NULL )
     {
-      int size = 1 << bitcount;
-      content = new T[size];
-      mask = size - 1;
+        int size = 1 << bitcount;
+        _content = new T[size];
+        _mask    = size - 1;
     }
-  void insert(unsigned long key, T &nde)
+  
+    ~HashTable()
     {
-      content[key & mask] = nde;
+        delete [] _content;
     }
-  T &find(unsigned long key)
+
+    void insert( unsigned int key, T &nde )
     {
-      return content[key & mask];
+        _content[key & _mask] = nde;
+    }
+  
+    T& find( unsigned int key )
+    {
+        return _content[key & _mask];
     }
 };
 

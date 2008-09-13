@@ -43,8 +43,8 @@ class TNode : public HashNode
 
 class TranspositionTable
 {
-  HashTable<TNode>	*redTable;
-  HashTable<TNode>	*blueTable;
+  HashTable<TNode>*  redTable;
+  HashTable<TNode>*  blueTable;
 
   int size;
 

@@ -28,9 +28,9 @@ Engine::Engine( Board *brd, Lawyer *law )
 
     // Options and their defaults...
     maxPly            = /* HPHAN: 6 */ 2;
-    quiesc            = false;
-    qnull             = false;
-    qhash             = true;
+    _useQuiescence    = false;
+    _useQNull         = false;
+    _useQHash         = true;
     _useOpeningBook   = /* HPHAN: true */ false;
     _displayThinking  = false;
     searchMethod      = SEARCH_AB;
@@ -67,48 +67,66 @@ Engine::~Engine()
     delete _openingBook;
 }
 
-// Move sort comparison function and required variables...
-static Board *_board = NULL;
-static vector<Move> priorityTable;
-bool compareMoves(Move &m1, Move &m2)
+/**
+ * Functor to compare two Moves in a given Board context.
+ */
+class CompareMovesInBoard
+{
+    public:
+        CompareMovesInBoard( const Board&             board,
+                             const std::vector<Move>& priorityTable )
+                : _board( board )
+                , _priorTable( priorityTable ) {}
+
+        bool operator()(const Move& m1, const Move& m2);
+
+    private:
+        const Board&             _board;
+        const std::vector<Move>& _priorTable; // Move Priority Table
+};
+
+bool
+CompareMovesInBoard::operator()(const Move& m1, const Move& m2)
 {
   Evaluator *e = Evaluator::defaultEvaluator();
   int m1Index = -1, m2Index = -1;
-  for (size_t i = 0; i < ::priorityTable.size(); i++)
+  for (size_t i = 0; i < _priorTable.size(); i++)
     {
-      if (::priorityTable[i] == m1) m1Index = i;
-      if (::priorityTable[i] == m2) m2Index = i;
+      if (_priorTable[i] == m1) m1Index = i;
+      if (_priorTable[i] == m2) m2Index = i;
     }
   if (m1Index == -1 && m2Index != -1) return false;
   if (m2Index == -1 && m1Index != -1) return true;
   if (m1Index < m2Index) return true;
   if (m2Index < m1Index) return false;
 
-  // Now that killer moves and transposition table are taken into account we try to order other moves logically
+  // Now that killer moves and transposition table are taken into account,
+  // we try to order other moves logically
 
   // king moves last...
-  if (_board->pieceAt(m1.origin()) == JIANG && _board->pieceAt(m2.origin()) != JIANG) return false;
-  if (_board->pieceAt(m2.origin()) == JIANG && _board->pieceAt(m1.origin()) != JIANG) return true;
+  if (_board.pieceAt(m1.origin()) == JIANG && _board.pieceAt(m2.origin()) != JIANG) return false;
+  if (_board.pieceAt(m2.origin()) == JIANG && _board.pieceAt(m1.origin()) != JIANG) return true;
 
   // Captures: MVV/LVA (Most Valuable Victem/Least Valuable Attacker)
-  if (e->pieceValue(_board->pieceAt(m1.destination())) < e->pieceValue(_board->pieceAt(m2.destination()))) return false;
-  if (e->pieceValue(_board->pieceAt(m1.destination())) > e->pieceValue(_board->pieceAt(m2.destination()))) return true;
-  if (e->pieceValue(_board->pieceAt(m1.origin())) == e->pieceValue(_board->pieceAt(m2.origin()))) return false;
-  if (e->pieceValue(_board->pieceAt(m1.origin())) < e->pieceValue(_board->pieceAt(m2.origin())))
+  if (e->pieceValue(_board.pieceAt(m1.destination())) < e->pieceValue(_board.pieceAt(m2.destination()))) return false;
+  if (e->pieceValue(_board.pieceAt(m1.destination())) > e->pieceValue(_board.pieceAt(m2.destination()))) return true;
+  if (e->pieceValue(_board.pieceAt(m1.origin())) == e->pieceValue(_board.pieceAt(m2.origin()))) return false;
+  if (e->pieceValue(_board.pieceAt(m1.origin())) < e->pieceValue(_board.pieceAt(m2.origin())))
     {
-      if (_board->pieceAt(m1.destination()) == EMPTY)
+      if (_board.pieceAt(m1.destination()) == EMPTY)
         return false;
       else
         return true;
     }
   else
     {
-      if (_board->pieceAt(m1.destination()) == EMPTY)
+      if (_board.pieceAt(m1.destination()) == EMPTY)
         return true;
       else
         return false;
     }
 }
+
 
 // Adds killer move to the queue.
 void
@@ -274,7 +292,7 @@ Engine::optionChanged(const std::string& whatOption)
     }
     else if (whatOption == "quiescence")
     {
-        quiesc = (Options::defaultOptions()->getValue(whatOption) == "on");
+        _useQuiescence = (Options::defaultOptions()->getValue(whatOption) == "on");
     }
     else if (whatOption == "useOpeningBook")
     {
@@ -337,11 +355,11 @@ Engine::optionChanged(const std::string& whatOption)
     }
     else if (whatOption == "qnull")
     {
-        qnull = (Options::defaultOptions()->getValue(whatOption) == "on");
+        _useQNull = (Options::defaultOptions()->getValue(whatOption) == "on");
     }
     else if (whatOption == "qhash")
     {
-        qhash = (Options::defaultOptions()->getValue(whatOption) == "on");
+        _useQHash = (Options::defaultOptions()->getValue(whatOption) == "on");
     }
     else if (whatOption == "computerColor")
     {
@@ -414,7 +432,6 @@ long Engine::search(vector<PVEntry> &pv, long alpha, long beta, int ply, int dep
   vector<PVEntry> myPV;
   long value = 0;
   bool failHigh = false;
-  ::_board = board;
   list<Move>		moveList;
   int			pvPreSize = pv.size();
 
@@ -427,7 +444,7 @@ long Engine::search(vector<PVEntry> &pv, long alpha, long beta, int ply, int dep
       return -INFIN;
     }
 
-  ::priorityTable.clear();
+  _priorityTable.clear();
 
   nodeCount++;
 
@@ -443,7 +460,7 @@ long Engine::search(vector<PVEntry> &pv, long alpha, long beta, int ply, int dep
   // Return evaluation if this is a leaf node.
   if (ply >= depth)
     {
-      if (quiesc)
+      if (_useQuiescence)
         return quiescence(alpha,beta,ply,depth,nullOk);
       else
         return evaluator->evaluatePosition(*board, *lawyer) - ply;
@@ -496,8 +513,9 @@ long Engine::search(vector<PVEntry> &pv, long alpha, long beta, int ply, int dep
       if (!pv.empty()) pv[pv.size()-1].cutoff = MATE_CUTOFF;
       return CHECKMATE + ply;
     }
-  moveList.sort(::compareMoves); // The information to sort has been set up by "search".
 
+  moveList.sort( CompareMovesInBoard( *board, _priorityTable ) );
+              // The information to sort has been set up by "search".
 
   
 research: // Goto usually bad, but simplifies the code here.
@@ -555,7 +573,6 @@ long Engine::quiescence(long alpha, long beta, int ply, int depth, bool nullOk)
 {
   long value = 0;
   bool failHigh = false;
-  ::_board = board;
   list<Move>	moveList;
   bool		legalonly = false;
   vector<PVEntry> myPV;
@@ -577,19 +594,19 @@ long Engine::quiescence(long alpha, long beta, int ply, int depth, bool nullOk)
 
   Move m;
   long score;
-  if (qhash && tableSearch(ply, depth, alpha, beta, m, score, nullOk))
+  if (_useQHash && tableSearch(ply, depth, alpha, beta, m, score, nullOk))
     {
       return score;
     }
   
-  if (!legalonly && nullOk && qnull)
+  if (!legalonly && nullOk && _useQNull)
     {
       vector<PVEntry> ignore;
       board->makeNullMove();
-      quiesc = false;
+      _useQuiescence = false;
       // Search to depth 1 looking for a beta cutoff - no quiescence during null.
       value = -search(ignore, -beta, 1-beta, 0,1, false, false, verify);
-      quiesc = true;
+      _useQuiescence = true;
       board->unmakeMove();
 
       // This position is quiet, return evaluation.
@@ -601,7 +618,7 @@ long Engine::quiescence(long alpha, long beta, int ply, int depth, bool nullOk)
   if (moveList.empty()) return CHECKMATE;
   
   setUpKillers(ply);
-  moveList.sort(::compareMoves);
+  moveList.sort( CompareMovesInBoard( *board, _priorityTable ) );
 
   // Only pay attention to captures and evasions.
   filterOutNonCaptures(moveList);
@@ -626,7 +643,7 @@ long Engine::quiescence(long alpha, long beta, int ply, int depth, bool nullOk)
   if (value > beta && !myPV.empty())
     newKiller(myPV[0].move, ply);
 
-  if (qhash && !myPV.empty())
+  if (_useQHash && !myPV.empty())
     tableSet(ply, depth, alpha, beta, myPV[0].move, value);
 
   return value;
@@ -735,10 +752,10 @@ void
 Engine::setUpKillers(int ply)
 {
     if (killer1.size() > (size_t) (ply-1))
-        ::priorityTable.push_back(killer1[ply-1]);
+        _priorityTable.push_back(killer1[ply-1]);
 
     if (killer2.size() > (size_t) (ply-1))
-        ::priorityTable.push_back(killer2[ply-1]);
+        _priorityTable.push_back(killer2[ply-1]);
 }
 
 
@@ -774,7 +791,7 @@ bool Engine::tableSearch(int ply, int depth, long &alpha, long &beta, Move &m, l
               break;
             }
         }
-      ::priorityTable.push_back(m);
+      _priorityTable.push_back(m);
       if (searchNode.depth() > (depth-ply) && (ply > 0 || searchNode.flag() == EXACT_SCORE))
         return true;
       return false;
