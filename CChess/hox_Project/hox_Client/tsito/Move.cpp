@@ -12,7 +12,7 @@ using namespace std;
 
 Move Move::_null; // The null move.
 
-ostream& operator<<(ostream& out, Move &move)
+ostream& operator<<(ostream& out, const Move &move)
 {
   return out << move.getText();
 }

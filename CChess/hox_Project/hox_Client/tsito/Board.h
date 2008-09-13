@@ -85,11 +85,11 @@ class Board
   void unmakeNullMove() { unmakeMove(); }
 
   // Square based access operators
-  piece pieceAt(int index) { return (piece)(board[index]&7); }
-  color colorAt(int index) { return (color)(board[index]&8); }
-  unsigned char operator[](int index) { return board[index]; }
+  piece pieceAt(int index) const { return (piece)(board[index]&7); }
+  color colorAt(int index) const { return (color)(board[index]&8); }
+  unsigned char operator[](int index) const { return board[index]; }
   
-  color sideToMove() { return (color)_sideToMove; }
+  color sideToMove() const { return (color)_sideToMove; }
 
   // Position managament...
   bool setPosition(std::string fen);
