@@ -1,6 +1,7 @@
 #include <strstream>
 #include <cassert>
 
+#include "Board.h"
 #include "Engine.h"
 #include "Evaluator.h"
 #include "Lawyer.h"
@@ -27,20 +28,20 @@ Engine::Engine( Board *brd, Lawyer *law )
     _transposTable    = new TranspositionTable(18);
 
     // Options and their defaults...
-    maxPly            = /* HPHAN: 6 */ 2;
+    _maxPly           = /* HPHAN: 6 */ 2;
     _useQuiescence    = false;
     _useQNull         = false;
     _useQHash         = true;
     _useOpeningBook   = /* HPHAN: true */ false;
     _displayThinking  = false;
     searchMethod      = SEARCH_AB;
-    verifyNull        = true;
+    _useMTDF          = /* HPHAN: true */ false;
+    _useIterDeep      = /* HPHAN: true */ false;
+    _allowNull        = true;
+    _verifyNull       = true;
     nullMoveReductionFactor = 3;
-    useMTDF           = true;
-    allowNull         = true;
-    _useIterDeep      = true;
     allowTableWindowAdjustments = false;
-    useTable          = true;
+    _useTable         = true;
 
     _searchAborted    = NO_ABORT;
     _searchState      = BETWEEN_SEARCHES;
@@ -239,13 +240,13 @@ Engine::think()
     _searchAborted = NO_ABORT;
   
     for ( int i = ( _useIterDeep ? (_principleVariation.size()+1)
-                                 : maxPly );
-              i <= maxPly && !_searchAborted;
+                                 : _maxPly );
+              i <= _maxPly && !_searchAborted;
               ++i )
     {
         vector<PVEntry> iterPV;
-        result = (useMTDF ? mtd((_useIterDeep ? iterPV : _principleVariation),result,i)
-                          : search((_useIterDeep ? iterPV : _principleVariation), -INFIN,INFIN,0,i));
+        result = (_useMTDF ? mtd((_useIterDeep ? iterPV : _principleVariation),result,i)
+                           : search((_useIterDeep ? iterPV : _principleVariation), -INFIN,INFIN,0,i));
         if ( !_searchAborted && _useIterDeep )
         {
             _principleVariation = iterPV;
@@ -288,7 +289,7 @@ Engine::optionChanged(const std::string& whatOption)
     {
         string x = Options::defaultOptions()->getValue(whatOption);
         istrstream strm((char*)x.c_str(), x.length());
-        strm >> maxPly;
+        strm >> _maxPly;
     }
     else if (whatOption == "quiescence")
     {
@@ -303,41 +304,41 @@ Engine::optionChanged(const std::string& whatOption)
         string type = Options::defaultOptions()->getValue(whatOption);
         if (type == "mtd")
         {
-            useMTDF = true;
+            _useMTDF = true;
             searchMethod = SEARCH_AB;
         }
         else if (type == "alphabeta")
         {
-            useMTDF = false;
+            _useMTDF = false;
             searchMethod = SEARCH_AB;
         }
         else if (type == "negascout")
         {
-            useMTDF = false;
+            _useMTDF = false;
             searchMethod = SEARCH_NS;
         }
     }
     else if (whatOption == "nullmove")
     {
-      allowNull = (Options::defaultOptions()->getValue(whatOption) == "on");
+        _allowNull = (Options::defaultOptions()->getValue(whatOption) == "on");
     }
     else if (whatOption == "verifynull")
     {
         if (Options::defaultOptions()->getValue(whatOption) == "on")
         {
-            allowNull = true;
-            verifyNull = true;
+            _allowNull = true;
+            _verifyNull = true;
             nullMoveReductionFactor = 3;
         }
         else
         {
-            verifyNull = false;
+            _verifyNull = false;
             nullMoveReductionFactor = 2;
         }
     }
     else if (whatOption == "hash")
     {
-        useTable = (Options::defaultOptions()->getValue(whatOption) == "on");
+        _useTable = (Options::defaultOptions()->getValue(whatOption) == "on");
     }
     else if (whatOption == "hashadjust")
     {
@@ -474,8 +475,8 @@ long Engine::search(vector<PVEntry> &pv, long alpha, long beta, int ply, int dep
       return score;
     }
 
-  verify = (verify && verifyNull);
-  nullOk = (allowNull && nullOk);
+  verify = (verify && _verifyNull);
+  nullOk = (_allowNull && nullOk);
 
   // Perform null move if appropriate.
   if (ply > 0 && (!legalonly) && nullOk && ((!verify) || ((depth-ply) > 2)))
@@ -763,7 +764,7 @@ Engine::setUpKillers(int ply)
 bool Engine::tableSearch(int ply, int depth, long &alpha, long &beta, Move &m, long &score,
                          bool &nullok)
 {
-  if (!useTable) return false;
+  if (!_useTable) return false;
   TNode searchNode;
   _transposTable->find(board, searchNode);
   if (searchNode.flag() != NOT_FOUND)
@@ -798,10 +799,11 @@ bool Engine::tableSearch(int ply, int depth, long &alpha, long &beta, Move &m, l
     }
   return false;
 }
+
 // stores position in table.
 void Engine::tableSet(int ply, int depth, long alpha, long beta, Move m, long score)
 {
-  if (!useTable) return;
+  if (!_useTable) return;
   TNode	storeNode(board);
   storeNode.move(m);
   storeNode.score(score);
