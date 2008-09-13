@@ -6,16 +6,17 @@
  * Class Move: holds all data necisary to represent a single move in XiangQi.
  */
 
-#include	<iostream>
-#include	<string>
+#include <iostream>
+#include <string>
 
 class Move
 {
- private:
-  int		_origin;
-  int		_destination;
-  unsigned char	_capturedPiece;
-  static Move		_null;
+private:
+    int            _origin;
+    int            _destination;
+    unsigned char  _capturedPiece;
+
+    static Move    _null;
 
  public:
   Move() { _origin = _destination = _capturedPiece = 0;}
