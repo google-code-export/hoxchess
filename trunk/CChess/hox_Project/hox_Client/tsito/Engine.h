@@ -30,7 +30,7 @@ struct PVEntry
 {
   Move move;
   int cutoff;
-  PVEntry(Move m, int c) : move(m),cutoff(c) {}
+  PVEntry(Move m, int c) : move(m), cutoff(c) {}
 };
 
 //#define	INFIN	0x0FFFFFFF;
@@ -43,12 +43,12 @@ private:
     Board*               board;
     Lawyer*              lawyer;
     Evaluator*           evaluator;
-    OpeningBook*         openingBook;
+    OpeningBook*         _openingBook;
     TranspositionTable*  transposTable;
 
     // search result
-    std::vector<PVEntry> principleVariation;
-    short                searchState;
+    std::vector<PVEntry> _principleVariation;
+    short                _searchState;
 
     // Search information
     int                  maxPly;  // also user configurable.
@@ -56,7 +56,7 @@ private:
     std::vector<Move>    killer2;
     std::vector<Move>    moveSortPriorityTable;
     int                  nullMoveReductionFactor;
-    short                searchAborted;
+    short                _searchAborted;
 
     Timer*               myTimer;
 
@@ -68,8 +68,8 @@ private:
 
     // User configurable options
 
-    bool        useOpeningBook;
-    bool        displayThinking;
+    bool        _useOpeningBook;
+    bool        _displayThinking;
 
     bool        quiesc; // perform quiescence search or not
     bool        qnull;  // null cutoff in quiescence
@@ -140,7 +140,7 @@ public:
 
     // Search information retrieval...
     Move getMove();
-    std::string variationText(std::vector<PVEntry> pv);
+    std::string variationText(const std::vector<PVEntry>& pv) const;
 
     // OptionObserver requirements
     void optionChanged(std::string whatOption);
