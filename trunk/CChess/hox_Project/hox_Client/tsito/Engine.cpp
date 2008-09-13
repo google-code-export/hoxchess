@@ -1,7 +1,7 @@
 #include <strstream>
+#include <cassert>
 
 #include "Engine.h"
-#include "Board.h"
 #include "Evaluator.h"
 #include "Lawyer.h"
 #include "Transposition.h"
@@ -16,15 +16,15 @@ using namespace std;
 
 enum { SEARCH_AB, SEARCH_PV, SEARCH_NS };
 enum { SEARCHING, DONE_SEARCHING, BETWEEN_SEARCHES };
-enum { NO_ABORT, ABORT_TIME, ABORT_READ };
+enum { NO_ABORT=0, ABORT_TIME, ABORT_READ };
 
 Engine::Engine( Board *brd, Lawyer *law )
             : board( brd)
             , lawyer( law )
 {
-    evaluator     = Evaluator::defaultEvaluator();
-    _openingBook  = NULL;
-    transposTable = new TranspositionTable(18);
+    evaluator         = Evaluator::defaultEvaluator();
+    _openingBook      = NULL;
+    _transposTable    = new TranspositionTable(18);
 
     // Options and their defaults...
     maxPly            = /* HPHAN: 6 */ 2;
@@ -44,7 +44,6 @@ Engine::Engine( Board *brd, Lawyer *law )
 
     _searchAborted    = NO_ABORT;
     _searchState      = BETWEEN_SEARCHES;
-    Timer::setTimers(0, 0, 0); // Shut off timers by default.
 
     // Register with Options class
     Options::defaultOptions()->addObserver(this);
@@ -64,7 +63,7 @@ Engine::Engine( Board *brd, Lawyer *law )
 
 Engine::~Engine()
 {
-    delete transposTable;
+    delete _transposTable;
     delete _openingBook;
 }
 
@@ -112,20 +111,21 @@ bool compareMoves(Move &m1, Move &m2)
 }
 
 // Adds killer move to the queue.
-void Engine::newKiller(Move& theMove, int ply)
+void
+Engine::newKiller(Move& theMove, int ply)
 {
-  Move temp;
-  if (killer1.size() > (size_t) ply)
+    Move temp;
+    if (killer1.size() > (size_t) ply)
     {
-      temp = killer1[ply];
-      killer1[ply] = theMove;
-      if (killer2.size() > (size_t) ply)
-        killer2[ply] = temp;
-      else
-        killer2.push_back(theMove);
+        temp = killer1[ply];
+        killer1[ply] = theMove;
+        if (killer2.size() > (size_t) ply)
+            killer2[ply] = temp;
+        else
+            killer2.push_back(theMove);
     }
-  else
-    killer1.push_back(theMove);
+    else
+        killer1.push_back(theMove);
 }
 
 /**
@@ -181,17 +181,18 @@ Engine::think()
         return 0;
     }
 
-    myTimer = Timer::timerForColor(board->sideToMove());
+    _myTimer = ( board->sideToMove() == RED ? &_redTimer : &_blueTimer );
 
+    // Clear everything that was set by the previous search
     if (_searchState == BETWEEN_SEARCHES)
     {
         _searchState = SEARCHING;
         _principleVariation.clear();
-        //myTimer->startTimer();
-        transposTable->flush();
+        //_myTimer->startTimer();
+        _transposTable->flush();
         killer1.clear();
         killer2.clear();
-        ftime(&startTime);
+        ftime(&_startTime);
         nodeCount = 0;
     }
 
@@ -207,14 +208,13 @@ Engine::think()
                 && lawyer->legalMove(m) ) // maybe book file has illegal moves in it.
             {
                 _principleVariation.push_back(PVEntry(m,NO_CUTOFF));
-                //myTimer->stopTimer();
+                //_myTimer->stopTimer();
                 _searchState = DONE_SEARCHING;
                 return evaluator->evaluatePosition(*board, *lawyer);
             }
         }
     }
 
-    // Clear everything that was set by the previous search
     // Estimate outcome...evaluate current board.
     long result = evaluator->evaluatePosition(*board, *lawyer);
 
@@ -238,7 +238,7 @@ Engine::think()
             int plyMod = (_searchAborted ? -1:0);
             ftime(&nowTime);
             cout << (_searchAborted ? "*":"") << (i+plyMod) << "\t" << result << "\t" << nodeCount << "\t"
-                 << (100*(nowTime.time - startTime.time)) + ((nowTime.millitm - startTime.millitm)/10) << "\t"
+                 << (100*(nowTime.time - _startTime.time)) + ((nowTime.millitm - _startTime.millitm)/10) << "\t"
                  << variationText(_principleVariation) << endl;
             cout.flush();
         }
@@ -247,7 +247,7 @@ Engine::think()
     // We may continue searching if there is data to be read...depends on what we read.
     if (_searchAborted != ABORT_READ) // a) finished, b) timed out - either way we are done.
     {   // Search is completed then.
-        //myTimer->stopTimer();
+        //_myTimer->stopTimer();
         _searchState = DONE_SEARCHING;
     }
   
@@ -421,7 +421,7 @@ long Engine::search(vector<PVEntry> &pv, long alpha, long beta, int ply, int dep
   if (_searchAborted) return 0;
 
   // Check if we have time left...
-  if (!myTimer->haveTimeLeftForMove())
+  if (!_myTimer->haveTimeLeftForMove())
     {
       _searchAborted = ABORT_TIME;
       return -INFIN;
@@ -561,7 +561,7 @@ long Engine::quiescence(long alpha, long beta, int ply, int depth, bool nullOk)
   vector<PVEntry> myPV;
   bool verify = false;
 
-  if (!myTimer->haveTimeLeftForMove())
+  if (!_myTimer->haveTimeLeftForMove())
     {
       _searchAborted = ABORT_TIME;
       return -INFIN;
@@ -731,12 +731,14 @@ long Engine::negaScout(std::vector<PVEntry> &pv,  std::list<Move> moveList,
   return a;
 }
 
-void Engine::setUpKillers(int ply)
+void
+Engine::setUpKillers(int ply)
 {
-  if (killer1.size() > (size_t) (ply-1))
-    ::priorityTable.push_back(killer1[ply-1]);
-  if (killer2.size() > (size_t) (ply-1))
-    ::priorityTable.push_back(killer2[ply-1]);
+    if (killer1.size() > (size_t) (ply-1))
+        ::priorityTable.push_back(killer1[ply-1]);
+
+    if (killer2.size() > (size_t) (ply-1))
+        ::priorityTable.push_back(killer2[ply-1]);
 }
 
 
@@ -746,7 +748,7 @@ bool Engine::tableSearch(int ply, int depth, long &alpha, long &beta, Move &m, l
 {
   if (!useTable) return false;
   TNode searchNode;
-  transposTable->find(board, searchNode);
+  _transposTable->find(board, searchNode);
   if (searchNode.flag() != NOT_FOUND)
     {
       m = searchNode.move();
@@ -795,9 +797,11 @@ void Engine::tableSet(int ply, int depth, long alpha, long beta, Move m, long sc
   else // LOWER BOUND
       storeNode.flag(LOWER_BOUND);
 
-  transposTable->store(storeNode);
+  _transposTable->store(storeNode);
 }
 
 void Engine::endSearch()    { _searchState = DONE_SEARCHING; }
 bool Engine::doneThinking() { return _searchState == DONE_SEARCHING; }
 bool Engine::thinking()     { return _searchState == SEARCHING; }
+
+////////////////////////////////// END OF FILE ////////////////////////////

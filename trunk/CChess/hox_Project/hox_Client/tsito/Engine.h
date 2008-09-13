@@ -9,13 +9,14 @@
  * is also the one that will notice and respond when the game has ended.
  */
 
-#include	<string>
-#include	<vector>
-#include	<sys/timeb.h>
+#include <string>
+#include <vector>
+#include <sys/timeb.h>
 
-#include	"Move.h"
-#include	"Options.h"
-#include	"Timer.h"
+#include "Board.h"
+#include "Move.h"
+#include "Options.h"
+#include "Timer.h"
 
 class Board;
 class Evaluator;
@@ -43,7 +44,7 @@ private:
     Lawyer*              lawyer;
     Evaluator*           evaluator;
     OpeningBook*         _openingBook;
-    TranspositionTable*  transposTable;
+    TranspositionTable*  _transposTable;
 
     // search result
     std::vector<PVEntry> _principleVariation;
@@ -57,13 +58,17 @@ private:
     int                  nullMoveReductionFactor;
     short                _searchAborted;
 
-    Timer*               myTimer;
+    // Timers ( !!! Shut off timers by default !!! )
+    Timer                _redTimer;
+    Timer                _blueTimer;
+
+    Timer*               _myTimer;  // This Engine (AI) 's timer.
 
     // Search statistics
     int                  nodeCount;
     int                  hashHits;
     int                  nullCutoffs;
-    struct timeb         startTime;
+    struct timeb         _startTime;
 
     // User configurable options
 
@@ -93,7 +98,7 @@ private:
     long quiescence(long alpha, long beta, int ply, int depth, bool nullOk = true);
     void filterOutNonCaptures(std::list<Move> &l);
 
-    // Search algs...
+    // Search algorithms...
 
     long alphaBeta(std::vector<PVEntry> &pv, std::list<Move> moveList,
                  long alpha, long beta, int ply, int depth,
