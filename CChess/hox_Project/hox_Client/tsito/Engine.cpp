@@ -1,12 +1,9 @@
 #include <strstream>
-#include <vector>
-#include <stack>
 
 #include "Engine.h"
 #include "Board.h"
 #include "Evaluator.h"
 #include "Lawyer.h"
-#include "Move.h"
 #include "Transposition.h"
 #include "OpeningBook.h"
 
@@ -41,7 +38,7 @@ Engine::Engine( Board *brd, Lawyer *law )
     nullMoveReductionFactor = 3;
     useMTDF           = true;
     allowNull         = true;
-    useIterDeep       = true;
+    _useIterDeep      = true;
     allowTableWindowAdjustments = false;
     useTable          = true;
 
@@ -131,14 +128,18 @@ void Engine::newKiller(Move& theMove, int ply)
     killer1.push_back(theMove);
 }
 
-// Implementation of MTD(f)...
-long Engine::mtd(std::vector<PVEntry> &pv, long guess, int depth)
-  /* Inputs : pv, estimated best score, max depth.
-     Outputs: pv, actual best score. */
+/**
+ * Implementation of MTD(f)...
+ *
+ * Inputs : pv, estimated best score, max depth.
+ * Outputs: pv, actual best score.
+ *
+ * NOTE: It appears that null move heuristics cause too many troubles when used with
+ *       this algorithm.  Therefore, null move will not be used when using mtd.
+ */
+long
+Engine::mtd( std::vector<PVEntry> &pv, long guess, int depth )
 {
-  /*
-   * NOTE: it appears that null move heuristics cause too many troubles when used with
-   *       this algorithm.  Therefor null move will not be used when using mtd. */
   long g = guess;
   long upperbound = INFIN;
   long lowerbound = -INFIN;
@@ -219,15 +220,15 @@ Engine::think()
 
     _searchAborted = NO_ABORT;
   
-    for ( int i = ( useIterDeep ? (_principleVariation.size()+1)
-                                : maxPly );
+    for ( int i = ( _useIterDeep ? (_principleVariation.size()+1)
+                                 : maxPly );
               i <= maxPly && !_searchAborted;
               ++i )
     {
         vector<PVEntry> iterPV;
-        result = (useMTDF ? mtd((useIterDeep ? iterPV: _principleVariation),result,i)
-                          : search((useIterDeep ? iterPV: _principleVariation), -INFIN,INFIN,0,i));
-        if (!_searchAborted && useIterDeep)
+        result = (useMTDF ? mtd((_useIterDeep ? iterPV : _principleVariation),result,i)
+                          : search((_useIterDeep ? iterPV : _principleVariation), -INFIN,INFIN,0,i));
+        if ( !_searchAborted && _useIterDeep )
         {
             _principleVariation = iterPV;
         }
@@ -253,123 +254,99 @@ Engine::think()
   return result;
 }
 
-Move Engine::getMove()
+Move
+Engine::getMove()
 {
     _searchState = BETWEEN_SEARCHES;
-    if (_principleVariation.size() > 0) // should never not be when called.
-        return _principleVariation[0].move;
-    else
-        return Move();
+    return ( _principleVariation.size() > 0 // should never not be when called.
+             ? _principleVariation[0].move
+             : Move() );
 }
 
-void Engine::optionChanged(string whatOption)
+void
+Engine::optionChanged(const std::string& whatOption)
 {
-  if (whatOption == "searchPly")
+    if (whatOption == "searchPly")
     {
-      string x = Options::defaultOptions()->getValue(whatOption);
-      istrstream strm((char*)x.c_str(), x.length());
-      strm >> maxPly;
+        string x = Options::defaultOptions()->getValue(whatOption);
+        istrstream strm((char*)x.c_str(), x.length());
+        strm >> maxPly;
     }
-  else if (whatOption == "quiescence")
+    else if (whatOption == "quiescence")
     {
-      if (Options::defaultOptions()->getValue(whatOption) == "on")
-        quiesc = true;
-      else
-        quiesc = false;
+        quiesc = (Options::defaultOptions()->getValue(whatOption) == "on");
     }
-  else if (whatOption == "useOpeningBook")
+    else if (whatOption == "useOpeningBook")
     {
-      if (Options::defaultOptions()->getValue(whatOption) == "n")
-        _useOpeningBook = false;
-      else
-        _useOpeningBook = true;
+        _useOpeningBook = (Options::defaultOptions()->getValue(whatOption) == "on");
     }
-  else if (whatOption == "search")
+    else if (whatOption == "search")
     {
-      string type = Options::defaultOptions()->getValue(whatOption);
-      if (type == "mtd")
+        string type = Options::defaultOptions()->getValue(whatOption);
+        if (type == "mtd")
         {
-          useMTDF = true;
-          searchMethod = SEARCH_AB;
+            useMTDF = true;
+            searchMethod = SEARCH_AB;
         }
-      else if (type == "alphabeta")
+        else if (type == "alphabeta")
         {
-          useMTDF = false;
-          searchMethod = SEARCH_AB;
+            useMTDF = false;
+            searchMethod = SEARCH_AB;
         }
-      else if (type == "negascout")
+        else if (type == "negascout")
         {
-          useMTDF = false;
-          searchMethod = SEARCH_NS;
+            useMTDF = false;
+            searchMethod = SEARCH_NS;
         }
     }
-  else if (whatOption == "nullmove")
+    else if (whatOption == "nullmove")
     {
-      if (Options::defaultOptions()->getValue(whatOption) == "on")
-        allowNull = true;
-      else
-        allowNull = false;
+      allowNull = (Options::defaultOptions()->getValue(whatOption) == "on");
     }
-  else if (whatOption == "verifynull")
+    else if (whatOption == "verifynull")
     {
-      if (Options::defaultOptions()->getValue(whatOption) == "on")
+        if (Options::defaultOptions()->getValue(whatOption) == "on")
         {
-          allowNull = true;
-          verifyNull = true;
-          nullMoveReductionFactor = 3;
+            allowNull = true;
+            verifyNull = true;
+            nullMoveReductionFactor = 3;
         }
-      else
+        else
         {
-          verifyNull = false;
-          nullMoveReductionFactor = 2;
+            verifyNull = false;
+            nullMoveReductionFactor = 2;
         }
     }
-  else if (whatOption == "hash")
+    else if (whatOption == "hash")
     {
-      if (Options::defaultOptions()->getValue(whatOption) == "on")
-        useTable = true;
-      else
-        useTable = false;
+        useTable = (Options::defaultOptions()->getValue(whatOption) == "on");
     }
-  else if (whatOption == "hashadjust")
+    else if (whatOption == "hashadjust")
     {
-      if (Options::defaultOptions()->getValue(whatOption) == "on")
-        allowTableWindowAdjustments = true;
-      else
-        allowTableWindowAdjustments = false;
+        allowTableWindowAdjustments = (Options::defaultOptions()->getValue(whatOption) == "on");
     }
-  else if (whatOption == "iterative")
+    else if (whatOption == "iterative")
     {
-      if (Options::defaultOptions()->getValue(whatOption) == "on")
-        useIterDeep = true;
-      else
-        useIterDeep = false;
-      //_searchState = DONE_SEARCHING; // This one changes the search in an incompatable fassion.
-      _searchState = BETWEEN_SEARCHES;
+        _useIterDeep = (Options::defaultOptions()->getValue(whatOption) == "on");
+        //_searchState = DONE_SEARCHING; // This one changes the search in an incompatable fassion.
+        _searchState = BETWEEN_SEARCHES;
     }
-  else if (whatOption == "post")
+    else if (whatOption == "post")
     {
-      if (Options::defaultOptions()->getValue(whatOption) == "on")
-        _displayThinking = true;
-      else
-        _displayThinking = false;
+        _displayThinking = (Options::defaultOptions()->getValue(whatOption) == "on");
     }
-  else if (whatOption == "qnull")
+    else if (whatOption == "qnull")
     {
-      if (Options::defaultOptions()->getValue(whatOption) == "on")
-        qnull = true;
-      else
-        qnull = false;
+        qnull = (Options::defaultOptions()->getValue(whatOption) == "on");
     }
-  else if (whatOption == "qhash")
+    else if (whatOption == "qhash")
     {
-      if (Options::defaultOptions()->getValue(whatOption) == "on")
-        qhash = true;
-      else
-        qhash = false;
+        qhash = (Options::defaultOptions()->getValue(whatOption) == "on");
     }
-  else if (whatOption == "computerColor")
-    _searchState = BETWEEN_SEARCHES;
+    else if (whatOption == "computerColor")
+    {
+        _searchState = BETWEEN_SEARCHES;
+    }
 }
 
 

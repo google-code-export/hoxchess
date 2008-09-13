@@ -1,65 +1,79 @@
-#include	"OpeningBook.h"
-#include	"Board.h"
+#include "OpeningBook.h"
+#include "Board.h"
 
-#include	<fstream>
-#include	<iostream>
-#include	<strstream>
-
+#include <fstream>
+#include <iostream>
+#include <strstream>
+#include <ctime>
 
 using namespace std;
 
-void OpeningBook::read(string filename)
+OpeningBook::OpeningBook(std::string filename)
+{ 
+    bookContents = new Book;
+    _read(filename);
+    srand( (unsigned int)time(NULL) );
+}
+
+OpeningBook::~OpeningBook()
 {
-  ifstream	bookFile(filename.c_str(), ios::in);
+    delete bookContents;
+}
 
-  if (!bookFile)
+void
+OpeningBook::_read(std::string filename)
+{
+    ifstream	bookFile(filename.c_str(), ios::in);
+
+    if (!bookFile)
     {
-      cerr << "Can't open " << filename << endl;
-      validBook = false;
-      return;
+        cerr << "Can't open " << filename << endl;
+        validBook = false;
+        return;
     }
 
-  int nline = 0;
-  char buffer[256];
-  bookFile.getline(buffer,255);
-  while (!bookFile.eof())
+    int nline = 0;
+    char buffer[256];
+    bookFile.getline(buffer,255);
+    while (!bookFile.eof())
     {
-      nline++;
-      string line(buffer);
+        nline++;
+        string line(buffer);
 
-      int indexOfColon = line.find(':');
-      if (indexOfColon == string::npos)
+        int indexOfColon = line.find(':');
+        if (indexOfColon == string::npos)
         {
-          cerr << "Illegal book entry at line " << nline << endl;
+            cerr << "Illegal book entry at line " << nline << endl;
         }
-      else
+        else
         {
-          string position = line.substr(0,indexOfColon);
-          string moveTexts = line.substr(indexOfColon+1);
-          moveTexts += " ";
-          istrstream movesStream(moveTexts.c_str(), moveTexts.size());
+            string position = line.substr(0,indexOfColon);
+            string moveTexts = line.substr(indexOfColon+1);
+            moveTexts += " ";
+            istrstream movesStream(moveTexts.c_str(), moveTexts.size());
 
-          string move;
-          vector<u_int16> moves;
-          movesStream >> move;
-          while (!movesStream.eof())
+            string move;
+            vector<u_int16> moves;
+            movesStream >> move;
+            while (!movesStream.eof())
             {
-              u_int16	origin = 0, dest = 0;
-              
-              Move m(move);
-              origin = (u_int16)m.origin(); dest = (u_int16)m.destination();
-              if (origin == 0 && dest == 0);
-              else
+                u_int16	origin = 0, dest = 0;
+
+                Move m(move);
+                origin = (u_int16)m.origin(); dest = (u_int16)m.destination();
+                if (origin == 0 && dest == 0);
+                else
                 {
-                  moves.push_back((origin << 8) | dest);
+                    moves.push_back((origin << 8) | dest);
                 }
-              movesStream >> move;
+                movesStream >> move;
             }
-          bookContents->insert(Book::value_type(position, moves));
+            bookContents->insert(Book::value_type(position, moves));
         }
-      bookFile.getline(buffer,255);
+        bookFile.getline(buffer,255);
     }
-  validBook = true;
+
+    validBook = true;
 }
 
 

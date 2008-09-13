@@ -9,14 +9,13 @@
  * is also the one that will notice and respond when the game has ended.
  */
 
-
 #include	<string>
 #include	<vector>
+#include	<sys/timeb.h>
+
 #include	"Move.h"
 #include	"Options.h"
 #include	"Timer.h"
-
-#include	<sys/timeb.h>
 
 class Board;
 class Evaluator;
@@ -78,7 +77,7 @@ private:
     int         searchMethod; // Tells system which algorithm to use
     bool        allowNull;    // If false then null move will never be tried.
     bool        useMTDF;      // Use the MTD(f) algorithm.
-    bool        useIterDeep;  /* if yes then the search is tried at depths 1-maxPly.
+    bool        _useIterDeep; /* if yes then the search is tried at depths 1-maxPly.
                                * otherwise just maxPly.
                                */
     bool        verifyNull;   // Use verified null-move pruning or standard.
@@ -143,7 +142,7 @@ public:
     std::string variationText(const std::vector<PVEntry>& pv) const;
 
     // OptionObserver requirements
-    void optionChanged(std::string whatOption);
+    void optionChanged(const std::string& whatOption);
 
     // In case compareMoves needs to access 
     friend bool compareMoves(Move& m1, Move &m2);
