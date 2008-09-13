@@ -11,13 +11,10 @@
 class Board;
 class Move;
 
-#include	<map>
-#include	<vector>
-#include	<string>
-#include	<cstdlib>
-#include	<ctime>
+#include <string>
+#include <map>
+#include <vector>
 
-//typedef unsigned int u_int32;
 typedef unsigned short u_int16;
 
 typedef std::vector< u_int16 > BookEntry;
@@ -25,17 +22,18 @@ typedef std::map< std::string, BookEntry > Book;
 
 class OpeningBook
 {
-  Book	*bookContents;
-  bool  validBook;
-  void read(std::string filename);
-  u_int16 selectMove(BookEntry entry);
- public:
-  OpeningBook(std::string filename) { bookContents = new Book; read(filename); srand( (unsigned int)time(NULL) ); }
-  ~OpeningBook() { delete bookContents; }
-  u_int16 getMove(Board *board);
+private:
+    Book*  bookContents;
+    bool   validBook;
 
-  bool operator!() { return validBook; }
-  bool valid() { return validBook; }
+    void   _read(std::string filename);
+
+public:
+    OpeningBook(std::string filename);
+    ~OpeningBook();
+    u_int16 getMove(Board *board);
+
+    bool valid() { return validBook; }
 };
 
 #endif	/* __OPENINGBOOK_H__ */

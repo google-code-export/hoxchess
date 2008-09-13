@@ -10,7 +10,6 @@
 #include	<string>
 #include	<iostream>
 
-
 #include	"Move.h"
 
 typedef enum { BLUE = 0, RED = 8, NOCOLOR = 16} color;
