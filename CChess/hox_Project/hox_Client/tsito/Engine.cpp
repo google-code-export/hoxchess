@@ -26,16 +26,16 @@ Engine::Engine( Board *brd, Lawyer *law )
             , lawyer( law )
 {
     evaluator     = Evaluator::defaultEvaluator();
-    openingBook   = NULL;
+    _openingBook  = NULL;
     transposTable = new TranspositionTable(18);
 
     // Options and their defaults...
-    maxPly            = /* HPHAN: 6 */ 3;
+    maxPly            = /* HPHAN: 6 */ 2;
     quiesc            = false;
     qnull             = false;
     qhash             = true;
-    useOpeningBook    = true;
-    displayThinking   = false;
+    _useOpeningBook   = /* HPHAN: true */ false;
+    _displayThinking  = false;
     searchMethod      = SEARCH_AB;
     verifyNull        = true;
     nullMoveReductionFactor = 3;
@@ -45,21 +45,21 @@ Engine::Engine( Board *brd, Lawyer *law )
     allowTableWindowAdjustments = false;
     useTable          = true;
 
-    searchAborted     = NO_ABORT;
-    searchState       = BETWEEN_SEARCHES;
+    _searchAborted    = NO_ABORT;
+    _searchState      = BETWEEN_SEARCHES;
     Timer::setTimers(0, 0, 0); // Shut off timers by default.
 
     // Register with Options class
     Options::defaultOptions()->addObserver(this);
 
     // Open opening book if ok to do so.
-    if (useOpeningBook)
+    if (_useOpeningBook)
     {
-        openingBook = new OpeningBook( OPENING_BOOK_FILE );
-        if (!openingBook->valid()) // if not a valid book...
+        _openingBook = new OpeningBook( OPENING_BOOK_FILE );
+        if (!_openingBook->valid()) // if not a valid book...
         {
-            delete openingBook;
-            openingBook = NULL;
+            delete _openingBook;
+            _openingBook = NULL;
             cerr << "Can't open my book!\n";
         }
     }
@@ -68,7 +68,7 @@ Engine::Engine( Board *brd, Lawyer *law )
 Engine::~Engine()
 {
     delete transposTable;
-    delete openingBook;
+    delete _openingBook;
 }
 
 // Move sort comparison function and required variables...
@@ -167,89 +167,99 @@ long Engine::mtd(std::vector<PVEntry> &pv, long guess, int depth)
   return g;
 }
 
-long Engine::think()
-  /* Inputs : NONE
-     Outputs: score of primary line and a filled principle variation. */
+/**
+ * Inputs : NONE
+ * Outputs: score of primary line and a filled principle variation.
+ */
+long
+Engine::think()
 {
-  if (searchState == DONE_SEARCHING)
+    if (_searchState == DONE_SEARCHING)
     {
-      cerr << "Shouldn't be happening: think()\n";
-      return 0;
+        cerr << "Shouldn't be happening: think()\n";
+        return 0;
     }
-  // Before we do ANYTHING else, check if the current position is recorded in the opening
-  // database, if so then use the move returned (if legal).
-  myTimer = Timer::timerForColor(board->sideToMove());
-  
-  if (searchState == BETWEEN_SEARCHES)
+
+    myTimer = Timer::timerForColor(board->sideToMove());
+
+    if (_searchState == BETWEEN_SEARCHES)
     {
-      searchState = SEARCHING;
-      principleVariation.clear();
-      //myTimer->startTimer();
-      transposTable->flush();
-      killer1.clear(); killer2.clear();
-      ftime(&startTime);
-      nodeCount = 0;
+        _searchState = SEARCHING;
+        _principleVariation.clear();
+        //myTimer->startTimer();
+        transposTable->flush();
+        killer1.clear();
+        killer2.clear();
+        ftime(&startTime);
+        nodeCount = 0;
     }
-  if (useOpeningBook && openingBook != NULL && openingBook->valid())
+
+    // Before we do ANYTHING else, check if the current position is recorded in the opening
+    // database, if so then use the move returned (if legal).
+    if ( _openingBook != NULL && _openingBook->valid() )
     {
-      unsigned short moveNum = openingBook->getMove(board);
-      if (moveNum)
+        unsigned short moveNum = _openingBook->getMove(board);
+        if (moveNum)
         {
-          Move m((int)(moveNum >> 8), (int)(moveNum & 255));
-          if (!(m.origin() == 0 && m.destination() == 0) && // should never fail
-              lawyer->legalMove(m)) // maybe book file has illegal moves in it.
+            Move m((int)(moveNum >> 8), (int)(moveNum & 255));
+            if (   !(m.origin() == 0 && m.destination() == 0) // should never fail
+                && lawyer->legalMove(m) ) // maybe book file has illegal moves in it.
             {
-              principleVariation.push_back(PVEntry(m,NO_CUTOFF));
-              //myTimer->stopTimer();
-              searchState = DONE_SEARCHING;
-              return evaluator->evaluatePosition(*board, *lawyer);
+                _principleVariation.push_back(PVEntry(m,NO_CUTOFF));
+                //myTimer->stopTimer();
+                _searchState = DONE_SEARCHING;
+                return evaluator->evaluatePosition(*board, *lawyer);
             }
         }
     }
 
-  // clear everything that was set by the previous search
-  // Estemate outcome...evaluate current board.
-  long result = evaluator->evaluatePosition(*board, *lawyer);
+    // Clear everything that was set by the previous search
+    // Estimate outcome...evaluate current board.
+    long result = evaluator->evaluatePosition(*board, *lawyer);
 
-  searchAborted = NO_ABORT;
+    _searchAborted = NO_ABORT;
   
-  for (int i = (useIterDeep ? (principleVariation.size()+1):maxPly);
-       i <= maxPly && !searchAborted;
-       i++)
+    for ( int i = ( useIterDeep ? (_principleVariation.size()+1)
+                                : maxPly );
+              i <= maxPly && !_searchAborted;
+              ++i )
     {
-      vector<PVEntry> iterPV;
-      result = (useMTDF ?
-                mtd((useIterDeep ? iterPV:principleVariation),result,i) :
-                search((useIterDeep ? iterPV:principleVariation), -INFIN,INFIN,0,i));
-      if (!searchAborted && useIterDeep)
-        principleVariation = iterPV;
-      if (displayThinking)
+        vector<PVEntry> iterPV;
+        result = (useMTDF ? mtd((useIterDeep ? iterPV: _principleVariation),result,i)
+                          : search((useIterDeep ? iterPV: _principleVariation), -INFIN,INFIN,0,i));
+        if (!_searchAborted && useIterDeep)
         {
-          struct timeb nowTime;
-          int plyMod = (searchAborted ? -1:0);
-          ftime(&nowTime);
-          cout << (searchAborted ? "*":"") << (i+plyMod) << "\t" << result << "\t" << nodeCount << "\t"
-               << (100*(nowTime.time - startTime.time)) + ((nowTime.millitm - startTime.millitm)/10) << "\t"
-               << variationText(principleVariation) << endl;
-          cout.flush();
+            _principleVariation = iterPV;
+        }
+        if (_displayThinking)
+        {
+            struct timeb nowTime;
+            int plyMod = (_searchAborted ? -1:0);
+            ftime(&nowTime);
+            cout << (_searchAborted ? "*":"") << (i+plyMod) << "\t" << result << "\t" << nodeCount << "\t"
+                 << (100*(nowTime.time - startTime.time)) + ((nowTime.millitm - startTime.millitm)/10) << "\t"
+                 << variationText(_principleVariation) << endl;
+            cout.flush();
         }
     }
-  // We may continue searching if there is data to be read...depends on what we read.
-  if (searchAborted != ABORT_READ) // a) finished, b) timed out - either way we are done.
-    { // Search is completed then.
-      //myTimer->stopTimer();
-      searchState = DONE_SEARCHING;
+
+    // We may continue searching if there is data to be read...depends on what we read.
+    if (_searchAborted != ABORT_READ) // a) finished, b) timed out - either way we are done.
+    {   // Search is completed then.
+        //myTimer->stopTimer();
+        _searchState = DONE_SEARCHING;
     }
   
   return result;
 }
+
 Move Engine::getMove()
 {
-  searchState = BETWEEN_SEARCHES; // 
-  if (principleVariation.size() > 0) // should never not be when called.
-    return principleVariation[0].move;
-  else
-    return Move();
+    _searchState = BETWEEN_SEARCHES;
+    if (_principleVariation.size() > 0) // should never not be when called.
+        return _principleVariation[0].move;
+    else
+        return Move();
 }
 
 void Engine::optionChanged(string whatOption)
@@ -270,11 +280,9 @@ void Engine::optionChanged(string whatOption)
   else if (whatOption == "useOpeningBook")
     {
       if (Options::defaultOptions()->getValue(whatOption) == "n")
-        useOpeningBook = false;
+        _useOpeningBook = false;
       else
-        {
-          useOpeningBook = true;
-        }
+        _useOpeningBook = true;
     }
   else if (whatOption == "search")
     {
@@ -336,15 +344,15 @@ void Engine::optionChanged(string whatOption)
         useIterDeep = true;
       else
         useIterDeep = false;
-      //searchState = DONE_SEARCHING; // This one changes the search in an incompatable fassion.
-      searchState = BETWEEN_SEARCHES;
+      //_searchState = DONE_SEARCHING; // This one changes the search in an incompatable fassion.
+      _searchState = BETWEEN_SEARCHES;
     }
   else if (whatOption == "post")
     {
       if (Options::defaultOptions()->getValue(whatOption) == "on")
-        displayThinking = true;
+        _displayThinking = true;
       else
-        displayThinking = false;
+        _displayThinking = false;
     }
   else if (whatOption == "qnull")
     {
@@ -361,7 +369,7 @@ void Engine::optionChanged(string whatOption)
         qhash = false;
     }
   else if (whatOption == "computerColor")
-    searchState = BETWEEN_SEARCHES;
+    _searchState = BETWEEN_SEARCHES;
 }
 
 
@@ -387,31 +395,28 @@ void Engine::filterOutNonCaptures(list<Move> &moveList)
     moveList = copy; // This will be faster because there will be fewer moves...usually
 }
 
-
-string Engine::variationText(vector<PVEntry> pv)
+std::string
+Engine::variationText(const vector<PVEntry>& pv) const
 {
-  string	var;
+    std::string	var;
 
-  for (vector<PVEntry>::iterator it = pv.begin(); it != pv.end(); it++)
-    var += it->move.getText() + " ";
-  if (pv.size() > 0)
-    switch (pv[pv.size() - 1].cutoff)
-      {
-      case HASH_CUTOFF:
-        var += "{HT}";
-        break;
-      case NULL_CUTOFF:
-        var += "{NM}";
-        break;
-      case MATE_CUTOFF:
-        var += "(MATE}";
-        break;
-      case MISC_CUTOFF:
-        var += "{MC}";
-        break;
-      }
-  
-  return var;
+    for (vector<PVEntry>::const_iterator it = pv.begin(); it != pv.end(); ++it)
+    {
+        var += it->move.getText() + " ";
+    }
+
+    if (pv.size() > 0)
+    {
+        switch (pv[pv.size() - 1].cutoff)
+        {
+          case HASH_CUTOFF:  var += "{HT}";   break;
+          case NULL_CUTOFF:  var += "{NM}";   break;
+          case MATE_CUTOFF:  var += "(MATE}"; break;
+          case MISC_CUTOFF:  var += "{MC}";   break;
+        }
+    }  
+
+    return var;
 }
 
 /* Search algorithms - the basics - all use move ordering */
@@ -436,12 +441,12 @@ long Engine::search(vector<PVEntry> &pv, long alpha, long beta, int ply, int dep
   list<Move>		moveList;
   int			pvPreSize = pv.size();
 
-  if (searchAborted) return 0;
+  if (_searchAborted) return 0;
 
   // Check if we have time left...
   if (!myTimer->haveTimeLeftForMove())
     {
-      searchAborted = ABORT_TIME;
+      _searchAborted = ABORT_TIME;
       return -INFIN;
     }
 
@@ -532,7 +537,7 @@ research: // Goto usually bad, but simplifies the code here.
       value = negaScout(myPV, moveList, alpha, beta, ply, depth, legalonly, nullOk, verify);
       break;
     }
-  if (searchAborted)
+  if (_searchAborted)
     {
       pv.insert(pv.end(), myPV.begin(), myPV.end());
       return value; // Don't want timed out search trees to get into the table.
@@ -581,7 +586,7 @@ long Engine::quiescence(long alpha, long beta, int ply, int depth, bool nullOk)
 
   if (!myTimer->haveTimeLeftForMove())
     {
-      searchAborted = ABORT_TIME;
+      _searchAborted = ABORT_TIME;
       return -INFIN;
     }
 
@@ -640,7 +645,7 @@ long Engine::quiescence(long alpha, long beta, int ply, int depth, bool nullOk)
       value = negaScout(myPV, moveList, alpha, beta, ply, depth, legalonly, nullOk, verify);
       break;
     }
-  if (searchAborted) return value;
+  if (_searchAborted) return value;
   if (value > beta && !myPV.empty())
     newKiller(myPV[0].move, ply);
 
@@ -816,6 +821,6 @@ void Engine::tableSet(int ply, int depth, long alpha, long beta, Move m, long sc
   transposTable->store(storeNode);
 }
 
-void Engine::endSearch() { searchState = DONE_SEARCHING; }
-bool Engine::doneThinking() { return searchState == DONE_SEARCHING; }
-bool Engine::thinking() { return searchState == SEARCHING; }
+void Engine::endSearch()    { _searchState = DONE_SEARCHING; }
+bool Engine::doneThinking() { return _searchState == DONE_SEARCHING; }
+bool Engine::thinking()     { return _searchState == SEARCHING; }

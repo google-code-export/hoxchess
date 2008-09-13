@@ -16,7 +16,7 @@ ostream& operator<<(ostream& out, Move &move)
 {
   return out << move.getText();
 }
-string Move::getText() // Translate into algebraic notation.
+string Move::getText() const // Translate into algebraic notation.
 {
   string moveText;
 

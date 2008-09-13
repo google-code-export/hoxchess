@@ -35,7 +35,7 @@ private:
   void origin(int o) { _origin = o; }
   void destination(int d) { _destination = d; }
   void capturedPiece(unsigned char cP) { _capturedPiece = cP; }
-  std::string getText();
+  std::string getText() const;
   friend std::ostream& operator<<(std::ostream& out, Move &move);
   bool operator==(Move &m2) { return (_origin == m2._origin && _destination == m2._destination); }
 

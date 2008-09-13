@@ -248,7 +248,7 @@ long Evaluator::evaluatePosition(Board &theBoard, Lawyer &lawyer)
   color frend = theBoard.sideToMove();
   color enemy  = frend == RED ? BLUE:RED;
   long total = 0;
-  for (int i = 1; i < 8; i++) // Iterate through piece types...
+  for (int i = 1; i < 8; ++i) // Iterate through piece types...
     {
       // Gather each side's pieces.
       vector<int> friendly   = theBoard.pieces(frend, (piece)i);
@@ -262,10 +262,8 @@ long Evaluator::evaluatePosition(Board &theBoard, Lawyer &lawyer)
     }
 
   // If one side is in check it is a more valuable position.
-  if (lawyer.inCheck(enemy))
-    total += 100;
-  else if (lawyer.inCheck(frend))
-    total -= 100;
+  if      (lawyer.inCheck(enemy))  total += 100;
+  else if (lawyer.inCheck(frend))  total -= 100;
 
   return total;
 }
