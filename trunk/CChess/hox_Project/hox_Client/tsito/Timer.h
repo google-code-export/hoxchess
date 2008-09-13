@@ -13,6 +13,7 @@
 
 class Timer
 {
+private:
   static Timer *_redTimer;
   static Timer *_blueTimer;
 
@@ -28,10 +29,8 @@ class Timer
 
   Timer(int moves, int seconds, int increment);
 
- public:
+public:
   static void setTimers(int moves, int seconds, int increment);
-  static Timer* redTimer()  { return _redTimer; }
-  static Timer* blueTimer() { return _blueTimer; }
   static Timer* timerForColor(color c);
   static void resetTimers() { _redTimer->resetTimer(); _blueTimer->resetTimer(); }
 

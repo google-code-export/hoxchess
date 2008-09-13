@@ -1,34 +1,17 @@
-#include	"Engine.h"
+#include <strstream>
+#include <vector>
+#include <stack>
 
-#include	<strstream>
-#include	<vector>
-#include	<stack>
+#include "Engine.h"
+#include "Board.h"
+#include "Evaluator.h"
+#include "Lawyer.h"
+#include "Move.h"
+#include "Transposition.h"
+#include "OpeningBook.h"
 
 
-#include	"Board.h"
-#include	"Evaluator.h"
-#include	"Lawyer.h"
-#include	"Move.h"
-#include	"Transposition.h"
-#include	"OpeningBook.h"
-// HPHAN #include	"Interface.h"
-
-//#include	<ctime>
-
-//#include	<sys/timeb.h>
-
-#ifdef HAVE_CONFIG_H
-# include	"../config.h"
-#endif
-
-#ifndef BOOKDIR
-# define BOOKDIR "."
-#else
-# ifdef WIN32
-#  undef BOOKDIR
-#  define BOOKDIR "."
-# endif
-#endif
+#define OPENING_BOOK_FILE "book.dat"
 
 /* Engine.cpp (c) Noah Roberts 2003-02-27
  */
@@ -36,59 +19,56 @@ using namespace std;
 
 enum { SEARCH_AB, SEARCH_PV, SEARCH_NS };
 enum { SEARCHING, DONE_SEARCHING, BETWEEN_SEARCHES };
-enum { NO_ABORT = 0, ABORT_TIME, ABORT_READ };
+enum { NO_ABORT, ABORT_TIME, ABORT_READ };
 
-Engine::Engine(Board *brd, Lawyer *law /* HPHAN: , Interface *ifc */)
+Engine::Engine( Board *brd, Lawyer *law )
+            : board( brd)
+            , lawyer( law )
 {
-  // associations...
-  board = brd;
-  lawyer = law;
-  evaluator = Evaluator::defaultEvaluator();
-  openingBook = NULL;
-  transposTable = new TranspositionTable(18);
-  // HPHAN: iface = ifc;
+    evaluator     = Evaluator::defaultEvaluator();
+    openingBook   = NULL;
+    transposTable = new TranspositionTable(18);
 
-  // Options and their defaults...
-  maxPly 		  = /* HPHAN: 6 */ 3;
-  quiesc 		  = false;
-  qnull			  = false;
-  qhash			  = true;
-  useOpeningBook 	  = true;
-  displayThinking 	  = false;
-  searchMethod 		  = SEARCH_AB;
-  verifyNull 		  = true;
-  nullMoveReductionFactor = 3;
-  useMTDF 		  = true;
-  allowNull 		  = true;
-  useIterDeep 		  = true;
-  allowTableWindowAdjustments = false;
-  useTable		  = true;
+    // Options and their defaults...
+    maxPly            = /* HPHAN: 6 */ 3;
+    quiesc            = false;
+    qnull             = false;
+    qhash             = true;
+    useOpeningBook    = true;
+    displayThinking   = false;
+    searchMethod      = SEARCH_AB;
+    verifyNull        = true;
+    nullMoveReductionFactor = 3;
+    useMTDF           = true;
+    allowNull         = true;
+    useIterDeep       = true;
+    allowTableWindowAdjustments = false;
+    useTable          = true;
 
-  searchAborted = NO_ABORT;
-  //continueSearching = true;
-  searchState = BETWEEN_SEARCHES;
-  Timer::setTimers(0, 0, 0); // Shut off timers by default.
+    searchAborted     = NO_ABORT;
+    searchState       = BETWEEN_SEARCHES;
+    Timer::setTimers(0, 0, 0); // Shut off timers by default.
 
-  // Register with Options class
-  Options::defaultOptions()->addObserver(this);
+    // Register with Options class
+    Options::defaultOptions()->addObserver(this);
 
-
-  // Open opening book if ok to do so.
-  if (useOpeningBook && openingBook == NULL)
+    // Open opening book if ok to do so.
+    if (useOpeningBook)
     {
-      openingBook = new OpeningBook(string(BOOKDIR)+"/book.dat");
-      if (!openingBook->valid()) // can't open system book, try working directory
+        openingBook = new OpeningBook( OPENING_BOOK_FILE );
+        if (!openingBook->valid()) // if not a valid book...
         {
-          delete openingBook;
-          openingBook = new OpeningBook("book.dat");
-        }
-      if (!openingBook->valid()) // if it still is not a valid book...
-        {
-          delete openingBook;
-          openingBook = NULL;
-          cerr << "Can't open my book!\n";
+            delete openingBook;
+            openingBook = NULL;
+            cerr << "Can't open my book!\n";
         }
     }
+}
+
+Engine::~Engine()
+{
+    delete transposTable;
+    delete openingBook;
 }
 
 // Move sort comparison function and required variables...
@@ -200,7 +180,6 @@ long Engine::think()
   // database, if so then use the move returned (if legal).
   myTimer = Timer::timerForColor(board->sideToMove());
   
-  //struct timeb startTime;
   if (searchState == BETWEEN_SEARCHES)
     {
       searchState = SEARCHING;
@@ -392,8 +371,6 @@ void Engine::filterOutNonCaptures(list<Move> &moveList)
 
   list<Move> copy;
 
-  //cerr << "FILTERING\n";
-
   // Otherwise only captures.
   for (list<Move>::iterator it = moveList.begin(); it != moveList.end();)
     {
@@ -467,13 +444,7 @@ long Engine::search(vector<PVEntry> &pv, long alpha, long beta, int ply, int dep
       searchAborted = ABORT_TIME;
       return -INFIN;
     }
-#if 0 // HPHAN
-  if (iface->readReady())
-    {
-      searchAborted = ABORT_READ;
-      return -INFIN;
-    }
-#endif
+
   ::priorityTable.clear();
 
   nodeCount++;
@@ -613,13 +584,7 @@ long Engine::quiescence(long alpha, long beta, int ply, int depth, bool nullOk)
       searchAborted = ABORT_TIME;
       return -INFIN;
     }
-#if 0 // HPHAN
-  if (iface->readReady())
-    {
-      searchAborted = ABORT_READ;
-      return -INFIN;
-    }
-#endif
+
   // Look for check on either side and preform appropriate action.
   if (lawyer->inCheck((board->sideToMove() == RED ? BLUE:RED)))
     {

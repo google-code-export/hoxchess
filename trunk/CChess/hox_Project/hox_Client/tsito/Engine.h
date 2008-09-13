@@ -23,9 +23,9 @@ class Evaluator;
 class Lawyer;
 class OpeningBook;
 class TranspositionTable;
-// HPHAN: class Interface;
-//class Move;
+
 enum { NO_CUTOFF, HASH_CUTOFF, NULL_CUTOFF, MATE_CUTOFF, MISC_CUTOFF };
+
 struct PVEntry
 {
   Move move;
@@ -39,122 +39,120 @@ struct PVEntry
 
 class Engine : public OptionsObserver
 {
- private:
-  Board		*board;
-  Evaluator	*evaluator;
-  Lawyer	*lawyer;
-  OpeningBook	*openingBook;
-  // HPHAN: Interface	*iface;
-  TranspositionTable *transposTable;
+private:
+    Board*               board;
+    Lawyer*              lawyer;
+    Evaluator*           evaluator;
+    OpeningBook*         openingBook;
+    TranspositionTable*  transposTable;
 
-  // search result
-  std::vector<PVEntry>	principleVariation;
-  //bool			continueSearching;
-  short			searchState;
+    // search result
+    std::vector<PVEntry> principleVariation;
+    short                searchState;
 
+    // Search information
+    int                  maxPly;  // also user configurable.
+    std::vector<Move>    killer1;
+    std::vector<Move>    killer2;
+    std::vector<Move>    moveSortPriorityTable;
+    int                  nullMoveReductionFactor;
+    short                searchAborted;
 
-  // Search information
-  int			maxPly;  // also user configurable.
-  std::vector<Move>	killer1;
-  std::vector<Move>	killer2;
-  std::vector<Move>	moveSortPriorityTable;
-  int			nullMoveReductionFactor;
-  short			searchAborted;
+    Timer*               myTimer;
 
-  Timer			*myTimer;
+    // Search statistics
+    int                  nodeCount;
+    int                  hashHits;
+    int                  nullCutoffs;
+    struct timeb         startTime;
 
+    // User configurable options
 
-  // Search statistics
-  int		nodeCount;
-  int		hashHits;
-  int		nullCutoffs;
-  struct timeb	startTime;
+    bool        useOpeningBook;
+    bool        displayThinking;
 
-  // User configurable options
-  
-  bool		useOpeningBook;
-  bool		displayThinking;
+    bool        quiesc; // perform quiescence search or not
+    bool        qnull;  // null cutoff in quiescence
+    bool        qhash;  // use table in quiescence
 
-  bool 		quiesc; // perform quiescence search or not
-  bool		qnull;  // null cutoff in quiescence
-  bool		qhash;  // use table in quiescence
+    int         searchMethod; // Tells system which algorithm to use
+    bool        allowNull;    // If false then null move will never be tried.
+    bool        useMTDF;      // Use the MTD(f) algorithm.
+    bool        useIterDeep;  /* if yes then the search is tried at depths 1-maxPly.
+                               * otherwise just maxPly.
+                               */
+    bool        verifyNull;   // Use verified null-move pruning or standard.
 
-  
-  int		searchMethod; // Tells system which algorithm to use
-  bool		allowNull;    // If false then null move will never be tried.
-  bool		useMTDF;      // Use the MTD(f) algorithm.
-  bool		useIterDeep;  // if yes then the search is tried at depths 1-maxPly.
-  			      // otherwise just maxPly.
-  bool		verifyNull;   // Use verified null-move pruning or standard.
-
-  bool		allowTableWindowAdjustments; // If table contains a depth < our target the
+    bool        allowTableWindowAdjustments; // If table contains a depth < our target the
                                              // norm is to adjust the window.  User may
                                              // disable that behaviour.
-  bool		useTable;
+    bool        useTable;
 
-  // Search functions
-  long quiescence(long alpha, long beta, int ply, int depth, bool nullOk = true);
-  void filterOutNonCaptures(std::list<Move> &l);
+private:
 
-  // Search algs...
+    // Search functions
+    long quiescence(long alpha, long beta, int ply, int depth, bool nullOk = true);
+    void filterOutNonCaptures(std::list<Move> &l);
 
-  //long alphaBeta(long alpha, long beta, int ply, int depth);
-  long alphaBeta(std::vector<PVEntry> &pv, std::list<Move> moveList,
+    // Search algs...
+
+    long alphaBeta(std::vector<PVEntry> &pv, std::list<Move> moveList,
                  long alpha, long beta, int ply, int depth,
                  bool legalonly = false, bool nullOk = true, bool verify = true);
-  //long pvSearch(std::vector<PVEntry> &pv, long alpha, long beta, int ply, int depth,
-  //              bool legalonly = false, bool nullOk = true, bool verify = true);
-  long negaScout(std::vector<PVEntry> &pv,  std::list<Move> moveList,
+    //long pvSearch(std::vector<PVEntry> &pv, long alpha, long beta, int ply, int depth,
+    //              bool legalonly = false, bool nullOk = true, bool verify = true);
+    long negaScout(std::vector<PVEntry> &pv,  std::list<Move> moveList,
                  long alpha, long beta, int ply, int depth,
                  bool legalonly = false, bool nullOk = true, bool verify = true);
 
-  // Generic search - calls specific search, will add heuristics here...
-  long search(std::vector<PVEntry> &pv, long alpha, long beta, int ply, int depth,
+    // Generic search - calls specific search, will add heuristics here...
+    long search(std::vector<PVEntry> &pv, long alpha, long beta, int ply, int depth,
               bool legalonly = false, bool nullOk = true, bool verify = true);
 
-  // MTD(f) algorithm...calls search.
-  long mtd(std::vector<PVEntry> &pv, long guess, int depth);
+    // MTD(f) algorithm...calls search.
+    long mtd(std::vector<PVEntry> &pv, long guess, int depth);
 
-  // Support functions...
-  // looks for position in table.
-  bool tableSearch(int ply, int depth, long &alpha, long &beta, Move &m, long &score, bool &nullok);
-  // stores position in table.
-  void tableSet(int ply, int depth, long alpha, long beta, Move m, long score);
-  // looks for killers and alters priority table
-  void setUpKillers(int ply);
-  // Adds killer move at ply
-  void newKiller(Move& theMove, int ply);
- public:
-  Engine(Board *brd, Lawyer *law /* HPHAN: , Interface *ifc */);
+    // Support functions...
 
-  // If board is replaced...
-  void setBoard(Board *brd) { board = brd; }
+    // looks for position in table.
+    bool tableSearch(int ply, int depth, long &alpha, long &beta, Move &m, long &score, bool &nullok);
+    // stores position in table.
+    void tableSet(int ply, int depth, long alpha, long beta, Move m, long score);
+    // looks for killers and alters priority table
+    void setUpKillers(int ply);
+    // Adds killer move at ply
+    void newKiller(Move& theMove, int ply);
 
-  // Tells engine to think...
-  long think();
+public:
+    Engine(Board *brd, Lawyer *law);
+    ~Engine();
 
-  // Tells engine that something happened such that search must be stopped.
-  void endSearch();
-  bool doneThinking();
-  bool thinking();
+    // If board is replaced...
+    void setBoard(Board *brd) { board = brd; }
 
-  // Search information retrieval...
-  Move getMove();
-  std::string variationText(std::vector<PVEntry> pv);
+    // Tells engine to think...
+    long think();
 
-  // OptionObserver requirements
-  void optionChanged(std::string whatOption);
+    // Tells engine that something happened such that search must be stopped.
+    void endSearch();
+    bool doneThinking();
+    bool thinking();
 
-  // In case compareMoves needs to access 
-  friend bool compareMoves(Move& m1, Move &m2);
+    // Search information retrieval...
+    Move getMove();
+    std::string variationText(std::vector<PVEntry> pv);
+
+    // OptionObserver requirements
+    void optionChanged(std::string whatOption);
+
+    // In case compareMoves needs to access 
+    friend bool compareMoves(Move& m1, Move &m2);
 };
 
 /*
  * Move ordering sort predicate used by list to sort moves.
  * Major hackery - would like to get rid of this.
  */
-extern bool compareMoves(Move& m1, Move& m2);
-
-
+bool compareMoves(Move& m1, Move& m2);
 
 #endif /* __ENGINE_H__ */
