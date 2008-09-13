@@ -13,7 +13,6 @@
 #include <vector>
 #include <sys/timeb.h>
 
-#include "Board.h"
 #include "Move.h"
 #include "Options.h"
 #include "Timer.h"
@@ -51,7 +50,7 @@ private:
     short                _searchState;
 
     // Search information
-    int                  maxPly;  // also user configurable.
+    int                  _maxPly;
     std::vector<Move>    killer1;
     std::vector<Move>    killer2;
     std::vector<Move>    _priorityTable;
@@ -80,17 +79,25 @@ private:
     bool        _useQHash;      // use table in quiescence
 
     int         searchMethod; // Tells system which algorithm to use
-    bool        allowNull;    // If false then null move will never be tried.
-    bool        useMTDF;      // Use the MTD(f) algorithm.
-    bool        _useIterDeep; /* if yes then the search is tried at depths 1-maxPly.
-                               * otherwise just maxPly.
-                               */
-    bool        verifyNull;   // Use verified null-move pruning or standard.
+
+    bool        _useMTDF;
+                    /* Use MTD(f) (Memory-enhanced Test Driver) algorithm.
+                     * See: http://en.wikipedia.org/wiki/MTD-f
+                     */
+
+    bool        _useIterDeep;
+                    /* If yes, then the search is tried at depths [1 ... _maxPly].
+                     * otherwise just _maxPly.
+                     * See: http://en.wikipedia.org/wiki/Iterative_deepening_depth-first_search
+                     */
+
+    bool        _allowNull;    // If false then null move will never be tried.
+    bool        _verifyNull;   // Use verified null-move pruning or standard.
 
     bool        allowTableWindowAdjustments; // If table contains a depth < our target the
                                              // norm is to adjust the window.  User may
                                              // disable that behaviour.
-    bool        useTable;
+    bool        _useTable;
 
 private:
 
