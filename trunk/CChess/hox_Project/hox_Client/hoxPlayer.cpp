@@ -25,15 +25,10 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxPlayer.h"
-#include "hoxTable.h"
 #include "hoxConnection.h"
-#include "hoxTableMgr.h"
-#include "hoxPlayerMgr.h"
-#include "hoxUtil.h"
-#include "hoxNetworkAPI.h"
-#include "MyApp.h"
+#include "hoxSite.h"
 
-#include <algorithm>  // std::find
+DEFINE_EVENT_TYPE(hoxEVT_CONNECTION_RESPONSE)
 
 IMPLEMENT_DYNAMIC_CLASS(hoxPlayer, wxEvtHandler)
 

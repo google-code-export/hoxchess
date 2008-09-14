@@ -32,85 +32,184 @@
 IMPLEMENT_DYNAMIC_CLASS(hoxAIPlayer, hoxPlayer)
 
 BEGIN_EVENT_TABLE(hoxAIPlayer, hoxPlayer)
-    // Empty
+    EVT_COMMAND(wxID_ANY, hoxEVT_CONNECTION_RESPONSE, hoxAIPlayer::OnConnectionResponse)
 END_EVENT_TABLE()
 
 //-----------------------------------------------------------------------------
 // hoxAIPlayer
 //-----------------------------------------------------------------------------
 
-hoxAIPlayer::hoxAIPlayer()
-{
-    wxFAIL_MSG( "This default constructor is never meant to be used." );
-}
-
 hoxAIPlayer::hoxAIPlayer( const wxString& name,
                           hoxPlayerType   type,
                           int             score )
             : hoxPlayer( name, type, score )
-            , m_referee( new hoxReferee() )
 { 
     const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
 }
 
-hoxAIPlayer::~hoxAIPlayer() 
+void 
+hoxAIPlayer::StartConnection()
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
+    hoxConnection_APtr connection( new hoxAIConnection( this ) );
+    connection->Start();
+    this->SetConnection( connection );
 }
 
 void 
-hoxAIPlayer::OnRequest_FromTable( hoxRequest_APtr apRequest )
+hoxAIPlayer::OnConnectionResponse( wxCommandEvent& event )
 {
     const char* FNAME = __FUNCTION__;
+    wxLogDebug("%s: ENTER.", FNAME);
 
-    switch ( apRequest->type )
+    const hoxResponse_APtr apResponse( wxDynamicCast(event.GetEventObject(), hoxResponse) );
+
+    const wxString sType = hoxUtil::RequestTypeToString(apResponse->type);
+    const wxString sContent = apResponse->content;
+
+    switch ( apResponse->type )
     {
         case hoxREQUEST_MOVE:
-        {
-            const wxString sMove = apRequest->parameters["move"];
+		{
+            const wxString sMove = sContent;
             wxLogDebug("%s: Received Move [%s].", FNAME, sMove.c_str());
-            hoxMove move = m_referee->StringToMove( sMove );
-            wxASSERT( move.IsValid() );
 
-            hoxGameStatus gameStatus = hoxGAME_STATUS_UNKNOWN;
-            bool bValid = m_referee->ValidateMove( move, gameStatus );
-            wxASSERT( bValid );
-
-            this->OnOpponentMove( move );
-
-            if ( gameStatus == hoxGAME_STATUS_IN_PROGRESS )
-            {
-                hoxMove myNextMove = generateNextMove();
-                wxLogDebug("%s: Generated next Move = [%s].", FNAME, myNextMove.ToString().c_str());
-
-                bValid = m_referee->ValidateMove( myNextMove, gameStatus );
-                wxASSERT( bValid );
-
-                hoxTable_SPtr pTable = this->GetFrontTable();
-                wxASSERT( pTable.get() != NULL );
-                pTable->OnMove_FromNetwork( this, myNextMove.ToString() );
-            }
+            hoxTable_SPtr pTable = this->GetFrontTable();
+            wxASSERT( pTable.get() != NULL );
+            pTable->OnMove_FromNetwork( this, sMove );
             break;
         }
         default:
         {
-            wxLogDebug("%s: Do nothing for other requests [%s].",
-                FNAME, hoxUtil::RequestTypeToString(apRequest->type).c_str());
-            break; // Do nothing for other requests.
+		    wxLogWarning("%s: Failed to handle Request [%s]. Error = [%s].", 
+                FNAME, sType.c_str(), sContent.c_str());
+        }
+    }
+
+    wxLogDebug("%s: END.", FNAME);
+}
+
+
+// ----------------------------------------------------------------------------
+// hoxAIEngine
+// ----------------------------------------------------------------------------
+
+hoxAIEngine::hoxAIEngine( hoxPlayer* player )
+        : wxThread( wxTHREAD_JOINABLE )
+        , m_player( player )
+        , m_shutdownRequested( false )
+        , m_referee( new hoxReferee() )
+{
+}
+
+bool
+hoxAIEngine::AddRequest( hoxRequest_APtr apRequest )
+{
+    const char* FNAME = __FUNCTION__;
+
+    if ( m_shutdownRequested )
+    {
+        wxLogDebug("%s: *WARN* Deny request [%s]. The thread is being shutdown.", 
+            FNAME, hoxUtil::RequestTypeToString(apRequest->type).c_str());
+        return false;
+    }
+
+    m_requests.PushBack( apRequest );
+    m_semRequests.Post();  // Notify...
+	return true;
+}
+
+void*
+hoxAIEngine::Entry()
+{
+    const char* FNAME = __FUNCTION__;
+    hoxRequest_APtr apRequest;
+
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    while (   !m_shutdownRequested
+            && m_semRequests.Wait() == wxSEMA_NO_ERROR )
+    {
+        apRequest = _GetRequest();
+        if ( apRequest.get() == NULL )
+        {
+            wxASSERT_MSG( m_shutdownRequested, "This thread must be shutdowning." );
+            break;  // Exit the thread.
+        }
+        wxLogDebug("%s: Processing request Type = [%s]...", 
+            FNAME, hoxUtil::RequestTypeToString(apRequest->type).c_str());
+
+        this->HandleRequest( apRequest );
+    }
+
+    wxLogDebug("%s: END.", FNAME);
+    return NULL;
+}
+
+void
+hoxAIEngine::HandleRequest( hoxRequest_APtr apRequest )
+{
+    const char* FNAME = __FUNCTION__;
+    const hoxRequestType requestType = apRequest->type;
+
+    switch( requestType )
+    {
+        case hoxREQUEST_MOVE:
+        {
+            return this->HandleRequest_MOVE( apRequest );
+        }
+        default:
+        {
+            wxLogDebug("%s: *WARN* Unsupported Request [%s].", 
+                FNAME, hoxUtil::RequestTypeToString(requestType).c_str());
         }
     }
 }
 
 void
-hoxAIPlayer::OnOpponentMove( const hoxMove& move )
+hoxAIEngine::HandleRequest_MOVE( hoxRequest_APtr apRequest )
+{
+    const char* FNAME = __FUNCTION__;
+
+    const wxString sMove = apRequest->parameters["move"];
+    wxLogDebug("%s: Received Move [%s].", FNAME, sMove.c_str());
+    hoxMove move = m_referee->StringToMove( sMove );
+    wxASSERT( move.IsValid() );
+
+    hoxGameStatus gameStatus = hoxGAME_STATUS_UNKNOWN;
+    bool bValid = m_referee->ValidateMove( move, gameStatus );
+    wxASSERT( bValid );
+
+    this->OnOpponentMove( move );
+
+    if ( gameStatus == hoxGAME_STATUS_IN_PROGRESS )
+    {
+        hoxMove myNextMove = this->GenerateNextMove();
+        wxLogDebug("%s: Generated next Move = [%s].", FNAME, myNextMove.ToString().c_str());
+
+        bValid = m_referee->ValidateMove( myNextMove, gameStatus );
+        wxASSERT( bValid );
+
+        /* Notify the Player. */
+        const hoxRequestType type = apRequest->type;
+        hoxResponse_APtr apResponse( new hoxResponse(type) );
+        wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, type );
+        apResponse->code = hoxRC_OK;
+        apResponse->content = myNextMove.ToString();
+        event.SetEventObject( apResponse.release() );  // Caller will de-allocate.
+        wxPostEvent( m_player, event );
+
+    }
+}
+
+void
+hoxAIEngine::OnOpponentMove( const hoxMove& move )
 {
     // Do nothing.
 }
 
 hoxMove
-hoxAIPlayer::generateNextMove()
+hoxAIEngine::GenerateNextMove()
 {
     const hoxMove invalidMove;  // Returned if no Move can be generated.
 
@@ -136,6 +235,123 @@ hoxAIPlayer::generateNextMove()
     
     const hoxMove nextMove = availableMoves[someNumber];
     return nextMove;
+}
+
+hoxRequest_APtr
+hoxAIEngine::_GetRequest()
+{
+    const char* FNAME = __FUNCTION__;
+
+    hoxRequest_APtr apRequest = m_requests.PopFront();
+    wxCHECK_MSG(apRequest.get() != NULL, apRequest, "At least one request must exist");
+
+    /* Handle SHUTDOWN request here to avoid the possible memory leaks.
+     * The reason is that others (timers, for example) may continue to 
+     * send requests to this thread while this thread is shutdowning it self. 
+     *
+     * NOTE: The SHUTDOWN request is (purposely) handled here inside this function 
+     *       because the "mutex-lock" is still being held.
+     */
+
+    if ( apRequest->type == hoxREQUEST_SHUTDOWN )
+    {
+        wxLogDebug("%s: A SHUTDOWN requested just received.", FNAME);
+        m_shutdownRequested = true;
+    }
+
+    /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     * NOTE: The shutdown-request can come from:
+     *       (1) The code segment ABOVE, or
+     *       (2) It can be triggered from the outside callers
+     *           who could invoke this->Shutdown() to this Thread.
+     * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     */
+
+    if ( m_shutdownRequested )
+    {
+        wxLogDebug("%s: Shutting down this thread...", FNAME);
+        apRequest.reset(); /* Release memory and signal "no more request" ...
+                            * ... to the caller!
+                            */
+    }
+
+    return apRequest;
+}
+
+
+// ----------------------------------------------------------------------------
+// hoxAIConnection
+// ----------------------------------------------------------------------------
+
+IMPLEMENT_DYNAMIC_CLASS(hoxAIConnection, hoxConnection)
+
+hoxAIConnection::hoxAIConnection( hoxPlayer* player )
+        : hoxConnection( player )
+{
+}
+
+void
+hoxAIConnection::Start()
+{
+    this->StartAIEngine();
+}
+
+void
+hoxAIConnection::Shutdown()
+{
+    const char* FNAME = __FUNCTION__;
+
+    //m_shutdownRequested = true;
+
+    wxLogDebug("%s: Request the AI Engine thread to be shutdown...", FNAME);
+    if ( m_aiEngine.get() != NULL )
+    {
+        wxThread::ExitCode exitCode = m_aiEngine->Wait();
+        wxLogDebug("%s: The AI Engine thread shutdown with exit-code = [%d].", FNAME, exitCode);
+    }
+}
+
+bool
+hoxAIConnection::AddRequest( hoxRequest_APtr apRequest )
+{
+    wxCHECK_MSG(m_aiEngine.get() != NULL, false, "AI Engine is not yet created");
+    return m_aiEngine->AddRequest( apRequest );
+}
+
+void
+hoxAIConnection::CreateAIEngine()
+{
+    m_aiEngine.reset( new hoxAIEngine( this->GetPlayer() ) );
+}
+
+void
+hoxAIConnection::StartAIEngine()
+{
+    const char* FNAME = __FUNCTION__;
+    wxLogDebug("%s: ENTER.", FNAME);
+
+    if (    m_aiEngine.get() != NULL 
+         && m_aiEngine->IsRunning() )
+    {
+        wxLogDebug("%s: The AI Engine already started. END.", FNAME);
+        return;
+    }
+
+    /* Create AI Engine thread. */
+
+    wxLogDebug("%s: Create the AI Engine Thread...", FNAME);
+
+    this->CreateAIEngine();
+
+    if ( m_aiEngine->Create() != wxTHREAD_NO_ERROR )
+    {
+        wxLogDebug("%s: *WARN* Failed to create the AI Engine thread.", FNAME);
+        return;
+    }
+    wxASSERT_MSG( !m_aiEngine->IsDetached(), 
+                  "The AI Engine thread must be joinable." );
+
+    m_aiEngine->Run();
 }
 
 /************************* END OF FILE ***************************************/

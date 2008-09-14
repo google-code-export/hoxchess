@@ -32,6 +32,11 @@
 /* Forward declarations */
 class hoxSite;
 
+/* 
+ * Connection event-type for responses.
+ */
+DECLARE_EVENT_TYPE(hoxEVT_CONNECTION_RESPONSE, wxID_ANY)
+
 // ----------------------------------------------------------------------------
 // The Player class
 // ----------------------------------------------------------------------------
@@ -146,9 +151,10 @@ public:
     virtual hoxResult LeaveTable( hoxTable_SPtr pTable );
     virtual hoxResult LeaveAllTables();
 
-protected:
-
+public:
     virtual void StartConnection();
+
+protected:
     virtual void ShutdownConnection();
 
     virtual void AddRequestToConnection( hoxRequest_APtr apRequest );

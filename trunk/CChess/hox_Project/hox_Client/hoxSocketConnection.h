@@ -27,9 +27,7 @@
 #ifndef __INCLUDED_HOX_SOCKET_CONNECTION_H_
 #define __INCLUDED_HOX_SOCKET_CONNECTION_H_
 
-#include <wx/wx.h>
 #include <wx/socket.h>
-#include <boost/shared_ptr.hpp>
 #include "hoxConnection.h"
 #include "hoxTypes.h"
 
@@ -156,23 +154,15 @@ public:
     virtual bool AddRequest( hoxRequest_APtr apRequest );
     virtual bool IsConnected() const;
 
-    /**
-     * Is this Thread being shutdowned by the System.
-     */
-    bool IsBeingShutdowned() const { return m_shutdownRequested; } 
-
 protected:
     virtual void StartWriter();
 
 protected:
     const hoxServerAddress   m_serverAddress;
 
-    bool                     m_shutdownRequested;
-                /* Has a shutdown-request been received? */
-
     hoxSocketWriter_SPtr     m_writer;
-                /* The Reader Thread. 
-                 * This Thread also creates and manages the Writer Thread.
+                /* The Write Thread. 
+                 * This Thread also creates and manages the Reader Thread.
                  */
 
     DECLARE_DYNAMIC_CLASS(hoxSocketConnection)
