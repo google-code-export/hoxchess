@@ -499,18 +499,16 @@ void
 hoxSocketConnection::Start()
 {
     const char* FNAME = __FUNCTION__;
-
     wxLogDebug("%s: ENTER.", FNAME);
 
     this->StartWriter();
-    // *** The Reader thread is managned by the Writer thread.
+    // *** This thread will also create and manage the Reader thread.
 }
 
 void
 hoxSocketConnection::StartWriter()
 {
     const char* FNAME = __FUNCTION__;
-
     wxLogDebug("%s: ENTER.", FNAME);
 
     if (    m_writer.get() != NULL 
@@ -539,8 +537,6 @@ void
 hoxSocketConnection::Shutdown()
 {
     const char* FNAME = __FUNCTION__;
-
-    m_shutdownRequested = true;
 
     wxLogDebug("%s: Request the Writer thread to be shutdowned...", FNAME);
     if ( m_writer.get() != NULL )

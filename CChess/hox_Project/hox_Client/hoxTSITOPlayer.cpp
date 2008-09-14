@@ -36,10 +36,10 @@
 #include "tsito/Engine.h"
 
 //-----------------------------------------------------------------------------
-// hoxTSITOPlayer::TSITO_Engine
+// hoxTSITOEngine::TSITO_Engine
 //-----------------------------------------------------------------------------
 
-class hoxTSITOPlayer::TSITO_Engine
+class hoxTSITOEngine::TSITO_Engine
 {
 public:
     TSITO_Engine( hoxIReferee_SPtr referee )
@@ -140,25 +140,61 @@ hoxTSITOPlayer::hoxTSITOPlayer( const wxString& name,
                                 hoxPlayerType   type,
                                 int             score )
             : hoxAIPlayer( name, type, score )
-            , m_tsito_engine( new TSITO_Engine( m_referee ) )
 { 
 }
 
-hoxTSITOPlayer::~hoxTSITOPlayer()
+void 
+hoxTSITOPlayer::StartConnection()
+{
+    hoxConnection_APtr connection( new hoxTSITOConnection( this ) );
+    connection->Start();
+    this->SetConnection( connection );
+}
+
+
+// ----------------------------------------------------------------------------
+// hoxTSITOEngine
+// ----------------------------------------------------------------------------
+
+hoxTSITOEngine::hoxTSITOEngine( hoxPlayer* player )
+        : hoxAIEngine( player )
+        , m_tsito_engine( new TSITO_Engine( m_referee ) )
+{
+}
+
+hoxTSITOEngine::~hoxTSITOEngine()
 {
     delete m_tsito_engine;
 }
 
 void
-hoxTSITOPlayer::OnOpponentMove( const hoxMove& move )
+hoxTSITOEngine::OnOpponentMove( const hoxMove& move )
 {
     m_tsito_engine->OnHumanMove( move );
 }
 
 hoxMove
-hoxTSITOPlayer::generateNextMove()
+hoxTSITOEngine::GenerateNextMove()
 {
     return m_tsito_engine->generateMove();
+}
+
+
+// ----------------------------------------------------------------------------
+// hoxTSITOConnection
+// ----------------------------------------------------------------------------
+
+IMPLEMENT_DYNAMIC_CLASS(hoxTSITOConnection, hoxAIConnection)
+
+hoxTSITOConnection::hoxTSITOConnection( hoxPlayer* player )
+        : hoxAIConnection( player )
+{
+}
+
+void
+hoxTSITOConnection::CreateAIEngine()
+{
+    m_aiEngine.reset( new hoxTSITOEngine( this->GetPlayer() ) );
 }
 
 /************************* END OF FILE ***************************************/

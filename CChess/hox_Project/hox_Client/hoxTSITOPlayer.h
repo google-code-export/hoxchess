@@ -42,11 +42,30 @@ public:
                     hoxPlayerType   type,
                     int             score );
 
-    virtual ~hoxTSITOPlayer();
+    virtual ~hoxTSITOPlayer() {}
+
+    // **** Override the parent's API ****
+    virtual void StartConnection();
+
+private:
+
+    DECLARE_DYNAMIC_CLASS(hoxTSITOPlayer)
+    DECLARE_EVENT_TABLE()
+};
+
+// ----------------------------------------------------------------------------
+// hoxTSITOEngine
+// ----------------------------------------------------------------------------
+
+class hoxTSITOEngine : public hoxAIEngine
+{
+public:
+    hoxTSITOEngine( hoxPlayer* player );
+    virtual ~hoxTSITOEngine();
 
 protected:
-    virtual void OnOpponentMove( const hoxMove& move );
-    virtual hoxMove generateNextMove();
+    virtual void    OnOpponentMove( const hoxMove& move );
+    virtual hoxMove GenerateNextMove();
 
 private:
     class TSITO_Engine;
@@ -54,10 +73,31 @@ private:
         /* NOTE: I cannot use std::auto_ptr<...> here because
          *       it generates a compiler error
          */
+};
 
+// ----------------------------------------------------------------------------
+// hoxTSITOConnection
+// ----------------------------------------------------------------------------
 
-    DECLARE_DYNAMIC_CLASS(hoxTSITOPlayer)
-    DECLARE_EVENT_TABLE()
+/* Typedef(s) */
+typedef boost::shared_ptr<hoxTSITOEngine> hoxTSITOEngine_SPtr;
+
+/**
+ * The connection to an TSITO AI Engine.
+ */
+class hoxTSITOConnection : public hoxAIConnection
+{
+public:
+    hoxTSITOConnection() {} // DUMMY default constructor required for RTTI info.
+    hoxTSITOConnection( hoxPlayer* player );
+    virtual ~hoxTSITOConnection() {}
+
+protected:
+    virtual void CreateAIEngine();
+
+private:
+
+    DECLARE_DYNAMIC_CLASS(hoxTSITOConnection)
 };
 
 #endif /* __INCLUDED_HOX_TSITO_PLAYER_H__ */

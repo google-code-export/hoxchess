@@ -27,12 +27,7 @@
 #ifndef __INCLUDED_HOX_CONNECTION_H_
 #define __INCLUDED_HOX_CONNECTION_H_
 
-#include <wx/wx.h>
-#include "hoxEnums.h"
 #include "hoxTypes.h"
-
-/* Forward declarations */
-class hoxPlayer;
 
 // ----------------------------------------------------------------------------
 // hoxConnection

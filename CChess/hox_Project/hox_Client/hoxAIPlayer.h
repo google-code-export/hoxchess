@@ -24,11 +24,12 @@
 // Description:     The Artificial Intelligent (AI) Player.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_AI_PLAYER_H_
-#define __INCLUDED_HOX_AI_PLAYER_H_
+#ifndef __INCLUDED_HOX_AI_PLAYER_H__
+#define __INCLUDED_HOX_AI_PLAYER_H__
 
 #include "hoxPlayer.h"
 #include "hoxTypes.h"
+#include "hoxConnection.h"
 
 /**
  * The AI player.
@@ -36,33 +37,101 @@
 class hoxAIPlayer :  public hoxPlayer
 {
 public:
-    hoxAIPlayer(); // DUMMY default constructor required for event handler.
+    hoxAIPlayer() {} // DUMMY default constructor required for event handler.
     hoxAIPlayer( const wxString& name,
                  hoxPlayerType   type,
                  int             score );
 
-    virtual ~hoxAIPlayer();
+    virtual ~hoxAIPlayer() {}
 
-	/*******************************
-     * Table-event handlers
+    // **** Override the parent's API ****
+    virtual void StartConnection();
+
+    /*******************************
+     * Connection-event handlers
      *******************************/
 
-    virtual void OnRequest_FromTable( hoxRequest_APtr apRequest );
+    void OnConnectionResponse( wxCommandEvent& event ); 
 
-protected:
-    virtual void OnOpponentMove( const hoxMove& move );
-    virtual hoxMove generateNextMove();
-
-protected:
-    hoxIReferee_SPtr  m_referee;
-        /* Currently, this is a very simple-minded AI Player
-         * who only selects Moves randomly from the list
-         * of current valid Moves.
-         * This Referee helps to return the list of valid Moves.
-         */
+private:
 
     DECLARE_DYNAMIC_CLASS(hoxAIPlayer)
     DECLARE_EVENT_TABLE()
 };
 
-#endif /* __INCLUDED_HOX_AI_PLAYER_H_ */
+// ----------------------------------------------------------------------------
+// hoxAIEngine
+// ----------------------------------------------------------------------------
+
+class hoxAIEngine : public wxThread
+{
+public:
+    hoxAIEngine( hoxPlayer* player );
+    virtual ~hoxAIEngine() {}
+
+    bool AddRequest( hoxRequest_APtr apRequest );
+
+protected:
+    virtual void* Entry();  // Entry point for the thread
+
+    virtual void HandleRequest( hoxRequest_APtr apRequest );
+    virtual void HandleRequest_MOVE( hoxRequest_APtr apRequest );
+
+    virtual void    OnOpponentMove( const hoxMove& move );
+    virtual hoxMove GenerateNextMove();
+
+private:
+    hoxRequest_APtr _GetRequest();
+
+protected:
+    hoxPlayer*              m_player;
+
+    /* Storage to hold pending outgoing request. */
+    wxSemaphore             m_semRequests;
+    hoxRequestQueue         m_requests;
+
+    bool                    m_shutdownRequested;
+                /* Has a shutdown-request been received? */
+
+    hoxIReferee_SPtr        m_referee;
+        /* Currently, this is a very simple-minded AI Player
+         * who only selects Moves randomly from the list
+         * of current valid Moves.
+         * This Referee helps to return the list of valid Moves.
+         */
+};
+
+// ----------------------------------------------------------------------------
+// hoxAIConnection
+// ----------------------------------------------------------------------------
+
+/* Typedef(s) */
+typedef boost::shared_ptr<hoxAIEngine> hoxAIEngine_SPtr;
+
+/**
+ * The connection to an AI Engine.
+ */
+class hoxAIConnection : public hoxConnection
+{
+public:
+    hoxAIConnection() {} // DUMMY default constructor required for RTTI info.
+    hoxAIConnection( hoxPlayer* player );
+    virtual ~hoxAIConnection() {}
+
+    // **** Override the parent's API ****
+    virtual void Start();
+    virtual void Shutdown();
+    virtual bool AddRequest( hoxRequest_APtr apRequest );
+    virtual bool IsConnected() const { return true; }
+
+protected:
+    virtual void CreateAIEngine();
+    virtual void StartAIEngine();
+
+protected:
+    hoxAIEngine_SPtr  m_aiEngine; // The AI Engine thread.
+
+    DECLARE_DYNAMIC_CLASS(hoxAIConnection)
+};
+
+#endif /* __INCLUDED_HOX_AI_PLAYER_H__ */

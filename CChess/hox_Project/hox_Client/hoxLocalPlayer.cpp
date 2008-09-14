@@ -28,8 +28,6 @@
 #include "hoxUtil.h"
 #include "hoxTable.h"
 
-DEFINE_EVENT_TYPE(hoxEVT_CONNECTION_RESPONSE)
-
 IMPLEMENT_DYNAMIC_CLASS(hoxLocalPlayer, hoxPlayer)
 
 BEGIN_EVENT_TABLE(hoxLocalPlayer, hoxPlayer)
