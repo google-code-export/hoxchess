@@ -2,11 +2,11 @@
  * Options.cpp (c) Noah Roberts 2003-03-01
  */
 
-#include	"Options.h"
-#include	"Timer.h"
+#include "Options.h"
+#include "Timer.h"
 
-#include	<cstring>
-#include	<strstream>
+#include <cstring>
+#include <sstream>  // ... istringstream
 
 using namespace std;
 
@@ -102,7 +102,7 @@ void Options::addObserver(OptionsObserver *observer)
 
 bool Options::isOption(string commandText)
 {
-  istrstream commandInputStream(commandText.c_str(), commandText.size());
+  std::istringstream commandInputStream( commandText );
 
   string command;
   commandInputStream >> command;
@@ -164,7 +164,7 @@ bool Options::isOption(string commandText)
 
 void Options::setOption(string optionText)
 {
-  istrstream optionReader(optionText.c_str(), optionText.size());
+  std::istringstream optionReader( optionText );
 
   string option;
   string value;
