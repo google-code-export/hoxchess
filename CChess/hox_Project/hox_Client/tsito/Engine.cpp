@@ -1,4 +1,3 @@
-#include <strstream>
 #include <cassert>
 
 #include "Board.h"
@@ -288,8 +287,7 @@ Engine::optionChanged(const std::string& whatOption)
     if (whatOption == "searchPly")
     {
         string x = Options::defaultOptions()->getValue(whatOption);
-        istrstream strm((char*)x.c_str(), x.length());
-        strm >> _maxPly;
+        _maxPly = ::atoi( x.c_str() );
     }
     else if (whatOption == "quiescence")
     {
