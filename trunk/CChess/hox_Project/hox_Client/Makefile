@@ -8,8 +8,21 @@ WX_LDLIBS   = `wx-config --libs`
 LDFLAGS     = -pthread
 DEBUGFLAGS  = -g
 
+# TSITO AI Engine source
+TSITO_SRC := \
+	Board.cpp \
+	Engine.cpp \
+	Evaluator.cpp \
+	Lawyer.cpp \
+	Move.cpp \
+	OpeningBook.cpp \
+	Options.cpp \
+	Timer.cpp \
+	Transposition.cpp
+
 # Define our sources and object files
 SOURCES := \
+	$(TSITO_SRC) \
 	hoxBoard.cpp \
 	hoxChesscapeConnection.cpp \
 	hoxChesscapePlayer.cpp \
@@ -32,7 +45,9 @@ SOURCES := \
 	hoxOptionDialog.cpp \
 	hoxTypes.cpp \
 	hoxPlayersUI.cpp \
+	hoxSitesUI.cpp \
 	hoxAIPlayer.cpp \
+	hoxTSITOPlayer.cpp \
 	MyApp.cpp \
 	MyChild.cpp \
 	MyFrame.cpp
@@ -42,7 +57,10 @@ OBJECTS := $(SOURCES:.cpp=.o)
 .cpp.o :
 	$(CXX) $(WX_CXXFLAGS) $(DEBUGFLAGS) -c  -o $@ $<
 
-all: $(PROGRAM)
+all: prepare $(PROGRAM)
+
+prepare:
+	cp tsito/* .
 
 $(PROGRAM): $(OBJECTS)
 	$(CXX) $(LDFLAGS) -o $(PROGRAM) $(OBJECTS) $(WX_LDLIBS)
