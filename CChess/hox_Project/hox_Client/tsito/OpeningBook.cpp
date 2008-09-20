@@ -3,21 +3,21 @@
 
 #include <fstream>
 #include <iostream>
-#include <strstream>
+#include <sstream>  // ... istringstream
 #include <ctime>
 
 using namespace std;
 
 OpeningBook::OpeningBook(std::string filename)
+    : _bookContents( new Book )
 { 
-    bookContents = new Book;
     _read(filename);
     srand( (unsigned int)time(NULL) );
 }
 
 OpeningBook::~OpeningBook()
 {
-    delete bookContents;
+    delete _bookContents;
 }
 
 void
@@ -28,7 +28,7 @@ OpeningBook::_read(std::string filename)
     if (!bookFile)
     {
         cerr << "Can't open " << filename << endl;
-        validBook = false;
+        _validBook = false;
         return;
     }
 
@@ -50,7 +50,7 @@ OpeningBook::_read(std::string filename)
             string position = line.substr(0,indexOfColon);
             string moveTexts = line.substr(indexOfColon+1);
             moveTexts += " ";
-            istrstream movesStream(moveTexts.c_str(), moveTexts.size());
+            std::istringstream movesStream(moveTexts);
 
             string move;
             vector<u_int16> moves;
@@ -68,12 +68,12 @@ OpeningBook::_read(std::string filename)
                 }
                 movesStream >> move;
             }
-            bookContents->insert(Book::value_type(position, moves));
+            _bookContents->insert(Book::value_type(position, moves));
         }
         bookFile.getline(buffer,255);
     }
 
-    validBook = true;
+    _validBook = true;
 }
 
 
@@ -82,8 +82,8 @@ u_int16 OpeningBook::getMove(Board *board)
 {
   u_int16 move = 0;
 
-  Book::iterator it = bookContents->find(board->getPosition());
+  Book::iterator it = _bookContents->find(board->getPosition());
 
-  if (it != bookContents->end()) move = it->second[rand() % it->second.size()];
+  if (it != _bookContents->end()) move = it->second[rand() % it->second.size()];
   return move;
 }

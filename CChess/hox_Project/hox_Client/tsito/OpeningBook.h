@@ -23,8 +23,8 @@ typedef std::map< std::string, BookEntry > Book;
 class OpeningBook
 {
 private:
-    Book*  bookContents;
-    bool   validBook;
+    Book*  _bookContents;
+    bool   _validBook;
 
     void   _read(std::string filename);
 
@@ -33,7 +33,7 @@ public:
     ~OpeningBook();
     u_int16 getMove(Board *board);
 
-    bool valid() { return validBook; }
+    bool valid() { return _validBook; }
 };
 
 #endif	/* __OPENINGBOOK_H__ */
