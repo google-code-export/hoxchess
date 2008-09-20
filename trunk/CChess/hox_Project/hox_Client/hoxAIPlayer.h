@@ -75,12 +75,12 @@ protected:
     virtual void* Entry();  // Entry point for the thread
 
     virtual void HandleRequest( hoxRequest_APtr apRequest );
-    virtual void HandleRequest_MOVE( hoxRequest_APtr apRequest );
 
-    virtual void    OnOpponentMove( const hoxMove& move );
-    virtual hoxMove GenerateNextMove();
+    virtual void    OnOpponentMove( const wxString& sMove );
+    virtual wxString GenerateNextMove();
 
 private:
+    void            _HandleRequest_MOVE( hoxRequest_APtr apRequest );
     hoxRequest_APtr _GetRequest();
 
 protected:
