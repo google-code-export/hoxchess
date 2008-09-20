@@ -22,13 +22,11 @@
 // Created:         09/07/2008
 //
 // Description:     The AI Player based on the open-source Xiangqi Engine
-//                  called TSITO 
+//                  called TSITO written by Noah Roberts
 //                     http://xiangqi-engine.sourceforge.net/tsito.html
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxTSITOPlayer.h"
-#include "hoxUtil.h"
-#include "hoxReferee.h"
 
 #include "tsito/Move.h"
 #include "tsito/Board.h"
@@ -42,8 +40,7 @@
 class hoxTSITOEngine::TSITO_Engine
 {
 public:
-    TSITO_Engine( hoxIReferee_SPtr referee )
-            : m_referee( referee )
+    TSITO_Engine()
     {
         m_board.reset( new Board() );
         m_lawyer.reset( new Lawyer( m_board.get() ) );
@@ -51,70 +48,57 @@ public:
                                     m_lawyer.get() ) );
     }
 
-    void _translate( const hoxMove& hMove,
-                     Move&          tMove)
+    Move _translateStringToMove( const wxString& sMove )
     {
-        char fromX = hMove.piece.position.x;
-        char fromY = hMove.piece.position.y;
-        char toX = hMove.newPosition.x;
-        char toY = hMove.newPosition.y;
+        wxASSERT( sMove.size() == 4 ); // "xyXY"
+        char fromX = sMove[0] - '0';
+        char fromY = sMove[1] - '0';
+        char toX   = sMove[2] - '0';
+        char toY   = sMove[3] - '0';
 
+        Move tMove;
         tMove.origin(     9 * fromY + fromX );
         tMove.destination( 9 * toY + toX );
+        return tMove;
     }
 
-    void _translate( Move&    tMove,
-                     hoxMove& hMove )
+    wxString _translateMoveToString( Move& tMove )
     {
         wxString sMove;
-        sMove.Printf("%d%d%d%d", 
-            tMove.origin() % 9,
-            tMove.origin() / 9,
-            tMove.destination() % 9,
-            tMove.destination() / 9 );
-
-        hMove = m_referee->StringToMove( sMove );
-        wxASSERT( hMove.IsValid() );
+        sMove.Printf("%d%d%d%d", tMove.origin() % 9,
+                                 tMove.origin() / 9,
+                                 tMove.destination() % 9,
+                                 tMove.destination() / 9 );
+        return sMove;
     }
 
-    void OnHumanMove( const hoxMove& move )
+    void OnHumanMove( const wxString& sMove )
     {
-        Move tMove;
-        _translate( move, tMove);
+        Move tMove = _translateStringToMove( sMove );
         m_board->makeMove( tMove);
     }
 
-    hoxMove generateMove()
+    wxString generateMove()
     {
-        hoxMove  hMove;
-        Move     move;
+        wxString sNextMove;
 
         m_engine->think();
 
         if ( m_engine->doneThinking() )
         {
-          move = m_engine->getMove();
+          Move move = m_engine->getMove();
           Move x = Move();
           if (!(move == x))
             {
-              // HPHAN: Timer::timerForColor(board->sideToMove())->stopTimer();
-              // HPHAN: Timer::timerForColor(board->sideToMove())->moveMade();
-              m_board->makeMove(move);
-              // HPHAN: interfce->printBoard(*board);
-              // HPHAN: interfce->printMove(move);
-              // HPHAN: interfce->printPrompt();
-              // HPHAN: Timer::timerForColor(board->sideToMove())->startTimer();
-
-              _translate( move, hMove );
+              m_board->makeMove( move );
+              sNextMove = _translateMoveToString( move );
             }
         }
 
-        return hMove;
+        return sNextMove;
     }
 
 private:
-    hoxIReferee_SPtr    m_referee;
-
     typedef std::auto_ptr<Board>  TSITO_Board_APtr;
     typedef std::auto_ptr<Lawyer> TSITO_Lawyer_APtr;
     typedef std::auto_ptr<Engine> TSITO_Engine_APtr;
@@ -158,7 +142,7 @@ hoxTSITOPlayer::StartConnection()
 
 hoxTSITOEngine::hoxTSITOEngine( hoxPlayer* player )
         : hoxAIEngine( player )
-        , m_tsito_engine( new TSITO_Engine( m_referee ) )
+        , m_tsito_engine( new TSITO_Engine() )
 {
 }
 
@@ -168,12 +152,12 @@ hoxTSITOEngine::~hoxTSITOEngine()
 }
 
 void
-hoxTSITOEngine::OnOpponentMove( const hoxMove& move )
+hoxTSITOEngine::OnOpponentMove( const wxString& sMove )
 {
-    m_tsito_engine->OnHumanMove( move );
+    m_tsito_engine->OnHumanMove( sMove );
 }
 
-hoxMove
+wxString
 hoxTSITOEngine::GenerateNextMove()
 {
     return m_tsito_engine->generateMove();

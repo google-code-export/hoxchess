@@ -64,8 +64,8 @@ public:
     virtual ~hoxTSITOEngine();
 
 protected:
-    virtual void    OnOpponentMove( const hoxMove& move );
-    virtual hoxMove GenerateNextMove();
+    virtual void     OnOpponentMove( const wxString& sMove );
+    virtual wxString GenerateNextMove();
 
 private:
     class TSITO_Engine;

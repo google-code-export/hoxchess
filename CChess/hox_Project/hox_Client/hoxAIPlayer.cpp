@@ -60,7 +60,6 @@ void
 hoxAIPlayer::OnConnectionResponse( wxCommandEvent& event )
 {
     const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
 
     const hoxResponse_APtr apResponse( wxDynamicCast(event.GetEventObject(), hoxResponse) );
 
@@ -85,8 +84,6 @@ hoxAIPlayer::OnConnectionResponse( wxCommandEvent& event )
                 FNAME, sType.c_str(), sContent.c_str());
         }
     }
-
-    wxLogDebug("%s: END.", FNAME);
 }
 
 
@@ -156,7 +153,7 @@ hoxAIEngine::HandleRequest( hoxRequest_APtr apRequest )
     {
         case hoxREQUEST_MOVE:
         {
-            return this->HandleRequest_MOVE( apRequest );
+            return _HandleRequest_MOVE( apRequest );
         }
         default:
         {
@@ -167,7 +164,7 @@ hoxAIEngine::HandleRequest( hoxRequest_APtr apRequest )
 }
 
 void
-hoxAIEngine::HandleRequest_MOVE( hoxRequest_APtr apRequest )
+hoxAIEngine::_HandleRequest_MOVE( hoxRequest_APtr apRequest )
 {
     const char* FNAME = __FUNCTION__;
 
@@ -180,14 +177,15 @@ hoxAIEngine::HandleRequest_MOVE( hoxRequest_APtr apRequest )
     bool bValid = m_referee->ValidateMove( move, gameStatus );
     wxASSERT( bValid );
 
-    this->OnOpponentMove( move );
+    this->OnOpponentMove( sMove );
 
     if ( gameStatus == hoxGAME_STATUS_IN_PROGRESS )
     {
-        hoxMove myNextMove = this->GenerateNextMove();
-        wxLogDebug("%s: Generated next Move = [%s].", FNAME, myNextMove.ToString().c_str());
+        const wxString sNextMove = this->GenerateNextMove();
+        wxLogDebug("%s: Generated next Move = [%s].", FNAME, sNextMove.c_str());
 
-        bValid = m_referee->ValidateMove( myNextMove, gameStatus );
+        hoxMove hNextMove = m_referee->StringToMove( sNextMove );
+        bValid = m_referee->ValidateMove( hNextMove, gameStatus );
         wxASSERT( bValid );
 
         /* Notify the Player. */
@@ -195,24 +193,21 @@ hoxAIEngine::HandleRequest_MOVE( hoxRequest_APtr apRequest )
         hoxResponse_APtr apResponse( new hoxResponse(type) );
         wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, type );
         apResponse->code = hoxRC_OK;
-        apResponse->content = myNextMove.ToString();
+        apResponse->content = sNextMove;
         event.SetEventObject( apResponse.release() );  // Caller will de-allocate.
         wxPostEvent( m_player, event );
-
     }
 }
 
 void
-hoxAIEngine::OnOpponentMove( const hoxMove& move )
+hoxAIEngine::OnOpponentMove( const wxString& sMove )
 {
     // Do nothing.
 }
 
-hoxMove
+wxString
 hoxAIEngine::GenerateNextMove()
 {
-    const hoxMove invalidMove;  // Returned if no Move can be generated.
-
     /* -----------------------------------------------------------
      * Here is a naive algorithm to generate the next Move:
      *
@@ -226,7 +221,7 @@ hoxAIEngine::GenerateNextMove()
     m_referee->GetAvailableNextMoves( availableMoves );
     if ( availableMoves.empty() )
     {
-        return invalidMove;
+        return ""; // NOTE: An invalid move;
     }
 
     ::srand( ::time(NULL) );
@@ -234,7 +229,7 @@ hoxAIEngine::GenerateNextMove()
     someNumber %= availableMoves.size();
     
     const hoxMove nextMove = availableMoves[someNumber];
-    return nextMove;
+    return nextMove.ToString();
 }
 
 hoxRequest_APtr
@@ -301,8 +296,6 @@ hoxAIConnection::Shutdown()
 {
     const char* FNAME = __FUNCTION__;
 
-    //m_shutdownRequested = true;
-
     wxLogDebug("%s: Request the AI Engine thread to be shutdown...", FNAME);
     if ( m_aiEngine.get() != NULL )
     {
@@ -328,7 +321,6 @@ void
 hoxAIConnection::StartAIEngine()
 {
     const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
 
     if (    m_aiEngine.get() != NULL 
          && m_aiEngine->IsRunning() )
