@@ -2,6 +2,13 @@
 
 _All releases can be found from_ [http://code.google.com/p/hoxchess/downloads/list this Downloads page]
 
+  * *Sept 20, 2008* 
+    * Released *HOXChess 0.5.0.0* of the _source_ code and Windows Binary _Installer_
+    * Major changes are:
+      * Added support for _Artificial Intelligent_ (AI) Players
+         * I included the open source Xiangqi AI project called [http://xiangqi-engine.sourceforge.net/tsito.html TSITO Chinese Chess Engine] written by Noah Roberts 
+      * Upgraded to wxWidgets 2.8.8
+
   * *May 03, 2008* 
     * Released *HOXChess 0.4.4.0* of the _source_ code and Windows Binary _Installer_
     * Major changes are:
