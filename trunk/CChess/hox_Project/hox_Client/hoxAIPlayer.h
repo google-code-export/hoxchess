@@ -45,7 +45,7 @@ public:
     virtual ~hoxAIPlayer() {}
 
     // **** Override the parent's API ****
-    virtual void StartConnection();
+    virtual void Start();
 
     /*******************************
      * Connection-event handlers

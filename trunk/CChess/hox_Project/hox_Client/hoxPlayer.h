@@ -152,9 +152,14 @@ public:
     virtual hoxResult LeaveAllTables();
 
 public:
-    virtual void StartConnection();
+    /**
+     * Start a Connection background thread to connect to a remote server
+     * or an AI Engine.
+     */
+    virtual void Start() {}
 
 protected:
+    virtual void StartConnection();
     virtual void ShutdownConnection();
 
     virtual void AddRequestToConnection( hoxRequest_APtr apRequest );

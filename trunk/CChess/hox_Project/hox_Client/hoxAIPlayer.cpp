@@ -49,11 +49,11 @@ hoxAIPlayer::hoxAIPlayer( const wxString& name,
 }
 
 void 
-hoxAIPlayer::StartConnection()
+hoxAIPlayer::Start()
 {
     hoxConnection_APtr connection( new hoxAIConnection( this ) );
-    connection->Start();
     this->SetConnection( connection );
+    this->GetConnection()->Start();
 }
 
 void 

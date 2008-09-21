@@ -25,6 +25,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxChesscapePlayer.h"
+#include "hoxChesscapeConnection.h"
 #include "hoxUtil.h"
 #include "hoxSite.h"
 #include <wx/tokenzr.h>
@@ -65,6 +66,16 @@ hoxChesscapePlayer::~hoxChesscapePlayer()
 {
     const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
+}
+
+void
+hoxChesscapePlayer::Start()
+{
+    hoxSite* site = this->GetSite();
+    wxASSERT_MSG(site, "Site must be set first");
+    hoxServerAddress address = site->GetAddress();
+    hoxConnection_APtr connection( new hoxChesscapeConnection( address, this ) );
+    this->SetConnection( connection );
 }
 
 hoxResult

@@ -43,6 +43,8 @@ public:
 
     virtual ~hoxChesscapePlayer();
 
+    virtual void Start();
+
     /*******************************
      * Override the parent's API
      *******************************/

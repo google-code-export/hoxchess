@@ -25,6 +25,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxMyPlayer.h"
+#include "hoxSocketConnection.h"
 #include "hoxNetworkAPI.h"
 #include "hoxSite.h"
 #include "hoxUtil.h"
@@ -61,6 +62,16 @@ hoxMyPlayer::~hoxMyPlayer()
 {
     const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
+}
+
+void
+hoxMyPlayer::Start()
+{
+    hoxSite* site = this->GetSite();
+    wxASSERT_MSG(site, "Site must be set first");
+    hoxServerAddress address = site->GetAddress();
+    hoxConnection_APtr connection( new hoxSocketConnection( address, this ) );
+    this->SetConnection( connection );
 }
 
 void 
