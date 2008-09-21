@@ -60,7 +60,7 @@ private:
 class hoxTSITOEngine : public hoxAIEngine
 {
 public:
-    hoxTSITOEngine( hoxPlayer* player );
+    hoxTSITOEngine( wxEvtHandler* player );
     virtual ~hoxTSITOEngine();
 
 protected:
@@ -89,7 +89,7 @@ class hoxTSITOConnection : public hoxAIConnection
 {
 public:
     hoxTSITOConnection() {} // DUMMY default constructor required for RTTI info.
-    hoxTSITOConnection( hoxPlayer* player );
+    hoxTSITOConnection( wxEvtHandler* player );
     virtual ~hoxTSITOConnection() {}
 
 protected:

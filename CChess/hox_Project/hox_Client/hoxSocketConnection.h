@@ -46,7 +46,7 @@ typedef boost::shared_ptr<hoxSocketReader> hoxSocketReader_SPtr;
 class hoxSocketWriter : public wxThread
 {
 public:
-    hoxSocketWriter( hoxPlayer*              player,
+    hoxSocketWriter( wxEvtHandler*           player,
                      const hoxServerAddress& serverAddress );
     virtual ~hoxSocketWriter();
 
@@ -74,7 +74,7 @@ private:
                           const wxString& contentStr );
 
 protected:
-    hoxPlayer*              m_player;
+    wxEvtHandler*           m_player;
 
     const hoxServerAddress  m_serverAddress;
 
@@ -106,7 +106,7 @@ protected:
 class hoxSocketReader : public wxThread
 {
 public:
-    hoxSocketReader( hoxPlayer* player );
+    hoxSocketReader( wxEvtHandler* player );
     virtual ~hoxSocketReader();
 
     void SetSocket( wxSocketClient* socket ) { m_socket = socket; }
@@ -119,7 +119,7 @@ protected:
                                 wxString&     result );
 
 protected:
-    hoxPlayer*            m_player;
+    wxEvtHandler*         m_player;
                 /* The player that would receive notifications */
 
     wxSocketClient*       m_socket;
@@ -145,7 +145,7 @@ class hoxSocketConnection : public hoxConnection
 public:
     hoxSocketConnection(); // DUMMY default constructor required for RTTI info.
     hoxSocketConnection( const hoxServerAddress& serverAddress,
-                         hoxPlayer*              player );
+                         wxEvtHandler*           player );
     virtual ~hoxSocketConnection();
 
     // **** Override the parent's API ****

@@ -41,7 +41,7 @@
 class hoxConnection : public wxObject
 {
 public:
-    hoxConnection( hoxPlayer* player = NULL );
+    hoxConnection( wxEvtHandler* player = NULL );
     virtual ~hoxConnection();
 
     virtual void Start() = 0;
@@ -50,10 +50,10 @@ public:
     virtual bool IsConnected() const = 0;
 
 protected:
-    hoxPlayer* GetPlayer() const  { return m_player; }
+    wxEvtHandler* GetPlayer() const  { return m_player; }
 
 private:
-    hoxPlayer*         m_player;
+    wxEvtHandler*       m_player;
                 /* The player that owns this connection */
 
     DECLARE_ABSTRACT_CLASS(hoxConnection)
@@ -69,7 +69,7 @@ private:
 class hoxLocalConnection : public hoxConnection
 {
 public:
-    hoxLocalConnection( hoxPlayer* player = NULL );
+    hoxLocalConnection( wxEvtHandler* player = NULL );
     virtual ~hoxLocalConnection() {}
 
     virtual void Start() {}

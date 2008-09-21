@@ -91,7 +91,7 @@ hoxAIPlayer::OnConnectionResponse( wxCommandEvent& event )
 // hoxAIEngine
 // ----------------------------------------------------------------------------
 
-hoxAIEngine::hoxAIEngine( hoxPlayer* player )
+hoxAIEngine::hoxAIEngine( wxEvtHandler* player )
         : wxThread( wxTHREAD_JOINABLE )
         , m_player( player )
         , m_shutdownRequested( false )
@@ -280,7 +280,7 @@ hoxAIEngine::_GetRequest()
 
 IMPLEMENT_DYNAMIC_CLASS(hoxAIConnection, hoxConnection)
 
-hoxAIConnection::hoxAIConnection( hoxPlayer* player )
+hoxAIConnection::hoxAIConnection( wxEvtHandler* player )
         : hoxConnection( player )
 {
 }

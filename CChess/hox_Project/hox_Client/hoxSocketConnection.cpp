@@ -35,7 +35,7 @@ IMPLEMENT_DYNAMIC_CLASS(hoxSocketConnection, hoxConnection)
 // hoxSocketWriter
 // ----------------------------------------------------------------------------
 
-hoxSocketWriter::hoxSocketWriter( hoxPlayer*              player,
+hoxSocketWriter::hoxSocketWriter( wxEvtHandler*           player,
                                   const hoxServerAddress& serverAddress )
         : wxThread( wxTHREAD_JOINABLE )
         , m_player( player )
@@ -336,7 +336,7 @@ hoxSocketWriter::_WriteLine( wxSocketBase*   sock,
 // hoxSocketReader
 // ----------------------------------------------------------------------------
 
-hoxSocketReader::hoxSocketReader( hoxPlayer* player )
+hoxSocketReader::hoxSocketReader( wxEvtHandler* player )
         : wxThread( wxTHREAD_JOINABLE )
         , m_player( player )
         , m_socket( NULL )
@@ -477,7 +477,7 @@ hoxSocketConnection::hoxSocketConnection()
 }
 
 hoxSocketConnection::hoxSocketConnection( const hoxServerAddress& serverAddress,
-                                          hoxPlayer*              player )
+                                          wxEvtHandler*           player )
         : hoxConnection( player )
         , m_serverAddress( serverAddress )
 {
