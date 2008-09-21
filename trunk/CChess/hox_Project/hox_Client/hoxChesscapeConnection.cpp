@@ -35,7 +35,7 @@ IMPLEMENT_DYNAMIC_CLASS(hoxChesscapeConnection, hoxSocketConnection)
 // hoxChesscapeWriter
 //-----------------------------------------------------------------------------
 
-hoxChesscapeWriter::hoxChesscapeWriter( hoxPlayer*              player,
+hoxChesscapeWriter::hoxChesscapeWriter( wxEvtHandler*           player,
                                         const hoxServerAddress& serverAddress )
             : hoxSocketWriter( player, serverAddress )
 {
@@ -517,7 +517,7 @@ hoxChesscapeWriter::_WriteLine( const wxString& cmdRequest )
 // hoxChesscapeReader
 //-----------------------------------------------------------------------------
 
-hoxChesscapeReader::hoxChesscapeReader( hoxPlayer* player )
+hoxChesscapeReader::hoxChesscapeReader( wxEvtHandler* player )
             : hoxSocketReader( player )
 {
     const char* FNAME = __FUNCTION__;
@@ -594,7 +594,7 @@ hoxChesscapeConnection::hoxChesscapeConnection()
 }
 
 hoxChesscapeConnection::hoxChesscapeConnection( const hoxServerAddress& serverAddress,
-                                                hoxPlayer*              player )
+                                                wxEvtHandler*           player )
         : hoxSocketConnection( serverAddress, player )
 {
     const char* FNAME = __FUNCTION__;

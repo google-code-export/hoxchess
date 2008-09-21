@@ -32,7 +32,7 @@ IMPLEMENT_ABSTRACT_CLASS(hoxConnection, wxObject)
 // hoxConnection
 //-----------------------------------------------------------------------------
 
-hoxConnection::hoxConnection( hoxPlayer* player /* = NULL */ )
+hoxConnection::hoxConnection( wxEvtHandler* player /* = NULL */ )
         : m_player( player )
 {
     const char* FNAME = __FUNCTION__;
@@ -51,7 +51,7 @@ hoxConnection::~hoxConnection()
 
 IMPLEMENT_DYNAMIC_CLASS(hoxLocalConnection, hoxConnection)
 
-hoxLocalConnection::hoxLocalConnection( hoxPlayer* player /* = NULL */ )
+hoxLocalConnection::hoxLocalConnection( wxEvtHandler* player /* = NULL */ )
         : hoxConnection( player )
 {
 }

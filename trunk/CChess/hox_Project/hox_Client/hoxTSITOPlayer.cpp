@@ -140,7 +140,7 @@ hoxTSITOPlayer::StartConnection()
 // hoxTSITOEngine
 // ----------------------------------------------------------------------------
 
-hoxTSITOEngine::hoxTSITOEngine( hoxPlayer* player )
+hoxTSITOEngine::hoxTSITOEngine( wxEvtHandler* player )
         : hoxAIEngine( player )
         , m_tsito_engine( new TSITO_Engine() )
 {
@@ -170,7 +170,7 @@ hoxTSITOEngine::GenerateNextMove()
 
 IMPLEMENT_DYNAMIC_CLASS(hoxTSITOConnection, hoxAIConnection)
 
-hoxTSITOConnection::hoxTSITOConnection( hoxPlayer* player )
+hoxTSITOConnection::hoxTSITOConnection( wxEvtHandler* player )
         : hoxAIConnection( player )
 {
 }

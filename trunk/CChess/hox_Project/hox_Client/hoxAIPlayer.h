@@ -66,7 +66,7 @@ private:
 class hoxAIEngine : public wxThread
 {
 public:
-    hoxAIEngine( hoxPlayer* player );
+    hoxAIEngine( wxEvtHandler* player );
     virtual ~hoxAIEngine() {}
 
     bool AddRequest( hoxRequest_APtr apRequest );
@@ -84,7 +84,7 @@ private:
     hoxRequest_APtr _GetRequest();
 
 protected:
-    hoxPlayer*              m_player;
+    wxEvtHandler*           m_player;
 
     /* Storage to hold pending outgoing request. */
     wxSemaphore             m_semRequests;
@@ -115,7 +115,7 @@ class hoxAIConnection : public hoxConnection
 {
 public:
     hoxAIConnection() {} // DUMMY default constructor required for RTTI info.
-    hoxAIConnection( hoxPlayer* player );
+    hoxAIConnection( wxEvtHandler* player );
     virtual ~hoxAIConnection() {}
 
     // **** Override the parent's API ****

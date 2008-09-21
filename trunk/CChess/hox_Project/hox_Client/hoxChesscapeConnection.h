@@ -36,7 +36,7 @@
 class hoxChesscapeWriter : public hoxSocketWriter
 {
 public:
-    hoxChesscapeWriter( hoxPlayer*              player,
+    hoxChesscapeWriter( wxEvtHandler*           player,
                         const hoxServerAddress& serverAddress );
     virtual ~hoxChesscapeWriter();
 
@@ -77,7 +77,7 @@ private:
 class hoxChesscapeReader : public hoxSocketReader
 {
 public:
-    hoxChesscapeReader( hoxPlayer* player );
+    hoxChesscapeReader( wxEvtHandler* player );
     virtual ~hoxChesscapeReader();
 
 protected:
@@ -103,7 +103,7 @@ class hoxChesscapeConnection : public hoxSocketConnection
 public:
     hoxChesscapeConnection(); // DUMMY default constructor required for RTTI info.
     hoxChesscapeConnection( const hoxServerAddress& serverAddress,
-                            hoxPlayer*              player );
+                            wxEvtHandler*           player );
     virtual ~hoxChesscapeConnection();
 
 protected:
