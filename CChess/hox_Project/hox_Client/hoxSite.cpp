@@ -28,8 +28,6 @@
 #include "MyApp.h"
 #include "hoxUtil.h"
 #include "hoxMyPlayer.h"
-#include "hoxSocketConnection.h"
-#include "hoxChesscapeConnection.h"
 #include "hoxChesscapePlayer.h"
 #include "hoxAIPlayer.h"
 #include "MyFrame.h"
@@ -226,7 +224,7 @@ hoxLocalSite::OnLocalRequest_PRACTICE()
 
     hoxPlayer* pAIPlayer = m_playerMgr.CreateTSITOPlayer( sAIId );
     //hoxPlayer* pAIPlayer = m_playerMgr.CreateAIPlayer( sAIId );
-    pAIPlayer->StartConnection(); // TODO: Need to do something about this!
+    pAIPlayer->Start();
 
     result = pAIPlayer->JoinTableAs( pTable, hoxCOLOR_BLACK );
     wxASSERT( result == hoxRC_OK );
@@ -824,29 +822,22 @@ hoxSiteManager::CreateSite( hoxSiteType             siteType,
 	const char* FNAME = __FUNCTION__;
 	hoxSite*           site = NULL;
     hoxLocalPlayer*    localPlayer = NULL;
-    hoxConnection_APtr connection;
 
 	switch ( siteType )
 	{
 	case hoxSITE_TYPE_LOCAL:
 	{
 		site = new hoxLocalSite( address );
-		localPlayer = site->CreateLocalPlayer( userName );
-        connection.reset( new hoxLocalConnection( localPlayer ) );
 		break;
 	}
 	case hoxSITE_TYPE_REMOTE:
 	{
 		site = new hoxRemoteSite( address );
-		localPlayer = site->CreateLocalPlayer( userName );
-        connection.reset( new hoxSocketConnection( address, localPlayer ) );
 		break;
 	}
 	case hoxSITE_TYPE_CHESSCAPE:
 	{
 		site = new hoxChesscapeSite( address );
-		localPlayer = site->CreateLocalPlayer( userName );
-        connection.reset( new hoxChesscapeConnection( address, localPlayer ) );
 		break;
 	}
 	default:
@@ -854,9 +845,10 @@ hoxSiteManager::CreateSite( hoxSiteType             siteType,
 		return NULL;   // *** Exit with error immediately.
 	}
 
+    localPlayer = site->CreateLocalPlayer( userName );
 	localPlayer->SetPassword( password );
     localPlayer->SetSite( site );
-	localPlayer->SetConnection( connection );
+    localPlayer->Start();
 
     m_sites.push_back( site );
     if ( m_sitesUI != NULL ) m_sitesUI->AddSite( site );

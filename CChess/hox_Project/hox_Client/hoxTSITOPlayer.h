@@ -45,7 +45,7 @@ public:
     virtual ~hoxTSITOPlayer() {}
 
     // **** Override the parent's API ****
-    virtual void StartConnection();
+    virtual void Start();
 
 private:
 

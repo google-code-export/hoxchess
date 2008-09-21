@@ -25,6 +25,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxLocalPlayer.h"
+#include "hoxConnection.h"
 #include "hoxUtil.h"
 #include "hoxTable.h"
 
@@ -56,6 +57,13 @@ hoxLocalPlayer::~hoxLocalPlayer()
 {
     const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
+}
+
+void
+hoxLocalPlayer::Start()
+{
+    hoxConnection_APtr connection( new hoxLocalConnection( this ) );
+    this->SetConnection( connection );
 }
 
 void 

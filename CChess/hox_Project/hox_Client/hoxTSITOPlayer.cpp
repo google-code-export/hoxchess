@@ -128,11 +128,11 @@ hoxTSITOPlayer::hoxTSITOPlayer( const wxString& name,
 }
 
 void 
-hoxTSITOPlayer::StartConnection()
+hoxTSITOPlayer::Start()
 {
     hoxConnection_APtr connection( new hoxTSITOConnection( this ) );
-    connection->Start();
     this->SetConnection( connection );
+    this->GetConnection()->Start();
 }
 
 

@@ -43,6 +43,8 @@ public:
 
     virtual ~hoxLocalPlayer();
 
+    virtual void Start();
+
 public:
 
     /*******************************************
