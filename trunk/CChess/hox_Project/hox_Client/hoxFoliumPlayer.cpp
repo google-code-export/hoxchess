@@ -19,7 +19,7 @@
 
 /////////////////////////////////////////////////////////////////////////////
 // Name:            hoxFoliumPlayer.cpp
-// Created:         11/24/2007
+// Created:         11/24/2008
 //
 // Description:     The AI Player based on the open-source Xiangqi Engine
 //                  called FOLIUM written by Wangmao
@@ -30,64 +30,74 @@
 #include "hoxFoliumPlayer.h"
 #include "folium/engine.h"
 
-unsigned hox2folium(const wxString& sMove)
-{
-    unsigned sx = sMove[0] - '0';
-    unsigned sy = sMove[1] - '0';
-    unsigned dx   = sMove[2] - '0';
-    unsigned dy   = sMove[3] - '0';
-	unsigned src = 89 - (sx + sy * 9);
-	unsigned dst = 89 - (dx + dy * 9);
-	return src | (dst << 7);
-}
-
-wxString folium2hox(unsigned move)
-{
-	unsigned src = 89 - (move & 0x7f);
-	unsigned dst = 89 - ((move >> 7) & 0x7f);
-	unsigned sx = src % 9;
-	unsigned sy = src / 9;
-	unsigned dx = dst % 9;
-	unsigned dy = dst / 9;
-	wxString sMove;
-	sMove.Printf("%d%d%d%d", sx, sy, dx,dy);
-	return sMove;
-}
-
 //-----------------------------------------------------------------------------
-// FoliumEngine
+// FOLIUM_Engine
 //-----------------------------------------------------------------------------
 
-class FoliumEngine
+class hoxFoliumEngine::FOLIUM_Engine
 {
 public:
-    FoliumEngine()
+    FOLIUM_Engine()
     {
-        m_engine = new Engine(XQ("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"), 21);
+        // FEN starting position of the Board.
+        const std::string fenStartPosition = 
+            "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1";
+
+        /* TODO:
+         *    Wangmao, I think we should hide this '21' magic number.
+         *    For a normal developer (who is not familiar with Xiangqi AI),
+         *    we have no idea what this 'hash' value is.
+         */
+        m_engine.reset( new Engine(XQ(fenStartPosition), 21) );
     }
-    ~FoliumEngine()
+
+    unsigned int _hox2folium( const wxString& sMove )
     {
-        delete m_engine;
+        unsigned int sx = sMove[0] - '0';
+        unsigned int sy = sMove[1] - '0';
+        unsigned int dx   = sMove[2] - '0';
+        unsigned int dy   = sMove[3] - '0';
+	    unsigned int src = 89 - (sx + sy * 9);
+	    unsigned int dst = 89 - (dx + dy * 9);
+	    return src | (dst << 7);
     }
-    wxString generateMove()
+
+    wxString _folium2hox( unsigned int move )
     {
-        set<unsigned> ban;
-        unsigned move = m_engine->search(4 /* 7 */, ban);
+	    unsigned int src = 89 - (move & 0x7f);
+	    unsigned int dst = 89 - ((move >> 7) & 0x7f);
+	    unsigned int sx = src % 9;
+	    unsigned int sy = src / 9;
+	    unsigned int dx = dst % 9;
+	    unsigned int dy = dst / 9;
+	    wxString sMove;
+	    sMove.Printf("%d%d%d%d", sx, sy, dx,dy);
+	    return sMove;
+    }
+
+    wxString GenerateMove()
+    {
+        std::set<unsigned int> ban;
+        const int searchDepth = 4 /* 7 */;
+        unsigned int move = m_engine->search( searchDepth, ban );
         wxString sNextMove;
         if (move)
         {
-            sNextMove = folium2hox( move );
+            sNextMove = _folium2hox( move );
             m_engine->make_move(move);
         }
         return sNextMove;
     }
+
     void OnHumanMove( const wxString& sMove )
     {
-        unsigned move = hox2folium(sMove);
+        unsigned int move = _hox2folium(sMove);
         m_engine->make_move(move);
     }
+
 private:
-    Engine* m_engine;
+    typedef std::auto_ptr<Engine> folEngine_APtr;
+    folEngine_APtr   m_engine;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -103,8 +113,8 @@ END_EVENT_TABLE()
 //-----------------------------------------------------------------------------
 
 hoxFoliumPlayer::hoxFoliumPlayer( const wxString& name,
-                                hoxPlayerType   type,
-                                int             score )
+                                  hoxPlayerType   type,
+                                  int             score )
             : hoxAIPlayer( name, type, score )
 {
 }
@@ -124,25 +134,25 @@ hoxFoliumPlayer::Start()
 
 hoxFoliumEngine::hoxFoliumEngine( wxEvtHandler* player )
         : hoxAIEngine( player )
-        , m_engine( new FoliumEngine() )
+        , m_engine( new FOLIUM_Engine() )
 {
 }
 
 hoxFoliumEngine::~hoxFoliumEngine()
 {
-    delete (FoliumEngine*)m_engine;
+    delete m_engine;
 }
 
 void
 hoxFoliumEngine::OnOpponentMove( const wxString& sMove )
 {
-    ((FoliumEngine*)m_engine)->OnHumanMove( sMove );
+    m_engine->OnHumanMove( sMove );
 }
 
 wxString
 hoxFoliumEngine::GenerateNextMove()
 {
-    return ((FoliumEngine*)m_engine)->generateMove();
+    return m_engine->GenerateMove();
 }
 
 

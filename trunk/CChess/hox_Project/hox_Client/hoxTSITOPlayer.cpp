@@ -78,7 +78,7 @@ public:
         m_board->makeMove( tMove);
     }
 
-    wxString generateMove()
+    wxString GenerateMove()
     {
         wxString sNextMove;
 
@@ -160,7 +160,7 @@ hoxTSITOEngine::OnOpponentMove( const wxString& sMove )
 wxString
 hoxTSITOEngine::GenerateNextMove()
 {
-    return m_tsito_engine->generateMove();
+    return m_tsito_engine->GenerateMove();
 }
 
 
