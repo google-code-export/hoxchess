@@ -126,6 +126,15 @@ namespace hoxUtil
      */
     hoxGameStatus StringToGameStatus( const wxString& input );
 
+    /**
+     * API to convert std::string to wxString and vice versa.
+     *
+     * CREDITS:
+     *    http://wiki.wxwidgets.org/Converting_everything_to_and_from_wxString
+     */
+    std::string wx2std( const wxString&    input );
+    wxString    std2wx( const std::string& input );
+
 }
 
 #endif /* __INCLUDED_HOX_UTIL_H_ */

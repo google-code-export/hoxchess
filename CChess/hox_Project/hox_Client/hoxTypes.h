@@ -60,6 +60,15 @@ typedef boost::shared_ptr<hoxIReferee> hoxIReferee_SPtr;
 typedef std::list<wxString> hoxStringList;
 
 /**
+ * A list of key-value pairs (of strings).
+ * The main usage is to contain parameters of a Request
+ * or of a Response that is exchanged between
+ *   (1) Client / Server
+ *   (2) Main thread / Secondary threads.
+ */
+typedef std::map<const wxString, wxString> hoxParameters;
+
+/**
  * Representing a piece's position.
  */
 class hoxPosition
@@ -224,10 +233,8 @@ typedef std::list<hoxNetworkTableInfo> hoxNetworkTableInfoList;
 class hoxCommand : public wxObject
 {
 public:
-    typedef std::map<const wxString, wxString> Parameters;
-
     hoxRequestType type;
-    Parameters     parameters;
+    hoxParameters  parameters;
 
     hoxCommand( hoxRequestType t = hoxREQUEST_UNKNOWN ) : type( t ) {}
 };
@@ -237,7 +244,7 @@ class hoxRequest : public wxObject
 public:
     hoxRequestType  type;
     wxEvtHandler*   sender;
-	hoxCommand::Parameters parameters;
+	hoxParameters   parameters;
 
     hoxRequest() : type( hoxREQUEST_UNKNOWN )
                  , sender( NULL ) {}

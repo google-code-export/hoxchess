@@ -37,7 +37,7 @@ hoxResult
 hoxNetworkAPI::ParseCommand( const wxString& commandStr, 
                              hoxCommand&     command )
 {
-    const char* FNAME = "hoxNetworkAPI::ParseCommand";
+    const char* FNAME = __FUNCTION__;
 
     wxStringTokenizer tkz( commandStr, "&" );
 
@@ -81,7 +81,7 @@ hoxResult
 hoxNetworkAPI::ParseOneNetworkTable( const wxString&      tableStr,
                                      hoxNetworkTableInfo &tableInfo )
 {
-    const char* FNAME = "hoxNetworkAPI::ParseOneNetworkTable";
+    const char* FNAME = __FUNCTION__;
     hoxResult  result = hoxRC_ERR;
 
     wxLogDebug("%s: ENTER.", FNAME);
@@ -152,7 +152,7 @@ hoxResult
 hoxNetworkAPI::WriteLine( wxSocketBase*   sock,
                           const wxString& message )
 {
-    const char* FNAME = "hoxNetworkAPI::WriteLine";
+    const char* FNAME = __FUNCTION__;
     hoxResult      result = hoxRC_ERR;
     wxUint32       nWrite;
 

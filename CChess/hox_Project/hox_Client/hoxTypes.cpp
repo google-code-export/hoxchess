@@ -75,9 +75,9 @@ hoxRequest::ToString() const
 
 	result += "op=" + hoxUtil::RequestTypeToString( this->type );
 
-	for ( hoxCommand::Parameters::const_iterator it = this->parameters.begin();
-		                                         it != this->parameters.end();
-                                               ++it )
+	for ( hoxParameters::const_iterator it = this->parameters.begin();
+		                                it != this->parameters.end();
+                                      ++it )
 	{
 		result += "&" + it->first + "=" + it->second;
 	}
