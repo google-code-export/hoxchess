@@ -222,7 +222,8 @@ hoxLocalSite::OnLocalRequest_PRACTICE()
     result = m_player->JoinTableAs( pTable, hoxCOLOR_RED );
     wxASSERT( result == hoxRC_OK );
 
-    hoxPlayer* pAIPlayer = m_playerMgr.CreateTSITOPlayer( sAIId );
+    hoxPlayer* pAIPlayer = m_playerMgr.CreateFoliumPlayer( sAIId );
+    //hoxPlayer* pAIPlayer = m_playerMgr.CreateTSITOPlayer( sAIId );
     //hoxPlayer* pAIPlayer = m_playerMgr.CreateAIPlayer( sAIId );
     pAIPlayer->Start();
 
