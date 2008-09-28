@@ -25,14 +25,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "MyApp.h"
-#include "MyFrame.h"
-#include "hoxEnums.h"
 #include "hoxLog.h"
-#include "hoxPlayer.h"
-#include "hoxTable.h"
-#include "hoxPlayerMgr.h"
-#include "hoxTableMgr.h"
-#include "hoxUtil.h"
 
 #include <wx/socket.h>
 

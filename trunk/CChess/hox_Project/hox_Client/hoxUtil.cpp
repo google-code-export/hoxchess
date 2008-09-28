@@ -402,4 +402,18 @@ hoxUtil::StringToGameStatus( const wxString& input )
     return hoxGAME_STATUS_UNKNOWN;
 }
 
+std::string
+hoxUtil::wx2std( const wxString& input )
+{
+    // --- wxString ==> std::string
+    return std::string( input.mb_str() );
+}
+
+wxString
+hoxUtil::std2wx( const std::string& input )
+{
+    // --- std::string ==> wxString
+    return wxString( input.c_str(), wxConvUTF8 );
+}
+
 /************************* END OF FILE ***************************************/
