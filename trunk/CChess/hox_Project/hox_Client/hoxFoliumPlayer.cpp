@@ -18,167 +18,149 @@
  ***************************************************************************/
 
 /////////////////////////////////////////////////////////////////////////////
-// Name:            hoxTSITOPlayer.cpp
-// Created:         09/07/2008
+// Name:            hoxFoliumPlayer.cpp
+// Created:         11/24/2007
 //
 // Description:     The AI Player based on the open-source Xiangqi Engine
-//                  called TSITO written by Noah Roberts
-//                     http://xiangqi-engine.sourceforge.net/tsito.html
+//                  called FOLIUM written by Wangmao
+//                  (username is 'lwm3751' under Google Code)
+//                     http://folium.googlecode.com
 /////////////////////////////////////////////////////////////////////////////
 
-#include "hoxTSITOPlayer.h"
+#include "hoxFoliumPlayer.h"
+#include "folium/engine.h"
 
-#include "tsito/Move.h"
-#include "tsito/Board.h"
-#include "tsito/Lawyer.h"
-#include "tsito/tsiEngine.h"
+unsigned hox2folium(const wxString& sMove)
+{
+    unsigned sx = sMove[0] - '0';
+    unsigned sy = sMove[1] - '0';
+    unsigned dx   = sMove[2] - '0';
+    unsigned dy   = sMove[3] - '0';
+	unsigned src = 89 - (sx + sy * 9);
+	unsigned dst = 89 - (dx + dy * 9);
+	return src | (dst << 7);
+}
+
+wxString folium2hox(unsigned move)
+{
+	unsigned src = 89 - (move & 0x7f);
+	unsigned dst = 89 - ((move >> 7) & 0x7f);
+	unsigned sx = src % 9;
+	unsigned sy = src / 9;
+	unsigned dx = dst % 9;
+	unsigned dy = dst / 9;
+	wxString sMove;
+	sMove.Printf("%d%d%d%d", sx, sy, dx,dy);
+	return sMove;
+}
 
 //-----------------------------------------------------------------------------
-// hoxTSITOEngine::TSITO_Engine
+// FoliumEngine
 //-----------------------------------------------------------------------------
 
-class hoxTSITOEngine::TSITO_Engine
+class FoliumEngine
 {
 public:
-    TSITO_Engine()
+    FoliumEngine()
     {
-        m_board.reset( new Board() );
-        m_lawyer.reset( new Lawyer( m_board.get() ) );
-        m_engine.reset( new tsiEngine( m_board.get(),
-                                    m_lawyer.get() ) );
+        m_engine = new Engine(XQ("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"), 21);
     }
-
-    Move _translateStringToMove( const wxString& sMove )
+    ~FoliumEngine()
     {
-        wxASSERT( sMove.size() == 4 ); // "xyXY"
-        char fromX = sMove[0] - '0';
-        char fromY = sMove[1] - '0';
-        char toX   = sMove[2] - '0';
-        char toY   = sMove[3] - '0';
-
-        Move tMove;
-        tMove.origin(     9 * fromY + fromX );
-        tMove.destination( 9 * toY + toX );
-        return tMove;
+        delete m_engine;
     }
-
-    wxString _translateMoveToString( Move& tMove )
-    {
-        wxString sMove;
-        sMove.Printf("%d%d%d%d", tMove.origin() % 9,
-                                 tMove.origin() / 9,
-                                 tMove.destination() % 9,
-                                 tMove.destination() / 9 );
-        return sMove;
-    }
-
-    void OnHumanMove( const wxString& sMove )
-    {
-        Move tMove = _translateStringToMove( sMove );
-        m_board->makeMove( tMove);
-    }
-
     wxString generateMove()
     {
+        set<unsigned> ban;
+        unsigned move = m_engine->search(4 /* 7 */, ban);
         wxString sNextMove;
-
-        m_engine->think();
-
-        if ( m_engine->doneThinking() )
+        if (move)
         {
-          Move move = m_engine->getMove();
-          Move x = Move();
-          if (!(move == x))
-            {
-              m_board->makeMove( move );
-              sNextMove = _translateMoveToString( move );
-            }
+            sNextMove = folium2hox( move );
+            m_engine->make_move(move);
         }
-
         return sNextMove;
     }
-
+    void OnHumanMove( const wxString& sMove )
+    {
+        unsigned move = hox2folium(sMove);
+        m_engine->make_move(move);
+    }
 private:
-    typedef std::auto_ptr<Board>  TSITO_Board_APtr;
-    typedef std::auto_ptr<Lawyer> TSITO_Lawyer_APtr;
-    typedef std::auto_ptr<tsiEngine> TSITO_Engine_APtr;
-
-    TSITO_Board_APtr    m_board;
-    TSITO_Lawyer_APtr   m_lawyer;
-    TSITO_Engine_APtr   m_engine;
+    Engine* m_engine;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-IMPLEMENT_DYNAMIC_CLASS(hoxTSITOPlayer, hoxAIPlayer)
+IMPLEMENT_DYNAMIC_CLASS(hoxFoliumPlayer, hoxAIPlayer)
 
-BEGIN_EVENT_TABLE(hoxTSITOPlayer, hoxAIPlayer)
+BEGIN_EVENT_TABLE(hoxFoliumPlayer, hoxAIPlayer)
     // Empty
 END_EVENT_TABLE()
 
 //-----------------------------------------------------------------------------
-// hoxTSITOPlayer
+// hoxFoliumPlayer
 //-----------------------------------------------------------------------------
 
-hoxTSITOPlayer::hoxTSITOPlayer( const wxString& name,
+hoxFoliumPlayer::hoxFoliumPlayer( const wxString& name,
                                 hoxPlayerType   type,
                                 int             score )
             : hoxAIPlayer( name, type, score )
-{ 
+{
 }
 
-void 
-hoxTSITOPlayer::Start()
+void
+hoxFoliumPlayer::Start()
 {
-    hoxConnection_APtr connection( new hoxTSITOConnection( this ) );
+    hoxConnection_APtr connection( new hoxFoliumConnection( this ) );
     this->SetConnection( connection );
     this->GetConnection()->Start();
 }
 
 
 // ----------------------------------------------------------------------------
-// hoxTSITOEngine
+// hoxFoliumEngine
 // ----------------------------------------------------------------------------
 
-hoxTSITOEngine::hoxTSITOEngine( wxEvtHandler* player )
+hoxFoliumEngine::hoxFoliumEngine( wxEvtHandler* player )
         : hoxAIEngine( player )
-        , m_tsito_engine( new TSITO_Engine() )
+        , m_engine( new FoliumEngine() )
 {
 }
 
-hoxTSITOEngine::~hoxTSITOEngine()
+hoxFoliumEngine::~hoxFoliumEngine()
 {
-    delete m_tsito_engine;
+    delete (FoliumEngine*)m_engine;
 }
 
 void
-hoxTSITOEngine::OnOpponentMove( const wxString& sMove )
+hoxFoliumEngine::OnOpponentMove( const wxString& sMove )
 {
-    m_tsito_engine->OnHumanMove( sMove );
+    ((FoliumEngine*)m_engine)->OnHumanMove( sMove );
 }
 
 wxString
-hoxTSITOEngine::GenerateNextMove()
+hoxFoliumEngine::GenerateNextMove()
 {
-    return m_tsito_engine->generateMove();
+    return ((FoliumEngine*)m_engine)->generateMove();
 }
 
 
 // ----------------------------------------------------------------------------
-// hoxTSITOConnection
+// hoxFoliumConnection
 // ----------------------------------------------------------------------------
 
-IMPLEMENT_DYNAMIC_CLASS(hoxTSITOConnection, hoxAIConnection)
+IMPLEMENT_DYNAMIC_CLASS(hoxFoliumConnection, hoxAIConnection)
 
-hoxTSITOConnection::hoxTSITOConnection( wxEvtHandler* player )
+hoxFoliumConnection::hoxFoliumConnection( wxEvtHandler* player )
         : hoxAIConnection( player )
 {
 }
 
 void
-hoxTSITOConnection::CreateAIEngine()
+hoxFoliumConnection::CreateAIEngine()
 {
-    m_aiEngine.reset( new hoxTSITOEngine( this->GetPlayer() ) );
+    m_aiEngine.reset( new hoxFoliumEngine( this->GetPlayer() ) );
 }
 
 /************************* END OF FILE ***************************************/

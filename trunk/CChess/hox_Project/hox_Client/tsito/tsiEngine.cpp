@@ -1,7 +1,7 @@
 #include <cassert>
 
 #include "Board.h"
-#include "Engine.h"
+#include "tsiEngine.h"
 #include "Evaluator.h"
 #include "Lawyer.h"
 #include "Transposition.h"
@@ -18,7 +18,7 @@ enum { SEARCH_AB, SEARCH_PV, SEARCH_NS };
 enum { SEARCHING, DONE_SEARCHING, BETWEEN_SEARCHES };
 enum { NO_ABORT=0, ABORT_TIME, ABORT_READ };
 
-Engine::Engine( Board *brd, Lawyer *law )
+tsiEngine::tsiEngine( Board *brd, Lawyer *law )
             : board( brd)
             , lawyer( law )
 {
@@ -61,7 +61,7 @@ Engine::Engine( Board *brd, Lawyer *law )
     }
 }
 
-Engine::~Engine()
+tsiEngine::~tsiEngine()
 {
     delete _transposTable;
     delete _openingBook;
@@ -130,7 +130,7 @@ CompareMovesInBoard::operator()(const Move& m1, const Move& m2)
 
 // Adds killer move to the queue.
 void
-Engine::newKiller(Move& theMove, int ply)
+tsiEngine::newKiller(Move& theMove, int ply)
 {
     Move temp;
     if (killer1.size() > (size_t) ply)
@@ -156,7 +156,7 @@ Engine::newKiller(Move& theMove, int ply)
  *       this algorithm.  Therefore, null move will not be used when using mtd.
  */
 long
-Engine::mtd( std::vector<PVEntry> &pv, long guess, int depth )
+tsiEngine::mtd( std::vector<PVEntry> &pv, long guess, int depth )
 {
   long g = guess;
   long upperbound = INFIN;
@@ -191,7 +191,7 @@ Engine::mtd( std::vector<PVEntry> &pv, long guess, int depth )
  * Outputs: score of primary line and a filled principle variation.
  */
 long
-Engine::think()
+tsiEngine::think()
 {
     if (_searchState == DONE_SEARCHING)
     {
@@ -273,7 +273,7 @@ Engine::think()
 }
 
 Move
-Engine::getMove()
+tsiEngine::getMove()
 {
     _searchState = BETWEEN_SEARCHES;
     return ( _principleVariation.size() > 0 // should never not be when called.
@@ -282,7 +282,7 @@ Engine::getMove()
 }
 
 void
-Engine::optionChanged(const std::string& whatOption)
+tsiEngine::optionChanged(const std::string& whatOption)
 {
     if (whatOption == "searchPly")
     {
@@ -367,7 +367,7 @@ Engine::optionChanged(const std::string& whatOption)
 }
 
 
-void Engine::filterOutNonCaptures(list<Move> &moveList)
+void tsiEngine::filterOutNonCaptures(list<Move> &moveList)
 {
   if (lawyer->inCheck()) return; // In check positions we want to look at all legal moves.
 
@@ -390,7 +390,7 @@ void Engine::filterOutNonCaptures(list<Move> &moveList)
 }
 
 std::string
-Engine::variationText(const vector<PVEntry>& pv) const
+tsiEngine::variationText(const vector<PVEntry>& pv) const
 {
     std::string	var;
 
@@ -416,7 +416,7 @@ Engine::variationText(const vector<PVEntry>& pv) const
 /* Search algorithms - the basics - all use move ordering */
 
 
-long Engine::search(vector<PVEntry> &pv, long alpha, long beta, int ply, int depth,
+long tsiEngine::search(vector<PVEntry> &pv, long alpha, long beta, int ply, int depth,
                     bool legalonly, bool nullOk, bool verify)
   /* Inputs : alpha (lower bound), beta (upper bound), ply (depth so far),
               depth (target depth), legalonly (only generate legal moves - expensive),
@@ -560,7 +560,7 @@ research: // Goto usually bad, but simplifies the code here.
 }
 
 // Quescence version of search - enough is altered to warrent a different method.
-long Engine::quiescence(long alpha, long beta, int ply, int depth, bool nullOk)
+long tsiEngine::quiescence(long alpha, long beta, int ply, int depth, bool nullOk)
     /* Inputs : alpha, beta, ply, depth, nullOk
        Outputs: score.
 
@@ -649,7 +649,7 @@ long Engine::quiescence(long alpha, long beta, int ply, int depth, bool nullOk)
 }
 
 // Traditional AlphaBeta Search...
-long Engine::alphaBeta(vector<PVEntry> &pv, list<Move> moveList, long alpha, long beta,
+long tsiEngine::alphaBeta(vector<PVEntry> &pv, list<Move> moveList, long alpha, long beta,
                        int ply, int depth, bool legalonly, bool nullOk,
                        bool verify)
   /* Inputs : moveList (list of moves to search), alpha (lower bound), beta (upper),
@@ -701,7 +701,7 @@ long Engine::alphaBeta(vector<PVEntry> &pv, list<Move> moveList, long alpha, lon
 // window and then the rest with 0 width windows just to prove the first was the best.
 // If the first is not the best then we research the one that gave us a better score
 // with window between beta and the returned score to find a true value.
-long Engine::negaScout(std::vector<PVEntry> &pv,  std::list<Move> moveList,
+long tsiEngine::negaScout(std::vector<PVEntry> &pv,  std::list<Move> moveList,
                        long alpha, long beta, int ply, int depth,
                        bool legalonly, bool nullOk, bool verify)
   /* Inputs : moveList (list of moves to search), alpha (lower bound), beta (upper),
@@ -748,7 +748,7 @@ long Engine::negaScout(std::vector<PVEntry> &pv,  std::list<Move> moveList,
 }
 
 void
-Engine::setUpKillers(int ply)
+tsiEngine::setUpKillers(int ply)
 {
     if (killer1.size() > (size_t) (ply-1))
         _priorityTable.push_back(killer1[ply-1]);
@@ -759,7 +759,7 @@ Engine::setUpKillers(int ply)
 
 
 // looks for position in table.
-bool Engine::tableSearch(int ply, int depth, long &alpha, long &beta, Move &m, long &score,
+bool tsiEngine::tableSearch(int ply, int depth, long &alpha, long &beta, Move &m, long &score,
                          bool &nullok)
 {
   if (!_useTable) return false;
@@ -799,7 +799,7 @@ bool Engine::tableSearch(int ply, int depth, long &alpha, long &beta, Move &m, l
 }
 
 // stores position in table.
-void Engine::tableSet(int ply, int depth, long alpha, long beta, Move m, long score)
+void tsiEngine::tableSet(int ply, int depth, long alpha, long beta, Move m, long score)
 {
   if (!_useTable) return;
   TNode	storeNode(board);
@@ -817,8 +817,8 @@ void Engine::tableSet(int ply, int depth, long alpha, long beta, Move m, long sc
   _transposTable->store(storeNode);
 }
 
-void Engine::endSearch()    { _searchState = DONE_SEARCHING; }
-bool Engine::doneThinking() { return _searchState == DONE_SEARCHING; }
-bool Engine::thinking()     { return _searchState == SEARCHING; }
+void tsiEngine::endSearch()    { _searchState = DONE_SEARCHING; }
+bool tsiEngine::doneThinking() { return _searchState == DONE_SEARCHING; }
+bool tsiEngine::thinking()     { return _searchState == SEARCHING; }
 
 ////////////////////////////////// END OF FILE ////////////////////////////

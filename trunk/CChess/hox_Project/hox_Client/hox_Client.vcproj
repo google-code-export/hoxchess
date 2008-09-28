@@ -197,6 +197,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hoxFoliumPlayer.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\hoxLocalPlayer.cpp"
 				>
 			</File>
@@ -323,6 +327,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hoxFoliumPlayer.h"
+				>
+			</File>
+			<File
 				RelativePath=".\hoxIReferee.h"
 				>
 			</File>
@@ -441,14 +449,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\tsito\Engine.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\tsito\Engine.h"
-				>
-			</File>
-			<File
 				RelativePath=".\tsito\Evaluator.cpp"
 				>
 			</File>
@@ -506,6 +506,110 @@
 			</File>
 			<File
 				RelativePath=".\tsito\Transposition.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tsito\tsiEngine.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tsito\tsiEngine.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="folium"
+			>
+			<File
+				RelativePath=".\folium\bitmap.h"
+				>
+			</File>
+			<File
+				RelativePath=".\folium\bitmap_data.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\folium\defines.h"
+				>
+			</File>
+			<File
+				RelativePath=".\folium\engine.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\folium\engine.h"
+				>
+			</File>
+			<File
+				RelativePath=".\folium\engine_data.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\folium\engine_data.h"
+				>
+			</File>
+			<File
+				RelativePath=".\folium\generator.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\folium\generator.h"
+				>
+			</File>
+			<File
+				RelativePath=".\folium\hash.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\folium\hash.h"
+				>
+			</File>
+			<File
+				RelativePath=".\folium\history.h"
+				>
+			</File>
+			<File
+				RelativePath=".\folium\history_data.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\folium\int.h"
+				>
+			</File>
+			<File
+				RelativePath=".\folium\killer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\folium\move.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\folium\move.h"
+				>
+			</File>
+			<File
+				RelativePath=".\folium\movelist.h"
+				>
+			</File>
+			<File
+				RelativePath=".\folium\search.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\folium\xq.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\folium\xq.h"
+				>
+			</File>
+			<File
+				RelativePath=".\folium\xq_data.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\folium\xq_data.h"
 				>
 			</File>
 		</Filter>
