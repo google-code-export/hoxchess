@@ -19,7 +19,7 @@
 
 /////////////////////////////////////////////////////////////////////////////
 // Name:            hoxFoliumPlayer.h
-// Created:         11/24/2007
+// Created:         11/24/2008
 //
 // Description:     The AI Player based on the open-source Xiangqi Engine
 //                  called FOLIUM written by Wangmao
@@ -69,7 +69,11 @@ protected:
     virtual wxString GenerateNextMove();
 
 private:
-    void*  m_engine;
+    class FOLIUM_Engine;
+    FOLIUM_Engine*  m_engine;
+        /* NOTE: I cannot use std::auto_ptr<...> here because
+         *       it generates a compiler error
+         */
 };
 
 // ----------------------------------------------------------------------------
