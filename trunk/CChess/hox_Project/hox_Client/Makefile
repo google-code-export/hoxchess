@@ -11,7 +11,7 @@ DEBUGFLAGS  = -g
 # TSITO AI Engine source
 TSITO_SRC := \
 	Board.cpp \
-	Engine.cpp \
+	tsiEngine.cpp \
 	Evaluator.cpp \
 	Lawyer.cpp \
 	Move.cpp \
@@ -20,9 +20,23 @@ TSITO_SRC := \
 	Timer.cpp \
 	Transposition.cpp
 
+# FOLIUM AI Engine source
+FOLIUM_SRC := \
+	bitmap_data.cpp \
+	engine.cpp \
+	engine_data.cpp \
+	generator.cpp \
+	hash.cpp \
+	history_data.cpp \
+	move.cpp \
+	search.cpp \
+	xq.cpp \
+	xq_data.cpp
+
 # Define our sources and object files
 SOURCES := \
 	$(TSITO_SRC) \
+	$(FOLIUM_SRC) \
 	hoxBoard.cpp \
 	hoxChesscapeConnection.cpp \
 	hoxChesscapePlayer.cpp \
@@ -48,6 +62,7 @@ SOURCES := \
 	hoxSitesUI.cpp \
 	hoxAIPlayer.cpp \
 	hoxTSITOPlayer.cpp \
+	hoxFoliumPlayer.cpp \
 	MyApp.cpp \
 	MyChild.cpp \
 	MyFrame.cpp
@@ -57,13 +72,14 @@ OBJECTS := $(SOURCES:.cpp=.o)
 .cpp.o :
 	$(CXX) $(WX_CXXFLAGS) $(DEBUGFLAGS) -c  -o $@ $<
 
-all: prepare $(PROGRAM)
+all: $(PROGRAM)
 
 prepare:
-	cp tsito/* .
+	cp -v tsito/* .
+	cp -v folium/* .
 
 $(PROGRAM): $(OBJECTS)
 	$(CXX) $(LDFLAGS) -o $(PROGRAM) $(OBJECTS) $(WX_LDLIBS)
 
 clean:
-	rm -rf $(PROGRAM) $(OBJECTS)
+	rm -vrf $(PROGRAM) $(OBJECTS) $(TSITO_SRC) $(FOLIUM_SRC)

@@ -17,10 +17,10 @@
   <kdevcustomproject>
     <run>
       <directoryradio>executable</directoryradio>
-      <mainprogram>/home/hphan/Projects/hoxchess/CChess/hox_Project/hox_Client/hoxchess</mainprogram>
+      <mainprogram/>
       <programargs/>
       <globaldebugarguments/>
-      <globalcwd>/home/hphan/Projects/hoxchess/CChess/hox_Project/hox_Client/</globalcwd>
+      <globalcwd/>
       <useglobalprogram>false</useglobalprogram>
       <terminal>false</terminal>
       <autocompile>false</autocompile>
@@ -50,7 +50,7 @@
     </blacklist>
     <build>
       <buildtool>make</buildtool>
-      <builddir>/home/hphan/Projects/hoxchess/CChess/hox_Project/hox_Client</builddir>
+      <builddir/>
     </build>
     <other>
       <prio>0</prio>
@@ -153,10 +153,10 @@
       <used>false</used>
       <version>3</version>
       <includestyle>3</includestyle>
-      <root></root>
+      <root>/usr/lib/qt-3.3</root>
       <designerintegration>EmbeddedKDevDesigner</designerintegration>
-      <qmake></qmake>
-      <designer></designer>
+      <qmake>/usr/lib/qt-3.3/bin/qmake</qmake>
+      <designer>/usr/lib/qt-3.3/bin/designer</designer>
       <designerpluginpaths/>
     </qt>
     <references/>
