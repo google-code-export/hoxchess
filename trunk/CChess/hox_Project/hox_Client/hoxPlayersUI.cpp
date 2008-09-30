@@ -62,6 +62,8 @@ hoxPlayersUI::hoxPlayersUI( wxWindow* parent )
     }
 }
 
+extern int wxCALLBACK MyCompareFunction(long item1, long item2, long WXUNUSED(sortData));
+
 bool
 hoxPlayersUI::AddPlayer( const wxString& sPlayerId,
                          const int       nPlayerScore )
@@ -77,6 +79,8 @@ hoxPlayersUI::AddPlayer( const wxString& sPlayerId,
     this->SetItem( itemIndex, ++colIndex,
                    wxString::Format("%d", nPlayerScore));
 
+	this->SetItemData( itemIndex, nPlayerScore);
+	this->SortItems(MyCompareFunction, 0);
     /* If the Player was NOT found (to be removed) before being inserted,
      * then he has just joined this Board.
      */
