@@ -24,8 +24,8 @@
 // Description:     A Player-Manager that manages a group of players.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_PLAYER_MGR_H_
-#define __INCLUDED_HOX_PLAYER_MGR_H_
+#ifndef __INCLUDED_HOX_PLAYER_MGR_H__
+#define __INCLUDED_HOX_PLAYER_MGR_H__
 
 #include "hoxPlayer.h"
 
@@ -33,7 +33,6 @@
 class hoxSite;
 class hoxMyPlayer;
 class hoxChesscapePlayer;
-class hoxAIPlayer;
 class hoxLocalPlayer;
 
 /**
@@ -54,17 +53,13 @@ public:
     hoxPlayer* CreateDummyPlayer( const wxString& name,
                                   int             score = 1500 );
 
-    hoxAIPlayer* CreateAIPlayer( const wxString& name,
-                                 int             score = 1500 );
-
-    hoxAIPlayer* CreateTSITOPlayer( const wxString& name,
-                                    int             score = 1500 );
-
-    hoxAIPlayer* CreateFoliumPlayer( const wxString& name,
-                                     int             score = 1500 );
-
     hoxLocalPlayer* CreateLocalPlayer( const wxString& name,
                                        int             score = 1500 );
+
+    /**
+     * Delete a Player.
+     */
+    void DeletePlayer( const wxString& playerId );
 
     /**
      * @return NULL if not found.
@@ -76,13 +71,8 @@ public:
      */
     void OnSiteClosing();
 
-    /**
-     * Return the number of players in the system.
-     */
-    int GetNumberOfPlayers() { return (int) m_players.size(); }
-
 private:
     hoxPlayerList   m_players;  // The list of all players in the system.
 };
 
-#endif /* __INCLUDED_HOX_PLAYER_MGR_H_ */
+#endif /* __INCLUDED_HOX_PLAYER_MGR_H__ */

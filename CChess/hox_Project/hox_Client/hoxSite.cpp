@@ -37,6 +37,10 @@
 #include "hoxBoard.h"
 #include "hoxSitesUI.h"
 
+#include "hoxAIPlayer.h"
+#include "hoxTSITOPlayer.h"
+#include "hoxFoliumPlayer.h"
+
 // --------------------------------------------------------------------------
 // hoxSite
 // --------------------------------------------------------------------------
@@ -222,9 +226,11 @@ hoxLocalSite::OnLocalRequest_PRACTICE()
     result = m_player->JoinTableAs( pTable, hoxCOLOR_RED );
     wxASSERT( result == hoxRC_OK );
 
-    hoxPlayer* pAIPlayer = m_playerMgr.CreateFoliumPlayer( sAIId );
-    //hoxPlayer* pAIPlayer = m_playerMgr.CreateTSITOPlayer( sAIId );
-    //hoxPlayer* pAIPlayer = m_playerMgr.CreateAIPlayer( sAIId );
+    hoxAIPlayer* pAIPlayer =
+        new hoxFoliumPlayer( sAIId, hoxPLAYER_TYPE_AI, 1500 );
+        //new hoxTSITOPlayer( sAIId, hoxPLAYER_TYPE_AI, 1500 );
+        //new hoxAIPlayer( sAIId, hoxPLAYER_TYPE_AI, 1500 );
+
     pAIPlayer->Start();
 
     result = pAIPlayer->JoinTableAs( pTable, hoxCOLOR_BLACK );
