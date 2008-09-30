@@ -25,13 +25,8 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxPlayerMgr.h"
-#include "MyApp.h"          // wxGetApp()
 #include "hoxMyPlayer.h"
 #include "hoxChesscapePlayer.h"
-#include "hoxAIPlayer.h"
-#include "hoxTSITOPlayer.h"
-#include "hoxFoliumPlayer.h"
-#include <algorithm>   // std::find
 
 
 hoxPlayerMgr::hoxPlayerMgr()
@@ -80,39 +75,6 @@ hoxPlayerMgr::CreateDummyPlayer( const wxString& name,
     return player;
 }
 
-hoxAIPlayer*
-hoxPlayerMgr::CreateAIPlayer( const wxString& name,
-                              int             score /*= 1500 */ )
-{
-    hoxAIPlayer* player =
-        new hoxAIPlayer( name, hoxPLAYER_TYPE_AI, score );
-    m_players.push_back( player );
-
-    return player;
-}
-
-hoxAIPlayer*
-hoxPlayerMgr::CreateTSITOPlayer( const wxString& name,
-                                 int             score /*= 1500 */ )
-{
-    hoxAIPlayer* player =
-        new hoxTSITOPlayer( name, hoxPLAYER_TYPE_AI, score );
-    m_players.push_back( player );
-
-    return player;
-}
-
-hoxAIPlayer*
-hoxPlayerMgr::CreateFoliumPlayer( const wxString& name,
-                                  int             score /*= 1500 */ )
-{
-    hoxAIPlayer* player =
-        new hoxFoliumPlayer( name, hoxPLAYER_TYPE_AI, score );
-    m_players.push_back( player );
-
-    return player;
-}
-
 hoxLocalPlayer*
 hoxPlayerMgr::CreateLocalPlayer( const wxString& name,
                                  int             score /* = 1500 */)
@@ -122,6 +84,17 @@ hoxPlayerMgr::CreateLocalPlayer( const wxString& name,
     m_players.push_back( player );
 
     return player;
+}
+
+void
+hoxPlayerMgr::DeletePlayer( const wxString& playerId )
+{
+    hoxPlayer* foundPlayer = this->FindPlayer( playerId );
+    if ( foundPlayer != NULL )
+    {
+        m_players.remove( foundPlayer );
+        delete foundPlayer;
+    }
 }
 
 hoxPlayer* 
@@ -142,8 +115,7 @@ hoxPlayerMgr::FindPlayer( const wxString& playerId ) const
 void
 hoxPlayerMgr::OnSiteClosing()
 {
-    const char* FNAME = "hoxPlayerMgr::OnSiteClosing";
-
+    const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
 
     /* Inform all players about the CLOSING. */

@@ -732,6 +732,12 @@ hoxTable::_RemovePlayer( hoxPlayer* player )
     // Update our "cache" variables.
     if      ( m_redPlayer == player )   m_redPlayer = NULL;
     else if ( m_blackPlayer == player ) m_blackPlayer = NULL;
+
+    /* TODO: A temporary solution to delete AI Players. */
+    if ( player->GetType() == hoxPLAYER_TYPE_AI )
+    {
+        delete player;
+    }
 }
 
 hoxPlayer* 
