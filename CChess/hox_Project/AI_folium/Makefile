@@ -14,24 +14,27 @@ DEBUGFLAGS  = -g
 # FOLIUM AI Engine source
 FOLIUM_SRC := \
 	bitmap_data.cpp \
-	engine.cpp \
+	folEngine.cpp \
 	engine_data.cpp \
 	generator.cpp \
 	hash.cpp \
 	history_data.cpp \
 	move.cpp \
-	search.cpp \
+	folSearch.cpp \
 	xq.cpp \
 	xq_data.cpp
 
-# Define our sources and object files
-SOURCES := \
-	$(FOLIUM_SRC) \
+MAIN_SRC := \
 	TcpLib.cpp \
 	hoxCommon.cpp \
 	hoxCommand.cpp \
 	AIPlayer.cpp \
 	main.cpp
+
+# Define our sources and object files
+SOURCES := \
+	$(FOLIUM_SRC) \
+	$(MAIN_SRC)
 
 OBJECTS := $(SOURCES:.cpp=.o)
 
@@ -41,7 +44,7 @@ OBJECTS := $(SOURCES:.cpp=.o)
 all: $(PROGRAM)
 
 prepare:
-	cp -v folium/* .
+	cp -v ../folium/* .
 
 $(PROGRAM): $(OBJECTS)
 	$(CXX) $(LDFLAGS) -o $(PROGRAM) $(OBJECTS) $(LDLIBS)
@@ -50,14 +53,45 @@ depend: $(SOURCES)
 	makedepend $(CXXFLAGS) $(SOURCES)
 
 clean:
-	ls folium/*.h | cut -c8- | xargs rm -f
+	ls ../folium/*.h | cut -c11- | xargs rm -f
 	rm -rf $(PROGRAM) $(OBJECTS) *.bak $(FOLIUM_SRC)
 
 zip:
-	zip $(PROGRAM) $(SOURCES) *.h Makefile *.sh
+	zip $(PROGRAM) $(MAIN_SRC) ../folium/* *.h Makefile *.sh
 
 # DO NOT DELETE
 
+bitmap_data.o: defines.h int.h bitmap.h /usr/include/string.h
+bitmap_data.o: /usr/include/features.h /usr/include/sys/cdefs.h
+bitmap_data.o: /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h
+bitmap_data.o: /usr/include/gnu/stubs-64.h xq_data.h
+folEngine.o: folEngine.h defines.h int.h movelist.h move.h xq_data.h xq.h
+folEngine.o: bitmap.h /usr/include/string.h /usr/include/features.h
+folEngine.o: /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h
+folEngine.o: /usr/include/gnu/stubs.h /usr/include/gnu/stubs-64.h history.h
+folEngine.o: hash.h engine_data.h
+engine_data.o: defines.h int.h engine_data.h
+generator.o: generator.h defines.h int.h movelist.h move.h xq.h bitmap.h
+generator.o: /usr/include/string.h /usr/include/features.h
+generator.o: /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h
+generator.o: /usr/include/gnu/stubs.h /usr/include/gnu/stubs-64.h xq_data.h
+generator.o: killer.h history.h
+hash.o: hash.h defines.h int.h xq.h move.h bitmap.h /usr/include/string.h
+hash.o: /usr/include/features.h /usr/include/sys/cdefs.h
+hash.o: /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h
+hash.o: /usr/include/gnu/stubs-64.h xq_data.h
+history_data.o: defines.h int.h history.h move.h
+move.o: move.h int.h xq_data.h defines.h
+folSearch.o: folEngine.h defines.h int.h movelist.h move.h xq_data.h xq.h
+folSearch.o: bitmap.h /usr/include/string.h /usr/include/features.h
+folSearch.o: /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h
+folSearch.o: /usr/include/gnu/stubs.h /usr/include/gnu/stubs-64.h history.h
+folSearch.o: hash.h engine_data.h killer.h generator.h
+xq.o: xq.h defines.h int.h move.h bitmap.h /usr/include/string.h
+xq.o: /usr/include/features.h /usr/include/sys/cdefs.h
+xq.o: /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h
+xq.o: /usr/include/gnu/stubs-64.h xq_data.h
+xq_data.o: defines.h int.h xq_data.h
 TcpLib.o: /usr/include/netdb.h /usr/include/features.h
 TcpLib.o: /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h
 TcpLib.o: /usr/include/gnu/stubs.h /usr/include/gnu/stubs-64.h
@@ -816,10 +850,9 @@ AIPlayer.o: /usr/include/boost/mpl/aux_/include_preprocessed.hpp
 AIPlayer.o: /usr/include/boost/mpl/aux_/include_preprocessed.hpp
 AIPlayer.o: /usr/include/boost/iterator/detail/minimum_category.hpp
 AIPlayer.o: /usr/include/boost/token_functions.hpp hoxCommand.h
-AIPlayer.o: folium/engine.h folium/defines.h folium/int.h folium/movelist.h
-AIPlayer.o: folium/move.h folium/xq_data.h folium/xq.h folium/bitmap.h
-AIPlayer.o: /usr/include/string.h folium/history.h folium/hash.h
-AIPlayer.o: folium/engine_data.h
+AIPlayer.o: ../folium/folEngine.h defines.h int.h movelist.h move.h xq_data.h
+AIPlayer.o: xq.h bitmap.h /usr/include/string.h history.h hash.h
+AIPlayer.o: engine_data.h
 main.o: hoxCommon.h /usr/include/boost/tokenizer.hpp
 main.o: /usr/include/boost/token_iterator.hpp /usr/include/boost/assert.hpp
 main.o: /usr/include/assert.h /usr/include/features.h
