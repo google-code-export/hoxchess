@@ -423,10 +423,11 @@ hoxSocketReader::ReadLine( wxSocketBase* sock,
 			if ( !bSawOne && c == '\n' )
 			{
 				bSawOne = true;
+                commandStr += c;
 			}
 			else if ( bSawOne && c == '\n' )
 			{
-				result = commandStr;
+                result = commandStr.substr(0, commandStr.size()-1);
 				return hoxRC_OK;  // Done.
 			}
             else
