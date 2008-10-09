@@ -78,7 +78,7 @@ public:
     wxString GenerateMove()
     {
         std::set<unsigned int> ban;
-        const int searchDepth = 4 /* 7 */;
+        const int searchDepth = 3 /* 7 */;
         unsigned int move = m_engine->search( searchDepth, ban );
         wxString sNextMove;
         if (move)
