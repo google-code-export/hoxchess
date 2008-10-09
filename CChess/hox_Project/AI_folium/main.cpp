@@ -106,31 +106,44 @@ _run_AI_engine( AIPlayer& aiPlayer )
 // The main function.
 // ----------------------------------------------------------------------------
 int
-main()
+main( int argc, char *argv[] )
 {
     printf("%s: Folium AI starting...\n", __FUNCTION__);
+
+    std::string ai_pid      = "AI_folium"; // Player ID
+    std::string ai_password = "AI_folium"; // Player Password
+
+    if ( argc == 3 ) // pid / password from command-line?
+    {
+        ai_pid = argv[1];
+        ai_password = argv[2];
+    }
 
     if ( 0 != HOX::tcp_initialize() ) /* Initialize TCP. */
         return -1;
 
-    try
+    for (;;)
     {
-        AIPlayer  aiPlayer( "AI_folium", "AI_folium" ); // (pid, password)
-
-        aiPlayer.Connect();
-        aiPlayer.Login();
-
-        for (;;)
+        try
         {
-            _run_AI_engine( aiPlayer );
-        }
+            printf("%s: Running AI [%s].\n", __FUNCTION__, ai_pid.c_str());
+            AIPlayer  aiPlayer( ai_pid, ai_password ); // (pid, password)
 
-        aiPlayer.Logout();
-        aiPlayer.Disconnect();
-    }
-    catch (std::runtime_error ex)
-    {
-        printf("%s: Caught runtime exception [%s]\n", __FUNCTION__, ex.what());
+            aiPlayer.Connect();
+            aiPlayer.Login();
+
+            for (;;)
+            {
+                _run_AI_engine( aiPlayer );
+            }
+
+            aiPlayer.Logout();
+            aiPlayer.Disconnect();
+        }
+        catch (std::runtime_error ex)
+        {
+            printf("%s: Caught runtime exception [%s]\n", __FUNCTION__, ex.what());
+        }
     }
 
     /* -------- */
