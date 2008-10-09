@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\wxMSW-2.8.9\include&quot;;&quot;C:\wxMSW-2.8.9\lib\vc_lib\mswd&quot;;&quot;$(ProjectDir)..\lib\boost_1_34_1&quot;"
+				AdditionalIncludeDirectories="&quot;C:\wxMSW-2.8.9\include&quot;;&quot;C:\wxMSW-2.8.9\lib\vc_lib\mswd&quot;;&quot;$(ProjectDir)..\lib\boost_1_36_0&quot;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				SmallerTypeCheck="true"
@@ -115,7 +115,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;C:\wxMSW-2.8.9\include&quot;;&quot;C:\wxMSW-2.8.9\lib\vc_lib\msw&quot;;&quot;$(ProjectDir)..\lib\boost_1_34_1&quot;"
+				AdditionalIncludeDirectories="&quot;C:\wxMSW-2.8.9\include&quot;;&quot;C:\wxMSW-2.8.9\lib\vc_lib\msw&quot;;&quot;$(ProjectDir)..\lib\boost_1_36_0&quot;"
 				RuntimeLibrary="2"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
