@@ -28,10 +28,10 @@
 
 #include "hoxTSITOPlayer.h"
 
-#include "tsito/Move.h"
-#include "tsito/Board.h"
-#include "tsito/Lawyer.h"
-#include "tsito/tsiEngine.h"
+#include "../tsito/Move.h"
+#include "../tsito/Board.h"
+#include "../tsito/Lawyer.h"
+#include "../tsito/tsiEngine.h"
 
 //-----------------------------------------------------------------------------
 // hoxTSITOEngine::TSITO_Engine

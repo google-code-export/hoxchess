@@ -12,10 +12,10 @@ using std::set;
 #include "hash.h"
 #include "engine_data.h"
 
-class Engine
+class folEngine
 {
 public:
-    Engine(const XQ&, uint hash);
+    folEngine(const XQ&, uint hash);
     void reset(const XQ&);
     bool make_move(uint32 move);
     void unmake_move();
@@ -60,12 +60,12 @@ private:
     uint m_null_cuts;
 };
 
-inline int Engine::value()const
+inline int folEngine::value()const
 {
     return (m_xq.player() == Red ? m_values[m_ply] : - m_values[m_ply]) + 4;//pawn value = 9
 }
 
-inline int Engine::loop_value(int ply)const
+inline int folEngine::loop_value(int ply)const
 {
     if ((m_ply - m_null_ply) >= 4 && m_keys[m_ply] == m_keys[m_ply - 4])
     {
@@ -82,12 +82,12 @@ inline int Engine::loop_value(int ply)const
     return INVAILDVALUE;
 }
 
-inline bool Engine::is_legal_move(uint move)
+inline bool folEngine::is_legal_move(uint move)
 {
     return move &&  m_xq.is_legal_move(move) && m_xq.player() == m_xq.square_color(move_src(move));
 }
 
-inline void Engine::do_null()
+inline void folEngine::do_null()
 {
     assert(!trace_flag(m_traces[m_ply]));
     uint op, np;
@@ -101,7 +101,7 @@ inline void Engine::do_null()
     m_xq.do_null();
 }
 
-inline void Engine::undo_null()
+inline void folEngine::undo_null()
 {
     m_null_ply = m_traces[m_ply--] >> 20;
     m_xq.undo_null();

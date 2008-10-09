@@ -1,4 +1,4 @@
-#include "engine.h"
+#include "folEngine.h"
 #include "killer.h"
 #include "generator.h"
 #include <iostream>
@@ -8,7 +8,7 @@ const int LIMIT_DEPTH = 64;
 const int NULL_DEPTH = 2;
 
 static Killer killers[LIMIT_DEPTH+1];
-int Engine::full(int depth, int alpha, int beta)
+int folEngine::full(int depth, int alpha, int beta)
 {
     ++m_tree_nodes;
     if (m_stop)
@@ -128,7 +128,7 @@ int Engine::full(int depth, int alpha, int beta)
     }
     return best_value;
 }
-int Engine::leaf(int alpha, int beta)
+int folEngine::leaf(int alpha, int beta)
 {
     const int ply = m_ply - m_start_ply;
 	m_tree_nodes--;
@@ -170,7 +170,7 @@ int Engine::leaf(int alpha, int beta)
     }
     return best_value;
 }
-int Engine::quies(int alpha, int beta)
+int folEngine::quies(int alpha, int beta)
 {
     m_quiet_nodes++;
     const int ply = m_ply - m_start_ply;

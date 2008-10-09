@@ -26,7 +26,7 @@
 
 #include "AIPlayer.h"
 #include "hoxCommand.h"
-#include "folium/engine.h"
+#include "../folium/folEngine.h"
 
 #include <stdexcept>   // std::runtime_error
 #include <sstream>     // ostringstream
@@ -51,7 +51,7 @@ public:
          *    For a normal developer (who is not familiar with Xiangqi AI),
          *    we have no idea what this 'hash' value is.
          */
-        _engine.reset( new Engine(XQ(fenStartPosition), 21) );
+        _engine.reset( new folEngine(XQ(fenStartPosition), 21) );
     }
 
     unsigned int _hox2folium( const std::string& sMove )
@@ -99,7 +99,7 @@ public:
     }
 
 private:
-    typedef std::auto_ptr<Engine> folEngine_APtr;
+    typedef std::auto_ptr<folEngine> folEngine_APtr;
     folEngine_APtr   _engine;
 };
 

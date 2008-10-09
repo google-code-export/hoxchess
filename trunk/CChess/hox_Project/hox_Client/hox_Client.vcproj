@@ -441,79 +441,79 @@
 			Name="tsito"
 			>
 			<File
-				RelativePath=".\tsito\Board.cpp"
+				RelativePath="..\tsito\Board.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\tsito\Board.h"
+				RelativePath="..\tsito\Board.h"
 				>
 			</File>
 			<File
-				RelativePath=".\tsito\Evaluator.cpp"
+				RelativePath="..\tsito\Evaluator.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\tsito\Evaluator.h"
+				RelativePath="..\tsito\Evaluator.h"
 				>
 			</File>
 			<File
-				RelativePath=".\tsito\HashTable.h"
+				RelativePath="..\tsito\HashTable.h"
 				>
 			</File>
 			<File
-				RelativePath=".\tsito\Lawyer.cpp"
+				RelativePath="..\tsito\Lawyer.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\tsito\Lawyer.h"
+				RelativePath="..\tsito\Lawyer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\tsito\Move.cpp"
+				RelativePath="..\tsito\Move.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\tsito\Move.h"
+				RelativePath="..\tsito\Move.h"
 				>
 			</File>
 			<File
-				RelativePath=".\tsito\OpeningBook.cpp"
+				RelativePath="..\tsito\OpeningBook.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\tsito\OpeningBook.h"
+				RelativePath="..\tsito\OpeningBook.h"
 				>
 			</File>
 			<File
-				RelativePath=".\tsito\Options.cpp"
+				RelativePath="..\tsito\Options.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\tsito\Options.h"
+				RelativePath="..\tsito\Options.h"
 				>
 			</File>
 			<File
-				RelativePath=".\tsito\Timer.cpp"
+				RelativePath="..\tsito\Timer.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\tsito\Timer.h"
+				RelativePath="..\tsito\Timer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\tsito\Transposition.cpp"
+				RelativePath="..\tsito\Transposition.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\tsito\Transposition.h"
+				RelativePath="..\tsito\Transposition.h"
 				>
 			</File>
 			<File
-				RelativePath=".\tsito\tsiEngine.cpp"
+				RelativePath="..\tsito\tsiEngine.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\tsito\tsiEngine.h"
+				RelativePath="..\tsito\tsiEngine.h"
 				>
 			</File>
 		</Filter>
@@ -521,95 +521,95 @@
 			Name="folium"
 			>
 			<File
-				RelativePath=".\folium\bitmap.h"
+				RelativePath="..\folium\bitmap.h"
 				>
 			</File>
 			<File
-				RelativePath=".\folium\bitmap_data.cpp"
+				RelativePath="..\folium\bitmap_data.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\folium\defines.h"
+				RelativePath="..\folium\defines.h"
 				>
 			</File>
 			<File
-				RelativePath=".\folium\engine.cpp"
+				RelativePath="..\folium\engine_data.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\folium\engine.h"
+				RelativePath="..\folium\engine_data.h"
 				>
 			</File>
 			<File
-				RelativePath=".\folium\engine_data.cpp"
+				RelativePath="..\folium\folEngine.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\folium\engine_data.h"
+				RelativePath="..\folium\folEngine.h"
 				>
 			</File>
 			<File
-				RelativePath=".\folium\generator.cpp"
+				RelativePath="..\folium\folSearch.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\folium\generator.h"
+				RelativePath="..\folium\generator.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\folium\hash.cpp"
+				RelativePath="..\folium\generator.h"
 				>
 			</File>
 			<File
-				RelativePath=".\folium\hash.h"
+				RelativePath="..\folium\hash.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\folium\history.h"
+				RelativePath="..\folium\hash.h"
 				>
 			</File>
 			<File
-				RelativePath=".\folium\history_data.cpp"
+				RelativePath="..\folium\history.h"
 				>
 			</File>
 			<File
-				RelativePath=".\folium\int.h"
+				RelativePath="..\folium\history_data.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\folium\killer.h"
+				RelativePath="..\folium\int.h"
 				>
 			</File>
 			<File
-				RelativePath=".\folium\move.cpp"
+				RelativePath="..\folium\killer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\folium\move.h"
+				RelativePath="..\folium\move.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\folium\movelist.h"
+				RelativePath="..\folium\move.h"
 				>
 			</File>
 			<File
-				RelativePath=".\folium\search.cpp"
+				RelativePath="..\folium\movelist.h"
 				>
 			</File>
 			<File
-				RelativePath=".\folium\xq.cpp"
+				RelativePath="..\folium\xq.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\folium\xq.h"
+				RelativePath="..\folium\xq.h"
 				>
 			</File>
 			<File
-				RelativePath=".\folium\xq_data.cpp"
+				RelativePath="..\folium\xq_data.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\folium\xq_data.h"
+				RelativePath="..\folium\xq_data.h"
 				>
 			</File>
 		</Filter>
