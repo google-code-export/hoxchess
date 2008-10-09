@@ -28,7 +28,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxFoliumPlayer.h"
-#include "folium/engine.h"
+#include "../folium/folEngine.h"
 
 //-----------------------------------------------------------------------------
 // FOLIUM_Engine
@@ -48,7 +48,7 @@ public:
          *    For a normal developer (who is not familiar with Xiangqi AI),
          *    we have no idea what this 'hash' value is.
          */
-        m_engine.reset( new Engine(XQ(fenStartPosition), 21) );
+        m_engine.reset( new folEngine(XQ(fenStartPosition), 21) );
     }
 
     unsigned int _hox2folium( const wxString& sMove )
@@ -96,7 +96,7 @@ public:
     }
 
 private:
-    typedef std::auto_ptr<Engine> folEngine_APtr;
+    typedef std::auto_ptr<folEngine> folEngine_APtr;
     folEngine_APtr   m_engine;
 };
 

@@ -1,4 +1,4 @@
-#include "engine.h"
+#include "folEngine.h"
 #include <ctime>
 #include <vector>
 #include <string>
@@ -6,7 +6,7 @@
 #include <fstream>
 #include <algorithm>
 using namespace std;
-bool Engine::make_move(uint32 move)
+bool folEngine::make_move(uint32 move)
 {
     uint src, dst, src_piece, dst_piece;
     src = move_src(move);
@@ -53,14 +53,14 @@ bool Engine::make_move(uint32 move)
     return true;
 }
 
-void Engine::unmake_move()
+void folEngine::unmake_move()
 {
     assert (m_ply > 0);
     uint32 trace = m_traces[m_ply--];
     m_xq.undo_move(trace_src(trace), trace_dst(trace), trace_dst_piece(trace));
 }
 
-Engine::Engine(const XQ& xq, uint hash):m_xq(xq), m_ply(0), m_hash(hash)
+folEngine::folEngine(const XQ& xq, uint hash):m_xq(xq), m_ply(0), m_hash(hash)
 {
     m_traces[0] = create_trace(xq.status(), EmptyIndex, 0);
     m_ply = 0;
@@ -81,7 +81,7 @@ Engine::Engine(const XQ& xq, uint hash):m_xq(xq), m_ply(0), m_hash(hash)
     }
 }
 
-void Engine::reset(const XQ& xq)
+void folEngine::reset(const XQ& xq)
 {
     m_xq = xq;
 
@@ -318,7 +318,7 @@ static vector<uint> generate_root_move(XQ& xq, const set<uint>& ban)
     }
     return r;
 }
-uint32 Engine::search(int depth, set<uint> ban)
+uint32 folEngine::search(int depth, set<uint> ban)
 {
     m_stop = false;
     m_tree_nodes = 0;
