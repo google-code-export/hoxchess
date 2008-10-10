@@ -28,85 +28,9 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxFoliumPlayer.h"
-#include "../folium/folEngine.h"
-
-//-----------------------------------------------------------------------------
-// FOLIUM_Engine
-//-----------------------------------------------------------------------------
-
-class hoxFoliumEngine::FOLIUM_Engine
-{
-public:
-    FOLIUM_Engine()
-    {
-        // FEN starting position of the Board.
-        const std::string fenStartPosition = 
-            "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1";
-
-        /* TODO:
-         *    Wangmao, I think we should hide this '21' magic number.
-         *    For a normal developer (who is not familiar with Xiangqi AI),
-         *    we have no idea what this 'hash' value is.
-         */
-        m_engine.reset( new folEngine(XQ(fenStartPosition), 21) );
-    }
-
-    unsigned int _hox2folium( const wxString& sMove )
-    {
-        unsigned int sx = sMove[0] - '0';
-        unsigned int sy = sMove[1] - '0';
-        unsigned int dx   = sMove[2] - '0';
-        unsigned int dy   = sMove[3] - '0';
-	    unsigned int src = 89 - (sx + sy * 9);
-	    unsigned int dst = 89 - (dx + dy * 9);
-	    return src | (dst << 7);
-    }
-
-    wxString _folium2hox( unsigned int move )
-    {
-	    unsigned int src = 89 - (move & 0x7f);
-	    unsigned int dst = 89 - ((move >> 7) & 0x7f);
-	    unsigned int sx = src % 9;
-	    unsigned int sy = src / 9;
-	    unsigned int dx = dst % 9;
-	    unsigned int dy = dst / 9;
-	    wxString sMove;
-	    sMove.Printf("%d%d%d%d", sx, sy, dx,dy);
-	    return sMove;
-    }
-
-    wxString GenerateMove()
-    {
-        std::set<unsigned int> ban;
-        const int searchDepth = 3 /* 7 */;
-        unsigned int move = m_engine->search( searchDepth, ban );
-        wxString sNextMove;
-        if (move)
-        {
-            sNextMove = _folium2hox( move );
-            m_engine->make_move(move);
-        }
-        return sNextMove;
-    }
-
-    void OnHumanMove( const wxString& sMove )
-    {
-        unsigned int move = _hox2folium(sMove);
-        m_engine->make_move(move);
-    }
-
-private:
-    typedef std::auto_ptr<folEngine> folEngine_APtr;
-    folEngine_APtr   m_engine;
-};
-
-///////////////////////////////////////////////////////////////////////////////
+#include "hoxUtil.h"
 
 IMPLEMENT_DYNAMIC_CLASS(hoxFoliumPlayer, hoxAIPlayer)
-
-BEGIN_EVENT_TABLE(hoxFoliumPlayer, hoxAIPlayer)
-    // Empty
-END_EVENT_TABLE()
 
 //-----------------------------------------------------------------------------
 // hoxFoliumPlayer
@@ -134,7 +58,7 @@ hoxFoliumPlayer::Start()
 
 hoxFoliumEngine::hoxFoliumEngine( wxEvtHandler* player )
         : hoxAIEngine( player )
-        , m_engine( new FOLIUM_Engine() )
+        , m_engine( new folHOXEngine() )
 {
 }
 
@@ -146,13 +70,13 @@ hoxFoliumEngine::~hoxFoliumEngine()
 void
 hoxFoliumEngine::OnOpponentMove( const wxString& sMove )
 {
-    m_engine->OnHumanMove( sMove );
+    m_engine->OnHumanMove( hoxUtil::wx2std( sMove ) );
 }
 
 wxString
 hoxFoliumEngine::GenerateNextMove()
 {
-    return m_engine->GenerateMove();
+    return hoxUtil::std2wx( m_engine->GenerateMove() );
 }
 
 
