@@ -1051,9 +1051,14 @@ hoxChesscapePlayer::_HandleTableCmd_Invite( const wxString& cmdStr )
 	const wxString sInvitorId = cmdStr.BeforeFirst(0x10);
 	const wxString sTableId = cmdStr.AfterFirst(0x10);
 
+    /* Look up the Invitor's score. */
+    int nInvitorScore = 0;
+    const hoxPlayerInfo_SPtr pInvitorInfo = _FindPlayerById( sInvitorId );
+	if ( pInvitorInfo ) nInvitorScore = pInvitorInfo->score;
+
     const wxString sMessage =
-        wxString::Format("*INVITE from [%s] to join Table [%s].",
-        sInvitorId.c_str(),
+        wxString::Format("*INVITE from [%s (%d)] to join Table [%s].",
+        sInvitorId.c_str(), nInvitorScore,
         sTableId.c_str());
 
     hoxTable_SPtr pTable = _getMyTable();
