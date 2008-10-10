@@ -22,7 +22,8 @@ FOLIUM_SRC := \
 	move.cpp \
 	folSearch.cpp \
 	xq.cpp \
-	xq_data.cpp
+	xq_data.cpp \
+	folHOXEngine.cpp
 
 MAIN_SRC := \
 	TcpLib.cpp \
@@ -92,6 +93,11 @@ xq.o: /usr/include/features.h /usr/include/sys/cdefs.h
 xq.o: /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h
 xq.o: /usr/include/gnu/stubs-64.h xq_data.h
 xq_data.o: defines.h int.h xq_data.h
+folHOXEngine.o: folHOXEngine.h folEngine.h defines.h int.h movelist.h move.h
+folHOXEngine.o: xq_data.h xq.h bitmap.h /usr/include/string.h
+folHOXEngine.o: /usr/include/features.h /usr/include/sys/cdefs.h
+folHOXEngine.o: /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h
+folHOXEngine.o: /usr/include/gnu/stubs-64.h history.h hash.h engine_data.h
 TcpLib.o: /usr/include/netdb.h /usr/include/features.h
 TcpLib.o: /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h
 TcpLib.o: /usr/include/gnu/stubs.h /usr/include/gnu/stubs-64.h
@@ -849,10 +855,8 @@ AIPlayer.o: /usr/include/boost/mpl/aux_/include_preprocessed.hpp
 AIPlayer.o: /usr/include/boost/mpl/aux_/include_preprocessed.hpp
 AIPlayer.o: /usr/include/boost/mpl/aux_/include_preprocessed.hpp
 AIPlayer.o: /usr/include/boost/iterator/detail/minimum_category.hpp
-AIPlayer.o: /usr/include/boost/token_functions.hpp hoxCommand.h
-AIPlayer.o: ../folium/folEngine.h defines.h int.h movelist.h move.h xq_data.h
-AIPlayer.o: xq.h bitmap.h /usr/include/string.h history.h hash.h
-AIPlayer.o: engine_data.h
+AIPlayer.o: /usr/include/boost/token_functions.hpp ../folium/folHOXEngine.h
+AIPlayer.o: hoxCommand.h
 main.o: hoxCommon.h /usr/include/boost/tokenizer.hpp
 main.o: /usr/include/boost/token_iterator.hpp /usr/include/boost/assert.hpp
 main.o: /usr/include/assert.h /usr/include/features.h
@@ -1054,4 +1058,4 @@ main.o: /usr/include/boost/mpl/aux_/include_preprocessed.hpp
 main.o: /usr/include/boost/mpl/aux_/include_preprocessed.hpp
 main.o: /usr/include/boost/iterator/detail/minimum_category.hpp
 main.o: /usr/include/boost/token_functions.hpp TcpLib.h AIPlayer.h
-main.o: hoxCommand.h
+main.o: ../folium/folHOXEngine.h hoxCommand.h
