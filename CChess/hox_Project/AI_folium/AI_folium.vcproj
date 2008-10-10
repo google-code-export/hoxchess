@@ -248,6 +248,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\folium\folHOXEngine.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\folium\folHOXEngine.h"
+				>
+			</File>
+			<File
 				RelativePath="..\folium\folSearch.cpp"
 				>
 			</File>

@@ -26,82 +26,17 @@
 
 #include "AIPlayer.h"
 #include "hoxCommand.h"
-#include "../folium/folEngine.h"
 
 #include <stdexcept>   // std::runtime_error
-#include <sstream>     // ostringstream
 
 //-----------------------------------------------------------------------------
 //
-//                                FOLIUM_Engine
+//                                  Constants
 //
 //-----------------------------------------------------------------------------
 
-class AIPlayer::FOLIUM_Engine
-{
-public:
-    FOLIUM_Engine()
-    {
-        // FEN starting position of the Board.
-        const std::string fenStartPosition = 
-            "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1";
-
-        /* TODO:
-         *    Wangmao, I think we should hide this '21' magic number.
-         *    For a normal developer (who is not familiar with Xiangqi AI),
-         *    we have no idea what this 'hash' value is.
-         */
-        _engine.reset( new folEngine(XQ(fenStartPosition), 21) );
-    }
-
-    unsigned int _hox2folium( const std::string& sMove )
-    {
-        unsigned int sx = sMove[0] - '0';
-        unsigned int sy = sMove[1] - '0';
-        unsigned int dx   = sMove[2] - '0';
-        unsigned int dy   = sMove[3] - '0';
-	    unsigned int src = 89 - (sx + sy * 9);
-	    unsigned int dst = 89 - (dx + dy * 9);
-	    return src | (dst << 7);
-    }
-
-    std::string _folium2hox( unsigned int move )
-    {
-	    unsigned int src = 89 - (move & 0x7f);
-	    unsigned int dst = 89 - ((move >> 7) & 0x7f);
-	    unsigned int sx = src % 9;
-	    unsigned int sy = src / 9;
-	    unsigned int dx = dst % 9;
-	    unsigned int dy = dst / 9;
-        std::ostringstream ostr;
-        ostr << sx << sy << dx << dy;
-	    return ostr.str();
-    }
-
-    std::string GenerateMove()
-    {
-        std::set<unsigned int> ban;
-        const int searchDepth = 3 /* 7 */;
-        unsigned int move = _engine->search( searchDepth, ban );
-        std::string sNextMove;
-        if (move)
-        {
-            sNextMove = _folium2hox( move );
-            _engine->make_move(move);
-        }
-        return sNextMove;
-    }
-
-    void OnHumanMove( const std::string& sMove )
-    {
-        unsigned int move = _hox2folium(sMove);
-        _engine->make_move(move);
-    }
-
-private:
-    typedef std::auto_ptr<folEngine> folEngine_APtr;
-    folEngine_APtr   _engine;
-};
+#define  DEFAULT_HOX_SERVER    "games.playxiangqi.com"
+#define  DEFAULT_HOX_PORT      8000
 
 
 //-----------------------------------------------------------------------------
@@ -126,12 +61,10 @@ AIPlayer::~AIPlayer()
 void
 AIPlayer::Connect()
 {
-    const std::string        sHost = "games.playxiangqi.com";
-    const unsigned short int nPort = 8000;
-
-    if ( 0 != m_sock.Connect( sHost, nPort ) )
+    if ( 0 != m_sock.Connect( DEFAULT_HOX_SERVER, DEFAULT_HOX_PORT ) )
     {
-        throw std::runtime_error("Failed to connect to server: " + sHost);
+        throw std::runtime_error("Failed to connect to server: "
+                                 + std::string(DEFAULT_HOX_SERVER));
     }
 }
 
@@ -303,7 +236,7 @@ void
 AIPlayer::_ResetAIEngine()
 {
     delete m_engine;
-    m_engine = new FOLIUM_Engine();
+    m_engine = new folHOXEngine();
 }
 
 /************************* END OF FILE ***************************************/

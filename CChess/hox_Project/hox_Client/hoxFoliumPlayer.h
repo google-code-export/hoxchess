@@ -31,6 +31,7 @@
 #define __INCLUDED_HOX_FOLIUM_PLAYER_H__
 
 #include "hoxAIPlayer.h"
+#include "../folium/folHOXEngine.h"
 
 /**
  * The folium AI player.
@@ -51,7 +52,6 @@ public:
 private:
 
     DECLARE_DYNAMIC_CLASS(hoxFoliumPlayer)
-    DECLARE_EVENT_TABLE()
 };
 
 // ----------------------------------------------------------------------------
@@ -69,11 +69,7 @@ protected:
     virtual wxString GenerateNextMove();
 
 private:
-    class FOLIUM_Engine;
-    FOLIUM_Engine*  m_engine;
-        /* NOTE: I cannot use std::auto_ptr<...> here because
-         *       it generates a compiler error
-         */
+    folHOXEngine*  m_engine;
 };
 
 // ----------------------------------------------------------------------------

@@ -18,62 +18,43 @@
  ***************************************************************************/
 
 /////////////////////////////////////////////////////////////////////////////
-// Name:            AIPlayer.h
-// Created:         10/04/2008
+// Name:            folHOXEngine.h
+// Created:         10/09/2008
 //
-// Description:     This is an AI Player.
+// Description:     This is 'folium' Engine to interface with HOXChess.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_AI_PLAYER_H__
-#define __INCLUDED_AI_PLAYER_H__
+#ifndef __INCLUDED_FOL_HOX_ENGINE_H__
+#define __INCLUDED_FOL_HOX_ENGINE_H__
 
 #include <string>
-#include "TcpLib.h"  // Socket
-#include "hoxCommon.h"
-#include "../folium/folHOXEngine.h"
+#include <memory>   // auto_ptr
 
-/* Forward declarations. */
-class hoxCommand;
+class folEngine;   // Forward declaration.
 
-/**
- * The AI Player
- */
-class AIPlayer
+class folHOXEngine
 {
 public:
-    AIPlayer( const std::string& id,
-              const std::string& password );
-    virtual ~AIPlayer();
+    folHOXEngine( int searchDepth = 3 );
+    ~folHOXEngine();
 
-    void Connect();
-    void Disconnect();
-    void Login();
-    void Logout();
-    void OpenNewTable( hoxTableInfo& tableInfo );
-    void LeaveCurrentTable();
+    std::string GenerateMove();
+    void OnHumanMove( const std::string& sMove );
 
-    void ReadIncomingCommand( hoxCommand& inCommand );
-    void HandleIncoming_MOVE( const std::string& sInContent );
-    void HandleIncoming_DRAW( const std::string& sInContent );
-
-protected:
-    void        OnOpponentMove( const std::string& sMove );
-    std::string GenerateNextMove();
+    void SetSearchDepth( int searchDepth ) { _searchDepth = searchDepth; }
+    int  GetSearchDepth() const { return _searchDepth; }
 
 private:
-    void _SendCommand( hoxCommand& command );
-    void _SendMove( const std::string& sMove );
-    void _SendDraw();
-    void _ResetAIEngine();
+    unsigned int _hox2folium( const std::string& sMove ) const;
+    std::string _folium2hox( unsigned int move ) const;
 
 private:
-    HOX::Socket         m_sock;
-    const std::string   m_id;
-    const std::string   m_password;
+    folEngine*       _engine;
+        /* NOTE: I cannot use std::auto_ptr<...> here because
+         *       it generates a compiler warning due to incomplete type.
+         */
 
-    std::string         m_sTableId; // THE table this Player is playing.
-
-    folHOXEngine*       m_engine;
+    int              _searchDepth;
 };
 
-#endif /* __INCLUDED_AI_PLAYER_H__ */
+#endif /* __INCLUDED_FOL_HOX_ENGINE_H__ */
