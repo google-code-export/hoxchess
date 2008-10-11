@@ -18,59 +18,45 @@
  ***************************************************************************/
 
 /////////////////////////////////////////////////////////////////////////////
-// Name:            AIPlayer.h
-// Created:         10/04/2008
+// Name:            XQWLight.h
+// Created:         10/11/2008
 //
-// Description:     This is an AI Player.
+// Description:     This is 'XQWLight' Engine to interface with HOXChess.
+//                  XQWLight is an open-source (?) Xiangqi AI Engine
+//                  written by Huang Chen at www.elephantbase.net
+//
+//  (Original Chinese URL)
+//        http://www.elephantbase.net/computer/stepbystep1.htm
+//
+//  (Translated English URL using Goold Translate)
+//       http://74.125.93.104/translate_c?hl=en&langpair= \
+//       zh-CN|en&u=http://www.elephantbase.net/computer/stepbystep1.htm& \
+//       usg=ALkJrhj7W0v3J1P-xmbufsWzYq7uKciL1w
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_AI_PLAYER_H__
-#define __INCLUDED_AI_PLAYER_H__
+#ifndef __INCLUDED_XQWLIGHT_HOX_ENGINE_H__
+#define __INCLUDED_XQWLIGHT_HOX_ENGINE_H__
 
 #include <string>
-#include "TcpLib.h"  // Socket
-#include "hoxCommon.h"
 
-/* Forward declarations. */
-class hoxCommand;
-
-/**
- * The AI Player
- */
-class AIPlayer
+namespace XQWLight
 {
-public:
-    AIPlayer( const std::string& id,
-              const std::string& password );
-    virtual ~AIPlayer();
+	/* PUBLIC API */
 
-    void Connect();
-    void Disconnect();
-    void Login();
-    void Logout();
-    void OpenNewTable( hoxTableInfo& tableInfo );
-    void LeaveCurrentTable();
+	void initialize();
 
-    void ReadIncomingCommand( hoxCommand& inCommand );
-    void HandleIncoming_MOVE( const std::string& sInContent );
-    void HandleIncoming_DRAW( const std::string& sInContent );
+	std::string generate_move();
+    void        on_human_move( const std::string& sMove );
 
-protected:
-    void        OnOpponentMove( const std::string& sMove );
-    std::string GenerateNextMove();
+    void set_search_time( int nSeconds );
+	    /* Only approximately... */
 
-private:
-    void _SendCommand( hoxCommand& command );
-    void _SendMove( const std::string& sMove );
-    void _SendDraw();
-    void _ResetAIEngine();
 
-private:
-    HOX::Socket         m_sock;
-    const std::string   m_id;
-    const std::string   m_password;
+    /* PRIVATE API (declared here for documentation purpose) */
 
-    std::string         m_sTableId; // THE table this Player is playing.
-};
+	unsigned int _hox2xqwlight( const std::string& sMove );
+	std::string _xqwlight2hox( unsigned int move );
 
-#endif /* __INCLUDED_AI_PLAYER_H__ */
+} // namespace XQWLight
+
+#endif /* __INCLUDED_XQWLIGHT_HOX_ENGINE_H__ */

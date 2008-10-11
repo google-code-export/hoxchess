@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="AI_folium"
+	Name="AI_robot"
 	ProjectGUID="{812CC698-398B-440A-8648-39BEDD8E0F49}"
-	RootNamespace="AI_folium"
+	RootNamespace="AI_robot"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
@@ -217,106 +217,14 @@
 			>
 		</Filter>
 		<Filter
-			Name="folium"
+			Name="xqwlight"
 			>
 			<File
-				RelativePath="..\folium\bitmap.h"
+				RelativePath="..\xqwlight\XQWLight.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\folium\bitmap_data.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\defines.h"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\engine_data.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\engine_data.h"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\folEngine.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\folEngine.h"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\folHOXEngine.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\folHOXEngine.h"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\folSearch.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\generator.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\generator.h"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\hash.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\hash.h"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\history.h"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\history_data.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\int.h"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\killer.h"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\move.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\move.h"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\movelist.h"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\xq.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\xq.h"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\xq_data.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\xq_data.h"
+				RelativePath="..\xqwlight\XQWLight.h"
 				>
 			</File>
 		</Filter>

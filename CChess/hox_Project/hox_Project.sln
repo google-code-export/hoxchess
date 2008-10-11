@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual C++ Express 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hox_Client", "hox_Client\hox_Client.vcproj", "{7627981C-F1B1-4629-A7F2-B6F9A19402A5}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AI_folium", "AI_folium\AI_folium.vcproj", "{812CC698-398B-440A-8648-39BEDD8E0F49}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AI_robot", "AI_robot\AI_robot.vcproj", "{812CC698-398B-440A-8648-39BEDD8E0F49}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

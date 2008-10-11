@@ -40,6 +40,7 @@
 #include "hoxAIPlayer.h"
 #include "hoxTSITOPlayer.h"
 #include "hoxFoliumPlayer.h"
+#include "hoxXQWLightPlayer.h"
 
 // --------------------------------------------------------------------------
 // hoxSite
@@ -179,7 +180,12 @@ hoxLocalSite::GetCurrentActionFlags() const
 {
 	unsigned int flags = 0;
 
-    flags |= hoxSITE_ACTION_PRACTICE;
+    /* Only allow ONE Practice Table. */
+    const hoxTableList& tables = this->GetTables();
+    if ( tables.empty() )
+    {
+        flags |= hoxSITE_ACTION_PRACTICE;
+    }
 
 	return flags;
 }
@@ -227,7 +233,8 @@ hoxLocalSite::OnLocalRequest_PRACTICE()
     wxASSERT( result == hoxRC_OK );
 
     hoxAIPlayer* pAIPlayer =
-        new hoxFoliumPlayer( sAIId, hoxPLAYER_TYPE_AI, 1500 );
+        new hoxXQWLightPlayer( sAIId, hoxPLAYER_TYPE_AI, 1500 );
+        //new hoxFoliumPlayer( sAIId, hoxPLAYER_TYPE_AI, 1500 );
         //new hoxTSITOPlayer( sAIId, hoxPLAYER_TYPE_AI, 1500 );
         //new hoxAIPlayer( sAIId, hoxPLAYER_TYPE_AI, 1500 );
 
