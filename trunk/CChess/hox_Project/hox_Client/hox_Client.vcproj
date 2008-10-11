@@ -281,6 +281,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hoxXQWLightPlayer.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MyApp.cpp"
 				>
 			</File>
@@ -412,6 +416,10 @@
 			</File>
 			<File
 				RelativePath=".\hoxUtil.h"
+				>
+			</File>
+			<File
+				RelativePath=".\hoxXQWLightPlayer.h"
 				>
 			</File>
 			<File
@@ -618,6 +626,18 @@
 			</File>
 			<File
 				RelativePath="..\folium\xq_data.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="xqwlight"
+			>
+			<File
+				RelativePath="..\xqwlight\XQWLight.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\xqwlight\XQWLight.h"
 				>
 			</File>
 		</Filter>

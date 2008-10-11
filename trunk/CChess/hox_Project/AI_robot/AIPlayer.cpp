@@ -26,6 +26,7 @@
 
 #include "AIPlayer.h"
 #include "hoxCommand.h"
+#include "../xqwlight/XQWLight.h"
 
 #include <stdexcept>   // std::runtime_error
 
@@ -49,13 +50,11 @@ AIPlayer::AIPlayer( const std::string& id,
                     const std::string& password )
         : m_id( id )
         , m_password( password )
-        , m_engine( NULL )
 {
 }
 
 AIPlayer::~AIPlayer()
 {
-    delete m_engine;
 }
 
 void
@@ -210,13 +209,13 @@ AIPlayer::HandleIncoming_DRAW( const std::string& sInContent )
 void
 AIPlayer::OnOpponentMove( const std::string& sMove )
 {
-    m_engine->OnHumanMove( sMove );
+    XQWLight::on_human_move( sMove );
 }
 
 std::string
 AIPlayer::GenerateNextMove()
 {
-    return m_engine->GenerateMove();
+    return XQWLight::generate_move();
 }
 
 void
@@ -235,8 +234,7 @@ AIPlayer::_SendCommand( hoxCommand& command )
 void
 AIPlayer::_ResetAIEngine()
 {
-    delete m_engine;
-    m_engine = new folHOXEngine();
+    XQWLight::initialize();
 }
 
 /************************* END OF FILE ***************************************/
