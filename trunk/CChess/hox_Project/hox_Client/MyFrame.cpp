@@ -36,16 +36,16 @@
 #include <wx/splitter.h>
 
 #if !defined(__WXMSW__)
-    #include "icons/hoxchess.xpm"
+    #include "../resource/icons/hoxchess.xpm"
 #endif
 
-#include "bitmaps/new.xpm"
-#include "bitmaps/help.xpm"
-#include "bitmaps/quit.xpm"
-#include "bitmaps/delete.xpm"
-#include "bitmaps/folder_open.xpm"
-#include "bitmaps/connect.xpm"
-#include "bitmaps/disconnect.xpm"
+#include "../resource/bitmaps/new.xpm"
+#include "../resource/bitmaps/help.xpm"
+#include "../resource/bitmaps/quit.xpm"
+#include "../resource/bitmaps/delete.xpm"
+#include "../resource/bitmaps/folder_open.xpm"
+#include "../resource/bitmaps/connect.xpm"
+#include "../resource/bitmaps/disconnect.xpm"
 
 IMPLEMENT_DYNAMIC_CLASS(MyFrame, wxMDIParentFrame)
 

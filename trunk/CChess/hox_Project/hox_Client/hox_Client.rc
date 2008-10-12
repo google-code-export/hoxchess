@@ -8,10 +8,9 @@
 // first icon in the executable and the icons are sorted both by their order
 // (Win9x) and by alphabetically (!) (NT), so put this icon first and give it
 // a name starting with "a"
-aaaaaaaa ICON "./icons/hoxchess.ico"
+aaaaaaaa ICON "../resource/icons/hoxchess.ico"
 
-hoxchess ICON "./icons/hoxchess.ico"
-//relephant ICON "./icons/relephant.ico"
+hoxchess ICON "../resource/icons/hoxchess.ico"
 
 // set this to 1 if you don't want to use manifest resource (manifest resource
 // is needed to enable visual styles on Windows XP - see docs/msw/winxp.txt
@@ -21,8 +20,3 @@ hoxchess ICON "./icons/hoxchess.ico"
 // this is not always needed but doesn't hurt (except making the executable
 // very slightly larger): this file contains the standard icons, cursors, ...
 //#include "wx/msw/wx.rc"
-
-
-
-chart ICON "./icons/chart.ico"
-
