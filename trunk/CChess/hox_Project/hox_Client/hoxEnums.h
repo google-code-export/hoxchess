@@ -46,7 +46,7 @@
 /**
  * The default path of all the pieces' images.
  */
-#define PIECES_PATH "../pieces_6"
+#define PIECES_PATH "../resource/pieces/1"
 
 /**
  * Results (... Return-Code)
