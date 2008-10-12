@@ -21,9 +21,7 @@
 // Name:            main.cpp
 // Created:         10/04/2008
 //
-// Description:     The Entry-Point of the Artificial Intelligent (AI)
-//                  robot that is based on Folilum project:
-//                         http://folium.googlecode.com
+// Description:     The Entry-Point of the Artificial Intelligent (AI) robot.
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -108,10 +106,10 @@ _run_AI_engine( AIPlayer& aiPlayer )
 int
 main( int argc, char *argv[] )
 {
-    printf("%s: Folium AI starting...\n", __FUNCTION__);
+    printf("%s: AI Robot starting...\n", __FUNCTION__);
 
-    std::string ai_pid      = "AI_folium"; // Player ID
-    std::string ai_password = "AI_folium"; // Player Password
+    std::string ai_pid      = "AI_xqwlight"; // Player ID
+    std::string ai_password = "AI_xqwlight"; // Player Password
 
     if ( argc == 3 ) // pid / password from command-line?
     {
@@ -151,7 +149,7 @@ main( int argc, char *argv[] )
     /* -------- */
     HOX::tcp_deinitialize(); /* De-initialize TCP. */
 
-    printf("%s: Folium AI stopping...\n", __FUNCTION__);
+    printf("%s: AI Robot stopping...\n", __FUNCTION__);
     return 0;
 }
 

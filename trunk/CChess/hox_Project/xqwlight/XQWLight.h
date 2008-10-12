@@ -29,9 +29,9 @@
 //        http://www.elephantbase.net/computer/stepbystep1.htm
 //
 //  (Translated English URL using Goold Translate)
-//       http://74.125.93.104/translate_c?hl=en&langpair= \
-//       zh-CN|en&u=http://www.elephantbase.net/computer/stepbystep1.htm& \
-//       usg=ALkJrhj7W0v3J1P-xmbufsWzYq7uKciL1w
+//       http://74.125.93.104/translate_c?hl=en&langpair=
+//         zh-CN|en&u=http://www.elephantbase.net/computer/stepbystep1.htm&
+//         usg=ALkJrhj7W0v3J1P-xmbufsWzYq7uKciL1w
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __INCLUDED_XQWLIGHT_HOX_ENGINE_H__
