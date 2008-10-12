@@ -1178,16 +1178,19 @@ hoxBoard::_OnValidMove( const hoxMove& move,
 		//       Thus, we can detect whether Move time == 0 to indicate that this is
 		//       a Chesscape server.  If so, the Free time is added to the Game time.
 
+        // TODO: Need to handle the case in which the Game time is
+        //       less than Move time or is zero.
+
 		bool bIsChesscape = (m_initialTime.nMove == 0);
 
         if ( move.piece.color == hoxCOLOR_BLACK )
 		{
-			m_blackTime.nMove = m_initialTime.nMove;
+            m_redTime.nMove = m_initialTime.nMove;
 			if ( bIsChesscape ) m_blackTime.nGame += m_initialTime.nFree;
 		}
         else
 		{
-            m_redTime.nMove = m_initialTime.nMove;
+            m_blackTime.nMove = m_initialTime.nMove;
 			if ( bIsChesscape ) m_redTime.nGame += m_initialTime.nFree;
 		}
     }
