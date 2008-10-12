@@ -44,22 +44,17 @@ public:
 		     const wxString&   title,
 			 const wxPoint&    pos = wxDefaultPosition,
 			 const wxSize&     size = wxDefaultSize);
-    ~MyChild();
+    ~MyChild() {}
 
     void OnToggle(wxCommandEvent& event);
     void OnQuit(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);
-    void OnSize(wxSizeEvent& event);
 
     void SetTable(hoxTable_SPtr pTable);
     
     hoxSite* GetSite() const;
 
     bool IsMyTable( const wxString& sTableId ) const;
-
-private:
-    void _SetupMenu();
-    void _SetupStatusBar();
 
 private:
     hoxTable_SPtr m_pTable;

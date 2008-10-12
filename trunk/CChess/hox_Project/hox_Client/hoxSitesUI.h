@@ -78,7 +78,7 @@ public:
 
     /* Public API */
 
-    hoxSite* GetSelectedSite(hoxTable_SPtr& selectedTable) const;
+    hoxSite* GetSelectedSite( hoxTable_SPtr& selectedTable ) const;
 
     bool AddSite( hoxSite* site );
     bool RemoveSite( hoxSite* site );

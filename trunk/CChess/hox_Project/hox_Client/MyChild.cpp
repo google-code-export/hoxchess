@@ -29,7 +29,6 @@
 #include "MyApp.h"    // To access wxGetApp()
 #include "hoxTable.h"
 #include "hoxSite.h"
-#include "hoxPlayer.h"
 
 // Note that MDI_NEW_TABLE and MDI_ABOUT commands get passed
 // to the parent window for processing, so no need to
@@ -38,7 +37,6 @@ BEGIN_EVENT_TABLE(MyChild, wxMDIChildFrame)
     EVT_MENU(MDI_CHILD_QUIT, MyChild::OnQuit)
     EVT_MENU(MDI_TOGGLE, MyChild::OnToggle)
     EVT_CLOSE(MyChild::OnClose)
-    EVT_SIZE(MyChild::OnSize)
 END_EVENT_TABLE()
 
 
@@ -57,31 +55,14 @@ MyChild::MyChild( wxMDIParentFrame* parent,
                           size,
                           wxDEFAULT_FRAME_STYLE | wxNO_FULL_REPAINT_ON_RESIZE )
 {
-    _SetupMenu();
-    _SetupStatusBar();
-
-    // this should work for MDI frames as well as for normal ones
-    SetSizeHints(100, 100);
-}
-
-MyChild::~MyChild()
-{
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
-}
-
-void 
-MyChild::_SetupMenu()
-{
     wxMenuBar* menu_bar = MyFrame::Create_Menu_Bar( true /* hasTable */);
     SetMenuBar( menu_bar );
-}
 
-void 
-MyChild::_SetupStatusBar()
-{
-    CreateStatusBar();
-    SetStatusText( this->GetTitle() );
+    //CreateStatusBar();
+    //SetStatusText( this->GetTitle() );
+
+    // This should work for MDI frames as well as for normal ones.
+    SetSizeHints(100, 100);
 }
 
 void 
@@ -93,30 +74,18 @@ MyChild::OnQuit( wxCommandEvent& event )
 void 
 MyChild::OnToggle( wxCommandEvent& event )
 {
-    if ( m_pTable.get() != NULL )
-        m_pTable->ToggleViewSide();
+    if ( m_pTable ) m_pTable->ToggleViewSide();
 }
 
 void 
 MyChild::OnClose( wxCloseEvent& event )
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    wxCHECK_RET( m_pTable.get() != NULL, "The table must have been set." );
-    
+    wxCHECK_RET( m_pTable, "The table must have been set." );
     wxGetApp().GetFrame()->OnChildClose( event, this, m_pTable );
-
-    wxLogDebug("%s: END.", FNAME);
-}
-
-void MyChild::OnSize(wxSizeEvent& event)
-{
-    event.Skip(); // let the search for the event handler should continue...
 }
 
 void
-MyChild::SetTable(hoxTable_SPtr pTable)
+MyChild::SetTable( hoxTable_SPtr pTable )
 {
     wxCHECK_RET( m_pTable.get() == NULL, "A table has already been set." );
     wxASSERT( pTable != NULL );
@@ -126,19 +95,15 @@ MyChild::SetTable(hoxTable_SPtr pTable)
 hoxSite* 
 MyChild::GetSite() const
 {
-    if ( m_pTable.get() != NULL )
-        return m_pTable->GetSite();
-
-    return NULL;
+    return m_pTable ? m_pTable->GetSite()
+                    : NULL;
 }
 
 bool
 MyChild::IsMyTable( const wxString& sTableId ) const
 {
-    if ( m_pTable.get() != NULL )
-        return (m_pTable->GetId() == sTableId);
-
-    return false;
+    return m_pTable ? m_pTable->GetId() == sTableId
+                    : false;
 }
 
 /************************* END OF FILE ***************************************/
