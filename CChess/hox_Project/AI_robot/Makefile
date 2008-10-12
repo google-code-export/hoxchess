@@ -1,5 +1,5 @@
 # Your project's name.
-PROGRAM = AI_folium
+PROGRAM = AI_xqwlight
 
 # Libraries specific flags.
 BOOST_CXXFLAGS =
@@ -11,19 +11,9 @@ LDLIBS      = $(ST_LDLIBS) -lpthread
 LDFLAGS     =
 DEBUGFLAGS  = -g
 
-# FOLIUM AI Engine source
-FOLIUM_SRC := \
-	bitmap_data.cpp \
-	folEngine.cpp \
-	engine_data.cpp \
-	generator.cpp \
-	hash.cpp \
-	history_data.cpp \
-	move.cpp \
-	folSearch.cpp \
-	xq.cpp \
-	xq_data.cpp \
-	folHOXEngine.cpp
+# XQWLight AI Engine source
+XQWLight_SRC := \
+	XQWLight.cpp
 
 MAIN_SRC := \
 	TcpLib.cpp \
@@ -34,7 +24,7 @@ MAIN_SRC := \
 
 # Define our sources and object files
 SOURCES := \
-	$(FOLIUM_SRC) \
+	$(XQWLight_SRC) \
 	$(MAIN_SRC)
 
 OBJECTS := $(SOURCES:.cpp=.o)
@@ -45,7 +35,7 @@ OBJECTS := $(SOURCES:.cpp=.o)
 all: $(PROGRAM)
 
 prepare:
-	cp -v ../folium/* .
+	cp -v ../xqwlight/*.h ../xqwlight/*.cpp .
 
 $(PROGRAM): $(OBJECTS)
 	$(CXX) $(LDFLAGS) -o $(PROGRAM) $(OBJECTS) $(LDLIBS)
@@ -54,50 +44,19 @@ depend: $(SOURCES)
 	makedepend $(CXXFLAGS) $(SOURCES)
 
 clean:
-	ls ../folium/*.h | cut -c11- | xargs rm -f
-	rm -rf $(PROGRAM) $(OBJECTS) *.bak $(FOLIUM_SRC)
+	ls ../xqwlight/*.h | cut -c13- | xargs rm -f
+	rm -rf $(PROGRAM) $(OBJECTS) *.bak $(XQWLight_SRC)
 
 zip:
-	zip $(PROGRAM) $(MAIN_SRC) ../folium/* *.h Makefile *.sh
+	zip $(PROGRAM) $(MAIN_SRC) ../xqwlight/* *.h Makefile *.sh
 
 # DO NOT DELETE
 
-bitmap_data.o: defines.h int.h bitmap.h /usr/include/string.h
-bitmap_data.o: /usr/include/features.h /usr/include/sys/cdefs.h
-bitmap_data.o: /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h
-bitmap_data.o: /usr/include/gnu/stubs-64.h xq_data.h
-folEngine.o: folEngine.h defines.h int.h movelist.h move.h xq_data.h xq.h
-folEngine.o: bitmap.h /usr/include/string.h /usr/include/features.h
-folEngine.o: /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h
-folEngine.o: /usr/include/gnu/stubs.h /usr/include/gnu/stubs-64.h history.h
-folEngine.o: hash.h engine_data.h
-engine_data.o: defines.h int.h engine_data.h
-generator.o: generator.h defines.h int.h movelist.h move.h xq.h bitmap.h
-generator.o: /usr/include/string.h /usr/include/features.h
-generator.o: /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h
-generator.o: /usr/include/gnu/stubs.h /usr/include/gnu/stubs-64.h xq_data.h
-generator.o: killer.h history.h
-hash.o: hash.h defines.h int.h xq.h move.h bitmap.h /usr/include/string.h
-hash.o: /usr/include/features.h /usr/include/sys/cdefs.h
-hash.o: /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h
-hash.o: /usr/include/gnu/stubs-64.h xq_data.h
-history_data.o: defines.h int.h history.h move.h
-move.o: move.h int.h xq_data.h defines.h
-folSearch.o: folEngine.h defines.h int.h movelist.h move.h xq_data.h xq.h
-folSearch.o: bitmap.h /usr/include/string.h /usr/include/features.h
-folSearch.o: /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h
-folSearch.o: /usr/include/gnu/stubs.h /usr/include/gnu/stubs-64.h history.h
-folSearch.o: hash.h engine_data.h killer.h generator.h
-xq.o: xq.h defines.h int.h move.h bitmap.h /usr/include/string.h
-xq.o: /usr/include/features.h /usr/include/sys/cdefs.h
-xq.o: /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h
-xq.o: /usr/include/gnu/stubs-64.h xq_data.h
-xq_data.o: defines.h int.h xq_data.h
-folHOXEngine.o: folHOXEngine.h folEngine.h defines.h int.h movelist.h move.h
-folHOXEngine.o: xq_data.h xq.h bitmap.h /usr/include/string.h
-folHOXEngine.o: /usr/include/features.h /usr/include/sys/cdefs.h
-folHOXEngine.o: /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h
-folHOXEngine.o: /usr/include/gnu/stubs-64.h history.h hash.h engine_data.h
+XQWLight.o: XQWLight.h /usr/include/time.h /usr/include/features.h
+XQWLight.o: /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h
+XQWLight.o: /usr/include/gnu/stubs.h /usr/include/gnu/stubs-64.h
+XQWLight.o: /usr/include/bits/time.h /usr/include/bits/types.h
+XQWLight.o: /usr/include/bits/typesizes.h
 TcpLib.o: /usr/include/netdb.h /usr/include/features.h
 TcpLib.o: /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h
 TcpLib.o: /usr/include/gnu/stubs.h /usr/include/gnu/stubs-64.h
@@ -105,24 +64,23 @@ TcpLib.o: /usr/include/netinet/in.h /usr/include/stdint.h
 TcpLib.o: /usr/include/bits/wchar.h /usr/include/sys/socket.h
 TcpLib.o: /usr/include/sys/uio.h /usr/include/sys/types.h
 TcpLib.o: /usr/include/bits/types.h /usr/include/bits/typesizes.h
-TcpLib.o: /usr/include/time.h /usr/include/endian.h
+TcpLib.o: /usr/include/time.h /usr/include/bits/time.h /usr/include/endian.h
 TcpLib.o: /usr/include/bits/endian.h /usr/include/sys/select.h
 TcpLib.o: /usr/include/bits/select.h /usr/include/bits/sigset.h
-TcpLib.o: /usr/include/bits/time.h /usr/include/sys/sysmacros.h
-TcpLib.o: /usr/include/bits/pthreadtypes.h /usr/include/bits/uio.h
-TcpLib.o: /usr/include/bits/socket.h /usr/include/limits.h
-TcpLib.o: /usr/include/bits/posix1_lim.h /usr/include/bits/local_lim.h
-TcpLib.o: /usr/include/linux/limits.h /usr/include/bits/posix2_lim.h
-TcpLib.o: /usr/include/bits/sockaddr.h /usr/include/asm/socket.h
-TcpLib.o: /usr/include/asm-x86_64/socket.h /usr/include/asm/sockios.h
-TcpLib.o: /usr/include/asm-x86_64/sockios.h /usr/include/bits/in.h
-TcpLib.o: /usr/include/bits/byteswap.h /usr/include/rpc/netdb.h
-TcpLib.o: /usr/include/bits/netdb.h /usr/include/unistd.h
-TcpLib.o: /usr/include/bits/posix_opt.h /usr/include/bits/confname.h
-TcpLib.o: /usr/include/getopt.h /usr/include/errno.h
-TcpLib.o: /usr/include/bits/errno.h /usr/include/linux/errno.h
-TcpLib.o: /usr/include/asm/errno.h /usr/include/asm-x86_64/errno.h
-TcpLib.o: /usr/include/asm-generic/errno.h
+TcpLib.o: /usr/include/sys/sysmacros.h /usr/include/bits/pthreadtypes.h
+TcpLib.o: /usr/include/bits/uio.h /usr/include/bits/socket.h
+TcpLib.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
+TcpLib.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
+TcpLib.o: /usr/include/bits/posix2_lim.h /usr/include/bits/sockaddr.h
+TcpLib.o: /usr/include/asm/socket.h /usr/include/asm-x86_64/socket.h
+TcpLib.o: /usr/include/asm/sockios.h /usr/include/asm-x86_64/sockios.h
+TcpLib.o: /usr/include/bits/in.h /usr/include/bits/byteswap.h
+TcpLib.o: /usr/include/rpc/netdb.h /usr/include/bits/netdb.h
+TcpLib.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h
+TcpLib.o: /usr/include/bits/confname.h /usr/include/getopt.h
+TcpLib.o: /usr/include/errno.h /usr/include/bits/errno.h
+TcpLib.o: /usr/include/linux/errno.h /usr/include/asm/errno.h
+TcpLib.o: /usr/include/asm-x86_64/errno.h /usr/include/asm-generic/errno.h
 TcpLib.o: /usr/include/asm-generic/errno-base.h TcpLib.h
 hoxCommon.o: hoxCommon.h /usr/include/boost/tokenizer.hpp
 hoxCommon.o: /usr/include/boost/token_iterator.hpp
@@ -855,8 +813,8 @@ AIPlayer.o: /usr/include/boost/mpl/aux_/include_preprocessed.hpp
 AIPlayer.o: /usr/include/boost/mpl/aux_/include_preprocessed.hpp
 AIPlayer.o: /usr/include/boost/mpl/aux_/include_preprocessed.hpp
 AIPlayer.o: /usr/include/boost/iterator/detail/minimum_category.hpp
-AIPlayer.o: /usr/include/boost/token_functions.hpp ../folium/folHOXEngine.h
-AIPlayer.o: hoxCommand.h
+AIPlayer.o: /usr/include/boost/token_functions.hpp hoxCommand.h
+AIPlayer.o: ../xqwlight/XQWLight.h
 main.o: hoxCommon.h /usr/include/boost/tokenizer.hpp
 main.o: /usr/include/boost/token_iterator.hpp /usr/include/boost/assert.hpp
 main.o: /usr/include/assert.h /usr/include/features.h
@@ -1058,4 +1016,4 @@ main.o: /usr/include/boost/mpl/aux_/include_preprocessed.hpp
 main.o: /usr/include/boost/mpl/aux_/include_preprocessed.hpp
 main.o: /usr/include/boost/iterator/detail/minimum_category.hpp
 main.o: /usr/include/boost/token_functions.hpp TcpLib.h AIPlayer.h
-main.o: ../folium/folHOXEngine.h hoxCommand.h
+main.o: hoxCommand.h
