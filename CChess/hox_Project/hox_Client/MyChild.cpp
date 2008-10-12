@@ -31,10 +31,6 @@
 #include "hoxSite.h"
 #include "hoxPlayer.h"
 
-#if !defined(__WXMSW__)
-    #include "icons/chart.xpm"
-#endif
-
 // Note that MDI_NEW_TABLE and MDI_ABOUT commands get passed
 // to the parent window for processing, so no need to
 // duplicate event handlers here.
@@ -63,8 +59,6 @@ MyChild::MyChild( wxMDIParentFrame* parent,
 {
     _SetupMenu();
     _SetupStatusBar();
-
-    SetIcon(wxICON(chart));
 
     // this should work for MDI frames as well as for normal ones
     SetSizeHints(100, 100);
