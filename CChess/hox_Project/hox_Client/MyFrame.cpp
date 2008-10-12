@@ -52,10 +52,6 @@ IMPLEMENT_DYNAMIC_CLASS(MyFrame, wxMDIParentFrame)
 /* Define my custom events */
 DEFINE_EVENT_TYPE(hoxEVT_FRAME_LOG_MSG)
 
-// ----------------------------------------------------------------------------
-// constants
-// ----------------------------------------------------------------------------
-
 BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
     EVT_MENU(MDI_ABOUT, MyFrame::OnAbout)
     EVT_MENU(MDI_NEW_TABLE, MyFrame::OnNewTable)
@@ -102,9 +98,6 @@ MyFrame::MyFrame( wxWindow*        parent,
                   const long       style )
        : wxMDIParentFrame( parent, id, title, pos, size, style )
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
-
     SetIcon( wxICON(hoxchess) );
 
     _CreateSitesUI();
@@ -122,8 +115,8 @@ MyFrame::MyFrame( wxWindow*        parent,
     wxAcceleratorTable accel(3, entries);
     SetAcceleratorTable(accel);
 
-    this->SetupMenu();
-    this->SetupStatusBar();
+    SetMenuBar( MyFrame::Create_Menu_Bar() );
+    CreateStatusBar();
 
 	wxLogStatus("%s %s is ready.", HOX_APP_NAME, HOX_VERSION);
 }
@@ -132,7 +125,6 @@ void
 MyFrame::OnClose(wxCloseEvent& event)
 {
     const char* FNAME = __FUNCTION__;
-
     wxLogDebug("%s: ENTER.", FNAME);
 
     while( ! m_children.empty() )
@@ -147,14 +139,14 @@ MyFrame::OnClose(wxCloseEvent& event)
 
 	if ( hoxSiteManager::GetInstance()->GetNumberOfSites() > 0 )
     {
-        // *** Postpone the shutdown until all sites are closed.
+        // *** Delay the shutdown until all sites are closed.
         return;
     }
 
 	/* Save the current layout. */
 	wxGetApp().SaveDefaultFrameLayout( this->GetPosition(), 
 		                               this->GetSize() );
-	this->_SaveDefaultSitesLayout( m_sitesWindow->GetSize().x );
+	_SaveDefaultSitesLayout( m_sitesWindow->GetSize().x );
 
     /* Forward this Close event to let the App close the entire system. */
     event.Skip();
@@ -191,7 +183,6 @@ void
 MyFrame::OnNewTable( wxCommandEvent& event )
 {
     hoxSite* selectedSite = _GetSelectedSite();
-
     if ( selectedSite != NULL )
     {
         selectedSite->OnLocalRequest_NEW();
@@ -202,7 +193,6 @@ void
 MyFrame::OnCloseTable( wxCommandEvent& event )
 {
     const char* FNAME = __FUNCTION__;
-
     wxLogDebug("%s: ENTER.", FNAME);
 
     MyChild* child = wxDynamicCast(this->GetActiveChild(), MyChild);
@@ -214,7 +204,7 @@ MyFrame::OnCloseTable( wxCommandEvent& event )
 }
 
 void 
-MyFrame::OnUpdateNewTable(wxUpdateUIEvent& event)
+MyFrame::OnUpdateNewTable( wxUpdateUIEvent& event )
 {
 	bool enableMenu = false;
     hoxSite* selectedSite = _GetSelectedSite();
@@ -232,19 +222,16 @@ MyFrame::OnUpdateNewTable(wxUpdateUIEvent& event)
 }
 
 void 
-MyFrame::OnUpdateCloseTable(wxUpdateUIEvent& event)
+MyFrame::OnUpdateCloseTable( wxUpdateUIEvent& event )
 {
     event.Enable( this->GetActiveChild() != NULL );
 }
 
 void 
-MyFrame::OnUpdateListTables(wxUpdateUIEvent& event)
+MyFrame::OnUpdateListTables( wxUpdateUIEvent& event )
 {
-    hoxSite*  selectedSite = _GetSelectedSite();
-
-	bool bEnabled = ( selectedSite != NULL );
-
-    event.Enable( bEnabled );
+    hoxSite* selectedSite = _GetSelectedSite();
+    event.Enable( selectedSite != NULL );
 }
 
 void
@@ -281,7 +268,6 @@ MyFrame::OnDisconnectServer( wxCommandEvent& event )
     /* Find out which site is selected. */
 
     hoxSite* selectedSite = _GetSelectedSite();
-
     if ( selectedSite == NULL )
     {
         wxLogDebug("%s: No site is selected. Do nothing. END.", FNAME);
@@ -301,10 +287,8 @@ void
 MyFrame::OnUpdateDisconnectServer(wxUpdateUIEvent& event)
 {
     hoxSite*  selectedSite = _GetSelectedSite();
-
 	bool bEnabled = ( selectedSite != NULL
                    && selectedSite->GetType() != hoxSITE_TYPE_LOCAL );
-
     event.Enable( bEnabled );
 }
 
@@ -378,7 +362,6 @@ void
 MyFrame::OnPractice( wxCommandEvent& event )
 {
     hoxSite* selectedSite = _GetSelectedSite();
-
     if ( selectedSite != NULL )
     {
         selectedSite->OnLocalRequest_PRACTICE();
@@ -409,7 +392,6 @@ MyFrame::OnListTables( wxCommandEvent& event )
     const char* FNAME = __FUNCTION__;
 
     hoxSite* selectedSite = _GetSelectedSite();
-
     if ( selectedSite == NULL )
         return;
 
@@ -489,13 +471,6 @@ MyFrame::InitToolBar(wxToolBar* toolBar)
     toolBar->Realize();
 }
 
-void
-MyFrame::SetupMenu()
-{
-    wxMenuBar* menu_bar = MyFrame::Create_Menu_Bar();
-    SetMenuBar( menu_bar );
-}
-
 /* static */
 wxMenuBar* 
 MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
@@ -534,12 +509,6 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
     menu_bar->Append(help_menu, _("&Help"));
 
     return menu_bar;
-}
-
-void
-MyFrame::SetupStatusBar()
-{
-    CreateStatusBar();
 }
 
 void 
@@ -765,7 +734,6 @@ MyFrame::_GetDefaultSitesLayout( int& sizeX )
 {
 	sizeX = 0;
 
-	// Read the existing layout from Configuration.
 	wxConfig* config = wxGetApp().GetConfig();
 
 	if ( ! config->Read("/Layout/Sites/size/x", &sizeX) )
@@ -777,11 +745,8 @@ MyFrame::_GetDefaultSitesLayout( int& sizeX )
 bool 
 MyFrame::_SaveDefaultSitesLayout( const int sizeX )
 {
-	// Write the current layout to Configuration.
 	wxConfig* config = wxGetApp().GetConfig();
-
 	config->Write("/Layout/Sites/size/x", sizeX);
-
 	return true;
 }
 
@@ -790,7 +755,6 @@ MyFrame::_GetDefaultTableLayout( wxSize& size )
 {
 	size = wxSize( 0, 0 );
 
-	// Read the existing layout from Configuration.
 	wxConfig* config = wxGetApp().GetConfig();
 
 	if ( ! config->Read("/Layout/Table/size/x", &size.x) )
@@ -805,7 +769,6 @@ MyFrame::_GetDefaultTableLayout( wxSize& size )
 bool 
 MyFrame::_SaveDefaultTableLayout( const wxSize& size )
 {
-	// Write the current layout to Configuration.
 	wxConfig* config = wxGetApp().GetConfig();
 
 	config->Write("/Layout/Table/size/x", size.x);

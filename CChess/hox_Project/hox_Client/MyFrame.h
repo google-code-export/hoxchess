@@ -95,9 +95,6 @@ public:
     ~MyFrame() {}
 
     // -----
-    void SetupMenu();
-    void SetupStatusBar();
-
     void InitToolBar(wxToolBar* toolBar);
 
     void OnSize(wxSizeEvent& event);
