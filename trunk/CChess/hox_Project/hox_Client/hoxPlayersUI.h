@@ -24,10 +24,17 @@
 // Description:     The UI containing a list of Players.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_PLAYERS_UI_H_
-#define __INCLUDED_HOX_PLAYERS_UI_H_
+#ifndef __INCLUDED_HOX_PLAYERS_UI_H__
+#define __INCLUDED_HOX_PLAYERS_UI_H__
 
 #include <wx/listctrl.h>
+
+enum PlayersSortOrder
+{
+    PLAYERS_SORT_NONE,
+    PLAYERS_SORT_ASCENDING,
+    PLAYERS_SORT_DESCENDING
+};
 
 // ---------------------------------------------------------------------------
 // hoxPlayersUI class
@@ -74,16 +81,24 @@ public:
     void OnContextMenu( wxContextMenuEvent& event );
     void OnPlayerInfo( wxCommandEvent& event );
     void OnPlayerInvite( wxCommandEvent& event );
+    void OnColumnClick( wxListEvent& event );
 
 private:
     wxString _GetCellContent( const long row_number,
                               const int  column ) const;
 
+    void _InitializeImageList();
+
 private:
-    UIOwner*   m_owner;   // This UI's owner.
+    UIOwner*          m_owner;   // This UI's owner.
+
+    PlayersSortOrder  m_sortOrderByRating;
+            /* NOTE: Only support sorting by Rating for now */
+
+    wxImageList*      m_imageList;
 
     DECLARE_EVENT_TABLE()
 
 }; // END of hoxPlayersUI
 
-#endif /* __INCLUDED_HOX_PLAYERS_UI_H_ */
+#endif /* __INCLUDED_HOX_PLAYERS_UI_H__ */

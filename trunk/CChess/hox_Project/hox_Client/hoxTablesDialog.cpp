@@ -57,9 +57,10 @@ END_EVENT_TABLE()
 // hoxTablesDialog
 //-----------------------------------------------------------------------------
 
-int wxCALLBACK MyCompareFunction( long item1, 
-								  long item2, 
-								  long sortData /* not used */)
+int wxCALLBACK
+CompareTablesCallBack( long item1, 
+                       long item2, 
+                       long sortData /* not used */)
 {
     if (item1 < item2)  return -1;
     if (item1 > item2)  return 1;
@@ -164,7 +165,7 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*                      parent,
     }
 
 	/* Sort the list. */
-    m_listCtrlTables->SortItems(MyCompareFunction, 0);
+    m_listCtrlTables->SortItems( CompareTablesCallBack, 0 /* sortData */ );
 
     topSizer->Add( 
 		m_listCtrlTables,

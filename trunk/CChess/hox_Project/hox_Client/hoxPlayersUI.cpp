@@ -26,6 +26,9 @@
 
 #include "hoxPlayersUI.h"
 #include <wx/wx.h>
+#include <list>
+
+#define RESOURCE_IMAGES_PATH  "../resource/images"
 
 /* Menu Items IDs. */
 enum
@@ -40,7 +43,22 @@ BEGIN_EVENT_TABLE(hoxPlayersUI, wxListCtrl)
     EVT_CONTEXT_MENU(hoxPlayersUI::OnContextMenu)
     EVT_MENU(hoxPLAYERS_UI_ID_INFO, hoxPlayersUI::OnPlayerInfo)
     EVT_MENU(hoxPLAYERS_UI_ID_INVITE, hoxPlayersUI::OnPlayerInvite)
+    EVT_LIST_COL_CLICK(wxID_ANY, hoxPlayersUI::OnColumnClick)
 END_EVENT_TABLE()
+
+// ---------------------------------------------------------------------------
+// CallBack function to sort Players in the list.
+// ---------------------------------------------------------------------------
+
+int wxCALLBACK
+ComparePlayersCallBack( long item1, 
+                        long item2, 
+                        long sortOrder /* not used */ )
+{
+    if (item1 < item2)  return sortOrder == PLAYERS_SORT_ASCENDING ? -1 : 1;
+    if (item1 > item2)  return sortOrder == PLAYERS_SORT_ASCENDING ? 1 : -1;
+    return 0;
+}
 
 // ---------------------------------------------------------------------------
 // hoxPlayersUI class
@@ -53,7 +71,11 @@ hoxPlayersUI::hoxPlayersUI( wxWindow* parent )
                           wxDefaultSize,
                           wxLC_REPORT | wxLC_SINGLE_SEL )
             , m_owner( NULL )
+            , m_sortOrderByRating( PLAYERS_SORT_NONE )
+            , m_imageList( NULL )
 {
+    _InitializeImageList();
+
     wxString columns[] = { "Id", "Rating" };
 
     for ( long colIndex = 0; colIndex < WXSIZEOF( columns ); ++colIndex )
@@ -61,8 +83,6 @@ hoxPlayersUI::hoxPlayersUI( wxWindow* parent )
 	    this->InsertColumn( colIndex, columns[colIndex] );
     }
 }
-
-extern int wxCALLBACK MyCompareFunction(long item1, long item2, long WXUNUSED(sortData));
 
 bool
 hoxPlayersUI::AddPlayer( const wxString& sPlayerId,
@@ -80,7 +100,9 @@ hoxPlayersUI::AddPlayer( const wxString& sPlayerId,
                    wxString::Format("%d", nPlayerScore));
 
 	this->SetItemData( itemIndex, nPlayerScore);
-	this->SortItems(MyCompareFunction, 0);
+
+    this->SetItemImage( itemIndex, -1 ); // No image on items.
+
     /* If the Player was NOT found (to be removed) before being inserted,
      * then he has just joined this Board.
      */
@@ -175,6 +197,26 @@ hoxPlayersUI::OnPlayerInvite( wxCommandEvent& event )
     m_owner->OnPlayersUIEvent( EVENT_TYPE_INVITE, sPlayerId );
 }
 
+void
+hoxPlayersUI::OnColumnClick( wxListEvent& event )
+{
+    int col = event.GetColumn();
+
+    if ( col == 1 )  // "Rating" column?
+    {
+        m_sortOrderByRating = ( m_sortOrderByRating == PLAYERS_SORT_ASCENDING
+                               ? PLAYERS_SORT_DESCENDING
+                               : PLAYERS_SORT_ASCENDING  );
+
+        this->SortItems( ComparePlayersCallBack, m_sortOrderByRating );
+
+        wxListItem item;
+        item.SetMask(wxLIST_MASK_IMAGE);
+        item.SetImage( m_sortOrderByRating == PLAYERS_SORT_ASCENDING ? 0 : 1 );
+        SetColumn(col, item);
+    }
+}
+
 /**
  * CREDITS: The following code was extracted from this site:
  * http://wiki.wxwidgets.org/WxListCtrl#Get_the_string_contents_of_a_.22cell.22_in_a_LC_REPORT_wxListCtrl
@@ -200,6 +242,36 @@ hoxPlayersUI::_GetCellContent( const long row_number,
     cell_contents_string = row_info.m_text; 
 
     return cell_contents_string;
+}
+
+void
+hoxPlayersUI::_InitializeImageList()
+{
+    m_imageList = new wxImageList(8, 8);
+
+    typedef std::list<wxString> StringList;
+    StringList imageFilenames;
+    imageFilenames.push_back( _("up.png") );
+    imageFilenames.push_back( _("down.png") );
+    
+    wxString filename;
+    wxImage image;
+    for ( StringList::const_iterator it = imageFilenames.begin();
+                                     it != imageFilenames.end(); ++it )
+    {
+        filename.Printf("%s/%s", RESOURCE_IMAGES_PATH, it->c_str());
+        if ( ! image.LoadFile(filename, wxBITMAP_TYPE_PNG) ) 
+        {
+            wxLogWarning("%s: Failed to load Image for Player-List from path [%s].",
+                __FUNCTION__, filename.c_str());
+            // *** Ignore this error.
+        }
+        else
+        {
+            m_imageList->Add( wxBitmap(image) );
+        }
+    }
+    this->AssignImageList( m_imageList, wxIMAGE_LIST_SMALL );
 }
 
 /************************* END OF FILE ***************************************/

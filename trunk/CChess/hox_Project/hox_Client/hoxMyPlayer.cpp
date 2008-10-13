@@ -43,25 +43,12 @@ END_EVENT_TABLE()
 // hoxMyPlayer
 //-----------------------------------------------------------------------------
 
-hoxMyPlayer::hoxMyPlayer()
-{
-    wxFAIL_MSG( "This default constructor is never meant to be used." );
-}
-
 hoxMyPlayer::hoxMyPlayer( const wxString& name,
                           hoxPlayerType   type,
                           int             score )
             : hoxLocalPlayer( name, type, score )
             , m_bLoginSuccess( false )
 { 
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
-}
-
-hoxMyPlayer::~hoxMyPlayer() 
-{
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
 }
 
 void
@@ -79,8 +66,6 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 {
     const char* FNAME = __FUNCTION__;
     hoxResult result = hoxRC_OK;
-
-    wxLogDebug("%s: ENTER.", FNAME);
 
     const hoxResponse_APtr apResponse( wxDynamicCast(event.GetEventObject(), hoxResponse) );
 

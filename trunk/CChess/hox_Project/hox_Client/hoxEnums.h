@@ -25,8 +25,8 @@
 //                  the project.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_ENUMS_H_
-#define __INCLUDED_HOX_ENUMS_H_
+#ifndef __INCLUDED_HOX_ENUMS_H__
+#define __INCLUDED_HOX_ENUMS_H__
 
 #include <wx/wx.h>
 
@@ -46,7 +46,7 @@
 /**
  * The default path of all the pieces' images.
  */
-#define PIECES_PATH "../resource/pieces/5"
+#define PIECES_PATH "../resource/pieces/6"
 
 /**
  * Results (... Return-Code)
@@ -291,4 +291,4 @@ enum hoxUI_ID_Range
 };
 
 
-#endif /* __INCLUDED_HOX_ENUMS_H_ */
+#endif /* __INCLUDED_HOX_ENUMS_H__ */

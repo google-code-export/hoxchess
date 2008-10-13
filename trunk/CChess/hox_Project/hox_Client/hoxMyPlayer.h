@@ -21,11 +21,12 @@
 // Name:            hoxMyPlayer.h
 // Created:         10/28/2007
 //
-// Description:     The new "advanced" LOCAL Player.
+// Description:     The LOCAL Player specialized to login to
+//                  my "games.PlayXiangqi.com" server
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_MY_PLAYER_H_
-#define __INCLUDED_HOX_MY_PLAYER_H_
+#ifndef __INCLUDED_HOX_MY_PLAYER_H__
+#define __INCLUDED_HOX_MY_PLAYER_H__
 
 #include "hoxLocalPlayer.h"
 #include "hoxTypes.h"
@@ -36,12 +37,12 @@
 class hoxMyPlayer :  public hoxLocalPlayer
 {
 public:
-    hoxMyPlayer(); // DUMMY default constructor required for event handler.
+    hoxMyPlayer() {} // DUMMY constructor required for event handler.
     hoxMyPlayer( const wxString& name,
                  hoxPlayerType   type,
                  int             score );
 
-    virtual ~hoxMyPlayer();
+    virtual ~hoxMyPlayer() {}
 
     virtual void Start();
 
@@ -131,4 +132,4 @@ private:
 };
 
 
-#endif /* __INCLUDED_HOX_MY_PLAYER_H_ */
+#endif /* __INCLUDED_HOX_MY_PLAYER_H__ */
