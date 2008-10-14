@@ -25,10 +25,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxPlayersUI.h"
-#include <wx/wx.h>
-#include <list>
-
-#define RESOURCE_IMAGES_PATH  "../resource/images"
+#include "hoxTypes.h"
 
 /* Menu Items IDs. */
 enum
@@ -249,17 +246,16 @@ hoxPlayersUI::_InitializeImageList()
 {
     m_imageList = new wxImageList(8, 8);
 
-    typedef std::list<wxString> StringList;
-    StringList imageFilenames;
+    hoxStringList imageFilenames;
     imageFilenames.push_back( _("up.png") );
     imageFilenames.push_back( _("down.png") );
     
     wxString filename;
     wxImage image;
-    for ( StringList::const_iterator it = imageFilenames.begin();
+    for ( hoxStringList::const_iterator it = imageFilenames.begin();
                                      it != imageFilenames.end(); ++it )
     {
-        filename.Printf("%s/%s", RESOURCE_IMAGES_PATH, it->c_str());
+        filename.Printf("%s/%s", IMAGES_PATH, it->c_str());
         if ( ! image.LoadFile(filename, wxBITMAP_TYPE_PNG) ) 
         {
             wxLogWarning("%s: Failed to load Image for Player-List from path [%s].",

@@ -58,6 +58,8 @@ enum
     MDI_TOGGLE,   // toggle view
     MDI_CHILD_QUIT,
 
+    MDI_SOUND,   // toggle sound
+
     // Windows' IDs.
     ID_WINDOW_SITES,
     ID_TREE_SITES,
@@ -136,6 +138,7 @@ public:
 
     void OnFrameLogMsgEvent( wxCommandEvent &event );
     void OnContextMenu( wxContextMenuEvent& event );
+    void OnToggleSound(wxCommandEvent& event);
 
     /**
      * Create a GUI Frame that can be used as a frame for a new Table.

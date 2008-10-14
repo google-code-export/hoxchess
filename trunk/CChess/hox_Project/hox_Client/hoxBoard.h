@@ -34,6 +34,7 @@
 #include "hoxTypes.h"
 #include "hoxCoreBoard.h"
 #include "hoxPlayersUI.h"
+#include <wx/sound.h>
 
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_JOIN, wxID_ANY)
 DECLARE_EVENT_TYPE(hoxEVT_BOARD_PLAYER_LEAVE, wxID_ANY)
@@ -183,6 +184,7 @@ public:
      *********************************/
 
     void ToggleViewSide();
+    void EnableSound( bool bEnabled ) { m_bSoundEnabled = bEnabled; }
 
 private:
     void _SetRedInfo( const hoxPlayerInfo* playerInfo );
@@ -307,6 +309,11 @@ private:
 	wxBoxSizer*       m_commandSizer; // (Move-History + Action) sizer.
     wxBoxSizer*       m_historySizer; // Move-History sizer.
 	wxBoxSizer*       m_actionSizer;  // Action (JOIN,...) sizer.
+
+    /* Sound variables. */
+
+    bool              m_bSoundEnabled; // Sound is enabled?
+    wxSound           m_soundMove;     // Sound of a MOVE
 
     DECLARE_EVENT_TABLE()
 };

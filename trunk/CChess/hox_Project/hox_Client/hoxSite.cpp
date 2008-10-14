@@ -154,6 +154,9 @@ hoxSite::CreateNewTableWithGUI( const hoxNetworkTableInfo& tableInfo )
                                      boardFeatureFlags );
     pTable->ViewBoard( pBoard );
     
+    bool bSound = wxGetApp().GetOption("sound") == "1";
+    pTable->EnableSound( bSound );
+
     childFrame->SetTable( pTable );
     childFrame->Show( true );
 

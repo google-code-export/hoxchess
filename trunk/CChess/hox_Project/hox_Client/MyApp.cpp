@@ -63,6 +63,7 @@ MyApp::OnInit()
     wxImage::AddHandler( new wxPNGHandler );
 
 	m_config = new wxConfig( HOX_APP_NAME );
+    _LoadAppOptions();
 
     // Get default size and position.
 	wxPoint defaultPosition;
@@ -123,6 +124,8 @@ MyApp::OnExit()
 	delete hoxSiteManager::GetInstance();
 
     //delete wxLog::SetActiveTarget( m_oldLog );
+
+    _SaveAppOptions();
 
 	// The changes will be written back automatically
 	delete m_config;
@@ -233,6 +236,18 @@ MyApp::SaveDefaultFrameLayout( const wxPoint& position,
 	config->Write("/Layout/Frame/size/y", size.y);
 
 	return true;
+}
+
+void
+MyApp::_LoadAppOptions()
+{
+	m_options["sound"] = m_config->Read("/Options/sound", "1");
+}
+
+void
+MyApp::_SaveAppOptions()
+{
+	m_config->Write("/Options/sound", m_options["sound"]);
 }
 
 /************************* END OF FILE ***************************************/

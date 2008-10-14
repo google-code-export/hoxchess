@@ -109,6 +109,21 @@ hoxUtil::LoadPieceImage( hoxPieceType  type,
     return hoxRC_OK;
 }
 
+wxBitmap
+hoxUtil::LoadImage( const wxString& imageName )
+{
+    const wxString filename( wxString(IMAGES_PATH) + "/" + imageName );
+    wxImage image;
+    if ( ! image.LoadFile(filename, wxBITMAP_TYPE_PNG) ) 
+    {
+        wxLogError("%s: Failed to load Image from path [%s].",
+            __FUNCTION__, filename.c_str());
+        return wxBitmap(); // *** Empty bitmap.
+    }
+    
+    return wxBitmap(image);
+}
+
 const char*
 hoxUtil::ResultToStr( const hoxResult result )
 {

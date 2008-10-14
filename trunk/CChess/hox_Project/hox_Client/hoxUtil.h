@@ -40,6 +40,11 @@ namespace hoxUtil
     hoxResult LoadPieceImage(hoxPieceType type, hoxColor color, wxImage& image);
 
     /**
+     * Load and return a Bitmap containing a given Image file.
+     */
+    wxBitmap LoadImage( const wxString& imageName );
+
+    /**
      * Convert a given Result to a (human-readable) string.
      */
     const char* ResultToStr( const hoxResult result );

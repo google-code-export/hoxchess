@@ -90,8 +90,17 @@ public:
     MyFrame*       GetFrame() const { return m_frame; }
     wxConfig*      GetConfig() const { return m_config; }
 
+    wxString GetOption( const wxString& name ) const
+        { return m_options[name]; }
+    void SetOption( const wxString& name, const wxString& value )
+        { m_options[name] = value; }
+
 	bool GetDefaultFrameLayout( wxPoint& position, wxSize& size );
 	bool SaveDefaultFrameLayout( const wxPoint& position, const wxSize& size );
+
+private:
+    void _LoadAppOptions();
+    void _SaveAppOptions();
 
 private:
 	wxConfig*           m_config;
@@ -102,6 +111,9 @@ private:
     MyFrame*            m_frame;  // The main frame.
 
 	bool                m_appClosing;    // The App is being closed?
+
+    typedef std::map<const wxString, wxString> hoxOptions;
+    mutable hoxOptions  m_options;
 
     friend class MyFrame;
 

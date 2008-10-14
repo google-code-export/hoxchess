@@ -46,12 +46,13 @@ public:
 			 const wxSize&     size = wxDefaultSize);
     ~MyChild() {}
 
-    void OnToggle(wxCommandEvent& event);
+    void OnToggleView(wxCommandEvent& event);
     void OnQuit(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);
 
     void SetTable(hoxTable_SPtr pTable);
-    
+    hoxTable_SPtr GetTable() { return m_pTable; }
+
     hoxSite* GetSite() const;
 
     bool IsMyTable( const wxString& sTableId ) const;
