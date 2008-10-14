@@ -49,6 +49,16 @@
 #define PIECES_PATH "../resource/pieces/6"
 
 /**
+ * The default path of other Images.
+ */
+#define IMAGES_PATH  "../resource/images"
+
+/**
+ * The default path of sound files.
+ */
+#define SOUNDS_PATH  "../resource/sounds"
+
+/**
  * Results (... Return-Code)
  */
 enum hoxResult

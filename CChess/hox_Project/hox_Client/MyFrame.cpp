@@ -84,6 +84,7 @@ BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
     EVT_COMMAND(wxID_ANY, hoxEVT_FRAME_LOG_MSG, MyFrame::OnFrameLogMsgEvent)
 
     EVT_CONTEXT_MENU(MyFrame::OnContextMenu)
+    EVT_MENU(MDI_SOUND, MyFrame::OnToggleSound)
 END_EVENT_TABLE()
 
 // ---------------------------------------------------------------------------
@@ -462,6 +463,12 @@ MyFrame::InitToolBar(wxToolBar* toolBar)
 
     toolBar->AddSeparator();
 
+    toolBar->AddTool( MDI_SOUND, _("Sounds"),
+                      hoxUtil::LoadImage("speaker.png"),
+		              _("Toggle sounds"), wxITEM_CHECK);
+    toolBar->ToggleTool( MDI_SOUND,
+                         wxGetApp().GetOption("sound") == "1" );
+
     toolBar->AddTool( MDI_ABOUT, _("About"), 
 		              wxBitmap(help_xpm), _("Help"));
 
@@ -571,6 +578,22 @@ MyFrame::OnContextMenu( wxContextMenuEvent& event )
 	}
 
     PopupMenu(&menu, point.x, point.y);
+}
+
+void
+MyFrame::OnToggleSound(wxCommandEvent& event)
+{
+    bool bSound = wxGetApp().GetOption("sound") == "1";
+    bSound = !bSound;
+    wxGetApp().SetOption( "sound", bSound ? "1" : "0" );
+
+    hoxTable_SPtr pTable;
+    for ( MyChildList::const_iterator it = m_children.begin();
+                                      it != m_children.end(); ++it )
+    {
+        pTable = (*it)->GetTable();
+        if ( pTable ) pTable->EnableSound( bSound );
+    }
 }
 
 MyChild* 

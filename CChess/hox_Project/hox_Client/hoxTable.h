@@ -278,6 +278,7 @@ public:
     void PostBoardMessage( const wxString&  message );
 
     void ToggleViewSide();
+    void EnableSound( bool bEnabled );
 
     hoxSite* GetSite() const { return m_site; }
 

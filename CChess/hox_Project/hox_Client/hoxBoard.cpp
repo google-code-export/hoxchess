@@ -130,6 +130,7 @@ hoxBoard::hoxBoard( wxWindow*        parent,
         , m_bRated( true )
 		, m_timer( NULL )
         , m_bUICreated( false )
+        , m_bSoundEnabled( true )
 {
     const char* FNAME = __FUNCTION__;
     wxLogDebug("%s: ENTER.", FNAME);
@@ -149,6 +150,11 @@ hoxBoard::hoxBoard( wxWindow*        parent,
     /* A timer to keep track of the time. */
     m_timer = new wxTimer( this );
     m_timer->Start( hoxTIME_ONE_SECOND_INTERVAL );
+
+    /* Prepare sounds. */
+    const wxString soundFile( wxString(SOUNDS_PATH) + "/" + "move.wav" );
+    m_soundMove.Create( soundFile );
+    wxASSERT_MSG(m_soundMove.IsOk(), "Failed to load sound file " + soundFile);
 
 	// *** NOTE: By default, the Board is NOT visible.
     wxPanel::Show( false );  // invoke the parent's API.
@@ -1193,6 +1199,12 @@ hoxBoard::_OnValidMove( const hoxMove& move,
             m_blackTime.nMove = m_initialTime.nMove;
 			if ( bIsChesscape ) m_redTime.nGame += m_initialTime.nFree;
 		}
+    }
+
+    /* Play the sound for the MOVE. */
+    if ( m_bSoundEnabled )
+    {
+        m_soundMove.Play();   
     }
 }
 
