@@ -407,6 +407,11 @@ HOX::tcp_send_line( int                s /* socket */,
 namespace HOX
 {
 
+Socket::~Socket()
+{
+    this->Close();
+}
+
 int
 Socket::Connect( const std::string&       sHost,
                  const unsigned short int nPort )
@@ -417,7 +422,13 @@ Socket::Connect( const std::string&       sHost,
 int
 Socket::Close()
 {
-    return tcp_close( m_sock );
+    int iResult = 0;
+    if ( m_sock != HOX_INVALID_SOCKET )
+    {
+        iResult = tcp_close( m_sock );
+        m_sock = HOX_INVALID_SOCKET;
+    }
+    return iResult;
 }
 
 int

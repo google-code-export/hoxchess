@@ -55,6 +55,7 @@ AIPlayer::AIPlayer( const std::string& id,
 
 AIPlayer::~AIPlayer()
 {
+    this->Disconnect();
 }
 
 void

@@ -1,5 +1,5 @@
 # Your project's name.
-PROGRAM = AI_xqwlight
+PROGRAM = AI_robot
 
 # Libraries specific flags.
 BOOST_CXXFLAGS =

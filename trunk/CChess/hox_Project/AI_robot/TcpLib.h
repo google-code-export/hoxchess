@@ -107,7 +107,7 @@ namespace HOX
     {
     public:
         Socket() : m_sock( HOX_INVALID_SOCKET ) {}
-        virtual ~Socket() {}
+        virtual ~Socket();
 
         /**
          * Establish a connection a given server = {host:port}.
