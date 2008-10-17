@@ -28,6 +28,7 @@
 #define __INCLUDED_HOX_PLAYERS_UI_H__
 
 #include <wx/listctrl.h>
+#include <wx/imaglist.h>
 
 enum PlayersSortOrder
 {
