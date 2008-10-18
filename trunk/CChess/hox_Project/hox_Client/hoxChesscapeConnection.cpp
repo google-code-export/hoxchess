@@ -50,8 +50,8 @@ hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
     const char* FNAME = __FUNCTION__;
     hoxResult    result = hoxRC_ERR;
     const hoxRequestType requestType = apRequest->type;
-    hoxResponse_APtr response( new hoxResponse(requestType, 
-                                               apRequest->sender) );
+    hoxResponse_APtr apResponse( new hoxResponse(requestType, 
+                                                 apRequest->sender) );
 
     /* Check whether the connection has been established for
      * non-login requests.
@@ -70,7 +70,7 @@ hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
     {
         case hoxREQUEST_LOGIN:
 		{
-            result = _Login( apRequest );
+            result = _Login( apRequest, apResponse->content );
 			break;
 		}
         case hoxREQUEST_LOGOUT:
@@ -145,6 +145,12 @@ hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
         wxLogDebug("%s: * INFO * Request [%s]: return error-code = [%s]...", 
             FNAME, hoxUtil::RequestTypeToString(requestType).c_str(), 
             hoxUtil::ResultToStr(result));
+
+        /* Notify the Player of this error. */
+        wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, requestType );
+        apResponse->code = result;
+        event.SetEventObject( apResponse.release() );  // Caller will de-allocate.
+        wxPostEvent( m_player, event );
     }
 }
 
@@ -181,7 +187,8 @@ hoxChesscapeWriter::_StartReader( wxSocketClient* socket )
 }
 
 hoxResult
-hoxChesscapeWriter::_Login( hoxRequest_APtr apRequest )
+hoxChesscapeWriter::_Login( hoxRequest_APtr apRequest,
+                            wxString&       sResponse )
 {
     const char* FNAME = __FUNCTION__;
 
@@ -204,9 +211,10 @@ hoxChesscapeWriter::_Login( hoxRequest_APtr apRequest )
 
     if ( ! m_socket->Connect( addr, true /* wait */ ) )
     {
-        wxLogError("%s: Failed to connect to the server [%s]. Error = [%s].",
+        wxLogDebug("%s: *ERROR* Failed to connect to the server [%s]. Error = [%s].",
             FNAME, m_serverAddress.c_str(), 
             hoxNetworkAPI::SocketErrorToString(m_socket->LastError()).c_str());
+        sResponse = "Failed to connect to server";
         return hoxRC_ERR;
     }
 

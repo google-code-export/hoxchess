@@ -42,6 +42,54 @@
 #include "hoxFoliumPlayer.h"
 #include "hoxXQWLightPlayer.h"
 
+#include <wx/progdlg.h>
+
+/**
+ * A progress Dialog with Timer built-in.
+ *
+ * Restriction according to wxWidgets's Documentation:
+ * ---------------------------------------------------
+ *      Note: A timer can only be used from the main thread.
+ */
+class hoxProgressDialog : public wxProgressDialog
+                        , public wxTimer
+{
+public:
+    hoxProgressDialog( const wxString& title,
+                       const wxString& message,
+                       int             maximum = 100,
+                       wxWindow*       parent = NULL,
+                       int             style = wxPD_AUTO_HIDE | wxPD_APP_MODAL
+                                             | wxPD_CAN_ABORT | wxPD_ELAPSED_TIME
+                                             | wxPD_REMAINING_TIME )
+        : wxProgressDialog( title, message, maximum, parent, style )
+        , wxTimer()
+        , m_maximum( maximum )
+        , m_timerValue( 0 )
+    {
+        this->Start( hoxTIME_ONE_SECOND_INTERVAL );
+    }
+
+    virtual void Stop()
+    {
+        this->wxTimer::Stop();
+        this->Update( m_maximum ); // Make sure to close the dialog.
+    }
+
+    virtual void Notify()
+    {
+        bool bContinued = this->Update( ++m_timerValue );
+        if ( ! bContinued )
+        {
+            this->Stop();
+        }
+    }
+
+private:
+    int  m_maximum;      // Progress-MAXIMUM value.
+    int  m_timerValue;   // Timer's value.
+};
+
 // --------------------------------------------------------------------------
 // hoxSite
 // --------------------------------------------------------------------------
@@ -89,8 +137,6 @@ hoxSite::GetBoardFeatureFlags() const
 void
 hoxSite::ShowProgressDialog( bool bShow /* = true */ )
 {
-    const char* FNAME = __FUNCTION__;
-
     if ( bShow )
     {
         if ( m_dlgProgress != NULL ) 
@@ -99,27 +145,18 @@ hoxSite::ShowProgressDialog( bool bShow /* = true */ )
             m_dlgProgress = NULL;
         }
 
-        m_dlgProgress = new wxProgressDialog(
-            "Progress dialog",
-            "Wait until connnection is established or press [Cancel]",
-            100,
-            wxGetApp().GetFrame(),  // parent
-            wxPD_AUTO_HIDE | wxPD_CAN_ABORT
+        m_dlgProgress = new hoxProgressDialog(
+            _("Progress dialog"),
+            _("Wait until connection is established or press [Cancel]"),
+            30,  // maximum
+            wxGetApp().GetFrame()  // parent
             );
-        m_dlgProgress->SetSize( wxSize(500, 150) );
-        m_dlgProgress->Pulse();
     }
     else /* Hide */
     {
         if ( m_dlgProgress != NULL )
         {
-            bool wasCanceled = !m_dlgProgress->Pulse();
-            m_dlgProgress->Update(100);  // make sure to close the dialog.
-            if ( wasCanceled )
-            {
-                wxLogDebug("%s: Connection has been canceled.", FNAME);
-                return;
-            }
+            m_dlgProgress->Stop();
         }
     }
 }
@@ -669,6 +706,7 @@ hoxChesscapeSite::OnResponse_LOGIN( const hoxResponse_APtr& response )
         if ( m_player != NULL )
         {
             m_player->DisconnectFromNetworkServer();
+            this->Handle_ShutdownReadyFromPlayer();
         }
     }
 }

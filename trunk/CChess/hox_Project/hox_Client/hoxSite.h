@@ -24,17 +24,18 @@
 // Description:     The Site.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_SITE_H_
-#define __INCLUDED_HOX_SITE_H_
+#ifndef __INCLUDED_HOX_SITE_H__
+#define __INCLUDED_HOX_SITE_H__
 
 #include <wx/wx.h>
-#include <wx/progdlg.h>
-#include <list>
 #include "hoxTypes.h"
 #include "hoxPlayerMgr.h"
 #include "hoxTableMgr.h"
 #include "hoxLocalPlayer.h"
 #include "hoxPlayersUI.h"
+
+/* Forward declarations. */
+class hoxProgressDialog;
 
 /**
  * The Site's Actions that are enabled at a given time.
@@ -155,7 +156,7 @@ protected:
     hoxPlayerMgr       m_playerMgr;
     hoxTableMgr        m_tableMgr;
 
-    wxProgressDialog*  m_dlgProgress;
+    hoxProgressDialog* m_dlgProgress;
 
 	bool               m_siteDisconnecting; // The Site is being disconnected?
 
@@ -353,4 +354,4 @@ private:
     hoxSitesUI*     m_sitesUI;
 };
 
-#endif /* __INCLUDED_HOX_SITE_H_ */
+#endif /* __INCLUDED_HOX_SITE_H__ */
