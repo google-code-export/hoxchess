@@ -38,15 +38,14 @@ enum
     HOX_ID_LOGIN
 };
 
-// The Site-Type Selection
 enum SiteTypeSelection
 {
 	/* NOTE: The numeric values must be maintained to match
 	 *       with the indices of site-types.
 	 */
 
-    SITETYPE_SELECTION_CHESSCAPE    = 0,
-    SITETYPE_SELECTION_HOXCHESS     = 1,
+    SITETYPE_SELECTION_HOXCHESS     = 0,
+    SITETYPE_SELECTION_CHESSCAPE    = 1,
 
     SITETYPE_SELECTION_MAX    // MAX Site marker!!!
 };
@@ -65,8 +64,8 @@ struct SiteInfo
 /* Default sites info. */
 static SiteInfo s_siteList[] =
 {
-    { hoxSITE_TYPE_CHESSCAPE, "Chesscape", "Chesscape.com", "games.chesscape.com", "3534", "", "" },
     { hoxSITE_TYPE_REMOTE, "HOXChess", "HOXChess Server", "games.playxiangqi.com", "8000", "", "" },
+    { hoxSITE_TYPE_CHESSCAPE, "Chesscape", "Chesscape.com (discontinued)", "games.chesscape.com", "3534", "", "" },
 };
 
 // ----------------------------------------------------------------------------
@@ -93,8 +92,7 @@ hoxLoginDialog::hoxLoginDialog( wxWindow*       parent,
 {
 	/* Read existing login-info from Configuration. */
 
-	wxConfig* config = wxGetApp().GetConfig();
-	int      siteChoice = SITETYPE_SELECTION_CHESSCAPE;
+	int   siteChoice = SITETYPE_SELECTION_HOXCHESS;
 
     _GetDefaultLoginInfo( siteChoice );
 
@@ -238,7 +236,7 @@ hoxLoginDialog::hoxLoginDialog( wxWindow*       parent,
 void 
 hoxLoginDialog::OnSiteSelected(wxCommandEvent& event)
 {
-    const char* FNAME = "hoxLoginDialog::OnSiteSelected";
+    const char* FNAME = __FUNCTION__;
     int nSelectedType = m_radioSiteTypes->GetSelection();
 
     if ( nSelectedType < 0 || nSelectedType >= SITETYPE_SELECTION_MAX )
@@ -246,15 +244,6 @@ hoxLoginDialog::OnSiteSelected(wxCommandEvent& event)
         wxLogError("%s: Unknown site choice [%d].", FNAME, nSelectedType);
         return;
     }
-#if 0
-    bool bAddressEnabled = true;
-    if ( nSelectedType == SITETYPE_SELECTION_CHESSCAPE )
-    {
-        bAddressEnabled = false;
-    }
-    m_textCtrlAddress->Enable( bAddressEnabled );
-    m_textCtrlPort->Enable( bAddressEnabled );
-#endif
 
     m_textCtrlAddress->SetValue( s_siteList[nSelectedType].sAddress );
     m_textCtrlPort->SetValue( s_siteList[nSelectedType].sPort );
@@ -265,7 +254,7 @@ hoxLoginDialog::OnSiteSelected(wxCommandEvent& event)
 void 
 hoxLoginDialog::OnButtonLogin(wxCommandEvent& event)
 {
-    const char* FNAME = "hoxLoginDialog::OnButtonLogin";
+    const char* FNAME = __FUNCTION__;
 
 	/* Determine the selected Site-Type */
 
@@ -313,7 +302,7 @@ hoxLoginDialog::OnButtonLogin(wxCommandEvent& event)
 bool 
 hoxLoginDialog::_GetDefaultLoginInfo( int& siteChoice )
 {
-	const char* FNAME = "hoxLoginDialog::_GetDefaultLoginInfo";
+	const char* FNAME = __FUNCTION__;
 
 	wxConfig* config = wxGetApp().GetConfig();
 
@@ -344,7 +333,7 @@ hoxLoginDialog::_GetDefaultLoginInfo( int& siteChoice )
 bool 
 hoxLoginDialog::_SaveDefaultLoginInfo( const int siteChoice )
 {
-	const char* FNAME = "hoxLoginDialog::_SaveDefaultLoginInfo";
+	const char* FNAME = __FUNCTION__;
 
 	wxConfig* config = wxGetApp().GetConfig();
 

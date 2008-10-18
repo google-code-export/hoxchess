@@ -1469,14 +1469,25 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
     wxLogDebug("%s: ENTER.", FNAME);
 
     hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
-    std::auto_ptr<hoxResponse> response( response_raw ); // take care memory leak!
+    hoxResponse_APtr apResponse( response_raw ); // take care memory leak!
 
     hoxSite* site = this->GetSite();
 
-    const wxString sType = hoxUtil::RequestTypeToString(response->type);
+    const wxString sType = hoxUtil::RequestTypeToString(apResponse->type);
+    const wxString sContent = apResponse->content;
 
-    switch ( response->type )
+    switch ( apResponse->type )
 	{
+        case hoxREQUEST_LOGIN:
+		{
+            if ( apResponse->code != hoxRC_OK )  // error?
+            {
+                wxLogDebug("%s: *** WARN *** Failed to login. Error = [%s].", 
+                    FNAME, sContent.c_str());
+                site->OnResponse_LOGIN( apResponse );
+            }
+            break;
+        }
 		case hoxREQUEST_JOIN:      /* fall through */
 		case hoxREQUEST_NEW:       /* fall through */
 		case hoxREQUEST_LEAVE:     /* fall through */
@@ -1492,10 +1503,10 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 
 	/* Post event to the sender if it is THIS player */
 
-    if ( response->sender && response->sender != this )
+    if ( apResponse->sender && apResponse->sender != this )
     {
-        wxEvtHandler* sender = response->sender;
-        response.release();
+        wxEvtHandler* sender = apResponse->sender;
+        apResponse.release();
         wxPostEvent( sender, event );
     }
 
