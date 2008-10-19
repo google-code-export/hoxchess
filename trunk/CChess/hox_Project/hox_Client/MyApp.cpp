@@ -242,12 +242,24 @@ void
 MyApp::_LoadAppOptions()
 {
 	m_options["sound"] = m_config->Read("/Options/sound", "1");
+
+    m_options["/Board/Piece/path"] =
+        m_config->Read("/Board/Piece/path", DEFAULT_PIECE_PATH);
+
+    m_options["/Board/Color/background"] =
+        m_config->Read("/Board/Color/background", DEFAULT_BOARD_BACKGROUND_COLOR);
+
+    m_options["/Board/Color/foreground"] =
+        m_config->Read("/Board/Color/foreground", DEFAULT_BOARD_FOREGROUND_COLOR);
 }
 
 void
 MyApp::_SaveAppOptions()
 {
 	m_config->Write("/Options/sound", m_options["sound"]);
+    m_config->Write("/Board/Piece/path", m_options["/Board/Piece/path"]);
+    m_config->Write("/Board/Color/background", m_options["/Board/Color/background"]);
+    m_config->Write("/Board/Color/foreground", m_options["/Board/Color/foreground"]);
 }
 
 /************************* END OF FILE ***************************************/

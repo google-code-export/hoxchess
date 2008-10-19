@@ -28,8 +28,8 @@
 //                     + Chat feature (Text Input + Wall Output).
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_BOARD_H_
-#define __INCLUDED_HOX_BOARD_H_
+#ifndef __INCLUDED_HOX_BOARD_H__
+#define __INCLUDED_HOX_BOARD_H__
 
 #include "hoxTypes.h"
 #include "hoxCoreBoard.h"
@@ -96,6 +96,8 @@ public:
               hoxIReferee_SPtr referee,
               hoxTable_SPtr    pTable,
               const wxString&  ownerId,
+              wxColor          bgColor,
+              wxColor          fgColor,
               const wxPoint&   pos = wxDefaultPosition, 
               const wxSize&    size = wxDefaultSize,
               unsigned int     featureFlags = hoxBOARD_FEATURE_ALL );
@@ -185,6 +187,8 @@ public:
 
     void ToggleViewSide();
     void EnableSound( bool bEnabled ) { m_bSoundEnabled = bEnabled; }
+    void SetBgColor( wxColor color ); // Set Board's Background Color
+    void SetFgColor( wxColor color ); // Set Board's Foreground Color
 
 private:
     void _SetRedInfo( const hoxPlayerInfo* playerInfo );
@@ -318,4 +322,4 @@ private:
     DECLARE_EVENT_TABLE()
 };
 
-#endif /* __INCLUDED_HOX_BOARD_H_ */
+#endif /* __INCLUDED_HOX_BOARD_H__ */

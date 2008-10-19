@@ -24,20 +24,15 @@
 // Description:     The "core" Board.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_CORE_BOARD_H_
-#define __INCLUDED_HOX_CORE_BOARD_H_
+#ifndef __INCLUDED_HOX_CORE_BOARD_H__
+#define __INCLUDED_HOX_CORE_BOARD_H__
 
 #include <wx/wx.h>
 #include <wx/dragimag.h>
-
 #include <list>
 #include "hoxPiece.h"
 #include "hoxIReferee.h"
 
-/*
- * typedefs
- */
-typedef std::list<hoxPiece*> hoxPieceList;
 
 /*
  * hoxCoreBoard
@@ -73,9 +68,11 @@ public:
     };
 
 public:
-    hoxCoreBoard(); // Dummy default constructor required for RTTI info.
+    hoxCoreBoard() {} // Dummy default constructor required for RTTI info.
     hoxCoreBoard( wxWindow*        parent,
                   hoxIReferee_SPtr referee,
+                  wxColor          bgColor = DEFAULT_BOARD_BACKGROUND_COLOR,
+                  wxColor          fgColor = DEFAULT_BOARD_FOREGROUND_COLOR,
                   const wxPoint&   pos = wxDefaultPosition, 
                   const wxSize&    size = wxDefaultSize );
     virtual ~hoxCoreBoard();
@@ -84,11 +81,14 @@ public:
      * My MAIN public API
      *********************************/
 
+    void SetBgColor( wxColor color ); // Set Board's Background Color
+    void SetFgColor( wxColor color ); // Set Board's Foreground Color
+
     /**
      * Set the path (such as "C:/cchess/pieces") from where
      * all the pieces' images are loaded.
      */
-    void SetPiecesPath(const wxString& piecesPath);
+    void SetPiecesPath( const wxString& piecesPath );
 
     /**
      * Load pieces according the Referee's list of pieces' positions.
@@ -239,13 +239,19 @@ private:
     void _PrintDebug( const wxString& debugMsg ) const;
 
 private:
+    /* Board's colors. */
+    wxColor         m_backgroundColor;
+    wxColor         m_foregroundColor;
+
     /* Board's characteristics. */
     wxCoord         m_borderX;  // X-position from the border
     wxCoord         m_borderY;  // Y-position from the border
     wxCoord         m_cellS;    // The size of each cell.
     bool            m_bViewInverted; // true if Black is at the bottom
 
+    typedef std::list<hoxPiece*> hoxPieceList;
     hoxPieceList     m_pieces;  // List of all Pieces
+
     hoxIReferee_SPtr m_referee; // The Referee of the game.
     BoardOwner*      m_owner;   // This Board's owner.
 
@@ -279,4 +285,4 @@ private:
 };
 
 
-#endif /* __INCLUDED_HOX_CORE_BOARD_H_ */
+#endif /* __INCLUDED_HOX_CORE_BOARD_H__ */

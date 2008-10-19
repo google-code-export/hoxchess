@@ -24,12 +24,11 @@
 // Description:     The main Frame of the App.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_MY_FRAME_H_
-#define __INCLUDED_MY_FRAME_H_
+#ifndef __INCLUDED_MY_FRAME_H__
+#define __INCLUDED_MY_FRAME_H__
 
 #include <wx/wx.h>
 #include <wx/laywin.h>   // wxSashLayoutWindow
-#include <list>
 #include "hoxTypes.h"
 
 /* Forward declarations */
@@ -38,7 +37,7 @@ class hoxSite;
 class hoxSitesUI;
 class hoxPlayersUI;
 
-// menu items ids
+/* Menu items IDs */
 enum
 {
     MDI_QUIT = wxID_EXIT,
@@ -59,6 +58,7 @@ enum
     MDI_CHILD_QUIT,
 
     MDI_SOUND,   // toggle sound
+    MDI_OPTIONS, // App's general options
 
     // Windows' IDs.
     ID_WINDOW_SITES,
@@ -83,8 +83,6 @@ DECLARE_EVENT_TYPE(hoxEVT_FRAME_LOG_MSG, wxID_ANY)
  */
 class MyFrame : public wxMDIParentFrame
 {
-    typedef std::list<MyChild*> MyChildList;
-
 public:
     MyFrame() {} // Dummy default constructor required for RTTI info.
     MyFrame( wxWindow*          parent, 
@@ -138,7 +136,8 @@ public:
 
     void OnFrameLogMsgEvent( wxCommandEvent &event );
     void OnContextMenu( wxContextMenuEvent& event );
-    void OnToggleSound(wxCommandEvent& event);
+    void OnToggleSound( wxCommandEvent& event );
+    void OnOptions( wxCommandEvent& event );
 
     /**
      * Create a GUI Frame that can be used as a frame for a new Table.
@@ -187,6 +186,7 @@ private:
     wxSashLayoutWindow* m_logWindow; // To contain the log-text below.
     wxTextCtrl*         m_logText;   // Log window for debugging purpose.
 
+    typedef std::list<MyChild*> MyChildList;
     MyChildList         m_children;
 
     DECLARE_DYNAMIC_CLASS(MyFrame)
@@ -194,4 +194,4 @@ private:
 };
 
 
-#endif  /* __INCLUDED_MY_FRAME_H_ */
+#endif  /* __INCLUDED_MY_FRAME_H__ */
