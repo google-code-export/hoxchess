@@ -27,10 +27,9 @@
 //                    + A Board (maybe optional).
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_TABLE_H_
-#define __INCLUDED_HOX_TABLE_H_
+#ifndef __INCLUDED_HOX_TABLE_H__
+#define __INCLUDED_HOX_TABLE_H__
 
-#include <wx/wx.h>
 #include "hoxTypes.h"
 
 /* Forward declarations */
@@ -65,6 +64,12 @@ public:
     const wxString GetId() const { return m_id; }
 
     hoxIReferee_SPtr GetReferee() const { return m_referee; }
+
+	/**
+	 * Return the (optional) Board UI object.
+     * If the Table does NOT yet have a UI, then the returned pointer is NULL.
+	 */
+    hoxBoard* GetBoardUI() const { return m_board; }
 
     /**
      * Attempt to assign a player to this Table as a specified role.
@@ -400,4 +405,4 @@ public:
 					     	       const hoxTimeInfo& playerTime );
 };
 
-#endif /* __INCLUDED_HOX_TABLE_H_ */
+#endif /* __INCLUDED_HOX_TABLE_H__ */

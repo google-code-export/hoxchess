@@ -32,8 +32,10 @@
 #include "hoxLoginDialog.h"
 #include "hoxSitesUI.h"
 #include "hoxPlayersUI.h"
+#include "hoxBoard.h"
 
 #include <wx/splitter.h>
+#include <wx/colordlg.h>  // Color Dialog
 
 #if !defined(__WXMSW__)
     #include "../resource/icons/hoxchess.xpm"
@@ -85,6 +87,7 @@ BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
 
     EVT_CONTEXT_MENU(MyFrame::OnContextMenu)
     EVT_MENU(MDI_SOUND, MyFrame::OnToggleSound)
+    EVT_MENU(MDI_OPTIONS, MyFrame::OnOptions)
 END_EVENT_TABLE()
 
 // ---------------------------------------------------------------------------
@@ -482,7 +485,7 @@ MyFrame::InitToolBar(wxToolBar* toolBar)
 wxMenuBar* 
 MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
 {
-    // File menu.
+    /* File menu. */
     wxMenu* file_menu = new wxMenu;
     file_menu->Append(MDI_CONNECT_SERVER, _("Connect Server...\tCtrl-L"), _("Connect to remote server"));
     file_menu->Append(MDI_DISCONNECT_SERVER, _("&Disconnect Server\tCtrl-D"), _("Disconnect from remote server"));
@@ -502,17 +505,22 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
     {
         view_menu->Append(MDI_TOGGLE, _("Toggle Table &View\tCtrl-V"));
     }
+    view_menu->AppendSeparator();
+    view_menu->AppendCheckItem(MDI_SHOW_LOG_WINDOW, _("Lo&g Window\tCtrl-G"));
+
+    /* Tools menu. */
+    wxMenu* tools_menu = new wxMenu;
+    tools_menu->Append(MDI_OPTIONS, _("&Options...\tCtrl-O"));
 
     /* Help menu. */
     wxMenu* help_menu = new wxMenu;
-    help_menu->AppendCheckItem(MDI_SHOW_LOG_WINDOW, _("Lo&g Window\tCtrl-G"));
-    help_menu->AppendSeparator();
-    help_menu->Append(MDI_ABOUT, _("&About HOXChess\tF1"));
+    help_menu->Append(MDI_ABOUT, _("&About HOXChess...\tF1"));
 
     /* The main menu bar */
     wxMenuBar* menu_bar = new wxMenuBar;
     menu_bar->Append(file_menu, _("&File"));
     menu_bar->Append(view_menu, _("&View"));
+    menu_bar->Append(tools_menu, _("&Tools"));
     menu_bar->Append(help_menu, _("&Help"));
 
     return menu_bar;
@@ -581,7 +589,7 @@ MyFrame::OnContextMenu( wxContextMenuEvent& event )
 }
 
 void
-MyFrame::OnToggleSound(wxCommandEvent& event)
+MyFrame::OnToggleSound( wxCommandEvent& event )
 {
     bool bSound = wxGetApp().GetOption("sound") == "1";
     bSound = !bSound;
@@ -593,6 +601,38 @@ MyFrame::OnToggleSound(wxCommandEvent& event)
     {
         pTable = (*it)->GetTable();
         if ( pTable ) pTable->EnableSound( bSound );
+    }
+}
+
+void
+MyFrame::OnOptions( wxCommandEvent& event )
+{
+    wxColourData colorData;
+    colorData.SetColour( wxColor( "RGB(64, 64, 64)" ) );
+
+    wxColourDialog dialog(this, &colorData);
+    dialog.SetTitle( _("Choose the Board's background color") );
+    if (dialog.ShowModal() == wxID_OK)
+    {
+        colorData = dialog.GetColourData();
+        wxColor color = colorData.GetColour();
+        const wxString sNewColor = color.GetAsString( wxC2S_CSS_SYNTAX );
+
+        wxGetApp().SetOption("/Board/Color/background", sNewColor);
+
+        MyChild* child = wxDynamicCast(this->GetActiveChild(), MyChild);
+        if ( child != NULL )
+        {
+            hoxTable_SPtr pTable = child->GetTable();
+            hoxBoard* pBoardUI = pTable->GetBoardUI();
+            if ( pBoardUI )
+            {
+                pBoardUI->SetBgColor( colorData.GetColour() );
+            }
+        }
+        //myCanvas->SetBackgroundColour(colorData.GetColour());
+        //myCanvas->ClearBackground();
+        //myCanvas->Refresh();
     }
 }
 

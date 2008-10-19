@@ -34,12 +34,6 @@
 // Constants
 // ----------------------------------------------------------------------------
 
-/* Use the Color-Mixer tool from the following site to generate the colors:
- *       http://colormixers.com/mixers/cmr/
- */
-static const wxColor hoxBOARD_COLOR_BACKGROUND(64, 64, 64);
-static const wxColor hoxBOARD_COLOR_FOREGROUND(255, 255, 255);
-
 enum Constants
 {
     // Dragging modes
@@ -71,10 +65,9 @@ BEGIN_EVENT_TABLE(hoxCoreBoard, wxPanel)
     EVT_MOUSE_CAPTURE_LOST (hoxCoreBoard::OnMouseCaptureLost)
 END_EVENT_TABLE()
 
-hoxCoreBoard::hoxCoreBoard()
-{
-    wxFAIL_MSG( "This default constructor is never meant to be used." );
-}
+// ---------------------------------------------------------------------------
+// hoxCoreBoard
+// ---------------------------------------------------------------------------
 
 /**
  * NOTE: wx_FULL_REPAINT_ON_RESIZE is used to have entire window included 
@@ -82,6 +75,8 @@ hoxCoreBoard::hoxCoreBoard()
  */
 hoxCoreBoard::hoxCoreBoard( wxWindow*        parent, 
                             hoxIReferee_SPtr referee,
+                            wxColor          bgColor,
+                            wxColor          fgColor,
                             const wxPoint&   pos  /* = wxDefaultPosition */, 
                             const wxSize&    size /* = wxDefaultSize*/ )
         : wxPanel( parent, 
@@ -89,6 +84,8 @@ hoxCoreBoard::hoxCoreBoard( wxWindow*        parent,
                    pos, 
                    size,
                    wxFULL_REPAINT_ON_RESIZE )
+        , m_backgroundColor( bgColor )
+        , m_foregroundColor( fgColor )
         , m_bViewInverted( false )  // Normal view: RED is at bottom of the screen
         , m_referee( referee )
         , m_owner( NULL )
@@ -119,6 +116,28 @@ hoxCoreBoard::~hoxCoreBoard()
     _ClearPieces();
 
     delete m_dragImage;
+}
+
+void
+hoxCoreBoard::SetBgColor( wxColor color )
+{
+    m_backgroundColor = color;
+
+    wxClientDC dc(this);
+    _DrawWorkSpace( dc );
+    _DrawBoard( dc );
+    _DrawAllPieces( dc );
+}
+
+void
+hoxCoreBoard::SetFgColor( wxColor color )
+{
+    m_foregroundColor = color;
+
+    wxClientDC dc(this);
+    _DrawWorkSpace( dc );
+    _DrawBoard( dc );
+    _DrawAllPieces( dc );
 }
 
 void 
@@ -178,8 +197,8 @@ hoxCoreBoard::_ClearPieces()
 hoxPiece* 
 hoxCoreBoard::_FindPiece( const wxPoint& point ) const
 {
-    hoxPieceList::const_iterator it;
-    for (it = m_pieces.begin(); it != m_pieces.end(); ++it)
+    for (hoxPieceList::const_iterator it = m_pieces.begin();
+                                      it != m_pieces.end(); ++it)
     {
         hoxPiece* piece = *it;
         if ( piece->IsActive() && _PieceHitTest(piece, point))
@@ -201,8 +220,8 @@ hoxCoreBoard::_DrawBoard( wxDC& dc )
 {
     wxSize totalSize = GetClientSize();   // of this Board
 
-    dc.SetBrush( wxBrush( hoxBOARD_COLOR_BACKGROUND ) );
-    dc.SetPen( wxPen( hoxBOARD_COLOR_FOREGROUND ) );
+    dc.SetBrush( wxBrush( m_backgroundColor ) );
+    dc.SetPen( wxPen( m_foregroundColor ) );
 
     // --- Get the board's max-dimension.
     wxCoord borderW = totalSize.GetWidth() - 2*m_borderX;
@@ -314,7 +333,7 @@ hoxCoreBoard::_DrawBoard( wxDC& dc )
     // the background's color.
     y1 = m_borderY + 4*m_cellS;
     y2 = y1 + m_cellS;
-    dc.SetPen( wxPen( hoxBOARD_COLOR_BACKGROUND ) );
+    dc.SetPen( wxPen( m_backgroundColor ) );
     for (line = 1; line < NUM_VERTICAL_CELL-1; ++line)
     {
         x1 = m_borderX + line * m_cellS;

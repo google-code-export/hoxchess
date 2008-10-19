@@ -46,7 +46,7 @@
 /**
  * The default path of all the pieces' images.
  */
-#define PIECES_PATH "../resource/pieces/6"
+#define DEFAULT_PIECE_PATH "../resource/pieces/1"
 
 /**
  * The default path of other Images.
@@ -57,6 +57,13 @@
  * The default path of sound files.
  */
 #define SOUNDS_PATH  "../resource/sounds"
+
+/* Use the Color-Mixer tool from the following site to generate the colors:
+ *       http://colormixers.com/mixers/cmr/
+ */
+#define DEFAULT_BOARD_BACKGROUND_COLOR   "rgb(64, 64, 64)"
+#define DEFAULT_BOARD_FOREGROUND_COLOR   "rgb(255, 255, 255)"
+
 
 /**
  * Results (... Return-Code)

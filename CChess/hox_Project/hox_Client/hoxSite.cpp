@@ -181,11 +181,16 @@ hoxSite::CreateNewTableWithGUI( const hoxNetworkTableInfo& tableInfo )
 	
 	wxLogDebug("%s: Creating a new Board...", FNAME);
     unsigned int boardFeatureFlags = this->GetBoardFeatureFlags();
+    const wxString sPiecePath = wxGetApp().GetOption("/Board/Piece/path");
+    const wxString sBgColor = wxGetApp().GetOption("/Board/Color/background");
+    const wxString sFgColor = wxGetApp().GetOption("/Board/Color/foreground");
 	hoxBoard* pBoard = new hoxBoard( childFrame, 
-		                             PIECES_PATH, 
+                                     sPiecePath,
 		                             pTable->GetReferee(),
                                      pTable,
                                      m_player->GetId(),
+                                     sBgColor,
+                                     sFgColor,
         					         wxDefaultPosition,
 							         childFrame->GetSize(),
                                      boardFeatureFlags );
