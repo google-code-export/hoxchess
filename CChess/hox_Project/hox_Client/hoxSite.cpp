@@ -197,7 +197,7 @@ hoxSite::CreateNewTableWithGUI( const hoxNetworkTableInfo& tableInfo )
     pTable->ViewBoard( pBoard );
     
     bool bSound = wxGetApp().GetOption("sound") == "1";
-    pTable->EnableSound( bSound );
+    pBoard->EnableSound( bSound );
 
     childFrame->SetTable( pTable );
     childFrame->Show( true );

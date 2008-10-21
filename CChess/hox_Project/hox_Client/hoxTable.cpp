@@ -513,12 +513,6 @@ hoxTable::ToggleViewSide()
     m_board->ToggleViewSide();
 }
 
-void
-hoxTable::EnableSound( bool bEnabled )
-{
-    if (m_board) m_board->EnableSound( bEnabled );
-}
-
 hoxColor
 hoxTable::GetPlayerRole( const wxString& sPlayerId ) const
 {

@@ -225,6 +225,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hoxOptionsUI.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\hoxPiece.cpp"
 				>
 			</File>
@@ -360,6 +364,10 @@
 			</File>
 			<File
 				RelativePath=".\hoxOptionDialog.h"
+				>
+			</File>
+			<File
+				RelativePath=".\hoxOptionsUI.h"
 				>
 			</File>
 			<File

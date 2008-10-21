@@ -32,10 +32,10 @@
 #include "hoxLoginDialog.h"
 #include "hoxSitesUI.h"
 #include "hoxPlayersUI.h"
+#include "hoxOptionsUI.h"
 #include "hoxBoard.h"
 
 #include <wx/splitter.h>
-#include <wx/colordlg.h>  // Color Dialog
 
 #if !defined(__WXMSW__)
     #include "../resource/icons/hoxchess.xpm"
@@ -600,26 +600,34 @@ MyFrame::OnToggleSound( wxCommandEvent& event )
                                       it != m_children.end(); ++it )
     {
         pTable = (*it)->GetTable();
-        if ( pTable ) pTable->EnableSound( bSound );
+        hoxBoard* pBoardUI = pTable->GetBoardUI();
+        if ( pBoardUI ) pBoardUI->EnableSound( bSound );
     }
 }
 
 void
 MyFrame::OnOptions( wxCommandEvent& event )
 {
-    wxColourData colorData;
-    colorData.SetColour( wxColor( "RGB(64, 64, 64)" ) );
+    hoxOptionsUI::OptionsData optionData;
+    optionData.m_bSound = (wxGetApp().GetOption("sound") == "1");
+    optionData.m_sBgColor = wxGetApp().GetOption("/Board/Color/background");
+    optionData.m_sFgColor = wxGetApp().GetOption("/Board/Color/foreground");
 
-    wxColourDialog dialog(this, &colorData);
-    dialog.SetTitle( _("Choose the Board's background color") );
-    if (dialog.ShowModal() == wxID_OK)
+    hoxOptionsUI optionsDialog( this, optionData );
+
+    if ( optionsDialog.ShowModal() == wxID_OK )
     {
-        colorData = dialog.GetColourData();
-        wxColor color = colorData.GetColour();
-        const wxString sNewColor = color.GetAsString( wxC2S_CSS_SYNTAX );
+        optionData = optionsDialog.GetData();
+        wxGetApp().SetOption( "sound",
+                              optionData.m_bSound ? "1" : "0" );
+        this->GetToolBar()->ToggleTool( MDI_SOUND, optionData.m_bSound );
 
-        wxGetApp().SetOption("/Board/Color/background", sNewColor);
+        wxGetApp().SetOption( "/Board/Color/background",
+                              optionData.m_sBgColor );
+        wxGetApp().SetOption( "/Board/Color/foreground",
+                              optionData.m_sFgColor );
 
+        // Apply the new Options to the Active Table.
         MyChild* child = wxDynamicCast(this->GetActiveChild(), MyChild);
         if ( child != NULL )
         {
@@ -627,12 +635,11 @@ MyFrame::OnOptions( wxCommandEvent& event )
             hoxBoard* pBoardUI = pTable->GetBoardUI();
             if ( pBoardUI )
             {
-                pBoardUI->SetBgColor( colorData.GetColour() );
+                pBoardUI->EnableSound( optionData.m_bSound );
+                pBoardUI->SetBgColor( wxColor(optionData.m_sBgColor) );
+                pBoardUI->SetFgColor( wxColor(optionData.m_sFgColor) );
             }
         }
-        //myCanvas->SetBackgroundColour(colorData.GetColour());
-        //myCanvas->ClearBackground();
-        //myCanvas->Refresh();
     }
 }
 

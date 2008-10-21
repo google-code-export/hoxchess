@@ -79,6 +79,7 @@ MAIN_SRC := \
 	hoxTypes.cpp \
 	hoxPlayersUI.cpp \
 	hoxSitesUI.cpp \
+	hoxOptionsUI.cpp \
 	hoxAIPlayer.cpp \
 	hoxTSITOPlayer.cpp \
 	hoxFoliumPlayer.cpp \
