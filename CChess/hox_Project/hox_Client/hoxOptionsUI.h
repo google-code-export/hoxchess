@@ -29,6 +29,7 @@
 
 #include <wx/wx.h>
 #include <wx/propdlg.h>
+#include <wx/clrpicker.h> // Color Picker Dialog
 
 // ---------------------------------------------------------------------------
 // hoxOptionsUI class
@@ -49,25 +50,22 @@ public:
     hoxOptionsUI( wxWindow* parent, const OptionsData& data );
     virtual ~hoxOptionsUI() {}
 
-    virtual int ShowModal();
-
     OptionsData GetData() const { return m_data; }
 
 protected:
     void OnSound( wxCommandEvent& event );
-    void OnBgColor( wxCommandEvent& event );
-    void OnFgColor( wxCommandEvent& event );
+    void OnColorChanged( wxColourPickerEvent& event );
 
 private:
     wxPanel* _CreateGeneralPage( wxWindow* parent );
     wxPanel* _CreateBoardPage( wxWindow* parent );
 
 public:
-    OptionsData  m_data;
+    OptionsData           m_data;
 
-    wxCheckBox*  m_soundCheck;
-    wxButton*    m_bgBox;  // Background
-    wxButton*    m_fgBox;  // Foreground
+    wxCheckBox*           m_soundCheck;
+    wxColourPickerCtrl*   m_bgBox;  // Background
+    wxColourPickerCtrl*   m_fgBox;  // Foreground
 
 private:
 
