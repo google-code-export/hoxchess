@@ -25,15 +25,12 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxOptionsUI.h"
-#include "MyApp.h"         // wxGetApp
 #include <wx/notebook.h>
-#include <wx/colordlg.h>  // Color Dialog
 
 /* Event table. */
 BEGIN_EVENT_TABLE(hoxOptionsUI, wxPropertySheetDialog)
     EVT_CHECKBOX(ID_SOUND, hoxOptionsUI::OnSound)
-    EVT_BUTTON(ID_BG_COLOR, hoxOptionsUI::OnBgColor)
-    EVT_BUTTON(ID_FG_COLOR, hoxOptionsUI::OnFgColor)
+    EVT_COLOURPICKER_CHANGED(wxID_ANY, hoxOptionsUI::OnColorChanged)
 END_EVENT_TABLE()
 
 // ---------------------------------------------------------------------------
@@ -72,6 +69,7 @@ hoxOptionsUI::_CreateGeneralPage( wxWindow* parent )
 
     wxBoxSizer* soundSizer = new wxBoxSizer( wxHORIZONTAL );
     m_soundCheck = new wxCheckBox( panel, ID_SOUND, _("&Sounds") );
+    m_soundCheck->SetValue( m_data.m_bSound );
     soundSizer->Add( m_soundCheck,
                      0, wxALL|wxALIGN_CENTER_VERTICAL, 5);
     item0->Add( soundSizer, 0, wxGROW|wxALL, 0 );
@@ -96,8 +94,8 @@ hoxOptionsUI::_CreateBoardPage( wxWindow* parent )
     /* ----------- Background Color. */
 
     wxBoxSizer* bgSizer = new wxBoxSizer( wxHORIZONTAL );
-    m_bgBox = new wxButton( panel, ID_BG_COLOR, wxEmptyString,
-                            wxDefaultPosition, wxSize(50, wxDefaultCoord ) );
+    m_bgBox = new wxColourPickerCtrl( panel, ID_BG_COLOR );
+    m_bgBox->SetColour( wxColor(m_data.m_sBgColor) );
     bgSizer->Add( new wxStaticText(panel, wxID_STATIC, _("&Background color:")),
                   0, wxALL|wxALIGN_CENTER_VERTICAL, 5);
     bgSizer->Add(m_bgBox, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5);
@@ -106,8 +104,8 @@ hoxOptionsUI::_CreateBoardPage( wxWindow* parent )
     /* ----------- Foreground Color. */
 
     wxBoxSizer* fgSizer = new wxBoxSizer( wxHORIZONTAL );
-    m_fgBox = new wxButton( panel, ID_FG_COLOR, wxEmptyString,
-                            wxDefaultPosition, wxSize(50, wxDefaultCoord ) );
+    m_fgBox = new wxColourPickerCtrl( panel, ID_FG_COLOR );
+    m_fgBox->SetColour( wxColor(m_data.m_sFgColor) );
     fgSizer->Add( new wxStaticText(panel, wxID_STATIC, _("&Foreground color:")),
                   0, wxALL|wxALIGN_CENTER_VERTICAL, 5);
     fgSizer->Add(m_fgBox, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5);
@@ -122,16 +120,6 @@ hoxOptionsUI::_CreateBoardPage( wxWindow* parent )
     return panel;
 }
 
-int
-hoxOptionsUI::ShowModal()
-{
-    m_soundCheck->SetValue( m_data.m_bSound );
-    m_bgBox->SetBackgroundColour( wxColor(m_data.m_sBgColor) );
-    m_fgBox->SetBackgroundColour( wxColor(m_data.m_sFgColor) );
-
-    return wxPropertySheetDialog::ShowModal();
-}
-
 void
 hoxOptionsUI::OnSound( wxCommandEvent& event )
 {
@@ -139,35 +127,12 @@ hoxOptionsUI::OnSound( wxCommandEvent& event )
 }
 
 void
-hoxOptionsUI::OnBgColor( wxCommandEvent& event )
+hoxOptionsUI::OnColorChanged( wxColourPickerEvent& event )
 {
-    wxColourData colorData;
-    colorData.SetColour( m_data.m_sBgColor );
-
-    wxColourDialog dialog(this, &colorData);
-    if (dialog.ShowModal() == wxID_OK)
-    {
-        colorData = dialog.GetColourData();
-        wxColor newColor = colorData.GetColour();
-        m_data.m_sBgColor = newColor.GetAsString( wxC2S_CSS_SYNTAX );
-        m_bgBox->SetBackgroundColour( newColor );
-    }
-}
-
-void
-hoxOptionsUI::OnFgColor( wxCommandEvent& event )
-{
-    wxColourData colorData;
-    colorData.SetColour( m_data.m_sFgColor );
-
-    wxColourDialog dialog(this, &colorData);
-    if (dialog.ShowModal() == wxID_OK)
-    {
-        colorData = dialog.GetColourData();
-        wxColor newColor = colorData.GetColour();
-        m_data.m_sFgColor = newColor.GetAsString( wxC2S_CSS_SYNTAX );
-        m_fgBox->SetBackgroundColour( newColor );
-    }
+    wxString& whichColor = ( event.GetId() == ID_BG_COLOR
+                            ? m_data.m_sBgColor
+                            : m_data.m_sFgColor );
+    whichColor = event.GetColour().GetAsString( wxC2S_CSS_SYNTAX );
 }
 
 /************************* END OF FILE ***************************************/
