@@ -2,6 +2,18 @@
 
 _All releases can be found from_ [http://code.google.com/p/hoxchess/downloads/list this Downloads page]
 
+  * *Oct 24, 2008*
+    * Released *HOXChess 0.5.1.0* of the _source_ code and Windows Binary _Installer_
+    * The main _new features_ are:
+      * Use *XQWLight* at http://www.elephantbase.net as the default AI Xiangqi Engine
+      * Support _MOVE_ sound
+      * Added Tools->Options for Sound, Background/Foreground for Board
+      * Make [http://www.playxiangqi.com PlayXiangqi.com] the default site since Chesscape.com has been discontinued.
+      * Updated Makefile to compile under Ubuntu 8.04 using the ANSI build wxGTK 2.8.9
+      * Restrict HOXChess to allow only one Practice Table at a time.
+      * Upgraded to wxWidgets 2.8.9
+      * Upgraded *boost* libraries to 1_36_0
+
   * *Sept 20, 2008* 
     * Released *HOXChess 0.5.0.0* of the _source_ code and Windows Binary _Installer_
     * Major changes are:
