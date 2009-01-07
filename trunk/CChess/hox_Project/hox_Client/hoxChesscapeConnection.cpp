@@ -229,7 +229,14 @@ hoxChesscapeWriter::_Login( hoxRequest_APtr apRequest,
     // Send LOGIN request.
 	wxLogDebug("%s: Sending LOGIN request over the network...", FNAME);
 	wxString loginRequest;
-	loginRequest.Printf("uLogin?0\x10%s\x10%s", login.c_str(), password.c_str());
+    if ( login.StartsWith( hoxGUEST_PREFIX ) )  // Guest login?
+    {
+        loginRequest.Printf("gLogin?0\x10%s", login.c_str());
+    }
+    else
+    {
+	    loginRequest.Printf("uLogin?0\x10%s\x10%s", login.c_str(), password.c_str());
+    }
 
 	return _WriteLine( loginRequest );
 }

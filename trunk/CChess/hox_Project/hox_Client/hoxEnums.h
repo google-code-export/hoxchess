@@ -64,6 +64,11 @@
 #define DEFAULT_BOARD_BACKGROUND_COLOR   "rgb(64, 64, 64)"
 #define DEFAULT_BOARD_FOREGROUND_COLOR   "rgb(255, 255, 255)"
 
+/**
+ *  GUEST user-name prefix to identify guest accounts.
+ *  Note: This prefix works under chesscape.com.
+ */
+#define hoxGUEST_PREFIX    "Guest#"
 
 /**
  * Results (... Return-Code)

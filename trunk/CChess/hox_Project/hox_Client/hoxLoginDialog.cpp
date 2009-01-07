@@ -35,7 +35,8 @@
 enum
 {
     HOX_ID_SITE_TYPE = 100,
-    HOX_ID_LOGIN
+    HOX_ID_LOGIN,
+    HOX_ID_GUEST
 };
 
 enum SiteTypeSelection
@@ -65,7 +66,7 @@ struct SiteInfo
 static SiteInfo s_siteList[] =
 {
     { hoxSITE_TYPE_REMOTE, "HOXChess", "HOXChess Server", "games.playxiangqi.com", "8000", "", "" },
-    { hoxSITE_TYPE_CHESSCAPE, "Chesscape", "Chesscape.com (discontinued)", "games.chesscape.com", "3534", "", "" },
+    { hoxSITE_TYPE_CHESSCAPE, "Chesscape", "Chesscape.com", "games.chesscape.com", "3534", "", "" },
 };
 
 // ----------------------------------------------------------------------------
@@ -74,6 +75,7 @@ static SiteInfo s_siteList[] =
 BEGIN_EVENT_TABLE(hoxLoginDialog, wxDialog)
     EVT_RADIOBOX(HOX_ID_SITE_TYPE, hoxLoginDialog::OnSiteSelected)
     EVT_BUTTON(HOX_ID_LOGIN, hoxLoginDialog::OnButtonLogin)
+    EVT_BUTTON(HOX_ID_GUEST, hoxLoginDialog::OnButtonLogin)
 END_EVENT_TABLE()
 
 //-----------------------------------------------------------------------------
@@ -214,16 +216,23 @@ hoxLoginDialog::hoxLoginDialog( wxWindow*       parent,
     wxBoxSizer* buttonSizer = new wxBoxSizer( wxHORIZONTAL );
 
     buttonSizer->Add( 
+		new wxButton(this, HOX_ID_GUEST, _("&Guest")),
+        0,                // make vertically unstretchable
+        wxALIGN_CENTER ); // no border and centre horizontally
+
+    buttonSizer->AddSpacer(40);
+
+    buttonSizer->Add( 
 		new wxButton(this, HOX_ID_LOGIN, _("&Login")),
         0,                // make vertically unstretchable
-        wxALIGN_CENTER ); // no border and centre horizontally);
+        wxALIGN_CENTER ); // no border and centre horizontally
 
-    buttonSizer->AddSpacer(20);
+    buttonSizer->AddSpacer(15);
 
     buttonSizer->Add( 
 		new wxButton(this, wxID_CANCEL, _("&Cancel")),
         0,                // make vertically unstretchable
-        wxALIGN_CENTER ); // no border and centre horizontally);
+        wxALIGN_CENTER ); // no border and centre horizontally
 
     topSizer->Add(
 		buttonSizer,
@@ -280,7 +289,14 @@ hoxLoginDialog::OnButtonLogin(wxCommandEvent& event)
 
 	/* Determine UserName and Password. */
 
-	m_selectedUserName = m_textCtrlUserName->GetValue();
+    if ( event.GetId() == HOX_ID_LOGIN )
+    {
+	    m_selectedUserName = m_textCtrlUserName->GetValue();
+    }
+    else
+    {
+        m_selectedUserName = _GenerateGuestUserName();
+    }
 	m_selectedPassword = m_textCtrlPassword->GetValue();
 
 	/* Return the LOGIN command. */
@@ -291,8 +307,11 @@ hoxLoginDialog::OnButtonLogin(wxCommandEvent& event)
 
     s_siteList[nSelectedType].sAddress  = m_selectedAddress;
     s_siteList[nSelectedType].sPort     = m_textCtrlPort->GetValue();
-    s_siteList[nSelectedType].sUsername = m_selectedUserName;
-    s_siteList[nSelectedType].sPassword = m_selectedPassword;
+    if ( event.GetId() == HOX_ID_LOGIN )
+    {
+        s_siteList[nSelectedType].sUsername = m_selectedUserName;
+        s_siteList[nSelectedType].sPassword = m_selectedPassword;
+    }
 
 	_SaveDefaultLoginInfo( nSelectedType );
 
@@ -350,6 +369,18 @@ hoxLoginDialog::_SaveDefaultLoginInfo( const int siteChoice )
     }
 
 	return true;   // OK
+}
+
+const wxString
+hoxLoginDialog::_GenerateGuestUserName()
+{
+    const unsigned int MAX_GUEST_ID = 10000;
+
+    const int randNum = hoxUtil::GenerateRandomNumber( MAX_GUEST_ID );
+    wxString sGuestId;
+    sGuestId << hoxGUEST_PREFIX << "hox" << randNum;
+
+    return sGuestId;
 }
 
 /************************* END OF FILE ***************************************/
