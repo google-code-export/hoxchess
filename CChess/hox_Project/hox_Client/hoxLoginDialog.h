@@ -60,8 +60,8 @@ public:
 
 private:
 	bool _GetDefaultLoginInfo( int& siteChoice );
-
 	bool _SaveDefaultLoginInfo( const int siteChoice );
+    const wxString _GenerateGuestUserName();
 
 private:
 	wxRadioBox*  m_radioSiteTypes;

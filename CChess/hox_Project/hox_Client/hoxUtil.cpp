@@ -145,13 +145,40 @@ hoxUtil::ResultToStr( const hoxResult result )
 wxString 
 hoxUtil::GenerateRandomString( const wxString& sPrefix /* = "SomeString" */ )
 {
-    ::srand( ::time(NULL) );
+    static bool s_bSeeded = false;
+    if ( ! s_bSeeded )
+    {
+        ::srand( ::time(NULL) );
+        s_bSeeded = true;
+    }
+
     int someNumber = ::rand();
 
     wxString sRandom = sPrefix;
     sRandom << someNumber;
 
     return sRandom;
+}
+
+int
+hoxUtil::GenerateRandomNumber( const unsigned int max_value )
+{
+    /*
+     * CREDITS:
+     *    http://www.jb.man.ac.uk/~slowe/cpp/srand.html
+     */
+
+    static bool s_bSeeded = false;
+    if ( ! s_bSeeded )
+    {
+        ::srand( ::time(NULL) );
+        s_bSeeded = true;
+    }
+
+    const int randNum =
+        1 + (int) ((double)max_value * (rand() / (RAND_MAX + 1.0)));
+
+    return randNum;
 }
 
 /**

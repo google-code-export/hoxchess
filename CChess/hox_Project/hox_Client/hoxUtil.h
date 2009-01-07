@@ -56,6 +56,11 @@ namespace hoxUtil
     wxString GenerateRandomString( const wxString& sPrefix = "SomeString" );
 
     /**
+     * Generate a random number of range [1, max_value].
+     */
+    int GenerateRandomNumber( const unsigned int max_value );
+
+    /**
      * Convert a given request-type to a (human-readable) string.
      */
     const wxString RequestTypeToString( const hoxRequestType requestType );
