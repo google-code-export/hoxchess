@@ -86,17 +86,19 @@ END_EVENT_TABLE()
 hoxLoginDialog::hoxLoginDialog( wxWindow*       parent, 
                                 wxWindowID      id, 
                                 const wxString& title )
-        : wxDialog( parent, id, title, wxDefaultPosition, wxDefaultSize, 
-		            wxDEFAULT_DIALOG_STYLE )
+        : wxDialog( parent, id, title )
         , m_selectedCommand( COMMAND_ID_CANCEL )
 		, m_selectedSiteType( hoxSITE_TYPE_UNKNOWN )
 		, m_selectedPort( 0 )
 {
 	/* Read existing login-info from Configuration. */
 
-	int   siteChoice = SITETYPE_SELECTION_HOXCHESS;
+	int   siteChoice = 0;
 
-    _GetDefaultLoginInfo( siteChoice );
+    if ( ! _GetDefaultLoginInfo( siteChoice ) ) // not found
+    {
+        siteChoice = SITETYPE_SELECTION_HOXCHESS; // Set the default
+    }
 
     /* Get the list of Display Names of Sites. */
 
