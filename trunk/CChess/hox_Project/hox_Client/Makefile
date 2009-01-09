@@ -6,6 +6,7 @@ CXX         = g++
 #WX_CXXFLAGS = `wx-config --cxxflags`
 WX_CXXFLAGS = -I/usr/lib/wx/include/gtk2-ansi-release-2.8 \
               -I/usr/include/wx-2.8 \
+              -I../lib/boost_1_36_0 \
               -D_FILE_OFFSET_BITS=64 \
               -D_LARGE_FILES -D__WXGTK__ \
               -pthread

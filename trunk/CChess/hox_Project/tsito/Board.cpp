@@ -5,6 +5,7 @@
 #include	<cctype>
 #include	<cstdlib>
 #include	<ctime>
+#include	<cstring>
 
 #include	<iostream>
 #include	<map>
