@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>  // ... istringstream
 #include <ctime>
+#include <cstdlib>
 
 using namespace std;
 

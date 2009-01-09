@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cstdlib>
 
 #include "Board.h"
 #include "tsiEngine.h"
