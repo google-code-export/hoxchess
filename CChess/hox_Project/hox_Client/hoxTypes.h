@@ -204,24 +204,24 @@ class hoxNetworkTableInfo
 	hoxTimeInfo   redTime;
 	hoxGameType   gameType;    // Rated / Unrated / Solo
 
-	hoxNetworkTableInfo() 
-		: group(hoxGAME_GROUP_PUBLIC)
-	    , gameType( hoxGAME_TYPE_UNKNOWN ) {}
-	hoxNetworkTableInfo(const wxString& a_id) 
+	hoxNetworkTableInfo( const wxString& a_id = "" ) 
 		: group(hoxGAME_GROUP_PUBLIC)
 	    , gameType( hoxGAME_TYPE_UNKNOWN ) { id = a_id; }
-	void Clear()
+
+    bool IsValid() const { return !id.empty(); }
+
+    void Clear()
 		{
-			id = "";
-			group = hoxGAME_GROUP_PUBLIC;
-			redId = "";
-			blackId = "";
-			redScore = "";
+			id         = "";
+			group      = hoxGAME_GROUP_PUBLIC;
+			redId      = "";
+			blackId    = "";
+			redScore   = "";
 			blackScore = "";
 			initialTime.Clear();
 			blackTime.Clear();
 			redTime.Clear();
-			gameType = hoxGAME_TYPE_UNKNOWN;
+			gameType   = hoxGAME_TYPE_UNKNOWN;
 		}
 };
 typedef std::list<hoxNetworkTableInfo> hoxNetworkTableInfoList;
@@ -330,20 +330,14 @@ private:
 class hoxPlayerInfo : public wxObject
 {
 public:
-    wxString       id;   // The player's ID.
+    wxString       id;    // The player's ID.
+    hoxPlayerType  type;  // Local / Network / ... player.
+    int            score; // The player's Score.
 
-    hoxPlayerType  type;       
-            /* Is it a Local, Network,... player? */
-
-    int            score;  // The player's Score.
-
-    hoxPlayerInfo( const wxString& i,
-                   hoxPlayerType   t,
+    hoxPlayerInfo( const wxString& i = "",
+                   hoxPlayerType   t = hoxPLAYER_TYPE_DUMMY,
                    int             s = 1500 )
             : id(i), type(t), score(s) {}
-    
-    hoxPlayerInfo() 
-            : id(""), type(hoxPLAYER_TYPE_DUMMY), score(1500) {}
 };
 typedef std::auto_ptr<hoxPlayerInfo> hoxPlayerInfo_APtr;
 typedef boost::shared_ptr<hoxPlayerInfo> hoxPlayerInfo_SPtr;

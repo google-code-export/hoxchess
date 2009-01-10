@@ -68,7 +68,7 @@ public:
     void OnConnectionResponse( wxCommandEvent& event ); 
 
 private:
-	bool _ParseTableInfoString( const wxString&      tableStr,
+	void _ParseTableInfoString( const wxString&      tableStr,
 		                        hoxNetworkTableInfo& tableInfo ) const;
 	bool _ParseTablePlayersString( const wxString&      playersInfoStr,
 		                           hoxNetworkTableInfo& tableInfo ) const;

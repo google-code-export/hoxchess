@@ -381,7 +381,7 @@ hoxSocketReader::Entry()
             wxLogDebug("%s: *** INFO *** Failed to read incoming command.", FNAME);
             result = hoxRC_CLOSED;   // *** Shutdown the Thread.
         }
-        wxLogDebug("%s: Received data [%s].", FNAME, apResponse->content.c_str());
+        //wxLogDebug("%s: Received data [%s].", FNAME, apResponse->content.c_str());
 
         /* Notify the Player. */
         wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, type );
