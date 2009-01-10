@@ -220,7 +220,8 @@ private:
      * Post a Wall-message (i.e, CHAT message,...) to the Wall-Output GUI.
      */
     void _PostToWallOutput( const wxString& who,
-                            const wxString& sMessage );
+                            const wxString& sMessage,
+                            bool            bPublic = true );
 
     /**
      * A helper to do various task whenever a valid Move has been made.

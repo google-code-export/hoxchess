@@ -139,7 +139,7 @@ hoxTable::OnMessage_FromBoard( const wxString& message )
     wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
     
     /* Post the message on the Wall-Output of the "local" Board. */
-    _PostBoard_MessageEvent( message, boardPlayer );
+    _PostBoard_MessageEvent( message, boardPlayer->GetId() );
 
     /* Inform the Board's Onwer. */
 	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_MSG ) );
@@ -378,21 +378,11 @@ hoxTable::OnPastMoves_FromNetwork( hoxPlayer*           player,
 }
 
 void 
-hoxTable::OnMessage_FromNetwork( const wxString&  playerId,
-                                 const wxString&  message )
+hoxTable::OnMessage_FromNetwork( const wxString&  sSenderId,
+                                 const wxString&  message,
+                                 bool             bPublic /* = true */ )
 {
-    const char* FNAME = __FUNCTION__;
-
-    /* Lookup the player */
-    hoxPlayer* foundPlayer = _FindPlayer( playerId );
-    if ( foundPlayer == NULL )
-    {
-        wxLogDebug("%s: *** WARN *** Player with Id = [%s] not found.", FNAME, playerId.c_str());
-        return;
-    }
-
-    /* Post the message to the Board. */
-    _PostBoard_MessageEvent( message, foundPlayer );
+    _PostBoard_MessageEvent( message, sSenderId, bPublic );
 }
 
 void 
@@ -580,21 +570,21 @@ hoxTable::_PostBoard_PlayerEvent( wxEventType commandType,
 
 void 
 hoxTable::_PostBoard_MessageEvent( const wxString& sMessage,
-                                   hoxPlayer*      player ) const
+                                   const wxString& sSenderId /* = _T("*Table*") */,
+                                   bool            bPublic /* = true */ ) const
 {
 	if ( m_board == NULL )
 		return;
 
-    wxString who;
-    wxString eventString;
+    wxCHECK_RET( !sSenderId.empty(), _("The send ID must not be empty") );
 
-    who = ( player != NULL ? player->GetId() 
-                           : "*Table*" );
-    eventString.Printf("%s %s", who.c_str(), sMessage.c_str());
+    const wxString eventString =
+        wxString::Format("%s %s", sSenderId.c_str(), sMessage.c_str());
 
     /* Post the message on the Wall-Output of the Board. */
     wxCommandEvent event( hoxEVT_BOARD_WALL_OUTPUT );
     event.SetString( eventString );
+    event.SetInt( bPublic ? 1 : 0 );
     wxPostEvent( m_board, event );
 }
 

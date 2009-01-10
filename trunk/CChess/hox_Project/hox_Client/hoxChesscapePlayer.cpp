@@ -241,7 +241,8 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 	else if ( command == "updateRating" )  _HandleCmd_UpdateRating( paramsStr );
     else if ( command == "playerInfo" )    _HandleCmd_PlayerInfo( paramsStr );
 	else if ( command == "tCmd" )	       _HandleTableCmd( paramsStr );
-	else if ( command == "tMsg" )	       _HandleTableMsg( paramsStr );
+	else if ( command == "tMsg" )	       _HandleMsg( paramsStr, true /* Public message */ );
+    else if ( command == "iMsg" )	       _HandleMsg( paramsStr, false /* Instant message */ );
 	else
 	{
 		wxLogDebug("%s: *INFO* Ignore command = [%s].", __FUNCTION__, command.c_str());
@@ -1187,24 +1188,24 @@ hoxChesscapePlayer::_HandleTableCmd_Unjoin( hoxTable_SPtr   pTable,
 }
 
 bool 
-hoxChesscapePlayer::_HandleTableMsg( const wxString& cmdStr )
+hoxChesscapePlayer::_HandleMsg( const wxString& cmdStr,
+                                bool            bPublic )
 {
-	/* NOTE: The Chesscape server only support 1 table for now. */
-
-    hoxTable_SPtr pTable = _getMyTable();
-	if ( pTable.get() == NULL )
-	{
-		wxLogDebug("%s: *** WARN *** This player [%s] not yet joined any table.", 
-			__FUNCTION__, this->GetId().c_str());
-		return false;
-	}
-
-	/* Inform the Table of the new message. */
-
 	const wxString whoSent = cmdStr.AfterFirst('<').BeforeFirst('>');
 	const wxString message = cmdStr.AfterFirst(' ').BeforeFirst(0x10);
 
-	pTable->OnMessage_FromNetwork( whoSent, message );
+    hoxTable_SPtr pTable = _getMyTable();
+    if ( pTable )
+    {
+        pTable->OnMessage_FromNetwork( whoSent, message, bPublic );
+    }
+    else
+    {
+        ::wxMessageBox(
+            message,
+            wxString::Format(_("A Message from Player [%s]"), whoSent.c_str()),
+            wxOK | wxICON_INFORMATION );
+    }
 
 	return true;
 }
