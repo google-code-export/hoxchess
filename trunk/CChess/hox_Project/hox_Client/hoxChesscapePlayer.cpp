@@ -559,71 +559,6 @@ hoxChesscapePlayer::_UpdateTableInList( const wxString&      tableStr,
 	return true; // everything is fine.
 }
 
-void
-hoxChesscapePlayer::_AddPlayerToList( const wxString& sPlayerId,
-                                      const int       nPlayerScore ) const
-{
-    hoxPlayerInfo_SPtr pPlayerInfo( new hoxPlayerInfo() );
-    pPlayerInfo->id = sPlayerId;
-    pPlayerInfo->score = nPlayerScore;
-
-    wxLogDebug("%s: ... Added: [%s %d]", __FUNCTION__, sPlayerId.c_str(), nPlayerScore);
-    m_networkPlayers.push_back( pPlayerInfo );
-
-    /* Inform the Site. */
-    hoxSite* site = this->GetSite();
-    site->OnPlayerLoggedIn( sPlayerId, nPlayerScore );
-}
-
-void
-hoxChesscapePlayer::_UpdatePlayerInList( const wxString& sPlayerId,
-	                                     const int       nPlayerScore )
-{
-	/* If the player was found, update the info.
-     * Otherwise, add as NEW.
-     */
-
-    hoxPlayerInfo_SPtr pPlayerInfo = _FindPlayerById( sPlayerId );
-
-	if ( pPlayerInfo.get() != NULL ) // found?
-	{
-        pPlayerInfo->score = nPlayerScore;
-    }
-    else
-    {
-        _AddPlayerToList( sPlayerId, nPlayerScore );
-    }
-}
-
-hoxPlayerInfo_SPtr
-hoxChesscapePlayer::_FindPlayerById( const wxString& sPlayerId ) const
-{
-    hoxPlayerInfo_SPtr pPlayerInfo;  // Default "empty" pointer.
-
-	for ( hoxPlayerInfoList::const_iterator it = m_networkPlayers.begin();
-		                                    it != m_networkPlayers.end(); ++it )
-	{
-		if ( (*it)->id == sPlayerId )
-		{
-			pPlayerInfo = (*it);
-			break;
-		}
-	}
-
-    return pPlayerInfo;
-}
-
-void
-hoxChesscapePlayer::_RemovePlayerFromList( const wxString& sPlayerId )
-{
-    hoxPlayerInfo_SPtr pPlayerInfo = _FindPlayerById( sPlayerId );
-
-    if ( pPlayerInfo.get() != NULL ) // found?
-    {
-        m_networkPlayers.remove( pPlayerInfo );
-    }
-}
-
 bool 
 hoxChesscapePlayer::_ParseIncomingCommand( const wxString& contentStr,
 										   wxString&       command,
@@ -705,7 +640,7 @@ hoxChesscapePlayer::_HandleCmd_Login( const hoxResponse_APtr& response,
     }
 
     /* Update our internal player-list. */
-    _UpdatePlayerInList( name, nScore );
+    site->UpdateScoreOfOnlinePlayer( name, nScore );
 
     return true;
 }
@@ -734,8 +669,6 @@ hoxChesscapePlayer::_HandleCmd_Logout( const wxString& cmdStr )
 {
     const wxString sPlayerId = cmdStr.BeforeFirst( 0x10 );
 
-    _RemovePlayerFromList( sPlayerId );
-
     /* Inform the Site. */
     hoxSite* site = this->GetSite();
     site->OnPlayerLoggedOut( sPlayerId );
@@ -746,7 +679,17 @@ hoxChesscapePlayer::_HandleCmd_Logout( const wxString& cmdStr )
 bool 
 hoxChesscapePlayer::_HandleCmd_Clients( const wxString& cmdStr )
 {
-	m_networkPlayers.clear(); // Clear out the old list.
+    // TODO: Do we need to clear the list?
+    //        Does this command get send more than once?
+	// m_networkPlayers.clear(); // Clear out the old list.
+    static int s_nDEBUG_called = 0;
+    if ( s_nDEBUG_called > 0 )
+    {
+        wxLogWarning( "%s: This incoming event already happened [%d].", __FUNCTION__, s_nDEBUG_called );
+    }
+    ++s_nDEBUG_called;
+
+    hoxSite* site = this->GetSite();
 
 	/* Create a new player-list. */
 
@@ -776,7 +719,7 @@ hoxChesscapePlayer::_HandleCmd_Clients( const wxString& cmdStr )
             
             // TODO: Ignore the status for now!!!!
 
-            _AddPlayerToList( sPlayerId, nPlayerScore );
+            site->OnPlayerLoggedIn( sPlayerId, nPlayerScore );
             break;
 
         default:
@@ -1010,16 +953,19 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 bool 
 hoxChesscapePlayer::_HandleTableCmd_Invite( const wxString& cmdStr )
 {
-	const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER. cmdStr = [%s].", FNAME, cmdStr.c_str());
+    wxLogDebug("%s: ENTER. cmdStr = [%s].", __FUNCTION__, cmdStr.c_str());
 
 	const wxString sInvitorId = cmdStr.BeforeFirst(0x10);
 	const wxString sTableId = cmdStr.AfterFirst(0x10);
 
     /* Look up the Invitor's score. */
-    int nInvitorScore = 0;
-    const hoxPlayerInfo_SPtr pInvitorInfo = _FindPlayerById( sInvitorId );
-	if ( pInvitorInfo ) nInvitorScore = pInvitorInfo->score;
+    hoxSite* site = this->GetSite();
+    int nInvitorScore = site->GetScoreOfOnlinePlayer( sInvitorId );
+    if ( nInvitorScore == hoxSCORE_UNKNOWN )
+    {
+        wxLogDebug("%s: *WARN* Player [%s] not found.", __FUNCTION__, sInvitorId.c_str());
+        nInvitorScore = 0;
+    }
 
     const wxString sMessage =
         wxString::Format("*INVITE from [%s (%d)] to join Table [%s].",
@@ -1174,7 +1120,7 @@ bool
 hoxChesscapePlayer::_HandleTableCmd_Clients( hoxTable_SPtr   pTable,
 	                                         const wxString& cmdStr )
 {
-	const char* FNAME = __FUNCTION__;
+    hoxSite* site = this->GetSite();
 
 	wxString delims;
 	delims += 0x10;
@@ -1182,7 +1128,7 @@ hoxChesscapePlayer::_HandleTableCmd_Clients( hoxTable_SPtr   pTable,
 	wxStringTokenizer tkz( cmdStr, delims, wxTOKEN_STRTOK );
 	int tokenPosition = 0;
 	wxString sPlayerId;
-    hoxPlayerInfo_SPtr pPlayerInfo;
+    int      nPlayerScore = 0;
 
 	while ( tkz.HasMoreTokens() )
 	{
@@ -1192,25 +1138,27 @@ hoxChesscapePlayer::_HandleTableCmd_Clients( hoxTable_SPtr   pTable,
         if ( currentRole != hoxCOLOR_UNKNOWN )  // already joined the Table?
             continue;
 
-        pPlayerInfo = _FindPlayerById( sPlayerId );
-        if ( pPlayerInfo.get() == NULL )
-            continue;
+        nPlayerScore = site->GetScoreOfOnlinePlayer( sPlayerId );
+        if ( nPlayerScore == hoxSCORE_UNKNOWN )
+        {
+            wxLogDebug("%s: *WARN* Player [%s] not found.", __FUNCTION__, sPlayerId.c_str());
+            nPlayerScore = 0;
+        }
 
         const wxString tableId = pTable->GetId();
         const hoxColor joinColor = hoxCOLOR_NONE;
-        hoxSite* site = this->GetSite();
 
-        wxLogDebug("%s: Player [%s] joined Table [%s] as [%d].", FNAME, 
+        wxLogDebug("%s: Player [%s] joined Table [%s] as [%d].", __FUNCTION__, 
             sPlayerId.c_str(), tableId.c_str(), joinColor);
 
         hoxResult result = site->OnPlayerJoined( tableId, 
                                                  sPlayerId, 
-                                                 pPlayerInfo->score,
+                                                 nPlayerScore,
                                                  joinColor );
         if ( result != hoxRC_OK )
         {
             wxLogDebug("%s: *** ERROR *** Failed to ask table to join as color [%d].", 
-                FNAME, joinColor);
+                __FUNCTION__, joinColor);
             // *** break;
         }
 	}		
@@ -1275,9 +1223,8 @@ hoxChesscapePlayer::_HandleCmd_UpdateRating( const wxString& cmdStr )
 		this->SetScore( nScore );
 	}
 
-    /* Update our internal player-list. */
-
-    _UpdatePlayerInList( sPlayerId, nScore );
+    hoxSite* site = this->GetSite();
+    site->UpdateScoreOfOnlinePlayer( sPlayerId, nScore );
 
 	return true;
 }

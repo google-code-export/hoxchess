@@ -126,6 +126,52 @@ hoxSite::GetPlayerById( const wxString& sPlayerId,
     return player;
 }
 
+void
+hoxSite::OnPlayerLoggedIn( const wxString& sPlayerId,
+                           const int       nPlayerScore )
+{
+    wxLogDebug("%s: Add: [%s (%d)]", __FUNCTION__, sPlayerId.c_str(), nPlayerScore);
+    hoxPlayerInfo_SPtr pPlayerInfo( new hoxPlayerInfo() );
+    pPlayerInfo->id = sPlayerId;
+    pPlayerInfo->score = nPlayerScore;
+
+    m_onlinePlayers[sPlayerId] = pPlayerInfo;
+}
+
+void
+hoxSite::OnPlayerLoggedOut( const wxString& sPlayerId )
+{
+    wxLogDebug("%s: Remove: [%s]", __FUNCTION__, sPlayerId.c_str());
+    m_onlinePlayers.erase(sPlayerId);
+}
+
+void
+hoxSite::UpdateScoreOfOnlinePlayer( const wxString& sPlayerId,
+                                    const int       nPlayerScore )
+{
+    hoxPlayerInfoMap::iterator it = m_onlinePlayers.find( sPlayerId );
+    if ( it != m_onlinePlayers.end() ) // found?
+    {
+        wxLogDebug("%s: Update: [%d] -> [%d]", __FUNCTION__, it->second->score, nPlayerScore);
+        it->second->score = nPlayerScore;
+    }
+    else
+    {
+        this->OnPlayerLoggedIn( sPlayerId, nPlayerScore );
+    }
+}
+
+int
+hoxSite::GetScoreOfOnlinePlayer( const wxString& sPlayerId ) const
+{
+    hoxPlayerInfoMap::const_iterator it = m_onlinePlayers.find( sPlayerId );
+    if ( it != m_onlinePlayers.end() ) // found?
+    {
+        return it->second->score;
+    }
+    return hoxSCORE_UNKNOWN;
+}
+
 unsigned int
 hoxSite::GetBoardFeatureFlags() const
 {
@@ -350,6 +396,8 @@ void
 hoxRemoteSite::OnPlayerLoggedIn( const wxString& sPlayerId,
                                  const int       nPlayerScore )
 {
+    this->hoxSite::OnPlayerLoggedIn( sPlayerId, nPlayerScore );
+
     hoxPlayersUI* playersUI = wxGetApp().GetFrame()->GetSitePlayersUI();
     playersUI->AddPlayer( sPlayerId, nPlayerScore );
 }
@@ -357,8 +405,20 @@ hoxRemoteSite::OnPlayerLoggedIn( const wxString& sPlayerId,
 void
 hoxRemoteSite::OnPlayerLoggedOut( const wxString& sPlayerId )
 {
+    this->hoxSite::OnPlayerLoggedOut( sPlayerId );
+
     hoxPlayersUI* playersUI = wxGetApp().GetFrame()->GetSitePlayersUI();
     playersUI->RemovePlayer( sPlayerId );
+}
+
+void
+hoxRemoteSite::UpdateScoreOfOnlinePlayer( const wxString& sPlayerId,
+                                          const int       nPlayerScore )
+{
+    this->hoxSite::UpdateScoreOfOnlinePlayer( sPlayerId, nPlayerScore );
+
+    hoxPlayersUI* playersUI = wxGetApp().GetFrame()->GetSitePlayersUI();
+    playersUI->AddPlayer( sPlayerId, nPlayerScore );
 }
 
 hoxResult

@@ -87,12 +87,6 @@ private:
                                 wxString&       name,
                                 wxString&       score,
                                 wxString&       role ) const;
-    void _AddPlayerToList( const wxString& sPlayerId,
-                           const int       nPlayerScore ) const;
-	void _UpdatePlayerInList( const wxString& sPlayerId,
-		                      const int       nPlayerScore );
-	hoxPlayerInfo_SPtr _FindPlayerById( const wxString& sPlayerId ) const;
-    void _RemovePlayerFromList( const wxString& sPlayerId );
 
 	bool _ParseIncomingCommand(const wxString& contentStr,
 		                       wxString&       command,
@@ -143,12 +137,11 @@ private:
 	 */
 	mutable hoxNetworkTableInfoList  m_networkTables;
 
-	/* Chesscape server sends a list of players upon login.
-	 * After that, it only sends updates for each player
-     * regarding score, status, ...
-	 * Thus, this player needs to maintain a "cache" list of players.
+	/* NOTE: Chesscape server sends a list of players upon login.
+	 *       After that, it only sends updates for each player
+     *       regarding score, status, ...
+	 *       Thus, this player needs to maintain a "cache" list of players.
 	 */
-	mutable hoxPlayerInfoList        m_networkPlayers;
 
 	wxString                         m_pendingJoinTableId;
 			/* The Id of the table that this player is requesting to join. */

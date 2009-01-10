@@ -342,6 +342,7 @@ public:
 typedef std::auto_ptr<hoxPlayerInfo> hoxPlayerInfo_APtr;
 typedef boost::shared_ptr<hoxPlayerInfo> hoxPlayerInfo_SPtr;
 typedef std::list<hoxPlayerInfo_SPtr> hoxPlayerInfoList;
+typedef std::map<const wxString, hoxPlayerInfo_SPtr> hoxPlayerInfoMap;
 
 // ----------------------------------------------------------------------------
 // hoxPlayerStats

@@ -109,16 +109,25 @@ hoxPlayersUI::AddPlayer( const wxString& sPlayerId,
 bool
 hoxPlayersUI::RemovePlayer( const wxString& sPlayerId )
 {
-    const int nCount = this->GetItemCount();
-    for ( int i = 0; i < nCount; ++i )
+    const long playerIndex = _FindPlayerIndex( sPlayerId );
+    if ( playerIndex != -1 ) // found?
     {
-        if ( _GetCellContent( i, 0 ) == sPlayerId ) // matched?
-        {
-            this->DeleteItem( i );
-            return true;
-        }
+        this->DeleteItem( playerIndex );
+        return true;
     }
     return false;
+}
+
+int
+hoxPlayersUI::GetPlayerScore( const wxString& sPlayerId ) const
+{
+    const long playerIndex = _FindPlayerIndex( sPlayerId );
+    if ( playerIndex != -1 ) // found?
+    {
+        const wxString sScore = _GetCellContent( playerIndex, 1 /* SCORE-column */ );
+        return ::atoi( sScore.c_str() );
+    }
+    return hoxSCORE_UNKNOWN;
 }
 
 void
@@ -212,6 +221,20 @@ hoxPlayersUI::OnColumnClick( wxListEvent& event )
         item.SetImage( m_sortOrderByRating == PLAYERS_SORT_ASCENDING ? 0 : 1 );
         SetColumn(col, item);
     }
+}
+
+long
+hoxPlayersUI::_FindPlayerIndex( const wxString& sPlayerId ) const
+{
+    const int nCount = this->GetItemCount();
+    for ( int iRow = 0; iRow < nCount; ++iRow )
+    {
+        if ( _GetCellContent( iRow, 0 ) == sPlayerId ) // matched?
+        {
+            return iRow;  // Found the index.
+        }
+    }
+    return -1;   // Not found.
 }
 
 /**

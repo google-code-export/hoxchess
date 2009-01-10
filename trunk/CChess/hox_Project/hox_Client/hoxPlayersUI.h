@@ -74,6 +74,12 @@ public:
 
     bool RemovePlayer( const wxString& sPlayerId );
 
+    /**
+     * Get the score of given Player.
+     * @return hoxSCORE_UNKNOWN - if the Player is not found.
+     */
+    int GetPlayerScore( const wxString& sPlayerId ) const;
+
     void RemoveAllPlayers();
 
     wxString GetSelectedPlayer() const;
@@ -85,6 +91,8 @@ public:
     void OnColumnClick( wxListEvent& event );
 
 private:
+    long _FindPlayerIndex( const wxString& sPlayerId ) const;
+
     wxString _GetCellContent( const long row_number,
                               const int  column ) const;
 
