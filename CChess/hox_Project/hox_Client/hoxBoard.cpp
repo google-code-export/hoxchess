@@ -381,10 +381,11 @@ void
 hoxBoard::OnWallOutput( wxCommandEvent &event )
 {
     const wxString eventString = event.GetString();
+    const bool bPublic = (event.GetInt() > 0);
     const wxString who = eventString.BeforeFirst(' ');
     const wxString msg = eventString.AfterFirst(' ');
 
-    _PostToWallOutput( who, msg ); 
+    _PostToWallOutput( who, msg, bPublic ); 
 }
 
 void 
@@ -1155,11 +1156,12 @@ hoxBoard::_PostToSystemOutput( const wxString& sMessage )
 
 void 
 hoxBoard::_PostToWallOutput( const wxString& who,
-                             const wxString& sMessage )
+                             const wxString& sMessage,
+                             bool            bPublic /* = true */ )
 {
     m_wallOutput->SetDefaultStyle( wxTextAttr(*wxBLACK) );
     m_wallOutput->AppendText( wxString::Format("[%s] ", who.c_str()) );
-    m_wallOutput->SetDefaultStyle( wxTextAttr(*wxBLUE) );
+    m_wallOutput->SetDefaultStyle( wxTextAttr( bPublic ? *wxBLUE : *wxRED) );
     m_wallOutput->AppendText( wxString::Format("%s\n", sMessage.c_str()) );
 
     /* NOTE:

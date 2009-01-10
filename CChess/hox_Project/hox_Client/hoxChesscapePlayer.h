@@ -118,7 +118,8 @@ private:
 		                         const wxString& cmdStr);
 	bool _HandleTableCmd_Unjoin(hoxTable_SPtr   pTable,
 		                        const wxString& cmdStr);
-	bool _HandleTableMsg(const wxString& cmdStr);
+    bool _HandleMsg(const wxString& cmdStr,
+                    bool            bPublic);
 
 	/* Private event-handlers */
 

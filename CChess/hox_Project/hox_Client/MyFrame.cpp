@@ -168,7 +168,7 @@ MyFrame::OnAbout( wxCommandEvent& event )
     wxMessageBox( wxString::Format(
                     _("%s %s\n"
                       "\n"
-                      "Author: Huy Phan (c) 2007, 2008\n"
+                      "Author: Huy Phan (c) 2007, 2008, 2009\n"
                       "Email: huyphan@playxiangqi.com\n"
                       "\n"
                       "This application is powered by %s, running under %s.\n"

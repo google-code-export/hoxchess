@@ -199,11 +199,14 @@ public:
      * Callback function from the NETWORK Player to let this Table know about
      * the newly-received Wall-Message(s).
      *
-     * @param playerId The Id of the Player who generates the message.
+     * @param sSenderId The Id of the Player who generates the message.
      * @param message The message that are being sent from the network.
+     * @param bPublic Whether this is a public message
+     *                .. or a private/instant one.
      */
-    void OnMessage_FromNetwork( const wxString&  playerId,
-                                const wxString&  message );
+    void OnMessage_FromNetwork( const wxString&  sSenderId,
+                                const wxString&  message,
+                                bool             bPublic = true );
 
     /**
      * Callback function from the NETWORK Player to let this Table know about
@@ -319,12 +322,13 @@ private:
      * Post a message to the Wall (or Chat) Area.
      *
      * @param sMessage The string containing the new Message.
-     * @param player   The sender. If NULL, then a predefined string
-     *                 (such as "*Table*") will be used as the name
-     *                 of the sender.
+     * @param sSenderId The sender ID.
+     * @param bPublic Whether this is a public message
+     *                .. or a private/instant one.
      */
     void _PostBoard_MessageEvent( const wxString& sMessage,
-                                  hoxPlayer*      player = NULL ) const;
+                                  const wxString& sSenderId = _T("*Table*"),
+                                  bool            bPublic = true ) const;
 
     void _PostBoard_SystemMsgEvent( const wxString& sMessage ) const;
 
