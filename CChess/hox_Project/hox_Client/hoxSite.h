@@ -117,8 +117,21 @@ public:
 	virtual unsigned int GetCurrentActionFlags() const = 0;
 
     virtual void OnPlayerLoggedIn( const wxString& sPlayerId,
-                                   const int       nPlayerScore ) = 0;
-    virtual void OnPlayerLoggedOut( const wxString& sPlayerId ) = 0;
+                                   const int       nPlayerScore );
+    virtual void OnPlayerLoggedOut( const wxString& sPlayerId );
+
+    /**
+     * Update the score of an ONLINE Player.
+     * If the Player is not found, then add the Player to the online list.
+     */
+    virtual void UpdateScoreOfOnlinePlayer( const wxString& sPlayerId,
+                                            const int       nPlayerScore );
+
+    /**
+     * Get the score of an ONLINE Player.
+     * @return hoxSCORE_UNKNOWN - if the Player is not found.
+     */
+    virtual int GetScoreOfOnlinePlayer( const wxString& sPlayerId ) const;
 
     /**
      * On the LOCAL player's request to join a Table.
@@ -162,6 +175,13 @@ protected:
 
     hoxLocalPlayer*    m_player;
             /* The player that this Host uses to connect to the server. */
+
+	/* The "cache" containing the list of ONLINE players.
+     * TODO: These players are different from the ones managed
+     *       by 'm_playerMgr'. It is kind of confusing now!
+     *       I will take care of this issue later.
+	 */
+	hoxPlayerInfoMap   m_onlinePlayers;
 };
 
 typedef std::list<hoxSite*>  hoxSiteList;
@@ -204,11 +224,6 @@ public:
     virtual void OnResponse_LOGIN( const hoxResponse_APtr& response )
         {}
 	virtual void OnResponse_LOGOUT( const hoxResponse_APtr& response )
-        {}
-    virtual void OnPlayerLoggedIn( const wxString& sPlayerId,
-                                   const int       nPlayerScore )
-        {}
-    virtual void OnPlayerLoggedOut( const wxString& sPlayerId )
         {}
 
     /*************************************************
@@ -263,6 +278,9 @@ public:
     virtual void OnPlayerLoggedIn( const wxString& sPlayerId,
                                    const int       nPlayerScore );
     virtual void OnPlayerLoggedOut( const wxString& sPlayerId );
+
+    virtual void UpdateScoreOfOnlinePlayer( const wxString& sPlayerId,
+                                            const int       nPlayerScore );
 
     /*************************************************
      * Implement hoxPlayersUI::UIOwner 's interface.

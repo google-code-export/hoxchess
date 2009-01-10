@@ -71,6 +71,11 @@
 #define hoxGUEST_PREFIX    "Guest#"
 
 /**
+ *  The constant representing an "unknown" score/rating.
+ */
+#define hoxSCORE_UNKNOWN    -1
+
+/**
  * Results (... Return-Code)
  */
 enum hoxResult
