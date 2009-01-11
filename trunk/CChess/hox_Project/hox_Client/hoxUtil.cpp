@@ -304,34 +304,6 @@ hoxUtil::StringToColor( const wxString& input )
 	return hoxCOLOR_UNKNOWN;
 }
 
-// ----------------------------------------------------------------------------
-// hoxURI
-// ----------------------------------------------------------------------------
-
-/* static */
-wxString 
-hoxURI::Escape_String(const wxString& str)
-{
-    /*
-     * @see Uniform Resource Identifier (URI): Generic Syntax
-     *          http://www.ietf.org/rfc/rfc3986.txt
-     */
-
-    wxString new_uri;
-    char     c;
-
-    for (size_t i = 0; i < str.length(); ++i)
-    {
-        c = str[i];
-        if ( ::isspace( c ) )
-            wxURI::Escape( new_uri, c );
-        else
-            new_uri += c;
-    }
-
-    return new_uri;
-}
-
 /**
  * Parse a given string of the format "hostname:port" into a host-name
  * and a port.

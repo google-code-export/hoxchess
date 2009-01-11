@@ -451,8 +451,7 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
         }
         default:
         {
-		    wxLogWarning("%s: Failed to handle Request [%s]. Error = [%s].", 
-                FNAME, sType.c_str(), sContent.c_str());
+            wxLogDebug("%s: *** WARN *** Unsupported Request [%s].", FNAME, sType.c_str());
         }
     }
 

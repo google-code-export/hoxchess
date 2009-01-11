@@ -79,7 +79,7 @@ public:
     virtual void Notify()
     {
         bool bContinued = this->Update( ++m_timerValue );
-        if ( ! bContinued )
+        if ( ! bContinued || m_timerValue >= m_maximum )
         {
             this->Stop();
         }

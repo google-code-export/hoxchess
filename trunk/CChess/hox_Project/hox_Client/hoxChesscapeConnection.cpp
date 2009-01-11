@@ -548,15 +548,14 @@ hoxResult
 hoxChesscapeReader::ReadLine( wxSocketBase* sock, 
                               wxString&     result )
 {
-    const char* FNAME = __FUNCTION__;
     wxString commandStr;
 
 	/* Read a line between '0x02' and '0x03' */
 
-	const wxChar START_CHAR = 0x02;
-	const wxChar END_CHAR   = 0x03;
+	const wxUint8 START_CHAR = 0x02;
+	const wxUint8 END_CHAR   = 0x03;
 	bool   bStart = false;
-    wxChar c;
+    wxUint8 c;
 
     for (;;)
     {
@@ -580,9 +579,9 @@ hoxChesscapeReader::ReadLine( wxSocketBase* sock,
                 if ( commandStr.size() >= hoxNETWORK_MAX_MSG_SIZE )
                 {
                     wxLogDebug("%s: *** WARN *** Maximum message's size [%d] reached. Likely to be an error.", 
-                        FNAME, hoxNETWORK_MAX_MSG_SIZE);
+                        __FUNCTION__, hoxNETWORK_MAX_MSG_SIZE);
                     wxLogDebug("%s: *** WARN *** Partial read message (64 bytes) = [%s ...].", 
-                        FNAME, commandStr.substr(0, 64).c_str());
+                        __FUNCTION__, commandStr.substr(0, 64).c_str());
                     break;
                 }
             }
@@ -590,8 +589,8 @@ hoxChesscapeReader::ReadLine( wxSocketBase* sock,
         else if ( sock->Error() )
         {
             wxLogDebug("%s: *** WARN *** Fail to read 1 byte from the network. Error = [%s].", 
-                FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
-            wxLogDebug("%s: *** WARN *** Result message accumulated so far = [%s].", FNAME, commandStr.c_str());
+                __FUNCTION__, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
+            wxLogDebug("%s: *** WARN *** Result message accumulated so far = [%s].", __FUNCTION__, commandStr.c_str());
             break;
         }
     }

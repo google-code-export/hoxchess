@@ -242,15 +242,17 @@ hoxCoreBoard::_DrawBoard( wxDC& dc )
     wxCoord x1, y1, x2, y2;
     y1 = m_borderY;
     y2 = m_borderY + boardH;
-    wxChar c = m_bViewInverted ? '8' : '0';
+    const wxCoord leftLabelY = 0; // TODO: Hard-coded for now
+    const wxCoord rightLabelY = y2 + m_borderY - dc.GetCharHeight() - leftLabelY;
+    wxChar c = m_bViewInverted ? 'i' : 'a';
     for (line = 0; line < NUM_HORIZON_CELL+1; ++line)
     {
         x1 = m_borderX + line * m_cellS;
         x2 = x1;
 
-        dc.DrawText(c, x1, y1-40);  // TODO  hard-coded for now
+        dc.DrawText(c, x1, leftLabelY);
         dc.DrawLine(x1, y1, x2, y2);
-        dc.DrawText(c, x2, y2+20);   // TODO  hard-coded for now
+        dc.DrawText(c, x2, rightLabelY);
         if (m_bViewInverted) --c;
         else                 ++c;
     }
@@ -258,15 +260,17 @@ hoxCoreBoard::_DrawBoard( wxDC& dc )
     // Draw horizontal lines.
     x1 = m_borderX;
     x2 = m_borderX + boardW;
+    const wxCoord leftLabelX = 5; // TODO: Hard-coded for now
+    const wxCoord rightLabelX = m_borderX - dc.GetCharWidth() - leftLabelX;
     c = m_bViewInverted ? '9' : '0';
     for (line = 0; line < NUM_VERTICAL_CELL+1; ++line)
     {
         y1 = m_borderY + line * m_cellS;
         y2 = y1;
 
-        dc.DrawText(c, x1-30, y1);  // TODO  hard-coded for now
+        dc.DrawText(c, leftLabelX, y1);
         dc.DrawLine(x1, y1, x2, y2);
-        dc.DrawText(c, x2+20, y2);  // TODO  hard-coded for now
+        dc.DrawText(c, x2 + rightLabelX, y2);
         if (m_bViewInverted) --c;
         else                 ++c;
     }
@@ -480,8 +484,7 @@ hoxCoreBoard::_DrawPiece( const hoxPiece* piece )
 
 void 
 hoxCoreBoard::_DrawPieceWithDC( wxDC&           dc, 
-                                const hoxPiece* piece, 
-                                int             op /* = wxCOPY */ )
+                                const hoxPiece* piece )
 {
     const wxPoint& pos = _GetPieceLocation( piece );
     const wxBitmap& bitmap = piece->GetBitmap();
@@ -493,7 +496,7 @@ hoxCoreBoard::_DrawPieceWithDC( wxDC&           dc,
 
     dc.Blit( pos.x, pos.y, 
              bitmap.GetWidth(), bitmap.GetHeight(),
-             &memDC, 0, 0, op, true);
+             &memDC, 0, 0, wxCOPY, true);
 
     /* Highlight the piece if it is the latest piece that moves. */
     if ( piece->IsLatest() )
@@ -1069,7 +1072,7 @@ hoxCoreBoard::DoGetBestSize() const
     wxSize availableSize = GetParent()->GetClientSize();    
 
     int proposedHeight = 
-        availableSize.GetHeight() - 50 /* TODO: The two players' info */;
+        availableSize.GetHeight() - 75 /* TODO: The two players' info + The command bar */;
 
     wxSize bestSize = this->GetBestBoardSize( proposedHeight );
 

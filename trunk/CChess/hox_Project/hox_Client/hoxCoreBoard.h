@@ -215,7 +215,7 @@ private:
     void   _DrawAllPieces( wxDC& dc );
     void   _DrawAndHighlightPiece( hoxPiece* piece );
     void   _DrawPiece( const hoxPiece* piece );
-    void   _DrawPieceWithDC( wxDC& dc, const hoxPiece* piece, int op = wxCOPY );
+    void   _DrawPieceWithDC( wxDC& dc, const hoxPiece* piece );
     wxRect _GetPieceRect( const hoxPiece* piece ) const;
 
     void      _DoPaint( wxDC& dc );
