@@ -24,8 +24,8 @@
 // Description:     The Chesscape LOCAL Player.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_CHESSCAPE_PLAYER_H_
-#define __INCLUDED_HOX_CHESSCAPE_PLAYER_H_
+#ifndef __INCLUDED_HOX_CHESSCAPE_PLAYER_H__
+#define __INCLUDED_HOX_CHESSCAPE_PLAYER_H__
 
 #include "hoxLocalPlayer.h"
 #include "hoxTypes.h"
@@ -36,12 +36,12 @@
 class hoxChesscapePlayer :  public hoxLocalPlayer
 {
 public:
-    hoxChesscapePlayer(); // DUMMY default constructor required for event handler.
+    hoxChesscapePlayer() {} // DUMMY constructor required for event handler.
     hoxChesscapePlayer( const wxString& name,
 						hoxPlayerType   type,
 						int             score );
 
-    virtual ~hoxChesscapePlayer();
+    virtual ~hoxChesscapePlayer() {}
 
     virtual void Start();
 
@@ -91,34 +91,35 @@ private:
 	bool _ParseIncomingCommand(const wxString& contentStr,
 		                       wxString&       command,
 							   wxString&       paramsStr) const;
-	bool _HandleCmd_Login(const hoxResponse_APtr& response,
+	void _HandleCmd_Login(const hoxResponse_APtr& response,
                           const wxString&         cmdStr);
-	bool _HandleCmd_Code(const hoxResponse_APtr& response,
+	void _HandleCmd_Code(const hoxResponse_APtr& response,
                          const wxString&         cmdStr);
-	bool _HandleCmd_Logout(const wxString& cmdStr);
-    bool _HandleCmd_Clients(const wxString& cmdStr);
-	bool _HandleCmd_Show(const wxString& cmdStr);
-	bool _HandleCmd_Unshow(const wxString& cmdStr);
-	bool _HandleCmd_Update(const wxString& cmdStr,
+	void _HandleCmd_Logout(const wxString& cmdStr);
+    void _HandleCmd_Clients(const wxString& cmdStr);
+	void _HandleCmd_Show(const wxString& cmdStr);
+	void _HandleCmd_Unshow(const wxString& cmdStr);
+	void _HandleCmd_Update(const wxString& cmdStr,
 		                   hoxNetworkTableInfo* pTableInfo = NULL);
-	bool _HandleCmd_UpdateRating(const wxString& cmdStr);
-	bool _HandleCmd_PlayerInfo(const wxString& cmdStr);
+	void _HandleCmd_UpdateRating(const wxString& cmdStr);
+    void _HandleCmd_UpdateStatus(const wxString& cmdStr);
+	void _HandleCmd_PlayerInfo(const wxString& cmdStr);
 
-	bool _HandleTableCmd(const wxString& cmdStr);
-	bool _HandleTableCmd_Settings(const wxString& cmdStr);
-    bool _HandleTableCmd_Invite(const wxString& cmdStr);
-	bool _HandleTableCmd_PastMoves(hoxTable_SPtr   pTable,
+	void _HandleTableCmd(const wxString& cmdStr);
+	void _HandleTableCmd_Settings(const wxString& cmdStr);
+    void _HandleTableCmd_Invite(const wxString& cmdStr);
+	void _HandleTableCmd_PastMoves(hoxTable_SPtr   pTable,
 		                           const wxString& cmdStr);
-	bool _HandleTableCmd_Move(hoxTable_SPtr   pTable,
+	void _HandleTableCmd_Move(hoxTable_SPtr   pTable,
 		                      const wxString& cmdStr);
-	bool _HandleTableCmd_GameOver(hoxTable_SPtr   pTable,
+	void _HandleTableCmd_GameOver(hoxTable_SPtr   pTable,
 		                          const wxString& cmdStr);
-	bool _HandleTableCmd_OfferDraw(hoxTable_SPtr pTable);
-	bool _HandleTableCmd_Clients(hoxTable_SPtr   pTable,
+	void _HandleTableCmd_OfferDraw(hoxTable_SPtr pTable);
+	void _HandleTableCmd_Clients(hoxTable_SPtr   pTable,
 		                         const wxString& cmdStr);
-	bool _HandleTableCmd_Unjoin(hoxTable_SPtr   pTable,
+	void _HandleTableCmd_Unjoin(hoxTable_SPtr   pTable,
 		                        const wxString& cmdStr);
-    bool _HandleMsg(const wxString& cmdStr,
+    void _HandleMsg(const wxString& cmdStr,
                     bool            bPublic);
 
 	/* Private event-handlers */
@@ -127,9 +128,10 @@ private:
 
     /* Other private helpers */
 
-    hoxGameType _stringToGameType( const wxString& sInput ) const;
-    
-    hoxTable_SPtr _getMyTable() const; // Chesscape only supports 1 Table.
+    hoxGameType     _StringToGameType( const wxString& sInput ) const;
+    hoxPlayerStatus _StringToPlayerStatus( const wxString& sInput ) const;
+
+    hoxTable_SPtr _GetMyTable() const; // Chesscape only supports 1 Table.
 
 private:
 	/* Chesscape server sends a list of tables upon login.
@@ -156,12 +158,12 @@ private:
 	bool                             m_bRequestingNewTable;
 			/* Whether this Player is requesting for a NEW Table. */
 
-	bool                             m_bSentMyFirstMove;
-			/* Whether this Player has sent his first Move since JOINing the Table. */
+    hoxPlayerStatus                  m_playerStatus;
+            /* Playing, Observing, Solo playing */
 
     DECLARE_DYNAMIC_CLASS(hoxChesscapePlayer)
     DECLARE_EVENT_TABLE()
 };
 
 
-#endif /* __INCLUDED_HOX_CHESSCAPE_PLAYER_H_ */
+#endif /* __INCLUDED_HOX_CHESSCAPE_PLAYER_H__ */

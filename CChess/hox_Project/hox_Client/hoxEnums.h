@@ -147,6 +147,18 @@ enum hoxGameStatus
 };
 
 /**
+ * Player's status.
+ */
+enum hoxPlayerStatus
+{
+    hoxPLAYER_STATUS_UNKNOWN = -1,
+
+    hoxPLAYER_STATUS_PLAYING,   // Playing with someone.
+    hoxPLAYER_STATUS_OBSERVING, // Observing (or Free/Available).
+    hoxPLAYER_STATUS_SOLO       // Playing solo (... with a computer).
+};
+
+/**
  * Site's type.
  */
 enum hoxSiteType
