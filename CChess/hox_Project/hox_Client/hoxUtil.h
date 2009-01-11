@@ -85,22 +85,6 @@ namespace hoxUtil
      */
     hoxColor StringToColor( const wxString& input );
 
-    // ----------------------------------------------------------------------------
-    // hoxURI - A simple wrapper for wxURI
-    // ----------------------------------------------------------------------------
-
-    class hoxURI : public wxURI
-    {
-    public:
-        /**
-         * API to escape/unespace URI-unsafe characters, especially since
-         * we transport wall-messages via HTTP's URI-path.
-         */
-        static wxString Escape_String(const wxString& str);
-        static wxString Unescape_String(const wxString& str)
-            { return wxURI::Unescape( str ); }
-    };
-
     /**
      * Parse a given string of the format "hostname:port" into a host-name
      * and a port.

@@ -397,7 +397,6 @@ hoxResult
 hoxSocketReader::ReadLine( wxSocketBase* sock, 
                            wxString&     result )
 {
-    const char* FNAME = __FUNCTION__;
     wxString commandStr;
 
     result = "";
@@ -405,19 +404,11 @@ hoxSocketReader::ReadLine( wxSocketBase* sock,
 	/* Read a line until "\n\n" */
 
 	bool   bSawOne = false;
-    wxChar c;
+    wxUint8 c;
 
     for (;;)
     {
         sock->Read( &c, 1 );
-#if 0
-        if ( sock->LastCount() == 0 )  // Connection closed by the remote peer?
-        {
-            wxLogDebug("%s: Connection closed by the remote peer. Result message = [%s].",
-                FNAME, commandStr.c_str());
-            return hoxRC_CLOSED;  // Done.
-        }
-#endif
         if ( sock->LastCount() == 1 )
         {
 			if ( !bSawOne && c == '\n' )
@@ -439,9 +430,9 @@ hoxSocketReader::ReadLine( wxSocketBase* sock,
                 if ( commandStr.size() >= hoxNETWORK_MAX_MSG_SIZE )
                 {
                     wxLogDebug("%s: *** WARN *** Maximum message's size [%d] reached. Likely to be an error.", 
-                        FNAME, hoxNETWORK_MAX_MSG_SIZE);
+                        __FUNCTION__, hoxNETWORK_MAX_MSG_SIZE);
                     wxLogDebug("%s: *** WARN *** Partial read message (64 bytes) = [%s ...].", 
-                        FNAME, commandStr.substr(0, 64).c_str());
+                        __FUNCTION__, commandStr.substr(0, 64).c_str());
                     break;
                 }
             }
@@ -453,14 +444,14 @@ hoxSocketReader::ReadLine( wxSocketBase* sock,
              *       we have used wxSOCKET_BLOCK as the socket option.
              */
             if (  err == wxSOCKET_TIMEDOUT )
-                wxLogDebug("%s: * INFO * Socket timeout.", FNAME);
+                wxLogDebug("%s: * INFO * Socket timeout.", __FUNCTION__);
             else
-                wxLogDebug("%s: * INFO * Some socket error [%d].", FNAME, err);
+                wxLogDebug("%s: * INFO * Some socket error [%d].", __FUNCTION__, err);
             break;
         }
         else
         {
-            wxLogDebug("%s: No more data. Result message = [%s].", FNAME, commandStr.c_str());
+            wxLogDebug("%s: No more data. Result message = [%s].", __FUNCTION__, commandStr.c_str());
             return hoxRC_NOT_FOUND;  // Done.
         }
     }
