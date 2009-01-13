@@ -317,9 +317,9 @@ hoxChesscapeWriter::_GetPlayerInfo( hoxRequest_APtr apRequest )
 
     /* Send request. */
 	wxLogDebug("%s: Sending PLAYER-INFO request for player = [%s]...", 
-		__FUNCTION__, sPlayerId);
+		__FUNCTION__, sPlayerId.c_str());
 	wxString cmdRequest;
-	cmdRequest.Printf("playerInfo?%s", sPlayerId);
+	cmdRequest.Printf("playerInfo?%s", sPlayerId.c_str());
 
     return _WriteLine( cmdRequest );
 }
@@ -418,9 +418,9 @@ hoxChesscapeWriter::_WallMessage( hoxRequest_APtr apRequest )
 
     /* Send MESSAGE request. */
 
-	wxLogDebug("%s: Sending MESSAGE [%s] request...", __FUNCTION__, message);
+	wxLogDebug("%s: Sending MESSAGE [%s] request...", __FUNCTION__, message.c_str());
 	wxString cmdRequest;
-    cmdRequest.Printf("tMsg?%s", message);
+    cmdRequest.Printf("tMsg?%s", message.c_str());
 
     return _WriteLine( cmdRequest );
 }
@@ -517,7 +517,7 @@ hoxChesscapeWriter::_WriteLine( const wxString& cmdRequest )
     return hoxNetworkAPI::WriteLine( m_socket, sFormattedCmd );
 #else
     wxString sFormattedCmd;
-    sFormattedCmd.Printf("\x02\x10%s\x10\x03", cmdRequest);
+    sFormattedCmd.Printf("\x02\x10%s\x10\x03", cmdRequest.c_str());
 
     std::string myCmd( sFormattedCmd.ToUTF8() );
     wxUint32 nWrite = myCmd.size();
