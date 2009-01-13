@@ -38,7 +38,7 @@ class hoxChesscapeWriter : public hoxSocketWriter
 public:
     hoxChesscapeWriter( wxEvtHandler*           player,
                         const hoxServerAddress& serverAddress );
-    virtual ~hoxChesscapeWriter();
+    virtual ~hoxChesscapeWriter() {}
 
 protected:
     virtual void HandleRequest( hoxRequest_APtr apRequest );
@@ -79,11 +79,11 @@ class hoxChesscapeReader : public hoxSocketReader
 {
 public:
     hoxChesscapeReader( wxEvtHandler* player );
-    virtual ~hoxChesscapeReader();
+    virtual ~hoxChesscapeReader() {}
 
 protected:
-    virtual hoxResult ReadLine( wxSocketBase* sock,
-                                wxString&     result );
+    virtual hoxResult ReadLine( wxSocketBase*   sock,
+                                wxMemoryBuffer& data );
 
 private:
 

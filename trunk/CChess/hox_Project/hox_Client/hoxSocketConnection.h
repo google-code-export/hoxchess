@@ -115,8 +115,8 @@ protected:
     // entry point for the thread
     virtual void *Entry();
 
-    virtual hoxResult ReadLine( wxSocketBase* sock,
-                                wxString&     result );
+    virtual hoxResult ReadLine( wxSocketBase*   sock,
+                                wxMemoryBuffer& data );
 
 protected:
     wxEvtHandler*         m_player;

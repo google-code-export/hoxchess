@@ -64,11 +64,8 @@ hoxMyPlayer::Start()
 void 
 hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 {
-    const char* FNAME = __FUNCTION__;
     hoxResult result = hoxRC_OK;
-
     const hoxResponse_APtr apResponse( wxDynamicCast(event.GetEventObject(), hoxResponse) );
-
     hoxSite* site = this->GetSite();
     hoxTable_SPtr  pTable;
 
@@ -76,8 +73,8 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 
     if ( apResponse->code != hoxRC_OK )
     {
-        wxLogDebug("%s: *** WARN *** Received error-code [%s].", 
-            FNAME, hoxUtil::ResultToStr(apResponse->code));
+        wxLogDebug("%s: *WARN* Received error-code [%s].", 
+            __FUNCTION__, hoxUtil::ResultToStr(apResponse->code));
 
         /* Close the connection and logout.
          */
@@ -86,20 +83,19 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
             this->LeaveAllTables();
             this->DisconnectFromNetworkServer();
             site->Handle_ShutdownReadyFromPlayer();
-            wxLogDebug("%s: END (exception).", FNAME);
+            wxLogDebug("%s: END (exception).", __FUNCTION__);
             return;  // *** Exit immediately.
         }
     }
 
     /* Handle other type of data. */
 
-    const wxString commandStr = apResponse->content;
     hoxCommand  command;
 
-    result = hoxNetworkAPI::ParseCommand( commandStr, command );
+    result = hoxNetworkAPI::ParseCommand( apResponse->data, command );
     if ( result != hoxRC_OK )
     {
-        wxLogError("%s: Failed to parse command-string [%s].", FNAME, commandStr.c_str());
+        wxLogError("%s: Failed to parse command-data.", __FUNCTION__);
         return;
     }
 
@@ -108,7 +104,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
     const wxString sTableId = command.parameters["tid"];
     const wxString sContent = command.parameters["content"];
 
-    wxLogDebug("%s: Received a command [%s].", FNAME, sType.c_str());
+    wxLogDebug("%s: Received a command [%s].", __FUNCTION__, sType.c_str());
 
     /* Lookup Table if the Table-Id is provided. */
     if ( ! sTableId.empty() )
@@ -116,7 +112,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
         pTable = site->FindTable( sTableId );
         if ( pTable.get() == NULL )
         {
-            wxLogDebug("%s: *INFO* Table [%s] not found.", FNAME, sTableId.c_str());
+            wxLogDebug("%s: *INFO* Table [%s] not found.", __FUNCTION__, sTableId.c_str());
             // *** Still allow to continue!
         }
     }
@@ -125,7 +121,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
     if ( sCode != "0" ) // failed?
     {
         const wxString sMessage = "Request " + sType + " failed with code = " + sCode;
-        wxLogDebug("%s: %s.", FNAME, sMessage.c_str());
+        wxLogDebug("%s: %s.", __FUNCTION__, sMessage.c_str());
 
         if ( pTable.get() != NULL )
         {
@@ -154,8 +150,8 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 					                      *pTableList );
 		    if ( result != hoxRC_OK )
 		    {
-			    wxLogDebug("%s: *** WARN *** Failed to parse LIST's response [%s].", 
-				    FNAME, sContent.c_str());
+			    wxLogDebug("%s: *WARN* Failed to parse LIST's response [%s].", 
+				    __FUNCTION__, sContent.c_str());
 			    apResponse->code = result;
 		    }
 	        site->DisplayListOfTables( *pTableList );
@@ -168,8 +164,8 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 													      *pTableInfo );
 		    if ( result != hoxRC_OK )
 		    {
-			    wxLogDebug("%s: *** WARN *** Failed to parse [%s]'s event [%s].", 
-				    FNAME, sType.c_str(), sContent.c_str());
+			    wxLogDebug("%s: *WARN* Failed to parse [%s]'s event [%s].", 
+				    __FUNCTION__, sType.c_str(), sContent.c_str());
                 break;
 		    }
 		    site->JoinLocalPlayerToTable( *pTableInfo );
@@ -184,10 +180,10 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 		    if ( result != hoxRC_OK )
 		    {
 			    wxLogDebug("%s: Table/Player not found. LEAVE's event [%s] ignored.", 
-				    FNAME, sContent.c_str());
+				    __FUNCTION__, sContent.c_str());
                 break;
 		    }
-            wxLogDebug("%s: Player [%s] left Table [%s].", FNAME, 
+            wxLogDebug("%s: Player [%s] left Table [%s].", __FUNCTION__, 
                 leavePlayer->GetId().c_str(), pTable->GetId().c_str());
             pTable->OnLeave_FromNetwork( leavePlayer );
             break;
@@ -203,10 +199,10 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 		    if ( result != hoxRC_OK )
 		    {
 			    wxLogDebug("%s: Failed to parse [%s]'s event [%s].",
-                    FNAME, sType.c_str(), sContent.c_str());
+                    __FUNCTION__, sType.c_str(), sContent.c_str());
                 break;
 		    }
-            wxLogDebug("%s: Player [%s] updated Timers to [%s] in Table [%s].", FNAME, 
+            wxLogDebug("%s: Player [%s] updated Timers to [%s] in Table [%s].", __FUNCTION__, 
                 player->GetId().c_str(), hoxUtil::TimeInfoToString(newTimeInfo).c_str(),
                 pTable->GetId().c_str());
             pTable->OnUpdate_FromPlayer( player,
@@ -226,10 +222,10 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 		    if ( result != hoxRC_OK )
 		    {
 			    wxLogDebug("%s: Failed to parse E_JOIN's event [%s].",
-                    FNAME, sContent.c_str());
+                    __FUNCTION__, sContent.c_str());
                 break;
 		    }
-            wxLogDebug("%s: Player [%s] joined Table [%s] as [%d].", FNAME, 
+            wxLogDebug("%s: Player [%s] joined Table [%s] as [%d].", __FUNCTION__, 
                 playerId.c_str(), tableId.c_str(), joinColor);
             result = site->OnPlayerJoined( tableId, 
                                            playerId, 
@@ -237,8 +233,8 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
                                            joinColor );
             if ( result != hoxRC_OK )
             {
-                wxLogDebug("%s: *** ERROR *** Failed to ask table to join as color [%d].", 
-                    FNAME, joinColor);
+                wxLogDebug("%s: *ERROR* Failed to ask table to join as color [%d].", 
+                    __FUNCTION__, joinColor);
                 break;
             }
             break;
@@ -253,10 +249,10 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 		    if ( result != hoxRC_OK )
 		    {
 			    wxLogDebug("%s: Failed to parse MSG's event [%s].",
-                    FNAME, sContent.c_str());
+                    __FUNCTION__, sContent.c_str());
                 break;
 		    }
-            wxLogDebug("%s: Player [%s] sent msg [%s] in Table [%s].", FNAME, 
+            wxLogDebug("%s: Player [%s] sent msg [%s] in Table [%s].", __FUNCTION__, 
                 playerId.c_str(), message.c_str(), pTable->GetId().c_str());
             pTable->OnMessage_FromNetwork( playerId, message );
             break;
@@ -271,10 +267,10 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 		    if ( result != hoxRC_OK )
 		    {
 			    wxLogDebug("%s: Failed to parse MOVE's event [%s].",
-                    FNAME, sContent.c_str());
+                    __FUNCTION__, sContent.c_str());
                 break;
 		    }
-            wxLogDebug("%s: Player [%s] sent move [%s] in Table [%s].", FNAME, 
+            wxLogDebug("%s: Player [%s] sent move [%s] in Table [%s].", __FUNCTION__, 
                 movePlayer->GetId().c_str(), sMove.c_str(), pTable->GetId().c_str());
             pTable->OnMove_FromNetwork( movePlayer, sMove );
             break;
@@ -288,11 +284,11 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 		    if ( result != hoxRC_OK )
 		    {
 			    wxLogDebug("%s: Failed to parse DRAW's event [%s].",
-                    FNAME, sContent.c_str());
+                    __FUNCTION__, sContent.c_str());
                 break;
 		    }
             wxLogDebug("%s: Inform table of player [%s] offering Draw-Request.", 
-                FNAME, offerPlayer->GetId().c_str());
+                __FUNCTION__, offerPlayer->GetId().c_str());
             pTable->OnDrawRequest_FromNetwork( offerPlayer );
             break;
         }
@@ -303,11 +299,11 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 		    if ( result != hoxRC_OK )
 		    {
 			    wxLogDebug("%s: Table not found. RESET's event [%s] ignored.", 
-				    FNAME, sContent.c_str());
+				    __FUNCTION__, sContent.c_str());
                 break;
 		    }
 
-		    wxLogDebug("%s: Received RESET's event [%s].", FNAME, sContent.c_str());
+		    wxLogDebug("%s: Received RESET's event [%s].", __FUNCTION__, sContent.c_str());
             pTable->OnGameReset_FromNetwork();
             break;
         }
@@ -321,12 +317,12 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 		    if ( result != hoxRC_OK )
 		    {
 			    wxLogDebug("%s: Table not found. E_END's event [%s] ignored.", 
-				    FNAME, sContent.c_str());
+				    __FUNCTION__, sContent.c_str());
                 break;
 		    }
 
             wxLogDebug("%s: The game has ended. Status = [%s]. Reason = [%s]",
-                FNAME, hoxUtil::GameStatusToString( gameStatus ).c_str(), sReason.c_str());
+                __FUNCTION__, hoxUtil::GameStatusToString( gameStatus ).c_str(), sReason.c_str());
             pTable->OnGameOver_FromNetwork( this, gameStatus );
             break;
         }
@@ -340,11 +336,11 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 		    if ( result != hoxRC_OK )
 		    {
 			    wxLogDebug("%s: Failed to parse E_SCORE's event [%s].",
-                    FNAME, sContent.c_str());
+                    __FUNCTION__, sContent.c_str());
                 break;
 		    }
             wxLogDebug("%s: Inform table [%s] of player [%s] new Score [%d].", 
-                FNAME, pTable->GetId().c_str(), player->GetId().c_str(), nScore);
+                __FUNCTION__, pTable->GetId().c_str(), player->GetId().c_str(), nScore);
             player->SetScore( nScore );
             pTable->OnScore_FromNetwork( player );
             break;
@@ -358,10 +354,10 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 		    if ( result != hoxRC_OK )
 		    {
 			    wxLogDebug("%s: Failed to parse I_MOVES's event [%s].",
-                    FNAME, sContent.c_str());
+                    __FUNCTION__, sContent.c_str());
                 break;
 		    }
-            wxLogDebug("%s: Inform Table [%s] of past Moves [%s].", FNAME, 
+            wxLogDebug("%s: Inform Table [%s] of past Moves [%s].", __FUNCTION__, 
                 pTable->GetId().c_str(), sContent.c_str());
             pTable->OnPastMoves_FromNetwork( this, moves );
             break;
@@ -396,7 +392,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 									        playerStats );
 		    if ( result != hoxRC_OK )
 		    {
-			    wxLogDebug("%s: Failed to parse PLAYER_INFO's event [%s].", FNAME, sContent.c_str());
+			    wxLogDebug("%s: Failed to parse PLAYER_INFO's event [%s].", __FUNCTION__, sContent.c_str());
                 break;
 		    }
             // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -411,18 +407,17 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
         }
         default:
         {
-		    wxLogDebug("%s: *** WARN *** Unexpected command [%s].", FNAME, sType.c_str());
+		    wxLogDebug("%s: *WARN* Unexpected command [%s].", __FUNCTION__, sType.c_str());
         }
     } // switch()
 
-    wxLogDebug("%s: END.", FNAME);
+    wxLogDebug("%s: END.", __FUNCTION__);
 }
 
 void 
 hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 
     /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
      *
@@ -443,19 +438,19 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
 		{
             if ( apResponse->code != hoxRC_OK )  // error?
             {
-                wxLogDebug("%s: *** WARN *** Failed to login. Error = [%s].", 
-                    FNAME, sContent.c_str());
+                wxLogDebug("%s: *WARN* Failed to login. Error = [%s].", 
+                    __FUNCTION__, sContent.c_str());
                 site->OnResponse_LOGIN( apResponse );
             }
             break;
         }
         default:
         {
-            wxLogDebug("%s: *** WARN *** Unsupported Request [%s].", FNAME, sType.c_str());
+            wxLogDebug("%s: *WARN* Unsupported Request [%s].", __FUNCTION__, sType.c_str());
         }
     }
 
-    wxLogDebug("%s: END.", FNAME);
+    wxLogDebug("%s: END.", __FUNCTION__);
 }
 
 void 
@@ -463,16 +458,14 @@ hoxMyPlayer::_HandleResponseEvent_LOGIN( const wxString&         sCode,
                                          const wxString&         sContent,
                                          const hoxResponse_APtr& apResponse )
 {
-    const char* FNAME = __FUNCTION__;
-
     hoxSite* site = this->GetSite();
 
     /* Error handling. */
 
     if ( sCode != "0" )  // error?
     {
-        wxLogDebug("%s: *** WARN *** Received LOGIN error = [%s: %s].", 
-            FNAME, sCode.c_str(), sContent.c_str());
+        wxLogDebug("%s: *WARN* Received LOGIN error = [%s: %s].", 
+            __FUNCTION__, sCode.c_str(), sContent.c_str());
         apResponse->code = hoxRC_ERR;
         site->OnResponse_LOGIN( apResponse );
         return;
@@ -490,7 +483,7 @@ hoxMyPlayer::_HandleResponseEvent_LOGIN( const wxString&         sCode,
     {
         m_bLoginSuccess = true;  // *** Record this LOGIN event.
 
-        wxLogDebug("%s: Set my score = [%d].", FNAME, nPlayerScore);
+        wxLogDebug("%s: Set my score = [%d].", __FUNCTION__, nPlayerScore);
         this->SetScore( nPlayerScore );
         
         apResponse->code = hoxRC_OK;
@@ -499,7 +492,7 @@ hoxMyPlayer::_HandleResponseEvent_LOGIN( const wxString&         sCode,
     else
     {
         wxLogDebug("%s: Received LOGIN from other [%s %d].",
-            FNAME, sPlayerId.c_str(), nPlayerScore);
+            __FUNCTION__, sPlayerId.c_str(), nPlayerScore);
     }
 
     /* Inform the Site. */
@@ -510,8 +503,6 @@ void
 hoxMyPlayer::_HandleResponseEvent_LOGOUT( const wxString&         sContent,
                                           const hoxResponse_APtr& apResponse )
 {
-    const char* FNAME = __FUNCTION__;
-
     hoxSite* site = this->GetSite();
 
     /* Handle data. */
@@ -527,7 +518,7 @@ hoxMyPlayer::_HandleResponseEvent_LOGOUT( const wxString&         sContent,
     }
     else
     {
-        wxLogDebug("%s: Received LOGOUT from other [%s].", FNAME, sPlayerId.c_str());
+        wxLogDebug("%s: Received LOGOUT from other [%s].", __FUNCTION__, sPlayerId.c_str());
         site->OnPlayerLoggedOut( sPlayerId );  /* Inform the Site. */
     }
 }

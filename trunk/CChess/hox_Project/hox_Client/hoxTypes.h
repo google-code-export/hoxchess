@@ -265,6 +265,7 @@ public:
     hoxRequestType   type;
     hoxResult        code;
     wxString         content;
+    wxMemoryBuffer   data;  // TODO: This eventually should replace 'content'
     wxEvtHandler*    sender;
 
     hoxResponse() : type( hoxREQUEST_UNKNOWN )

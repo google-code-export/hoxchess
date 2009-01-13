@@ -88,7 +88,7 @@ private:
                                 wxString&       score,
                                 wxString&       role ) const;
 
-	bool _ParseIncomingCommand(const wxString& contentStr,
+	bool _ParseIncomingCommand(const wxMemoryBuffer& data,
 		                       wxString&       command,
 							   wxString&       paramsStr) const;
 	void _HandleCmd_Login(const hoxResponse_APtr& response,
