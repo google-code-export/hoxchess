@@ -120,13 +120,11 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*                      parent,
 			         ? "Public" 
 					 : "Private" );
 
-		redInfo = ( it->redId.empty()
-		           ? "*"
-		           : it->redId + " (" << it->redScore << ")" );
+        if ( it->redId.empty() ) redInfo = "*";
+        else  redInfo = it->redId + " (" << it->redScore << ")";
 
-		blackInfo = ( it->blackId.empty()
-		           ? "*"
-		           : it->blackId + " (" << it->blackScore << ")" );
+        if ( it->blackId.empty() ) blackInfo = "*";
+        else  blackInfo = it->blackId + " (" << it->blackScore << ")";
 
 		colIndex = 0;
 		itemIndex = m_listCtrlTables->InsertItem(itemIndex, wxString::Format("#%s", it->id.c_str()) );

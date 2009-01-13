@@ -34,10 +34,19 @@
 //-----------------------------------------------------------------------------
 
 hoxResult
-hoxNetworkAPI::ParseCommand( const wxString& commandStr, 
+hoxNetworkAPI::ParseCommand( const wxMemoryBuffer& data,
                              hoxCommand&     command )
 {
-    const char* FNAME = __FUNCTION__;
+    /* TODO: Force to convert the buffer to a string. */
+
+    const wxString commandStr =
+        wxString::FromUTF8( (const char*) data.GetData(), data.GetDataLen() );
+    if ( data.GetDataLen() > 0 && commandStr.empty() ) // failed?
+    {
+        wxLogDebug("%s: *WARN* Fail to convert [%d] data to string.", 
+            __FUNCTION__, data.GetDataLen());
+        return hoxRC_ERR;
+    }
 
     wxStringTokenizer tkz( commandStr, "&" );
 
@@ -63,7 +72,7 @@ hoxNetworkAPI::ParseCommand( const wxString& commandStr,
 
             if ( command.type == hoxREQUEST_UNKNOWN )
             {
-                wxLogError("%s: Unsupported command-type = [%s].", FNAME, paramValue.c_str());
+                wxLogError("%s: Unsupported command-type = [%s].", __FUNCTION__, paramValue.c_str());
                 return hoxRC_NOT_SUPPORTED;
             }
         }

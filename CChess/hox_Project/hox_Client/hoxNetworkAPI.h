@@ -33,7 +33,7 @@
 
 namespace hoxNetworkAPI
 {
-    hoxResult ParseCommand( const wxString& commandStr, 
+    hoxResult ParseCommand( const wxMemoryBuffer& data, 
                             hoxCommand&     command );
 
     hoxResult ParseOneNetworkTable( const wxString&      tableStr,

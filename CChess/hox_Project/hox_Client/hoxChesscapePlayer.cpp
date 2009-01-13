@@ -174,15 +174,15 @@ hoxChesscapePlayer::OnRequest_FromTable( hoxRequest_APtr apRequest )
 void 
 hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 {
-    const hoxResponse_APtr response( wxDynamicCast(event.GetEventObject(), hoxResponse) );
+    const hoxResponse_APtr apResponse( wxDynamicCast(event.GetEventObject(), hoxResponse) );
     hoxSite* site = this->GetSite();
 
     /* Handle error-code. */
 
-    if ( response->code != hoxRC_OK )
+    if ( apResponse->code != hoxRC_OK )
     {
-        wxLogDebug("%s: *** WARN *** Received error-code [%s].", 
-            __FUNCTION__, hoxUtil::ResultToStr(response->code));
+        wxLogDebug("%s: *WARN* Received error-code [%s].", 
+            __FUNCTION__, hoxUtil::ResultToStr(apResponse->code));
 
         /* Close the connection and logout.
          */
@@ -198,17 +198,17 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 	wxString command;
 	wxString paramsStr;
 
-	if ( ! _ParseIncomingCommand( response->content, command, paramsStr ) ) // failed?
+	if ( ! _ParseIncomingCommand( apResponse->data, command, paramsStr ) ) // failed?
 	{
-		wxLogDebug("%s: ***WARN*** Failed to parse incoming command.", __FUNCTION__);
+		wxLogWarning("%s: Failed to parse incoming command.", __FUNCTION__);
 		return;  // *** Exit immediately.
 	}
 
 	/* Processing the command... */
     wxLogDebug("%s: +++ command = [%s]...", __FUNCTION__, command.c_str());
 
-    if      ( command == "login" )         _HandleCmd_Login( response, paramsStr );
-    else if ( command == "code" )          _HandleCmd_Code( response, paramsStr );
+    if      ( command == "login" )         _HandleCmd_Login( apResponse, paramsStr );
+    else if ( command == "code" )          _HandleCmd_Code( apResponse, paramsStr );
     else if ( command == "logout" )        _HandleCmd_Logout( paramsStr );
     else if ( command == "clients" )       _HandleCmd_Clients( paramsStr );
 	else if ( command == "show" )          _HandleCmd_Show( paramsStr );
@@ -538,16 +538,25 @@ hoxChesscapePlayer::_UpdateTableInList( const wxString&      tableStr,
 }
 
 bool 
-hoxChesscapePlayer::_ParseIncomingCommand( const wxString& contentStr,
+hoxChesscapePlayer::_ParseIncomingCommand( const wxMemoryBuffer& data,
 										   wxString&       command,
 										   wxString&       paramsStr ) const
 {
-	const char* FNAME = __FUNCTION__;
+    /* TODO: Force to convert the buffer to a string. */
+
+    const wxString contentStr =
+        wxString::FromUTF8( (const char*) data.GetData(), data.GetDataLen() );
+    if ( data.GetDataLen() > 0 && contentStr.empty() ) // failed?
+    {
+        wxLogDebug("%s: *WARN* Fail to convert [%d] data to string.", 
+            __FUNCTION__, data.GetDataLen());
+        return false;
+    }
 
 	/* CHECK: The first character must be 0x10 */
 	if ( contentStr.empty() || contentStr[0] != 0x10 )
 	{
-		wxLogDebug("%s: *** WARN *** Invalid command = [%s].", FNAME, contentStr.c_str());
+		wxLogDebug("%s: *WARN* Invalid command = [%s].", __FUNCTION__, contentStr.c_str());
 		return false;
 	}
 
@@ -1331,12 +1340,9 @@ hoxChesscapePlayer::_GetMyTable() const
 void 
 hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 
-    hoxResponse* response_raw = wx_reinterpret_cast(hoxResponse*, event.GetEventObject());
-    hoxResponse_APtr apResponse( response_raw ); // take care memory leak!
-
+    hoxResponse_APtr apResponse( wxDynamicCast(event.GetEventObject(), hoxResponse) );
     hoxSite* site = this->GetSite();
 
     const wxString sType = hoxUtil::RequestTypeToString(apResponse->type);
@@ -1348,8 +1354,8 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 		{
             if ( apResponse->code != hoxRC_OK )  // error?
             {
-                wxLogDebug("%s: *** WARN *** Failed to login. Error = [%s].", 
-                    FNAME, sContent.c_str());
+                wxLogDebug("%s: *WARN* Failed to login. Error = [%s].", 
+                    __FUNCTION__, sContent.c_str());
                 site->OnResponse_LOGIN( apResponse );
             }
             break;
@@ -1358,11 +1364,11 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 		case hoxREQUEST_NEW:       /* fall through */
 		case hoxREQUEST_LEAVE:     /* fall through */
 		{
-			wxLogDebug("%s: [%s] 's response received. END.", FNAME, sType.c_str());
+			wxLogDebug("%s: [%s] 's response received. END.", __FUNCTION__, sType.c_str());
 			break;
 		}
 		default:
-			wxLogDebug("%s: *** WARN *** Unsupported Request [%s].", FNAME, sType.c_str());
+			wxLogDebug("%s: *WARN* Unsupported Request [%s].", __FUNCTION__, sType.c_str());
 			break;
 	} // switch
 
@@ -1376,7 +1382,7 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
         wxPostEvent( sender, event );
     }
 
-    wxLogDebug("%s: END.", FNAME);
+    wxLogDebug("%s: END.", __FUNCTION__);
 }
 
 /************************* END OF FILE ***************************************/

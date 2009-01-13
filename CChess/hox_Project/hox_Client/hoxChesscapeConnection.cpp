@@ -40,14 +40,10 @@ hoxChesscapeWriter::hoxChesscapeWriter( wxEvtHandler*           player,
             : hoxSocketWriter( player, serverAddress )
 {
 }
-hoxChesscapeWriter::~hoxChesscapeWriter()
-{
-}
 
 void 
 hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = __FUNCTION__;
     hoxResult    result = hoxRC_ERR;
     const hoxRequestType requestType = apRequest->type;
     hoxResponse_APtr apResponse( new hoxResponse(requestType, 
@@ -60,7 +56,7 @@ hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
     if (   !m_bConnected
         && requestType != hoxREQUEST_LOGIN )
     {
-        wxLogDebug("%s: * INFO * Connection not yet established or has been closed.", FNAME);
+        wxLogDebug("%s: *INFO* Connection not yet established or has been closed.", __FUNCTION__);
         return;   // *** Fine. Do nothing.
     }
 
@@ -134,16 +130,16 @@ hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
             break;
 		}
         default:
-            wxLogDebug("%s: *** WARN *** Unsupported Request [%s].", 
-                FNAME, hoxUtil::RequestTypeToString(requestType).c_str());
+            wxLogDebug("%s: *WARN* Unsupported Request [%s].", 
+                __FUNCTION__, hoxUtil::RequestTypeToString(requestType).c_str());
             result = hoxRC_NOT_SUPPORTED;
             break;
     }
 
     if ( result != hoxRC_OK )
     {
-        wxLogDebug("%s: * INFO * Request [%s]: return error-code = [%s]...", 
-            FNAME, hoxUtil::RequestTypeToString(requestType).c_str(), 
+        wxLogDebug("%s: *INFO* Request [%s]: return error-code = [%s]...", 
+            __FUNCTION__, hoxUtil::RequestTypeToString(requestType).c_str(), 
             hoxUtil::ResultToStr(result));
 
         /* Notify the Player of this error. */
@@ -190,11 +186,9 @@ hoxResult
 hoxChesscapeWriter::_Login( hoxRequest_APtr apRequest,
                             wxString&       sResponse )
 {
-    const char* FNAME = __FUNCTION__;
-
     if ( m_bConnected )
     {
-        wxLogDebug("%s: The connection already established. END.", FNAME);
+        wxLogDebug("%s: The connection already established. END.", __FUNCTION__);
         return hoxRC_OK;
     }
 
@@ -207,18 +201,18 @@ hoxChesscapeWriter::_Login( hoxRequest_APtr apRequest,
     addr.Hostname( m_serverAddress.name );
     addr.Service( m_serverAddress.port );
 
-    wxLogDebug("%s: Trying to connect to [%s]...", FNAME, m_serverAddress.c_str());
+    wxLogDebug("%s: Trying to connect to [%s]...", __FUNCTION__, m_serverAddress.c_str());
 
     if ( ! m_socket->Connect( addr, true /* wait */ ) )
     {
         wxLogDebug("%s: *ERROR* Failed to connect to the server [%s]. Error = [%s].",
-            FNAME, m_serverAddress.c_str(), 
+            __FUNCTION__, m_serverAddress.c_str(), 
             hoxNetworkAPI::SocketErrorToString(m_socket->LastError()).c_str());
         sResponse = "Failed to connect to server";
         return hoxRC_ERR;
     }
 
-    wxLogDebug("%s: Succeeded! Connection established with the server.", FNAME);
+    wxLogDebug("%s: Succeeded! Connection established with the server.", __FUNCTION__);
     m_bConnected = true;
 
     //////////////////////////////////
@@ -227,7 +221,7 @@ hoxChesscapeWriter::_Login( hoxRequest_APtr apRequest,
 
 	////////////////////////////
     // Send LOGIN request.
-	wxLogDebug("%s: Sending LOGIN request over the network...", FNAME);
+	wxLogDebug("%s: Sending LOGIN request over the network...", __FUNCTION__);
 	wxString loginRequest;
     if ( login.StartsWith( hoxGUEST_PREFIX ) )  // Guest login?
     {
@@ -244,9 +238,7 @@ hoxChesscapeWriter::_Login( hoxRequest_APtr apRequest,
 hoxResult
 hoxChesscapeWriter::_Logout( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = __FUNCTION__;
-
-	wxLogDebug("%s: Sending LOGOUT request...", FNAME);
+	wxLogDebug("%s: Sending LOGOUT request...", __FUNCTION__);
 	wxString cmdRequest;
 	cmdRequest.Printf("%s", "logout?");
 
@@ -320,16 +312,14 @@ hoxChesscapeWriter::_Invite( hoxRequest_APtr apRequest )
 hoxResult
 hoxChesscapeWriter::_GetPlayerInfo( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = __FUNCTION__;
-
     /* Extract parameters. */
     const wxString sPlayerId = apRequest->parameters["info_pid"];
 
     /* Send request. */
 	wxLogDebug("%s: Sending PLAYER-INFO request for player = [%s]...", 
-		FNAME, sPlayerId.c_str());
+		__FUNCTION__, sPlayerId);
 	wxString cmdRequest;
-	cmdRequest.Printf("playerInfo?%s", sPlayerId.c_str());
+	cmdRequest.Printf("playerInfo?%s", sPlayerId);
 
     return _WriteLine( cmdRequest );
 }
@@ -423,16 +413,14 @@ hoxChesscapeWriter::_Move( hoxRequest_APtr apRequest )
 hoxResult   
 hoxChesscapeWriter::_WallMessage( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = __FUNCTION__;
-
 	/* Extract parameters. */
 	const wxString message = apRequest->parameters["msg"];
 
     /* Send MESSAGE request. */
 
-	wxLogDebug("%s: Sending MESSAGE [%s] request...", FNAME, message.c_str());
+	wxLogDebug("%s: Sending MESSAGE [%s] request...", __FUNCTION__, message);
 	wxString cmdRequest;
-	cmdRequest.Printf("tMsg?%s", message.c_str());
+    cmdRequest.Printf("tMsg?%s", message);
 
     return _WriteLine( cmdRequest );
 }
@@ -522,10 +510,27 @@ hoxChesscapeWriter::_Draw( hoxRequest_APtr apRequest )
 hoxResult
 hoxChesscapeWriter::_WriteLine( const wxString& cmdRequest )
 {
+#if 0
 	wxString sFormattedCmd;
 
 	sFormattedCmd.Printf("\x02\x10%s\x10\x03", cmdRequest.c_str());
     return hoxNetworkAPI::WriteLine( m_socket, sFormattedCmd );
+#else
+    wxString sFormattedCmd;
+    sFormattedCmd.Printf("\x02\x10%s\x10\x03", cmdRequest);
+
+    std::string myCmd( sFormattedCmd.ToUTF8() );
+    wxUint32 nWrite = myCmd.size();
+
+    m_socket->Write( (const void*) myCmd.c_str(), nWrite );
+    if ( m_socket->LastCount() != nWrite )
+    {
+        wxLogDebug("%s: *** WARN *** Writing to socket failed. Error = [%s]", 
+            __FUNCTION__, hoxNetworkAPI::SocketErrorToString(m_socket->LastError()).c_str());
+        return hoxRC_ERR;
+    }
+    return hoxRC_OK;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -535,20 +540,16 @@ hoxChesscapeWriter::_WriteLine( const wxString& cmdRequest )
 hoxChesscapeReader::hoxChesscapeReader( wxEvtHandler* player )
             : hoxSocketReader( player )
 {
-    const char* FNAME = __FUNCTION__;
-
-    wxLogDebug("%s: ENTER.", FNAME);
-}
-
-hoxChesscapeReader::~hoxChesscapeReader()
-{
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 }
 
 hoxResult
-hoxChesscapeReader::ReadLine( wxSocketBase* sock, 
-                              wxString&     result )
+hoxChesscapeReader::ReadLine( wxSocketBase*   sock, 
+                              wxMemoryBuffer& data )
 {
-    wxString commandStr;
+    data.SetDataLen( 0 );  // Clear old data.
+
+    const size_t maxSize = hoxNETWORK_MAX_MSG_SIZE;
 
 	/* Read a line between '0x02' and '0x03' */
 
@@ -568,30 +569,34 @@ hoxChesscapeReader::ReadLine( wxSocketBase* sock,
 			}
 			else if ( bStart && c == END_CHAR )
 			{
-				result = commandStr;
-				return hoxRC_OK;  // Done.
+                return hoxRC_OK;  // Done.
 			}
             else
             {
-                commandStr += c;
-
-                // Impose some limit.
-                if ( commandStr.size() >= hoxNETWORK_MAX_MSG_SIZE )
+                data.AppendByte( c );
+                if ( data.GetDataLen() >= maxSize ) // Impose some limit.
                 {
-                    wxLogDebug("%s: *** WARN *** Maximum message's size [%d] reached. Likely to be an error.", 
-                        __FUNCTION__, hoxNETWORK_MAX_MSG_SIZE);
-                    wxLogDebug("%s: *** WARN *** Partial read message (64 bytes) = [%s ...].", 
-                        __FUNCTION__, commandStr.substr(0, 64).c_str());
+                    wxLogDebug("%s: *WARN* Max size [%d] reached.", __FUNCTION__, maxSize);
                     break;
                 }
             }
         }
         else if ( sock->Error() )
         {
-            wxLogDebug("%s: *** WARN *** Fail to read 1 byte from the network. Error = [%s].", 
-                __FUNCTION__, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
-            wxLogDebug("%s: *** WARN *** Result message accumulated so far = [%s].", __FUNCTION__, commandStr.c_str());
+            wxSocketError err = sock->LastError();
+            /* NOTE: This checking is now working given that
+             *       we have used wxSOCKET_BLOCK as the socket option.
+             */
+            if (  err == wxSOCKET_TIMEDOUT )
+                wxLogDebug("%s: *INFO* Socket timeout.", __FUNCTION__);
+            else
+                wxLogDebug("%s: *WARN* Some socket error [%d].", __FUNCTION__, err);
             break;
+        }
+        else
+        {
+            wxLogDebug("%s: No more data. Len of data = [%d].", __FUNCTION__, data.GetDataLen());
+            return hoxRC_NOT_FOUND;  // Done.
         }
     }
 

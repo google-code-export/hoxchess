@@ -376,7 +376,7 @@ hoxSocketReader::Entry()
         hoxResponse_APtr apResponse( new hoxResponse(type) );
 
         if ( hoxRC_OK != (result = this->ReadLine( m_socket, 
-                                                   apResponse->content )) )
+                                                   apResponse->data )) )
         {
             wxLogDebug("%s: *** INFO *** Failed to read incoming command.", FNAME);
             result = hoxRC_CLOSED;   // *** Shutdown the Thread.
@@ -394,16 +394,16 @@ hoxSocketReader::Entry()
 }
 
 hoxResult
-hoxSocketReader::ReadLine( wxSocketBase* sock, 
-                           wxString&     result )
+hoxSocketReader::ReadLine( wxSocketBase*   sock, 
+                           wxMemoryBuffer& data )
 {
-    wxString commandStr;
+    data.SetDataLen( 0 );  // Clear old data.
 
-    result = "";
+    const size_t maxSize = hoxNETWORK_MAX_MSG_SIZE;
 
 	/* Read a line until "\n\n" */
 
-	bool   bSawOne = false;
+	bool   bSawOne = false; // just saw one '\n'?
     wxUint8 c;
 
     for (;;)
@@ -414,25 +414,21 @@ hoxSocketReader::ReadLine( wxSocketBase* sock,
 			if ( !bSawOne && c == '\n' )
 			{
 				bSawOne = true;
-                commandStr += c;
+                data.AppendByte( c );
 			}
 			else if ( bSawOne && c == '\n' )
 			{
-                result = commandStr.substr(0, commandStr.size()-1);
+                data.SetDataLen( data.GetDataLen()-1 ); // Remove '\n'
 				return hoxRC_OK;  // Done.
 			}
             else
             {
                 bSawOne = false;
-                commandStr += c;
 
-                // Impose some limit.
-                if ( commandStr.size() >= hoxNETWORK_MAX_MSG_SIZE )
+                data.AppendByte( c );
+                if ( data.GetDataLen() >= maxSize ) // Impose some limit.
                 {
-                    wxLogDebug("%s: *** WARN *** Maximum message's size [%d] reached. Likely to be an error.", 
-                        __FUNCTION__, hoxNETWORK_MAX_MSG_SIZE);
-                    wxLogDebug("%s: *** WARN *** Partial read message (64 bytes) = [%s ...].", 
-                        __FUNCTION__, commandStr.substr(0, 64).c_str());
+                    wxLogDebug("%s: *WARN* Max size [%d] reached.", __FUNCTION__, maxSize);
                     break;
                 }
             }
@@ -444,14 +440,14 @@ hoxSocketReader::ReadLine( wxSocketBase* sock,
              *       we have used wxSOCKET_BLOCK as the socket option.
              */
             if (  err == wxSOCKET_TIMEDOUT )
-                wxLogDebug("%s: * INFO * Socket timeout.", __FUNCTION__);
+                wxLogDebug("%s: *INFO* Socket timeout.", __FUNCTION__);
             else
-                wxLogDebug("%s: * INFO * Some socket error [%d].", __FUNCTION__, err);
+                wxLogDebug("%s: *WARN* Some socket error [%d].", __FUNCTION__, err);
             break;
         }
         else
         {
-            wxLogDebug("%s: No more data. Result message = [%s].", __FUNCTION__, commandStr.c_str());
+            wxLogDebug("%s: No more data. Len of data = [%d].", __FUNCTION__, data.GetDataLen());
             return hoxRC_NOT_FOUND;  // Done.
         }
     }
