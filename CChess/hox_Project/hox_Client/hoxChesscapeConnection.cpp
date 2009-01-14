@@ -49,15 +49,16 @@ hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
     hoxResponse_APtr apResponse( new hoxResponse(requestType, 
                                                  apRequest->sender) );
 
-    /* Check whether the connection has been established for
-     * non-login requests.
-     */
-
-    if (   !m_bConnected
-        && requestType != hoxREQUEST_LOGIN )
+    /* Make sure the connection is established. */
+    if ( ! m_bConnected )
     {
-        wxLogDebug("%s: *INFO* Connection not yet established or has been closed.", __FUNCTION__);
-        return;   // *** Fine. Do nothing.
+        wxString sError;
+        result = this->Connect( sError );
+        if ( result != hoxRC_OK )
+        {
+            wxLogDebug("%s: Failed to establish a connection.", __FUNCTION__);
+            apResponse->content = sError;
+        }
     }
 
     /* Process the request. */
@@ -151,21 +152,19 @@ hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
 }
 
 void
-hoxChesscapeWriter::_StartReader( wxSocketClient* socket )
+hoxChesscapeWriter::StartReader( wxSocketClient* socket )
 {
-    const char* FNAME = __FUNCTION__;
-
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 
     if (    m_reader.get() != NULL
          && m_reader->IsRunning() )
     {
-        wxLogDebug("%s: The connection has already been started. END.", FNAME);
+        wxLogDebug("%s: The connection has already been started. END.", __FUNCTION__);
         return;
     }
 
     /* Create Reader thread. */
-    wxLogDebug("%s: Create the Reader Thread...", FNAME);
+    wxLogDebug("%s: Create the Reader Thread...", __FUNCTION__);
     m_reader.reset( new hoxChesscapeReader( m_player ) );
 
     /* Set the socket to READ from. */
@@ -173,7 +172,7 @@ hoxChesscapeWriter::_StartReader( wxSocketClient* socket )
 
     if ( m_reader->Create() != wxTHREAD_NO_ERROR )
     {
-        wxLogDebug("%s: *** WARN *** Failed to create the Reader thread.", FNAME);
+        wxLogDebug("%s: *WARN* Failed to create the Reader thread.", __FUNCTION__);
         return;
     }
     wxASSERT_MSG( !m_reader->IsDetached(), 
@@ -186,59 +185,28 @@ hoxResult
 hoxChesscapeWriter::_Login( hoxRequest_APtr apRequest,
                             wxString&       sResponse )
 {
-    if ( m_bConnected )
-    {
-        wxLogDebug("%s: The connection already established. END.", __FUNCTION__);
-        return hoxRC_OK;
-    }
-
-	/* Extract parameters. */
-	const wxString login = apRequest->parameters["pid"]; 
+    /* Extract parameters. */
+    const wxString login = apRequest->parameters["pid"]; 
     const wxString password = apRequest->parameters["password"];
 
-    /* Get the server address. */
-    wxIPV4address addr;
-    addr.Hostname( m_serverAddress.name );
-    addr.Service( m_serverAddress.port );
-
-    wxLogDebug("%s: Trying to connect to [%s]...", __FUNCTION__, m_serverAddress.c_str());
-
-    if ( ! m_socket->Connect( addr, true /* wait */ ) )
-    {
-        wxLogDebug("%s: *ERROR* Failed to connect to the server [%s]. Error = [%s].",
-            __FUNCTION__, m_serverAddress.c_str(), 
-            hoxNetworkAPI::SocketErrorToString(m_socket->LastError()).c_str());
-        sResponse = "Failed to connect to server";
-        return hoxRC_ERR;
-    }
-
-    wxLogDebug("%s: Succeeded! Connection established with the server.", __FUNCTION__);
-    m_bConnected = true;
-
-    //////////////////////////////////
-    // Start the READER thread.
-    _StartReader( m_socket );
-
-	////////////////////////////
-    // Send LOGIN request.
-	wxLogDebug("%s: Sending LOGIN request over the network...", __FUNCTION__);
-	wxString loginRequest;
+    /* Send LOGIN request. */
+    wxLogDebug("%s: Sending LOGIN request over the network...", __FUNCTION__);
+    wxString loginRequest;
     if ( login.StartsWith( hoxGUEST_PREFIX ) )  // Guest login?
     {
         loginRequest.Printf("gLogin?0\x10%s", login.c_str());
     }
     else
     {
-	    loginRequest.Printf("uLogin?0\x10%s\x10%s", login.c_str(), password.c_str());
+        loginRequest.Printf("uLogin?0\x10%s\x10%s", login.c_str(), password.c_str());
     }
 
-	return _WriteLine( loginRequest );
+    return _WriteLine( loginRequest );
 }
 
 hoxResult
 hoxChesscapeWriter::_Logout( hoxRequest_APtr apRequest )
 {
-	wxLogDebug("%s: Sending LOGOUT request...", __FUNCTION__);
 	wxString cmdRequest;
 	cmdRequest.Printf("%s", "logout?");
 
@@ -248,8 +216,6 @@ hoxChesscapeWriter::_Logout( hoxRequest_APtr apRequest )
 hoxResult
 hoxChesscapeWriter::_Join( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = __FUNCTION__;
-
 	/* Extract parameters. */
     const wxString tableId = apRequest->parameters["tid"];
 	const bool bJoined = (apRequest->parameters["joined"] == "1");
@@ -260,7 +226,7 @@ hoxChesscapeWriter::_Join( hoxRequest_APtr apRequest )
 
 	if ( ! bJoined )
 	{
-		wxLogDebug("%s: Sending JOIN request with table-Id = [%s]...", FNAME, tableId.c_str());
+		wxLogDebug("%s: Sending JOIN request with table-Id = [%s]...", __FUNCTION__, tableId.c_str());
 		wxString cmdRequest;
 		cmdRequest.Printf("join?%s", tableId.c_str());
 
@@ -279,7 +245,7 @@ hoxChesscapeWriter::_Join( hoxRequest_APtr apRequest )
 
 	if ( ! requestSeat.empty() )
 	{
-		wxLogDebug("%s: Sending REQUEST-SEAT request with seat = [%s]...", FNAME, requestSeat.c_str());
+		wxLogDebug("%s: Sending REQUEST-SEAT request with seat = [%s]...", __FUNCTION__, requestSeat.c_str());
 		wxString cmdRequest;
 		cmdRequest.Printf("tCmd?%s", requestSeat.c_str());
 
@@ -295,14 +261,12 @@ hoxChesscapeWriter::_Join( hoxRequest_APtr apRequest )
 hoxResult
 hoxChesscapeWriter::_Invite( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = __FUNCTION__;
-
     /* Extract parameters. */
     const wxString sPlayerId = apRequest->parameters["invitee"];
 
     /* Send request. */
 	wxLogDebug("%s: Sending INVITE request for player = [%s]...", 
-		FNAME, sPlayerId.c_str());
+		__FUNCTION__, sPlayerId.c_str());
 	wxString cmdRequest;
 	cmdRequest.Printf("tCmd?Invite\x10%s", sPlayerId.c_str());
 
@@ -327,14 +291,12 @@ hoxChesscapeWriter::_GetPlayerInfo( hoxRequest_APtr apRequest )
 hoxResult
 hoxChesscapeWriter::_UpdateStatus( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = __FUNCTION__;
-
     /* Extract parameters. */
     const wxString playerStatus = apRequest->parameters["status"];
 
     /* Send request. */
 	wxLogDebug("%s: Sending UPDATE-STATUS request with status = [%s]...", 
-		FNAME, playerStatus.c_str());
+		__FUNCTION__, playerStatus.c_str());
 	wxString cmdRequest;
 	cmdRequest.Printf("updateStatus?%s", playerStatus.c_str());
 
@@ -344,9 +306,7 @@ hoxChesscapeWriter::_UpdateStatus( hoxRequest_APtr apRequest )
 hoxResult
 hoxChesscapeWriter::_Leave( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = __FUNCTION__;
-
-	wxLogDebug("%s: Sending LEAVE (the current table) request...", FNAME);
+	wxLogDebug("%s: Sending LEAVE (the current table) request...", __FUNCTION__);
 	wxString cmdRequest;
 	cmdRequest.Printf("%s", "closeTable?");
 
@@ -356,9 +316,7 @@ hoxChesscapeWriter::_Leave( hoxRequest_APtr apRequest )
 hoxResult
 hoxChesscapeWriter::_New( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = __FUNCTION__;
-
-	wxLogDebug("%s: Sending NEW (the current table) request...", FNAME);
+	wxLogDebug("%s: Sending NEW (the current table) request...", __FUNCTION__);
 	wxString cmdRequest;
 	cmdRequest.Printf("%s\x10%d", 
 		"create?com.chesscape.server.xiangqi.TableHandler",
@@ -370,8 +328,6 @@ hoxChesscapeWriter::_New( hoxRequest_APtr apRequest )
 hoxResult   
 hoxChesscapeWriter::_Move( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = __FUNCTION__;
-
 	/* Extract parameters. */
 	const wxString moveStr     = apRequest->parameters["move"];
 	const wxString statusStr   = apRequest->parameters["status"];
@@ -380,7 +336,7 @@ hoxChesscapeWriter::_Move( hoxRequest_APtr apRequest )
 
     /* Send MOVE request. */
 
-	wxLogDebug("%s: Sending MOVE [%s] request...", FNAME, moveStr.c_str());
+	wxLogDebug("%s: Sending MOVE [%s] request...", __FUNCTION__, moveStr.c_str());
 	wxString cmdRequest;
 	cmdRequest.Printf("tCmd?Move\x10%s\x10%d", 
 		moveStr.c_str(), gameTime);
@@ -397,7 +353,7 @@ hoxChesscapeWriter::_Move( hoxRequest_APtr apRequest )
 	if (   gameStatus == hoxGAME_STATUS_RED_WIN 
         || gameStatus == hoxGAME_STATUS_BLACK_WIN )
 	{
-		wxLogDebug("%s: Sending GAME-STATUS [%s] request...", FNAME, statusStr.c_str());
+		wxLogDebug("%s: Sending GAME-STATUS [%s] request...", __FUNCTION__, statusStr.c_str());
 		cmdRequest.Printf("tCmd?%s",
 			"Winner" /* FIXME: Hard-code */);
 
@@ -428,8 +384,6 @@ hoxChesscapeWriter::_WallMessage( hoxRequest_APtr apRequest )
 hoxResult   
 hoxChesscapeWriter::_Update( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = __FUNCTION__;
-
 	/* Extract parameters. */
     const wxString sTimes = apRequest->parameters["itimes"];
     hoxTimeInfo timeInfo = hoxUtil::StringToTimeInfo( sTimes );
@@ -441,7 +395,7 @@ hoxChesscapeWriter::_Update( hoxRequest_APtr apRequest )
 
     /* Send UPDATE request. */
 
-    wxLogDebug("%s: Sending UPDATE-GAME: itimes = [%s] request...", FNAME, sTimes.c_str());
+    wxLogDebug("%s: Sending UPDATE-GAME: itimes = [%s] request...", __FUNCTION__, sTimes.c_str());
 	wxString cmdRequest;
 	cmdRequest.Printf("tCmd?UpdateGame\x10%d\x10%d\x10T\x10%d\x10%d\x10%d\x10%d",
         nType, nNotRated, nGameTime, nFreeTime, nGameTime, nGameTime);
@@ -468,9 +422,7 @@ hoxChesscapeWriter::_Update( hoxRequest_APtr apRequest )
 hoxResult
 hoxChesscapeWriter::_Resign( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = __FUNCTION__;
-
-	wxLogDebug("%s: Sending RESIGN (the current table) request...", FNAME);
+	wxLogDebug("%s: Sending RESIGN (the current table) request...", __FUNCTION__);
 	wxString cmdRequest;
     cmdRequest.Printf("tCmd?Resign");
 
@@ -480,8 +432,6 @@ hoxChesscapeWriter::_Resign( hoxRequest_APtr apRequest )
 hoxResult   
 hoxChesscapeWriter::_Draw( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = __FUNCTION__;
-
     /* Extract parameters. */
     const wxString drawResponse = apRequest->parameters["draw_response"];
 
@@ -496,11 +446,11 @@ hoxChesscapeWriter::_Draw( hoxRequest_APtr apRequest )
 	else /* ( drawResponse == "0" ) */
 	{
 		// Send nothing. Done.
-		wxLogDebug("%s: DRAW request is denied. Do nothing. END.", FNAME);
+		wxLogDebug("%s: DRAW request is denied. Do nothing. END.", __FUNCTION__);
 		return hoxRC_OK;
 	}
 
-	wxLogDebug("%s: Sending DRAW command [%s]...", FNAME, drawCmd.c_str());
+	wxLogDebug("%s: Sending DRAW command [%s]...", __FUNCTION__, drawCmd.c_str());
 	wxString cmdRequest;
 	cmdRequest.Printf("tCmd?%s", drawCmd.c_str());
 
@@ -616,41 +566,33 @@ hoxChesscapeConnection::hoxChesscapeConnection( const hoxServerAddress& serverAd
                                                 wxEvtHandler*           player )
         : hoxSocketConnection( serverAddress, player )
 {
-    const char* FNAME = __FUNCTION__;
-
-    wxLogDebug("%s: ENTER.", FNAME);
-    wxLogDebug("%s: END.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 }
 
 hoxChesscapeConnection::~hoxChesscapeConnection()
 {
-    const char* FNAME = __FUNCTION__;
-
-    wxLogDebug("%s: ENTER.", FNAME);
-    wxLogDebug("%s: END.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 }
 
 void
 hoxChesscapeConnection::StartWriter()
 {
-    const char* FNAME = __FUNCTION__;
-
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 
     if (    m_writer 
          && m_writer->IsRunning() )
     {
-        wxLogDebug("%s: The connection has already been started. END.", FNAME);
+        wxLogDebug("%s: The connection has already been started. END.", __FUNCTION__);
         return;
     }
 
     /* Create Writer thread. */
-    wxLogDebug("%s: Create the Writer Thread...", FNAME);
+    wxLogDebug("%s: Create the Writer Thread...", __FUNCTION__);
     m_writer.reset( new hoxChesscapeWriter( this->GetPlayer(), 
                                             m_serverAddress ) );
     if ( m_writer->Create() != wxTHREAD_NO_ERROR )
     {
-        wxLogDebug("%s: *** WARN *** Failed to create the Writer thread.", FNAME);
+        wxLogDebug("%s: *WARN* Failed to create the Writer thread.", __FUNCTION__);
         return;
     }
     wxASSERT_MSG( !m_writer->IsDetached(), 

@@ -54,21 +54,15 @@ public:
     bool IsConnected() const { return m_bConnected; }
 
 protected:
-    // entry point for the thread
-    virtual void *Entry();
+    virtual void* Entry(); // Entry point for the thread.
 
     virtual void HandleRequest( hoxRequest_APtr apRequest );
+    virtual hoxResult Connect( wxString& sError );
+    virtual void Disconnect();
+    virtual void StartReader( wxSocketClient* socket );
 
 private:
-    void        _StartReader( wxSocketClient* socket );
-
     hoxRequest_APtr _GetRequest();
-
-    hoxResult _Login( const hoxServerAddress& serverAddress,
-                      const wxString&         sRequest,
-                      wxString&               sResponse );
-
-    void _Disconnect();
 
     hoxResult _WriteLine( wxSocketBase*   sock, 
                           const wxString& contentStr );
@@ -107,13 +101,12 @@ class hoxSocketReader : public wxThread
 {
 public:
     hoxSocketReader( wxEvtHandler* player );
-    virtual ~hoxSocketReader();
+    virtual ~hoxSocketReader() {}
 
     void SetSocket( wxSocketClient* socket ) { m_socket = socket; }
 
 protected:
-    // entry point for the thread
-    virtual void *Entry();
+    virtual void* Entry(); // Entry point for the thread.
 
     virtual hoxResult ReadLine( wxSocketBase*   sock,
                                 wxMemoryBuffer& data );
