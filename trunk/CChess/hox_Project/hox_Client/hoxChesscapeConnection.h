@@ -24,8 +24,8 @@
 // Description:     The Socket-Connection Thread to help Chesscape player.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_CHESSCAPE_CONNECTION_H_
-#define __INCLUDED_HOX_CHESSCAPE_CONNECTION_H_
+#ifndef __INCLUDED_HOX_CHESSCAPE_CONNECTION_H__
+#define __INCLUDED_HOX_CHESSCAPE_CONNECTION_H__
 
 #include "hoxSocketConnection.h"
 
@@ -42,10 +42,9 @@ public:
 
 protected:
     virtual void HandleRequest( hoxRequest_APtr apRequest );
+    virtual void StartReader( wxSocketClient* socket );
 
 private:
-    void        _StartReader( wxSocketClient* socket );
-
     // ------
     hoxResult   _Login( hoxRequest_APtr apRequest,
                         wxString&       sResponse );
@@ -115,4 +114,4 @@ private:
     DECLARE_DYNAMIC_CLASS(hoxChesscapeConnection)
 };
 
-#endif /* __INCLUDED_HOX_CHESSCAPE_CONNECTION_H_ */
+#endif /* __INCLUDED_HOX_CHESSCAPE_CONNECTION_H__ */
