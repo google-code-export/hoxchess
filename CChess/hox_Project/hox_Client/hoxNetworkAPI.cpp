@@ -161,6 +161,19 @@ hoxResult
 hoxNetworkAPI::WriteLine( wxSocketBase*   sock,
                           const wxString& message )
 {
+    const std::string myCmd( message.ToUTF8() );
+    const wxUint32 nWrite = myCmd.size();
+
+    sock->Write( (const void*) myCmd.c_str(), nWrite );
+    if ( sock->LastCount() != nWrite )
+    {
+        wxLogDebug("%s: *WARN* Writing to socket failed. Error = [%s]", 
+            __FUNCTION__, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
+        return hoxRC_ERR;
+    }
+    return hoxRC_OK;
+
+#if 0
     const char* FNAME = __FUNCTION__;
     hoxResult      result = hoxRC_ERR;
     wxUint32       nWrite;
@@ -178,6 +191,7 @@ hoxNetworkAPI::WriteLine( wxSocketBase*   sock,
 
 exit_label:
     return result;
+#endif
 }
 
 /**
