@@ -29,7 +29,7 @@
  *
  * @section intro_sec Introduction
  *
- * HOXChess can function as a client, a server, or both.
+ * HOXChess functions as a client to multiple Xiangqi remote servers.
  *
  * @section key_classes_sec Key Classes
  *
@@ -43,8 +43,8 @@
  *  - hoxConnection - The Connection used by a Player for network traffic.
  */
 
-#ifndef __INCLUDED_MY_APP_H_
-#define __INCLUDED_MY_APP_H_
+#ifndef __INCLUDED_MY_APP_H__
+#define __INCLUDED_MY_APP_H__
 
 #include <wx/wx.h>
 #include <wx/config.h>
@@ -56,7 +56,6 @@
 class hoxLog;
 class hoxPlayer;
 class hoxTable;
-class hoxMyPlayer;
 
 DECLARE_EVENT_TYPE(hoxEVT_APP_SITE_CLOSE_READY, wxID_ANY)
 
@@ -104,10 +103,7 @@ private:
 
 private:
 	wxConfig*           m_config;
-
     hoxLog*             m_log;
-    wxLog*              m_oldLog;    // the previous log target (to be restored later)
-
     MyFrame*            m_frame;  // The main frame.
 
 	bool                m_appClosing;    // The App is being closed?
@@ -124,4 +120,4 @@ private:
 // to use wxGetApp() function
 DECLARE_APP(MyApp)
 
-#endif  /* __INCLUDED_MY_APP_H_ */
+#endif  /* __INCLUDED_MY_APP_H__ */

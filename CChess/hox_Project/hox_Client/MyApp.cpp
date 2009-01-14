@@ -56,8 +56,8 @@ MyApp::OnInit()
 
     m_frame = NULL;    // To avoid "logging to early to Frame".
 
-    //m_log = new hoxLog();
-    //m_oldLog = wxLog::SetActiveTarget( m_log );
+    m_log = new hoxLog( wxLog::GetActiveTarget() );
+    wxLog::SetActiveTarget( m_log );
 
     // Add PNG image-type handler since our pieces use this format.
     wxImage::AddHandler( new wxPNGHandler );
@@ -112,23 +112,16 @@ MyApp::OnInit()
 int 
 MyApp::OnExit()
 {
-    const char* FNAME = __FUNCTION__;
-
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 
     /* NOTE: We rely on the Frame to notify about active players that the
      *      system is being shutdowned.
      */
 
-
 	delete hoxSiteManager::GetInstance();
-
-    //delete wxLog::SetActiveTarget( m_oldLog );
-
+    delete wxLog::SetActiveTarget( m_log->GetOldLog() );
     _SaveAppOptions();
-
-	// The changes will be written back automatically
-	delete m_config;
+	delete m_config; // The changes will be written back automatically
 
     return 0;
 }
@@ -139,7 +132,6 @@ MyApp::ConnectToServer( const hoxSiteType       siteType,
 					    const wxString&         userName,
 						const wxString&         password )
 {
-    const char* FNAME = __FUNCTION__;
     hoxSite* site = NULL;
 
     /* Search for existing site. */
@@ -159,15 +151,14 @@ MyApp::ConnectToServer( const hoxSiteType       siteType,
     /* Connect to the site. */
     if ( site->Connect() != hoxRC_OK )
     {
-        wxLogError("%s: Failed to connect to server [%s].", FNAME, address.c_str());
+        wxLogError("%s: Failed to connect to server [%s].", __FUNCTION__, address.c_str());
     }
 }
 
 void 
 MyApp::OnSystemClose()
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 
 	m_appClosing = true;
 
@@ -180,8 +171,7 @@ MyApp::OnSystemClose()
 void 
 MyApp::OnCloseReady_FromSite( wxCommandEvent&  event )
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 
     hoxSite* site = wx_reinterpret_cast(hoxSite*, event.GetEventObject());
     wxCHECK_RET(site, "Site cannot be NULL.");
@@ -192,7 +182,7 @@ MyApp::OnCloseReady_FromSite( wxCommandEvent&  event )
 	if (   m_appClosing 
 		&& hoxSiteManager::GetInstance()->GetNumberOfSites() == 0 )
 	{
-        wxLogDebug("%s: Trigger a Frame's Close event.", FNAME);
+        wxLogDebug("%s: Trigger a Frame's Close event.", __FUNCTION__);
         m_frame->Close();  // NOTE: Is there a better way?
 	}
 }
