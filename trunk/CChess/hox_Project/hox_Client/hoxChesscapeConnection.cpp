@@ -65,71 +65,19 @@ hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
 
     switch( requestType )
     {
-        case hoxREQUEST_LOGIN:
-		{
-            result = _Login( apRequest, apResponse->content );
-			break;
-		}
-        case hoxREQUEST_LOGOUT:
-		{
-            result = _Logout( apRequest );
-			break;
-		}
-        case hoxREQUEST_JOIN:
-		{
-            result = _Join( apRequest );
-            break;
-		}
-        case hoxREQUEST_INVITE:
-		{
-            result = _Invite( apRequest );
-            break;
-		}
-        case hoxREQUEST_PLAYER_INFO:
-		{
-            result = _GetPlayerInfo( apRequest );
-            break;
-		}
-        case hoxREQUEST_PLAYER_STATUS:
-		{
-            result = _UpdateStatus( apRequest );
-            break;
-		}
-        case hoxREQUEST_LEAVE:
-		{
-            result = _Leave( apRequest );
-            break;
-		}
-        case hoxREQUEST_MOVE:
-		{
-            result = _Move( apRequest );
-            break;
-		}
-        case hoxREQUEST_NEW:
-		{
-            result = _New( apRequest );
-            break;
-		}
-        case hoxREQUEST_MSG:
-		{
-            result = _WallMessage( apRequest );
-            break;
-		}
-        case hoxREQUEST_UPDATE:
-		{
-            result = _Update( apRequest );
-            break;
-		}
-        case hoxREQUEST_RESIGN:
-		{
-            result = _Resign( apRequest );
-            break;
-		}
-        case hoxREQUEST_DRAW:
-		{
-            result = _Draw( apRequest );
-            break;
-		}
+        case hoxREQUEST_LOGIN:  result = _Login( apRequest ); break;
+        case hoxREQUEST_LOGOUT: result = _Logout( apRequest ); break;
+        case hoxREQUEST_JOIN:   result = _Join( apRequest ); break;
+        case hoxREQUEST_INVITE: result = _Invite( apRequest ); break;
+        case hoxREQUEST_PLAYER_INFO:  result = _GetPlayerInfo( apRequest ); break;
+        case hoxREQUEST_PLAYER_STATUS: result = _UpdateStatus( apRequest ); break;
+        case hoxREQUEST_LEAVE:  result = _Leave( apRequest ); break;
+        case hoxREQUEST_MOVE:   result = _Move( apRequest ); break;
+        case hoxREQUEST_NEW:    result = _New( apRequest ); break;
+        case hoxREQUEST_MSG:    result = _WallMessage( apRequest ); break;
+        case hoxREQUEST_UPDATE: result = _Update( apRequest ); break;
+        case hoxREQUEST_RESIGN: result = _Resign( apRequest ); break;
+        case hoxREQUEST_DRAW:   result = _Draw( apRequest ); break;
         default:
             wxLogDebug("%s: *WARN* Unsupported Request [%s].", 
                 __FUNCTION__, hoxUtil::RequestTypeToString(requestType).c_str());
@@ -182,15 +130,12 @@ hoxChesscapeWriter::StartReader( wxSocketClient* socket )
 }
 
 hoxResult
-hoxChesscapeWriter::_Login( hoxRequest_APtr apRequest,
-                            wxString&       sResponse )
+hoxChesscapeWriter::_Login( hoxRequest_APtr apRequest )
 {
-    /* Extract parameters. */
     const wxString login = apRequest->parameters["pid"]; 
     const wxString password = apRequest->parameters["password"];
 
-    /* Send LOGIN request. */
-    wxLogDebug("%s: Sending LOGIN request over the network...", __FUNCTION__);
+    wxLogDebug("%s: Send LOGIN over the network...", __FUNCTION__);
     wxString loginRequest;
     if ( login.StartsWith( hoxGUEST_PREFIX ) )  // Guest login?
     {
@@ -207,26 +152,22 @@ hoxChesscapeWriter::_Login( hoxRequest_APtr apRequest,
 hoxResult
 hoxChesscapeWriter::_Logout( hoxRequest_APtr apRequest )
 {
-	wxString cmdRequest;
-	cmdRequest.Printf("%s", "logout?");
-
+	wxString cmdRequest("logout?");
 	return _WriteLine( cmdRequest );
 }
 
 hoxResult
 hoxChesscapeWriter::_Join( hoxRequest_APtr apRequest )
 {
-	/* Extract parameters. */
     const wxString tableId = apRequest->parameters["tid"];
 	const bool bJoined = (apRequest->parameters["joined"] == "1");
 	const hoxColor requestColor = 
 		hoxUtil::StringToColor( apRequest->parameters["color"] );
 
     /* Send JOIN request if the player is NOT in the table. */
-
 	if ( ! bJoined )
 	{
-		wxLogDebug("%s: Sending JOIN request with table-Id = [%s]...", __FUNCTION__, tableId.c_str());
+		wxLogDebug("%s: Send JOIN request with table-Id = [%s]...", __FUNCTION__, tableId.c_str());
 		wxString cmdRequest;
 		cmdRequest.Printf("join?%s", tableId.c_str());
 
@@ -245,7 +186,7 @@ hoxChesscapeWriter::_Join( hoxRequest_APtr apRequest )
 
 	if ( ! requestSeat.empty() )
 	{
-		wxLogDebug("%s: Sending REQUEST-SEAT request with seat = [%s]...", __FUNCTION__, requestSeat.c_str());
+		wxLogDebug("%s: Send REQUEST-SEAT with seat = [%s]...", __FUNCTION__, requestSeat.c_str());
 		wxString cmdRequest;
 		cmdRequest.Printf("tCmd?%s", requestSeat.c_str());
 
@@ -261,12 +202,9 @@ hoxChesscapeWriter::_Join( hoxRequest_APtr apRequest )
 hoxResult
 hoxChesscapeWriter::_Invite( hoxRequest_APtr apRequest )
 {
-    /* Extract parameters. */
     const wxString sPlayerId = apRequest->parameters["invitee"];
 
-    /* Send request. */
-	wxLogDebug("%s: Sending INVITE request for player = [%s]...", 
-		__FUNCTION__, sPlayerId.c_str());
+	wxLogDebug("%s: Send INVITE for player = [%s]...", __FUNCTION__, sPlayerId.c_str());
 	wxString cmdRequest;
 	cmdRequest.Printf("tCmd?Invite\x10%s", sPlayerId.c_str());
 
@@ -276,12 +214,9 @@ hoxChesscapeWriter::_Invite( hoxRequest_APtr apRequest )
 hoxResult
 hoxChesscapeWriter::_GetPlayerInfo( hoxRequest_APtr apRequest )
 {
-    /* Extract parameters. */
     const wxString sPlayerId = apRequest->parameters["info_pid"];
 
-    /* Send request. */
-	wxLogDebug("%s: Sending PLAYER-INFO request for player = [%s]...", 
-		__FUNCTION__, sPlayerId.c_str());
+	wxLogDebug("%s: Send PLAYER-INFO for player = [%s]...", __FUNCTION__, sPlayerId.c_str());
 	wxString cmdRequest;
 	cmdRequest.Printf("playerInfo?%s", sPlayerId.c_str());
 
@@ -291,12 +226,9 @@ hoxChesscapeWriter::_GetPlayerInfo( hoxRequest_APtr apRequest )
 hoxResult
 hoxChesscapeWriter::_UpdateStatus( hoxRequest_APtr apRequest )
 {
-    /* Extract parameters. */
     const wxString playerStatus = apRequest->parameters["status"];
 
-    /* Send request. */
-	wxLogDebug("%s: Sending UPDATE-STATUS request with status = [%s]...", 
-		__FUNCTION__, playerStatus.c_str());
+	wxLogDebug("%s: Send UPDATE-STATUS with status = [%s]...", __FUNCTION__, playerStatus.c_str());
 	wxString cmdRequest;
 	cmdRequest.Printf("updateStatus?%s", playerStatus.c_str());
 
@@ -306,17 +238,15 @@ hoxChesscapeWriter::_UpdateStatus( hoxRequest_APtr apRequest )
 hoxResult
 hoxChesscapeWriter::_Leave( hoxRequest_APtr apRequest )
 {
-	wxLogDebug("%s: Sending LEAVE (the current table) request...", __FUNCTION__);
-	wxString cmdRequest;
-	cmdRequest.Printf("%s", "closeTable?");
-
+	wxLogDebug("%s: Send LEAVE (the current table)...", __FUNCTION__);
+	wxString cmdRequest("closeTable?");
     return _WriteLine( cmdRequest );
 }
 
 hoxResult
 hoxChesscapeWriter::_New( hoxRequest_APtr apRequest )
 {
-	wxLogDebug("%s: Sending NEW (the current table) request...", __FUNCTION__);
+	wxLogDebug("%s: Send NEW table...", __FUNCTION__);
 	wxString cmdRequest;
 	cmdRequest.Printf("%s\x10%d", 
 		"create?com.chesscape.server.xiangqi.TableHandler",
@@ -328,18 +258,15 @@ hoxChesscapeWriter::_New( hoxRequest_APtr apRequest )
 hoxResult   
 hoxChesscapeWriter::_Move( hoxRequest_APtr apRequest )
 {
-	/* Extract parameters. */
 	const wxString moveStr     = apRequest->parameters["move"];
 	const wxString statusStr   = apRequest->parameters["status"];
 	const wxString gameTimeStr = apRequest->parameters["game_time"];
-	int gameTime = ::atoi( gameTimeStr.c_str() ) * 1000;  // convert to miliseconds
+	const int gameTime = ::atoi( gameTimeStr.c_str() ) * 1000;  // convert to miliseconds
 
     /* Send MOVE request. */
-
-	wxLogDebug("%s: Sending MOVE [%s] request...", __FUNCTION__, moveStr.c_str());
+	wxLogDebug("%s: Send MOVE [%s]...", __FUNCTION__, moveStr.c_str());
 	wxString cmdRequest;
-	cmdRequest.Printf("tCmd?Move\x10%s\x10%d", 
-		moveStr.c_str(), gameTime);
+	cmdRequest.Printf("tCmd?Move\x10%s\x10%d", moveStr.c_str(), gameTime);
 
 	if ( hoxRC_OK != _WriteLine( cmdRequest ) )
 	{
@@ -347,15 +274,13 @@ hoxChesscapeWriter::_Move( hoxRequest_APtr apRequest )
 	}
 
 	/* Send GAME-STATUS request */
-    const hoxGameStatus gameStatus = 
-        hoxUtil::StringToGameStatus( statusStr );
+    const hoxGameStatus gameStatus = hoxUtil::StringToGameStatus( statusStr );
 
 	if (   gameStatus == hoxGAME_STATUS_RED_WIN 
         || gameStatus == hoxGAME_STATUS_BLACK_WIN )
 	{
-		wxLogDebug("%s: Sending GAME-STATUS [%s] request...", __FUNCTION__, statusStr.c_str());
-		cmdRequest.Printf("tCmd?%s",
-			"Winner" /* FIXME: Hard-code */);
+		wxLogDebug("%s: Send GAME-STATUS [%s]...", __FUNCTION__, statusStr.c_str());
+		cmdRequest.Printf("tCmd?Winner");  /* NOTE: The "last" player wins */
 
 		if ( hoxRC_OK != _WriteLine( cmdRequest ) )
 		{
@@ -369,12 +294,9 @@ hoxChesscapeWriter::_Move( hoxRequest_APtr apRequest )
 hoxResult   
 hoxChesscapeWriter::_WallMessage( hoxRequest_APtr apRequest )
 {
-	/* Extract parameters. */
 	const wxString message = apRequest->parameters["msg"];
 
-    /* Send MESSAGE request. */
-
-	wxLogDebug("%s: Sending MESSAGE [%s] request...", __FUNCTION__, message.c_str());
+	wxLogDebug("%s: Send MESSAGE [%s]...", __FUNCTION__, message.c_str());
 	wxString cmdRequest;
     cmdRequest.Printf("tMsg?%s", message.c_str());
 
@@ -384,7 +306,6 @@ hoxChesscapeWriter::_WallMessage( hoxRequest_APtr apRequest )
 hoxResult   
 hoxChesscapeWriter::_Update( hoxRequest_APtr apRequest )
 {
-	/* Extract parameters. */
     const wxString sTimes = apRequest->parameters["itimes"];
     hoxTimeInfo timeInfo = hoxUtil::StringToTimeInfo( sTimes );
 
@@ -394,8 +315,7 @@ hoxChesscapeWriter::_Update( hoxRequest_APtr apRequest )
     int nFreeTime = timeInfo.nFree * 1000;
 
     /* Send UPDATE request. */
-
-    wxLogDebug("%s: Sending UPDATE-GAME: itimes = [%s] request...", __FUNCTION__, sTimes.c_str());
+    wxLogDebug("%s: Send UPDATE-GAME: itimes = [%s]...", __FUNCTION__, sTimes.c_str());
 	wxString cmdRequest;
 	cmdRequest.Printf("tCmd?UpdateGame\x10%d\x10%d\x10T\x10%d\x10%d\x10%d\x10%d",
         nType, nNotRated, nGameTime, nFreeTime, nGameTime, nGameTime);
@@ -406,7 +326,6 @@ hoxChesscapeWriter::_Update( hoxRequest_APtr apRequest )
 	}
 
     /* Also, send the current Role. */
-
 	const hoxColor currentColor = 
 		hoxUtil::StringToColor( apRequest->parameters["color"] );
 
@@ -415,24 +334,20 @@ hoxChesscapeWriter::_Update( hoxRequest_APtr apRequest )
 	else if ( currentColor == hoxCOLOR_BLACK )  currentSeat = "BlkSeat";
 
     cmdRequest.Printf("tCmd?%s", currentSeat.c_str());
-
     return _WriteLine( cmdRequest );
 }
 
 hoxResult
 hoxChesscapeWriter::_Resign( hoxRequest_APtr apRequest )
 {
-	wxLogDebug("%s: Sending RESIGN (the current table) request...", __FUNCTION__);
-	wxString cmdRequest;
-    cmdRequest.Printf("tCmd?Resign");
-
+	wxLogDebug("%s: Send RESIGN (the current table)...", __FUNCTION__);
+	wxString cmdRequest("tCmd?Resign");
     return _WriteLine( cmdRequest );
 }
 
 hoxResult   
 hoxChesscapeWriter::_Draw( hoxRequest_APtr apRequest )
 {
-    /* Extract parameters. */
     const wxString drawResponse = apRequest->parameters["draw_response"];
 
 	/* Send the response to a DRAW request, if asked.
@@ -450,7 +365,7 @@ hoxChesscapeWriter::_Draw( hoxRequest_APtr apRequest )
 		return hoxRC_OK;
 	}
 
-	wxLogDebug("%s: Sending DRAW command [%s]...", __FUNCTION__, drawCmd.c_str());
+	wxLogDebug("%s: Send DRAW command [%s]...", __FUNCTION__, drawCmd.c_str());
 	wxString cmdRequest;
 	cmdRequest.Printf("tCmd?%s", drawCmd.c_str());
 
@@ -460,27 +375,10 @@ hoxChesscapeWriter::_Draw( hoxRequest_APtr apRequest )
 hoxResult
 hoxChesscapeWriter::_WriteLine( const wxString& cmdRequest )
 {
-#if 0
 	wxString sFormattedCmd;
 
 	sFormattedCmd.Printf("\x02\x10%s\x10\x03", cmdRequest.c_str());
     return hoxNetworkAPI::WriteLine( m_socket, sFormattedCmd );
-#else
-    wxString sFormattedCmd;
-    sFormattedCmd.Printf("\x02\x10%s\x10\x03", cmdRequest.c_str());
-
-    std::string myCmd( sFormattedCmd.ToUTF8() );
-    wxUint32 nWrite = myCmd.size();
-
-    m_socket->Write( (const void*) myCmd.c_str(), nWrite );
-    if ( m_socket->LastCount() != nWrite )
-    {
-        wxLogDebug("%s: *** WARN *** Writing to socket failed. Error = [%s]", 
-            __FUNCTION__, hoxNetworkAPI::SocketErrorToString(m_socket->LastError()).c_str());
-        return hoxRC_ERR;
-    }
-    return hoxRC_OK;
-#endif
 }
 
 //-----------------------------------------------------------------------------

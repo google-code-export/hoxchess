@@ -46,8 +46,7 @@ protected:
 
 private:
     // ------
-    hoxResult   _Login( hoxRequest_APtr apRequest,
-                        wxString&       sResponse );
+    hoxResult   _Login( hoxRequest_APtr apRequest );
     hoxResult   _Logout( hoxRequest_APtr apRequest );
     hoxResult   _Join( hoxRequest_APtr apRequest );
     hoxResult   _Invite( hoxRequest_APtr apRequest );
