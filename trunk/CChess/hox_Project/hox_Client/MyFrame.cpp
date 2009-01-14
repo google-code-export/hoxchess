@@ -753,10 +753,9 @@ MyFrame::_CreateLogUI()
 
     m_logText = new wxTextCtrl( 
             m_logWindow, wxID_ANY, 
-            "A Log Window (currently not being used due to its instabilities)",
+            wxEmptyString,
             wxDefaultPosition, wxDefaultSize,
             wxTE_MULTILINE | wxSUNKEN_BORDER );
-
 }
 
 void     

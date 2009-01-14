@@ -24,10 +24,10 @@
 // Description:     The Log for the Application.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_LOG_H_
-#define __INCLUDED_HOX_LOG_H_
+#ifndef __INCLUDED_HOX_LOG_H__
+#define __INCLUDED_HOX_LOG_H__
 
-#include <wx/wx.h>
+#include <wx/log.h>
 
 /**
  * The Log of the Application.
@@ -41,8 +41,8 @@
 class hoxLog : public wxLog
 {
 public:
-    hoxLog();
-    virtual ~hoxLog();
+    hoxLog( wxLog* oldLog );
+    virtual ~hoxLog() {}
 
     /***********************************
      * Override the parent's API.
@@ -54,9 +54,12 @@ public:
     virtual void DoLogString( const wxChar* msg, 
                               time_t        timestamp);
 
+    wxLog* GetOldLog() const { return m_oldLog; }
+
 private:
     wxString   m_filename;
+    wxLog*     m_oldLog; // The previous log target (to be restored later).
 };
 
 
-#endif  /* __INCLUDED_HOX_LOG_H_ */
+#endif  /* __INCLUDED_HOX_LOG_H__ */

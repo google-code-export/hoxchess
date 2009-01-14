@@ -29,25 +29,15 @@
 
 #include "hoxLog.h"
 #include "hoxUtil.h"
+#include "MyApp.h"    // wxGetApp()
 
-/**
- * The default constructor.
- */
-hoxLog::hoxLog()
+hoxLog::hoxLog( wxLog* oldLog )
         : wxLog()
+        , m_oldLog( oldLog )
 {
-    const char* FNAME = "hoxLog::hoxLog";
-
     m_filename = wxFileName::GetTempDir() + "/CChess_"
                + hoxUtil::GenerateRandomString() + ".log";
-    wxLogDebug("%s: Opened the log file [%s].", FNAME, m_filename.c_str());
-}
-
-/**
- * The destructor.
- */
-hoxLog::~hoxLog()
-{
+    wxLogDebug("%s: Opened the log file [%s].", __FUNCTION__, m_filename.c_str());
 }
 
 void 
@@ -55,7 +45,7 @@ hoxLog::DoLogString( const wxChar* msg,
                      time_t        timestamp )
 {
     if ( msg == NULL ) return;
-
+#if 0
     wxFFile logFile( m_filename, "a" );
 
     if ( logFile.IsOpened() )
@@ -64,7 +54,8 @@ hoxLog::DoLogString( const wxChar* msg,
         logFile.Write( "\n" );
         logFile.Close();
     }
-#if 0
+#endif
+#if 1
     if ( wxGetApp().GetTopWindow() != NULL )
     {
         wxCommandEvent logEvent( hoxEVT_FRAME_LOG_MSG );
