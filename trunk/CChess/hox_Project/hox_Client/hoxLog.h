@@ -38,10 +38,12 @@
  * @note We go through all these troubles because the wxLogGui is
  *       not thread-safe (would crash under multi-threads running).
  */
-class hoxLog : public wxLog
+class hoxLog : public wxLogWindow
 {
 public:
-    hoxLog( wxLog* oldLog );
+    hoxLog( wxWindow*       pParent,
+            const wxString& szTitle,
+            bool            show = true );
     virtual ~hoxLog() {}
 
     /***********************************
@@ -51,14 +53,11 @@ public:
     /**
      * Log a given string with a timestamp.
      */
-    virtual void DoLogString( const wxChar* msg, 
-                              time_t        timestamp);
-
-    wxLog* GetOldLog() const { return m_oldLog; }
+    //virtual void DoLogString( const wxChar* msg, 
+    //                          time_t        timestamp);
 
 private:
     wxString   m_filename;
-    wxLog*     m_oldLog; // The previous log target (to be restored later).
 };
 
 
