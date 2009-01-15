@@ -103,7 +103,7 @@ private:
 
 private:
 	wxConfig*           m_config;
-    hoxLog*             m_log;
+    //hoxLog*             m_log;
     MyFrame*            m_frame;  // The main frame.
 
 	bool                m_appClosing;    // The App is being closed?
