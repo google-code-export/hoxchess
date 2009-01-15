@@ -31,15 +31,17 @@
 #include "hoxUtil.h"
 #include "MyApp.h"    // wxGetApp()
 
-hoxLog::hoxLog( wxLog* oldLog )
-        : wxLog()
-        , m_oldLog( oldLog )
+hoxLog::hoxLog( wxWindow*       pParent,
+                const wxString& szTitle,
+                bool            show /* = true */ )
+        : wxLogWindow(pParent, szTitle, show)
 {
     m_filename = wxFileName::GetTempDir() + "/CChess_"
                + hoxUtil::GenerateRandomString() + ".log";
-    wxLogDebug("%s: Opened the log file [%s].", __FUNCTION__, m_filename.c_str());
+    wxLogDebug("%s: Log file [%s].", __FUNCTION__, m_filename.c_str());
 }
 
+#if 0
 void 
 hoxLog::DoLogString( const wxChar* msg, 
                      time_t        timestamp )
@@ -64,5 +66,6 @@ hoxLog::DoLogString( const wxChar* msg,
     }
 #endif
 }
+#endif
 
 /************************* END OF FILE ***************************************/

@@ -36,6 +36,7 @@ class MyChild;
 class hoxSite;
 class hoxSitesUI;
 class hoxPlayersUI;
+class hoxLog;
 
 /* Menu items IDs */
 enum
@@ -61,9 +62,7 @@ enum
     MDI_OPTIONS, // App's general options
 
     // Windows' IDs.
-    ID_WINDOW_SITES,
-    ID_TREE_SITES,
-    ID_WINDOW_LOG
+    ID_WINDOW_SITES
 };
 
 /* 
@@ -99,7 +98,6 @@ public:
 
     void OnSize(wxSizeEvent& event);
     void OnServersSashDrag(wxSashEvent& event);
-    void OnLogSashDrag(wxSashEvent& event);
     void OnAbout(wxCommandEvent& event);
     void OnNewTable(wxCommandEvent& event);
     void OnCloseTable(wxCommandEvent& event);
@@ -116,7 +114,6 @@ public:
     void OnUpdateServersWindow(wxUpdateUIEvent& event);
 
     void OnShowLogWindow(wxCommandEvent& event);
-    void OnUpdateLogWindow(wxUpdateUIEvent& event);
 
     void OnPractice(wxCommandEvent& event);
     void OnUpdatePractice(wxUpdateUIEvent& event);
@@ -157,7 +154,6 @@ public:
 
 private:
     void _CreateSitesUI();
-    void _CreateLogUI();
 
     /**
      * Close all children (child-frame) of a specified Site.
@@ -182,9 +178,8 @@ private:
     hoxSitesUI*         m_sitesUI;
     hoxPlayersUI*       m_playersUI;
 
-    // Logging.  
-    wxSashLayoutWindow* m_logWindow; // To contain the log-text below.
-    wxTextCtrl*         m_logText;   // Log window for debugging purpose.
+    // Logging.
+    hoxLog*             m_log;
 
     typedef std::list<MyChild*> MyChildList;
     MyChildList         m_children;

@@ -34,6 +34,7 @@
 #include "hoxPlayersUI.h"
 #include "hoxOptionsUI.h"
 #include "hoxBoard.h"
+#include "hoxLog.h"
 
 #include <wx/splitter.h>
 
@@ -71,7 +72,6 @@ BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
     EVT_UPDATE_UI(MDI_SHOW_SERVERS_WINDOW, MyFrame::OnUpdateServersWindow)
 
     EVT_MENU(MDI_SHOW_LOG_WINDOW, MyFrame::OnShowLogWindow)
-    EVT_UPDATE_UI(MDI_SHOW_LOG_WINDOW, MyFrame::OnUpdateLogWindow)
 
     EVT_MENU(MDI_PRACTICE, MyFrame::OnPractice)
     EVT_UPDATE_UI(MDI_PRACTICE, MyFrame::OnUpdatePractice)
@@ -81,7 +81,6 @@ BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
     EVT_CLOSE(MyFrame::OnClose)
     EVT_SIZE(MyFrame::OnSize)
     EVT_SASH_DRAGGED(ID_WINDOW_SITES, MyFrame::OnServersSashDrag)
-    EVT_SASH_DRAGGED(ID_WINDOW_LOG, MyFrame::OnLogSashDrag)
 
     EVT_COMMAND(wxID_ANY, hoxEVT_FRAME_LOG_MSG, MyFrame::OnFrameLogMsgEvent)
 
@@ -102,10 +101,11 @@ MyFrame::MyFrame( wxWindow*        parent,
                   const long       style )
        : wxMDIParentFrame( parent, id, title, pos, size, style )
 {
+    m_log = new hoxLog(this, _("Log Window"), false);
+
     SetIcon( wxICON(hoxchess) );
 
     _CreateSitesUI();
-    _CreateLogUI();
 
     // Create toolbar.
     CreateToolBar(wxNO_BORDER | wxTB_FLAT | wxTB_HORIZONTAL);
@@ -128,8 +128,7 @@ MyFrame::MyFrame( wxWindow*        parent,
 void 
 MyFrame::OnClose(wxCloseEvent& event)
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 
     while( ! m_children.empty() )
     {
@@ -196,13 +195,12 @@ MyFrame::OnNewTable( wxCommandEvent& event )
 void 
 MyFrame::OnCloseTable( wxCommandEvent& event )
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 
     MyChild* child = wxDynamicCast(this->GetActiveChild(), MyChild);
     if ( child != NULL )
     {
-        wxLogDebug("%s: Closing the active Table [%s]...", FNAME, child->GetTitle().c_str());
+        wxLogDebug("%s: Closing the active Table [%s]...", __FUNCTION__, child->GetTitle().c_str());
         child->Close( true /* force */ );
     }
 }
@@ -243,8 +241,7 @@ MyFrame::OnChildClose( wxCloseEvent& event,
                        MyChild*      child, 
                        hoxTable_SPtr pTable )
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 
     wxCHECK_RET( pTable.get() != NULL, "The table is NULL." );
 
@@ -260,21 +257,20 @@ MyFrame::OnChildClose( wxCloseEvent& event,
 
     event.Skip(); // let the search for the event handler should continue...
 
-    wxLogDebug("%s: END.", FNAME);
+    wxLogDebug("%s: END.", __FUNCTION__);
 }
 
 void 
 MyFrame::OnDisconnectServer( wxCommandEvent& event )
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 
     /* Find out which site is selected. */
 
     hoxSite* selectedSite = _GetSelectedSite();
     if ( selectedSite == NULL )
     {
-        wxLogDebug("%s: No site is selected. Do nothing. END.", FNAME);
+        wxLogDebug("%s: No site is selected. Do nothing. END.", __FUNCTION__);
         return;
     }
 
@@ -299,8 +295,6 @@ MyFrame::OnUpdateDisconnectServer(wxUpdateUIEvent& event)
 void 
 MyFrame::OnConnectServer( wxCommandEvent& event )
 {
-    const char* FNAME = __FUNCTION__;
-
 	/* Ask the user for the server' address and login-info. */
 
     hoxLoginDialog loginDlg( this, wxID_ANY, 
@@ -309,7 +303,7 @@ MyFrame::OnConnectServer( wxCommandEvent& event )
 
 	if ( loginDlg.GetSelectedCommand() != hoxLoginDialog::COMMAND_ID_LOGIN )
 	{
-		wxLogDebug("%s: Login has been canceled.", FNAME);
+		wxLogDebug("%s: Login has been canceled.", __FUNCTION__);
 		return;
 	}
 
@@ -336,8 +330,7 @@ MyFrame::OnShowServersWindow( wxCommandEvent& event )
     wxLayoutAlgorithm layout;
     layout.LayoutMDIFrame(this);
 
-    // Leaves bits of itself behind sometimes
-    GetClientWindow()->Refresh();
+    GetClientWindow()->Refresh(); // Leaves bits of itself behind sometimes
 }
 
 void 
@@ -349,17 +342,7 @@ MyFrame::OnUpdateServersWindow( wxUpdateUIEvent& event )
 void 
 MyFrame::OnShowLogWindow( wxCommandEvent& event )
 {
-    m_logWindow->Show( ! m_logWindow->IsShown() );
-    m_logWindow->SetDefaultSize(wxSize(-1, 180));
-
-    wxLayoutAlgorithm layout;
-    layout.LayoutMDIFrame(this);
-}
-
-void 
-MyFrame::OnUpdateLogWindow( wxUpdateUIEvent& event )
-{
-    event.Check( m_logWindow->IsShown() );
+    m_log->Show( event.IsChecked() );
 }
 
 void 
@@ -393,8 +376,6 @@ MyFrame::OnUpdatePractice( wxUpdateUIEvent& event )
 void 
 MyFrame::OnListTables( wxCommandEvent& event )
 {
-    const char* FNAME = __FUNCTION__;
-
     hoxSite* selectedSite = _GetSelectedSite();
     if ( selectedSite == NULL )
         return;
@@ -402,7 +383,7 @@ MyFrame::OnListTables( wxCommandEvent& event )
     hoxResult result = selectedSite->QueryForNetworkTables();
     if ( result != hoxRC_OK )
     {
-        wxLogError("%s: Failed to query for LIST of tables from the server.", FNAME);
+        wxLogError("%s: Failed to query for LIST of tables from the server.", __FUNCTION__);
         return;
     }
 }
@@ -421,21 +402,6 @@ MyFrame::OnServersSashDrag(wxSashEvent& event)
         return;
 
     m_sitesWindow->SetDefaultSize(wxSize(event.GetDragRect().width, -1));
-
-    wxLayoutAlgorithm layout;
-    layout.LayoutMDIFrame(this);
-
-    // Leaves bits of itself behind sometimes
-    GetClientWindow()->Refresh();
-}
-
-void 
-MyFrame::OnLogSashDrag(wxSashEvent& event)
-{
-    if (event.GetDragStatus() == wxSASH_STATUS_OUT_OF_RANGE)
-        return;
-
-    m_logWindow->SetDefaultSize(wxSize(-1, event.GetDragRect().height));
 
     wxLayoutAlgorithm layout;
     layout.LayoutMDIFrame(this);
@@ -529,8 +495,8 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
 void 
 MyFrame::OnFrameLogMsgEvent( wxCommandEvent &event )
 {
-    wxString msg = event.GetString();
-    m_logText->AppendText( msg << "\n");
+    //wxString msg = event.GetString();
+    //m_logText->AppendText( msg << "\n");
 }
 
 void 
@@ -732,30 +698,6 @@ MyFrame::_CreateSitesUI()
     m_playersUI->Disable();  // Disable until a Site exists.
 
     splitter->SplitHorizontally( m_sitesUI, m_playersUI, 100 );
-}
-
-void
-MyFrame::_CreateLogUI()
-{
-    // A window containing our log-text.
-    m_logWindow = new wxSashLayoutWindow( 
-                            this, 
-                            ID_WINDOW_LOG,
-                            wxDefaultPosition, 
-                            wxDefaultSize,
-                            wxNO_BORDER | wxSW_3D | wxCLIP_CHILDREN );
-    m_logWindow->SetDefaultSize(wxSize(-1, 180));  // TODO: Hard-coded.
-    m_logWindow->SetOrientation(wxLAYOUT_HORIZONTAL);
-    m_logWindow->SetAlignment(wxLAYOUT_BOTTOM);
-    m_logWindow->SetBackgroundColour(wxColour(0, 0, 255));
-    m_logWindow->SetSashVisible(wxSASH_TOP, true);
-    m_logWindow->Show( false );
-
-    m_logText = new wxTextCtrl( 
-            m_logWindow, wxID_ANY, 
-            wxEmptyString,
-            wxDefaultPosition, wxDefaultSize,
-            wxTE_MULTILINE | wxSUNKEN_BORDER );
 }
 
 void     
