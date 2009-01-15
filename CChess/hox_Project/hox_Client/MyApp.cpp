@@ -56,8 +56,8 @@ MyApp::OnInit()
 
     m_frame = NULL;    // To avoid "logging to early to Frame".
 
-    m_log = new hoxLog( wxLog::GetActiveTarget() );
-    wxLog::SetActiveTarget( m_log );
+    //m_log = new hoxLog( wxLog::GetActiveTarget() );
+    //wxLog::SetActiveTarget( m_log );
 
     // Add PNG image-type handler since our pieces use this format.
     wxImage::AddHandler( new wxPNGHandler );
@@ -86,6 +86,8 @@ MyApp::OnInit()
                            wxDEFAULT_FRAME_STYLE | wxHSCROLL | wxVSCROLL );
 
     SetTopWindow( m_frame );
+
+    wxLogWindow* logWindow = new wxLogWindow(m_frame, "Log Window");
 
     // Show the frame (the frames, unlike simple controls, are not shown when
     // created initially)
@@ -119,7 +121,7 @@ MyApp::OnExit()
      */
 
 	delete hoxSiteManager::GetInstance();
-    delete wxLog::SetActiveTarget( m_log->GetOldLog() );
+    //delete wxLog::SetActiveTarget( m_log->GetOldLog() );
     _SaveAppOptions();
 	delete m_config; // The changes will be written back automatically
 
