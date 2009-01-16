@@ -43,7 +43,7 @@ namespace XQWLight
 {
 	/* PUBLIC API */
 
-	void initialize();
+	void initialize(unsigned char pcsSavedPos[][9]=NULL);
 
 	std::string generate_move();
     void        on_human_move( const std::string& sMove );

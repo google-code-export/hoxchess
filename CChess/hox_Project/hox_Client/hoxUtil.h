@@ -86,6 +86,15 @@ namespace hoxUtil
     hoxColor StringToColor( const wxString& input );
 
     /**
+     * Convert a given Piece's Type to a (human-readable) string.
+     */
+    const wxString TypeToString( const hoxPieceType type );
+
+	/**
+     * Convert a given (human-readable) string to a Piece's Type.
+     */
+    hoxPieceType StringToType( const wxString type );
+    /**
      * Parse a given string of the format "hostname:port" into a host-name
      * and a port.
      *

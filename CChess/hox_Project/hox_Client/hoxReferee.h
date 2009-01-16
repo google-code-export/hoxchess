@@ -57,9 +57,12 @@ public:
     virtual hoxColor GetNextColor();
     virtual hoxMove StringToMove( const wxString& sMove ) const;
     virtual void GetAvailableNextMoves( hoxMoveVector& moves ) const;
+	virtual void PiecePos2Array(unsigned char pcPosArray[10][9]);
+	static void SetFileName(const wxString &fileName);
 
 private:
     BoardInfoAPI::Board*  m_board;  // Board-Info.
+	static wxString ms_fileName;
 };
 
 #endif /* __INCLUDED_HOX_REFEREE_H_ */

@@ -617,7 +617,7 @@ struct PositionStruct {
     mvsList[0].Set(0, 0, Checked(), zobr.dwKey);
     nMoveNum = 1;
   }
-  void Startup(void);             // 初始化棋盘
+  void Startup(unsigned char pcsSavedPos[][9]);             // 初始化棋盘
   void ChangeSide(void) {         // 交换走子方
     sdPlayer = 1 - sdPlayer;
     zobr.Xor(Zobrist.Player);
@@ -697,15 +697,23 @@ struct PositionStruct {
 };
 
 // 初始化棋盘
-void PositionStruct::Startup(void) {
-  int sq, pc;
+void PositionStruct::Startup(unsigned char pcsSavedPos[][9]) {
+  int sq;
   ClearBoard();
-  for (sq = 0; sq < 256; sq ++) {
+  for (int i = 0; i<10;i++)
+	  for (int j = 0; j <9; j++){
+		  if (pcsSavedPos[i][j] > 0){
+			  sq = (3+i)*16 + 3 + j;
+			  AddPiece(sq, pcsSavedPos[i][j]);
+		  }
+	  }
+/*  for (sq = 0; sq < 256; sq ++) {
     pc = cucpcStartup[sq];
     if (pc != 0) {
       AddPiece(sq, pc);
     }
   }
+*/
   SetIrrev();
 }
 
@@ -1672,8 +1680,8 @@ static void SearchMain(void) {
 }
 
 // 初始化棋局
-static void Startup(void) {
-  pos.Startup();
+static void Startup(unsigned char pcsSavedPos[][9]) {
+  pos.Startup(pcsSavedPos);
   //Xqwl.sqSelected = Xqwl.mvLast = 0;
   //Xqwl.bGameOver = FALSE;
 }
@@ -1682,14 +1690,14 @@ static void Startup(void) {
 ////////////////// HPHAN Code addition //////////////////////
 
 void
-XQWLight::initialize()
+XQWLight::initialize(unsigned char pcsSavedPos[][9])
 {
     srand((DWORD) time(NULL));
     InitZobrist();
     //Xqwl.hInst = hInstance;
     LoadBook();
     //Xqwl.bFlipped = FALSE;
-    Startup();
+    Startup(pcsSavedPos);
 }
 
 std::string

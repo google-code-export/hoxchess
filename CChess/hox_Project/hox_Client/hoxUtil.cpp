@@ -304,6 +304,43 @@ hoxUtil::StringToColor( const wxString& input )
 	return hoxCOLOR_UNKNOWN;
 }
 
+const wxString
+hoxUtil::TypeToString( const hoxPieceType type )
+{
+    switch( type )
+    {
+		case hoxCOLOR_UNKNOWN:   return "UNKNOWN";
+
+		case hoxPIECE_KING:		return "KING";             // King (or General)
+		case hoxPIECE_ADVISOR:	return "ADVISOR";          // Advisor (or Guard, or Mandarin)
+		case hoxPIECE_ELEPHANT:	return "ELEPHANT";         // Elephant (or Ministers)
+		case hoxPIECE_CHARIOT:	return "CHARIOT";          // Chariot ( Rook, or Car)
+		case hoxPIECE_HORSE:	return "HORSE";            // Horse ( Knight )
+		case hoxPIECE_CANNON:	return "CANNON";           // Canon
+		case hoxPIECE_PAWN:		return "PAWN";             // Pawn (or Soldier)
+
+        default:                 return "INVALID PIECE";
+    }
+}
+
+	/**
+     * Convert a given (human-readable) string to a Color (Piece's Color or Role).
+     */
+hoxPieceType
+hoxUtil::StringToType( const wxString type )
+{
+    switch( type[0] )
+    {
+	case 'K': return hoxPIECE_KING;             // King (or General)
+	case 'A': return hoxPIECE_ADVISOR;          // Advisor (or Guard, or Mandarin)
+	case 'E': return hoxPIECE_ELEPHANT;         // Elephant (or Ministers)
+	case 'C': return (type[1] == 'H'? hoxPIECE_CHARIOT:hoxPIECE_CANNON);          // Chariot ( Rook, or Car) or Cannon
+	case 'H': return hoxPIECE_HORSE;            // Horse ( Knight )
+	case 'P': return hoxPIECE_PAWN;             // Pawn (or Soldier)
+
+    default:  return hoxPIECE_INVALID;
+    }
+}
 /**
  * Parse a given string of the format "hostname:port" into a host-name
  * and a port.

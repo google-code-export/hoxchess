@@ -51,7 +51,8 @@ enum hoxSiteAction
 	hoxSITE_ACTION_NEW            = ( (unsigned int) 1 << 3 ),
     hoxSITE_ACTION_JOIN           = ( (unsigned int) 1 << 4 ),
 	hoxSITE_ACTION_CLOSE          = ( (unsigned int) 1 << 5 ),
-    hoxSITE_ACTION_PRACTICE       = ( (unsigned int) 1 << 6 )
+    hoxSITE_ACTION_PRACTICE       = ( (unsigned int) 1 << 6 ),
+    hoxSITE_ACTION_OPEN		      = ( (unsigned int) 1 << 7 )
 };
 
 /**
@@ -148,7 +149,11 @@ public:
      */
     virtual void OnLocalRequest_PRACTICE() = 0;
 
-    /*************************************************
+    virtual void OnLocalRequest_SAVETABLE();
+    virtual void OnLocalRequest_OPEN() = 0;
+
+
+	/*************************************************
      * Implement hoxPlayersUI::UIOwner 's interface.
      *************************************************/
 
@@ -239,6 +244,8 @@ public:
     virtual void OnLocalRequest_NEW()
         {}
     virtual void OnLocalRequest_PRACTICE();
+//    virtual void OnLocalRequest_SAVETABLE();
+    virtual void OnLocalRequest_OPEN();
 };
 
 /**
@@ -293,6 +300,8 @@ public:
     virtual void OnLocalRequest_JOIN( const wxString& sTableId );
     virtual void OnLocalRequest_NEW();
     virtual void OnLocalRequest_PRACTICE();
+//	virtual void OnLocalRequest_SAVETABLE();
+	virtual void OnLocalRequest_OPEN();
 };
 
 /**
