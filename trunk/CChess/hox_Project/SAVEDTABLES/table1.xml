@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TABLE id="PRACTICE_12667" NextColor="Red">
+  <KING Color="Black" Row="4" Col="0"/>
+  <ADVISOR Color="Black" Row="3" Col="0"/>
+  <ADVISOR Color="Black" Row="4" Col="1"/>
+  <ELEPHANT Color="Black" Row="4" Col="2"/>
+  <ELEPHANT Color="Black" Row="8" Col="2"/>
+  <HORSE Color="Black" Row="6" Col="5"/>
+  <KING Color="Red" Row="5" Col="9"/>
+  <ADVISOR Color="Red" Row="3" Col="9"/>
+  <ADVISOR Color="Red" Row="4" Col="8"/>
+  <ELEPHANT Color="Red" Row="2" Col="9"/>
+  <HORSE Color="Red" Row="7" Col="5"/>
+  <CANNON Color="Red" Row="4" Col="3"/>
+  <PAWN Color="Red" Row="0" Col="4"/>
+  <PAWN Color="Red" Row="8" Col="4"/>
+</TABLE>

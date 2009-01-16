@@ -42,6 +42,9 @@
 #include "hoxFoliumPlayer.h"
 #include "hoxXQWLightPlayer.h"
 
+#include "hoxReferee.h"
+#include "hoxSavedTable.h"
+
 #include <wx/progdlg.h>
 
 /**
@@ -276,6 +279,7 @@ hoxLocalSite::GetCurrentActionFlags() const
     if ( tables.empty() )
     {
         flags |= hoxSITE_ACTION_PRACTICE;
+        flags |= hoxSITE_ACTION_OPEN;
     }
 
 	return flags;
@@ -333,6 +337,56 @@ hoxLocalSite::OnLocalRequest_PRACTICE()
 
     result = pAIPlayer->JoinTableAs( pTable, hoxCOLOR_BLACK );
     wxASSERT( result == hoxRC_OK );
+}
+
+void
+hoxSite::OnLocalRequest_SAVETABLE()
+{
+	const char* FNAME= __FUNCTION__;
+    wxCHECK_RET( m_player != NULL, "Player is NULL" );
+
+	wxString fileName = wxFileSelector("Choose a file to open", "../SAVEDTABLES", "table.xml", 0, "Extension Markup Language (*.xml)|*.xml");
+	if (fileName.IsEmpty())
+		return;
+	hoxSavedTable savedTable(fileName);
+
+	MyChild* childFrame = wxDynamicCast(wxGetApp().GetFrame()->GetActiveChild(),MyChild);
+
+	hoxTable_SPtr pTable = childFrame->GetTable();
+
+	//get active table's info which include table id, table referee, board (option)
+	savedTable.SetTableId(pTable->GetId());
+
+	hoxIReferee_SPtr tableRef = pTable->GetReferee();
+	hoxPieceInfoList pieceInfoList;
+	hoxColor nextColor;
+	tableRef->GetGameState(pieceInfoList, nextColor);
+	savedTable.SetGameState(pieceInfoList, nextColor);
+
+//	const wxString tableId = pTable->GetId();
+//	hoxSite* selectedSite = pTable->GetSite();
+//	hoxGameType gType = pTable->GetGameType();
+//	hoxBoard *board = pTable->GetBoardUI();
+//	hoxPlayer* blackPlayer = Table->GetBlackPlayer();
+//	hoxPlayer* redPlayer = Table->GetRedPlayer();
+//	Table->GetPlayerRole(blackPlayer->GetId());
+
+	//Save table	
+	savedTable.Save();
+}
+
+void
+hoxLocalSite::OnLocalRequest_OPEN()
+{
+    const char* FNAME = __FUNCTION__;
+    wxCHECK_RET( m_player != NULL, "Player is NULL" );
+
+	wxString fileName = wxFileSelector("Choose a file to open", "../SAVEDTABLES", "table.xml", 0, "Extension Markup Language (*.xml)|*.xml");
+	if (fileName.IsEmpty())
+		return;
+	hoxReferee::SetFileName(fileName);
+	this->OnLocalRequest_PRACTICE();
+	hoxReferee::SetFileName("");
 }
 
 // --------------------------------------------------------------------------
@@ -713,6 +767,16 @@ hoxRemoteSite::OnLocalRequest_PRACTICE()
     /* FIXME: Do nothing for now. */
 }
 
+void
+hoxRemoteSite::OnLocalRequest_OPEN()
+{
+		wxString fileName = wxFileSelector("Choose a file to open", "../SAVEDTABLES", "table.xml", 0, "Extension Markup Language (*.xml)|*.xml");
+	if (fileName.IsEmpty())
+		return;
+	hoxReferee::SetFileName(fileName);
+	this->OnLocalRequest_NEW();
+	hoxReferee::SetFileName("");
+}
 // --------------------------------------------------------------------------
 // hoxChesscapeSite
 // --------------------------------------------------------------------------

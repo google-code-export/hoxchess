@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TABLE id="12" NextColor="Red">
+  <KING Color="Black" Row="3" Col="1"/>
+  <ADVISOR Color="Black" Row="4" Col="1"/>
+  <PAWN Color="Black" Row="8" Col="3"/>
+  <KING Color="Red" Row="4" Col="8"/>
+  <ADVISOR Color="Red" Row="3" Col="9"/>
+  <ELEPHANT Color="Red" Row="2" Col="9"/>
+  <ELEPHANT Color="Red" Row="6" Col="9"/>
+  <CHARIOT Color="Red" Row="5" Col="5"/>
+  <CANNON Color="Red" Row="1" Col="5"/>
+  <PAWN Color="Red" Row="3" Col="3"/>
+  <PAWN Color="Red" Row="8" Col="5"/>
+</TABLE>

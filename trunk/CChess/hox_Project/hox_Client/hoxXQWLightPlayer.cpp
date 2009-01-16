@@ -37,6 +37,7 @@
 
 #include "hoxXQWLightPlayer.h"
 #include "hoxUtil.h"
+#include "hoxReferee.h"
 #include "../xqwlight/XQWLight.h"
 
 IMPLEMENT_DYNAMIC_CLASS(hoxXQWLightPlayer, hoxAIPlayer)
@@ -68,7 +69,9 @@ hoxXQWLightPlayer::Start()
 hoxXQWLightEngine::hoxXQWLightEngine( wxEvtHandler* player )
         : hoxAIEngine( player )
 {
-    XQWLight::initialize();
+	unsigned char pcsPos[10][9]={0};
+	this->hoxPcsPos2XQWLight(pcsPos);
+    XQWLight::initialize(pcsPos);
 }
 
 hoxXQWLightEngine::~hoxXQWLightEngine()
@@ -87,6 +90,12 @@ hoxXQWLightEngine::GenerateNextMove()
 {
     std::string stdMove = XQWLight::generate_move();
     return hoxUtil::std2wx( stdMove );
+}
+
+void
+hoxXQWLightEngine::hoxPcsPos2XQWLight(unsigned char pcsPos[10][9])
+{
+	m_referee->PiecePos2Array(pcsPos);
 }
 
 

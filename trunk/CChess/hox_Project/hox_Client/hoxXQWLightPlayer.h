@@ -74,6 +74,7 @@ public:
 protected:
     virtual void     OnOpponentMove( const wxString& sMove );
     virtual wxString GenerateNextMove();
+	virtual void hoxPcsPos2XQWLight(unsigned char pcsPos[10][9]);
 };
 
 // ----------------------------------------------------------------------------

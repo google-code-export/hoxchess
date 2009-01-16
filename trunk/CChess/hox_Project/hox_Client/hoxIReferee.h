@@ -79,6 +79,8 @@ class hoxIReferee
      * @note The returned vector is empty if the game is over.
      */
     virtual void GetAvailableNextMoves( hoxMoveVector& moves ) const = 0;
+	virtual void   PiecePos2Array(unsigned char pcPosArray[10][9]) = 0;
+	static void SetFileName(const wxString &fileName) {}
 };
 
 #endif /* __INCLUDED_HOX_IREFEREE_H_ */
