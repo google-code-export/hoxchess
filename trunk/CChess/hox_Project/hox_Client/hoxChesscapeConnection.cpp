@@ -99,34 +99,12 @@ hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
     }
 }
 
-void
-hoxChesscapeWriter::StartReader( wxSocketClient* socket )
+hoxSocketReader_SPtr
+hoxChesscapeWriter::CreateReader( wxEvtHandler*   evtHandler,
+                                  wxSocketClient* socket )
 {
-    wxLogDebug("%s: ENTER.", __FUNCTION__);
-
-    if (    m_reader.get() != NULL
-         && m_reader->IsRunning() )
-    {
-        wxLogDebug("%s: The connection has already been started. END.", __FUNCTION__);
-        return;
-    }
-
-    /* Create Reader thread. */
-    wxLogDebug("%s: Create the Reader Thread...", __FUNCTION__);
-    m_reader.reset( new hoxChesscapeReader( m_player ) );
-
-    /* Set the socket to READ from. */
-    m_reader->SetSocket( socket );
-
-    if ( m_reader->Create() != wxTHREAD_NO_ERROR )
-    {
-        wxLogDebug("%s: *WARN* Failed to create the Reader thread.", __FUNCTION__);
-        return;
-    }
-    wxASSERT_MSG( !m_reader->IsDetached(), 
-                  "The Reader thread must be joinable." );
-
-    m_reader->Run();
+    hoxSocketReader_SPtr reader( new hoxChesscapeReader( evtHandler, socket ) );
+    return reader;
 }
 
 hoxResult
@@ -385,8 +363,9 @@ hoxChesscapeWriter::_WriteLine( const wxString& cmdRequest )
 // hoxChesscapeReader
 //-----------------------------------------------------------------------------
 
-hoxChesscapeReader::hoxChesscapeReader( wxEvtHandler* player )
-            : hoxSocketReader( player )
+hoxChesscapeReader::hoxChesscapeReader( wxEvtHandler*   player,
+                                        wxSocketClient* socket )
+            : hoxSocketReader( player, socket )
 {
     wxLogDebug("%s: ENTER.", __FUNCTION__);
 }
@@ -455,11 +434,6 @@ hoxChesscapeReader::ReadLine( wxSocketBase*   sock,
 // hoxChesscapeConnection
 //-----------------------------------------------------------------------------
 
-hoxChesscapeConnection::hoxChesscapeConnection()
-{
-    wxFAIL_MSG( "This default constructor is never meant to be used." );
-}
-
 hoxChesscapeConnection::hoxChesscapeConnection( const hoxServerAddress& serverAddress,
                                                 wxEvtHandler*           player )
         : hoxSocketConnection( serverAddress, player )
@@ -472,31 +446,13 @@ hoxChesscapeConnection::~hoxChesscapeConnection()
     wxLogDebug("%s: ENTER.", __FUNCTION__);
 }
 
-void
-hoxChesscapeConnection::StartWriter()
+hoxSocketWriter_SPtr
+hoxChesscapeConnection::CreateWriter( wxEvtHandler*           evtHandler,
+                                      const hoxServerAddress& serverAddress )
 {
-    wxLogDebug("%s: ENTER.", __FUNCTION__);
-
-    if (    m_writer 
-         && m_writer->IsRunning() )
-    {
-        wxLogDebug("%s: The connection has already been started. END.", __FUNCTION__);
-        return;
-    }
-
-    /* Create Writer thread. */
-    wxLogDebug("%s: Create the Writer Thread...", __FUNCTION__);
-    m_writer.reset( new hoxChesscapeWriter( this->GetPlayer(), 
-                                            m_serverAddress ) );
-    if ( m_writer->Create() != wxTHREAD_NO_ERROR )
-    {
-        wxLogDebug("%s: *WARN* Failed to create the Writer thread.", __FUNCTION__);
-        return;
-    }
-    wxASSERT_MSG( !m_writer->IsDetached(), 
-                  "The Writer thread must be joinable." );
-
-    m_writer->Run();
+    hoxSocketWriter_SPtr writer( new hoxChesscapeWriter( evtHandler, 
+                                                         serverAddress ) );
+    return writer;
 }
 
 /************************* END OF FILE ***************************************/

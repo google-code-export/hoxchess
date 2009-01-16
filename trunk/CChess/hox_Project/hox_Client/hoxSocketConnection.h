@@ -24,8 +24,8 @@
 // Description:     The Socket-Connection Thread to help MY player.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_SOCKET_CONNECTION_H_
-#define __INCLUDED_HOX_SOCKET_CONNECTION_H_
+#ifndef __INCLUDED_HOX_SOCKET_CONNECTION_H__
+#define __INCLUDED_HOX_SOCKET_CONNECTION_H__
 
 #include <wx/socket.h>
 #include "hoxConnection.h"
@@ -60,6 +60,8 @@ protected:
     virtual hoxResult Connect( wxString& sError );
     virtual void Disconnect();
     virtual void StartReader( wxSocketClient* socket );
+    virtual hoxSocketReader_SPtr CreateReader( wxEvtHandler*   evtHandler,
+                                               wxSocketClient* socket );
 
 private:
     hoxRequest_APtr _GetRequest();
@@ -87,10 +89,6 @@ protected:
 
     bool                    m_bConnected;
                 /* Has the connection been established with the server */
-
-    // no copy ctor/assignment operator
-    hoxSocketWriter(const hoxSocketWriter&);
-    hoxSocketWriter& operator=(const hoxSocketWriter&);
 };
 
 // ----------------------------------------------------------------------------
@@ -100,10 +98,9 @@ protected:
 class hoxSocketReader : public wxThread
 {
 public:
-    hoxSocketReader( wxEvtHandler* player );
+    hoxSocketReader( wxEvtHandler*   player,
+                     wxSocketClient* socket );
     virtual ~hoxSocketReader() {}
-
-    void SetSocket( wxSocketClient* socket ) { m_socket = socket; }
 
 protected:
     virtual void* Entry(); // Entry point for the thread.
@@ -120,10 +117,6 @@ protected:
 
     bool                  m_shutdownRequested;
                 /* Has a shutdown-request been received? */
-
-    // no copy ctor/assignment operator
-    hoxSocketReader(const hoxSocketReader&);
-    hoxSocketReader& operator=(const hoxSocketReader&);
 };
 
 // ----------------------------------------------------------------------------
@@ -136,7 +129,7 @@ protected:
 class hoxSocketConnection : public hoxConnection
 {
 public:
-    hoxSocketConnection(); // DUMMY default constructor required for RTTI info.
+    hoxSocketConnection() {} // DUMMY default constructor required for RTTI.
     hoxSocketConnection( const hoxServerAddress& serverAddress,
                          wxEvtHandler*           player );
     virtual ~hoxSocketConnection();
@@ -149,6 +142,8 @@ public:
 
 protected:
     virtual void StartWriter();
+    virtual hoxSocketWriter_SPtr CreateWriter( wxEvtHandler*           evtHandler,
+                                               const hoxServerAddress& serverAddress );
 
 protected:
     const hoxServerAddress   m_serverAddress;
@@ -161,4 +156,4 @@ protected:
     DECLARE_DYNAMIC_CLASS(hoxSocketConnection)
 };
 
-#endif /* __INCLUDED_HOX_SOCKET_CONNECTION_H_ */
+#endif /* __INCLUDED_HOX_SOCKET_CONNECTION_H__ */
