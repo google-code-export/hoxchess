@@ -42,7 +42,8 @@ public:
 
 protected:
     virtual void HandleRequest( hoxRequest_APtr apRequest );
-    virtual void StartReader( wxSocketClient* socket );
+    virtual hoxSocketReader_SPtr CreateReader( wxEvtHandler*   evtHandler,
+                                               wxSocketClient* socket );
 
 private:
     // ------
@@ -62,11 +63,6 @@ private:
 
     // ------
     hoxResult _WriteLine( const wxString& cmdRequest );
-private:
-
-    // no copy ctor/assignment operator
-    hoxChesscapeWriter(const hoxChesscapeWriter&);
-    hoxChesscapeWriter& operator=(const hoxChesscapeWriter&);
 };
 
 // ----------------------------------------------------------------------------
@@ -76,18 +72,13 @@ private:
 class hoxChesscapeReader : public hoxSocketReader
 {
 public:
-    hoxChesscapeReader( wxEvtHandler* player );
+    hoxChesscapeReader( wxEvtHandler*   player,
+                        wxSocketClient* socket );
     virtual ~hoxChesscapeReader() {}
 
 protected:
     virtual hoxResult ReadLine( wxSocketBase*   sock,
                                 wxMemoryBuffer& data );
-
-private:
-
-    // no copy ctor/assignment operator
-    hoxChesscapeReader(const hoxChesscapeReader&);
-    hoxChesscapeReader& operator=(const hoxChesscapeReader&);
 };
 
 // ----------------------------------------------------------------------------
@@ -100,13 +91,14 @@ private:
 class hoxChesscapeConnection : public hoxSocketConnection
 {
 public:
-    hoxChesscapeConnection(); // DUMMY default constructor required for RTTI info.
+    hoxChesscapeConnection() {} // DUMMY default constructor required for RTTI.
     hoxChesscapeConnection( const hoxServerAddress& serverAddress,
                             wxEvtHandler*           player );
     virtual ~hoxChesscapeConnection();
 
 protected:
-    virtual void StartWriter();
+    virtual hoxSocketWriter_SPtr CreateWriter( wxEvtHandler*           evtHandler,
+                                               const hoxServerAddress& serverAddress );
 
 private:
 

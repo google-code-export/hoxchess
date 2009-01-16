@@ -61,8 +61,7 @@ hoxPlayer::hoxPlayer( const wxString& name,
 
 hoxPlayer::~hoxPlayer() 
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER. (%s)", FNAME, this->GetId().c_str());
+    wxLogDebug("%s: ENTER. (%s)", __FUNCTION__, this->GetId().c_str());
 
     if ( m_connection.get() != NULL )
     {
@@ -134,12 +133,10 @@ hoxPlayer::JoinTableAs( hoxTable_SPtr pTable,
 hoxResult 
 hoxPlayer::LeaveTable( hoxTable_SPtr pTable )
 {
-    const char* FNAME = __FUNCTION__;
-
     wxCHECK_MSG(pTable.get() != NULL, hoxRC_ERR, "The table is NULL." );
 
     wxLogDebug("%s: Player [%s] is leaving table [%s]...", 
-        FNAME, this->GetId().c_str(), pTable->GetId().c_str());
+        __FUNCTION__, this->GetId().c_str(), pTable->GetId().c_str());
 
     pTable->OnLeave_FromPlayer( this );
     m_tables.erase( pTable );
@@ -150,9 +147,7 @@ hoxPlayer::LeaveTable( hoxTable_SPtr pTable )
 hoxResult 
 hoxPlayer::LeaveAllTables()
 {
-    const char* FNAME = __FUNCTION__;
-
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 
     while ( ! m_tables.empty() )
     {
@@ -171,13 +166,11 @@ hoxPlayer::LeaveAllTables()
 void 
 hoxPlayer::ResetConnection()
 { 
-    const char* FNAME = __FUNCTION__;
-
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 
     if ( m_connection.get() != NULL )
     {
-        wxLogDebug("%s: Request the Connection thread to be shutdowned...", FNAME);
+        wxLogDebug("%s: Request the Connection thread to be shutdowned...", __FUNCTION__);
         hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_SHUTDOWN ) );
         m_connection->AddRequest( apRequest );
 
@@ -201,11 +194,9 @@ hoxPlayer::OnClose_FromTable( const wxString& tableId )
 void 
 hoxPlayer::OnRequest_FromTable( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = __FUNCTION__;
-
     if ( m_connection.get() == NULL )
     {
-        wxLogDebug("%s: No connection. Fine. Ignore this Request.", FNAME);
+        wxLogDebug("%s: No connection. Fine. Ignore this Request.", __FUNCTION__);
         return;
     }
 
@@ -216,9 +207,7 @@ hoxPlayer::OnRequest_FromTable( hoxRequest_APtr apRequest )
 void 
 hoxPlayer::OnClosing_FromSite()
 {
-    const char* FNAME = __FUNCTION__;
-
-    wxLogDebug("%s: ENTER. (player = [%s])", FNAME, this->GetId().c_str());
+    wxLogDebug("%s: ENTER. (player = [%s])", __FUNCTION__, this->GetId().c_str());
 
     m_siteClosing = true; // *** Turn it ON!
 
@@ -231,16 +220,14 @@ hoxPlayer::OnClosing_FromSite()
 bool 
 hoxPlayer::SetConnection( hoxConnection_APtr connection )
 {
-    const char* FNAME = __FUNCTION__;
-
     if ( m_connection.get() != NULL )
     {
         wxLogDebug("%s: Connection already set to this Player [%s]. Fine. END.", 
-            FNAME, this->GetId().c_str());
+            __FUNCTION__, this->GetId().c_str());
         return false;
     }
 
-    wxLogDebug("%s: Assign the connection to this user [%s]", FNAME, this->GetId().c_str());
+    wxLogDebug("%s: Assign the connection to this user [%s]", __FUNCTION__, this->GetId().c_str());
     m_connection = connection;
 
     return true;
@@ -249,20 +236,15 @@ hoxPlayer::SetConnection( hoxConnection_APtr connection )
 void 
 hoxPlayer::StartConnection()
 {
-    const char* FNAME = __FUNCTION__;
-
-    wxCHECK_RET( m_connection.get() != NULL, "The connection must have been set." );
-
+    wxCHECK_RET(m_connection.get() != NULL, "The connection must be set" );
     m_connection->Start();
 }
 
 void 
 hoxPlayer::ShutdownConnection()
 {
-    const char* FNAME = __FUNCTION__;
-
     wxLogDebug("%s: Player [%s] requesting the Connection to be shutdowned...", 
-        FNAME, this->GetId().c_str());
+        __FUNCTION__, this->GetId().c_str());
     hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_SHUTDOWN ) );
     this->AddRequestToConnection( apRequest );
 }
@@ -270,11 +252,9 @@ hoxPlayer::ShutdownConnection()
 void 
 hoxPlayer::AddRequestToConnection( hoxRequest_APtr apRequest )
 { 
-    const char* FNAME = __FUNCTION__;
-
     if ( m_connection.get() == NULL )
     {
-        wxLogDebug("%s: *** WARN *** No connection set. Deleting the request.", FNAME);
+        wxLogDebug("%s: *WARN* No connection set. Deleting the request.", __FUNCTION__);
         return;
     }
 
@@ -284,7 +264,7 @@ hoxPlayer::AddRequestToConnection( hoxRequest_APtr apRequest )
 
     if ( bIsShutdown )
     {
-        wxLogDebug("%s: Request the Connection thread to be shutdowned...", FNAME);
+        wxLogDebug("%s: Request the Connection thread to be shutdowned...", __FUNCTION__);
         m_connection->Shutdown();
     }
 }
