@@ -172,26 +172,6 @@ hoxNetworkAPI::WriteLine( wxSocketBase*   sock,
         return hoxRC_ERR;
     }
     return hoxRC_OK;
-
-#if 0
-    const char* FNAME = __FUNCTION__;
-    hoxResult      result = hoxRC_ERR;
-    wxUint32       nWrite;
-
-    nWrite = (wxUint32) message.size();
-    sock->Write( message, nWrite );
-    if ( sock->LastCount() != nWrite )
-    {
-        wxLogDebug("%s: *** WARN *** Writing to socket failed. Error = [%s]", 
-            FNAME, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
-        goto exit_label;
-    }
-
-    result = hoxRC_OK;
-
-exit_label:
-    return result;
-#endif
 }
 
 /**

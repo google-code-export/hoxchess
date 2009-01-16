@@ -25,7 +25,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxChesscapeConnection.h"
-#include "hoxLocalPlayer.h"
+#include "hoxPlayer.h"
 #include "hoxUtil.h"
 #include "hoxNetworkAPI.h"
 
@@ -95,7 +95,7 @@ hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
         wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, requestType );
         apResponse->code = result;
         event.SetEventObject( apResponse.release() );  // Caller will de-allocate.
-        wxPostEvent( m_player, event );
+        wxPostEvent( m_evtHandler, event );
     }
 }
 
