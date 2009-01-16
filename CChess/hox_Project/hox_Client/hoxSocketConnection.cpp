@@ -25,7 +25,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxSocketConnection.h"
-#include "hoxMyPlayer.h"
+#include "hoxPlayer.h"
 #include "hoxUtil.h"
 #include "hoxNetworkAPI.h"
 
@@ -35,10 +35,10 @@ IMPLEMENT_DYNAMIC_CLASS(hoxSocketConnection, hoxConnection)
 // hoxSocketWriter
 // ----------------------------------------------------------------------------
 
-hoxSocketWriter::hoxSocketWriter( wxEvtHandler*           player,
+hoxSocketWriter::hoxSocketWriter( wxEvtHandler*           evtHandler,
                                   const hoxServerAddress& serverAddress )
         : wxThread( wxTHREAD_JOINABLE )
-        , m_player( player )
+        , m_evtHandler( evtHandler )
         , m_serverAddress( serverAddress )
         , m_socket( NULL )
         , m_shutdownRequested( false )
@@ -47,7 +47,7 @@ hoxSocketWriter::hoxSocketWriter( wxEvtHandler*           player,
     /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
      * NOTE: We need to use wxSOCKET_BLOCK option to avoid the problem
      *       of high CPU usage in secondary threads.
-     *       To find out why, lookup into the source code of wxSocket).
+     *       To find out why, look into the source code of wxSocket).
      *
      * Reference:
      *     http://www.wxwidgets.org/wiki/index.php/WxSocket
@@ -93,7 +93,7 @@ hoxSocketWriter::StartReader( wxSocketClient* socket )
     }
 
     wxLogDebug("%s: Create the Reader Thread...", __FUNCTION__);
-    m_reader = this->CreateReader( m_player, socket );
+    m_reader = this->CreateReader( m_evtHandler, socket );
 
     if ( m_reader->Create() != wxTHREAD_NO_ERROR )
     {
@@ -224,7 +224,7 @@ hoxSocketWriter::HandleRequest( hoxRequest_APtr apRequest )
         wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, requestType );
         apResponse->code = result;
         event.SetEventObject( apResponse.release() );  // Caller will de-allocate.
-        wxPostEvent( m_player, event );
+        wxPostEvent( m_evtHandler, event );
     }
 }
 
@@ -287,10 +287,10 @@ hoxSocketWriter::_WriteLine( wxSocketBase*   sock,
 // hoxSocketReader
 // ----------------------------------------------------------------------------
 
-hoxSocketReader::hoxSocketReader( wxEvtHandler*   player,
+hoxSocketReader::hoxSocketReader( wxEvtHandler*   evtHandler,
                                   wxSocketClient* socket )
         : wxThread( wxTHREAD_JOINABLE )
-        , m_player( player )
+        , m_evtHandler( evtHandler )
         , m_socket( socket )
         , m_shutdownRequested( false )
 {
@@ -323,7 +323,7 @@ hoxSocketReader::Entry()
         wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, type );
         apResponse->code = result;
         event.SetEventObject( apResponse.release() );  // Caller will de-allocate.
-        wxPostEvent( m_player, event );
+        wxPostEvent( m_evtHandler, event );
     }
 
     return NULL;
@@ -396,8 +396,8 @@ hoxSocketReader::ReadLine( wxSocketBase*   sock,
 //-----------------------------------------------------------------------------
 
 hoxSocketConnection::hoxSocketConnection( const hoxServerAddress& serverAddress,
-                                          wxEvtHandler*           player )
-        : hoxConnection( player )
+                                          wxEvtHandler*           evtHandler )
+        : hoxConnection( evtHandler )
         , m_serverAddress( serverAddress )
 {
     wxLogDebug("%s: ENTER.", __FUNCTION__);
@@ -433,7 +433,7 @@ hoxSocketConnection::StartWriter()
                                    m_serverAddress );
     if ( m_writer->Create() != wxTHREAD_NO_ERROR )
     {
-        wxLogDebug("%s: *WARN** Failed to create the Writer thread.", __FUNCTION__);
+        wxLogDebug("%s: *WARN* Failed to create the Writer thread.", __FUNCTION__);
         return;
     }
     wxASSERT_MSG(!m_writer->IsDetached(), "The Writer thread must be joinable");
