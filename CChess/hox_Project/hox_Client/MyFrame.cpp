@@ -23,13 +23,6 @@
 //
 // Description:     The main Frame of the App.
 /////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
-// 1/1/2009: Added 2 new functions Save Table (worked for both local and
-//           remote and Open Table for local plays ie. practice with computer.
-//           Table is saved in xml format. Saved tables must have "NextColor"
-//           value equal to "Red" or we have to save table only after 
-//           computer completes its turn to have a valid saved table.
-/////////////////////////////////////////////////////////////////////////////
 
 #include "MyFrame.h"
 #include "MyChild.h"
@@ -42,6 +35,7 @@
 #include "hoxOptionsUI.h"
 #include "hoxBoard.h"
 #include "hoxLog.h"
+#include "hoxSavedTable.h"
 
 #include <wx/splitter.h>
 
@@ -88,7 +82,7 @@ BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
     EVT_MENU(MDI_OPEN_TABLE, MyFrame::OnOpenTable)
     EVT_UPDATE_UI(MDI_OPEN_TABLE, MyFrame::OnUpdateOpenTable)
 
-	EVT_MENU(MDI_QUIT, MyFrame::OnQuit)
+    EVT_MENU(MDI_QUIT, MyFrame::OnQuit)
 
     EVT_CLOSE(MyFrame::OnClose)
     EVT_SIZE(MyFrame::OnSize)
@@ -388,15 +382,20 @@ MyFrame::OnUpdatePractice( wxUpdateUIEvent& event )
 void
 MyFrame::OnSaveTable( wxCommandEvent& event )
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
+    MyChild* child = wxDynamicCast( this->GetActiveChild(), MyChild );
+    if ( child == NULL ) return;
 
-	hoxSite* selecteSite = _GetSelectedSite();
-	if (selecteSite != NULL)
-	{
-		selecteSite->OnLocalRequest_SAVETABLE();
-	}
+	hoxTable_SPtr pTable = child->GetTable();
 
+	const wxString fileName =
+        wxFileSelector( "Choose a file to save",
+                        "../SAVEDTABLES",
+                        "table.xml",
+                        "Extension Markup Language (*.xml)|*.xml" );
+	if ( fileName.empty() )
+		return;
+
+    _SaveCurrentTableToDisk( pTable, fileName );
 }
 
 void
@@ -408,29 +407,35 @@ MyFrame::OnUpdateSaveTable( wxUpdateUIEvent& event )
 void
 MyFrame::OnOpenTable( wxCommandEvent& event )
 {
-
     hoxSite* selectedSite = _GetSelectedSite();
     if ( selectedSite != NULL )
     {
-        selectedSite->OnLocalRequest_OPEN();
-    }
+        const wxString fileName =
+            wxFileSelector( "Choose a file to open",
+                            "../SAVEDTABLES",
+                            "table.xml",
+                            "Extension Markup Language (*.xml)|*.xml" );
+        if ( fileName.empty() )
+		    return;
 
+        selectedSite->OnLocalRequest_PRACTICE( fileName );
+    }
 }
 
 void 
 MyFrame::OnUpdateOpenTable( wxUpdateUIEvent& event )
 {
-	bool bEnabled = false;
+    bool bEnabled = false;
     hoxSite* selectedSite = _GetSelectedSite();
 
     if ( selectedSite != NULL )
-	{
-		unsigned int actionFlags = selectedSite->GetCurrentActionFlags();
-		if ( (actionFlags & hoxSITE_ACTION_OPEN) != 0 )
-		{
-			bEnabled = true;
-		}
-	}
+    {
+	    unsigned int actionFlags = selectedSite->GetCurrentActionFlags();
+	    if ( (actionFlags & hoxSITE_ACTION_OPEN) != 0 )
+	    {
+            bEnabled = true;
+	    }
+    }
     event.Enable( bEnabled );
 }
 
@@ -519,10 +524,8 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
     file_menu->AppendSeparator();
 	file_menu->Append(MDI_LIST_TABLES, _("List &Tables\tCtrl-T"), _("Get the list of tables"));
     file_menu->Append(MDI_NEW_TABLE, _("&New Table\tCtrl-N"), _("Create New Table"));
-    file_menu->Append(MDI_SAVE_TABLE, _("&Save Table\tCtrl-O"),
-                                    _("Open Saved Table"));
-    file_menu->Append(MDI_OPEN_TABLE, _("&Open Saved Table\tCtrl-O"),
-                                    _("Open Saved Table"));
+    file_menu->Append(MDI_SAVE_TABLE, _("&Save Table..."), _("Save the current table"));
+    file_menu->Append(MDI_OPEN_TABLE, _("Open Saved Table..."), _("Open a saved table"));
     file_menu->Append(MDI_PRACTICE, _("&Practice with Computer\tCtrl-P"),
                                     _("Practice with your local Computer"));
     file_menu->Append(MDI_CLOSE_TABLE, _("&Close Table\tCtrl-C"), _("Close Table"));
@@ -611,8 +614,8 @@ MyFrame::OnContextMenu( wxContextMenuEvent& event )
 		}
 		if ( (actionFlags & hoxSITE_ACTION_OPEN) != 0 )
 		{
-			menu.Append(MDI_OPEN_TABLE, _("Open Saved Table...\tCtrl-O"), 
-											_("Open Saved Table"));
+            menu.Append(MDI_OPEN_TABLE, _("Open Saved Table..."), 
+                                        _("Open a saved table"));
 		}
     }
 	else
@@ -856,6 +859,22 @@ MyFrame::_SaveDefaultTableLayout( const wxSize& size )
 	config->Write("/Layout/Table/size/y", size.y);
 
 	return true;
+}
+
+void
+MyFrame::_SaveCurrentTableToDisk( const hoxTable_SPtr& pTable,
+                                  const wxString&      fileName ) const
+{
+	hoxSavedTable savedTable( fileName );
+	savedTable.SetTableId( pTable->GetId() );
+
+	hoxPieceInfoList pieceInfoList;
+	hoxColor nextColor;
+
+    pTable->GetReferee()->GetGameState( pieceInfoList, nextColor );
+	savedTable.SetGameState( pieceInfoList, nextColor );
+
+	savedTable.Save();
 }
 
 /************************* END OF FILE ***************************************/

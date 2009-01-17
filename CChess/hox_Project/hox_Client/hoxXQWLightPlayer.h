@@ -68,13 +68,16 @@ private:
 class hoxXQWLightEngine : public hoxAIEngine
 {
 public:
-    hoxXQWLightEngine( wxEvtHandler* player );
-    virtual ~hoxXQWLightEngine();
+    hoxXQWLightEngine( wxEvtHandler*   player,
+                       const wxString& sSavedFile );
+    virtual ~hoxXQWLightEngine() {}
 
 protected:
     virtual void     OnOpponentMove( const wxString& sMove );
     virtual wxString GenerateNextMove();
-	virtual void hoxPcsPos2XQWLight(unsigned char pcsPos[10][9]);
+
+private:
+	void _hoxPcsPos2XQWLight( unsigned char pcsPos[10][9] );
 };
 
 // ----------------------------------------------------------------------------
@@ -91,13 +94,15 @@ class hoxXQWLightConnection : public hoxAIConnection
 {
 public:
     hoxXQWLightConnection() {} // DUMMY default constructor required for RTTI info.
-    hoxXQWLightConnection( wxEvtHandler* player );
+    hoxXQWLightConnection( wxEvtHandler*   player,
+                           const wxString& sSavedFile = "" );
     virtual ~hoxXQWLightConnection() {}
 
 protected:
     virtual void CreateAIEngine();
 
 private:
+    const wxString  m_sSavedFile; // Containing a previously saved table.
 
     DECLARE_DYNAMIC_CLASS(hoxXQWLightConnection)
 };

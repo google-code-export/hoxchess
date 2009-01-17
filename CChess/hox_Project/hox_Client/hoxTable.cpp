@@ -429,8 +429,7 @@ hoxTable::OnGameOver_FromNetwork( hoxPlayer*    player,
 void 
 hoxTable::OnGameReset_FromNetwork()
 {
-    const char* FNAME = "hoxTable::OnGameReset_FromNetwork";
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 
     _ResetGame();
 

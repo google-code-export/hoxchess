@@ -42,14 +42,14 @@ namespace BoardInfoAPI
 class hoxReferee : public hoxIReferee
 {
 public:
-    hoxReferee();
+    hoxReferee( const wxString& sSavedFile = "" );
     virtual ~hoxReferee();
 
     /*********************************
      * Override base class virtuals
      *********************************/
 
-    virtual void ResetGame();
+    virtual void ResetGame( const wxString& sSavedFile = "" );
     virtual bool ValidateMove( hoxMove&       move,
                                hoxGameStatus& status );
     virtual void GetGameState( hoxPieceInfoList& pieceInfoList,
@@ -57,12 +57,9 @@ public:
     virtual hoxColor GetNextColor();
     virtual hoxMove StringToMove( const wxString& sMove ) const;
     virtual void GetAvailableNextMoves( hoxMoveVector& moves ) const;
-	virtual void PiecePos2Array(unsigned char pcPosArray[10][9]);
-	static void SetFileName(const wxString &fileName);
 
 private:
     BoardInfoAPI::Board*  m_board;  // Board-Info.
-	static wxString ms_fileName;
 };
 
 #endif /* __INCLUDED_HOX_REFEREE_H_ */

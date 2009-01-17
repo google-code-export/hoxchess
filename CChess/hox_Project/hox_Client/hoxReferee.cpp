@@ -228,7 +228,7 @@ namespace BoardInfoAPI
     {
     public:
         Board( hoxColor nextColor = hoxCOLOR_NONE );
-		Board( const wxString &fileName);
+		Board( const wxString& fileName );
         virtual ~Board();
 
         // ------------ Main Public API -------
@@ -249,12 +249,11 @@ namespace BoardInfoAPI
         bool   Simulation_IsValidMove(const hoxMove& move);
         Piece* GetPieceAt( const hoxPosition& position ) const;
         bool   HasPieceAt( const hoxPosition& position ) const;
-		void   PiecePos2Array(unsigned char pcPosArray[10][9]);
 
     private:
 		void		 _InitializePieceCells();
         void         _CreateNewGame();
-		void		 _OpenSavedGame(const wxString &fileName);
+		void		 _OpenSavedGame( const wxString& fileName );
         void         _AddNewPiece(Piece* piece);
 
         void         _SetPiece( Piece* piece );
@@ -311,19 +310,15 @@ using namespace BoardInfoAPI;
 Board::Board( hoxColor nextColor /* = hoxCOLOR_NONE */ )
         : m_nextColor( nextColor )
 {
-    /* Initialize Piece-Cells. */
 	_InitializePieceCells();
-    /* Initialize Board. */
-	_CreateNewGame();
+	_CreateNewGame();  // Initialize Board.
 }
 
 
 Board::Board( const wxString &fileName)
 {
-    /* Initialize Piece-Cells. */
 	_InitializePieceCells();
-    /* Initialize Board. */
-	_OpenSavedGame(fileName);
+	_OpenSavedGame( fileName ); // Initialize Board.
 }
 
 Board::~Board()
@@ -404,11 +399,11 @@ Board::_CreateNewGame()
     }
 
 }
-//Darrick
+
 void
-Board::_OpenSavedGame(const wxString &fileName)
+Board::_OpenSavedGame( const wxString& fileName )
 {
-	hoxSavedTable table(fileName);
+	hoxSavedTable table( fileName );
 	table.Load();
     hoxPieceInfoList pieceInfoList;
     hoxColor         nextColor;
@@ -431,49 +426,6 @@ Board::_OpenSavedGame(const wxString &fileName)
 		}
     }
 	m_nextColor = nextColor;	
-}
-
-void
-Board::PiecePos2Array(unsigned char pcPosArray[10][9])
-{
-	int x, y, color, type;
-    for ( PieceList::const_iterator it = m_pieces.begin();
-                                    it != m_pieces.end(); ++it )
-    {
-		x = (*it)->GetPosition().x;
-		y = (*it)->GetPosition().y;
-		switch ((*it)->GetColor()){
-			case hoxCOLOR_RED:		color = 0x8;break;
-			case hoxCOLOR_BLACK:	color = 0x10;break;
-			default: color = -1;
-		};
-		switch ((*it)->GetType()){
-			case hoxPIECE_KING:
-				type = 0;
-				break;
-			case hoxPIECE_ADVISOR:
-				type = 1;
-				break;
-			case hoxPIECE_ELEPHANT:
-				type = 2;
-				break;
-			case hoxPIECE_HORSE:
-				type = 3;
-				break;
-			case hoxPIECE_CHARIOT:
-				type = 4;
-				break;
-			case hoxPIECE_CANNON:
-				type = 5;
-				break;
-			case hoxPIECE_PAWN:
-				type = 6;
-				break;
-			default: type = -1;
-		};
-		if (color >= 0 && type >= 0)
-			pcPosArray[y][x] = color + type;
-	}
 }
 
 void 
@@ -1523,10 +1475,10 @@ BoardInfoAPI::PositionList_Clear( PositionList& positions )
 // hoxReferee
 //-----------------------------------------------------------------------------
 
-hoxReferee::hoxReferee()
+hoxReferee::hoxReferee( const wxString& sSavedFile /* = "" */ )
             : m_board( NULL )
 {
-    this->ResetGame();
+    this->ResetGame( sSavedFile );
 }
 
 hoxReferee::~hoxReferee()
@@ -1534,23 +1486,19 @@ hoxReferee::~hoxReferee()
     delete m_board;
 }
 
-wxString
-hoxReferee::ms_fileName = "";
-
 void
-hoxReferee::SetFileName(const wxString &fileName)
-{
-	ms_fileName = fileName;
-}
-
-void
-hoxReferee::ResetGame()
+hoxReferee::ResetGame( const wxString& sSavedFile /* = "" */ )
 {
     delete m_board;   // Delete the old Board, if exists.
-	if (ms_fileName == "")
-		m_board = new Board( hoxCOLOR_RED /* next-color */);
-	else
-		m_board = new Board( ms_fileName);
+
+    if ( sSavedFile.empty() )
+    {
+        m_board = new Board( hoxCOLOR_RED /* next-color */);
+    }
+    else
+    {
+        m_board = new Board( sSavedFile);
+    }
 }
 
 bool 
@@ -1607,12 +1555,6 @@ void
 hoxReferee::GetAvailableNextMoves( hoxMoveVector& moves ) const
 {
     m_board->GetAvailableNextMoves( moves );
-}
-
-void
-hoxReferee::PiecePos2Array(unsigned char pcPosArray[10][9])
-{
-	m_board->PiecePos2Array(pcPosArray);
 }
 
 /************************* END OF FILE ***************************************/

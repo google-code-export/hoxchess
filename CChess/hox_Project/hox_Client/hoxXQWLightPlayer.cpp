@@ -56,7 +56,8 @@ hoxXQWLightPlayer::hoxXQWLightPlayer( const wxString& name,
 void
 hoxXQWLightPlayer::Start()
 {
-    hoxConnection_APtr connection( new hoxXQWLightConnection( this ) );
+    hoxConnection_APtr connection( new hoxXQWLightConnection( this,
+                                                              m_sSavedFile ) );
     this->SetConnection( connection );
     this->GetConnection()->Start();
 }
@@ -66,16 +67,16 @@ hoxXQWLightPlayer::Start()
 // hoxXQWLightEngine
 // ----------------------------------------------------------------------------
 
-hoxXQWLightEngine::hoxXQWLightEngine( wxEvtHandler* player )
+hoxXQWLightEngine::hoxXQWLightEngine( wxEvtHandler*   player,
+                                      const wxString& sSavedFile /* = "" */ )
         : hoxAIEngine( player )
 {
-	unsigned char pcsPos[10][9]={0};
-	this->hoxPcsPos2XQWLight(pcsPos);
-    XQWLight::initialize(pcsPos);
-}
+    m_referee->ResetGame( sSavedFile );
 
-hoxXQWLightEngine::~hoxXQWLightEngine()
-{
+	unsigned char pcsPos[10][9]={0};
+    _hoxPcsPos2XQWLight( pcsPos );
+
+    XQWLight::initialize( pcsPos );
 }
 
 void
@@ -93,9 +94,49 @@ hoxXQWLightEngine::GenerateNextMove()
 }
 
 void
-hoxXQWLightEngine::hoxPcsPos2XQWLight(unsigned char pcsPos[10][9])
+hoxXQWLightEngine::_hoxPcsPos2XQWLight( unsigned char pcsPos[10][9] )
 {
-	m_referee->PiecePos2Array(pcsPos);
+    /* Get the current positions. */
+
+    hoxPieceInfoList pieceInfoList;
+    hoxColor         nextColor;  // obtained but not used now!
+    
+    m_referee->GetGameState( pieceInfoList, nextColor );
+
+    /* Convert to array-type positions. */
+
+	int x, y, color, type;
+
+    for ( hoxPieceInfoList::const_iterator it = pieceInfoList.begin();
+                                           it != pieceInfoList.end(); ++it )
+    {
+		x = (*it).position.x;
+		y = (*it).position.y;
+		
+        switch ( (*it).color )
+        {
+			case hoxCOLOR_RED:    color = 0x8; break;
+			case hoxCOLOR_BLACK:  color = 0x10; break;
+			default:              color = -1;
+		};
+
+		switch ( (*it).type )
+        {
+			case hoxPIECE_KING:     type = 0; break;
+			case hoxPIECE_ADVISOR:  type = 1; break;
+			case hoxPIECE_ELEPHANT: type = 2; break;
+			case hoxPIECE_HORSE:    type = 3; break;
+			case hoxPIECE_CHARIOT:  type = 4; break;
+			case hoxPIECE_CANNON:   type = 5; break;
+			case hoxPIECE_PAWN:     type = 6; break;
+			default:                type = -1;
+		};
+
+		if ( color >= 0 && type >= 0 )
+        {
+			pcsPos[y][x] = color + type;
+        }
+	}
 }
 
 
@@ -105,15 +146,18 @@ hoxXQWLightEngine::hoxPcsPos2XQWLight(unsigned char pcsPos[10][9])
 
 IMPLEMENT_DYNAMIC_CLASS(hoxXQWLightConnection, hoxAIConnection)
 
-hoxXQWLightConnection::hoxXQWLightConnection( wxEvtHandler* player )
+hoxXQWLightConnection::hoxXQWLightConnection( wxEvtHandler*   player,
+                                              const wxString& sSavedFile /* = "" */ )
         : hoxAIConnection( player )
+        , m_sSavedFile( sSavedFile )
 {
 }
 
 void
 hoxXQWLightConnection::CreateAIEngine()
 {
-    m_aiEngine.reset( new hoxXQWLightEngine( this->GetPlayer() ) );
+    m_aiEngine.reset( new hoxXQWLightEngine( this->GetPlayer(),
+                                             m_sSavedFile ) );
 }
 
 /************************* END OF FILE ***************************************/
