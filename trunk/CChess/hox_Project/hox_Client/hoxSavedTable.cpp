@@ -33,7 +33,7 @@ bool hoxSavedTable::Save()
 void hoxSavedTable::SetTableId(const wxString &tableId)
 {
 	wxXmlNode *root = new wxXmlNode(wxXML_ELEMENT_NODE,"TABLE");
-	root->AddProperty("id", tableId);
+	root->AddAttribute("id", tableId);
 	m_doc.SetRoot(root);
 	//m_Table = root;
 }
@@ -41,7 +41,7 @@ const wxString hoxSavedTable::GetTableId(void)
 {
 	wxXmlNode* root=m_doc.GetRoot();
 	if (root && root->GetName() == "TABLE")
-		return root->GetPropVal("id","");
+		return root->GetAttribute("id","");
 	else
 		//wrong file
 		return "";
@@ -53,7 +53,7 @@ void hoxSavedTable::SetGameState(hoxPieceInfoList &pieceInfoList, hoxColor &next
 	wxXmlNode* root = m_doc.GetRoot();
 	if(root->GetName() == "TABLE")
 	{
-		root->AddProperty("NextColor", hoxUtil::ColorToString(nextColor));
+		root->AddAttribute("NextColor", hoxUtil::ColorToString(nextColor));
 		for ( hoxPieceInfoList::const_iterator it = pieceInfoList.begin();
                                            it != pieceInfoList.end(); 
 		                                   ++it )
@@ -62,9 +62,9 @@ void hoxSavedTable::SetGameState(hoxPieceInfoList &pieceInfoList, hoxColor &next
 
 			wxXmlNode* pieceNode = new wxXmlNode(wxXML_ELEMENT_NODE, hoxUtil::TypeToString(piece->GetType()));
 
-			pieceNode->AddProperty("Color",hoxUtil::ColorToString(piece->GetColor()));
-			pieceNode->AddProperty("Row",wxString::Format("%d",piece->GetPosition().x));
-			pieceNode->AddProperty("Col",wxString::Format("%d",piece->GetPosition().y));			
+			pieceNode->AddAttribute("Color",hoxUtil::ColorToString(piece->GetColor()));
+			pieceNode->AddAttribute("Row",wxString::Format("%d",piece->GetPosition().x));
+			pieceNode->AddAttribute("Col",wxString::Format("%d",piece->GetPosition().y));			
 			root->AddChild(pieceNode);
 		}
 	}
@@ -83,7 +83,7 @@ void hoxSavedTable::GetGameState(hoxPieceInfoList &pieceInfoList, hoxColor &next
 	wxXmlNode* root = m_doc.GetRoot();
 	if(root->GetName() != "TABLE")
 		return; //error: wrong file is loaded
-	nextColor = hoxUtil::StringToColor(root->GetPropVal("NextColor",""));
+	nextColor = hoxUtil::StringToColor(root->GetAttribute("NextColor",""));
 	wxXmlNode* pieceNodes = root->GetChildren();
 	wxString sType, sColor, xRow, yCol;
 	hoxPieceType type;
@@ -96,11 +96,11 @@ void hoxSavedTable::GetGameState(hoxPieceInfoList &pieceInfoList, hoxColor &next
 		type = hoxPIECE_INVALID;
 		type = hoxUtil::StringToType(sType);
 
-		sColor = pieceNodes->GetPropVal("Color","");
+		sColor = pieceNodes->GetAttribute("Color","");
 		color = hoxUtil::StringToColor(sColor);
 
-		xRow = pieceNodes->GetPropVal("Row","");
-		yCol = pieceNodes->GetPropVal("Col","");
+		xRow = pieceNodes->GetAttribute("Row","");
+		yCol = pieceNodes->GetAttribute("Col","");
 		long x,y;
 		xRow.ToLong(&x);
 		yCol.ToLong(&y);
