@@ -49,7 +49,7 @@ public:
      * Override the parent's API
      *******************************/
 
-    virtual hoxResult ConnectToNetworkServer();
+    virtual hoxResult ConnectToServer();
 	virtual hoxResult QueryForNetworkTables();
     virtual hoxResult JoinNetworkTable( const wxString& tableId );
 	virtual hoxResult OpenNewNetworkTable();

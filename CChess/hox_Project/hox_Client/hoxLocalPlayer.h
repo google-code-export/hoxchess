@@ -24,8 +24,8 @@
 // Description:     The LOCAL Player.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_LOCAL_PLAYER_H_
-#define __INCLUDED_HOX_LOCAL_PLAYER_H_
+#ifndef __INCLUDED_HOX_LOCAL_PLAYER_H__
+#define __INCLUDED_HOX_LOCAL_PLAYER_H__
 
 #include "hoxPlayer.h"
 #include "hoxTypes.h"
@@ -36,7 +36,7 @@
 class hoxLocalPlayer :  public hoxPlayer
 {
 public:
-    hoxLocalPlayer(); // DUMMY default constructor required for RTTI info.
+    hoxLocalPlayer() {}
     hoxLocalPlayer( const wxString& name,
                     hoxPlayerType   type,
                     int             score );
@@ -57,8 +57,8 @@ public:
      * MY-specific Network API
      *******************************/
 
-    virtual hoxResult ConnectToNetworkServer();
-    virtual hoxResult DisconnectFromNetworkServer();
+    virtual hoxResult ConnectToServer();
+    virtual hoxResult DisconnectFromServer();
 
     virtual hoxResult QueryForNetworkTables();
     virtual hoxResult JoinNetworkTable( const wxString& tableId );
@@ -68,10 +68,14 @@ public:
     virtual hoxResult InvitePlayer( const wxString& sInviteeId );
 
 private:
+	bool            m_bRequestingLogout;
+			/* Whether this Player is LOGOUT-ing from the server.
+             * This state is needed to avoid sending LOGOUT twice.
+             */
 
     DECLARE_DYNAMIC_CLASS(hoxLocalPlayer)
 	DECLARE_EVENT_TABLE()
 };
 
 
-#endif /* __INCLUDED_HOX_LOCAL_PLAYER_H_ */
+#endif /* __INCLUDED_HOX_LOCAL_PLAYER_H__ */

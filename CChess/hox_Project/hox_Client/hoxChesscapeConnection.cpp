@@ -417,7 +417,8 @@ hoxChesscapeReader::ReadLine( wxSocketBase*   sock,
             if (  err == wxSOCKET_TIMEDOUT )
                 wxLogDebug("%s: *INFO* Socket timeout.", __FUNCTION__);
             else
-                wxLogDebug("%s: *WARN* Some socket error [%d].", __FUNCTION__, err);
+                wxLogDebug("%s: *WARN* Some socket error [%s].", __FUNCTION__,
+                    hoxNetworkAPI::SocketErrorToString(err).c_str());
             break;
         }
         else

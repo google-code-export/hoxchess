@@ -114,6 +114,7 @@ MyApp::OnExit()
      */
 
 	delete hoxSiteManager::GetInstance();
+    wxSocketBase::Shutdown(); // Shut down the sockets.
     _SaveAppOptions();
 	delete m_config; // The changes will be written back automatically
 

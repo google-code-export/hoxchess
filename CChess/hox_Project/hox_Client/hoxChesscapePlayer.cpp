@@ -66,10 +66,10 @@ hoxChesscapePlayer::Start()
 }
 
 hoxResult
-hoxChesscapePlayer::ConnectToNetworkServer()
+hoxChesscapePlayer::ConnectToServer()
 {
     m_bRequestingLogin = true;
-    return this->hoxLocalPlayer::ConnectToNetworkServer();
+    return this->hoxLocalPlayer::ConnectToServer();
 }
 
 hoxResult 
@@ -187,7 +187,7 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
         /* Close the connection and logout.
          */
         this->LeaveAllTables();
-        this->DisconnectFromNetworkServer();
+        this->DisconnectFromServer();
         site->Handle_ShutdownReadyFromPlayer();
         wxLogDebug("%s: END (exception).", __FUNCTION__);
         return;  // *** Exit immediately.
