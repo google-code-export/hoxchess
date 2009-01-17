@@ -323,13 +323,13 @@ hoxUtil::TypeToString( const hoxPieceType type )
     }
 }
 
-	/**
-     * Convert a given (human-readable) string to a Color (Piece's Color or Role).
-     */
+/**
+ * Convert a given (human-readable) string to a Color (Piece's Color or Role).
+ */
 hoxPieceType
 hoxUtil::StringToType( const wxString type )
 {
-    switch( type[0] )
+    switch( type[0].GetValue() )
     {
 	case 'K': return hoxPIECE_KING;             // King (or General)
 	case 'A': return hoxPIECE_ADVISOR;          // Advisor (or Guard, or Mandarin)

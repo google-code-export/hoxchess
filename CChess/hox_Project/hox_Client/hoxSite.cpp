@@ -343,7 +343,7 @@ hoxSite::OnLocalRequest_SAVETABLE()
 	const char* FNAME= __FUNCTION__;
     wxCHECK_RET( m_player != NULL, "Player is NULL" );
 
-	wxString fileName = wxFileSelector("Choose a file to open", "../SAVEDTABLES", "table.xml", 0, "Extension Markup Language (*.xml)|*.xml");
+	wxString fileName = wxFileSelector("Choose a file to open", "../SAVEDTABLES", "table.xml", "Extension Markup Language (*.xml)|*.xml");
 	if (fileName.IsEmpty())
 		return;
 	hoxSavedTable savedTable(fileName);
@@ -379,7 +379,7 @@ hoxLocalSite::OnLocalRequest_OPEN()
     const char* FNAME = __FUNCTION__;
     wxCHECK_RET( m_player != NULL, "Player is NULL" );
 
-	wxString fileName = wxFileSelector("Choose a file to open", "../SAVEDTABLES", "table.xml", 0, "Extension Markup Language (*.xml)|*.xml");
+	wxString fileName = wxFileSelector("Choose a file to open", "../SAVEDTABLES", "table.xml", "Extension Markup Language (*.xml)|*.xml");
 	if (fileName.IsEmpty())
 		return;
 	hoxReferee::SetFileName(fileName);
@@ -751,7 +751,7 @@ hoxRemoteSite::OnLocalRequest_PRACTICE()
 void
 hoxRemoteSite::OnLocalRequest_OPEN()
 {
-		wxString fileName = wxFileSelector("Choose a file to open", "../SAVEDTABLES", "table.xml", 0, "Extension Markup Language (*.xml)|*.xml");
+    wxString fileName = wxFileSelector("Choose a file to open", "../SAVEDTABLES", "table.xml", "Extension Markup Language (*.xml)|*.xml");
 	if (fileName.IsEmpty())
 		return;
 	hoxReferee::SetFileName(fileName);

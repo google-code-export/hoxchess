@@ -70,6 +70,7 @@ MAIN_SRC := \
 	hoxTSITOPlayer.cpp \
 	hoxFoliumPlayer.cpp \
 	hoxXQWLightPlayer.cpp \
+	hoxSavedTable.cpp \
 	hoxLog.cpp \
 	MyApp.cpp \
 	MyChild.cpp \
