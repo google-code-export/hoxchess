@@ -42,7 +42,8 @@ public:
 
     hoxTable_SPtr CreateTable( const wxString& tableId,
                                hoxSite*        site,
-                               hoxGameType     gameType );
+                               hoxGameType     gameType,
+                               const wxString& sSavedFile = "" );
     void RemoveTable( hoxTable_SPtr pTable );
     
     hoxTable_SPtr FindTable( const wxString& tableId ) const;

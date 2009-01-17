@@ -36,14 +36,12 @@
 #include "hoxTablesDialog.h"
 #include "hoxBoard.h"
 #include "hoxSitesUI.h"
+#include "hoxReferee.h"
 
 #include "hoxAIPlayer.h"
 #include "hoxTSITOPlayer.h"
 #include "hoxFoliumPlayer.h"
 #include "hoxXQWLightPlayer.h"
-
-#include "hoxReferee.h"
-#include "hoxSavedTable.h"
 
 #include <wx/progdlg.h>
 
@@ -211,7 +209,8 @@ hoxSite::ShowProgressDialog( bool bShow /* = true */ )
 }
 
 hoxTable_SPtr
-hoxSite::CreateNewTableWithGUI( const hoxNetworkTableInfo& tableInfo )
+hoxSite::CreateNewTableWithGUI( const hoxNetworkTableInfo& tableInfo,
+                                const wxString&            sSavedFile /* = "" */ )
 {
     hoxTable_SPtr pTable;
     const wxString tableId = tableInfo.id;
@@ -222,7 +221,8 @@ hoxSite::CreateNewTableWithGUI( const hoxNetworkTableInfo& tableInfo )
     /* Create a new table with the newly created Frame. */
     pTable = m_tableMgr.CreateTable( tableId, 
                                      this,
-                                     tableInfo.gameType );
+                                     tableInfo.gameType,
+                                     sSavedFile );
 	pTable->SetInitialTime( tableInfo.initialTime );
     pTable->SetBlackTime( tableInfo.blackTime );
     pTable->SetRedTime( tableInfo.redTime );
@@ -285,7 +285,7 @@ hoxLocalSite::GetCurrentActionFlags() const
 }
 
 void
-hoxLocalSite::OnLocalRequest_PRACTICE()
+hoxLocalSite::OnLocalRequest_PRACTICE( const wxString& sSavedFile /* = "" */ )
 {
     wxCHECK_RET( m_player != NULL, "Player is NULL" );
 
@@ -311,7 +311,7 @@ hoxLocalSite::OnLocalRequest_PRACTICE()
     /* Create an "empty" PRACTICE Table. */
 
     wxLogDebug("%s: Create a PRACTICE Table [%s]...", __FUNCTION__, sTableId.c_str());
-    hoxTable_SPtr pTable = this->CreateNewTableWithGUI( tableInfo );
+    hoxTable_SPtr pTable = this->CreateNewTableWithGUI( tableInfo, sSavedFile );
 
     /* Assign Players to the Table.
      *
@@ -331,61 +331,13 @@ hoxLocalSite::OnLocalRequest_PRACTICE()
         //new hoxTSITOPlayer( sAIId, hoxPLAYER_TYPE_AI, 1500 );
         //new hoxAIPlayer( sAIId, hoxPLAYER_TYPE_AI, 1500 );
 
+    pAIPlayer->SetSavedFile( sSavedFile );
     pAIPlayer->Start();
 
     result = pAIPlayer->JoinTableAs( pTable, hoxCOLOR_BLACK );
     wxASSERT( result == hoxRC_OK );
 }
 
-void
-hoxSite::OnLocalRequest_SAVETABLE()
-{
-	const char* FNAME= __FUNCTION__;
-    wxCHECK_RET( m_player != NULL, "Player is NULL" );
-
-	wxString fileName = wxFileSelector("Choose a file to open", "../SAVEDTABLES", "table.xml", "Extension Markup Language (*.xml)|*.xml");
-	if (fileName.IsEmpty())
-		return;
-	hoxSavedTable savedTable(fileName);
-
-	MyChild* childFrame = wxDynamicCast(wxGetApp().GetFrame()->GetActiveChild(),MyChild);
-
-	hoxTable_SPtr pTable = childFrame->GetTable();
-
-	//get active table's info which include table id, table referee, board (option)
-	savedTable.SetTableId(pTable->GetId());
-
-	hoxIReferee_SPtr tableRef = pTable->GetReferee();
-	hoxPieceInfoList pieceInfoList;
-	hoxColor nextColor;
-	tableRef->GetGameState(pieceInfoList, nextColor);
-	savedTable.SetGameState(pieceInfoList, nextColor);
-
-//	const wxString tableId = pTable->GetId();
-//	hoxSite* selectedSite = pTable->GetSite();
-//	hoxGameType gType = pTable->GetGameType();
-//	hoxBoard *board = pTable->GetBoardUI();
-//	hoxPlayer* blackPlayer = Table->GetBlackPlayer();
-//	hoxPlayer* redPlayer = Table->GetRedPlayer();
-//	Table->GetPlayerRole(blackPlayer->GetId());
-
-	//Save table	
-	savedTable.Save();
-}
-
-void
-hoxLocalSite::OnLocalRequest_OPEN()
-{
-    const char* FNAME = __FUNCTION__;
-    wxCHECK_RET( m_player != NULL, "Player is NULL" );
-
-	wxString fileName = wxFileSelector("Choose a file to open", "../SAVEDTABLES", "table.xml", "Extension Markup Language (*.xml)|*.xml");
-	if (fileName.IsEmpty())
-		return;
-	hoxReferee::SetFileName(fileName);
-	this->OnLocalRequest_PRACTICE();
-	hoxReferee::SetFileName("");
-}
 
 // --------------------------------------------------------------------------
 // hoxRemoteSite
@@ -739,7 +691,7 @@ hoxRemoteSite::OnLocalRequest_NEW()
 }
 
 void
-hoxRemoteSite::OnLocalRequest_PRACTICE()
+hoxRemoteSite::OnLocalRequest_PRACTICE( const wxString& sSavedFile /* = "" */ )
 {
     wxCHECK_RET( m_player != NULL, "Player is NULL" );
 
@@ -748,16 +700,6 @@ hoxRemoteSite::OnLocalRequest_PRACTICE()
     /* FIXME: Do nothing for now. */
 }
 
-void
-hoxRemoteSite::OnLocalRequest_OPEN()
-{
-    wxString fileName = wxFileSelector("Choose a file to open", "../SAVEDTABLES", "table.xml", "Extension Markup Language (*.xml)|*.xml");
-	if (fileName.IsEmpty())
-		return;
-	hoxReferee::SetFileName(fileName);
-	this->OnLocalRequest_NEW();
-	hoxReferee::SetFileName("");
-}
 // --------------------------------------------------------------------------
 // hoxChesscapeSite
 // --------------------------------------------------------------------------

@@ -53,6 +53,15 @@ public:
 
     void OnConnectionResponse( wxCommandEvent& event ); 
 
+     /*******************************
+     * Other API
+     *******************************/
+
+    void SetSavedFile( const wxString& sFile ) { m_sSavedFile = sFile; }
+
+protected:
+    wxString   m_sSavedFile; // Containing a previously saved table.
+
 private:
 
     DECLARE_DYNAMIC_CLASS(hoxAIPlayer)

@@ -46,8 +46,8 @@ enum
 
     MDI_NEW_TABLE = hoxUI_ID_RANGE_FRAME,
     MDI_PRACTICE, // New Table to practice with the local computer
-	MDI_SAVE_TABLE,
-	MDI_OPEN_TABLE,
+    MDI_SAVE_TABLE,
+    MDI_OPEN_TABLE,
     MDI_CLOSE_TABLE,
 
     MDI_CONNECT_SERVER, // Connect to server
@@ -124,8 +124,8 @@ public:
     void OnUpdateSaveTable(wxUpdateUIEvent& event);
     void OnOpenTable(wxCommandEvent& event);
     void OnUpdateOpenTable(wxUpdateUIEvent& event);
-	
-	void OnQuit(wxCommandEvent& event);
+
+    void OnQuit(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);
 
     /**
@@ -175,6 +175,9 @@ private:
 
 	bool _GetDefaultTableLayout( wxSize& size );
 	bool _SaveDefaultTableLayout( const wxSize& size );
+
+    void _SaveCurrentTableToDisk( const hoxTable_SPtr& pTable,
+                                  const wxString&      fileName ) const;
 
 public: /* Static API */
     static wxMenuBar* Create_Menu_Bar( bool hasTable = false );

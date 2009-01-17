@@ -147,10 +147,7 @@ public:
     /**
      * On the LOCAL player's request to create a new PRACTICE Table.
      */
-    virtual void OnLocalRequest_PRACTICE() = 0;
-
-    virtual void OnLocalRequest_SAVETABLE();
-    virtual void OnLocalRequest_OPEN() = 0;
+    virtual void OnLocalRequest_PRACTICE( const wxString& sSavedFile = "" ) = 0;
 
 
 	/*************************************************
@@ -165,7 +162,8 @@ protected:
 
     void ShowProgressDialog( bool bShow = true );
 
-    hoxTable_SPtr CreateNewTableWithGUI(const hoxNetworkTableInfo& tableInfo);
+    hoxTable_SPtr CreateNewTableWithGUI( const hoxNetworkTableInfo& tableInfo,
+                                         const wxString&            sSavedFile = "" );
 
 protected:
     const hoxSiteType  m_type;
@@ -243,9 +241,7 @@ public:
         {}
     virtual void OnLocalRequest_NEW()
         {}
-    virtual void OnLocalRequest_PRACTICE();
-//    virtual void OnLocalRequest_SAVETABLE();
-    virtual void OnLocalRequest_OPEN();
+    virtual void OnLocalRequest_PRACTICE( const wxString& sSavedFile = "" );
 };
 
 /**
@@ -299,9 +295,7 @@ public:
 
     virtual void OnLocalRequest_JOIN( const wxString& sTableId );
     virtual void OnLocalRequest_NEW();
-    virtual void OnLocalRequest_PRACTICE();
-//	virtual void OnLocalRequest_SAVETABLE();
-	virtual void OnLocalRequest_OPEN();
+    virtual void OnLocalRequest_PRACTICE( const wxString& sSavedFile = "" );
 };
 
 /**

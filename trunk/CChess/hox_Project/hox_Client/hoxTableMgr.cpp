@@ -38,10 +38,11 @@ hoxTableMgr::~hoxTableMgr()
 hoxTable_SPtr
 hoxTableMgr::CreateTable( const wxString& tableId,
                           hoxSite*        site,
-                          hoxGameType     gameType )
+                          hoxGameType     gameType,
+                          const wxString& sSavedFile /* = "" */)
 {
     /* Create a Referee */
-    hoxIReferee_SPtr referee( new hoxReferee() );
+    hoxIReferee_SPtr referee( new hoxReferee( sSavedFile ) );
 
     /* Create a Table (with the referee).
      *
