@@ -98,6 +98,7 @@ hoxSocketWriter::StartReader( wxSocketClient* socket )
     if ( m_reader->Create() != wxTHREAD_NO_ERROR )
     {
         wxLogDebug("%s: *WARN* Failed to create the Reader thread.", __FUNCTION__);
+        m_reader.reset();
         return;
     }
     wxASSERT_MSG(!m_reader->IsDetached(), "The Reader thread must be joinable");
@@ -129,7 +130,7 @@ hoxSocketWriter::_GetRequest()
 
     if ( apRequest->type == hoxREQUEST_SHUTDOWN )
     {
-        wxLogDebug("%s: A SHUTDOWN requested just received.", __FUNCTION__);
+        wxLogDebug("%s: A SHUTDOWN request just received.", __FUNCTION__);
         m_shutdownRequested = true;
     }
 
@@ -179,7 +180,8 @@ hoxSocketWriter::Entry()
     wxLogDebug("%s: Request the Reader thread to be shutdowned...", __FUNCTION__);
     if ( m_reader )
     {
-        wxThread::ExitCode exitCode = m_reader->Wait();
+        wxThread::ExitCode exitCode = 0;
+        m_reader->Delete( &exitCode );
         wxLogDebug("%s: The Reader thread shutdowned with exit-code = [%d].", __FUNCTION__, exitCode);
     }
 
@@ -292,7 +294,6 @@ hoxSocketReader::hoxSocketReader( wxEvtHandler*   evtHandler,
         : wxThread( wxTHREAD_JOINABLE )
         , m_evtHandler( evtHandler )
         , m_socket( socket )
-        , m_shutdownRequested( false )
 {
     wxLogDebug("%s: ENTER.", __FUNCTION__);
 }
@@ -307,7 +308,7 @@ hoxSocketReader::Entry()
     const hoxRequestType type = hoxREQUEST_PLAYER_DATA;
     hoxResult result = hoxRC_OK;
 
-    while (   !m_shutdownRequested
+    while (   !TestDestroy()
             && result != hoxRC_CLOSED )
     {
         hoxResponse_APtr apResponse( new hoxResponse(type) );
@@ -378,7 +379,8 @@ hoxSocketReader::ReadLine( wxSocketBase*   sock,
             if (  err == wxSOCKET_TIMEDOUT )
                 wxLogDebug("%s: *INFO* Socket timeout.", __FUNCTION__);
             else
-                wxLogDebug("%s: *WARN* Some socket error [%d].", __FUNCTION__, err);
+                wxLogDebug("%s: *WARN* Some socket error [%s].", __FUNCTION__,
+                    hoxNetworkAPI::SocketErrorToString(err).c_str());
             break;
         }
         else
@@ -434,6 +436,7 @@ hoxSocketConnection::StartWriter()
     if ( m_writer->Create() != wxTHREAD_NO_ERROR )
     {
         wxLogDebug("%s: *WARN* Failed to create the Writer thread.", __FUNCTION__);
+        m_writer.reset();
         return;
     }
     wxASSERT_MSG(!m_writer->IsDetached(), "The Writer thread must be joinable");

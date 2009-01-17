@@ -39,24 +39,18 @@ END_EVENT_TABLE()
 // hoxLocalPlayer
 //-----------------------------------------------------------------------------
 
-hoxLocalPlayer::hoxLocalPlayer()
-{
-    wxFAIL_MSG( "This default constructor is never meant to be used." );
-}
-
 hoxLocalPlayer::hoxLocalPlayer( const wxString& name,
                                 hoxPlayerType   type,
                                 int             score )
             : hoxPlayer( name, type, score )
+            , m_bRequestingLogout( false )
 { 
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 }
 
 hoxLocalPlayer::~hoxLocalPlayer() 
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 }
 
 void
@@ -69,9 +63,7 @@ hoxLocalPlayer::Start()
 void 
 hoxLocalPlayer::OnClose_FromTable( const wxString& tableId )
 {
-    const char* FNAME = __FUNCTION__;
-
-    wxLogDebug("%s: ENTER. Table-Id = [%s].", FNAME, tableId.c_str());
+    wxLogDebug("%s: ENTER. Table-Id = [%s].", __FUNCTION__, tableId.c_str());
 
     hoxTable_SPtr pTable = this->FindTable( tableId );
     if ( pTable.get() != NULL )
@@ -85,7 +77,7 @@ hoxLocalPlayer::OnClose_FromTable( const wxString& tableId )
 }
 
 hoxResult 
-hoxLocalPlayer::ConnectToNetworkServer()
+hoxLocalPlayer::ConnectToServer()
 {
     this->StartConnection();
 
@@ -98,8 +90,11 @@ hoxLocalPlayer::ConnectToNetworkServer()
 }
 
 hoxResult 
-hoxLocalPlayer::DisconnectFromNetworkServer()
+hoxLocalPlayer::DisconnectFromServer()
 {
+    if ( m_bRequestingLogout ) return hoxRC_HANDLED;
+    m_bRequestingLogout = true;
+
     hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_LOGOUT ) );
 	apRequest->parameters["pid"] = this->GetId();
 	this->AddRequestToConnection( apRequest );

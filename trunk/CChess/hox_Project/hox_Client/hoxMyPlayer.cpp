@@ -81,7 +81,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
         if ( m_bLoginSuccess )
         {
             this->LeaveAllTables();
-            this->DisconnectFromNetworkServer();
+            this->DisconnectFromServer();
             site->Handle_ShutdownReadyFromPlayer();
             wxLogDebug("%s: END (exception).", __FUNCTION__);
             return;  // *** Exit immediately.

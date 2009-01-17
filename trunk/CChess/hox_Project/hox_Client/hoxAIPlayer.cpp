@@ -44,8 +44,7 @@ hoxAIPlayer::hoxAIPlayer( const wxString& name,
                           int             score )
             : hoxPlayer( name, type, score )
 { 
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 }
 
 void 
@@ -59,8 +58,6 @@ hoxAIPlayer::Start()
 void 
 hoxAIPlayer::OnConnectionResponse( wxCommandEvent& event )
 {
-    const char* FNAME = __FUNCTION__;
-
     const hoxResponse_APtr apResponse( wxDynamicCast(event.GetEventObject(), hoxResponse) );
 
     const wxString sType = hoxUtil::RequestTypeToString(apResponse->type);
@@ -71,7 +68,7 @@ hoxAIPlayer::OnConnectionResponse( wxCommandEvent& event )
         case hoxREQUEST_MOVE:
 		{
             const wxString sMove = sContent;
-            wxLogDebug("%s: Received Move [%s].", FNAME, sMove.c_str());
+            wxLogDebug("%s: Received Move [%s].", __FUNCTION__, sMove.c_str());
 
             hoxTable_SPtr pTable = this->GetFrontTable();
             wxASSERT( pTable.get() != NULL );
@@ -81,7 +78,7 @@ hoxAIPlayer::OnConnectionResponse( wxCommandEvent& event )
         default:
         {
 		    wxLogWarning("%s: Failed to handle Request [%s]. Error = [%s].", 
-                FNAME, sType.c_str(), sContent.c_str());
+                __FUNCTION__, sType.c_str(), sContent.c_str());
         }
     }
 }
@@ -102,12 +99,10 @@ hoxAIEngine::hoxAIEngine( wxEvtHandler* player )
 bool
 hoxAIEngine::AddRequest( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = __FUNCTION__;
-
     if ( m_shutdownRequested )
     {
         wxLogDebug("%s: *WARN* Deny request [%s]. The thread is being shutdown.", 
-            FNAME, hoxUtil::RequestTypeToString(apRequest->type).c_str());
+            __FUNCTION__, hoxUtil::RequestTypeToString(apRequest->type).c_str());
         return false;
     }
 
@@ -119,10 +114,9 @@ hoxAIEngine::AddRequest( hoxRequest_APtr apRequest )
 void*
 hoxAIEngine::Entry()
 {
-    const char* FNAME = __FUNCTION__;
     hoxRequest_APtr apRequest;
 
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 
     while (   !m_shutdownRequested
             && m_semRequests.Wait() == wxSEMA_NO_ERROR )
@@ -134,19 +128,18 @@ hoxAIEngine::Entry()
             break;  // Exit the thread.
         }
         wxLogDebug("%s: Processing request Type = [%s]...", 
-            FNAME, hoxUtil::RequestTypeToString(apRequest->type).c_str());
+            __FUNCTION__, hoxUtil::RequestTypeToString(apRequest->type).c_str());
 
         this->HandleRequest( apRequest );
     }
 
-    wxLogDebug("%s: END.", FNAME);
+    wxLogDebug("%s: END.", __FUNCTION__);
     return NULL;
 }
 
 void
 hoxAIEngine::HandleRequest( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = __FUNCTION__;
     const hoxRequestType requestType = apRequest->type;
 
     switch( requestType )
@@ -158,7 +151,7 @@ hoxAIEngine::HandleRequest( hoxRequest_APtr apRequest )
         default:
         {
             wxLogDebug("%s: *WARN* Unsupported Request [%s].", 
-                FNAME, hoxUtil::RequestTypeToString(requestType).c_str());
+                __FUNCTION__, hoxUtil::RequestTypeToString(requestType).c_str());
         }
     }
 }
@@ -166,10 +159,8 @@ hoxAIEngine::HandleRequest( hoxRequest_APtr apRequest )
 void
 hoxAIEngine::_HandleRequest_MOVE( hoxRequest_APtr apRequest )
 {
-    const char* FNAME = __FUNCTION__;
-
     const wxString sMove = apRequest->parameters["move"];
-    wxLogDebug("%s: Received Move [%s].", FNAME, sMove.c_str());
+    wxLogDebug("%s: Received Move [%s].", __FUNCTION__, sMove.c_str());
     hoxMove move = m_referee->StringToMove( sMove );
     wxASSERT( move.IsValid() );
 
@@ -182,7 +173,7 @@ hoxAIEngine::_HandleRequest_MOVE( hoxRequest_APtr apRequest )
     if ( gameStatus == hoxGAME_STATUS_IN_PROGRESS )
     {
         const wxString sNextMove = this->GenerateNextMove();
-        wxLogDebug("%s: Generated next Move = [%s].", FNAME, sNextMove.c_str());
+        wxLogDebug("%s: Generated next Move = [%s].", __FUNCTION__, sNextMove.c_str());
 
         hoxMove hNextMove = m_referee->StringToMove( sNextMove );
         bValid = m_referee->ValidateMove( hNextMove, gameStatus );
@@ -235,8 +226,6 @@ hoxAIEngine::GenerateNextMove()
 hoxRequest_APtr
 hoxAIEngine::_GetRequest()
 {
-    const char* FNAME = __FUNCTION__;
-
     hoxRequest_APtr apRequest = m_requests.PopFront();
     wxCHECK_MSG(apRequest.get() != NULL, apRequest, "At least one request must exist");
 
@@ -250,7 +239,7 @@ hoxAIEngine::_GetRequest()
 
     if ( apRequest->type == hoxREQUEST_SHUTDOWN )
     {
-        wxLogDebug("%s: A SHUTDOWN requested just received.", FNAME);
+        wxLogDebug("%s: A SHUTDOWN requested just received.", __FUNCTION__);
         m_shutdownRequested = true;
     }
 
@@ -264,7 +253,7 @@ hoxAIEngine::_GetRequest()
 
     if ( m_shutdownRequested )
     {
-        wxLogDebug("%s: Shutting down this thread...", FNAME);
+        wxLogDebug("%s: Shutting down this thread...", __FUNCTION__);
         apRequest.reset(); /* Release memory and signal "no more request" ...
                             * ... to the caller!
                             */
@@ -294,13 +283,11 @@ hoxAIConnection::Start()
 void
 hoxAIConnection::Shutdown()
 {
-    const char* FNAME = __FUNCTION__;
-
-    wxLogDebug("%s: Request the AI Engine thread to be shutdown...", FNAME);
+    wxLogDebug("%s: Request the AI Engine thread to be shutdown...", __FUNCTION__);
     if ( m_aiEngine.get() != NULL )
     {
         wxThread::ExitCode exitCode = m_aiEngine->Wait();
-        wxLogDebug("%s: The AI Engine thread shutdown with exit-code = [%d].", FNAME, exitCode);
+        wxLogDebug("%s: The AI Engine thread shutdown with exit-code = [%d].", __FUNCTION__, exitCode);
     }
 }
 
@@ -320,28 +307,22 @@ hoxAIConnection::CreateAIEngine()
 void
 hoxAIConnection::StartAIEngine()
 {
-    const char* FNAME = __FUNCTION__;
-
-    if (    m_aiEngine.get() != NULL 
-         && m_aiEngine->IsRunning() )
+    if ( m_aiEngine && m_aiEngine->IsRunning() )
     {
-        wxLogDebug("%s: The AI Engine already started. END.", FNAME);
+        wxLogDebug("%s: The AI Engine already started. END.", __FUNCTION__);
         return;
     }
 
-    /* Create AI Engine thread. */
-
-    wxLogDebug("%s: Create the AI Engine Thread...", FNAME);
-
+    wxLogDebug("%s: Create the AI Engine Thread...", __FUNCTION__);
     this->CreateAIEngine();
 
     if ( m_aiEngine->Create() != wxTHREAD_NO_ERROR )
     {
-        wxLogDebug("%s: *WARN* Failed to create the AI Engine thread.", FNAME);
+        wxLogDebug("%s: *WARN* Failed to create the AI Engine thread.", __FUNCTION__);
+        m_aiEngine.reset();
         return;
     }
-    wxASSERT_MSG( !m_aiEngine->IsDetached(), 
-                  "The AI Engine thread must be joinable." );
+    wxASSERT_MSG(!m_aiEngine->IsDetached(), "The AI Engine thread must be joinable");
 
     m_aiEngine->Run();
 }

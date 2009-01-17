@@ -114,9 +114,6 @@ protected:
 
     wxSocketClient*       m_socket;
                 /* The socket to handle network connections */
-
-    bool                  m_shutdownRequested;
-                /* Has a shutdown-request been received? */
 };
 
 // ----------------------------------------------------------------------------

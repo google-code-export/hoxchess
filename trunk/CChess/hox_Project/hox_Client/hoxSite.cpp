@@ -213,7 +213,6 @@ hoxSite::ShowProgressDialog( bool bShow /* = true */ )
 hoxTable_SPtr
 hoxSite::CreateNewTableWithGUI( const hoxNetworkTableInfo& tableInfo )
 {
-    const char* FNAME = __FUNCTION__;
     hoxTable_SPtr pTable;
     const wxString tableId = tableInfo.id;
 
@@ -228,7 +227,7 @@ hoxSite::CreateNewTableWithGUI( const hoxNetworkTableInfo& tableInfo )
     pTable->SetBlackTime( tableInfo.blackTime );
     pTable->SetRedTime( tableInfo.redTime );
 	
-	wxLogDebug("%s: Creating a new Board...", FNAME);
+	wxLogDebug("%s: Creating a new Board...", __FUNCTION__);
     unsigned int boardFeatureFlags = this->GetBoardFeatureFlags();
     const wxString sPiecePath = wxGetApp().GetOption("/Board/Piece/path");
     const wxString sBgColor = wxGetApp().GetOption("/Board/Color/background");
@@ -288,7 +287,6 @@ hoxLocalSite::GetCurrentActionFlags() const
 void
 hoxLocalSite::OnLocalRequest_PRACTICE()
 {
-    const char* FNAME = __FUNCTION__;
     wxCHECK_RET( m_player != NULL, "Player is NULL" );
 
     /* Generate new unique IDs for:
@@ -312,7 +310,7 @@ hoxLocalSite::OnLocalRequest_PRACTICE()
 
     /* Create an "empty" PRACTICE Table. */
 
-    wxLogDebug("%s: Create a PRACTICE Table [%s]...", FNAME, sTableId.c_str());
+    wxLogDebug("%s: Create a PRACTICE Table [%s]...", __FUNCTION__, sTableId.c_str());
     hoxTable_SPtr pTable = this->CreateNewTableWithGUI( tableInfo );
 
     /* Assign Players to the Table.
@@ -397,14 +395,12 @@ hoxRemoteSite::hoxRemoteSite(const hoxServerAddress& address,
                              hoxSiteType             type /*= hoxSITE_TYPE_REMOTE*/)
         : hoxSite( type, address )
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 }
 
 hoxRemoteSite::~hoxRemoteSite()
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 }
 
 hoxLocalPlayer* 
@@ -436,10 +432,8 @@ hoxRemoteSite::OnResponse_LOGIN( const hoxResponse_APtr& response )
 void 
 hoxRemoteSite::OnResponse_LOGOUT( const hoxResponse_APtr& response )
 {
-    const char* FNAME = __FUNCTION__;
-
 	wxLogDebug("%s: ENTER. (%d: %s).",
-        FNAME, response->code, response->content.c_str());
+        __FUNCTION__, response->code, response->content.c_str());
     if ( m_player != NULL )
     {
         m_player->OnClosing_FromSite();
@@ -481,7 +475,6 @@ hoxRemoteSite::OnPlayerJoined( const wxString&  tableId,
                                const int        playerScore,
 				 			   const hoxColor   requestColor)
 {
-    const char* FNAME = __FUNCTION__;
     hoxTable_SPtr pTable;
     hoxPlayer*    player = NULL;
 
@@ -491,7 +484,7 @@ hoxRemoteSite::OnPlayerJoined( const wxString&  tableId,
 	pTable = this->FindTable( tableId );
 	if ( pTable.get() == NULL )
 	{
-        wxLogDebug("%s: *** WARN *** Table [%s] NOT exist.", FNAME, tableId.c_str());
+        wxLogDebug("%s: *** WARN *** Table [%s] NOT exist.", __FUNCTION__, tableId.c_str());
 		return hoxRC_ERR;
 	}
 
@@ -508,7 +501,6 @@ hoxRemoteSite::OnPlayerJoined( const wxString&  tableId,
 hoxResult 
 hoxRemoteSite::JoinLocalPlayerToTable( const hoxNetworkTableInfo& tableInfo )
 {
-	const char* FNAME = __FUNCTION__;
     hoxResult      result;
     hoxTable_SPtr  pTable;
     const wxString tableId = tableInfo.id;
@@ -521,7 +513,7 @@ hoxRemoteSite::JoinLocalPlayerToTable( const hoxNetworkTableInfo& tableInfo )
     pTable = this->FindTable( tableId );
 	if ( pTable.get() == NULL )
 	{
-        wxLogDebug("%s: Create a new Table [%s].", FNAME, tableId.c_str());
+        wxLogDebug("%s: Create a new Table [%s].", __FUNCTION__, tableId.c_str());
         pTable = this->CreateNewTableWithGUI( tableInfo );
 	}
 
@@ -562,8 +554,6 @@ hoxRemoteSite::JoinLocalPlayerToTable( const hoxNetworkTableInfo& tableInfo )
 hoxResult
 hoxRemoteSite::DisplayListOfTables( const hoxNetworkTableInfoList& tableList )
 {
-    const char* FNAME = __FUNCTION__;
-
     /* Show tables. */
     MyFrame* frame = wxGetApp().GetFrame();
 	const unsigned int actionFlags = this->GetCurrentActionFlags();
@@ -592,16 +582,16 @@ hoxRemoteSite::DisplayListOfTables( const hoxNetworkTableInfoList& tableList )
 
 		case hoxTablesDialog::COMMAND_ID_REFRESH:
         {
-            wxLogDebug("%s: Get the latest list of tables...", FNAME);
+            wxLogDebug("%s: Get the latest list of tables...", __FUNCTION__);
             if ( hoxRC_OK != this->QueryForNetworkTables() )
             {
-                wxLogError("%s: Failed to get the list of tables.", FNAME);
+                wxLogError("%s: Failed to get the list of tables.", __FUNCTION__);
             }
             break;
         }
 
         default:
-            wxLogDebug("%s: No command is selected. Fine.", FNAME);
+            wxLogDebug("%s: No command is selected. Fine.", __FUNCTION__);
             break;
     }
 
@@ -611,11 +601,9 @@ hoxRemoteSite::DisplayListOfTables( const hoxNetworkTableInfoList& tableList )
 hoxResult 
 hoxRemoteSite::Connect()
 {
-    const char* FNAME = __FUNCTION__;
-
     if ( this->IsConnected() )
     {
-        wxLogDebug("%s: This site has been connected. END.", FNAME);
+        wxLogDebug("%s: This site has been connected. END.", __FUNCTION__);
         return hoxRC_OK;
     }
 
@@ -623,27 +611,26 @@ hoxRemoteSite::Connect()
 
     this->ShowProgressDialog( true );
 
-    return m_player->ConnectToNetworkServer();
+    return m_player->ConnectToServer();
 }
 
 hoxResult 
 hoxRemoteSite::Disconnect()
 {
-    const char* FNAME = __FUNCTION__;
 	hoxResult result = hoxRC_OK;
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 
 	if ( m_siteDisconnecting )
 	{
 		wxLogDebug("%s: Site [%s] is already being disconnected. END.",
-            FNAME, this->GetName().c_str());
+            __FUNCTION__, this->GetName().c_str());
 		return hoxRC_OK;
 	}
 	m_siteDisconnecting = true;
 
 	if ( m_player != NULL )
 	{
-		result = m_player->DisconnectFromNetworkServer();
+		result = m_player->DisconnectFromServer();
 	}
 
     return result;
@@ -652,11 +639,9 @@ hoxRemoteSite::Disconnect()
 hoxResult 
 hoxRemoteSite::QueryForNetworkTables()
 {
-    const char* FNAME = __FUNCTION__;
-
     if ( ! this->IsConnected() )
     {
-        wxLogDebug("%s: This site has NOT been connected.", FNAME);
+        wxLogDebug("%s: This site has NOT been connected.", __FUNCTION__);
         return hoxRC_ERR;
     }
 
@@ -674,12 +659,11 @@ hoxRemoteSite::IsConnected() const
 void 
 hoxRemoteSite::Handle_ShutdownReadyFromPlayer()
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 
 	if ( m_player == NULL )
 	{
-		wxLogDebug("%s: Player is NULL. Shutdown must have already been processed.", FNAME);
+		wxLogDebug("%s: Player is NULL. Shutdown must have already been processed.", __FUNCTION__);
 		return;
 	}
 
@@ -688,7 +672,7 @@ hoxRemoteSite::Handle_ShutdownReadyFromPlayer()
     while ( !tables.empty() )
     {
         const wxString sTableId = tables.front()->GetId();
-        wxLogDebug("%s: Delete Frame of Table [%s]...", FNAME, sTableId.c_str());
+        wxLogDebug("%s: Delete Frame of Table [%s]...", __FUNCTION__, sTableId.c_str());
         wxGetApp().GetFrame()->DeleteFrameOfTable( sTableId );
             // NOTE: The call above already delete the Table.
     }
@@ -730,39 +714,36 @@ hoxRemoteSite::GetCurrentActionFlags() const
 void
 hoxRemoteSite::OnLocalRequest_JOIN( const wxString& sTableId )
 {
-    const char* FNAME = __FUNCTION__;
     wxCHECK_RET( m_player != NULL, "Player is NULL" );
 
     wxLogDebug("%s: Ask the server to allow me to JOIN table = [%s]",
-        FNAME, sTableId.c_str());
+        __FUNCTION__, sTableId.c_str());
 
     if ( hoxRC_OK != m_player->JoinNetworkTable( sTableId ) )
     {
-        wxLogError("%s: Failed to JOIN a network table [%s].", FNAME, sTableId.c_str());
+        wxLogError("%s: Failed to JOIN a network table [%s].", __FUNCTION__, sTableId.c_str());
     }
 }
 
 void
 hoxRemoteSite::OnLocalRequest_NEW()
 {
-    const char* FNAME = __FUNCTION__;
     wxCHECK_RET( m_player != NULL, "Player is NULL" );
 
-    wxLogDebug("%s: Ask the server to open a new table.", FNAME);
+    wxLogDebug("%s: Ask the server to open a new table.", __FUNCTION__);
 
     if ( hoxRC_OK != m_player->OpenNewNetworkTable() )
     {
-        wxLogError("%s: Failed to open a NEW network table.", FNAME);
+        wxLogError("%s: Failed to open a NEW network table.", __FUNCTION__);
     }
 }
 
 void
 hoxRemoteSite::OnLocalRequest_PRACTICE()
 {
-    const char* FNAME = __FUNCTION__;
     wxCHECK_RET( m_player != NULL, "Player is NULL" );
 
-    wxLogDebug("%s: Create a new PRACTICE Table...", FNAME);
+    wxLogDebug("%s: Create a new PRACTICE Table...", __FUNCTION__);
 
     /* FIXME: Do nothing for now. */
 }
@@ -784,8 +765,7 @@ hoxRemoteSite::OnLocalRequest_OPEN()
 hoxChesscapeSite::hoxChesscapeSite( const hoxServerAddress& address )
         : hoxRemoteSite( address, hoxSITE_TYPE_CHESSCAPE )
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 
     hoxPlayersUI* playersUI = wxGetApp().GetFrame()->GetSitePlayersUI();
     playersUI->SetOwner( this );
@@ -794,8 +774,7 @@ hoxChesscapeSite::hoxChesscapeSite( const hoxServerAddress& address )
 
 hoxChesscapeSite::~hoxChesscapeSite()
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 
     hoxPlayersUI* playersUI = wxGetApp().GetFrame()->GetSitePlayersUI();
     playersUI->RemoveAllPlayers();
@@ -834,7 +813,7 @@ hoxChesscapeSite::OnResponse_LOGIN( const hoxResponse_APtr& response )
         
         if ( m_player != NULL )
         {
-            m_player->DisconnectFromNetworkServer();
+            m_player->DisconnectFromServer();
             this->Handle_ShutdownReadyFromPlayer();
         }
     }
@@ -881,8 +860,6 @@ void
 hoxChesscapeSite::OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
                                     const wxString&         sPlayerId )
 {
-    const char* FNAME = __FUNCTION__;
-
     if ( m_player == NULL ) return;
 
     switch ( eventType )
@@ -902,7 +879,7 @@ hoxChesscapeSite::OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
         break;
     }
     default:
-        wxLogDebug("%s: Unsupported eventType [%d].", FNAME, eventType);
+        wxLogDebug("%s: Unsupported eventType [%d].", __FUNCTION__, eventType);
         break;
     }
 }
@@ -910,8 +887,6 @@ hoxChesscapeSite::OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
 void
 hoxChesscapeSite::OnLocalRequest_JOIN( const wxString& sTableId )
 {
-    const char* FNAME = __FUNCTION__;
-
 	/* Chesscape can only support 1-table-at-a-time.
 	 * Thus, we need to close the Table that is observed (if any)
      * before joining another Table.
@@ -929,7 +904,7 @@ hoxChesscapeSite::OnLocalRequest_JOIN( const wxString& sTableId )
     if ( myRole == hoxCOLOR_NONE )  // observing?
     {
         wxLogDebug("%s: Close the observed Table [%s] before joining another...",
-            FNAME, sObservedTableId.c_str());
+            __FUNCTION__, sObservedTableId.c_str());
         wxGetApp().GetFrame()->DeleteFrameOfTable( sObservedTableId );
             /* NOTE: The call above already delete the Table.
              *       It also triggers the TABLE-CLOSING process.
@@ -942,8 +917,6 @@ hoxChesscapeSite::OnLocalRequest_JOIN( const wxString& sTableId )
 void
 hoxChesscapeSite::OnLocalRequest_NEW()
 {
-    const char* FNAME = __FUNCTION__;
-
 	/* Chesscape can only support 1-table-at-a-time.
 	 * Thus, we need to close the Table that is observed (if any)
      * before asking to create a new Table.
@@ -961,7 +934,7 @@ hoxChesscapeSite::OnLocalRequest_NEW()
     if ( myRole == hoxCOLOR_NONE )  // observing?
     {
         wxLogDebug("%s: Close the observed Table [%s] before creating a new one...",
-            FNAME, sObservedTableId.c_str());
+            __FUNCTION__, sObservedTableId.c_str());
         wxGetApp().GetFrame()->DeleteFrameOfTable( sObservedTableId );
             /* NOTE: The call above already delete the Table.
              *       It also triggers the TABLE-CLOSING process.
@@ -1003,7 +976,6 @@ hoxSiteManager::CreateSite( hoxSiteType             siteType,
 				            const wxString&         userName,
 						    const wxString&         password )
 {
-	const char* FNAME = __FUNCTION__;
 	hoxSite*           site = NULL;
     hoxLocalPlayer*    localPlayer = NULL;
 
@@ -1025,7 +997,7 @@ hoxSiteManager::CreateSite( hoxSiteType             siteType,
 		break;
 	}
 	default:
-        wxLogError("%s: Unsupported Site-Type [%d].", FNAME, siteType);
+        wxLogError("%s: Unsupported Site-Type [%d].", __FUNCTION__, siteType);
 		return NULL;   // *** Exit with error immediately.
 	}
 
@@ -1069,11 +1041,9 @@ hoxSiteManager::FindSite( const hoxServerAddress& address ) const
 void
 hoxSiteManager::DeleteSite( hoxSite* site )
 {
-    const char* FNAME = __FUNCTION__;
-
     wxCHECK_RET( site != NULL, "The Site must not be NULL." );
     
-    wxLogDebug("%s: Deleting site [%s]...", FNAME, site->GetName().c_str());
+    wxLogDebug("%s: Deleting site [%s]...", __FUNCTION__, site->GetName().c_str());
 
     if ( m_sitesUI != NULL ) m_sitesUI->RemoveSite( site );
     delete site;
@@ -1083,8 +1053,6 @@ hoxSiteManager::DeleteSite( hoxSite* site )
 void
 hoxSiteManager::DeleteLocalSite()
 {
-    const char* FNAME = __FUNCTION__;
-
     hoxSite* localSite = NULL;
 
     for ( hoxSiteList::iterator it = m_sites.begin();
@@ -1106,8 +1074,7 @@ hoxSiteManager::DeleteLocalSite()
 void 
 hoxSiteManager::Close()
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 
     for ( hoxSiteList::iterator it = m_sites.begin();
                                 it != m_sites.end(); ++it )
