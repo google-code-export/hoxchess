@@ -28,12 +28,12 @@
 #define __INCLUDED_HOX_LOG_H__
 
 #include <wx/log.h>
+#include <wx/ffile.h>
 
 /**
  * The Log of the Application.
- * NOTE: Currently, this log is not being used due to its instabilities.
- *       Perhaps, this issue is caused by log messages coming from secondary
- *       threads and wxLogGui is not thread-safe.
+ * NOTE: Please careful with the fact that it MAY not be safe to log
+ *       message coming from secondary threads directly to any GUI controls.
  *
  * @note We go through all these troubles because the wxLogGui is
  *       not thread-safe (would crash under multi-threads running).
@@ -46,6 +46,7 @@ public:
             bool            show = true );
     virtual ~hoxLog() {}
 
+protected:
     /***********************************
      * Override the parent's API.
      ***********************************/
@@ -53,11 +54,15 @@ public:
     /**
      * Log a given string with a timestamp.
      */
-    //virtual void DoLogString( const wxChar* msg, 
-    //                          time_t        timestamp);
+    virtual void DoLogString( const wxString& szString, 
+                              time_t          t );
+private:
+    void _LogToDisk( const wxString& szString,
+                     time_t          t );
 
 private:
     wxString   m_filename;
+    wxFFile    m_logFile;
 };
 
 

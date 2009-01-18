@@ -35,14 +35,12 @@ IMPLEMENT_ABSTRACT_CLASS(hoxConnection, wxObject)
 hoxConnection::hoxConnection( wxEvtHandler* player /* = NULL */ )
         : m_player( player )
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 }
 
 hoxConnection::~hoxConnection()
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 }
 
 //-----------------------------------------------------------------------------
