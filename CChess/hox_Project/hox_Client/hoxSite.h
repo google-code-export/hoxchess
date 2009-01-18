@@ -64,7 +64,7 @@ class hoxSite : public wxObject
 public:
     hoxSite( hoxSiteType             type, 
              const hoxServerAddress& address );
-    virtual ~hoxSite() {}
+    virtual ~hoxSite();
 
     hoxSiteType GetType() const { return m_type; }
     hoxServerAddress GetAddress() const { return m_address; }
@@ -134,6 +134,8 @@ public:
      */
     virtual int GetScoreOfOnlinePlayer( const wxString& sPlayerId ) const;
 
+    hoxPlayersUI* GetPlayersUI() const { return m_playersUI; }
+
     /**
      * On the LOCAL player's request to join a Table.
      */
@@ -185,6 +187,8 @@ protected:
      *       I will take care of this issue later.
 	 */
 	hoxPlayerInfoMap   m_onlinePlayers;
+
+    hoxPlayersUI*      m_playersUI;
 };
 
 typedef std::list<hoxSite*>  hoxSiteList;

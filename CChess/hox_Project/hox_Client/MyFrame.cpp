@@ -37,8 +37,6 @@
 #include "hoxLog.h"
 #include "hoxSavedTable.h"
 
-#include <wx/splitter.h>
-
 #if !defined(__WXMSW__)
     #include "../resource/icons/hoxchess.xpm"
 #endif
@@ -717,6 +715,53 @@ MyFrame::CreateFrameForTable( const wxString& sTableId )
 }
 
 void
+MyFrame::SetActiveSitePlayersUI( hoxPlayersUI* newPlayersUI )
+{
+    wxWindow* currentPlayersUI = m_sitesSplitter->GetWindow2();
+    bool bNeedToSplit = false;
+
+    if ( currentPlayersUI == NULL )
+    {
+        bNeedToSplit = true;
+    }
+    else if ( currentPlayersUI != newPlayersUI )
+    {
+        /* NOTE: I tried to use wxSplitterWindow::ReplaceWindow() acccording to
+         *       wxWidgets online documentation's recommendation but the method
+         *       does not work.
+         *
+         *   m_sitesSplitter->ReplaceWindow( currentPlayersUI, newPlayersUI );
+         */
+
+        m_sitesSplitter->Unsplit( currentPlayersUI );
+        bNeedToSplit = true;
+    }
+
+    if ( bNeedToSplit )
+    {
+        m_sitesSplitter->SplitHorizontally( m_sitesUI, newPlayersUI, 100 );
+    }
+}
+
+hoxPlayersUI*
+MyFrame::CreateNewSitePlayersUI()
+{
+    return new hoxPlayersUI( m_sitesSplitter );
+}
+
+void
+MyFrame::DeleteSitePlayersUI( hoxPlayersUI* toDeletePlayersUI )
+{
+    wxWindow* currentPlayersUI = m_sitesSplitter->GetWindow2();
+    if ( currentPlayersUI && currentPlayersUI == toDeletePlayersUI )
+    {
+        m_sitesSplitter->Unsplit( toDeletePlayersUI );
+    }
+
+    toDeletePlayersUI->Close( true /* force to close */ );
+}
+
+void
 MyFrame::DeleteFrameOfTable( const wxString& sTableId )
 {
     MyChild* foundChild = NULL;
@@ -760,17 +805,13 @@ MyFrame::_CreateSitesUI()
     m_sitesWindow->SetSashVisible(wxSASH_RIGHT, true);
     m_sitesWindow->SetExtraBorderSize(2);
 
-    wxSplitterWindow* splitter = new wxSplitterWindow(
+    m_sitesSplitter = new wxSplitterWindow(
                                     m_sitesWindow, wxID_ANY,
                                     wxDefaultPosition, wxDefaultSize,
                                     wxSP_3D | wxSP_LIVE_UPDATE );
-    m_sitesUI = new hoxSitesUI( splitter );
+    m_sitesUI = new hoxSitesUI( m_sitesSplitter );
     hoxSiteManager::GetInstance()->SetUI( m_sitesUI );
-
-    m_playersUI = new hoxPlayersUI( splitter );
-    m_playersUI->Disable();  // Disable until a Site exists.
-
-    splitter->SplitHorizontally( m_sitesUI, m_playersUI, 100 );
+    m_sitesSplitter->Initialize( m_sitesUI );
 }
 
 void     

@@ -36,7 +36,6 @@
 #include "hoxTablesDialog.h"
 #include "hoxBoard.h"
 #include "hoxSitesUI.h"
-#include "hoxReferee.h"
 
 #include "hoxAIPlayer.h"
 #include "hoxTSITOPlayer.h"
@@ -103,7 +102,18 @@ hoxSite::hoxSite( hoxSiteType             type,
         , m_dlgProgress( NULL )
 		, m_siteDisconnecting( false )
         , m_player( NULL )
+        , m_playersUI( NULL )
 {
+    m_playersUI = wxGetApp().GetFrame()->CreateNewSitePlayersUI();
+    m_playersUI->SetOwner( this );
+}
+
+hoxSite::~hoxSite()
+{
+    wxCHECK_RET(m_playersUI, "Unexpected NULL pointer to players-UI");
+    m_playersUI->SetOwner( NULL );
+    wxGetApp().GetFrame()->DeleteSitePlayersUI( m_playersUI );
+    m_playersUI = NULL;
 }
 
 hoxResult 
@@ -397,18 +407,14 @@ hoxRemoteSite::OnPlayerLoggedIn( const wxString& sPlayerId,
                                  const int       nPlayerScore )
 {
     this->hoxSite::OnPlayerLoggedIn( sPlayerId, nPlayerScore );
-
-    hoxPlayersUI* playersUI = wxGetApp().GetFrame()->GetSitePlayersUI();
-    playersUI->AddPlayer( sPlayerId, nPlayerScore );
+    m_playersUI->AddPlayer( sPlayerId, nPlayerScore );
 }
 
 void
 hoxRemoteSite::OnPlayerLoggedOut( const wxString& sPlayerId )
 {
     this->hoxSite::OnPlayerLoggedOut( sPlayerId );
-
-    hoxPlayersUI* playersUI = wxGetApp().GetFrame()->GetSitePlayersUI();
-    playersUI->RemovePlayer( sPlayerId );
+    m_playersUI->RemovePlayer( sPlayerId );
 }
 
 void
@@ -416,9 +422,7 @@ hoxRemoteSite::UpdateScoreOfOnlinePlayer( const wxString& sPlayerId,
                                           const int       nPlayerScore )
 {
     this->hoxSite::UpdateScoreOfOnlinePlayer( sPlayerId, nPlayerScore );
-
-    hoxPlayersUI* playersUI = wxGetApp().GetFrame()->GetSitePlayersUI();
-    playersUI->AddPlayer( sPlayerId, nPlayerScore );
+    m_playersUI->AddPlayer( sPlayerId, nPlayerScore );
 }
 
 hoxResult
@@ -708,20 +712,11 @@ hoxChesscapeSite::hoxChesscapeSite( const hoxServerAddress& address )
         : hoxRemoteSite( address, hoxSITE_TYPE_CHESSCAPE )
 {
     wxLogDebug("%s: ENTER.", __FUNCTION__);
-
-    hoxPlayersUI* playersUI = wxGetApp().GetFrame()->GetSitePlayersUI();
-    playersUI->SetOwner( this );
-    playersUI->Enable();
 }
 
 hoxChesscapeSite::~hoxChesscapeSite()
 {
     wxLogDebug("%s: ENTER.", __FUNCTION__);
-
-    hoxPlayersUI* playersUI = wxGetApp().GetFrame()->GetSitePlayersUI();
-    playersUI->RemoveAllPlayers();
-    playersUI->Disable();
-    playersUI->SetOwner( NULL );
 }
 
 hoxLocalPlayer* 
