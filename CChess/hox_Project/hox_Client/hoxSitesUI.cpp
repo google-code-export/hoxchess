@@ -31,7 +31,7 @@ IMPLEMENT_DYNAMIC_CLASS(hoxSitesUI, wxTreeCtrl)
 
 /* Event table. */
 BEGIN_EVENT_TABLE(hoxSitesUI, wxTreeCtrl)
-    EVT_TREE_SEL_CHANGED(wxID_ANY, OnTreeSelChanged)
+    EVT_TREE_SEL_CHANGED(wxID_ANY, hoxSitesUI::OnTreeSelChanged)
 END_EVENT_TABLE()
 
 // ---------------------------------------------------------------------------
