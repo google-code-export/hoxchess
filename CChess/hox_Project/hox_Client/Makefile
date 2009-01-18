@@ -1,14 +1,29 @@
-# Your project's name.
+####################################################################
+# The 'makefile' of HOXChess.
+#
+# Reference: 
+#     http://wiki.wxwidgets.org/Makefile
+#
+####################################################################
+
+# The name of the App.
 PROGRAM = hoxchess
 
 # Common flags
 CXX         = g++
-WX_CXXFLAGS = `/opt/wxGTK-2.9.0/bin/wx-config --cxxflags`
-WX_LDLIBS   = `/opt/wxGTK-2.9.0/bin/wx-config --libs`
-CXXFLAGS = $(WX_CXXFLAGS) \
-	   -I../lib/boost_1_36_0
+
+# RELEASE build
+WX_CXXFLAGS = $(shell /opt/wxGTK-2.9.0/bin/wx-config --cxxflags --debug=no)
+WX_LDLIBS   = $(shell /opt/wxGTK-2.9.0/bin/wx-config --libs --debug=no)
+DEBUGFLAGS  =
+
+# DEBUG build
+#WX_CXXFLAGS = $(shell /opt/wxGTK-2.9.0/bin/wx-config --cxxflags --debug=yes)
+#WX_LDLIBS   = $(shell /opt/wxGTK-2.9.0/bin/wx-config --libs --debug=yes)
+#DEBUGFLAGS  = -g
+
+CXXFLAGS = $(WX_CXXFLAGS) -I../lib/boost_1_36_0
 LDFLAGS     = -pthread
-DEBUGFLAGS  = -g
 
 # XQWLight AI Engine source
 XQWLight_SRC := \
@@ -100,3 +115,6 @@ $(PROGRAM): $(OBJECTS)
 
 clean:
 	rm -vrf $(PROGRAM) $(OBJECTS) $(XQWLight_SRC) $(TSITO_SRC) $(FOLIUM_SRC)
+
+############## END OF FILE ###############################################
+
