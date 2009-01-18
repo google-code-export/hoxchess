@@ -29,6 +29,7 @@
 
 #include <wx/wx.h>
 #include <wx/laywin.h>   // wxSashLayoutWindow
+#include <wx/splitter.h>
 #include "hoxTypes.h"
 
 /* Forward declarations */
@@ -150,7 +151,9 @@ public:
      */
     MyChild* CreateFrameForTable( const wxString& sTableId );
 
-    hoxPlayersUI* GetSitePlayersUI() const { return m_playersUI; }
+    void SetActiveSitePlayersUI( hoxPlayersUI* newPlayersUI );
+    hoxPlayersUI* CreateNewSitePlayersUI();
+    void DeleteSitePlayersUI( hoxPlayersUI* toDeletePlayersUI );
 
     /**
      * Delete the GUI Frame of a given Table.
@@ -185,8 +188,8 @@ public: /* Static API */
 private:
     // Sites.
     wxSashLayoutWindow* m_sitesWindow;
+    wxSplitterWindow*   m_sitesSplitter;
     hoxSitesUI*         m_sitesUI;
-    hoxPlayersUI*       m_playersUI;
 
     // Logging.
     hoxLog*             m_log;

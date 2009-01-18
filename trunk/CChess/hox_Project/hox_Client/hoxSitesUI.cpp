@@ -31,6 +31,7 @@ IMPLEMENT_DYNAMIC_CLASS(hoxSitesUI, wxTreeCtrl)
 
 /* Event table. */
 BEGIN_EVENT_TABLE(hoxSitesUI, wxTreeCtrl)
+    EVT_TREE_SEL_CHANGED(wxID_ANY, OnTreeSelChanged)
 END_EVENT_TABLE()
 
 // ---------------------------------------------------------------------------
@@ -50,6 +51,13 @@ hoxSitesUI::hoxSitesUI( wxWindow* parent )
      */
 
     this->AddRoot( "Sites" );
+}
+
+hoxSite*
+hoxSitesUI::GetSelectedSite() const
+{
+    hoxTable_SPtr selectedTable;  // Not used!
+    return this->GetSelectedSite( selectedTable );
 }
 
 hoxSite*
@@ -186,6 +194,22 @@ hoxSitesUI::RemoveTableFromSite( hoxSite*      site,
 
     this->Delete( tableItemId );
     return true;  // Found and removed!
+}
+
+void
+hoxSitesUI::OnTreeSelChanged( wxTreeEvent& event )
+{
+    hoxSite* selectedSite = this->GetSelectedSite();
+    if ( selectedSite )
+    {
+        hoxPlayersUI* playersUI = selectedSite->GetPlayersUI();
+        if ( playersUI )
+        {
+            wxLogDebug("%s: Set active Players-UI to [%s].",
+                __FUNCTION__, selectedSite->GetName().c_str());
+            wxGetApp().GetFrame()->SetActiveSitePlayersUI( playersUI );
+        }
+    }
 }
 
 bool

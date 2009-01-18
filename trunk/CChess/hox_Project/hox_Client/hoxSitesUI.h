@@ -78,6 +78,7 @@ public:
 
     /* Public API */
 
+    hoxSite* GetSelectedSite() const;
     hoxSite* GetSelectedSite( hoxTable_SPtr& selectedTable ) const;
 
     bool AddSite( hoxSite* site );
@@ -90,6 +91,8 @@ public:
                               hoxTable_SPtr pTable );
 
     /* Event handlers. */
+
+    void OnTreeSelChanged( wxTreeEvent& event );
 
 private:
     bool _FindSite( hoxSite*      site,
