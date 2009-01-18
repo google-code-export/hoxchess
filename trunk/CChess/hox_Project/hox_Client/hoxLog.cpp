@@ -24,48 +24,44 @@
 // Description:     The Log for the Application.
 /////////////////////////////////////////////////////////////////////////////
 
-#include <wx/ffile.h>
 #include <wx/filename.h>
-
 #include "hoxLog.h"
-#include "hoxUtil.h"
-#include "MyApp.h"    // wxGetApp()
 
 hoxLog::hoxLog( wxWindow*       pParent,
                 const wxString& szTitle,
                 bool            show /* = true */ )
         : wxLogWindow(pParent, szTitle, show)
 {
-    m_filename = wxFileName::GetTempDir() + "/CChess_"
-               + hoxUtil::GenerateRandomString() + ".log";
+    m_filename.Printf("%s/HOXChess.log", wxFileName::GetTempDir());
     wxLogDebug("%s: Log file [%s].", __FUNCTION__, m_filename.c_str());
+
+    if ( ! m_logFile.Open( m_filename, "w" ) )
+    {
+        wxLogWarning("%s: Fail to open Log file [%s].", __FUNCTION__, m_filename.c_str());
+    }
 }
 
-#if 0
-void 
-hoxLog::DoLogString( const wxChar* msg, 
-                     time_t        timestamp )
+void hoxLog::DoLogString( const wxString& szString, 
+                          time_t          t )
 {
-    if ( msg == NULL ) return;
-#if 0
-    wxFFile logFile( m_filename, "a" );
+    _LogToDisk( szString, t );
 
-    if ( logFile.IsOpened() )
-    {
-        logFile.Write( msg );
-        logFile.Write( "\n" );
-        logFile.Close();
-    }
-#endif
-#if 1
-    if ( wxGetApp().GetTopWindow() != NULL )
-    {
-        wxCommandEvent logEvent( hoxEVT_FRAME_LOG_MSG );
-        logEvent.SetString( wxString(msg) );
-        ::wxPostEvent( wxGetApp().GetTopWindow(), logEvent );
-    }
-#endif
+    this->wxLogWindow::DoLogString( szString, t );
 }
-#endif
+
+void
+hoxLog::_LogToDisk( const wxString& szString,
+                    time_t          t )
+{
+    if ( m_logFile.IsOpened() )
+    {
+        wxString msg;
+        TimeStamp(&msg);
+        msg << szString << '\n';
+
+        m_logFile.Write( msg );
+        m_logFile.Flush();
+    }
+}
 
 /************************* END OF FILE ***************************************/

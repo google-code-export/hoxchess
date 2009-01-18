@@ -24,8 +24,8 @@
 // Description:     The Connection which is the base for all connections.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_CONNECTION_H_
-#define __INCLUDED_HOX_CONNECTION_H_
+#ifndef __INCLUDED_HOX_CONNECTION_H__
+#define __INCLUDED_HOX_CONNECTION_H__
 
 #include "hoxTypes.h"
 
@@ -84,4 +84,4 @@ private:
     DECLARE_DYNAMIC_CLASS(hoxLocalConnection)
 };
 
-#endif /* __INCLUDED_HOX_CONNECTION_H_ */
+#endif /* __INCLUDED_HOX_CONNECTION_H__ */
