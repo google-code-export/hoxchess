@@ -34,6 +34,15 @@ enum hoxPLAYERS_Menu_Id
     hoxPLAYERS_UI_ID_INVITE
 };
 
+/* Columns */
+static wxString s_columns[] = { "Id", "Rating" };
+enum hoxPLAYERS_ColumnIndex
+{
+    hoxPLAYERS_UI_COLUMN_ID    = 0,
+    hoxPLAYERS_UI_COLUMN_SCORE = 1 /* ... or 'Rating' */
+};
+
+
 /* 0-based image-index into the image list.
  * NOTE: The numeric values must be maintained to match
  *       with the indices of image-list.
@@ -101,11 +110,9 @@ hoxPlayersUI::hoxPlayersUI( wxWindow* parent )
 {
     _InitializeImageList();
 
-    wxString columns[] = { "Id", "Rating" };
-
-    for ( long colIndex = 0; colIndex < WXSIZEOF( columns ); ++colIndex )
+    for ( long colIndex = 0; colIndex < WXSIZEOF( s_columns ); ++colIndex )
     {
-	    this->InsertColumn( colIndex, columns[colIndex] );
+	    this->InsertColumn( colIndex, s_columns[colIndex] );
     }
 }
 
@@ -117,12 +124,10 @@ hoxPlayersUI::AddPlayer( const wxString&       sPlayerId,
     /* Remove the old item, if any. */
     bool bRemoved = this->RemovePlayer( sPlayerId );
 
-    long   itemIndex = 0;
-    long   colIndex = 0;
+    const long itemIndex = this->InsertItem( 0 /* Front of the list */, 
+                                             sPlayerId );
 
-    itemIndex = this->InsertItem( itemIndex, sPlayerId );
-
-    this->SetItem( itemIndex, ++colIndex,
+    this->SetItem( itemIndex, hoxPLAYERS_UI_COLUMN_SCORE,
                    wxString::Format("%d", nPlayerScore));
 
     /* Set the item-date for sorting purpose (sort-by-score). */
@@ -165,7 +170,7 @@ hoxPlayersUI::UpdateScore( const wxString& sPlayerId,
     // Set what row it is (m_itemId is a member of the regular wxListCtrl class)
     row_info.m_itemId = playerIndex;
     // Set what column of that row we want to query for information.
-    row_info.m_col = 1;  // 1 = SCORE column-index.
+    row_info.m_col = hoxPLAYERS_UI_COLUMN_SCORE;
     row_info.m_mask = wxLIST_MASK_TEXT; // Set text mask
 
     row_info.m_text = wxString::Format("%d", nPlayerScore);
@@ -196,7 +201,8 @@ hoxPlayersUI::GetPlayerScore( const wxString& sPlayerId ) const
     const long playerIndex = _FindPlayerIndex( sPlayerId );
     if ( playerIndex != -1 ) // found?
     {
-        const wxString sScore = _GetCellContent( playerIndex, 1 /* SCORE-column */ );
+        const wxString sScore = _GetCellContent( playerIndex,
+                                                 hoxPLAYERS_UI_COLUMN_SCORE );
         return ::atoi( sScore.c_str() );
     }
     return hoxSCORE_UNKNOWN;
@@ -218,7 +224,7 @@ hoxPlayersUI::GetSelectedPlayer() const
                                             wxLIST_STATE_SELECTED );
     if ( nSelectedItem != -1 ) // Got a selected item?
     {
-        sPlayerId = _GetCellContent( nSelectedItem, 0 );
+        sPlayerId = _GetCellContent( nSelectedItem, hoxPLAYERS_UI_COLUMN_ID );
     }
     return sPlayerId;
 }
@@ -299,7 +305,8 @@ hoxPlayersUI::_FindPlayerIndex( const wxString& sPlayerId ) const
     const int nCount = this->GetItemCount();
     for ( int iRow = 0; iRow < nCount; ++iRow )
     {
-        if ( _GetCellContent( iRow, 0 ) == sPlayerId ) // matched?
+        if ( sPlayerId == _GetCellContent( iRow,
+                                           hoxPLAYERS_UI_COLUMN_ID ) ) // matched?
         {
             return iRow;  // Found the index.
         }
@@ -361,10 +368,13 @@ hoxPlayersUI::_InitializeImageList()
 int 
 hoxPlayersUI::_StatusToImageIndex( const hoxPlayerStatus playerStatus ) const
 {
-    return    (   playerStatus == hoxPLAYER_STATUS_UNKNOWN
-               || playerStatus == hoxPLAYER_STATUS_OBSERVING )
-             ? hoxPLAYERS_UI_IMG_GREEN
-             : hoxPLAYERS_UI_IMG_RED;
+    switch ( playerStatus )
+    {
+        case hoxPLAYER_STATUS_PLAYING:   return hoxPLAYERS_UI_IMG_RED;
+        case hoxPLAYER_STATUS_OBSERVING: return hoxPLAYERS_UI_IMG_GREEN;
+        case hoxPLAYER_STATUS_SOLO:      return hoxPLAYERS_UI_IMG_GRAY;
+        default: /* UNKNOWN */           return hoxPLAYERS_UI_IMG_GREEN;
+    };
 }
 
 /************************* END OF FILE ***************************************/
