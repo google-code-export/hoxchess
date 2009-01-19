@@ -34,6 +34,7 @@
 
 /* Forward declarations */
 class hoxPlayer;
+class hoxLocalPlayer;
 class hoxBoard;
 class hoxSite;
 
@@ -346,11 +347,6 @@ private:
 
     void _PostBoard_UpdateEvent( hoxPlayer* player ) const;
 
-    /**
-     * The the player who has physically control of the Board.
-     */
-    hoxPlayer* _GetBoardPlayer() const;
-
     void       _AddPlayer( hoxPlayer* player, hoxColor role );
     void       _RemovePlayer( hoxPlayer* player );
     hoxPlayer* _FindPlayer( const wxString& playerId ) const;
@@ -369,6 +365,9 @@ protected:
     hoxPlayerSet     m_players;  // Players + Observers
     hoxPlayer*       m_redPlayer;
     hoxPlayer*       m_blackPlayer;
+
+    hoxLocalPlayer*  m_boardPlayer;
+            /* The player who has physical control of the Board. */
 
     // Rated / Unrated / Solo / Practice
     hoxGameType      m_gameType;

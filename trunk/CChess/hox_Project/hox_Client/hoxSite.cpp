@@ -801,23 +801,19 @@ hoxChesscapeSite::OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
 
     switch ( eventType )
     {
-    case hoxPlayersUI::EVENT_TYPE_INFO:
-    {
-        const wxString sInfo = "Player: " + sPlayerId;
-        ::wxMessageBox( sInfo,
-                        _("Player Information"),
-                        wxOK | wxICON_INFORMATION,
-                        wxGetApp().GetFrame() );
-        break;
-    }
-    case hoxPlayersUI::EVENT_TYPE_INVITE:
-    {
-        m_player->InvitePlayer( sPlayerId );
-        break;
-    }
-    default:
-        wxLogDebug("%s: Unsupported eventType [%d].", __FUNCTION__, eventType);
-        break;
+        case hoxPlayersUI::EVENT_TYPE_INFO:
+        {
+            m_player->QueryPlayerInfo( sPlayerId );
+            break;
+        }
+        case hoxPlayersUI::EVENT_TYPE_INVITE:
+        {
+            m_player->InvitePlayer( sPlayerId );
+            break;
+        }
+        default:
+            wxLogDebug("%s: Unsupported eventType [%d].", __FUNCTION__, eventType);
+            break;
     }
 }
 

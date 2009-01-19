@@ -65,6 +65,7 @@ public:
     virtual hoxResult OpenNewNetworkTable();
     virtual hoxResult LeaveNetworkTable( const wxString& tableId );
 
+    virtual hoxResult QueryPlayerInfo( const wxString& sInfoId );
     virtual hoxResult InvitePlayer( const wxString& sInviteeId );
 
 private:

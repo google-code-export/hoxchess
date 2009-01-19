@@ -282,7 +282,7 @@ hoxPlayersUI::OnColumnClick( wxListEvent& event )
 {
     int col = event.GetColumn();
 
-    if ( col == 1 )  // "Rating" column?
+    if ( col == hoxPLAYERS_UI_COLUMN_SCORE )  // "Rating" column?
     {
         m_sortOrderByRating = ( m_sortOrderByRating == PLAYERS_SORT_ASCENDING
                                ? PLAYERS_SORT_DESCENDING
@@ -374,7 +374,7 @@ hoxPlayersUI::_StatusToImageIndex( const hoxPlayerStatus playerStatus ) const
         case hoxPLAYER_STATUS_OBSERVING: return hoxPLAYERS_UI_IMG_GREEN;
         case hoxPLAYER_STATUS_SOLO:      return hoxPLAYERS_UI_IMG_GRAY;
         default: /* UNKNOWN */           return hoxPLAYERS_UI_IMG_GREEN;
-    };
+    }
 }
 
 /************************* END OF FILE ***************************************/
