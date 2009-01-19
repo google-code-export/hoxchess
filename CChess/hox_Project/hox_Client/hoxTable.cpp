@@ -46,10 +46,10 @@ hoxTable::hoxTable( hoxSite*         site,
         , m_board( board )
         , m_redPlayer( NULL )
         , m_blackPlayer( NULL )
+        , m_boardPlayer( NULL )
         , m_gameType( hoxGAME_TYPE_RATED )
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER. (%s)", FNAME, m_id.c_str());
+    wxLogDebug("%s: ENTER. (%s)", __FUNCTION__, m_id.c_str());
 
 	m_blackTime.nGame = hoxTIME_DEFAULT_GAME_TIME;
 	m_redTime.nGame   = hoxTIME_DEFAULT_GAME_TIME;
@@ -57,8 +57,7 @@ hoxTable::hoxTable( hoxSite*         site,
 
 hoxTable::~hoxTable()
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER. (%s)", FNAME, m_id.c_str());
+    wxLogDebug("%s: ENTER. (%s)", __FUNCTION__, m_id.c_str());
 
     _CloseBoard();   // Close GUI Board.
 }
@@ -67,8 +66,6 @@ hoxResult
 hoxTable::AssignPlayerAs( hoxPlayer* player,
                           hoxColor   requestColor )
 {
-    const char* FNAME = __FUNCTION__;
-
     wxCHECK_MSG( player != NULL, hoxRC_ERR, "The player is NULL." );
 
     bool bRequestOK =
@@ -79,7 +76,7 @@ hoxTable::AssignPlayerAs( hoxPlayer* player,
     if ( ! bRequestOK )
     {
         wxLogDebug("%s: *** WARN *** Failed to handle request-to-join from [%s].", 
-            FNAME, player->GetId().c_str());
+            __FUNCTION__, player->GetId().c_str());
         return hoxRC_ERR;
     }
 
@@ -106,24 +103,16 @@ hoxTable::OnMove_FromBoard( const hoxMove&     move,
 						    hoxGameStatus      status,
 							const hoxTimeInfo& playerTime )
 {
-    const char* FNAME = __FUNCTION__;
-
     if ( m_redPlayer == NULL || m_blackPlayer == NULL )
     {
         const wxString msg = "Not enough players. Ignore Move.";
-        wxLogDebug("%s: *** WARNING *** %s", FNAME, msg.c_str());
+        wxLogDebug("%s: *WARN* %s", __FUNCTION__, msg.c_str());
         _PostBoard_MessageEvent( msg );
         return;
     }
 
-    /* Get the Board Player (or the Board's owner) because he is the
-     * one that sent the Move.
-     */
-    hoxPlayer* boardPlayer = _GetBoardPlayer();
-    wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
-
     /* Inform the Board's owner of the new Move. */
-    PostPlayer_MoveEvent( boardPlayer,
+    PostPlayer_MoveEvent( m_boardPlayer,
                           move.ToString(), 
                           status,
                           playerTime );
@@ -132,53 +121,39 @@ hoxTable::OnMove_FromBoard( const hoxMove&     move,
 void
 hoxTable::OnMessage_FromBoard( const wxString& message )
 {
-    /* Get the Board Player (or the Board's owner) because he is the
-     * one that sent the Message.
-     */
-    hoxPlayer* boardPlayer = _GetBoardPlayer();
-    wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
-    
+    wxCHECK_RET(m_boardPlayer, "The Board Player cannot be NULL.");
+
     /* Post the message on the Wall-Output of the "local" Board. */
-    _PostBoard_MessageEvent( message, boardPlayer->GetId() );
+    _PostBoard_MessageEvent( message, m_boardPlayer->GetId() );
 
     /* Inform the Board's Onwer. */
 	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_MSG ) );
 	apRequest->parameters["tid"] = m_id;
-	apRequest->parameters["pid"] = boardPlayer->GetId();
+	apRequest->parameters["pid"] = m_boardPlayer->GetId();
 	apRequest->parameters["msg"] = message;
     
-    boardPlayer->OnRequest_FromTable( apRequest );
+    m_boardPlayer->OnRequest_FromTable( apRequest );
 }
 
 void
 hoxTable::OnJoinCommand_FromBoard( const hoxColor requestColor )
 {
-    /* Get the Board Player (or the Board's owner) because he is the
-     * one that sent the Message.
-     */
-    hoxPlayer* boardPlayer = _GetBoardPlayer();
-    wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
+    wxCHECK_RET(m_boardPlayer, "The Board Player cannot be NULL.");
 
 	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_JOIN ) );
 	apRequest->parameters["tid"] = m_id;
-	apRequest->parameters["pid"] = boardPlayer->GetId();
+	apRequest->parameters["pid"] = m_boardPlayer->GetId();
 	apRequest->parameters["color"] = hoxUtil::ColorToString( requestColor );
 	apRequest->parameters["joined"] = "1";
 
-    boardPlayer->OnRequest_FromTable( apRequest );
+    m_boardPlayer->OnRequest_FromTable( apRequest );
 }
 
 void
 hoxTable::OnOptionsCommand_FromBoard( const bool         bRatedGame,
                                       const hoxTimeInfo& newTimeInfo )
 {
-    const char* FNAME = __FUNCTION__;
-
-    /* Get the Board Player (or the Board's owner) because he is the
-     * one that issued the command.
-     */
-    hoxPlayer* boardPlayer = _GetBoardPlayer();
-    wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
+    wxCHECK_RET(m_boardPlayer, "The Board Player cannot be NULL.");
 
 	/* Make sure the board Player satifies one of the following conditions:
 	 *  (1) He is the RED player, or...
@@ -186,175 +161,133 @@ hoxTable::OnOptionsCommand_FromBoard( const bool         bRatedGame,
 	 */
 
 	bool bActionAllowed = 
-        (     boardPlayer == m_redPlayer 
-		  || (boardPlayer == m_blackPlayer && m_redPlayer == NULL) );
+        (     m_boardPlayer == m_redPlayer 
+		  || (m_boardPlayer == m_blackPlayer && m_redPlayer == NULL) );
 
     if ( ! bActionAllowed )
 	{
 		wxLogWarning("Player [%s] is not allowed to change Options.", 
-            boardPlayer->GetId().c_str());
+            m_boardPlayer->GetId().c_str());
 		return;
 	}
 
     hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_UPDATE ) );
 	apRequest->parameters["tid"] = m_id;
-	apRequest->parameters["pid"] = boardPlayer->GetId();
+	apRequest->parameters["pid"] = m_boardPlayer->GetId();
     apRequest->parameters["rated"] = bRatedGame ? "1" : "0";
     apRequest->parameters["itimes"] = hoxUtil::TimeInfoToString( newTimeInfo );
 
-    boardPlayer->OnRequest_FromTable( apRequest );
+    m_boardPlayer->OnRequest_FromTable( apRequest );
 }
 
 void
 hoxTable::OnResignCommand_FromBoard()
 {
-    const char* FNAME = __FUNCTION__;
-
-    /* Get the Board Player (or the Board's owner) because he is the
-     * one that sent the Message.
-     */
-    hoxPlayer* boardPlayer = _GetBoardPlayer();
-    wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
+    wxCHECK_RET(m_boardPlayer, "The Board Player cannot be NULL.");
 
 	/* Make sure the board Player is actually playing. 
 	 * If not, ignore the request.
 	 */
 
-	if (   boardPlayer != m_redPlayer 
-		&& boardPlayer != m_blackPlayer )
+	if (   m_boardPlayer != m_redPlayer 
+		&& m_boardPlayer != m_blackPlayer )
 	{
-		wxLogWarning("The Player [%s] is not playing.", boardPlayer->GetId().c_str());
+		wxLogWarning("The Player [%s] is not playing.", m_boardPlayer->GetId().c_str());
 		return;
 	}
 
 	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_RESIGN ) );
 	apRequest->parameters["tid"] = m_id;
-	apRequest->parameters["pid"] = boardPlayer->GetId();
+	apRequest->parameters["pid"] = m_boardPlayer->GetId();
 
-    boardPlayer->OnRequest_FromTable( apRequest );
+    m_boardPlayer->OnRequest_FromTable( apRequest );
 }
 
 void
 hoxTable::OnDrawCommand_FromBoard()
 {
-    const char* FNAME = __FUNCTION__;
-
-    /* Get the Board Player (or the Board's owner) because he is the
-     * one that sent the Message.
-     */
-    hoxPlayer* boardPlayer = _GetBoardPlayer();
-    wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
+    wxCHECK_RET(m_boardPlayer, "The Board Player cannot be NULL.");
 
 	/* Make sure the board Player is actually playing. 
 	 * If not, ignore the request.
 	 */
 
-	if (   boardPlayer != m_redPlayer 
-		&& boardPlayer != m_blackPlayer )
+	if (   m_boardPlayer != m_redPlayer 
+		&& m_boardPlayer != m_blackPlayer )
 	{
-		wxLogWarning("The Player [%s] is not playing.", boardPlayer->GetId().c_str());
+		wxLogWarning("The Player [%s] is not playing.", m_boardPlayer->GetId().c_str());
 		return;
 	}
 
 	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_DRAW ) );
 	apRequest->parameters["tid"] = m_id;
-	apRequest->parameters["pid"] = boardPlayer->GetId();
+	apRequest->parameters["pid"] = m_boardPlayer->GetId();
 	apRequest->parameters["draw_response"] = "";
 
-    boardPlayer->OnRequest_FromTable( apRequest );
+    m_boardPlayer->OnRequest_FromTable( apRequest );
 }
 
 void
 hoxTable::OnResetCommand_FromBoard()
 {
-    const char* FNAME = __FUNCTION__;
-
-    /* Get the Board Player (or the Board's owner) because he is the
-     * one that sent the Message.
-     */
-    hoxPlayer* boardPlayer = _GetBoardPlayer();
-    wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
+    wxCHECK_RET(m_boardPlayer, "The Board Player cannot be NULL.");
 
 	/* Make sure the board Player is actually playing. 
 	 * If not, ignore the request.
 	 */
 
-	if (   boardPlayer != m_redPlayer 
-		&& boardPlayer != m_blackPlayer )
+	if (   m_boardPlayer != m_redPlayer 
+		&& m_boardPlayer != m_blackPlayer )
 	{
-		wxLogWarning("The Player [%s] is not playing.", boardPlayer->GetId().c_str());
+		wxLogWarning("The Player [%s] is not playing.", m_boardPlayer->GetId().c_str());
 		return;
 	}
 
 	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_RESET ) );
 	apRequest->parameters["tid"] = m_id;
-	apRequest->parameters["pid"] = boardPlayer->GetId();
+	apRequest->parameters["pid"] = m_boardPlayer->GetId();
 
-    boardPlayer->OnRequest_FromTable( apRequest );
+    m_boardPlayer->OnRequest_FromTable( apRequest );
 }
 
 void 
 hoxTable::OnDrawResponse_FromBoard( bool bAcceptDraw )
 {
-    const char* FNAME = __FUNCTION__;
-
-    /* Get the Board Player (or the Board's owner) because he is the
-     * one that sent the Message.
-     */
-    hoxPlayer* boardPlayer = _GetBoardPlayer();
-    wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
+    wxCHECK_RET(m_boardPlayer, "The Board Player cannot be NULL.");
 
 	/* Make sure the board Player is actually playing. 
 	 * If not, ignore the request.
 	 */
 
-	if (   boardPlayer != m_redPlayer 
-		&& boardPlayer != m_blackPlayer )
+	if (   m_boardPlayer != m_redPlayer 
+		&& m_boardPlayer != m_blackPlayer )
 	{
-		wxLogWarning("The Player [%s] is not playing.", boardPlayer->GetId().c_str());
+		wxLogWarning("The Player [%s] is not playing.", m_boardPlayer->GetId().c_str());
 		return;
 	}
 
 	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_DRAW ) );
 	apRequest->parameters["tid"] = m_id;
-	apRequest->parameters["pid"] = boardPlayer->GetId();
+	apRequest->parameters["pid"] = m_boardPlayer->GetId();
 	apRequest->parameters["draw_response"] = (bAcceptDraw ? "1" : "0");
 
-    boardPlayer->OnRequest_FromTable( apRequest );
+    m_boardPlayer->OnRequest_FromTable( apRequest );
 }
 
 void
 hoxTable::OnPlayerInfoRequest_FromBoard( const wxString& sPlayerId )
 {
-    /* Get the Board Player (or the Board's owner) because he is the
-     * one that sent the Request.
-     */
-    hoxPlayer* boardPlayer = _GetBoardPlayer();
-    wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
+    wxCHECK_RET(m_boardPlayer, "The Board Player cannot be NULL.");
 
-    hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_PLAYER_INFO ) );
-	apRequest->parameters["tid"] = m_id;
-	apRequest->parameters["pid"] = boardPlayer->GetId();
-    apRequest->parameters["info_pid"] = sPlayerId;
-
-    boardPlayer->OnRequest_FromTable( apRequest );
+    m_boardPlayer->QueryPlayerInfo( sPlayerId );
 }
 
 void
 hoxTable::OnPlayerInviteRequest_FromBoard( const wxString& sPlayerId )
 {
-    /* Get the Board Player (or the Board's owner) because he is the
-     * one that sent the Request.
-     */
-    hoxPlayer* boardPlayer = _GetBoardPlayer();
-    wxCHECK_RET(boardPlayer, "The Board Player cannot be NULL.");
+    wxCHECK_RET(m_boardPlayer, "The Board Player cannot be NULL.");
 
-    hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_INVITE ) );
-	apRequest->parameters["tid"] = m_id;
-	apRequest->parameters["pid"] = boardPlayer->GetId();
-    apRequest->parameters["invitee"] = sPlayerId;
-
-    boardPlayer->OnRequest_FromTable( apRequest );
+    m_boardPlayer->InvitePlayer( sPlayerId );
 }
 
 void 
@@ -440,8 +373,7 @@ hoxTable::OnGameReset_FromNetwork()
 void 
 hoxTable::OnLeave_FromPlayer( hoxPlayer* player )
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 
     /* Update our player-list */
     _RemovePlayer( player );
@@ -464,8 +396,7 @@ hoxTable::OnUpdate_FromPlayer( hoxPlayer*         player,
 void
 hoxTable::OnScore_FromNetwork( hoxPlayer* player )
 {
-    const char* FNAME = "hoxTable::OnScore_FromNetwork";
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 
     _PostBoard_ScoreEvent( player );
 }
@@ -473,10 +404,9 @@ hoxTable::OnScore_FromNetwork( hoxPlayer* player )
 void 
 hoxTable::OnClose_FromSystem()
 {
-    const char* FNAME = __FUNCTION__;
     hoxPlayer* player = NULL;
 
-    wxLogDebug("%s: ENTER. [%s].", FNAME, m_id.c_str());
+    wxLogDebug("%s: ENTER. [%s].", __FUNCTION__, m_id.c_str());
 
     while ( ! m_players.empty() )
     {
@@ -516,11 +446,9 @@ hoxTable::GetPlayerRole( const wxString& sPlayerId ) const
 void
 hoxTable::_CloseBoard()
 {
-    const char* FNAME = "hoxTable::_CloseBoard";
-
     if ( m_board != NULL )
     {
-        wxLogDebug("%s: ENTER. Table-Id = [%s].", FNAME, m_id.c_str());
+        wxLogDebug("%s: ENTER. Table-Id = [%s].", __FUNCTION__, m_id.c_str());
         
         m_board->Close();
             /* NOTE: This has to be used instead of "delete" or "Destroy()"
@@ -668,21 +596,6 @@ hoxTable::_PostBoard_UpdateEvent( hoxPlayer* player ) const
     wxPostEvent( m_board, event );
 }
 
-hoxPlayer* 
-hoxTable::_GetBoardPlayer() const
-{
-    for (hoxPlayerSet::const_iterator it = m_players.begin(); 
-                                      it != m_players.end(); ++it)
-    {
-        if ( (*it)->GetType() == hoxPLAYER_TYPE_LOCAL )
-        {
-            return (*it);
-        }
-    }
-
-	return NULL;
-}
-
 void 
 hoxTable::_AddPlayer( hoxPlayer* player, 
                       hoxColor   role )
@@ -706,21 +619,27 @@ hoxTable::_AddPlayer( hoxPlayer* player,
         if ( m_redPlayer   == player ) m_redPlayer = NULL;
         if ( m_blackPlayer == player ) m_blackPlayer = NULL;
     }
+
+    /* "Cache" the BOARD player for easy access as well. */
+    if ( player->GetType() == hoxPLAYER_TYPE_LOCAL )
+    {
+        m_boardPlayer = wxDynamicCast(player, hoxLocalPlayer);
+        wxCHECK_RET(m_boardPlayer, "Fail to cast to LOCAL player");
+    }
 }
 
 void 
 hoxTable::_RemovePlayer( hoxPlayer* player )
 {
-    const char* FNAME = __FUNCTION__;
-
     wxCHECK_RET(player != NULL, "Play cannot be NULL.");
-    wxLogDebug("%s: ENTER. [%s]", FNAME, player->GetId().c_str());
+    wxLogDebug("%s: ENTER. [%s]", __FUNCTION__, player->GetId().c_str());
 
     m_players.erase( player );
 
     // Update our "cache" variables.
     if      ( m_redPlayer == player )   m_redPlayer = NULL;
     else if ( m_blackPlayer == player ) m_blackPlayer = NULL;
+    else if ( m_boardPlayer == player ) m_boardPlayer = NULL;
 
     /* TODO: A temporary solution to delete AI Players. */
     if ( player->GetType() == hoxPLAYER_TYPE_AI )
@@ -766,14 +685,12 @@ hoxPracticeTable::hoxPracticeTable( hoxSite*          site,
                                     hoxBoard*         board /* = NULL */ )
         : hoxTable( site, id, referee, board )
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER. (%s)", FNAME, m_id.c_str());
+    wxLogDebug("%s: ENTER. (%s)", __FUNCTION__, m_id.c_str());
 }
     
 hoxPracticeTable::~hoxPracticeTable()
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER. (%s)", FNAME, m_id.c_str());
+    wxLogDebug("%s: ENTER. (%s)", __FUNCTION__, m_id.c_str());
 }
 
 void
@@ -781,8 +698,7 @@ hoxPracticeTable::OnMove_FromBoard( const hoxMove&     move,
 		                            hoxGameStatus      status,
 				 	     	        const hoxTimeInfo& playerTime )
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER. Move = [%s].", FNAME, move.ToString().c_str());
+    wxLogDebug("%s: ENTER. Move = [%s].", __FUNCTION__, move.ToString().c_str());
 
     /* Get the AI Player. */
 

@@ -27,14 +27,6 @@
 #include "hoxTableMgr.h"
 #include "hoxReferee.h"
 
-hoxTableMgr::hoxTableMgr()
-{
-}
-
-hoxTableMgr::~hoxTableMgr()
-{
-}
-
 hoxTable_SPtr
 hoxTableMgr::CreateTable( const wxString& tableId,
                           hoxSite*        site,

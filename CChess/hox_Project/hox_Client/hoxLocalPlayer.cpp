@@ -153,14 +153,24 @@ hoxLocalPlayer::LeaveNetworkTable( const wxString& tableId )
 }
 
 hoxResult
+hoxLocalPlayer::QueryPlayerInfo( const wxString& sInfoId )
+{
+    hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_PLAYER_INFO ) );
+	apRequest->parameters["pid"] = this->GetId();  // The one who asks.
+    apRequest->parameters["info_pid"] = sInfoId;   // To-be-queried Player.
+
+    this->AddRequestToConnection( apRequest );
+    return hoxRC_OK;
+}
+
+hoxResult
 hoxLocalPlayer::InvitePlayer( const wxString& sInviteeId )
 {
     hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_INVITE ) );
-	apRequest->parameters["pid"] = this->GetId();  // Invitor
-    apRequest->parameters["invitee"] = sInviteeId;   // Invitor
+	apRequest->parameters["pid"] = this->GetId();  // Inviter
+    apRequest->parameters["invitee"] = sInviteeId; // Invitee
 
     this->AddRequestToConnection( apRequest );
-
     return hoxRC_OK;
 }
 

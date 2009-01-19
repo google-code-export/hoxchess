@@ -941,8 +941,7 @@ hoxChesscapePlayer::_HandleTableCmd_Invite( const wxString& cmdStr )
     {
         ::wxMessageBox( sMessage,
                         _("Invitation from Player"),
-                        wxOK | wxICON_INFORMATION,
-                        NULL /* No parent */ );
+                        wxOK | wxICON_INFORMATION );
     }
 }
 
@@ -1193,18 +1192,24 @@ hoxChesscapePlayer::_HandleCmd_PlayerInfo( const wxString& cmdStr )
 
     _ParsePlayerStatsString( cmdStr, playerStats );
 
-    /* Display the player's statictics on the Board. */
+    const wxString sMessage = wxString::Format("*INFO: %s %d W%d D%d L%d",
+        playerStats.id.c_str(),
+        playerStats.score,
+        playerStats.wins, playerStats.draws, playerStats.losses);
+
+    /* Display the player's statictics on the Board if it exists. */
 
     hoxTable_SPtr pTable = _GetMyTable();
-	if ( pTable.get() != NULL )
+	if ( pTable )
 	{
-        const wxString sMessage = wxString::Format("*INFO: %s %d W%d D%d L%d",
-            playerStats.id.c_str(),
-            playerStats.score,
-            playerStats.wins, playerStats.draws, playerStats.losses);
-            
         pTable->PostBoardMessage( sMessage );
 	}
+    else
+    {
+        ::wxMessageBox( sMessage,
+                        _("Player Information"),
+                        wxOK | wxICON_INFORMATION );
+    }
 }
 
 void 

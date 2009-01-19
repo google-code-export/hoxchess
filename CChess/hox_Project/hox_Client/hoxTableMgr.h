@@ -24,8 +24,8 @@
 // Description:     A Table-Manager that manages a group of tables.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_TABLE_MGR_H_
-#define __INCLUDED_HOX_TABLE_MGR_H_
+#ifndef __INCLUDED_HOX_TABLE_MGR_H__
+#define __INCLUDED_HOX_TABLE_MGR_H__
 
 #include "hoxTable.h"
 
@@ -37,8 +37,8 @@ class hoxSite;
 class hoxTableMgr
 {
 public:
-    hoxTableMgr();
-    ~hoxTableMgr();
+    hoxTableMgr() {}
+    ~hoxTableMgr() {}
 
     hoxTable_SPtr CreateTable( const wxString& tableId,
                                hoxSite*        site,
@@ -53,4 +53,4 @@ private:
     hoxTableList    m_tables; // The list of all tables in the system.
 };
 
-#endif /* __INCLUDED_HOX_TABLE_MGR_H_ */
+#endif /* __INCLUDED_HOX_TABLE_MGR_H__ */

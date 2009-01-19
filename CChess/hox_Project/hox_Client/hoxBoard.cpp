@@ -134,8 +134,7 @@ hoxBoard::hoxBoard( wxWindow*        parent,
         , m_bUICreated( false )
         , m_bSoundEnabled( true )
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
     
     wxCHECK_RET( m_referee.get() != NULL, "A Referee must be set" );
     wxCHECK_RET( m_pTable.get() != NULL, "A Table must be set" );
@@ -164,8 +163,7 @@ hoxBoard::hoxBoard( wxWindow*        parent,
 
 hoxBoard::~hoxBoard()
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 
     if ( m_timer != NULL )
     {
@@ -236,33 +234,29 @@ void
 hoxBoard::OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
                             const wxString&         sPlayerId )
 {
-    const char* FNAME = __FUNCTION__;
-
     switch ( eventType )
     {
-    case hoxPlayersUI::EVENT_TYPE_INFO:
-    {
-        wxLogDebug("%s: Request Info for Player [%s]...", FNAME, sPlayerId.c_str());
-        m_pTable->OnPlayerInfoRequest_FromBoard( sPlayerId );
-        break;
-    }
-    case hoxPlayersUI::EVENT_TYPE_INVITE:
-    {
-        wxLogDebug("%s: Invite Player [%s]...", FNAME, sPlayerId.c_str());
-        m_pTable->OnPlayerInviteRequest_FromBoard( sPlayerId );
-        break;
-    }
-    default:
-        wxLogDebug("%s: Unsupported eventType [%d].", FNAME, eventType);
-        break;
+        case hoxPlayersUI::EVENT_TYPE_INFO:
+        {
+            wxLogDebug("%s: Request Info for Player [%s]...", __FUNCTION__, sPlayerId.c_str());
+            m_pTable->OnPlayerInfoRequest_FromBoard( sPlayerId );
+            break;
+        }
+        case hoxPlayersUI::EVENT_TYPE_INVITE:
+        {
+            wxLogDebug("%s: Invite Player [%s]...", __FUNCTION__, sPlayerId.c_str());
+            m_pTable->OnPlayerInviteRequest_FromBoard( sPlayerId );
+            break;
+        }
+        default:
+            wxLogDebug("%s: Unsupported eventType [%d].", __FUNCTION__, eventType);
+            break;
     }
 }
 
 void 
 hoxBoard::OnPlayerJoin( wxCommandEvent &event )
 {
-    const char* FNAME = __FUNCTION__;
-
     hoxPlayerInfo_APtr apPlayerInfo( wxDynamicCast(event.GetEventObject(), hoxPlayerInfo) );
     wxCHECK_RET(apPlayerInfo.get(), "Player cannot be NULL.");
 
@@ -315,7 +309,7 @@ hoxBoard::OnPlayerJoin( wxCommandEvent &event )
     if ( playerType == hoxPLAYER_TYPE_LOCAL )
     {
         wxLogDebug("%s: Update the core Board's local-color to [%s].", 
-            FNAME, hoxUtil::ColorToString(playerColor).c_str());
+            __FUNCTION__, hoxUtil::ColorToString(playerColor).c_str());
         m_coreBoard->SetLocalColor( playerColor );
     }
 
@@ -391,7 +385,6 @@ hoxBoard::OnWallOutput( wxCommandEvent &event )
 void 
 hoxBoard::OnNewMove( wxCommandEvent &event )
 {
-	const char* FNAME = __FUNCTION__;
     hoxMove  move;
 
     const wxString moveStr = event.GetString();
@@ -400,7 +393,7 @@ hoxBoard::OnNewMove( wxCommandEvent &event )
     move = m_referee->StringToMove( moveStr );
     if ( ! move.IsValid() )
     {
-        wxLogError("%s: Failed to parse Move-string [%s].", FNAME, moveStr.c_str());
+        wxLogError("%s: Failed to parse Move-string [%s].", __FUNCTION__, moveStr.c_str());
         return;
     }
 
@@ -1282,7 +1275,6 @@ hoxBoard::_OnTimerUpdated()
 wxString
 hoxBoard::_GetGameOverMessage( const int gameStatus ) const
 {
-    const char* FNAME = __FUNCTION__;
 	wxString boardMessage; 
 
 	switch ( gameStatus )
@@ -1304,7 +1296,7 @@ hoxBoard::_GetGameOverMessage( const int gameStatus ) const
 		}
 		default:
         {
-			wxLogDebug("%s: Unsupported game-status [%d].", FNAME, gameStatus );
+			wxLogDebug("%s: Unsupported game-status [%d].", __FUNCTION__, gameStatus );
             boardMessage = "Game over: !!! UNKNOWN !!!";
         }
 	}

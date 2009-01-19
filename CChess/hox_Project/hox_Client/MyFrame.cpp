@@ -844,8 +844,7 @@ MyFrame::_CloseChildrenOfSite(hoxSite* site)
 hoxSite* 
 MyFrame::_GetSelectedSite() const
 {
-    hoxTable_SPtr selectedTable;  // Not used!
-    return m_sitesUI->GetSelectedSite( selectedTable );
+    return m_sitesUI->GetSelectedSite();
 }
 
 hoxSite* 
