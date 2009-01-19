@@ -84,9 +84,9 @@ private:
 		                     hoxNetworkTableInfo* pTableInfo = NULL );
 
 	void _ParseLoginInfoString( const wxString& cmdStr,
-                                wxString&       name,
-                                wxString&       score,
-                                wxString&       role ) const;
+                                wxString&       sPlayerId,
+                                int&            nScore,
+                                wxString&       sStatus ) const;
 
 	bool _ParseIncomingCommand(const wxMemoryBuffer& data,
 		                       wxString&       command,

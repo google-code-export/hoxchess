@@ -331,14 +331,16 @@ private:
 class hoxPlayerInfo : public wxObject
 {
 public:
-    wxString       id;    // The player's ID.
-    hoxPlayerType  type;  // Local / Network / ... player.
-    int            score; // The player's Score.
+    wxString        id;     // The player's ID.
+    hoxPlayerType   type;   // Local / Network / ... player.
+    int             score;  // The player's Score.
+    hoxPlayerStatus status; // Playing, Observing, Solo playing.
 
     hoxPlayerInfo( const wxString& i = "",
                    hoxPlayerType   t = hoxPLAYER_TYPE_DUMMY,
-                   int             s = 1500 )
-            : id(i), type(t), score(s) {}
+                   int             s = 1500,
+                   hoxPlayerStatus p = hoxPLAYER_STATUS_UNKNOWN )
+            : id(i), type(t), score(s), status(p) {}
 };
 typedef std::auto_ptr<hoxPlayerInfo> hoxPlayerInfo_APtr;
 typedef boost::shared_ptr<hoxPlayerInfo> hoxPlayerInfo_SPtr;

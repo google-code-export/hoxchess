@@ -29,6 +29,7 @@
 
 #include <wx/listctrl.h>
 #include <wx/imaglist.h>
+#include "hoxTypes.h"
 
 enum PlayersSortOrder
 {
@@ -69,10 +70,17 @@ public:
 
     void SetOwner( UIOwner* owner ) { m_owner = owner; }
 
-    bool AddPlayer( const wxString& sPlayerId,
-                    const int       nPlayerScore );
+    bool AddPlayer( const wxString&       sPlayerId,
+                    const int             nPlayerScore,
+                    const hoxPlayerStatus playerStatus = hoxPLAYER_STATUS_UNKNOWN );
 
     bool RemovePlayer( const wxString& sPlayerId );
+
+    bool UpdateScore( const wxString& sPlayerId,
+                      const int       nPlayerScore );
+
+    bool UpdateStatus( const wxString&       sPlayerId,
+                       const hoxPlayerStatus playerStatus );
 
     /**
      * Get the score of given Player.
@@ -97,6 +105,7 @@ private:
                               const int  column ) const;
 
     void _InitializeImageList();
+    int  _StatusToImageIndex( const hoxPlayerStatus playerStatus ) const;
 
 private:
     UIOwner*          m_owner;   // This UI's owner.

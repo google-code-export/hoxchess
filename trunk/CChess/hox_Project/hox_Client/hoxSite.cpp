@@ -138,8 +138,9 @@ hoxSite::GetPlayerById( const wxString& sPlayerId,
 }
 
 void
-hoxSite::OnPlayerLoggedIn( const wxString& sPlayerId,
-                           const int       nPlayerScore )
+hoxSite::OnPlayerLoggedIn( const wxString&       sPlayerId,
+                           const int             nPlayerScore,
+                           const hoxPlayerStatus playerStatus /* = hoxPLAYER_STATUS_UNKNOWN */ )
 {
     wxLogDebug("%s: Add: [%s (%d)]", __FUNCTION__, sPlayerId.c_str(), nPlayerScore);
     hoxPlayerInfo_SPtr pPlayerInfo( new hoxPlayerInfo() );
@@ -147,6 +148,7 @@ hoxSite::OnPlayerLoggedIn( const wxString& sPlayerId,
     pPlayerInfo->score = nPlayerScore;
 
     m_onlinePlayers[sPlayerId] = pPlayerInfo;
+    m_playersUI->AddPlayer( sPlayerId, nPlayerScore, playerStatus );
 }
 
 void
@@ -154,6 +156,7 @@ hoxSite::OnPlayerLoggedOut( const wxString& sPlayerId )
 {
     wxLogDebug("%s: Remove: [%s]", __FUNCTION__, sPlayerId.c_str());
     m_onlinePlayers.erase(sPlayerId);
+    m_playersUI->RemovePlayer( sPlayerId );
 }
 
 void
@@ -163,12 +166,32 @@ hoxSite::UpdateScoreOfOnlinePlayer( const wxString& sPlayerId,
     hoxPlayerInfoMap::iterator it = m_onlinePlayers.find( sPlayerId );
     if ( it != m_onlinePlayers.end() ) // found?
     {
-        wxLogDebug("%s: Update: [%d] -> [%d]", __FUNCTION__, it->second->score, nPlayerScore);
+        wxLogDebug("%s: Update Score of [%s]: [%d] -> [%d]", __FUNCTION__,
+            sPlayerId.c_str(), it->second->score, nPlayerScore);
         it->second->score = nPlayerScore;
+        m_playersUI->UpdateScore( sPlayerId, nPlayerScore );
     }
     else
     {
-        this->OnPlayerLoggedIn( sPlayerId, nPlayerScore );
+        wxLogDebug("%s: *WARN* Player [%s] not found.", __FUNCTION__, sPlayerId.c_str());
+    }
+}
+
+void
+hoxSite::UpdateStatusOfOnlinePlayer( const wxString&       sPlayerId,
+                                     const hoxPlayerStatus playerStatus )
+{
+    hoxPlayerInfoMap::iterator it = m_onlinePlayers.find( sPlayerId );
+    if ( it != m_onlinePlayers.end() ) // found?
+    {
+        wxLogDebug("%s: Update Status of [%s]: [%d] -> [%d]", __FUNCTION__,
+            sPlayerId.c_str(), it->second->status, playerStatus);
+        it->second->status = playerStatus;
+        m_playersUI->UpdateStatus( sPlayerId, playerStatus );
+    }
+    else
+    {
+        wxLogDebug("%s: *WARN* Player [%s] not found.", __FUNCTION__, sPlayerId.c_str());
     }
 }
 
@@ -400,29 +423,6 @@ hoxRemoteSite::OnResponse_LOGOUT( const hoxResponse_APtr& response )
     {
         m_player->OnClosing_FromSite();
     }
-}
-
-void
-hoxRemoteSite::OnPlayerLoggedIn( const wxString& sPlayerId,
-                                 const int       nPlayerScore )
-{
-    this->hoxSite::OnPlayerLoggedIn( sPlayerId, nPlayerScore );
-    m_playersUI->AddPlayer( sPlayerId, nPlayerScore );
-}
-
-void
-hoxRemoteSite::OnPlayerLoggedOut( const wxString& sPlayerId )
-{
-    this->hoxSite::OnPlayerLoggedOut( sPlayerId );
-    m_playersUI->RemovePlayer( sPlayerId );
-}
-
-void
-hoxRemoteSite::UpdateScoreOfOnlinePlayer( const wxString& sPlayerId,
-                                          const int       nPlayerScore )
-{
-    this->hoxSite::UpdateScoreOfOnlinePlayer( sPlayerId, nPlayerScore );
-    m_playersUI->AddPlayer( sPlayerId, nPlayerScore );
 }
 
 hoxResult

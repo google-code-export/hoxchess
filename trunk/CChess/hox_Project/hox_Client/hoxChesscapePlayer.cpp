@@ -572,12 +572,11 @@ hoxChesscapePlayer::_ParseIncomingCommand( const wxMemoryBuffer& data,
 
 void 
 hoxChesscapePlayer::_ParseLoginInfoString( const wxString& cmdStr,
-                                           wxString&       name,
-	                                       wxString&       score,
-	                                       wxString&       role ) const
+                                           wxString&       sPlayerId,
+	                                       int&            nScore,
+	                                       wxString&       sStatus ) const
 {
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 
 	wxString delims;
 	delims += 0x10;
@@ -589,15 +588,15 @@ hoxChesscapePlayer::_ParseLoginInfoString( const wxString& cmdStr,
 		token = tkz.GetNextToken();
 		switch (tokenPosition++)
 		{
-			case 0: name = token; break;
-			case 1: score = token; break;
-			case 2: role = token; break;
+			case 0: sPlayerId = token; break;
+            case 1: nScore = ::atoi(token.c_str()); break;
+			case 2: sStatus = token; break;
 			default: /* Ignore the rest. */ break;
 		}
 	}		
 
-	wxLogDebug("%s: .... name=[%s], score=[%s], role=[%s].", 
-		FNAME, name.c_str(), score.c_str(), role.c_str());
+	wxLogDebug("%s: .... id=[%s], score=[%d], status=[%s].", 
+		__FUNCTION__, sPlayerId.c_str(), nScore, sStatus.c_str());
 }
 
 void
@@ -606,28 +605,26 @@ hoxChesscapePlayer::_HandleCmd_Login( const hoxResponse_APtr& response,
 {
     hoxSite* site = this->GetSite();
 
-    wxString  name;
-    wxString  score;
-    wxString  role;
+    wxString  sPlayerId;
+    int       nScore = 0;
+    wxString  sStatus;
 
-    _ParseLoginInfoString( cmdStr, name, score, role );
-
-    const int nScore = ::atoi( score.c_str() );
+    _ParseLoginInfoString( cmdStr, sPlayerId, nScore, sStatus );
 
     if ( m_bRequestingLogin )  // LOGIN pending?
     {
         m_bRequestingLogin = false;
-        wxASSERT( name == this->GetId() );
+        wxCHECK_RET(sPlayerId == this->GetId(), "I should get my login-name FIRST" );
 
         response->code = hoxRC_OK;
-        response->content.Printf("LOGIN is OK. name=[%s], score=[%d], role=[%s]", 
-	        name.c_str(), nScore, role.c_str());
+        response->content.Printf("LOGIN is OK. id=[%s], score=[%d], status=[%s]", 
+	        sPlayerId.c_str(), nScore, sStatus.c_str());
         this->SetScore( nScore );
         site->OnResponse_LOGIN( response );
     }
 
-    /* Update our internal player-list. */
-    site->UpdateScoreOfOnlinePlayer( name, nScore );
+    const hoxPlayerStatus playerStatus = _StringToPlayerStatus( sStatus );
+    site->OnPlayerLoggedIn( sPlayerId, nScore, playerStatus );
 }
 
 void
@@ -675,6 +672,7 @@ hoxChesscapePlayer::_HandleCmd_Clients( const wxString& cmdStr )
     int tokenPosition = 0;
     wxString sPlayerId;
     int      nPlayerScore = 0;
+    hoxPlayerStatus playerStatus = hoxPLAYER_STATUS_UNKNOWN;
 	
     while ( tkz.HasMoreTokens() )
 	{
@@ -690,11 +688,9 @@ hoxChesscapePlayer::_HandleCmd_Clients( const wxString& cmdStr )
             break;
         
         case 2:  /* Player-Status */
-            tokenPosition = 0;  // Reset for the next player
-            
-            // TODO: Ignore the status for now!!!!
-
-            site->OnPlayerLoggedIn( sPlayerId, nPlayerScore );
+            playerStatus = _StringToPlayerStatus( token );
+            site->OnPlayerLoggedIn( sPlayerId, nPlayerScore, playerStatus );
+            tokenPosition = 0;  // Reset for the next player!!!
             break;
 
         default:
@@ -1175,8 +1171,6 @@ hoxChesscapePlayer::_HandleCmd_UpdateRating( const wxString& cmdStr )
 void
 hoxChesscapePlayer::_HandleCmd_UpdateStatus( const wxString& cmdStr )
 {
-	/* TODO: Update THIS Player's Status only. */
-
 	const wxString sPlayerId = cmdStr.BeforeFirst( 0x10 );
 	const wxString sStatus = cmdStr.AfterFirst( 0x10 ).BeforeLast( 0x10 );
 
@@ -1189,6 +1183,7 @@ hoxChesscapePlayer::_HandleCmd_UpdateStatus( const wxString& cmdStr )
 	{
         m_playerStatus = playerStatus;
 	}
+    this->GetSite()->UpdateStatusOfOnlinePlayer( sPlayerId, playerStatus );
 }
 
 void 

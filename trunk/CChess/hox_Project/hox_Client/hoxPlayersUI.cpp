@@ -28,10 +28,38 @@
 #include "hoxTypes.h"
 
 /* Menu Items IDs. */
-enum
+enum hoxPLAYERS_Menu_Id
 {
     hoxPLAYERS_UI_ID_INFO = 2000,
     hoxPLAYERS_UI_ID_INVITE
+};
+
+/* 0-based image-index into the image list.
+ * NOTE: The numeric values must be maintained to match
+ *       with the indices of image-list.
+ */
+enum hoxPLAYERS_ImageIndex
+{
+    hoxPLAYERS_UI_IMG_UP = 0,
+    hoxPLAYERS_UI_IMG_DOWN,
+    hoxPLAYERS_UI_IMG_GREEN,
+    hoxPLAYERS_UI_IMG_RED,
+    hoxPLAYERS_UI_IMG_GRAY
+};
+
+struct hoxPLAYERS_ImageInfo
+{
+    int         index;
+    wxString    name;
+};
+
+static hoxPLAYERS_ImageInfo s_imageList[] =
+{
+    { hoxPLAYERS_UI_IMG_UP,    "up.png"         },
+    { hoxPLAYERS_UI_IMG_DOWN,  "down.png"       },
+    { hoxPLAYERS_UI_IMG_GREEN, "leds_GREEN.png" },
+    { hoxPLAYERS_UI_IMG_RED,   "leds_RED.png"   },
+    { hoxPLAYERS_UI_IMG_GRAY,  "leds_GRAY.png"  }
 };
 
 /* Event table. */
@@ -82,8 +110,9 @@ hoxPlayersUI::hoxPlayersUI( wxWindow* parent )
 }
 
 bool
-hoxPlayersUI::AddPlayer( const wxString& sPlayerId,
-                         const int       nPlayerScore )
+hoxPlayersUI::AddPlayer( const wxString&       sPlayerId,
+                         const int             nPlayerScore,
+                         const hoxPlayerStatus playerStatus /* = hoxPLAYER_STATUS_UNKNOWN */ )
 {
     /* Remove the old item, if any. */
     bool bRemoved = this->RemovePlayer( sPlayerId );
@@ -96,9 +125,11 @@ hoxPlayersUI::AddPlayer( const wxString& sPlayerId,
     this->SetItem( itemIndex, ++colIndex,
                    wxString::Format("%d", nPlayerScore));
 
+    /* Set the item-date for sorting purpose (sort-by-score). */
 	this->SetItemData( itemIndex, nPlayerScore);
 
-    this->SetItemImage( itemIndex, -1 ); // No image on items.
+    const int imageIndex = _StatusToImageIndex( playerStatus );
+    this->SetItemImage( itemIndex, imageIndex );
 
     /* If the Player was NOT found (to be removed) before being inserted,
      * then he has just joined this Board.
@@ -116,6 +147,47 @@ hoxPlayersUI::RemovePlayer( const wxString& sPlayerId )
         return true;
     }
     return false;
+}
+
+bool
+hoxPlayersUI::UpdateScore( const wxString& sPlayerId,
+                           const int       nPlayerScore )
+{
+    const long playerIndex = _FindPlayerIndex( sPlayerId );
+    if ( playerIndex == -1 ) // notfound?
+    {
+        wxLogDebug("%s: *WARN* Player [%s] not found.", __FUNCTION__, sPlayerId.c_str());
+        return false;
+    }
+
+    wxListItem     row_info;  
+
+    // Set what row it is (m_itemId is a member of the regular wxListCtrl class)
+    row_info.m_itemId = playerIndex;
+    // Set what column of that row we want to query for information.
+    row_info.m_col = 1;  // 1 = SCORE column-index.
+    row_info.m_mask = wxLIST_MASK_TEXT; // Set text mask
+
+    row_info.m_text = wxString::Format("%d", nPlayerScore);
+    SetItem( row_info );
+
+    return true;
+}
+
+bool
+hoxPlayersUI::UpdateStatus( const wxString&       sPlayerId,
+                            const hoxPlayerStatus playerStatus )
+{
+    const long playerIndex = _FindPlayerIndex( sPlayerId );
+    if ( playerIndex == -1 ) // notfound?
+    {
+        wxLogDebug("%s: *WARN* Player [%s] not found.", __FUNCTION__, sPlayerId.c_str());
+        return false;
+    }
+
+    const int imageIndex = _StatusToImageIndex( playerStatus );
+    this->SetItemImage( playerIndex, imageIndex );
+    return true;
 }
 
 int
@@ -178,28 +250,24 @@ hoxPlayersUI::OnContextMenu( wxContextMenuEvent& event )
 void
 hoxPlayersUI::OnPlayerInfo( wxCommandEvent& event )
 {
-    const char* FNAME = __FUNCTION__;
-
     if ( m_owner == NULL ) return;
 
     const wxString sPlayerId = this->GetSelectedPlayer();
     if ( sPlayerId.empty() ) return;
 
-    wxLogDebug("%s: Request Info for Player [%s]...", FNAME, sPlayerId.c_str());
+    wxLogDebug("%s: Request Info for Player [%s]...", __FUNCTION__, sPlayerId.c_str());
     m_owner->OnPlayersUIEvent( EVENT_TYPE_INFO, sPlayerId );
 }
 
 void
 hoxPlayersUI::OnPlayerInvite( wxCommandEvent& event )
 {
-    const char* FNAME = __FUNCTION__;
-
     if ( m_owner == NULL ) return;
 
     const wxString sPlayerId = this->GetSelectedPlayer();
     if ( sPlayerId.empty() ) return;
 
-    wxLogDebug("%s: Invite Player [%s]...", FNAME, sPlayerId.c_str());
+    wxLogDebug("%s: Invite Player [%s]...", __FUNCTION__, sPlayerId.c_str());
     m_owner->OnPlayersUIEvent( EVENT_TYPE_INVITE, sPlayerId );
 }
 
@@ -218,7 +286,9 @@ hoxPlayersUI::OnColumnClick( wxListEvent& event )
 
         wxListItem item;
         item.SetMask(wxLIST_MASK_IMAGE);
-        item.SetImage( m_sortOrderByRating == PLAYERS_SORT_ASCENDING ? 0 : 1 );
+        item.SetImage( m_sortOrderByRating == PLAYERS_SORT_ASCENDING
+                       ? hoxPLAYERS_UI_IMG_UP
+                       : hoxPLAYERS_UI_IMG_DOWN );
         SetColumn(col, item);
     }
 }
@@ -269,16 +339,11 @@ hoxPlayersUI::_InitializeImageList()
 {
     m_imageList = new wxImageList(8, 8);
 
-    hoxStringList imageFilenames;
-    imageFilenames.push_back( _("up.png") );
-    imageFilenames.push_back( _("down.png") );
-    
     wxString filename;
     wxImage image;
-    for ( hoxStringList::const_iterator it = imageFilenames.begin();
-                                     it != imageFilenames.end(); ++it )
+    for ( int index = 0; index < WXSIZEOF( s_imageList ); ++index )
     {
-        filename.Printf("%s/%s", IMAGES_PATH, it->c_str());
+        filename.Printf("%s/%s", IMAGES_PATH, s_imageList[index].name.c_str());
         if ( ! image.LoadFile(filename, wxBITMAP_TYPE_PNG) ) 
         {
             wxLogWarning("%s: Failed to load Image for Player-List from path [%s].",
@@ -291,6 +356,15 @@ hoxPlayersUI::_InitializeImageList()
         }
     }
     this->AssignImageList( m_imageList, wxIMAGE_LIST_SMALL );
+}
+
+int 
+hoxPlayersUI::_StatusToImageIndex( const hoxPlayerStatus playerStatus ) const
+{
+    return    (   playerStatus == hoxPLAYER_STATUS_UNKNOWN
+               || playerStatus == hoxPLAYER_STATUS_OBSERVING )
+             ? hoxPLAYERS_UI_IMG_GREEN
+             : hoxPLAYERS_UI_IMG_RED;
 }
 
 /************************* END OF FILE ***************************************/
