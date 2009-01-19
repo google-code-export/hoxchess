@@ -117,8 +117,9 @@ public:
 
 	virtual unsigned int GetCurrentActionFlags() const = 0;
 
-    virtual void OnPlayerLoggedIn( const wxString& sPlayerId,
-                                   const int       nPlayerScore );
+    virtual void OnPlayerLoggedIn( const wxString&       sPlayerId,
+                                   const int             nPlayerScore,
+                                   const hoxPlayerStatus playerStatus = hoxPLAYER_STATUS_UNKNOWN );
     virtual void OnPlayerLoggedOut( const wxString& sPlayerId );
 
     /**
@@ -127,6 +128,13 @@ public:
      */
     virtual void UpdateScoreOfOnlinePlayer( const wxString& sPlayerId,
                                             const int       nPlayerScore );
+
+    /**
+     * Update the player-status of an ONLINE Player.
+     * If the Player is not found, then add the Player to the online list.
+     */
+    virtual void UpdateStatusOfOnlinePlayer( const wxString&       sPlayerId,
+                                             const hoxPlayerStatus playerStatus );
 
     /**
      * Get the score of an ONLINE Player.
@@ -281,13 +289,6 @@ public:
 
     virtual void OnResponse_LOGIN( const hoxResponse_APtr& response );
 	virtual void OnResponse_LOGOUT( const hoxResponse_APtr& response );
-
-    virtual void OnPlayerLoggedIn( const wxString& sPlayerId,
-                                   const int       nPlayerScore );
-    virtual void OnPlayerLoggedOut( const wxString& sPlayerId );
-
-    virtual void UpdateScoreOfOnlinePlayer( const wxString& sPlayerId,
-                                            const int       nPlayerScore );
 
     /*************************************************
      * Implement hoxPlayersUI::UIOwner 's interface.
