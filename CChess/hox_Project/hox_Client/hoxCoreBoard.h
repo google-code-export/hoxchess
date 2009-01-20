@@ -154,6 +154,12 @@ public:
     bool IsViewInverted() const { return m_bViewInverted; }
     void SetGameOver( bool isGameOver = true );
 
+    /**
+     * TODO: Hack to adjust the height according to the parent's.
+     */
+    void SetBestHeightAdjustment( const int adjustHeight )
+        { m_nBestHeightAdjustment = adjustHeight; }
+
 protected:
     /**
      * The the best size of the WHOLE board.
@@ -279,6 +285,8 @@ private:
     /* End-Game tracking */
     bool            m_isGameOver;
 
+    /* HACK: To adjust the height according to the parent 's. */
+    int m_nBestHeightAdjustment;
 
     DECLARE_DYNAMIC_CLASS(hoxCoreBoard)
     DECLARE_EVENT_TABLE()
