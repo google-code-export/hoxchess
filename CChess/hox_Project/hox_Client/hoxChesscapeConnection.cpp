@@ -56,7 +56,7 @@ hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
         result = this->Connect( sError );
         if ( result != hoxRC_OK )
         {
-            wxLogDebug("%s: Failed to establish a connection.", __FUNCTION__);
+            wxLogDebug("%s: *WARN* Failed to establish a connection.", __FUNCTION__);
             apResponse->content = sError;
         }
     }

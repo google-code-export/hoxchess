@@ -181,7 +181,7 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 
     if ( apResponse->code != hoxRC_OK )
     {
-        wxLogDebug("%s: *WARN* Received error-code [%s].", 
+        wxLogDebug("%s: *INFO* Received response-code [%s].", 
             __FUNCTION__, hoxUtil::ResultToStr(apResponse->code));
 
         /* Close the connection and logout.

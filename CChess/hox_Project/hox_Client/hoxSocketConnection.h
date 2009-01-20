@@ -62,6 +62,7 @@ protected:
     virtual void StartReader( wxSocketClient* socket );
     virtual hoxSocketReader_SPtr CreateReader( wxEvtHandler*   evtHandler,
                                                wxSocketClient* socket );
+    virtual void WaitUntilReaderExit();
 
 private:
     hoxRequest_APtr _GetRequest();

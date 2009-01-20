@@ -112,18 +112,4 @@ hoxPlayerMgr::FindPlayer( const wxString& playerId ) const
     return NULL;
 }
 
-void
-hoxPlayerMgr::OnSiteClosing()
-{
-    const char* FNAME = __FUNCTION__;
-    wxLogDebug("%s: ENTER.", FNAME);
-
-    /* Inform all players about the CLOSING. */
-    for ( hoxPlayerList::iterator it = m_players.begin();
-                                  it != m_players.end(); ++it )
-    {
-        (*it)->OnClosing_FromSite();
-    }
-}
-
 /************************* END OF FILE ***************************************/

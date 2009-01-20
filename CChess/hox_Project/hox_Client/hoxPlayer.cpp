@@ -63,10 +63,10 @@ hoxPlayer::~hoxPlayer()
 {
     wxLogDebug("%s: ENTER. (%s)", __FUNCTION__, this->GetId().c_str());
 
-    if ( m_connection.get() != NULL )
-    {
-        this->ShutdownConnection();
-    }
+    //if ( m_connection.get() != NULL )
+    //{
+    //    this->ShutdownConnection();
+    //}
 }
 
 hoxTable_SPtr
@@ -168,7 +168,7 @@ hoxPlayer::ResetConnection()
 { 
     wxLogDebug("%s: ENTER.", __FUNCTION__);
 
-    if ( m_connection.get() != NULL )
+    if ( m_connection.get() != NULL && m_connection->IsConnected() )
     {
         wxLogDebug("%s: Request the Connection thread to be shutdowned...", __FUNCTION__);
         hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_SHUTDOWN ) );
@@ -240,14 +240,14 @@ hoxPlayer::StartConnection()
     m_connection->Start();
 }
 
-void 
-hoxPlayer::ShutdownConnection()
-{
-    wxLogDebug("%s: Player [%s] requesting the Connection to be shutdowned...", 
-        __FUNCTION__, this->GetId().c_str());
-    hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_SHUTDOWN ) );
-    this->AddRequestToConnection( apRequest );
-}
+//void 
+//hoxPlayer::ShutdownConnection()
+//{
+//    wxLogDebug("%s: Player [%s] requesting the Connection to be shutdowned...", 
+//        __FUNCTION__, this->GetId().c_str());
+//    hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_SHUTDOWN ) );
+//    this->AddRequestToConnection( apRequest );
+//}
 
 void 
 hoxPlayer::AddRequestToConnection( hoxRequest_APtr apRequest )
