@@ -48,7 +48,7 @@ enum
     MDI_NEW_TABLE = hoxUI_ID_RANGE_FRAME,
     MDI_PRACTICE, // New Table to practice with the local computer
     MDI_SAVE_TABLE,
-    MDI_OPEN_TABLE,
+    MDI_OPEN_SAVED_TABLE,
     MDI_CLOSE_TABLE,
 
     MDI_CONNECT_SERVER, // Connect to server
@@ -123,8 +123,8 @@ public:
 
     void OnSaveTable(wxCommandEvent& event);
     void OnUpdateSaveTable(wxUpdateUIEvent& event);
-    void OnOpenTable(wxCommandEvent& event);
-    void OnUpdateOpenTable(wxUpdateUIEvent& event);
+    void OnOpenSavedTable(wxCommandEvent& event);
+    void OnUpdateOpenSavedTable(wxUpdateUIEvent& event);
 
     void OnQuit(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);
