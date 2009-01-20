@@ -109,6 +109,8 @@ hoxCoreBoard::hoxCoreBoard( wxWindow*        parent,
 
     m_borderX = 40;   // TODO: Hard-coded constant
     m_borderY = m_borderX;
+
+    m_nBestHeightAdjustment = 0; // HACK!
 }
 
 hoxCoreBoard::~hoxCoreBoard()
@@ -1071,8 +1073,8 @@ hoxCoreBoard::DoGetBestSize() const
 {
     wxSize availableSize = GetParent()->GetClientSize();    
 
-    int proposedHeight = 
-        availableSize.GetHeight() - 75 /* TODO: The two players' info + The command bar */;
+    int proposedHeight = availableSize.GetHeight()
+        - m_nBestHeightAdjustment /* TODO: The two players' info + The command bar */;
 
     wxSize bestSize = this->GetBestBoardSize( proposedHeight );
 
