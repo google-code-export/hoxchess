@@ -77,8 +77,8 @@ BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
 
     EVT_MENU(MDI_SAVE_TABLE, MyFrame::OnSaveTable)
     EVT_UPDATE_UI(MDI_SAVE_TABLE, MyFrame::OnUpdateSaveTable)
-    EVT_MENU(MDI_OPEN_TABLE, MyFrame::OnOpenTable)
-    EVT_UPDATE_UI(MDI_OPEN_TABLE, MyFrame::OnUpdateOpenTable)
+    EVT_MENU(MDI_OPEN_SAVED_TABLE, MyFrame::OnOpenSavedTable)
+    EVT_UPDATE_UI(MDI_OPEN_SAVED_TABLE, MyFrame::OnUpdateOpenSavedTable)
 
     EVT_MENU(MDI_QUIT, MyFrame::OnQuit)
 
@@ -386,10 +386,12 @@ MyFrame::OnSaveTable( wxCommandEvent& event )
 	hoxTable_SPtr pTable = child->GetTable();
 
 	const wxString fileName =
-        wxFileSelector( "Choose a file to save",
-                        "../SAVEDTABLES",
-                        "table.xml",
-                        "Extension Markup Language (*.xml)|*.xml" );
+        wxFileSelector( _("Please choose a file to save"),
+                        wxEmptyString,
+                        wxEmptyString,
+                        "xml",
+                        "XML files (*.xml)|*.xml|All files (*)|*",
+                        wxFD_SAVE|wxFD_OVERWRITE_PROMPT );
 	if ( fileName.empty() )
 		return;
 
@@ -403,25 +405,26 @@ MyFrame::OnUpdateSaveTable( wxUpdateUIEvent& event )
 }
 
 void
-MyFrame::OnOpenTable( wxCommandEvent& event )
+MyFrame::OnOpenSavedTable( wxCommandEvent& event )
 {
     hoxSite* selectedSite = _GetSelectedSite();
-    if ( selectedSite != NULL )
-    {
-        const wxString fileName =
-            wxFileSelector( "Choose a file to open",
-                            "../SAVEDTABLES",
-                            "table.xml",
-                            "Extension Markup Language (*.xml)|*.xml" );
-        if ( fileName.empty() )
-		    return;
+    if ( selectedSite == NULL ) return;
 
-        selectedSite->OnLocalRequest_PRACTICE( fileName );
-    }
+    const wxString fileName =
+        wxFileSelector( _("Please choose a file to open"),
+                        wxEmptyString,
+                        wxEmptyString,
+                        "xml",
+                        "XML files (*.xml)|*.xml|All files (*)|*",
+                        wxFD_OPEN );
+    if ( fileName.empty() )
+	    return;
+
+    selectedSite->OnLocalRequest_PRACTICE( fileName );
 }
 
 void 
-MyFrame::OnUpdateOpenTable( wxUpdateUIEvent& event )
+MyFrame::OnUpdateOpenSavedTable( wxUpdateUIEvent& event )
 {
     bool bEnabled = false;
     hoxSite* selectedSite = _GetSelectedSite();
@@ -522,11 +525,12 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
     file_menu->AppendSeparator();
 	file_menu->Append(MDI_LIST_TABLES, _("List &Tables\tCtrl-T"), _("Get the list of tables"));
     file_menu->Append(MDI_NEW_TABLE, _("&New Table\tCtrl-N"), _("Create New Table"));
-    file_menu->Append(MDI_SAVE_TABLE, _("&Save Table..."), _("Save the current table"));
-    file_menu->Append(MDI_OPEN_TABLE, _("Open Saved Table..."), _("Open a saved table"));
+    file_menu->Append(MDI_CLOSE_TABLE, _("&Close Table\tCtrl-C"), _("Close Table"));
+    file_menu->AppendSeparator();
     file_menu->Append(MDI_PRACTICE, _("&Practice with Computer\tCtrl-P"),
                                     _("Practice with your local Computer"));
-    file_menu->Append(MDI_CLOSE_TABLE, _("&Close Table\tCtrl-C"), _("Close Table"));
+    file_menu->Append(MDI_SAVE_TABLE, _("&Save Table..."), _("Save the current table"));
+    file_menu->Append(MDI_OPEN_SAVED_TABLE, _("Open Saved Table..."), _("Open a saved table"));
     file_menu->AppendSeparator();
     file_menu->Append(MDI_QUIT, _("&Exit\tAlt-X"), _("Quit the program"));
 
@@ -612,8 +616,8 @@ MyFrame::OnContextMenu( wxContextMenuEvent& event )
 		}
 		if ( (actionFlags & hoxSITE_ACTION_OPEN) != 0 )
 		{
-            menu.Append(MDI_OPEN_TABLE, _("Open Saved Table..."), 
-                                        _("Open a saved table"));
+            menu.Append(MDI_OPEN_SAVED_TABLE, _("Open Saved Table..."), 
+                                              _("Open a saved table"));
 		}
     }
 	else
