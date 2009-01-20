@@ -114,6 +114,19 @@ hoxSocketWriter::CreateReader( wxEvtHandler*   evtHandler,
     return reader;
 }
 
+void
+hoxSocketWriter::WaitUntilReaderExit()
+{
+    if ( m_reader )
+    {
+        wxLogDebug("%s: Request the Reader thread to be shutdowned...", __FUNCTION__);
+        wxThread::ExitCode exitCode = 0;
+        m_reader->Delete( &exitCode );
+        wxLogDebug("%s: The Reader thread shutdowned with exit-code = [%d].", __FUNCTION__, exitCode);
+        m_reader.reset();
+    }
+}
+
 hoxRequest_APtr
 hoxSocketWriter::_GetRequest()
 {
@@ -172,18 +185,30 @@ hoxSocketWriter::Entry()
         wxLogDebug("%s: Processing request Type = [%s]...", 
             __FUNCTION__, hoxUtil::RequestTypeToString(apRequest->type).c_str());
 
+        const hoxRequestType requestType = apRequest->type;
+        if ( requestType == hoxREQUEST_LOGOUT )
+        {
+            this->WaitUntilReaderExit();
+            m_shutdownRequested = true; // !!! Force to close !!!
+        }
+
         this->HandleRequest( apRequest );
     }
 
-    /* Wait for the Reader Thread to exit. */
+    /* Make sure that the Reader Thread to exit. */
+    this->WaitUntilReaderExit();
 
-    wxLogDebug("%s: Request the Reader thread to be shutdowned...", __FUNCTION__);
-    if ( m_reader )
-    {
-        wxThread::ExitCode exitCode = 0;
-        m_reader->Delete( &exitCode );
-        wxLogDebug("%s: The Reader thread shutdowned with exit-code = [%d].", __FUNCTION__, exitCode);
-    }
+    /* Close the socket-connection. */
+    this->Disconnect();
+
+    /* Notify the Player. */
+    wxLogDebug("%s: Notify event-handler of connection CLOSED.", __FUNCTION__);
+    const hoxRequestType type = hoxREQUEST_PLAYER_DATA;
+    hoxResponse_APtr apResponse( new hoxResponse(type) );
+    wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, type );
+    apResponse->code = hoxRC_CLOSED;
+    event.SetEventObject( apResponse.release() );  // Caller will de-allocate.
+    wxPostEvent( m_evtHandler, event );
 
     return NULL;
 }
@@ -203,7 +228,7 @@ hoxSocketWriter::HandleRequest( hoxRequest_APtr apRequest )
         result = this->Connect( sError );
         if ( result != hoxRC_OK )
         {
-            wxLogDebug("%s: Failed to establish a connection.", __FUNCTION__);
+            wxLogDebug("%s: *WARN* Failed to establish a connection.", __FUNCTION__);
             apResponse->content = sError;
         }
     }
@@ -313,6 +338,11 @@ hoxSocketReader::Entry()
     {
         hoxResponse_APtr apResponse( new hoxResponse(type) );
 
+        if ( !m_socket->WaitForRead( 0, 500 ) ) // timeout (0.5 sec)?
+        {
+            continue;
+        }
+
         if ( hoxRC_OK != (result = this->ReadLine( m_socket, 
                                                    apResponse->data )) )
         {
@@ -376,11 +406,12 @@ hoxSocketReader::ReadLine( wxSocketBase*   sock,
             /* NOTE: This checking is now working given that
              *       we have used wxSOCKET_BLOCK as the socket option.
              */
-            if (  err == wxSOCKET_TIMEDOUT )
-                wxLogDebug("%s: *INFO* Socket timeout.", __FUNCTION__);
-            else
-                wxLogDebug("%s: *WARN* Some socket error [%s].", __FUNCTION__,
-                    hoxNetworkAPI::SocketErrorToString(err).c_str());
+            if (  err == wxSOCKET_TIMEDOUT ) {
+                wxLogDebug("%s: *INFO* Socket timeout (%d).", __FUNCTION__, data.GetDataLen());
+            } else {
+                wxLogDebug("%s: *WARN* Some socket error [%s] (%d).", __FUNCTION__,
+                    hoxNetworkAPI::SocketErrorToString(err).c_str(), data.GetDataLen());
+            }
             break;
         }
         else
@@ -461,6 +492,7 @@ hoxSocketConnection::Shutdown()
     {
         wxThread::ExitCode exitCode = m_writer->Wait();
         wxLogDebug("%s: The Writer thread shutdowned with exit-code = [%d].", __FUNCTION__, exitCode);
+        m_writer.reset();
     }
 }
 

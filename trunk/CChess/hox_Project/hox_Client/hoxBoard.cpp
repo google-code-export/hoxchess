@@ -1043,19 +1043,12 @@ hoxBoard::_LayoutBoardPanel( bool viewInverted )
         bottomSizer = m_blackSizer;
     }
 
-    // DEBUG -------------
-    wxSize s = topSizer->GetSize();
-    wxLogDebug("%s: TOP: (%d x %d)", __FUNCTION__, s.GetWidth(), s.GetHeight());
-    s = bottomSizer->GetSize();
-    wxLogDebug("%s: BOTTOM: (%d x %d)", __FUNCTION__, s.GetWidth(), s.GetHeight());
-    s = m_commandSizer->GetSize();
-    wxLogDebug("%s: COMMAND: (%d x %d)", __FUNCTION__, s.GetWidth(), s.GetHeight());
-    s = m_btnPlayRed->GetSize();
-    wxLogDebug("%s: BUTTON: (%d x %d)", __FUNCTION__, s.GetWidth(), s.GetHeight());
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // HACK: Adjust the "core" Board's height!!!
     const int bestHeightAdjust = (m_btnPlayRed->GetSize().GetHeight()+2) * 3;
     m_coreBoard->SetBestHeightAdjustment( bestHeightAdjust );
-    wxLogDebug("%s: ADJUST: (%d)", __FUNCTION__, bestHeightAdjust);
-    // ----------------------
+    wxLogDebug("%s: ADJUST Core Board's Height: (%d)", __FUNCTION__, bestHeightAdjust);
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     // Add the top-sizer...
     m_boardSizer->Add(

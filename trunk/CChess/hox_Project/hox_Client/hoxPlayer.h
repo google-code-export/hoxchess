@@ -160,7 +160,7 @@ public:
 
 protected:
     virtual void StartConnection();
-    virtual void ShutdownConnection();
+    //virtual void ShutdownConnection();
 
     virtual void AddRequestToConnection( hoxRequest_APtr apRequest );
 

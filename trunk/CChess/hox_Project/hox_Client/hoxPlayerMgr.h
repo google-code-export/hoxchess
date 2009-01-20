@@ -66,11 +66,6 @@ public:
      */
     hoxPlayer* FindPlayer( const wxString& playerId ) const;
 
-    /**
-     * Handle SITE-CLOSING request from Site.
-     */
-    void OnSiteClosing();
-
 private:
     hoxPlayerList   m_players;  // The list of all players in the system.
 };
