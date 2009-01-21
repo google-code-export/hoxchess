@@ -68,11 +68,6 @@ enum
     ID_WINDOW_SITES
 };
 
-/* 
- * Log events
- */
-DECLARE_EVENT_TYPE(hoxEVT_FRAME_LOG_MSG, wxID_ANY)
-
 // ---------------------------------------------------------------------------
 // MyFrame class
 // ---------------------------------------------------------------------------
@@ -117,6 +112,7 @@ public:
     void OnUpdateServersWindow(wxUpdateUIEvent& event);
 
     void OnShowLogWindow(wxCommandEvent& event);
+    void OnUpdateShowLogWindow(wxUpdateUIEvent& event);
 
     void OnPractice(wxCommandEvent& event);
     void OnUpdatePractice(wxUpdateUIEvent& event);
@@ -139,7 +135,6 @@ public:
                        MyChild*      child,
                        hoxTable_SPtr pTable );
 
-    void OnFrameLogMsgEvent( wxCommandEvent &event );
     void OnContextMenu( wxContextMenuEvent& event );
     void OnToggleSound( wxCommandEvent& event );
     void OnOptions( wxCommandEvent& event );

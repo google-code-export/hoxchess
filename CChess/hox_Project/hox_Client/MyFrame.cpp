@@ -51,9 +51,6 @@
 
 IMPLEMENT_DYNAMIC_CLASS(MyFrame, wxMDIParentFrame)
 
-/* Define my custom events */
-DEFINE_EVENT_TYPE(hoxEVT_FRAME_LOG_MSG)
-
 BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
     EVT_MENU(MDI_ABOUT, MyFrame::OnAbout)
     EVT_MENU(MDI_NEW_TABLE, MyFrame::OnNewTable)
@@ -71,6 +68,7 @@ BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
     EVT_UPDATE_UI(MDI_SHOW_SERVERS_WINDOW, MyFrame::OnUpdateServersWindow)
 
     EVT_MENU(MDI_SHOW_LOG_WINDOW, MyFrame::OnShowLogWindow)
+    EVT_UPDATE_UI(MDI_SHOW_LOG_WINDOW, MyFrame::OnUpdateShowLogWindow)
 
     EVT_MENU(MDI_PRACTICE, MyFrame::OnPractice)
     EVT_UPDATE_UI(MDI_PRACTICE, MyFrame::OnUpdatePractice)
@@ -85,8 +83,6 @@ BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
     EVT_CLOSE(MyFrame::OnClose)
     EVT_SIZE(MyFrame::OnSize)
     EVT_SASH_DRAGGED(ID_WINDOW_SITES, MyFrame::OnServersSashDrag)
-
-    EVT_COMMAND(wxID_ANY, hoxEVT_FRAME_LOG_MSG, MyFrame::OnFrameLogMsgEvent)
 
     EVT_CONTEXT_MENU(MyFrame::OnContextMenu)
     EVT_MENU(MDI_SOUND, MyFrame::OnToggleSound)
@@ -120,7 +116,7 @@ MyFrame::MyFrame( wxWindow*        parent,
     entries[0].Set(wxACCEL_CTRL, (int) 'N', MDI_NEW_TABLE);
     entries[1].Set(wxACCEL_CTRL, (int) 'X', MDI_QUIT);
     entries[2].Set(wxACCEL_CTRL, (int) 'A', MDI_ABOUT);
-    wxAcceleratorTable accel(3, entries);
+    wxAcceleratorTable accel(WXSIZEOF(entries), entries);
     SetAcceleratorTable(accel);
 
     SetMenuBar( MyFrame::Create_Menu_Bar() );
@@ -349,6 +345,12 @@ MyFrame::OnShowLogWindow( wxCommandEvent& event )
     m_log->Show( event.IsChecked() );
 }
 
+void
+MyFrame::OnUpdateShowLogWindow( wxUpdateUIEvent& event )
+{
+    event.Check( m_log->IsShown() );
+}
+
 void 
 MyFrame::OnPractice( wxCommandEvent& event )
 {
@@ -560,13 +562,6 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
     menu_bar->Append(help_menu, _("&Help"));
 
     return menu_bar;
-}
-
-void 
-MyFrame::OnFrameLogMsgEvent( wxCommandEvent &event )
-{
-    //wxString msg = event.GetString();
-    //m_logText->AppendText( msg << "\n");
 }
 
 void 
