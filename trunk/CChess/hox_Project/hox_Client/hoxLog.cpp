@@ -31,6 +31,7 @@ hoxLog::hoxLog( wxWindow*       pParent,
                 const wxString& szTitle,
                 bool            show /* = true */ )
         : wxLogWindow(pParent, szTitle, show)
+        , m_bIsShown( show )
 {
     m_filename.Printf("%s/HOXChess.log", wxFileName::GetTempDir());
     wxLogDebug("%s: Log file [%s].", __FUNCTION__, m_filename.c_str());
@@ -41,12 +42,28 @@ hoxLog::hoxLog( wxWindow*       pParent,
     }
 }
 
-void hoxLog::DoLogString( const wxString& szString, 
-                          time_t          t )
+void
+hoxLog::Show( bool show /* = true */ )
+{
+    m_bIsShown = show;
+    wxLogWindow::Show( show );
+}
+
+void
+hoxLog::DoLogString( const wxString& szString, 
+                     time_t          t )
 {
     _LogToDisk( szString, t );
 
     this->wxLogWindow::DoLogString( szString, t );
+}
+
+bool
+hoxLog::OnFrameClose(wxFrame* frame)
+{
+    const bool bAllowToClose = wxLogWindow::OnFrameClose( frame );
+    m_bIsShown = !bAllowToClose;
+    return bAllowToClose;
 }
 
 void

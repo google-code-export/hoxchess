@@ -46,6 +46,19 @@ public:
             bool            show = true );
     virtual ~hoxLog() {}
 
+public:
+    /**
+     * Returns true if the window is shown, false if it has been hidden.
+     */
+    virtual bool IsShown() const { return m_bIsShown; }
+
+    /**
+     * (Override the parent's API)
+     *
+     * Show or hide a log's frame.
+     */
+    void Show( bool show = true );
+
 protected:
     /***********************************
      * Override the parent's API.
@@ -56,6 +69,14 @@ protected:
      */
     virtual void DoLogString( const wxString& szString, 
                               time_t          t );
+
+    /**
+     * Called if the user closes the window interactively,
+     * will not be called if it is destroyed for another reason
+     * (such as when program exits).
+     */
+    virtual bool OnFrameClose( wxFrame* frame );
+
 private:
     void _LogToDisk( const wxString& szString,
                      time_t          t );
@@ -63,7 +84,7 @@ private:
 private:
     wxString   m_filename;
     wxFFile    m_logFile;
+    bool       m_bIsShown;  // Is the Log shown on the Screen?
 };
-
 
 #endif  /* __INCLUDED_HOX_LOG_H__ */
