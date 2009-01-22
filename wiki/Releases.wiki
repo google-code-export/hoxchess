@@ -2,6 +2,16 @@
 
 _All releases can be found from_ [http://code.google.com/p/hoxchess/downloads/list this Downloads page]
 
+  * *Jan 21, 2009*
+    * Released version *0.6.0.0* of the _source_ code and Windows Binary _Installer_
+    * The main _new features_ are:
+      * Support *Guest* Login for both [http://www.chesscape.com Chesscape.com] and [http://www.playxiangqi.com PlayXiangqi.com]
+      * Display _Unicode_ characters (Chinese, Vietnamese,…)
+      * Chesscape: Implement the Player-Status (with LED images = GREEN/RED).
+      * Implemented (by _darickdle_) the new feature to SAVE and RESTORE a table to allow resuming a Practice game.
+      * Chesscape: Implement Instant (or Private) message.
+    * To build this release, we need to latest *trunk* version of wxWidgets 2.9.0
+
   * *Oct 24, 2008*
     * Released *HOXChess 0.5.1.0* of the _source_ code and Windows Binary _Installer_
     * The main _new features_ are:
