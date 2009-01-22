@@ -9,28 +9,30 @@ The page's content is based entirely on my experience working on the project.
 == Requirements ==
 Starting from version _0.0.2.0_ (released on Nov 10, 2007), the project can be built under Windows and Linux, thanks to the cross platform portability of [http://www.wxwidgets.org wxWidgets].
 
-  * [http://www.wxwidgets.org/ wxWidgets] 2.8.8
-  * [http://www.boost.org Boost C++ Libraries] Headers only. Already included in the source code 
+  * [http://www.wxwidgets.org/ wxWidgets] 2.9.0 (the not-yet-released *trunk* version)
+  * [http://www.boost.org Boost C++ 1_36_0 Libraries] Headers only. Already included in the source code 
   * Operating Systems
     * Under Windows
       * Windows Vista
       * Visual C++ 2008 Express Edition
     * Under Linux
       * Any Linux distribution that supports _g++_ and _make_ packages. I have tried on the following:
-        * [http://www.centos.org/ CentOS] 4.5 using [http://www.eclipse.org/cdt/ Eclipse CDT] 4.0.1, or
-        * [http://www.ubuntu.com/ Ubuntu] 8.04 using [http://www.kdevelop.org KDevelop] 3.5 (as a _custom Makefile_ project or as an _Automake_ based project).
+        * [http://www.centos.org/ CentOS] 4.7 using [http://www.eclipse.org/cdt/ Eclipse CDT] 4.0.1, or
+        * [http://www.ubuntu.com/ Ubuntu] 8.10 using [http://www.kdevelop.org KDevelop] 3.5 (as a _custom Makefile_ project or as an _Automake_ based project).
 
 == Detailed Instructions under Windows ==
-  * wxWidgets: Put the libraries and headers under _C:\wxMSW-2.8.7_
+  * wxWidgets: Put the libraries and headers under _C:\wxMSW-2.9.0_
     * If your wxWidgets' location is different, then you need to adjust the appropriate settings of _hox_Client.vcproj_.
-  * Open the project _hox_Project/hox_Client/hox_Client.vcproj_ inside Visual Studio C++ and build from there.
+  * Open the project *hox_Client* under the solution _hox_Project/hox_Project.sln_ inside Visual Studio C++ and build from there.
 
 == Detailed Instructions under Linux ==
-  * Go to _CChess/hox_Project_ folder and run the *make* command from there.
-    * Everything is contained within one simple _Makefile_ located under _CChess/hox_Project/_
+  * Go to _CChess/hox_Project/hox_Client_ folder and 
+  * $ *make prepare*
+  * $ *make*
+    * Everything is contained within one simple _Makefile_ located under _CChess/hox_Project/hox_Client_
       * Once the _hoxchess_ executable file is built, run it as follows:
-        * LD_LIBRARY_PATH=<_path_to_wxWidgets_libs_> ./hoxchess
-          * For example: LD_LIBRARY_PATH=/opt/wxGTK-2.8.7/lib ./hoxchess
+        * LD_LIBRARY_PATH=/path/to/wxWidgets/libs ./hoxchess
+          * For example: LD_LIBRARY_PATH=/opt/wxGTK-2.9.0/lib ./hoxchess
   * *Note* : 
     * For those who develop in [http://www.kdevelop.org KDevelop], I also created an KDevelop project _CChess/hox_Project/hox_Project.kdevelop_
     * This project file is simply a wrapper of the _Makefile_ mentioned above.
