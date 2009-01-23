@@ -1,0 +1,47 @@
+#summary Boost Libraries in HOXChess
+#labels Phase-Implementation
+
+= Introduction =
+
+This page describes how Boost libraries are installed to be used in HOXChess
+
+== UPGRADE boost to 1.36.0 HOWTO ==
+
+  * Download the SOURCE: *boost_1_36_0.7z*
+  * Also, download binary "bjam.exe" from the same place
+    * I put it under folder "C:\Users\HPhan\Desktop\boost_1_36_0\bjam"
+
+  * Build the "bcp.exe" executable as follows:
+    * C:\Users\HPhan\Desktop\boost_1_36_0\tools\bcp>..\..\bjam\bjam.exe
+    * The above command will create ".\dist\bin\bcp.exe"
+
+  * Read: http://www.boost.org/doc/libs/1_36_0/tools/bcp/bcp.html
+  * Under C:\Users\HPhan\Desktop\boost_1_36_0>
+    * .\dist\bin\bcp.exe shared_ptr enable_shared_from_this tokenizer algorithm c:\tmp
+    * The above commands will copy all dependent files to c:\tmp\...
+
+== MINIMAL Boost installation HOWTO ( for boost/shared_ptr.hpp ) ==
+
+  * Download the SOURCE of boosts library (I used *boost_1_34_1*)
+
+  * We need the "bcp" tool to extract all dependent files for <boost/shared_ptr.hpp>
+    * Need to download binary "bjam.exe" from sourceforge.net
+    * I put it under folder "C:\Users\HPhan\Desktop\boost_1_34_1\bjam"
+  * Read instructions from from the local downloaded distribution:
+    * C:\Users\HPhan\Desktop\boost_1_34_1\tools\build\index.html
+
+  * Build the "bcp.exe" executable as follows:
+    * C:\Users\HPhan\Desktop\boost_1_34_1\tools\bcp>..\..\bjam\bjam.exe
+    * The above command will create ".\dist\bin\bcp.exe"
+
+  * Under C:\Users\HPhan\Desktop\boost_1_34_1>
+    * .\dist\bin\bcp.exe boost\shared_ptr.hpp c:\tmp
+    * .\dist\bin\bcp.exe boost\enable_shared_from_this.hpp c:\tmp
+  * The above commands will copy all dependent files to c:\tmp\...
+
+== References ==
+  * http://www.boost.org/tools/bcp/bcp.html
+  * http://boost.org/boost-build2/index.html
+  * http://marc.info/?l=boost-users&m=118835450521043&w=2
+
+----------------
