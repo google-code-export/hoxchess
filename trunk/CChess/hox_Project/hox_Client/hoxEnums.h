@@ -41,7 +41,7 @@
  * The Application's Name and Version.
  */
 #define HOX_APP_NAME  "HOXChess"
-#define HOX_VERSION   "0.6.0.0"
+#define HOX_VERSION   "0.6.1.0"
 
 /**
  * The default path of all the pieces' images.
