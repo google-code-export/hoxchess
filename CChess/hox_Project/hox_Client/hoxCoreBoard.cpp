@@ -422,6 +422,7 @@ hoxCoreBoard::ResetBoard()
     /* If the Board is in GAME-REVIEW mode, leave it. */
     this->DoGameReview_BEGIN();
     m_historyMoves.clear();
+    m_historyIndex = HISTORY_INDEX_END;
 
     /* Initialize other stated-info. */
     m_latestPiece = NULL;
@@ -676,14 +677,12 @@ hoxCoreBoard::_IsBoardInReviewMode() const
 bool 
 hoxCoreBoard::DoMove( hoxMove& move )
 {
-    const char* FNAME = __FUNCTION__;
-
     /* Validate the Move */
 
     hoxGameStatus gameStatus = hoxGAME_STATUS_UNKNOWN;
     if ( ! m_referee->ValidateMove( move, gameStatus ) )
     {
-        _PrintDebug( wxString::Format("%s: Move is not valid!!!", FNAME) );
+        _PrintDebug( wxString::Format("%s: Move is not valid!!!", __FUNCTION__) );
         return false;
     }
 
@@ -708,7 +707,7 @@ hoxCoreBoard::DoMove( hoxMove& move )
 
     if ( ! _MovePieceTo( piece, move.newPosition ) )
     {
-        _PrintDebug( wxString::Format("%s: Piece could not be moved.", FNAME) );
+        _PrintDebug( wxString::Format("%s: Piece could not be moved.", __FUNCTION__) );
         return false;
     }
 
@@ -758,11 +757,9 @@ hoxCoreBoard::DoGameReview_BEGIN()
 bool 
 hoxCoreBoard::DoGameReview_PREV()
 {
-    const char* FNAME = __FUNCTION__;
-
     if ( m_historyMoves.empty() )
     {
-        //wxLogDebug("%s: No Moves made yet.", FNAME);
+        //wxLogDebug("%s: No Moves made yet.", __FUNCTION__);
         return false;
     }
 
@@ -773,7 +770,7 @@ hoxCoreBoard::DoGameReview_PREV()
     }
     else if ( m_historyIndex == HISTORY_INDEX_BEGIN )
     {
-        //wxLogDebug("%s: The index is already at BEGIN. Do nothing. END.", FNAME);
+        //wxLogDebug("%s: The index is already at BEGIN. Do nothing. END.", __FUNCTION__);
         return false;
     }
 
@@ -789,7 +786,7 @@ hoxCoreBoard::DoGameReview_PREV()
     piece->SetLatest( false );
     if ( ! _MovePieceTo( piece, move.piece.position, false /* no highlight */ ) )
     {
-        wxLogDebug("%s: Failed to move Piece back to the ORIGINAL position.", FNAME);
+        wxLogDebug("%s: Failed to move Piece back to the ORIGINAL position.", __FUNCTION__);
         return false;
     }
 
@@ -807,14 +804,14 @@ hoxCoreBoard::DoGameReview_PREV()
 
     /* Highlight the Piece (if any) of the "next-PREV" Move. */
 
-     --m_historyIndex;
-     if ( m_historyIndex >= 0 )
-     {
-         const hoxMove prevMove = m_historyMoves[m_historyIndex];
-         hoxPiece* prevPiece = _FindPieceAt( prevMove.newPosition );
-         wxCHECK_MSG(prevPiece, false, "No next-PREV Piece found.");
+    --m_historyIndex;
+    if ( m_historyIndex >= 0 )
+    {
+        const hoxMove prevMove = m_historyMoves[m_historyIndex];
+        hoxPiece* prevPiece = _FindPieceAt( prevMove.newPosition );
+        wxCHECK_MSG(prevPiece, false, "No next-PREV Piece found.");
         _DrawAndHighlightPiece( prevPiece );
-     }
+    }
 
     return true;
 }
@@ -824,13 +821,13 @@ hoxCoreBoard::DoGameReview_NEXT()
 {
     if ( m_historyMoves.empty() )
     {
-        //wxLogDebug("%s: No Moves made yet.", FNAME);
+        //wxLogDebug("%s: No Moves made yet.", __FUNCTION__);
         return false;
     }
 
     if ( m_historyIndex == HISTORY_INDEX_END ) // at the END mark?
     {
-        //wxLogDebug("%s: No PREV done. Do nothing. END.", FNAME);
+        //wxLogDebug("%s: No PREV done. Do nothing. END.", __FUNCTION__);
         return false;
     }
 
@@ -1062,7 +1059,7 @@ hoxCoreBoard::GetBestBoardSize( const int proposedHeight ) const
 
     wxSize bestSize( wholeBoardX, wholeBoardY );
 
-    //wxLogDebug("%s: (%d x %d) --> (%d x %d)", FNAME,
+    //wxLogDebug("%s: (%d x %d) --> (%d x %d)", __FUNCTION__,
     //    totalSize.GetWidth(), totalSize.GetHeight(),
     //    bestSize.GetWidth(), bestSize.GetHeight());
     return bestSize;
@@ -1078,7 +1075,7 @@ hoxCoreBoard::DoGetBestSize() const
 
     wxSize bestSize = this->GetBestBoardSize( proposedHeight );
 
-    //wxLogDebug("%s: (%d) --> (%d x %d)", FNAME,
+    //wxLogDebug("%s: (%d) --> (%d x %d)", __FUNCTION__,
     //    proposedHeight,
     //    bestSize.GetWidth(), bestSize.GetHeight());
     return bestSize;
