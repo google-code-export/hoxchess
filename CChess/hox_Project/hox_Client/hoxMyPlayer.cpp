@@ -369,40 +369,39 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
             // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             const wxString sMessage =
                 wxString::Format("*INVITE: [%s] (NOT YET SUPPORTED!)", sContent.c_str());
-            if ( pTable.get() != NULL )
+            if ( pTable )
             {
                 pTable->PostBoardMessage( sMessage );
             }
             else
             {
-                ::wxMessageBox( sMessage,
-                                _("Invitation from Player"),
-                                wxOK | wxICON_INFORMATION,
-                                NULL /* No parent */ );
+                ::wxMessageBox( sMessage, _("Invitation from Player"),
+                                wxOK | wxICON_INFORMATION );
             }
             break;
         }
         case hoxREQUEST_PLAYER_INFO:
         {
-            if ( pTable.get() == NULL ) break;
-
             hoxPlayerStats  playerStats;
+		    _ParsePlayerInfoEvent( sContent, playerStats );
 
-		    result = _ParsePlayerInfoEvent( sContent,
-									        playerStats );
-		    if ( result != hoxRC_OK )
-		    {
-			    wxLogDebug("%s: Failed to parse PLAYER_INFO's event [%s].", __FUNCTION__, sContent.c_str());
-                break;
-		    }
+            pTable = this->GetActiveTable();
+
             // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             // *** NOTE: The HOXServer does not support player's statistics yet.
             // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             const wxString sMessage = wxString::Format("*INFO: %s %d W%d D%d L%d",
-                playerStats.id.c_str(),
-                playerStats.score,
+                playerStats.id.c_str(), playerStats.score,
                 playerStats.wins, playerStats.draws, playerStats.losses);
-            pTable->PostBoardMessage( sMessage );
+            if ( pTable )
+            {
+                pTable->PostBoardMessage( sMessage );
+            }
+            else
+            {
+                ::wxMessageBox( sMessage, _("Information of Player"),
+                                wxOK | wxICON_INFORMATION );
+            }
             break;
         }
         default:
@@ -554,10 +553,9 @@ hoxResult
 hoxMyPlayer::_ParseNetworkTables( const wxString&          responseStr,
                                    hoxNetworkTableInfoList& tableList )
 {
-    const char* FNAME = __FUNCTION__;
     hoxResult  result = hoxRC_ERR;
 
-    wxLogDebug("%s: ENTER.", FNAME);
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
 
 	wxStringTokenizer tkz( responseStr, "\n" );
     hoxNetworkTableInfo tableInfo;
@@ -580,7 +578,6 @@ hoxMyPlayer::_ParsePlayerLeaveEvent( const wxString& sContent,
                                      hoxTable_SPtr&  pTable,
                                      hoxPlayer*&     player )
 {
-    const char* FNAME = __FUNCTION__;
     const wxString tableId = sContent.BeforeFirst(';');
     const wxString playerId = sContent.AfterFirst(';');
 
@@ -591,7 +588,7 @@ hoxMyPlayer::_ParsePlayerLeaveEvent( const wxString& sContent,
     pTable = this->GetSite()->FindTable( tableId );
     if ( pTable.get() == NULL )
     {
-        wxLogDebug("%s: Table [%s] not found.", FNAME, tableId.c_str());
+        wxLogDebug("%s: Table [%s] not found.", __FUNCTION__, tableId.c_str());
         return hoxRC_NOT_FOUND;
     }
 
@@ -599,7 +596,7 @@ hoxMyPlayer::_ParsePlayerLeaveEvent( const wxString& sContent,
     player = this->GetSite()->FindPlayer( playerId );
     if ( player == NULL ) 
     {
-        wxLogDebug("%s: Player [%s] not found.", FNAME, playerId.c_str());
+        wxLogDebug("%s: Player [%s] not found.", __FUNCTION__, playerId.c_str());
         return hoxRC_NOT_FOUND;
     }
 
@@ -613,7 +610,6 @@ hoxMyPlayer::_ParseTableUpdateEvent( const wxString& sContent,
                                      bool&           bRatedGame,
                                      hoxTimeInfo&    newTimeInfo )
 {
-    const char* FNAME = __FUNCTION__;
     wxString tableId;
     wxString playerId;
 
@@ -645,7 +641,7 @@ hoxMyPlayer::_ParseTableUpdateEvent( const wxString& sContent,
     pTable = this->GetSite()->FindTable( tableId );
     if ( pTable.get() == NULL )
     {
-        wxLogDebug("%s: Table [%s] not found.", FNAME, tableId.c_str());
+        wxLogDebug("%s: Table [%s] not found.", __FUNCTION__, tableId.c_str());
         return hoxRC_NOT_FOUND;
     }
 
@@ -653,7 +649,7 @@ hoxMyPlayer::_ParseTableUpdateEvent( const wxString& sContent,
     player = this->GetSite()->FindPlayer( playerId );
     if ( player == NULL ) 
     {
-        wxLogDebug("%s: Player [%s] not found.", FNAME, playerId.c_str());
+        wxLogDebug("%s: Player [%s] not found.", __FUNCTION__, playerId.c_str());
         return hoxRC_NOT_FOUND;
     }
 
@@ -667,8 +663,6 @@ hoxMyPlayer::_ParsePlayerJoinEvent( const wxString& sContent,
                                     int&            nPlayerScore,
                                     hoxColor&       color)
 {
-    const char* FNAME = __FUNCTION__;
-
     nPlayerScore = 0;
     color        = hoxCOLOR_NONE; // Default = observer.
 
@@ -701,7 +695,6 @@ hoxMyPlayer::_ParsePlayerMsgEvent( const wxString& sContent,
                                    wxString&       playerId,
                                    wxString&       message )
 {
-    const char* FNAME = __FUNCTION__;
     wxString tableId;
 
     pTable.reset();
@@ -731,7 +724,7 @@ hoxMyPlayer::_ParsePlayerMsgEvent( const wxString& sContent,
     pTable = this->GetSite()->FindTable( tableId );
     if ( pTable.get() == NULL )
     {
-        wxLogDebug("%s: Table [%s] not found.", FNAME, tableId.c_str());
+        wxLogDebug("%s: Table [%s] not found.", __FUNCTION__, tableId.c_str());
         return hoxRC_NOT_FOUND;
     }
 
@@ -744,7 +737,6 @@ hoxMyPlayer::_ParsePlayerMoveEvent( const wxString& sContent,
                                     hoxPlayer*&     player,
                                     wxString&       sMove )
 {
-    const char* FNAME = __FUNCTION__;
     wxString tableId;
     wxString playerId;
 
@@ -775,7 +767,7 @@ hoxMyPlayer::_ParsePlayerMoveEvent( const wxString& sContent,
     pTable = this->GetSite()->FindTable( tableId );
     if ( pTable.get() == NULL )
     {
-        wxLogDebug("%s: Table [%s] not found.", FNAME, tableId.c_str());
+        wxLogDebug("%s: Table [%s] not found.", __FUNCTION__, tableId.c_str());
         return hoxRC_NOT_FOUND;
     }
 
@@ -783,7 +775,7 @@ hoxMyPlayer::_ParsePlayerMoveEvent( const wxString& sContent,
     player = this->GetSite()->FindPlayer( playerId );
     if ( player == NULL ) 
     {
-        wxLogDebug("%s: Player [%s] not found.", FNAME, playerId.c_str());
+        wxLogDebug("%s: Player [%s] not found.", __FUNCTION__, playerId.c_str());
         return hoxRC_NOT_FOUND;
     }
 
@@ -795,7 +787,6 @@ hoxMyPlayer::_ParsePlayerDrawEvent( const wxString& sContent,
                                     hoxTable_SPtr&  pTable,
                                     hoxPlayer*&     player )
 {
-    const char* FNAME = __FUNCTION__;
     wxString tableId;
     wxString playerId;
 
@@ -824,7 +815,7 @@ hoxMyPlayer::_ParsePlayerDrawEvent( const wxString& sContent,
     pTable = this->GetSite()->FindTable( tableId );
     if ( pTable.get() == NULL )
     {
-        wxLogDebug("%s: Table [%s] not found.", FNAME, tableId.c_str());
+        wxLogDebug("%s: Table [%s] not found.", __FUNCTION__, tableId.c_str());
         return hoxRC_NOT_FOUND;
     }
 
@@ -832,7 +823,7 @@ hoxMyPlayer::_ParsePlayerDrawEvent( const wxString& sContent,
     player = this->GetSite()->FindPlayer( playerId );
     if ( player == NULL ) 
     {
-        wxLogDebug("%s: Player [%s] not found.", FNAME, playerId.c_str());
+        wxLogDebug("%s: Player [%s] not found.", __FUNCTION__, playerId.c_str());
         return hoxRC_NOT_FOUND;
     }
 
@@ -845,7 +836,6 @@ hoxMyPlayer::_ParsePlayerEndEvent( const wxString& sContent,
                                    hoxGameStatus&  gameStatus,
                                    wxString&       sReason )
 {
-    const char* FNAME = __FUNCTION__;
     wxString tableId;
     wxString sStatus;  // Game-status.
 
@@ -876,7 +866,7 @@ hoxMyPlayer::_ParsePlayerEndEvent( const wxString& sContent,
     pTable = this->GetSite()->FindTable( tableId );
     if ( pTable.get() == NULL )
     {
-        wxLogDebug("%s: Table [%s] not found.", FNAME, tableId.c_str());
+        wxLogDebug("%s: Table [%s] not found.", __FUNCTION__, tableId.c_str());
         return hoxRC_NOT_FOUND;
     }
 
@@ -890,7 +880,6 @@ hoxResult
 hoxMyPlayer::_ParsePlayerResetEvent( const wxString& sContent,
                                      hoxTable_SPtr&  pTable )
 {
-    const char* FNAME = __FUNCTION__;
     wxString tableId;
 
     pTable.reset();
@@ -916,7 +905,7 @@ hoxMyPlayer::_ParsePlayerResetEvent( const wxString& sContent,
     pTable = this->GetSite()->FindTable( tableId );
     if ( pTable.get() == NULL )
     {
-        wxLogDebug("%s: Table [%s] not found.", FNAME, tableId.c_str());
+        wxLogDebug("%s: Table [%s] not found.", __FUNCTION__, tableId.c_str());
         return hoxRC_NOT_FOUND;
     }
 
@@ -929,7 +918,6 @@ hoxMyPlayer::_ParsePlayerScoreEvent( const wxString& sContent,
                                      hoxPlayer*&     player,
                                      int&            nScore )
 {
-    const char* FNAME = __FUNCTION__;
     wxString tableId;
     wxString playerId;
 
@@ -960,7 +948,7 @@ hoxMyPlayer::_ParsePlayerScoreEvent( const wxString& sContent,
     pTable = this->GetSite()->FindTable( tableId );
     if ( pTable.get() == NULL )
     {
-        wxLogDebug("%s: Table [%s] not found.", FNAME, tableId.c_str());
+        wxLogDebug("%s: Table [%s] not found.", __FUNCTION__, tableId.c_str());
         return hoxRC_NOT_FOUND;
     }
 
@@ -968,7 +956,7 @@ hoxMyPlayer::_ParsePlayerScoreEvent( const wxString& sContent,
     player = this->GetSite()->FindPlayer( playerId );
     if ( player == NULL ) 
     {
-        wxLogDebug("%s: Player [%s] not found.", FNAME, playerId.c_str());
+        wxLogDebug("%s: Player [%s] not found.", __FUNCTION__, playerId.c_str());
         return hoxRC_NOT_FOUND;
     }
 
@@ -980,7 +968,6 @@ hoxMyPlayer::_ParsePastMovesEvent( const wxString& sContent,
                                    hoxTable_SPtr&  pTable,
                                    hoxStringList&  moves )
 {
-    const char* FNAME = __FUNCTION__;
     wxString tableId;
     wxString sMoves;
 
@@ -1009,7 +996,7 @@ hoxMyPlayer::_ParsePastMovesEvent( const wxString& sContent,
     pTable = this->GetSite()->FindTable( tableId );
     if ( pTable.get() == NULL )
     {
-        wxLogDebug("%s: Table [%s] not found.", FNAME, tableId.c_str());
+        wxLogDebug("%s: Table [%s] not found.", __FUNCTION__, tableId.c_str());
         return hoxRC_NOT_FOUND;
     }
 
@@ -1019,14 +1006,10 @@ hoxMyPlayer::_ParsePastMovesEvent( const wxString& sContent,
 	return hoxRC_OK;
 }
 
-hoxResult
+void
 hoxMyPlayer::_ParsePlayerInfoEvent( const wxString& sContent,
                                     hoxPlayerStats& playerStats )
 {
-    const char* FNAME = __FUNCTION__;
-
-    /* Parse the input string. */
-
 	// ... Do not return empty tokens
 	wxStringTokenizer tkz( sContent, ";", wxTOKEN_STRTOK );
 	int tokenPosition = 0;
@@ -1042,8 +1025,6 @@ hoxMyPlayer::_ParsePlayerInfoEvent( const wxString& sContent,
 			default: /* Ignore the rest. */ break;
 		}
 	}		
-
-    return hoxRC_OK;
 }
 
 hoxResult

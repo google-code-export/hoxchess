@@ -165,7 +165,7 @@ public:
      *************************************************/
 
     virtual void OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
-                                   const wxString&         sPlayerId ) = 0;
+                                   const wxString&         sPlayerId ) {}
 
 protected:
     virtual unsigned int GetBoardFeatureFlags() const;
@@ -241,14 +241,6 @@ public:
 	virtual void OnResponse_LOGOUT( const hoxResponse_APtr& response )
         {}
 
-    /*************************************************
-     * Implement hoxPlayersUI::UIOwner 's interface.
-     *************************************************/
-
-    virtual void OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
-                                   const wxString&         sPlayerId )
-        {}
-
     virtual void OnLocalRequest_JOIN( const wxString& sTableId )
         {}
     virtual void OnLocalRequest_NEW()
@@ -295,8 +287,7 @@ public:
      *************************************************/
 
     virtual void OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
-                                   const wxString&         sPlayerId )
-        {}
+                                   const wxString&         sPlayerId );
 
     virtual void OnLocalRequest_JOIN( const wxString& sTableId );
     virtual void OnLocalRequest_NEW();
@@ -320,13 +311,6 @@ public:
 
     virtual void OnLocalRequest_JOIN( const wxString& sTableId );
     virtual void OnLocalRequest_NEW();
-
-    /*************************************************
-     * Implement hoxPlayersUI::UIOwner 's interface.
-     *************************************************/
-
-    virtual void OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
-                                   const wxString&         sPlayerId );
 
 protected:
     virtual unsigned int GetBoardFeatureFlags() const;

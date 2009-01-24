@@ -729,8 +729,6 @@ bool
 Board::ValidateMove( hoxMove&       move,
                      hoxGameStatus& status )
 {
-    const char* FNAME = __FUNCTION__;
-
     /* Check for 'turn' */
 
     if ( move.piece.color != m_nextColor )
@@ -781,7 +779,7 @@ Board::ValidateMove( hoxMove&       move,
 
     if ( ! _DoesNextMoveExist() )
     {
-        wxLogDebug("%s: The game is over.", FNAME);
+        wxLogDebug("%s: The game is over.", __FUNCTION__);
         status = (  m_nextColor == hoxCOLOR_BLACK 
                   ? hoxGAME_STATUS_RED_WIN
                   : hoxGAME_STATUS_BLACK_WIN );
@@ -1524,7 +1522,6 @@ hoxReferee::GetNextColor()
 hoxMove
 hoxReferee::StringToMove( const wxString& sMove ) const
 {
-    const char* FNAME = __FUNCTION__;
     hoxMove move;
 
     /* NOTE: Move-string has the format of "xyXY" */
@@ -1544,7 +1541,7 @@ hoxReferee::StringToMove( const wxString& sMove ) const
     if ( ! m_board->GetPieceAtPosition( move.piece.position, 
                                         move.piece ) )
     {
-        wxLogDebug("%s: Failed to locate piece at the position.", FNAME);
+        wxLogDebug("%s: Failed to locate piece at the position.", __FUNCTION__);
         return hoxMove();  // Error: return an invalid Move.
     }
 

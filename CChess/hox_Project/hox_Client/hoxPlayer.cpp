@@ -62,11 +62,6 @@ hoxPlayer::hoxPlayer( const wxString& name,
 hoxPlayer::~hoxPlayer() 
 {
     wxLogDebug("%s: ENTER. (%s)", __FUNCTION__, this->GetId().c_str());
-
-    //if ( m_connection.get() != NULL )
-    //{
-    //    this->ShutdownConnection();
-    //}
 }
 
 hoxTable_SPtr
@@ -111,6 +106,23 @@ hoxPlayer::FindTable( const wxString& sTableId ) const
             pTable = (*it);
             break;
         }
+    }
+
+    return pTable;
+}
+
+hoxTable_SPtr
+hoxPlayer::GetActiveTable() const
+{
+    hoxTable_SPtr pTable;
+
+    if ( ! m_activeTableId.empty() )
+    {
+        pTable = this->FindTable( m_activeTableId );
+    }
+    if ( !pTable )
+    {
+        pTable = this->GetFrontTable();
     }
 
     return pTable;
@@ -239,15 +251,6 @@ hoxPlayer::StartConnection()
     wxCHECK_RET(m_connection.get() != NULL, "The connection must be set" );
     m_connection->Start();
 }
-
-//void 
-//hoxPlayer::ShutdownConnection()
-//{
-//    wxLogDebug("%s: Player [%s] requesting the Connection to be shutdowned...", 
-//        __FUNCTION__, this->GetId().c_str());
-//    hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_SHUTDOWN ) );
-//    this->AddRequestToConnection( apRequest );
-//}
 
 void 
 hoxPlayer::AddRequestToConnection( hoxRequest_APtr apRequest )

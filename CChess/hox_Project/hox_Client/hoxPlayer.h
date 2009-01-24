@@ -105,8 +105,21 @@ public:
      */
     hoxTable_SPtr FindTable( const wxString& sTableId ) const;
 
-    int                GetScore() const    { return m_info.score; }
-    void               SetScore(int score) { m_info.score = score; }
+    /**
+     * Specific a given table to be the "active" or default table
+     * to handle incoming notifications (such as a Player's INFO.)
+     */
+    void SetActiveTableId( const wxString& sTableId )
+        { m_activeTableId = sTableId; }
+
+    /**
+     * Get the "active" table to handle incoming notifications.
+     * If no table was explicitly set, the return the 1st table (if any).
+     */
+    hoxTable_SPtr GetActiveTable() const;
+
+    int  GetScore() const    { return m_info.score; }
+    void SetScore(int score) { m_info.score = score; }
 
     wxString GetPassword() const                   { return m_password; }
     void     SetPassword(const wxString& password) { m_password = password; }
@@ -160,7 +173,6 @@ public:
 
 protected:
     virtual void StartConnection();
-    //virtual void ShutdownConnection();
 
     virtual void AddRequestToConnection( hoxRequest_APtr apRequest );
 
@@ -181,6 +193,11 @@ private:
 
     hoxTableSet    m_tables;
             /* Which tables this Player has joined. */
+
+    wxString       m_activeTableId;
+            /* The table that will receive notifications
+             * such as a Player's INFO.
+             */
 
 	wxString       m_password; // The player's login-password.
 

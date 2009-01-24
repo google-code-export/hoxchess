@@ -1015,25 +1015,16 @@ hoxChesscapePlayer::_HandleTableCmd_GameOver( hoxTable_SPtr   pTable,
 
 	const wxString statusStr = cmdStr.BeforeFirst(0x10);
 
-	if ( statusStr == "RED_WINS" )
-	{
-		gameStatus = hoxGAME_STATUS_RED_WIN;
-	}
-	else if ( statusStr == "BLK_WINS" )
-	{
-		gameStatus = hoxGAME_STATUS_BLACK_WIN;
-	}
-	else if ( statusStr == "DRAW" )
-	{
-		gameStatus = hoxGAME_STATUS_DRAWN;
-	}
+	if      ( statusStr == "RED_WINS" ) gameStatus = hoxGAME_STATUS_RED_WIN;
+	else if ( statusStr == "BLK_WINS" ) gameStatus = hoxGAME_STATUS_BLACK_WIN;
+	else if ( statusStr == "DRAW" )     gameStatus = hoxGAME_STATUS_DRAWN;
 	else
 	{
-		wxLogDebug("%s: *** WARN *** Unknown Game-Over parameter [%s].", __FUNCTION__, statusStr);
+		wxLogDebug("%s: *WARN* Unknown Game-Over parameter [%s].", __FUNCTION__, statusStr.c_str());
 		return;
 	}
 
-	wxLogDebug("%s: Inform table of Game-Status [%d].", __FUNCTION__, (int) gameStatus);
+	wxLogDebug("%s: Inform table of Game-Status [%s].", __FUNCTION__, statusStr.c_str());
 	pTable->OnGameOver_FromNetwork( this, gameStatus );
 }
 

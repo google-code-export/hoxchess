@@ -624,7 +624,7 @@ hoxCoreBoard::_MovePieceToPoint( hoxPiece*      piece,
         return;
     }
 
-    if ( gameStatus != hoxGAME_STATUS_IN_PROGRESS)
+    if ( hoxIReferee::IsGameOverStatus( gameStatus ) )
 	{
         SetGameOver( true );
 	}
@@ -686,7 +686,7 @@ hoxCoreBoard::DoMove( hoxMove& move )
         return false;
     }
 
-    if ( gameStatus != hoxGAME_STATUS_IN_PROGRESS)
+    if ( hoxIReferee::IsGameOverStatus( gameStatus ) )
     {
         SetGameOver( true );
     }

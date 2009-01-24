@@ -34,7 +34,7 @@
  */
 class hoxIReferee
 {
-  public:
+public:
     hoxIReferee( const wxString& sSavedFile = "" ) {}
     virtual ~hoxIReferee() {}
 
@@ -79,6 +79,19 @@ class hoxIReferee
      * @note The returned vector is empty if the game is over.
      */
     virtual void GetAvailableNextMoves( hoxMoveVector& moves ) const = 0;
+
+
+public: /* STATIC API */
+
+    /**
+     * Check if a given game-status is a "game-over" status.
+     */
+    static bool IsGameOverStatus( const hoxGameStatus status )
+    {
+        return (   status == hoxGAME_STATUS_RED_WIN
+                || status == hoxGAME_STATUS_BLACK_WIN
+                || status == hoxGAME_STATUS_DRAWN );
+    }
 };
 
 #endif /* __INCLUDED_HOX_IREFEREE_H__ */

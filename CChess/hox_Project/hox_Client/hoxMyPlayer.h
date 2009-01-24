@@ -117,8 +117,8 @@ private:
                                     hoxTable_SPtr&  pTable,
                                     hoxStringList&  moves );
 
-    hoxResult _ParsePlayerInfoEvent( const wxString& sContent,
-                                     hoxPlayerStats& playerStats );
+    void _ParsePlayerInfoEvent( const wxString& sContent,
+                                 hoxPlayerStats& playerStats );
 
     hoxResult _ParseMovesString( const wxString& sMoves,
                                  hoxStringList&  moves );

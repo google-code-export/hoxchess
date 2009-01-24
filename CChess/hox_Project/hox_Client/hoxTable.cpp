@@ -279,6 +279,9 @@ hoxTable::OnPlayerInfoRequest_FromBoard( const wxString& sPlayerId )
 {
     wxCHECK_RET(m_boardPlayer, "The Board Player cannot be NULL.");
 
+    m_boardPlayer->SetActiveTableId( m_id );
+        /* Which table will display the INFO... */
+
     m_boardPlayer->QueryPlayerInfo( sPlayerId );
 }
 
