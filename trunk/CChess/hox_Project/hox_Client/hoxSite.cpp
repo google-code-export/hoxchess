@@ -425,6 +425,29 @@ hoxRemoteSite::OnResponse_LOGOUT( const hoxResponse_APtr& response )
     }
 }
 
+void
+hoxRemoteSite::OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
+                                 const wxString&         sPlayerId )
+{
+    if ( m_player == NULL ) return;
+
+    switch ( eventType )
+    {
+        case hoxPlayersUI::EVENT_TYPE_INFO:
+        {
+            m_player->QueryPlayerInfo( sPlayerId );
+            break;
+        }
+        case hoxPlayersUI::EVENT_TYPE_INVITE:
+        {
+            m_player->InvitePlayer( sPlayerId );
+            break;
+        }
+        default:
+            wxLogDebug("%s: Unsupported eventType [%d].", __FUNCTION__, eventType);
+    }
+}
+
 hoxResult
 hoxRemoteSite::OnPlayerJoined( const wxString&  tableId,
                                const wxString&  playerId,
@@ -791,30 +814,6 @@ hoxChesscapeSite::GetBoardFeatureFlags() const
     flags &= ~hoxBoard::hoxBOARD_FEATURE_RESET;
 
 	return flags;
-}
-
-void
-hoxChesscapeSite::OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
-                                    const wxString&         sPlayerId )
-{
-    if ( m_player == NULL ) return;
-
-    switch ( eventType )
-    {
-        case hoxPlayersUI::EVENT_TYPE_INFO:
-        {
-            m_player->QueryPlayerInfo( sPlayerId );
-            break;
-        }
-        case hoxPlayersUI::EVENT_TYPE_INVITE:
-        {
-            m_player->InvitePlayer( sPlayerId );
-            break;
-        }
-        default:
-            wxLogDebug("%s: Unsupported eventType [%d].", __FUNCTION__, eventType);
-            break;
-    }
 }
 
 void

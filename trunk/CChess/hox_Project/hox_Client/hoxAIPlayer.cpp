@@ -170,24 +170,24 @@ hoxAIEngine::_HandleRequest_MOVE( hoxRequest_APtr apRequest )
 
     this->OnOpponentMove( sMove );
 
-    if ( gameStatus == hoxGAME_STATUS_IN_PROGRESS )
-    {
-        const wxString sNextMove = this->GenerateNextMove();
-        wxLogDebug("%s: Generated next Move = [%s].", __FUNCTION__, sNextMove.c_str());
+    if ( hoxIReferee::IsGameOverStatus( gameStatus ) )
+        return;
 
-        hoxMove hNextMove = m_referee->StringToMove( sNextMove );
-        bValid = m_referee->ValidateMove( hNextMove, gameStatus );
-        wxASSERT( bValid );
+    const wxString sNextMove = this->GenerateNextMove();
+    wxLogDebug("%s: Generated next Move = [%s].", __FUNCTION__, sNextMove.c_str());
 
-        /* Notify the Player. */
-        const hoxRequestType type = apRequest->type;
-        hoxResponse_APtr apResponse( new hoxResponse(type) );
-        wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, type );
-        apResponse->code = hoxRC_OK;
-        apResponse->content = sNextMove;
-        event.SetEventObject( apResponse.release() );  // Caller will de-allocate.
-        wxPostEvent( m_player, event );
-    }
+    hoxMove hNextMove = m_referee->StringToMove( sNextMove );
+    bValid = m_referee->ValidateMove( hNextMove, gameStatus );
+    wxASSERT( bValid );
+
+    /* Notify the Player. */
+    const hoxRequestType type = apRequest->type;
+    hoxResponse_APtr apResponse( new hoxResponse(type) );
+    wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, type );
+    apResponse->code = hoxRC_OK;
+    apResponse->content = sNextMove;
+    event.SetEventObject( apResponse.release() );  // Caller will de-allocate.
+    wxPostEvent( m_player, event );
 }
 
 void
