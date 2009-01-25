@@ -1159,8 +1159,11 @@ hoxBoard::_PostToWallOutput( const wxString& who,
                              const wxString& sMessage,
                              bool            bPublic /* = true */ )
 {
-    m_wallOutput->SetDefaultStyle( wxTextAttr(*wxBLACK) );
-    m_wallOutput->AppendText( wxString::Format("[%s] ", who.c_str()) );
+    if ( !who.empty() )
+    {
+        m_wallOutput->SetDefaultStyle( wxTextAttr(*wxBLACK) );
+        m_wallOutput->AppendText( wxString::Format("[%s] ", who.c_str()) );
+    }
     m_wallOutput->SetDefaultStyle( wxTextAttr( bPublic ? *wxBLUE : *wxRED) );
     m_wallOutput->AppendText( wxString::Format("%s\n", sMessage.c_str()) );
 

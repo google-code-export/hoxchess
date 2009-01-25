@@ -500,13 +500,11 @@ hoxTable::_PostBoard_PlayerEvent( wxEventType commandType,
 
 void 
 hoxTable::_PostBoard_MessageEvent( const wxString& sMessage,
-                                   const wxString& sSenderId /* = _T("*Table*") */,
+                                   const wxString& sSenderId /* = wxEmptyString */,
                                    bool            bPublic /* = true */ ) const
 {
 	if ( m_board == NULL )
 		return;
-
-    wxCHECK_RET( !sSenderId.empty(), _("The send ID must not be empty") );
 
     const wxString eventString =
         wxString::Format("%s %s", sSenderId.c_str(), sMessage.c_str());

@@ -927,7 +927,7 @@ hoxChesscapePlayer::_HandleTableCmd_Invite( const wxString& cmdStr )
     }
 
     const wxString sMessage =
-        wxString::Format("*INVITE from [%s (%d)] to join Table [%s].",
+        wxString::Format("*INVITE from [%s (%d)] to Table [%s]",
         sInvitorId.c_str(), nInvitorScore,
         sTableId.c_str());
 

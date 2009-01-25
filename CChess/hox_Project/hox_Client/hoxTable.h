@@ -323,12 +323,12 @@ private:
      * Post a message to the Wall (or Chat) Area.
      *
      * @param sMessage The string containing the new Message.
-     * @param sSenderId The sender ID.
+     * @param sSenderId The sender ID, which can be an empty string.
      * @param bPublic Whether this is a public message
      *                .. or a private/instant one.
      */
     void _PostBoard_MessageEvent( const wxString& sMessage,
-                                  const wxString& sSenderId = _T("*Table*"),
+                                  const wxString& sSenderId = wxEmptyString,
                                   bool            bPublic = true ) const;
 
     void _PostBoard_SystemMsgEvent( const wxString& sMessage ) const;
