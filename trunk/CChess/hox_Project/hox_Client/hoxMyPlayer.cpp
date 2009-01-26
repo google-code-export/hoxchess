@@ -323,7 +323,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 
             wxLogDebug("%s: The game has ended. Status = [%s]. Reason = [%s]",
                 __FUNCTION__, hoxUtil::GameStatusToString( gameStatus ).c_str(), sReason.c_str());
-            pTable->OnGameOver_FromNetwork( this, gameStatus );
+            pTable->OnGameOver_FromNetwork( gameStatus );
             break;
         }
         case hoxREQUEST_E_SCORE:
