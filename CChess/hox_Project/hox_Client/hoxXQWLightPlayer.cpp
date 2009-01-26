@@ -47,8 +47,8 @@ IMPLEMENT_DYNAMIC_CLASS(hoxXQWLightPlayer, hoxAIPlayer)
 //-----------------------------------------------------------------------------
 
 hoxXQWLightPlayer::hoxXQWLightPlayer( const wxString& name,
-                                  hoxPlayerType   type,
-                                  int             score )
+                                      hoxPlayerType   type,
+                                      int             score )
             : hoxAIPlayer( name, type, score )
 {
 }

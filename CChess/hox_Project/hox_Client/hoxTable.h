@@ -237,11 +237,9 @@ public:
      * Callback function from the NETWORK Player to let this Table know about
      * the GameOver event.
      *
-     * @param player The Player who informs the event.
      * @param gameStatus The game's status.
      */
-    void OnGameOver_FromNetwork( hoxPlayer*    player,
-                                 hoxGameStatus gameStatus );
+    void OnGameOver_FromNetwork( const hoxGameStatus gameStatus );
 
     /**
      * Callback function from the NETWORK Player to let this Table know about

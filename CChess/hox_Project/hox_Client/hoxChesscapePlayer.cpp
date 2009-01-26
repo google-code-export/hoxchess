@@ -145,11 +145,11 @@ hoxChesscapePlayer::OnRequest_FromTable( hoxRequest_APtr apRequest )
 	        hoxTable_SPtr pTable = this->GetSite()->FindTable( tableId );
             wxCHECK_RET(pTable.get() != NULL, "Table not found");
 
-            hoxColor myRole = pTable->GetPlayerRole( this->GetId() );
-            hoxGameStatus gameStatus = ( myRole == hoxCOLOR_RED
-                                        ? hoxGAME_STATUS_BLACK_WIN 
-                                        : hoxGAME_STATUS_RED_WIN );
-            pTable->OnGameOver_FromNetwork( this, gameStatus );
+            const hoxColor myRole = pTable->GetPlayerRole( this->GetId() );
+            const hoxGameStatus gameStatus = ( myRole == hoxCOLOR_RED
+                                             ? hoxGAME_STATUS_BLACK_WIN 
+                                             : hoxGAME_STATUS_RED_WIN );
+            pTable->OnGameOver_FromNetwork( gameStatus );
             break;
         }
         case hoxREQUEST_UPDATE:
@@ -1025,7 +1025,7 @@ hoxChesscapePlayer::_HandleTableCmd_GameOver( hoxTable_SPtr   pTable,
 	}
 
 	wxLogDebug("%s: Inform table of Game-Status [%s].", __FUNCTION__, statusStr.c_str());
-	pTable->OnGameOver_FromNetwork( this, gameStatus );
+	pTable->OnGameOver_FromNetwork( gameStatus );
 }
 
 void 

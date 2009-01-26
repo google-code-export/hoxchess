@@ -355,11 +355,9 @@ hoxTable::OnDrawRequest_FromNetwork( hoxPlayer* fromPlayer )
 }
 
 void 
-hoxTable::OnGameOver_FromNetwork( hoxPlayer*    player,
-                                  hoxGameStatus gameStatus )
+hoxTable::OnGameOver_FromNetwork( const hoxGameStatus gameStatus )
 {
-    /* Inform the Board about the status. */
-	_PostBoard_GameOverEvent( /*player,*/ gameStatus );
+	_PostBoard_GameOverEvent( gameStatus );
 }
 
 void 

@@ -71,7 +71,7 @@ hoxAIPlayer::OnConnectionResponse( wxCommandEvent& event )
             wxLogDebug("%s: Received Move [%s].", __FUNCTION__, sMove.c_str());
 
             hoxTable_SPtr pTable = this->GetFrontTable();
-            wxASSERT( pTable.get() != NULL );
+            wxCHECK_RET( pTable, "No front table found" );
             pTable->OnMove_FromNetwork( this, sMove );
             break;
         }
