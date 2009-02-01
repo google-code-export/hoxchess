@@ -402,15 +402,14 @@ hoxRemoteSite::OnResponse_LOGIN( const hoxResponse_APtr& response )
 {
     this->ShowProgressDialog( false );
 
-    /* If error, then close the Site. */
-
     if ( response->code != hoxRC_OK )
     {
-        wxLogError("The response's code for [%s] is ERROR [%s: %s].", 
+        wxString sMessage;
+        sMessage.Printf("The response's code for [%s] is ERROR [%s: %s].", 
             hoxUtil::RequestTypeToString(response->type).c_str(), 
             hoxUtil::ResultToStr(response->code),
             response->content.c_str());
-        this->Handle_ShutdownReadyFromPlayer();
+        ::wxMessageBox( sMessage, _("Login error"), wxOK | wxICON_EXCLAMATION );
     }
 }
 
@@ -749,34 +748,6 @@ hoxChesscapeSite::CreateLocalPlayer( const wxString& playerName )
 
 	m_player = m_playerMgr.CreateChesscapePlayer( playerName );
 	return m_player;
-}
-
-void 
-hoxChesscapeSite::OnResponse_LOGIN( const hoxResponse_APtr& response )
-{
-    this->ShowProgressDialog( false );
-
-    /* If error, then close the Site. */
-
-    if ( response->code != hoxRC_OK )
-    {
-        wxLogError("The response's code for [%s] is ERROR [%s: %s].", 
-            hoxUtil::RequestTypeToString(response->type).c_str(), 
-            hoxUtil::ResultToStr(response->code),
-            response->content.c_str());
-        
-        /* NOTE:
-         *   Explicitly send a LOGOUT command to close the connection because
-         *   Chesscape server does not automatically close the connection
-         *   after a login-failure.
-         */
-        
-        if ( m_player != NULL )
-        {
-            m_player->DisconnectFromServer();
-            this->Handle_ShutdownReadyFromPlayer();
-        }
-    }
 }
 
 unsigned int 

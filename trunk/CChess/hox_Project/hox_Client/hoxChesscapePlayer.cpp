@@ -58,9 +58,8 @@ hoxChesscapePlayer::hoxChesscapePlayer( const wxString& name,
 void
 hoxChesscapePlayer::Start()
 {
-    hoxSite* site = this->GetSite();
-    wxASSERT_MSG(site, "Site must be set first");
-    hoxServerAddress address = site->GetAddress();
+    wxASSERT_MSG(m_site, "Site must be set first");
+    hoxServerAddress address = m_site->GetAddress();
     hoxConnection_APtr connection( new hoxChesscapeConnection( address, this ) );
     this->SetConnection( connection );
 }
@@ -85,10 +84,7 @@ hoxChesscapePlayer::QueryForNetworkTables()
 		pTableList->push_back( (*it) );
 	}
 	
-    hoxSite* site = this->GetSite();
-    site->DisplayListOfTables( *pTableList );
-
-	return hoxRC_OK;
+    return m_site->DisplayListOfTables( *pTableList );
 }
 
 hoxResult 
@@ -175,7 +171,6 @@ void
 hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 {
     const hoxResponse_APtr apResponse( wxDynamicCast(event.GetEventObject(), hoxResponse) );
-    hoxSite* site = this->GetSite();
 
     /* Handle error-code. */
 
@@ -188,7 +183,7 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
          */
         this->LeaveAllTables();
         this->DisconnectFromServer();
-        site->Handle_ShutdownReadyFromPlayer();
+        m_site->Handle_ShutdownReadyFromPlayer();
         wxLogDebug("%s: END (exception).", __FUNCTION__);
         return;  // *** Exit immediately.
     }
@@ -230,7 +225,6 @@ void
 hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
 	                                       hoxNetworkTableInfo& tableInfo ) const
 {
-	const char* FNAME = __FUNCTION__;
 	wxString delims;
 	delims += 0x10;
 	// ... Do not return empty tokens
@@ -259,7 +253,7 @@ hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
 
 			case 2: /* Timer symbol 'T' */
 				if ( token != "T" )
-					wxLogDebug("%s: *** WARN *** This token [%s] should be 'T].", FNAME, token.c_str());
+					wxLogDebug("%s: *** WARN *** This token [%s] should be 'T].", __FUNCTION__, token.c_str());
 				break;
 
 			case 3: /* Timer: Game-time (in seconds) */
@@ -284,7 +278,7 @@ hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
 		}
 		++tokenPosition;
 	}		
-	wxLogDebug("%s: ... %s", FNAME, debugStr.c_str());
+	wxLogDebug("%s: ... %s", __FUNCTION__, debugStr.c_str());
 
 	/* Do special adjustment for Solo-typed games.
 	 */
@@ -475,7 +469,6 @@ bool
 hoxChesscapePlayer::_UpdateTableInList( const wxString&      tableStr,
 									    hoxNetworkTableInfo* pTableInfo /* = NULL */ )
 {
-	const char* FNAME = __FUNCTION__;
 	hoxNetworkTableInfo tableInfo;
 
 	_ParseTableInfoString( tableStr, tableInfo );
@@ -504,7 +497,7 @@ hoxChesscapePlayer::_UpdateTableInList( const wxString&      tableStr,
 	/* If the table is not found, insert into our list. */
 	if ( found_it == m_networkTables.end() ) // not found?
 	{
-		wxLogDebug("%s: Insert a new table [%s].", FNAME, tableInfo.id.c_str());
+		wxLogDebug("%s: Insert a new table [%s].", __FUNCTION__, tableInfo.id.c_str());
 		m_networkTables.push_back( tableInfo );
         
         hoxTable_SPtr pTable = _GetMyTable();
@@ -527,7 +520,7 @@ hoxChesscapePlayer::_UpdateTableInList( const wxString&      tableStr,
 	}
 	else // found?
 	{
-		wxLogDebug("%s: Update existing table [%s] with new info.", FNAME, tableInfo.id.c_str());
+		wxLogDebug("%s: Update existing table [%s] with new info.", __FUNCTION__, tableInfo.id.c_str());
 		*found_it = tableInfo;
 	}
 
@@ -603,8 +596,6 @@ void
 hoxChesscapePlayer::_HandleCmd_Login( const hoxResponse_APtr& response,
                                       const wxString&         cmdStr )
 {
-    hoxSite* site = this->GetSite();
-
     wxString  sPlayerId;
     int       nScore = 0;
     wxString  sStatus;
@@ -620,27 +611,25 @@ hoxChesscapePlayer::_HandleCmd_Login( const hoxResponse_APtr& response,
         response->content.Printf("LOGIN is OK. id=[%s], score=[%d], status=[%s]", 
 	        sPlayerId.c_str(), nScore, sStatus.c_str());
         this->SetScore( nScore );
-        site->OnResponse_LOGIN( response );
+        m_site->OnResponse_LOGIN( response );
     }
 
     const hoxPlayerStatus playerStatus = _StringToPlayerStatus( sStatus );
-    site->OnPlayerLoggedIn( sPlayerId, nScore, playerStatus );
+    m_site->OnPlayerLoggedIn( sPlayerId, nScore, playerStatus );
 }
 
 void
 hoxChesscapePlayer::_HandleCmd_Code( const hoxResponse_APtr& response,
                                      const wxString&         cmdStr )
 {
-    hoxSite* site = this->GetSite();
-
     if ( m_bRequestingLogin )  // LOGIN pending?
     {
         m_bRequestingLogin = false;
 
-	    wxLogDebug("%s: *** WARN *** LOGIN return code = [%s].", __FUNCTION__, cmdStr.c_str());
+	    wxLogDebug("%s: *INFO* LOGIN return code = [%s].", __FUNCTION__, cmdStr.c_str());
 	    response->code = hoxRC_ERR;
 	    response->content.Printf("LOGIN returns code = [%s].", cmdStr.c_str());
-        site->OnResponse_LOGIN( response );
+        _OnLoginFailure( response );
     }
 }
 
@@ -649,8 +638,7 @@ hoxChesscapePlayer::_HandleCmd_Logout( const wxString& cmdStr )
 {
     const wxString sPlayerId = cmdStr.BeforeFirst( 0x10 );
 
-    hoxSite* site = this->GetSite();
-    site->OnPlayerLoggedOut( sPlayerId );
+    m_site->OnPlayerLoggedOut( sPlayerId );
 }
 
 void 
@@ -660,8 +648,6 @@ hoxChesscapePlayer::_HandleCmd_Clients( const wxString& cmdStr )
     // NOTE: This command is sent only ONCE from the server
     //       upon login to send the list of all ONLINE players.
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-    hoxSite* site = this->GetSite();
 
 	/* Create a new player-list. */
 
@@ -689,7 +675,7 @@ hoxChesscapePlayer::_HandleCmd_Clients( const wxString& cmdStr )
         
         case 2:  /* Player-Status */
             playerStatus = _StringToPlayerStatus( token );
-            site->OnPlayerLoggedIn( sPlayerId, nPlayerScore, playerStatus );
+            m_site->OnPlayerLoggedIn( sPlayerId, nPlayerScore, playerStatus );
             tokenPosition = 0;  // Reset for the next player!!!
             break;
 
@@ -785,7 +771,6 @@ hoxChesscapePlayer::_HandleTableCmd( const wxString& cmdStr )
 void
 hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 {
-	const char* FNAME = __FUNCTION__;
 	wxString delims;
 	delims += 0x10;
 	wxStringTokenizer tkz( cmdStr, delims, wxTOKEN_STRTOK ); // No empty tokens
@@ -814,7 +799,7 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 			case 2:
 			{
 				if ( token != "T" )
-					wxLogDebug("%s: *** WARN *** This token [%s] should be 'T].", FNAME, token.c_str());
+					wxLogDebug("%s: *** WARN *** This token [%s] should be 'T].", __FUNCTION__, token.c_str());
 				break;
 			}
 
@@ -822,7 +807,7 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 			{
 				if ( ! token.ToLong( &nInitialGameTime ) || nInitialGameTime <= 0 )
 				{
-					wxLogDebug("%s: *** WARN *** Failed to parse TOTAL game-time [%s].", FNAME, token.c_str());
+					wxLogDebug("%s: *** WARN *** Failed to parse TOTAL game-time [%s].", __FUNCTION__, token.c_str());
 				}
 				break;
 			}
@@ -832,7 +817,7 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 				// NOTE: Free (or Increment) time can be 0.
 				if ( ! token.ToLong( &nInitialFreeTime ) )
 				{
-					wxLogDebug("%s: *** WARN *** Failed to parse Free game-time [%s].", FNAME, token.c_str());
+					wxLogDebug("%s: *** WARN *** Failed to parse Free game-time [%s].", __FUNCTION__, token.c_str());
 				}
 				break;
 			}
@@ -844,7 +829,7 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 			{
 				if ( ! token.ToLong( &nRedGameTime ) || nRedGameTime <= 0 )
 				{
-					wxLogDebug("%s: *** WARN *** Failed to parse RED game-time [%s].", FNAME, token.c_str());
+					wxLogDebug("%s: *** WARN *** Failed to parse RED game-time [%s].", __FUNCTION__, token.c_str());
 				}
 				break;
 			}
@@ -856,7 +841,7 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 			{
 				if ( ! token.ToLong( &nBlackGameTime ) || nBlackGameTime <= 0 )
 				{
-					wxLogDebug("%s: *** WARN *** Failed to parse BLACK game-time [%s].", FNAME, token.c_str());
+					wxLogDebug("%s: *** WARN *** Failed to parse BLACK game-time [%s].", __FUNCTION__, token.c_str());
 				}
 				break;
 			}
@@ -867,7 +852,7 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 	}
 
 	wxLogDebug("%s: Game-times for table [%s] = [%ld][%ld][%ld][%ld].", 
-		FNAME, m_pendingJoinTableId.c_str(), nInitialGameTime, nInitialFreeTime,
+		__FUNCTION__, m_pendingJoinTableId.c_str(), nInitialGameTime, nInitialFreeTime,
 		nRedGameTime, nBlackGameTime);
 
 	/* Set the game times. 
@@ -878,7 +863,7 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 		if ( ! _FindTableById( m_pendingJoinTableId, pTableInfo ) ) // not found?
 		{
 			wxLogDebug("%s: *** WARN *** Table [%s] not found.", 
-				FNAME, m_pendingJoinTableId.c_str());
+				__FUNCTION__, m_pendingJoinTableId.c_str());
 			return;
 		}
 
@@ -904,8 +889,7 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 		pTableInfo->redTime.nFree   = pTableInfo->initialTime.nFree;
 
 		// Inform the site.
-		hoxSite* site = this->GetSite();
-		site->JoinLocalPlayerToTable( *pTableInfo );
+		m_site->JoinLocalPlayerToTable( *pTableInfo );
 	}
 }
 
@@ -918,8 +902,7 @@ hoxChesscapePlayer::_HandleTableCmd_Invite( const wxString& cmdStr )
 	const wxString sTableId = cmdStr.AfterFirst(0x10);
 
     /* Look up the Invitor's score. */
-    hoxSite* site = this->GetSite();
-    int nInvitorScore = site->GetScoreOfOnlinePlayer( sInvitorId );
+    int nInvitorScore = m_site->GetScoreOfOnlinePlayer( sInvitorId );
     if ( nInvitorScore == hoxSCORE_UNKNOWN )
     {
         wxLogDebug("%s: *WARN* Player [%s] not found.", __FUNCTION__, sInvitorId.c_str());
@@ -972,7 +955,6 @@ void
 hoxChesscapePlayer::_HandleTableCmd_Move( hoxTable_SPtr   pTable,
 	                                      const wxString& cmdStr )
 {
-	const char* FNAME = __FUNCTION__;
 	wxString moveStr;
 	wxString moveParam;
 
@@ -1003,7 +985,7 @@ hoxChesscapePlayer::_HandleTableCmd_Move( hoxTable_SPtr   pTable,
 	 * NOTE: Regarding the Move- parameter, I do not know what it is yet.
 	 */
 
-	wxLogDebug("%s: Inform table of Move = [%s][%s].", FNAME, moveStr.c_str(), moveParam.c_str());
+	wxLogDebug("%s: Inform table of Move = [%s][%s].", __FUNCTION__, moveStr.c_str(), moveParam.c_str());
 	pTable->OnMove_FromNetwork( this, moveStr );
 }
 
@@ -1031,8 +1013,6 @@ hoxChesscapePlayer::_HandleTableCmd_GameOver( hoxTable_SPtr   pTable,
 void 
 hoxChesscapePlayer::_HandleTableCmd_OfferDraw( hoxTable_SPtr pTable )
 {
-	const char* FNAME = __FUNCTION__;
-
 	/* Make sure that this Player is playing... */
 
 	hoxPlayer* whoOffered = NULL;  // Who offered draw?
@@ -1044,12 +1024,12 @@ hoxChesscapePlayer::_HandleTableCmd_OfferDraw( hoxTable_SPtr pTable )
 
 	if ( whoOffered == NULL )
 	{
-		wxLogDebug("%s: *** WARN *** No real Player is offering this Draw request.", FNAME);
+		wxLogDebug("%s: *** WARN *** No real Player is offering this Draw request.", __FUNCTION__);
 		return;
 	}
 
 	wxLogDebug("%s: Inform table of player [%s] is offering Draw-Request.", 
-		FNAME, whoOffered->GetId().c_str());
+		__FUNCTION__, whoOffered->GetId().c_str());
 	pTable->OnDrawRequest_FromNetwork( whoOffered );
 }
 
@@ -1057,8 +1037,6 @@ void
 hoxChesscapePlayer::_HandleTableCmd_Clients( hoxTable_SPtr   pTable,
 	                                         const wxString& cmdStr )
 {
-    hoxSite* site = this->GetSite();
-
 	wxString delims;
 	delims += 0x10;
 	// ... Do not return empty tokens
@@ -1075,7 +1053,7 @@ hoxChesscapePlayer::_HandleTableCmd_Clients( hoxTable_SPtr   pTable,
         if ( currentRole != hoxCOLOR_UNKNOWN )  // already joined the Table?
             continue;
 
-        nPlayerScore = site->GetScoreOfOnlinePlayer( sPlayerId );
+        nPlayerScore = m_site->GetScoreOfOnlinePlayer( sPlayerId );
         if ( nPlayerScore == hoxSCORE_UNKNOWN )
         {
             wxLogDebug("%s: *WARN* Player [%s] not found.", __FUNCTION__, sPlayerId.c_str());
@@ -1088,10 +1066,10 @@ hoxChesscapePlayer::_HandleTableCmd_Clients( hoxTable_SPtr   pTable,
         wxLogDebug("%s: Player [%s] joined Table [%s] as [%d].", __FUNCTION__, 
             sPlayerId.c_str(), tableId.c_str(), joinColor);
 
-        hoxResult result = site->OnPlayerJoined( tableId, 
-                                                 sPlayerId, 
-                                                 nPlayerScore,
-                                                 joinColor );
+        hoxResult result = m_site->OnPlayerJoined( tableId, 
+                                                   sPlayerId, 
+                                                   nPlayerScore,
+                                                   joinColor );
         if ( result != hoxRC_OK )
         {
             wxLogDebug("%s: *** ERROR *** Failed to ask table to join as color [%d].", 
@@ -1105,17 +1083,14 @@ void
 hoxChesscapePlayer::_HandleTableCmd_Unjoin( hoxTable_SPtr   pTable,
 	                                        const wxString& cmdStr )
 {
-	const char* FNAME = __FUNCTION__;
-
 	const wxString sPlayerId = cmdStr;
     const int      nPlayerScore = 1500;  // *** FIXME
 
-    hoxSite* site = this->GetSite();
-    hoxPlayer* player = site->GetPlayerById( sPlayerId, 
-                                             nPlayerScore );
+    hoxPlayer* player = m_site->GetPlayerById( sPlayerId, 
+                                               nPlayerScore );
     wxCHECK_RET(player != NULL, "Unexpected NULL player");
 
-	wxLogDebug("%s: Inform table that [%s] just left.", FNAME, sPlayerId.c_str());
+	wxLogDebug("%s: Inform table that [%s] just left.", __FUNCTION__, sPlayerId.c_str());
     pTable->OnLeave_FromNetwork( player );
 }
 
@@ -1154,8 +1129,7 @@ hoxChesscapePlayer::_HandleCmd_UpdateRating( const wxString& cmdStr )
 		this->SetScore( nScore );
 	}
 
-    hoxSite* site = this->GetSite();
-    site->UpdateScoreOfOnlinePlayer( sPlayerId, nScore );
+    m_site->UpdateScoreOfOnlinePlayer( sPlayerId, nScore );
 }
 
 void
@@ -1206,10 +1180,7 @@ hoxChesscapePlayer::_HandleCmd_PlayerInfo( const wxString& cmdStr )
 void 
 hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 {
-	const char* FNAME = __FUNCTION__;
 	hoxResult result;
-
-    hoxSite* site = this->GetSite();
 
 	/* If this Player is requesting for a NEW table, then check if the input
 	 * table is a "NEW-EMPTY" table.
@@ -1218,14 +1189,14 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 		&& tableInfo.redId.empty() && tableInfo.blackId.empty() )
 	{
 		wxLogDebug("%s: Received table [%s] as this Player's NEW table.", 
-			FNAME, tableInfo.id.c_str());
+			__FUNCTION__, tableInfo.id.c_str());
 		m_bRequestingNewTable = false;
 
 		// Inform the Site of the response.
         hoxNetworkTableInfo newInfo( tableInfo );
         if ( newInfo.redTime.IsEmpty() ) newInfo.redTime = newInfo.initialTime;
         if ( newInfo.blackTime.IsEmpty() ) newInfo.blackTime = newInfo.initialTime;
-		site->JoinLocalPlayerToTable( newInfo );
+		m_site->JoinLocalPlayerToTable( newInfo );
 		return;  // *** Done.
 	}
 
@@ -1267,15 +1238,15 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 
 	if ( bSitRed )
 	{
-        newRedPlayer = site->GetPlayerById( tableInfo.redId,
-			                                ::atoi( tableInfo.redScore.c_str() ) ); 
+        newRedPlayer = m_site->GetPlayerById( tableInfo.redId,
+			                                  ::atoi( tableInfo.redScore.c_str() ) ); 
 		result = newRedPlayer->JoinTableAs( pTable, hoxCOLOR_RED );
 		wxASSERT( result == hoxRC_OK  );
 	}
 	if ( bSitBlack )
 	{
-        newBlackPlayer = site->GetPlayerById( tableInfo.blackId,
-		                                      ::atoi( tableInfo.blackScore.c_str() ) );
+        newBlackPlayer = m_site->GetPlayerById( tableInfo.blackId,
+		                                        ::atoi( tableInfo.blackScore.c_str() ) );
 		result = newBlackPlayer->JoinTableAs( pTable, hoxCOLOR_BLACK );
 		wxASSERT( result == hoxRC_OK  );
 	}
@@ -1292,6 +1263,20 @@ hoxChesscapePlayer::_OnTableUpdated( const hoxNetworkTableInfo& tableInfo )
 		result = currentBlackPlayer->JoinTableAs( pTable, hoxCOLOR_NONE );
 		wxASSERT( result == hoxRC_OK  );
 	}
+}
+
+void
+hoxChesscapePlayer::_OnLoginFailure( const hoxResponse_APtr& apResponse )
+{
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
+    m_site->OnResponse_LOGIN( apResponse );
+
+    /* NOTE:
+     *   Explicitly send a LOGOUT command to close the connection because
+     *   Chesscape server does not automatically close the connection
+     *   after a login-failure.
+     */
+    this->DisconnectFromServer();
 }
 
 hoxGameType
@@ -1334,7 +1319,6 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
     wxLogDebug("%s: ENTER.", __FUNCTION__);
 
     hoxResponse_APtr apResponse( wxDynamicCast(event.GetEventObject(), hoxResponse) );
-    hoxSite* site = this->GetSite();
 
     const wxString sType = hoxUtil::RequestTypeToString(apResponse->type);
     const wxString sContent = apResponse->content;
@@ -1347,7 +1331,7 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
             {
                 wxLogDebug("%s: *WARN* Failed to login. Error = [%s].", 
                     __FUNCTION__, sContent.c_str());
-                site->OnResponse_LOGIN( apResponse );
+                _OnLoginFailure( apResponse );
             }
             break;
         }

@@ -176,11 +176,12 @@ protected:
 
     virtual void AddRequestToConnection( hoxRequest_APtr apRequest );
 
+protected:
+    hoxSite*        m_site;
+
 private:
     hoxPlayerInfo   m_info;   
             /* Basic player's info (ID, Type, Score,...) */
-
-    hoxSite*        m_site;
 
     hoxConnection_APtr  m_connection;
             /* The connection to "outside" world.

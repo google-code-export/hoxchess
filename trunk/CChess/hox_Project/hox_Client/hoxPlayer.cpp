@@ -53,8 +53,8 @@ hoxPlayer::hoxPlayer()
 hoxPlayer::hoxPlayer( const wxString& name,
                       hoxPlayerType   type,
                       int             score /* = 1500 */)
-            : m_info( name, type, score )
-            , m_site( NULL )
+            : m_site( NULL )
+            , m_info( name, type, score )
 			, m_siteClosing( false )
 { 
 }
@@ -219,7 +219,7 @@ hoxPlayer::OnRequest_FromTable( hoxRequest_APtr apRequest )
 void 
 hoxPlayer::OnClosing_FromSite()
 {
-    wxLogDebug("%s: ENTER. (player = [%s])", __FUNCTION__, this->GetId().c_str());
+    wxLogDebug("%s: player = [%s].", __FUNCTION__, this->GetId().c_str());
 
     m_siteClosing = true; // *** Turn it ON!
 

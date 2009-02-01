@@ -125,6 +125,7 @@ private:
 	/* Private event-handlers */
 
 	void _OnTableUpdated( const hoxNetworkTableInfo& tableInfo );
+    void _OnLoginFailure( const hoxResponse_APtr& apResponse );
 
     /* Other private helpers */
 
