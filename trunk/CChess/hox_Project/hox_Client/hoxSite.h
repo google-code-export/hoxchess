@@ -88,7 +88,6 @@ public:
     virtual hoxResult DisplayListOfTables(const hoxNetworkTableInfoList& tableList) = 0;
 
     virtual void OnResponse_LOGIN( const hoxResponse_APtr& response ) {}
-    virtual void OnResponse_LOGOUT( const hoxResponse_APtr& response ) {}
 
     hoxResult CloseTable(hoxTable_SPtr pTable);
     
@@ -111,7 +110,7 @@ public:
     hoxPlayer* GetPlayerById( const wxString& sPlayerId,
                               const int       nScore );
 
-    virtual void Handle_ShutdownReadyFromPlayer() {}
+    virtual void OnShutdownReadyFromLocalPlayer() {}
 
     virtual hoxLocalPlayer* CreateLocalPlayer(const wxString& playerName) = 0;
 
@@ -266,14 +265,13 @@ public:
 	virtual hoxResult JoinLocalPlayerToTable(const hoxNetworkTableInfo& tableInfo);
     virtual hoxResult DisplayListOfTables(const hoxNetworkTableInfoList& tableList);
 
-	virtual void Handle_ShutdownReadyFromPlayer();
+	virtual void OnShutdownReadyFromLocalPlayer();
 
     virtual hoxLocalPlayer* CreateLocalPlayer(const wxString& playerName);
 
 	virtual unsigned int GetCurrentActionFlags() const;
 
     virtual void OnResponse_LOGIN( const hoxResponse_APtr& response );
-	virtual void OnResponse_LOGOUT( const hoxResponse_APtr& response );
 
     /*************************************************
      * Implement hoxPlayersUI::UIOwner 's interface.
