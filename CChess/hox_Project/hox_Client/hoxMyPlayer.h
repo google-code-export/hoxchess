@@ -63,6 +63,12 @@ private:
     void _HandleResponseEvent_LOGOUT( const wxString&         sContent,
                                       const hoxResponse_APtr& apResponse );
 
+	/* Private event-handlers */
+
+    void _OnLoginFailure( const hoxResponse_APtr& apResponse );
+
+    /* Private parsers */
+
     void _ParsePlayerLoginEvent( const wxString& sContent,
                                  wxString&       playerId,
                                  int&            nPlayerScore );

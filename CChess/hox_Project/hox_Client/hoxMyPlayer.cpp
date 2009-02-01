@@ -54,9 +54,8 @@ hoxMyPlayer::hoxMyPlayer( const wxString& name,
 void
 hoxMyPlayer::Start()
 {
-    hoxSite* site = this->GetSite();
-    wxASSERT_MSG(site, "Site must be set first");
-    hoxServerAddress address = site->GetAddress();
+    wxASSERT_MSG(m_site, "Site must be set first");
+    hoxServerAddress address = m_site->GetAddress();
     hoxConnection_APtr connection( new hoxSocketConnection( address, this ) );
     this->SetConnection( connection );
 }
@@ -66,7 +65,6 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 {
     hoxResult result = hoxRC_OK;
     const hoxResponse_APtr apResponse( wxDynamicCast(event.GetEventObject(), hoxResponse) );
-    hoxSite* site = this->GetSite();
     hoxTable_SPtr  pTable;
 
     /* Handle error-code. */
@@ -82,7 +80,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
         {
             this->LeaveAllTables();
             this->DisconnectFromServer();
-            site->Handle_ShutdownReadyFromPlayer();
+            m_site->Handle_ShutdownReadyFromPlayer();
             wxLogDebug("%s: END (exception).", __FUNCTION__);
             return;  // *** Exit immediately.
         }
@@ -109,7 +107,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
     /* Lookup Table if the Table-Id is provided. */
     if ( ! sTableId.empty() )
     {
-        pTable = site->FindTable( sTableId );
+        pTable = m_site->FindTable( sTableId );
         if ( pTable.get() == NULL )
         {
             wxLogDebug("%s: *INFO* Table [%s] not found.", __FUNCTION__, sTableId.c_str());
@@ -154,7 +152,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 				    __FUNCTION__, sContent.c_str());
 			    apResponse->code = result;
 		    }
-	        site->DisplayListOfTables( *pTableList );
+	        m_site->DisplayListOfTables( *pTableList );
             break;
         }
         case hoxREQUEST_I_TABLE:
@@ -168,7 +166,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 				    __FUNCTION__, sType.c_str(), sContent.c_str());
                 break;
 		    }
-		    site->JoinLocalPlayerToTable( *pTableInfo );
+		    m_site->JoinLocalPlayerToTable( *pTableInfo );
 		    break;
         }
         case hoxREQUEST_LEAVE:
@@ -227,10 +225,10 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 		    }
             wxLogDebug("%s: Player [%s] joined Table [%s] as [%d].", __FUNCTION__, 
                 playerId.c_str(), tableId.c_str(), joinColor);
-            result = site->OnPlayerJoined( tableId, 
-                                           playerId, 
-                                           nPlayerScore,
-                                           joinColor );
+            result = m_site->OnPlayerJoined( tableId, 
+                                             playerId, 
+                                             nPlayerScore,
+                                             joinColor );
             if ( result != hoxRC_OK )
             {
                 wxLogDebug("%s: *ERROR* Failed to ask table to join as color [%d].", 
@@ -426,8 +424,6 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
 
     const hoxResponse_APtr apResponse( wxDynamicCast(event.GetEventObject(), hoxResponse) );
 
-    hoxSite* site = this->GetSite();
-    
     const wxString sType = hoxUtil::RequestTypeToString(apResponse->type);
     const wxString sContent = apResponse->content;
 
@@ -439,7 +435,7 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
             {
                 wxLogDebug("%s: *WARN* Failed to login. Error = [%s].", 
                     __FUNCTION__, sContent.c_str());
-                site->OnResponse_LOGIN( apResponse );
+                _OnLoginFailure( apResponse );
             }
             break;
         }
@@ -457,8 +453,6 @@ hoxMyPlayer::_HandleResponseEvent_LOGIN( const wxString&         sCode,
                                          const wxString&         sContent,
                                          const hoxResponse_APtr& apResponse )
 {
-    hoxSite* site = this->GetSite();
-
     /* Error handling. */
 
     if ( sCode != "0" )  // error?
@@ -466,7 +460,7 @@ hoxMyPlayer::_HandleResponseEvent_LOGIN( const wxString&         sCode,
         wxLogDebug("%s: *WARN* Received LOGIN error = [%s: %s].", 
             __FUNCTION__, sCode.c_str(), sContent.c_str());
         apResponse->code = hoxRC_ERR;
-        site->OnResponse_LOGIN( apResponse );
+        _OnLoginFailure( apResponse );
         return;
     }
 
@@ -486,7 +480,7 @@ hoxMyPlayer::_HandleResponseEvent_LOGIN( const wxString&         sCode,
         this->SetScore( nPlayerScore );
         
         apResponse->code = hoxRC_OK;
-        site->OnResponse_LOGIN( apResponse );
+        m_site->OnResponse_LOGIN( apResponse );
     }
     else
     {
@@ -495,15 +489,13 @@ hoxMyPlayer::_HandleResponseEvent_LOGIN( const wxString&         sCode,
     }
 
     /* Inform the Site. */
-    site->OnPlayerLoggedIn( sPlayerId, nPlayerScore );
+    m_site->OnPlayerLoggedIn( sPlayerId, nPlayerScore );
 }
 
 void 
 hoxMyPlayer::_HandleResponseEvent_LOGOUT( const wxString&         sContent,
                                           const hoxResponse_APtr& apResponse )
 {
-    hoxSite* site = this->GetSite();
-
     /* Handle data. */
 
     const wxString sPlayerId = sContent.BeforeFirst('\n');
@@ -511,15 +503,28 @@ hoxMyPlayer::_HandleResponseEvent_LOGOUT( const wxString&         sContent,
     if ( sPlayerId == this->GetId() )
     {
         m_bLoginSuccess = false;  // *** Record this LOGOUT event.
-        site->OnResponse_LOGOUT( apResponse );
+        m_site->OnResponse_LOGOUT( apResponse );
         // *** NOTE: No need to inform the Site since THIS player
         //     has logged out.
     }
     else
     {
         wxLogDebug("%s: Received LOGOUT from other [%s].", __FUNCTION__, sPlayerId.c_str());
-        site->OnPlayerLoggedOut( sPlayerId );  /* Inform the Site. */
+        m_site->OnPlayerLoggedOut( sPlayerId );  /* Inform the Site. */
     }
+}
+
+void
+hoxMyPlayer::_OnLoginFailure( const hoxResponse_APtr& apResponse )
+{
+    wxLogDebug("%s: ENTER.", __FUNCTION__);
+    m_site->OnResponse_LOGIN( apResponse );
+
+    /* NOTE:
+     *   PlayXiangqi server automatically closes the connection
+     *   after a login-failure.
+     */
+    m_site->Handle_ShutdownReadyFromPlayer();
 }
 
 void

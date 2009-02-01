@@ -87,8 +87,8 @@ public:
 	virtual hoxResult JoinLocalPlayerToTable(const hoxNetworkTableInfo& tableInfo) = 0;
     virtual hoxResult DisplayListOfTables(const hoxNetworkTableInfoList& tableList) = 0;
 
-    virtual void OnResponse_LOGIN( const hoxResponse_APtr& response ) = 0;
-	virtual void OnResponse_LOGOUT( const hoxResponse_APtr& response ) = 0;
+    virtual void OnResponse_LOGIN( const hoxResponse_APtr& response ) {}
+    virtual void OnResponse_LOGOUT( const hoxResponse_APtr& response ) {}
 
     hoxResult CloseTable(hoxTable_SPtr pTable);
     
@@ -111,7 +111,7 @@ public:
     hoxPlayer* GetPlayerById( const wxString& sPlayerId,
                               const int       nScore );
 
-	virtual void Handle_ShutdownReadyFromPlayer() = 0;
+    virtual void Handle_ShutdownReadyFromPlayer() {}
 
     virtual hoxLocalPlayer* CreateLocalPlayer(const wxString& playerName) = 0;
 
@@ -230,16 +230,9 @@ public:
     virtual hoxResult DisplayListOfTables(const hoxNetworkTableInfoList& tableList)
         { return hoxRC_OK; }
 
-    virtual void Handle_ShutdownReadyFromPlayer()
-        {}
     virtual hoxLocalPlayer* CreateLocalPlayer(const wxString& playerName);
 
 	virtual unsigned int GetCurrentActionFlags() const;
-
-    virtual void OnResponse_LOGIN( const hoxResponse_APtr& response )
-        {}
-	virtual void OnResponse_LOGOUT( const hoxResponse_APtr& response )
-        {}
 
     virtual void OnLocalRequest_JOIN( const wxString& sTableId )
         {}
@@ -306,8 +299,6 @@ public:
     virtual hoxLocalPlayer* CreateLocalPlayer(const wxString& playerName);
 
 	virtual unsigned int GetCurrentActionFlags() const;
-
-    virtual void OnResponse_LOGIN( const hoxResponse_APtr& response );
 
     virtual void OnLocalRequest_JOIN( const wxString& sTableId );
     virtual void OnLocalRequest_NEW();
