@@ -80,7 +80,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
         {
             this->LeaveAllTables();
             this->DisconnectFromServer();
-            m_site->Handle_ShutdownReadyFromPlayer();
+            m_site->OnShutdownReadyFromLocalPlayer();
             wxLogDebug("%s: END (exception).", __FUNCTION__);
             return;  // *** Exit immediately.
         }
@@ -496,22 +496,9 @@ void
 hoxMyPlayer::_HandleResponseEvent_LOGOUT( const wxString&         sContent,
                                           const hoxResponse_APtr& apResponse )
 {
-    /* Handle data. */
-
     const wxString sPlayerId = sContent.BeforeFirst('\n');
-
-    if ( sPlayerId == this->GetId() )
-    {
-        m_bLoginSuccess = false;  // *** Record this LOGOUT event.
-        m_site->OnResponse_LOGOUT( apResponse );
-        // *** NOTE: No need to inform the Site since THIS player
-        //     has logged out.
-    }
-    else
-    {
-        wxLogDebug("%s: Received LOGOUT from other [%s].", __FUNCTION__, sPlayerId.c_str());
-        m_site->OnPlayerLoggedOut( sPlayerId );  /* Inform the Site. */
-    }
+    wxLogDebug("%s: Received LOGOUT from [%s].", __FUNCTION__, sPlayerId.c_str());
+    m_site->OnPlayerLoggedOut( sPlayerId );
 }
 
 void
@@ -524,7 +511,7 @@ hoxMyPlayer::_OnLoginFailure( const hoxResponse_APtr& apResponse )
      *   PlayXiangqi server automatically closes the connection
      *   after a login-failure.
      */
-    m_site->Handle_ShutdownReadyFromPlayer();
+    m_site->OnShutdownReadyFromLocalPlayer();
 }
 
 void

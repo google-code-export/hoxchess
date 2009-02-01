@@ -183,7 +183,7 @@ hoxChesscapePlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
          */
         this->LeaveAllTables();
         this->DisconnectFromServer();
-        m_site->Handle_ShutdownReadyFromPlayer();
+        m_site->OnShutdownReadyFromLocalPlayer();
         wxLogDebug("%s: END (exception).", __FUNCTION__);
         return;  // *** Exit immediately.
     }

@@ -70,7 +70,6 @@ public:
 	virtual void OnRequest_FromTable( hoxRequest_APtr apRequest );
 
     virtual void OnClose_FromTable( const wxString& tableId );
-	virtual void OnClosing_FromSite();
 
     /***************************
      * Accessor API
@@ -201,9 +200,6 @@ private:
              */
 
 	wxString       m_password; // The player's login-password.
-
-	bool           m_siteClosing;    // The site is being closed?
-
 
     DECLARE_DYNAMIC_CLASS(hoxPlayer)
     DECLARE_EVENT_TABLE()

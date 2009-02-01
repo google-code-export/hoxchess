@@ -55,7 +55,6 @@ hoxPlayer::hoxPlayer( const wxString& name,
                       int             score /* = 1500 */)
             : m_site( NULL )
             , m_info( name, type, score )
-			, m_siteClosing( false )
 { 
 }
 
@@ -214,19 +213,6 @@ hoxPlayer::OnRequest_FromTable( hoxRequest_APtr apRequest )
 
     apRequest->sender = this;
     this->AddRequestToConnection( apRequest );
-}
-
-void 
-hoxPlayer::OnClosing_FromSite()
-{
-    wxLogDebug("%s: player = [%s].", __FUNCTION__, this->GetId().c_str());
-
-    m_siteClosing = true; // *** Turn it ON!
-
-    if ( m_tables.empty() )
-    {
-        m_site->Handle_ShutdownReadyFromPlayer();
-    }
 }
 
 bool 

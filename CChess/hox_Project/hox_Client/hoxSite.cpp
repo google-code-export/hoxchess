@@ -413,17 +413,6 @@ hoxRemoteSite::OnResponse_LOGIN( const hoxResponse_APtr& response )
     }
 }
 
-void 
-hoxRemoteSite::OnResponse_LOGOUT( const hoxResponse_APtr& response )
-{
-	wxLogDebug("%s: ENTER. (%d: %s).",
-        __FUNCTION__, response->code, response->content.c_str());
-    if ( m_player != NULL )
-    {
-        m_player->OnClosing_FromSite();
-    }
-}
-
 void
 hoxRemoteSite::OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
                                  const wxString&         sPlayerId )
@@ -635,7 +624,7 @@ hoxRemoteSite::IsConnected() const
 }
 
 void 
-hoxRemoteSite::Handle_ShutdownReadyFromPlayer()
+hoxRemoteSite::OnShutdownReadyFromLocalPlayer()
 {
     wxLogDebug("%s: ENTER.", __FUNCTION__);
 
