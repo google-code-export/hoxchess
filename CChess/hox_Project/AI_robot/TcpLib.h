@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2007, 2008 Huy Phan  <huyphan@playxiangqi.com>               *
+ *  Copyright 2007, 2008, 2009 Huy Phan  <huyphan@playxiangqi.com>         *
  *                                                                         * 
  *  This file is part of HOXChess.                                         *
  *                                                                         *
@@ -29,7 +29,10 @@
 
 #include <string>
 
-#define HOX_INVALID_SOCKET  (-1)    /* Invalid socket descriptor */
+#define HOX_INVALID_SOCKET      (-1)    /* Invalid socket descriptor */
+#define HOX_NO_SOCKET_TIMEOUT   (-1)    /* No socket timeout         */
+#define HOX_ERR_SOCKET_TIMEOUT  (-2)    /* Socket timeout error      */
+#define HOX_ERR_SOCKET_OTHER    (-3)    /* 'Other' socket error      */
 
 // ---------------------------------------------------------
 // Constants
@@ -70,6 +73,18 @@ namespace HOX
      */
     int
     tcp_close( int s );
+
+    /**
+     * Set the timeout on reading incoming input.
+     *
+     * @param s  - [IN] The socket being closed.
+     * @param timeout  - [IN] The timeout in seconds.
+     * @return 0   - If success.
+     *         -1  - If failure.
+     */
+    int
+    set_read_timeout( int s /* socket */,
+                      int timeout );
 
     /**
      * @return 0   - if the connection is closed.
@@ -125,6 +140,15 @@ namespace HOX
          * @return 0   - if success
          */
         virtual int Close();
+
+        /**
+         * Set the timeout on reading incoming input.
+         *
+         * @param timeout  - [IN] The timeout in seconds.
+         * @return 0   - If success.
+         *         -1  - If failure.
+         */
+        virtual int SetReadTimeout( int timeout );
 
         virtual int ReadLine( std::string& sLine,
                               unsigned int nMax = HOX_CMD_LINE_MAX );

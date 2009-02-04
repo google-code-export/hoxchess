@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2007, 2008 Huy Phan  <huyphan@playxiangqi.com>               *
+ *  Copyright 2007, 2008, 2009 Huy Phan  <huyphan@playxiangqi.com>         *
  *                                                                         * 
  *  This file is part of HOXChess.                                         *
  *                                                                         *
@@ -34,6 +34,16 @@
 
 using namespace std;
 
+//-----------------------------------------------------------------------------
+//
+//                                  Constants
+//
+//-----------------------------------------------------------------------------
+
+#define  DEFAULT_HOX_SERVER    "games.playxiangqi.com"
+#define  DEFAULT_HOX_PORT      8000
+#define  SOCKET_READ_TIMEOUT   (5 * 60) /* in seconds */
+
 // ----------------------------------------------------------------------------
 // Run the AI engine.
 // ----------------------------------------------------------------------------
@@ -49,7 +59,16 @@ _run_AI_engine( AIPlayer& aiPlayer )
     while ( !bDone )
     {
         hoxCommand  inCommand;  // Incoming command from the server.
-        aiPlayer.ReadIncomingCommand( inCommand );
+        try
+        {
+            aiPlayer.ReadIncomingCommand( inCommand );
+        }
+        catch ( const TimeoutException& ex )
+        {
+            printf("%s: Timeout occurred [%s].\n", __FUNCTION__, ex.what());
+            aiPlayer.SendKeepAlive();
+            continue;
+        }
         printf("%s: Received command [%s: %s].\n",
             __FUNCTION__, inCommand.m_type.c_str(), inCommand["content"].c_str());
 
@@ -108,8 +127,9 @@ main( int argc, char *argv[] )
 {
     printf("%s: AI Robot starting...\n", __FUNCTION__);
 
-    std::string ai_pid      = "AI_xqwlight"; // Player ID
-    std::string ai_password = "AI_xqwlight"; // Player Password
+    std::string ai_pid       = "AI_xqwlight"; // Player ID
+    std::string ai_password  = "AI_xqwlight"; // Player Password
+    const int   nReadTimeout = SOCKET_READ_TIMEOUT; // Socket's read timeout (in seconds)
 
     if ( argc == 3 ) // pid / password from command-line?
     {
@@ -127,7 +147,8 @@ main( int argc, char *argv[] )
             printf("%s: Running AI [%s].\n", __FUNCTION__, ai_pid.c_str());
             AIPlayer  aiPlayer( ai_pid, ai_password ); // (pid, password)
 
-            aiPlayer.Connect();
+            aiPlayer.Connect( DEFAULT_HOX_SERVER, DEFAULT_HOX_PORT,
+                              nReadTimeout );
             aiPlayer.Login();
 
             for (;;)

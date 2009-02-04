@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2007, 2008 Huy Phan  <huyphan@playxiangqi.com>               *
+ *  Copyright 2007, 2008, 2009 Huy Phan  <huyphan@playxiangqi.com>         *
  *                                                                         * 
  *  This file is part of HOXChess.                                         *
  *                                                                         *
@@ -37,6 +37,7 @@
 
 #include <string>
 #include <list>
+#include <stdexcept>
 #include <boost/tokenizer.hpp>
 
 // ----------------------------------------------------------------- //
@@ -185,12 +186,7 @@ public:
 	hoxTimeInfo( int g = 0, int m = 0, int f = 0 ) 
         : nGame( g ), nMove( m ), nFree( f ) {}
 
-    void Clear()
-		{
-			nGame = 0;
-			nMove = 0;
-			nFree = 0;
-		}
+    void Clear() { nGame = nMove = nFree = 0; }
 
     bool IsEmpty() const 
         { return (nGame == 0) && (nMove == 0) && (nFree == 0); }
@@ -241,6 +237,26 @@ public:
 
 };
 typedef std::list<hoxTableInfo> hoxTableInfoList;
+
+
+// ----------------------------------------------------------------- //
+//                                                                   //
+//                  Exceptions                                       //
+//                                                                   //
+// ----------------------------------------------------------------- //
+
+class TimeoutException : public std::runtime_error
+{
+public:
+    explicit TimeoutException( const std::string& msg )
+                : std::runtime_error( msg ) { }
+};
+
+// ----------------------------------------------------------------- //
+//                                                                   //
+//                  Utils                                            //
+//                                                                   //
+// ----------------------------------------------------------------- //
 
 namespace hoxUtil
 {

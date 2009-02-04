@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2007, 2008 Huy Phan  <huyphan@playxiangqi.com>               *
+ *  Copyright 2007, 2008, 2009 Huy Phan  <huyphan@playxiangqi.com>         *
  *                                                                         * 
  *  This file is part of HOXChess.                                         *
  *                                                                         *
@@ -32,16 +32,6 @@
 
 //-----------------------------------------------------------------------------
 //
-//                                  Constants
-//
-//-----------------------------------------------------------------------------
-
-#define  DEFAULT_HOX_SERVER    "games.playxiangqi.com"
-#define  DEFAULT_HOX_PORT      8000
-
-
-//-----------------------------------------------------------------------------
-//
 //                                  AIPlayer
 //
 //-----------------------------------------------------------------------------
@@ -59,12 +49,21 @@ AIPlayer::~AIPlayer()
 }
 
 void
-AIPlayer::Connect()
+AIPlayer::Connect( const std::string&       sHost,
+                   const unsigned short int nPort,
+                   int nReadTimeout /* = HOX_NO_SOCKET_TIMEOUT */ )
 {
-    if ( 0 != m_sock.Connect( DEFAULT_HOX_SERVER, DEFAULT_HOX_PORT ) )
+    if ( 0 != m_sock.Connect( sHost, nPort ) )
     {
-        throw std::runtime_error("Failed to connect to server: "
-                                 + std::string(DEFAULT_HOX_SERVER));
+        throw std::runtime_error("Failed to connect to server: " + sHost );
+    }
+
+    if ( nReadTimeout != HOX_NO_SOCKET_TIMEOUT )
+    {
+        if ( 0 != m_sock.SetReadTimeout( nReadTimeout ) )
+        {
+            throw std::runtime_error("Failed to set socket's read timeout");
+        }
     }
 }
 
@@ -154,12 +153,27 @@ AIPlayer::LeaveCurrentTable()
 }
 
 void
+AIPlayer::SendKeepAlive()
+{
+    hoxCommand outCommand("PING");
+    _SendCommand( outCommand );
+
+    hoxCommand  inCommand;  // Incoming command from the server.
+    this->ReadIncomingCommand( inCommand );
+}
+
+void
 AIPlayer::ReadIncomingCommand( hoxCommand& inCommand )
 {
     inCommand.Clear();
 
     std::string sResponse;
-    if ( 0 >= m_sock.ReadUntilAll( "\n\n", sResponse ) )
+    const int nRet = m_sock.ReadUntilAll( "\n\n", sResponse );
+    if ( nRet == HOX_ERR_SOCKET_TIMEOUT )
+    {
+        throw TimeoutException("Socket read timeout");
+    }
+    else if ( nRet <= 0 )
     {
         throw std::runtime_error("Failed to read response");
     }
