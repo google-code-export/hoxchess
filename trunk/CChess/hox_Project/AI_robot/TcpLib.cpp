@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2007, 2008 Huy Phan  <huyphan@playxiangqi.com>               *
+ *  Copyright 2007, 2008, 2009 Huy Phan  <huyphan@playxiangqi.com>         *
  *                                                                         * 
  *  This file is part of HOXChess.                                         *
  *                                                                         *
@@ -102,8 +102,19 @@ get_last_socket_error()
 {
 #ifdef WIN32
     return WSAGetLastError();
-#endif
+#else
     return errno;
+#endif
+}
+
+bool
+is_socket_error_timeout( const int err )
+{
+#ifdef WIN32
+    return ( err == WSAETIMEDOUT );
+#else
+    return ( err == EAGAIN );
+#endif
 }
 
 /**
@@ -205,6 +216,33 @@ HOX::tcp_close( int s )
 }
 
 int
+HOX::set_read_timeout( int s /* socket */,
+                       int timeout )
+{
+    const char* FNAME = __FUNCTION__;
+
+#ifdef WIN32
+    const int tvTimeout = timeout * 1000; // in milliseconds
+#else
+    struct timeval tvTimeout;
+    tvTimeout.tv_sec = timeout;
+    tvTimeout.tv_usec = 0;
+#endif
+
+    if ( -1 == setsockopt( s,
+                           SOL_SOCKET,
+                           SO_RCVTIMEO,
+                           (const char*) &tvTimeout,
+                           sizeof(tvTimeout)) )
+    {
+        printf("%s: *WARN* setsockopt SO_RCVTIMEO failed", FNAME);
+        return -1;  // failure.
+    }
+
+    return 0; // success
+}
+
+int
 HOX::tcp_read_line( int          s /* socket */,
                     std::string& sLine,
                     unsigned int nMax /* = HOX_CMD_LINE_MAX*/ )
@@ -256,8 +294,11 @@ HOX::tcp_read_line( int          s /* socket */,
         }
         else /* if ( iResult == SOCKET_ERROR ) */
         {
-            printf("%s: recv failed: %d\n", FNAME, get_last_socket_error());
-            return -2;  //  Return "other error" code
+            int last_err = get_last_socket_error();
+            printf("%s: recv failed: %d\n", FNAME, last_err);
+            if ( is_socket_error_timeout( last_err ) )
+                return HOX_ERR_SOCKET_TIMEOUT;
+            return HOX_ERR_SOCKET_OTHER; //  Return "other error" code
         }
     }
 
@@ -313,9 +354,7 @@ HOX::tcp_read_until_all( int                s /* socket */,
 
     sOutput.clear();
 
-	/* Read a line until seeing CRLF */
-
-    char         c;         // The character just received.
+    char         c;         // The byte just received.
     const size_t requiredSeen = sWanted.size();
     size_t       currentSeen  = 0;
     int          iResult      = 0;
@@ -352,7 +391,12 @@ HOX::tcp_read_until_all( int                s /* socket */,
         }
         else // Some other socket error?
         {
-            printf("%s: recv failed: %d\n", __FUNCTION__, get_last_socket_error());
+            int last_err = get_last_socket_error();
+            printf("%s: recv failed: %d\n", __FUNCTION__, last_err);
+            if ( is_socket_error_timeout( last_err ) )
+                return HOX_ERR_SOCKET_TIMEOUT;
+            return HOX_ERR_SOCKET_OTHER; //  Return "other error" code
+
             return -2;  //  Return "other error" code
         }
     }
@@ -429,6 +473,12 @@ Socket::Close()
         m_sock = HOX_INVALID_SOCKET;
     }
     return iResult;
+}
+
+int
+Socket::SetReadTimeout( int timeout )
+{
+    return set_read_timeout( m_sock, timeout );
 }
 
 int

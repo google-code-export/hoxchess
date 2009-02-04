@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2007, 2008 Huy Phan  <huyphan@playxiangqi.com>               *
+ *  Copyright 2007, 2008, 2009 Huy Phan  <huyphan@playxiangqi.com>         *
  *                                                                         * 
  *  This file is part of HOXChess.                                         *
  *                                                                         *
@@ -44,12 +44,15 @@ public:
               const std::string& password );
     virtual ~AIPlayer();
 
-    void Connect();
+    void Connect( const std::string&       sHost,
+                  const unsigned short int nPort,
+                  int nReadTimeout = HOX_NO_SOCKET_TIMEOUT );
     void Disconnect();
     void Login();
     void Logout();
     void OpenNewTable( hoxTableInfo& tableInfo );
     void LeaveCurrentTable();
+    void SendKeepAlive();
 
     void ReadIncomingCommand( hoxCommand& inCommand );
     void HandleIncoming_MOVE( const std::string& sInContent );

@@ -239,7 +239,7 @@ hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
 	{
 		token = tkz.GetNextToken();
 		debugStr << '[' << token << "]";
-		switch (tokenPosition)
+		switch ( tokenPosition++ )
 		{
 			case 0: /* Table-Id */
 				tableInfo.id = token; 
@@ -253,7 +253,7 @@ hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
 
 			case 2: /* Timer symbol 'T' */
 				if ( token != "T" )
-					wxLogDebug("%s: *** WARN *** This token [%s] should be 'T].", __FUNCTION__, token.c_str());
+					wxLogDebug("%s: *WARN* This token [%s] should be 'T].", __FUNCTION__, token.c_str());
 				break;
 
 			case 3: /* Timer: Game-time (in seconds) */
@@ -276,7 +276,6 @@ hoxChesscapePlayer::_ParseTableInfoString( const wxString&      tableStr,
 
 			default: /* Ignore the rest. */ break;
 		}
-		++tokenPosition;
 	}		
 	wxLogDebug("%s: ... %s", __FUNCTION__, debugStr.c_str());
 
@@ -711,7 +710,7 @@ hoxChesscapePlayer::_HandleCmd_Unshow(const wxString& cmdStr)
 
 	if ( ! _RemoveTableFromList( tableId ) ) // not found?
 	{
-		wxLogDebug("%s: *** WARN *** Table [%s] to be deleted NOT FOUND.", 
+		wxLogDebug("%s: *WARN* Table [%s] to be deleted NOT FOUND.", 
 			__FUNCTION__, tableId.c_str());
 	}
 }
@@ -799,7 +798,7 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 			case 2:
 			{
 				if ( token != "T" )
-					wxLogDebug("%s: *** WARN *** This token [%s] should be 'T].", __FUNCTION__, token.c_str());
+					wxLogDebug("%s: *WARN* This token [%s] should be 'T].", __FUNCTION__, token.c_str());
 				break;
 			}
 
@@ -807,7 +806,7 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 			{
 				if ( ! token.ToLong( &nInitialGameTime ) || nInitialGameTime <= 0 )
 				{
-					wxLogDebug("%s: *** WARN *** Failed to parse TOTAL game-time [%s].", __FUNCTION__, token.c_str());
+					wxLogDebug("%s: *WARN* Failed to parse TOTAL game-time [%s].", __FUNCTION__, token.c_str());
 				}
 				break;
 			}
@@ -817,7 +816,7 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 				// NOTE: Free (or Increment) time can be 0.
 				if ( ! token.ToLong( &nInitialFreeTime ) )
 				{
-					wxLogDebug("%s: *** WARN *** Failed to parse Free game-time [%s].", __FUNCTION__, token.c_str());
+					wxLogDebug("%s: *WARN* Failed to parse Free game-time [%s].", __FUNCTION__, token.c_str());
 				}
 				break;
 			}
@@ -829,7 +828,7 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 			{
 				if ( ! token.ToLong( &nRedGameTime ) || nRedGameTime <= 0 )
 				{
-					wxLogDebug("%s: *** WARN *** Failed to parse RED game-time [%s].", __FUNCTION__, token.c_str());
+					wxLogDebug("%s: *WARN* Failed to parse RED game-time [%s].", __FUNCTION__, token.c_str());
 				}
 				break;
 			}
@@ -841,7 +840,7 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 			{
 				if ( ! token.ToLong( &nBlackGameTime ) || nBlackGameTime <= 0 )
 				{
-					wxLogDebug("%s: *** WARN *** Failed to parse BLACK game-time [%s].", __FUNCTION__, token.c_str());
+					wxLogDebug("%s: *WARN* Failed to parse BLACK game-time [%s].", __FUNCTION__, token.c_str());
 				}
 				break;
 			}
@@ -862,7 +861,7 @@ hoxChesscapePlayer::_HandleTableCmd_Settings( const wxString& cmdStr )
 		hoxNetworkTableInfo* pTableInfo = NULL;
 		if ( ! _FindTableById( m_pendingJoinTableId, pTableInfo ) ) // not found?
 		{
-			wxLogDebug("%s: *** WARN *** Table [%s] not found.", 
+			wxLogDebug("%s: *WARN* Table [%s] not found.", 
 				__FUNCTION__, m_pendingJoinTableId.c_str());
 			return;
 		}
@@ -1024,7 +1023,7 @@ hoxChesscapePlayer::_HandleTableCmd_OfferDraw( hoxTable_SPtr pTable )
 
 	if ( whoOffered == NULL )
 	{
-		wxLogDebug("%s: *** WARN *** No real Player is offering this Draw request.", __FUNCTION__);
+		wxLogDebug("%s: *WARN* No real Player is offering this Draw request.", __FUNCTION__);
 		return;
 	}
 

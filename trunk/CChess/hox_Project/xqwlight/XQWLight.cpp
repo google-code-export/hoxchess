@@ -700,20 +700,26 @@ struct PositionStruct {
 void PositionStruct::Startup(unsigned char pcsSavedPos[][9]) {
   int sq;
   ClearBoard();
-  for (int i = 0; i<10;i++)
-	  for (int j = 0; j <9; j++){
-		  if (pcsSavedPos[i][j] > 0){
-			  sq = (3+i)*16 + 3 + j;
-			  AddPiece(sq, pcsSavedPos[i][j]);
-		  }
-	  }
-/*  for (sq = 0; sq < 256; sq ++) {
-    pc = cucpcStartup[sq];
-    if (pc != 0) {
-      AddPiece(sq, pc);
-    }
+  if ( pcsSavedPos != NULL )
+  {
+      for (int i = 0; i<10;i++)
+	      for (int j = 0; j <9; j++){
+		      if (pcsSavedPos[i][j] > 0){
+			      sq = (3+i)*16 + 3 + j;
+			      AddPiece(sq, pcsSavedPos[i][j]);
+		      }
+	      }
   }
-*/
+  else
+  {
+      int pc;
+      for (sq = 0; sq < 256; sq ++) {
+        pc = cucpcStartup[sq];
+        if (pc != 0) {
+          AddPiece(sq, pc);
+        }
+      }
+  }
   SetIrrev();
 }
 
