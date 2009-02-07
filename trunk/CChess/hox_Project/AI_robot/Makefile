@@ -72,15 +72,14 @@ TcpLib.o: /usr/include/bits/uio.h /usr/include/bits/socket.h
 TcpLib.o: /usr/include/limits.h /usr/include/bits/posix1_lim.h
 TcpLib.o: /usr/include/bits/local_lim.h /usr/include/linux/limits.h
 TcpLib.o: /usr/include/bits/posix2_lim.h /usr/include/bits/sockaddr.h
-TcpLib.o: /usr/include/asm/socket.h /usr/include/asm-x86_64/socket.h
-TcpLib.o: /usr/include/asm/sockios.h /usr/include/asm-x86_64/sockios.h
+TcpLib.o: /usr/include/asm/socket.h /usr/include/asm/sockios.h
 TcpLib.o: /usr/include/bits/in.h /usr/include/bits/byteswap.h
 TcpLib.o: /usr/include/rpc/netdb.h /usr/include/bits/netdb.h
 TcpLib.o: /usr/include/unistd.h /usr/include/bits/posix_opt.h
 TcpLib.o: /usr/include/bits/confname.h /usr/include/getopt.h
 TcpLib.o: /usr/include/errno.h /usr/include/bits/errno.h
 TcpLib.o: /usr/include/linux/errno.h /usr/include/asm/errno.h
-TcpLib.o: /usr/include/asm-x86_64/errno.h /usr/include/asm-generic/errno.h
+TcpLib.o: /usr/include/asm-generic/errno.h
 TcpLib.o: /usr/include/asm-generic/errno-base.h TcpLib.h
 hoxCommon.o: hoxCommon.h /usr/include/boost/tokenizer.hpp
 hoxCommon.o: /usr/include/boost/token_iterator.hpp
