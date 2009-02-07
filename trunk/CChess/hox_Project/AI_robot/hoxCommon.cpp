@@ -1,5 +1,6 @@
 /***************************************************************************
- *  Copyright 2007, 2008, 2009 Huy Phan  <huyphan@playxiangqi.com>         *
+ *  Copyright 2007-2009 Huy Phan  <huyphan@playxiangqi.com>                *
+ *                      Bharatendra Boddu (bharathendra at yahoo dot com)  *
  *                                                                         * 
  *  This file is part of HOXChess.                                         *
  *                                                                         *
