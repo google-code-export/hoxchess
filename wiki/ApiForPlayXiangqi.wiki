@@ -13,10 +13,26 @@ This page describes the public API supported by [http://www.playxiangqi.com Play
 A Request (to the server) or a Response (from the server) is a single string of key-value pairs, as follows:
 
 {{{
-op=LOGIN&pid=myid&password=mypw
+key1=value1&key2=value1&...&keyN=valueN
 }}}
 
-In a Request, the parameter op has a special purpose: it specifies the name of the Request. Some examples of the op 's values are: LOGIN, LOGOUT, LIST, NEW, JOIN, RESIGN,... The complete list is described in the _Complete Reference_ session below.
+  * *Request* (or _Command_)
+    * Important parameters:
+      * *op* - the _name_ of the _Request_
+        * Examples of values: LOGIN, LOGOUT, LIST, JOIN, RESIGN,...
+      * *pid* - the _required_ player ID for every Request
+
+  * *Response* (or _Event_)
+    * Important parameters:
+      * *op* - the _name_ of the _Response_
+        * Examples of values: LOGIN, LOGOUT, E_END, E_JOIN
+      * *code* - the _status code_ of the response
+        * Value code of *0* means _success_
+      * *content* - the detailed _content_ of the _Response_
+        * Example:
+{{{
+content=1;drawn;Players agree to draw
+}}}
 
 
 = Complete Reference =
@@ -26,23 +42,38 @@ In a Request, the parameter op has a special purpose: it specifies the name of t
       * Parameters:
         * _pid_ - The Player's ID
         * _password_ - The Player's password
-        * _ctype_ - The optional client's type: "polling" is the only value supported.
+        * _ctype_ - The _optional_ client's type: "polling" is the only value supported.
+      * Example:
 {{{ 
 op=LOGIN&pid=myid&password=mypw 
 }}}
     * Response
       * To Player
-        * op=LOGIN&code=0&content=playerid;score;sessionid
-        * Example: op=LOGIN&code=0&content=myid;1398;312574
-      * To others:
-        * op=LOGIN&code=0&content=playerid;score
+        * op=LOGIN&code=0&content=playerid1;score1;sessionid1
+        * Example:
+{{{
+op=LOGIN&code=0&content=myid;1501;312574
+}}}
+      * To Others:
+        * op=LOGIN&code=0&content=playerid1;score1
 {{{
 op=LOGIN&code=0&content=myid
 }}}
 
   * *LOGOUT* - Log out the server
     * Request
+      * Parameters:
+        * _pid_ - The Player's ID
+{{{
+op=LOGOUT&pid=myid
+}}}
     * Response
+      * To Player - _None_
+      * To Others:
+        * op=LOGOUT&pid=myid
+{{{
+op=LOGOUT&code=0&content=otherid
+}}}
 
   * *LIST* - Get the list of Tables
   * *NEW* - Create a new Table
