@@ -1,0 +1,45 @@
+#summary The public API supported by PlayXiangqi.com server
+#labels Phase-Design
+
+= Introduction =
+
+This page describes the public API supported by [http://www.playxiangqi.com PlayXiangqi server]
+
+
+= Overview =
+
+A Request (to the server) or a Response (from the server) is a single string of key-value pairs, as follows:
+
+{{{
+op=LOGIN&pid=myid&password=mypw
+}}}
+
+In a Request, the parameter op has a special purpose: it specifies the name of the Request. Some examples of the op 's values are: LOGIN, LOGOUT, LIST, NEW, JOIN, RESIGN,... The complete list is described in the _Complete Reference_ session below.
+
+
+= Complete Reference =
+
+  * *LOGIN*
+    * Request
+      * Parameters:
+        * _pid_ - The Player's ID
+        * _password_ - The Player's password
+        * _ctype_ - The optional client's type: "polling" is the only value supported.
+{{{ 
+op=LOGIN&pid=myid&password=mypw 
+}}}
+    * Response
+      * To Player
+        * op=LOGIN&code=0&content=playerid;score;sessionid
+        * Example: op=LOGIN&code=0&content=myid;1398;312574
+      * To others:
+        * op=LOGIN&code=0&content=playerid;score
+{{{
+op=LOGIN&code=0&content=myid
+}}}
+
+  * *LOGOUT*
+    * Request
+    * Response
+
+  * *LISt*
