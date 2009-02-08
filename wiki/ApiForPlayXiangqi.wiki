@@ -42,4 +42,58 @@ op=LOGIN&code=0&content=myid
     * Request
     * Response
 
-  * *LISt*
+  * *LIST*
+  * *NEW*
+  * *JOIN*
+  * *LEAVE*
+  * *UPDATE*
+  * *MSG*
+  * *PING*
+  * *MOVE*
+  * *RESIGN*
+  * *DRAW*
+  * *RESET*
+  * *INVITE*
+  * *PLAYER_INFO*
+  * *POLL*
+
+= Sample Session =
+
+{{{
+op=LOGIN&pid=myid&password=mypw
+op=LOGIN&code=0&content=myid;1398;312574
+
+op=LIST&pid=myid
+op=LIST&code=0&content=1;0;0;1500/300/20;1500/300/20;1500/300/20;;0;AI_xqwlight;1575;
+
+op=JOIN&color=None&joined=0&pid=myid&tid=1
+op=I_TABLE&code=0&content=1;0;0;1500/300/20;1500/300/20;1500/300/20;;0;AI_xqwlight;1575;
+
+op=JOIN&color=Red&joined=1&pid=myid&tid=1
+op=E_JOIN&code=0&content=1;myid;1398;Red
+
+op=MOVE&game_time=1500&move=6947&pid=myid&status=in_progress&tid=1
+op=MOVE&code=0&content=1;AI_xqwlight;7062;in_progress
+
+op=MOVE&game_time=1499&move=6665&pid=myid&status=in_progress&tid=1
+op=MOVE&code=0&content=1;AI_xqwlight;2324;in_progress
+
+op=MSG&msg=Bye, now&pid=myid&tid=1
+op=MSG&msg=let us draw this game&pid=myid&tid=1
+op=DRAW&draw_response=&pid=myid&tid=1
+op=E_END&code=0&content=1;drawn;Players agree to draw
+
+op=LEAVE&code=0&content=1;AI_xqwlight
+
+op=LEAVE&pid=myid&tid=1
+op=LEAVE&code=0&content=1;myid
+
+op=NEW&itimes=1500/300/20&pid=myid
+op=I_TABLE&code=0&content=1;0;0;1500/300/20;1500/300/20;1500/300/20;myid;1398;;0;
+
+op=LEAVE&pid=myid&tid=1
+op=LEAVE&code=0&content=1;myid
+
+op=LOGOUT&pid=myid
+
+}}}
