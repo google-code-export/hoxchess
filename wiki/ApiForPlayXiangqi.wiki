@@ -1,6 +1,8 @@
 #summary The public API supported by PlayXiangqi.com server
 #labels Phase-Design
 
+<wiki:toc max_depth="1" />
+
 = Introduction =
 
 This page describes the public API supported by [http://www.playxiangqi.com PlayXiangqi server]
