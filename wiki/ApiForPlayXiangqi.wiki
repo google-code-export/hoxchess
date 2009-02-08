@@ -114,7 +114,7 @@ op=I_TABLE&code=0&content=1;0;0;1500/300/20;1500/300/20;1500/300/20;myid;1398;;0
         * _tid_ - The ID of the Table to join
         * _color_ - The requested _color_ (or _role_)
           * Possible values: { *Red*, *Black*, *None* }
-        * Example:
+      * Example:
 {{{
 op=JOIN&color=None&pid=myid&tid=1
 op=JOIN&color=Red&pid=myid&tid=1
@@ -131,7 +131,7 @@ op=E_JOIN&code=0&content=1;myid;1398;Red
       * Parameters:
         * _pid_ - The Player's ID
         * _tid_ - The ID of the Table to leave
-        * Example:
+      * Example:
 {{{
 op=LEAVE&pid=myid&tid=1
 }}}
@@ -142,15 +142,173 @@ op=LEAVE&code=0&content=1;myid
 }}}
 
   * *UPDATE* - Update the Table's Rating/Non-Rating or Timers.
+    * Request
+      * Parameters:
+        * _pid_ - The Player's ID
+        * _tid_ - The ID of the Table to leave
+        * _itimes_ - The _initial_ timers of (*Game*-time / *Move*-time / *Free*-time)
+        * _rated_ - The *Rated* or *Not-Rated* option.
+          * Possible values: { 1, 0 }
+      * Example:
+{{{
+op=UPDATE&pid=p1&tid=2&itimes=900/300/20&rated=1
+}}}
+    * Response
+      * To _all_ players who are present at the Table:
+{{{
+op=UPDATE&code=0&content=2;p1;1;900/300/20
+}}}
+
   * *MSG* - Post a _chat_ message to a Table
+    * Request
+      * Parameters:
+        * _pid_ - The Player's ID
+        * _tid_ - The ID of the Table to leave
+        * _msg_ - The message to be sent to others at the Table
+      * Example:
+{{{
+op=MSG&pid=myid&tid=1&msg=Hi every at this table
+}}}
+    * Response
+      * To Player - _None_
+      * To Others:
+{{{
+op=MSG&code=0&content=1;myid;Hi every at this table
+}}}
+
   * *PING* - Ping (keep-alive) the server to avoid being timed out.
+    * Request
+      * Parameters:
+        * _pid_ - The Player's ID
+      * Example:
+{{{
+op=PING&pid=myid
+}}}
+    * Response
+      * To Player:
+{{{
+op=PING&code=0&content=PONG
+}}}
+
   * *MOVE* - Make a new _Move_ in a Table
+    * Request
+      * Parameters:
+        * _pid_ - The Player's ID
+        * _tid_ - The ID of the Table
+        * _move_ - The _move_ of format: x1y1x2y2
+      * Example:
+{{{
+op=MOVE&pid=myid&tid=1&move=6665&game_time=1499&status=in_progress
+}}}
+    * Response
+      * To Player - _None_
+      * To Others:
+{{{
+op=MOVE&code=0&content=1;myid;6665;in_progress
+}}}
+
   * *RESIGN* - Resign the game at a Table
+    * Request
+      * Parameters:
+        * _pid_ - The Player's ID
+        * _tid_ - The ID of the Table
+      * Example:
+{{{
+op=RESIGN&pid=p1&tid=1
+}}}
+    * Response
+      * To _all_ players who are present at the Table and update the scores
+{{{
+op=E_END&code=0&content=1;black_win;Player resigned
+op=E_SCORE&code=0&content=1;p1;1396
+op=E_SCORE&code=0&content=1;AI_xqwlight;1580
+}}}
+
   * *DRAW* - Request to _draw_ the game at a Table
+    * Request
+      * Parameters:
+        * _pid_ - The Player's ID
+        * _tid_ - The ID of the Table
+      * Note: the game is ended if _both_ Players request a _draw_
+      * Example:
+{{{
+op=DRAW&pid=p1&tid=2
+}}}
+    * Response
+      * To _all_ players who are present at the Table
+{{{
+op=E_END&code=0&content=2;drawn;Players agree to draw
+}}}
+
   * *RESET* - Reset (to _new_ status of the game) a Table 
-  * *INVITE* - Invite a Player into a Table
+    * Request
+      * Parameters:
+        * _pid_ - The Player's ID
+        * _tid_ - The ID of the Table
+      * Note: the game is ended if _both_ Players request a _draw_
+      * Example:
+{{{
+op=RESET&pid=p1&tid=2
+}}}
+    * Response
+      * To _all_ players who are present at the Table
+{{{
+op=RESET&code=0&content=2
+}}}
+
+  * *INVITE* - Send an invitation to another Player
+    * *Not yet fully implemented*
+    * Request
+      * Parameters:
+        * _pid_ - The Player's ID
+        * _invitee_ - The ID of the _invitee_
+      * Example:
+{{{
+op=INVITE&pid=p1&invitee=p2
+}}}
+    * Response
+      * To the other ( _invitee_ )
+{{{
+op=INVITE&code=0&content=p1;p2
+}}}
+
   * *PLAYER_INFO* - Query for a Player's information
+    * Request
+      * Parameters:
+        * _pid_ - The Player's ID
+        * _info_pid_ - The ID of the Player to be queried
+      * Example:
+{{{
+op=PLAYER_INFO&pid=p1&info_pid=p2
+}}}
+    * Response
+      * To Player:
+{{{
+op=PLAYER_INFO&code=0&content=p2;1396
+}}}
+
   * *POLL* - Poll for new events (specified used by _polling_ clients)
+    * Request
+      * Parameters:
+        * _pid_ - The Player's ID
+        * _sid_ - The _Session_ 's ID of the Player.
+      * Example:
+{{{
+op=POLL&pid=p1&sid=841215
+
+}}}
+    * Response
+      * To Player:
+{{{
++ No events:
+op=POLL&code=0&content=
+
++ With events (multiple events returned at the same time):
+op=MOVE&code=0&content=1;AI_xqwlight;1022;in_progress
+op=LEAVE&code=0&more=1&content=1;AI_xqwlight
+op=LEAVE&code=0&content=1;p1
+}}}
+
 
 = Sample Session =
 
