@@ -21,7 +21,7 @@ In a Request, the parameter op has a special purpose: it specifies the name of t
 
 = Complete Reference =
 
-  * *LOGIN*
+  * *LOGIN* - Log in the server
     * Request
       * Parameters:
         * _pid_ - The Player's ID
@@ -40,24 +40,24 @@ op=LOGIN&pid=myid&password=mypw
 op=LOGIN&code=0&content=myid
 }}}
 
-  * *LOGOUT*
+  * *LOGOUT* - Log out the server
     * Request
     * Response
 
-  * *LIST*
-  * *NEW*
-  * *JOIN*
-  * *LEAVE*
-  * *UPDATE*
-  * *MSG*
-  * *PING*
-  * *MOVE*
-  * *RESIGN*
-  * *DRAW*
-  * *RESET*
-  * *INVITE*
-  * *PLAYER_INFO*
-  * *POLL*
+  * *LIST* - Get the list of Tables
+  * *NEW* - Create a new Table
+  * *JOIN* - Join an existing Table
+  * *LEAVE* - Leave a Table
+  * *UPDATE* - Update the Table's Rating/Non-Rating or Timers.
+  * *MSG* - Post a _chat_ message to a Table
+  * *PING* - Ping (keep-alive) the server to avoid being timed out.
+  * *MOVE* - Make a new _Move_ in a Table
+  * *RESIGN* - Resign the game at a Table
+  * *DRAW* - Request to _draw_ the game at a Table
+  * *RESET* - Reset (to _new_ status of the game) a Table 
+  * *INVITE* - Invite a Player into a Table
+  * *PLAYER_INFO* - Query for a Player's information
+  * *POLL* - Poll for new events (specified used by _polling_ clients)
 
 = Sample Session =
 
