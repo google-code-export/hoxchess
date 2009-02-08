@@ -42,7 +42,9 @@ content=1;drawn;Players agree to draw
       * Parameters:
         * _pid_ - The Player's ID
         * _password_ - The Player's password
-        * _ctype_ - The _optional_ client's type: "polling" is the only value supported.
+        * _ctype_ - The _optional_ client's type: _polling_ is the only value supported.
+          * By default, the Client is required to maintain a _persistent_ TCP connection.
+          * If _ctype_ = _polling_, then the connection can be dropped and re-established later by the Client (similar to a HTTP session).
       * Example:
 {{{ 
 op=LOGIN&pid=myid&password=mypw 
@@ -76,9 +78,69 @@ op=LOGOUT&code=0&content=otherid
 }}}
 
   * *LIST* - Get the list of Tables
+    * Request
+      * Parameters:
+        * _pid_ - The Player's ID
+{{{
+op=LIST&pid=myid
+}}}
+    * Response
+      * To Player - The list of all Tables in the server
+{{{
+op=LIST&code=0&content=1;0;0;1500/300/20;1500/300/20;1500/300/20;;0;AI_xqwlight;1579;
+2;0;0;1500/300/20;1500/300/20;1500/300/20;myid;1397;;0;
+
+In this example, there are two Tables with table-ID = 1 and 2
+}}}
+
   * *NEW* - Create a new Table
+    * Request
+      * Parameters:
+        * _pid_ - The Player's ID
+        * _itimes_ - The _initial_ timers of (*Game*-time / *Move*-time / *Free*-time)
+{{{
+op=NEW&itimes=1500/300/20&pid=myid
+}}}
+    * Response
+      * To Player - The *I_TABLE* Response of the Table
+{{{
+op=I_TABLE&code=0&content=1;0;0;1500/300/20;1500/300/20;1500/300/20;myid;1398;;0;
+}}}
+
   * *JOIN* - Join an existing Table
+    * Request
+      * Parameters:
+        * _pid_ - The Player's ID
+        * _tid_ - The ID of the Table to join
+        * _color_ - The requested _color_ (or _role_)
+          * Possible values: { *Red*, *Black*, *None* }
+        * Example:
+{{{
+op=JOIN&color=None&pid=myid&tid=1
+op=JOIN&color=Red&pid=myid&tid=1
+}}}
+    * Response
+      * To Player - The *I_TABLE* Response of the Table
+{{{
+op=I_TABLE&code=0&content=1;0;0;1500/300/20;1500/300/20;1500/300/20;;0;AI_xqwlight;1575;
+op=E_JOIN&code=0&content=1;myid;1398;Red
+}}}
+
   * *LEAVE* - Leave a Table
+    * Request
+      * Parameters:
+        * _pid_ - The Player's ID
+        * _tid_ - The ID of the Table to leave
+        * Example:
+{{{
+op=LEAVE&pid=myid&tid=1
+}}}
+    * Response
+      * To _all_ players that are present at the Table:
+{{{
+op=LEAVE&code=0&content=1;myid
+}}}
+
   * *UPDATE* - Update the Table's Rating/Non-Rating or Timers.
   * *MSG* - Post a _chat_ message to a Table
   * *PING* - Ping (keep-alive) the server to avoid being timed out.
