@@ -28,6 +28,7 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <ctime>
 #include "hoxCommon.h"
 #include "TcpLib.h"
 #include "AIPlayer.h"
@@ -57,17 +58,23 @@ _run_AI_engine( AIPlayer& aiPlayer )
     const std::string sMyTableId = tableInfo.id;  // THE table.
 
     bool bDone = false;
+    time_t lastKeepAliveTS = ::time(NULL);  // Last time to send Keep-Alive.
     while ( !bDone )
     {
         hoxCommand  inCommand;  // Incoming command from the server.
         try
         {
+            time_t now = ::time(NULL);
+            if ( now - lastKeepAliveTS > SOCKET_READ_TIMEOUT )
+            {
+                aiPlayer.SendKeepAlive();
+                lastKeepAliveTS = now;
+            }
             aiPlayer.ReadIncomingCommand( inCommand );
         }
         catch ( const TimeoutException& ex )
         {
             printf("%s: Timeout occurred [%s].\n", __FUNCTION__, ex.what());
-            aiPlayer.SendKeepAlive();
             continue;
         }
         printf("%s: Received command [%s: %s].\n",
