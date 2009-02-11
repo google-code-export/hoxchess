@@ -1,5 +1,5 @@
 #summary The public API supported by PlayXiangqi.com server
-#labels Phase-Design
+#labels Phase-Design,Featured
 
 <wiki:toc max_depth="1" />
 
