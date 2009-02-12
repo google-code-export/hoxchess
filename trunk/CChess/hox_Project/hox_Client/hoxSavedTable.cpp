@@ -29,6 +29,7 @@
 #include "hoxSavedTable.h"
 #include "hoxPiece.h"
 #include "hoxUtil.h"
+#include <wx/tokenzr.h>
 
 hoxSavedTable::hoxSavedTable( const wxString& fileName )
         : m_fileName( fileName )
@@ -37,108 +38,143 @@ hoxSavedTable::hoxSavedTable( const wxString& fileName )
 }
 
 bool
-hoxSavedTable::Load()
+hoxSavedTable::SaveGameState( const wxString&         tableId,
+                              const hoxMoveList&      moveList, 
+                              const hoxPieceInfoList& pieceInfoList,
+                              const hoxColor          nextColor )
 {
-    return m_doc.Load( m_fileName );
-}
-
-bool
-hoxSavedTable::Save()
-{
-    return m_doc.Save( m_fileName );
-}
-
-void
-hoxSavedTable::SetTableId( const wxString& tableId )
-{
-	wxXmlNode* root = new wxXmlNode( wxXML_ELEMENT_NODE, "TABLE" );
+    /* Save the table-ID. */
+  	wxXmlNode* root = new wxXmlNode( wxXML_ELEMENT_NODE, "TABLE" );
 	root->AddAttribute("id", tableId);
 	m_doc.SetRoot(root);
-}
 
-const wxString
-hoxSavedTable::GetTableId() const
-{
-	wxXmlNode* root = m_doc.GetRoot();
-	if ( root && root->GetName() == "TABLE" )
+    /* Save the 'past' Moves. */
+    wxString sMoves;
+    for ( hoxMoveList::const_iterator it = moveList.begin();
+                                      it != moveList.end(); ++it )
     {
-		return root->GetAttribute("id");
+        if ( !sMoves.empty() ) sMoves += '/';
+        sMoves += it->ToString();
     }
+    wxXmlNode* node = new wxXmlNode( wxXML_ELEMENT_NODE, "Moves" );
+    node->AddAttribute("value", sMoves);
+	root->AddChild( node );
 
-    return ""; // Wrong file.
-}
+    /* Save the 'next' color. */
+    node = new wxXmlNode( wxXML_ELEMENT_NODE, "NextColor" );
+    node->AddAttribute("value", hoxUtil::ColorToString(nextColor));
+	root->AddChild( node );
 
-void
-hoxSavedTable::SetGameState( const hoxPieceInfoList& pieceInfoList,
-                             hoxColor&               nextColor )
-{
-	if ( !m_doc.IsOk() ) return; //error
+    /* Save the current pieces. */
+	wxXmlNode* piecesNode = new wxXmlNode( wxXML_ELEMENT_NODE, "Pieces" );
+	root->AddChild(piecesNode);
 
-    wxXmlNode* root = m_doc.GetRoot();
-    if ( !root || root->GetName() != "TABLE" )
-	{
-        wxLogError("%s: Need to save game id first as a root.", __FUNCTION__);
-        return;
-	}
-
-	root->AddAttribute("NextColor", hoxUtil::ColorToString(nextColor));
 	for ( hoxPieceInfoList::const_iterator it = pieceInfoList.begin();
-                                           it != pieceInfoList.end(); 
-	                                     ++it )
+                                           it != pieceInfoList.end(); ++it )
 	{
 		hoxPiece* piece = new hoxPiece( (*it) );
-
 		wxXmlNode* pieceNode = new wxXmlNode( wxXML_ELEMENT_NODE,
                                               hoxUtil::TypeToString(piece->GetType()) );
 
 		pieceNode->AddAttribute("Color",hoxUtil::ColorToString(piece->GetColor()));
 		pieceNode->AddAttribute("Row",wxString::Format("%d",piece->GetPosition().x));
 		pieceNode->AddAttribute("Col",wxString::Format("%d",piece->GetPosition().y));			
-		root->AddChild(pieceNode);
+		piecesNode->AddChild(pieceNode);
 	}
+
+    return m_doc.Save( m_fileName ); // Save the entire file to disk.
 }
 
-void
-hoxSavedTable::GetGameState( hoxPieceInfoList& pieceInfoList,
-                             hoxColor&         nextColor)
+bool
+hoxSavedTable::LoadGameState( hoxStringList&    pastMoves,
+                              hoxPieceInfoList& pieceInfoList,
+                              hoxColor&         nextColor )
 {
-	if ( !m_doc.IsOk() ) return; // Error: no file is loaded.
+    if ( !m_doc.Load( m_fileName ) )
+    {
+        wxLogWarning("%s: Fail to load the content of file [%s].",
+            __FUNCTION__, m_fileName.c_str());
+        return false;
+    }
 
-    wxXmlNode* root = m_doc.GetRoot();
-    if ( !root || root->GetName() != "TABLE" )
+    const wxXmlNode* root = m_doc.GetRoot();
+    wxASSERT( root != NULL );
+    if ( root->GetName() != "TABLE" )
 	{
-        wxLogError("%s: Need to save game id first as a root.", __FUNCTION__);
-        return;
+        wxLogWarning("%s: Need to save game id first as a root.", __FUNCTION__);
+        return false;
 	}
 	
-    nextColor = hoxUtil::StringToColor(root->GetAttribute("NextColor"));
-	wxXmlNode* pieceNodes = root->GetChildren();
-	wxString sType, sColor, xRow, yCol;
-	hoxPieceType type;
-	hoxColor color;
-	hoxPosition pos;
-	pieceInfoList.clear();    // Clear the old info, if exists.
-	while (pieceNodes)
+    pieceInfoList.clear(); // Clear the old info, if exists.
+    pastMoves.clear();
+
+    bool bGotMoves     = false;
+    bool bGotNextColor = false;
+    bool bGotPieces    = false;
+
+    for ( const wxXmlNode* child = root->GetChildren();
+                           child != NULL;
+                           child = child->GetNext() )
 	{
-		sType = pieceNodes->GetName();
-		type = hoxPIECE_INVALID;
-		type = hoxUtil::StringToType(sType);
+        if ( child->GetName() == "Moves" )
+        {
+            bGotMoves = _LoadMoves( child, pastMoves );
+        }
+        else if ( child->GetName() == "NextColor" )
+        {
+            nextColor = hoxUtil::StringToColor(child->GetAttribute("value"));
+            bGotNextColor = true;
+        }
+        else if ( child->GetName() == "Pieces" )
+        {
+            bGotPieces = _LoadPieces( child, pieceInfoList );
+        }
+    }
 
-		sColor = pieceNodes->GetAttribute("Color");
-		color = hoxUtil::StringToColor(sColor);
+    return ( bGotMoves && bGotNextColor && bGotPieces );
+}
 
-		xRow = pieceNodes->GetAttribute("Row");
-		yCol = pieceNodes->GetAttribute("Col");
-		long x,y;
-		xRow.ToLong(&x);
-		yCol.ToLong(&y);
-		pos.x = x; pos.y = y;
+bool
+hoxSavedTable::_LoadPieces( const wxXmlNode*  parentNode,
+                            hoxPieceInfoList& pieceInfoList)
+{
+    wxCHECK_MSG(parentNode, false, "The parent node cannot be NULL");
+
+    long  lVal;  // Just a numeric value holder.
+
+    for ( const wxXmlNode* node = parentNode->GetChildren();
+                           node != NULL;
+                           node = node->GetNext() )
+	{
+        hoxPieceInfo pieceInfo;
+
+		pieceInfo.type = hoxUtil::StringToType( node->GetName() );
+		pieceInfo.color = hoxUtil::StringToColor( node->GetAttribute("Color") );
+
+        node->GetAttribute("Row").ToLong( &lVal );
+        pieceInfo.position.x = (char) lVal;
+        node->GetAttribute("Col").ToLong( &lVal );
+        pieceInfo.position.y = (char) lVal;
 		
-		pieceInfoList.push_back( hoxPieceInfo( type, color, pos ) );
-
-		/* Next Child */
-		pieceNodes = pieceNodes->GetNext();
+		pieceInfoList.push_back( pieceInfo );
 	}
+
+    return true; // success.
+}
+
+bool
+hoxSavedTable::_LoadMoves( const wxXmlNode* parentNode,
+                           hoxStringList&   pastMoves )
+{
+    const wxString sMoves = parentNode->GetAttribute("value");
+
+	wxStringTokenizer tkz( sMoves, "/", wxTOKEN_STRTOK );
+	while ( tkz.HasMoreTokens() )
+	{
+        pastMoves.push_back( tkz.GetNextToken() );
+	}		
+
+    return true; // success.
 }
 
 /************************* END OF FILE ***************************************/

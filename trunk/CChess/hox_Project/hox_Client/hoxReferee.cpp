@@ -237,7 +237,11 @@ namespace BoardInfoAPI
                            hoxGameStatus& status );
 
         void GetGameState( hoxPieceInfoList& pieceInfoList,
-                           hoxColor&         nextColor );
+                           hoxColor&         nextColor ) const;
+
+        hoxMove StringToMove( const wxString& sMove ) const;
+
+        void GetHistoryMoves( hoxMoveList& moveList ) const;
 
         hoxColor GetNextColor() const { return m_nextColor; }
 
@@ -254,7 +258,7 @@ namespace BoardInfoAPI
     private:
 		void		 _InitializePieceCells();
         void         _CreateNewGame();
-		void		 _OpenSavedGame( const wxString& fileName );
+		bool 		 _OpenSavedGame( const wxString& fileName );
         void         _AddNewPiece(Piece* piece);
 
         void         _SetPiece( Piece* piece );
@@ -279,8 +283,10 @@ namespace BoardInfoAPI
         PieceList      m_deadPieces;   // INACTIVE (dead) pieces
         Cell           m_cells[9][10];
 
-        hoxColor  m_nextColor;
+        hoxColor       m_nextColor;
             /* Which side (RED or BLACK) will move next? */
+
+        hoxMoveList    m_historyMoves;  // All (past) Moves made so far.
     };
 
     /*********************
@@ -317,9 +323,15 @@ Board::Board( hoxColor nextColor /* = hoxCOLOR_NONE */ )
 
 
 Board::Board( const wxString &fileName)
+        : m_nextColor( hoxCOLOR_RED )
 {
 	_InitializePieceCells();
-	_OpenSavedGame( fileName ); // Initialize Board.
+    _CreateNewGame();
+	if ( ! _OpenSavedGame( fileName ) )
+    {
+        ::wxMessageBox( "Fail to load game from the specified file: " + fileName,
+                        _("Load Saved Game"), wxOK | wxICON_STOP );
+    }
 }
 
 Board::~Board()
@@ -357,7 +369,7 @@ void
 Board::_CreateNewGame()
 {
     hoxColor color;        // The current color.
-    int           i;
+    int      i;
 
     // --------- BLACK
 
@@ -401,37 +413,47 @@ Board::_CreateNewGame()
 
 }
 
-void
+bool
 Board::_OpenSavedGame( const wxString& fileName )
 {
-	hoxSavedTable table( fileName );
-	table.Load();
-    hoxPieceInfoList pieceInfoList;
-    hoxColor         nextColor;
+	hoxSavedTable    saveTable( fileName );
   
-	table.GetGameState( pieceInfoList, nextColor );
-    for ( hoxPieceInfoList::const_iterator it = pieceInfoList.begin();
-                                           it != pieceInfoList.end(); 
-                                         ++it )
+    /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     * NOTE: We do not need piece-list and the 'next' color.
+     *       The 'past' Moves are enough to re-create the last game.
+     * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+
+    hoxStringList    pastMoves;
+    hoxPieceInfoList pieceInfoList; // Not really needed!
+    hoxColor         nextColor;     // Not really needed!
+
+	if ( ! saveTable.LoadGameState( pastMoves, pieceInfoList, nextColor ) )
     {
-		switch (it->type)
-		{
-		case hoxPIECE_KING:		_AddNewPiece(new KingPiece(it->color, it->position)); break;
-		case hoxPIECE_ADVISOR:	_AddNewPiece(new AdvisorPiece(it->color, it->position)); break;
-		case hoxPIECE_ELEPHANT:	_AddNewPiece(new ElephantPiece(it->color, it->position)); break;
-		case hoxPIECE_CHARIOT:	_AddNewPiece(new ChariotPiece(it->color, it->position)); break;
-		case hoxPIECE_HORSE:	_AddNewPiece(new HorsePiece(it->color, it->position)); break;
-		case hoxPIECE_CANNON:	_AddNewPiece(new CannonPiece(it->color, it->position)); break;
-		case hoxPIECE_PAWN:		_AddNewPiece(new PawnPiece(it->color, it->position)); break;
-		//default: error
-		}
+        wxLogWarning("%s: Fail to load game from the specified file [%s].",
+            __FUNCTION__, fileName.c_str() );
+        return false;
     }
-	m_nextColor = nextColor;	
+
+    /* Replay the 'past' Moves. */
+    for ( hoxStringList::const_iterator it = pastMoves.begin();
+                                        it != pastMoves.end(); ++it )
+    {
+        hoxMove move = this->StringToMove( *it );
+        if ( ! move.IsValid() ) return false;
+
+        hoxGameStatus gameStatus = hoxGAME_STATUS_UNKNOWN;
+        if ( ! this->ValidateMove( move, gameStatus ) )
+        {
+            return false;
+        }
+    }
+
+    return true; // success
 }
 
 void 
 Board::GetGameState( hoxPieceInfoList& pieceInfoList,
-                     hoxColor&         nextColor )
+                     hoxColor&         nextColor ) const
 {
     pieceInfoList.clear();    // Clear the old info, if exists.
 
@@ -446,6 +468,41 @@ Board::GetGameState( hoxPieceInfoList& pieceInfoList,
 
     /* Return the Next Color */
     nextColor = m_nextColor;
+}
+
+hoxMove
+Board::StringToMove( const wxString& sMove ) const
+{
+    hoxMove move;
+
+    /* NOTE: Move-string has the format of "xyXY" */
+
+    if ( sMove.size() != 4 )
+    {
+        return hoxMove();  // Error: return an invalid Move.
+    }
+
+    move.piece.position.x = sMove[0] - '0';
+    move.piece.position.y = sMove[1] - '0';
+    move.newPosition.x    = sMove[2] - '0';
+    move.newPosition.y    = sMove[3] - '0';
+
+    /* Lookup a Piece based on "fromPosition". */
+
+    if ( ! this->GetPieceAtPosition( move.piece.position, 
+                                     move.piece ) )
+    {
+        wxLogDebug("%s: Failed to locate piece at the position.", __FUNCTION__);
+        return hoxMove();  // Error: return an invalid Move.
+    }
+
+    return move;
+}
+
+void
+Board::GetHistoryMoves( hoxMoveList& moveList ) const
+{
+    moveList = m_historyMoves;
 }
 
 bool 
@@ -584,7 +641,7 @@ Board::_AddNewPiece( Piece* piece )
     wxCHECK_RET(piece, "Piece is NULL.");
 
     piece->SetBoard( this );
-    this->_AddPiece( piece );
+    _AddPiece( piece );
 }
 
 /**
@@ -607,7 +664,7 @@ Board::_PutbackPiece( Piece* piece )
     wxCHECK_RET( found != m_deadPieces.end(), "Dead piece should be found." );
     
     m_deadPieces.remove( piece );
-    this->_AddPiece( piece );
+    _AddPiece( piece );
 }
 
 /**
@@ -647,7 +704,7 @@ Board::_UndoMove( const hoxMove& move,
     if ( pCaptured != NULL )
     {
         pCaptured->SetPosition( move.newPosition );
-        this->_PutbackPiece( pCaptured );
+        _PutbackPiece( pCaptured );
     }
 }
 
@@ -762,13 +819,15 @@ Board::ValidateMove( hoxMove&       move,
     }
 
     /* Return the captured-piece, if any */
-    move.SetCapturedPiece( pCaptured != NULL ? pCaptured->GetInfo() 
-                                             : hoxPieceInfo() /* 'Empty' piece */ );
+    move.SetCapturedPiece( pCaptured ? pCaptured->GetInfo() 
+                                     : hoxPieceInfo() /* 'Empty' piece */ );
+
+    /* Save the Move for future reference. */
+    m_historyMoves.push_back( move );
 
     /* Set the next-turn. */
-    m_nextColor = ( m_nextColor == hoxCOLOR_RED 
-                   ? hoxCOLOR_BLACK
-                   : hoxCOLOR_RED);
+    m_nextColor = ( m_nextColor == hoxCOLOR_RED ? hoxCOLOR_BLACK
+                                                : hoxCOLOR_RED );
 
     /* Check for end game:
      * ------------------
@@ -1514,6 +1573,12 @@ hoxReferee::GetGameState( hoxPieceInfoList& pieceInfoList,
     return m_board->GetGameState( pieceInfoList, nextColor );
 }
 
+void
+hoxReferee::GetHistoryMoves( hoxMoveList& moveList )
+{
+    m_board->GetHistoryMoves( moveList );
+}
+
 hoxColor 
 hoxReferee::GetNextColor()
 {
@@ -1523,30 +1588,7 @@ hoxReferee::GetNextColor()
 hoxMove
 hoxReferee::StringToMove( const wxString& sMove ) const
 {
-    hoxMove move;
-
-    /* NOTE: Move-string has the format of "xyXY" */
-
-    if ( sMove.size() != 4 )
-    {
-        return hoxMove();  // Error: return an invalid Move.
-    }
-
-    move.piece.position.x = sMove[0] - '0';
-    move.piece.position.y = sMove[1] - '0';
-    move.newPosition.x    = sMove[2] - '0';
-    move.newPosition.y    = sMove[3] - '0';
-
-    /* Lookup a Piece based on "fromPosition". */
-
-    if ( ! m_board->GetPieceAtPosition( move.piece.position, 
-                                        move.piece ) )
-    {
-        wxLogDebug("%s: Failed to locate piece at the position.", __FUNCTION__);
-        return hoxMove();  // Error: return an invalid Move.
-    }
-
-    return move;
+    return m_board->StringToMove( sMove );
 }
 
 void
