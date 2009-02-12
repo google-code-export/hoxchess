@@ -25,11 +25,10 @@
 // Description:     Implementing the standard Xiangqi referee.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_REFEREE_H_
-#define __INCLUDED_HOX_REFEREE_H_
+#ifndef __INCLUDED_HOX_REFEREE_H__
+#define __INCLUDED_HOX_REFEREE_H__
 
 #include "hoxIReferee.h"
-#include "hoxEnums.h"
 #include "hoxTypes.h"
 
 namespace BoardInfoAPI
@@ -55,6 +54,7 @@ public:
                                hoxGameStatus& status );
     virtual void GetGameState( hoxPieceInfoList& pieceInfoList,
                                hoxColor&         nextColor );
+    virtual void GetHistoryMoves( hoxMoveList& moveList );
     virtual hoxColor GetNextColor();
     virtual hoxMove StringToMove( const wxString& sMove ) const;
     virtual void GetAvailableNextMoves( hoxMoveVector& moves ) const;
@@ -63,4 +63,4 @@ private:
     BoardInfoAPI::Board*  m_board;  // Board-Info.
 };
 
-#endif /* __INCLUDED_HOX_REFEREE_H_ */
+#endif /* __INCLUDED_HOX_REFEREE_H__ */

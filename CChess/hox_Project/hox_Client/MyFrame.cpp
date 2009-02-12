@@ -905,16 +905,16 @@ void
 MyFrame::_SaveCurrentTableToDisk( const hoxTable_SPtr& pTable,
                                   const wxString&      fileName ) const
 {
-	hoxSavedTable savedTable( fileName );
-	savedTable.SetTableId( pTable->GetId() );
+    hoxMoveList      moveList;
+    hoxPieceInfoList pieceInfoList;
+	hoxColor         nextColor;
 
-	hoxPieceInfoList pieceInfoList;
-	hoxColor nextColor;
-
+    pTable->GetReferee()->GetHistoryMoves( moveList );
     pTable->GetReferee()->GetGameState( pieceInfoList, nextColor );
-	savedTable.SetGameState( pieceInfoList, nextColor );
 
-	savedTable.Save();
+    hoxSavedTable savedTable( fileName );
+    savedTable.SaveGameState( pTable->GetId(), moveList,
+                              pieceInfoList, nextColor );
 }
 
 /************************* END OF FILE ***************************************/

@@ -62,6 +62,11 @@ public:
                                hoxColor&         nextColor ) = 0;
 
     /**
+     * Get the list of (past) Moves made so far.
+     */
+    virtual void GetHistoryMoves( hoxMoveList& moveList ) = 0;
+
+    /**
      * Get the NEXT color, which specifies who (RED or BLACK) should
      * move next.
      */

@@ -47,17 +47,20 @@ public:
     hoxSavedTable( const wxString& fileName );
     virtual ~hoxSavedTable() {}
 
-    bool Load();
-    bool Save();
+    bool SaveGameState( const wxString&         tableId,
+                        const hoxMoveList&      moveList,
+                        const hoxPieceInfoList& pieceInfoList,
+                        const hoxColor          nextColor );
 
-    void SetTableId( const wxString& tableId );
-    const wxString GetTableId() const;
+    bool LoadGameState( hoxStringList&    pastMoves,
+                        hoxPieceInfoList& pieceInfoList,
+                        hoxColor&         nextColor );
 
-    void SetGameState( const hoxPieceInfoList& pieceInfoList,
-                       hoxColor&               nextColor );
-
-    void GetGameState( hoxPieceInfoList& pieceInfoList,
-                       hoxColor&         nextColor );
+private:
+    bool _LoadPieces( const wxXmlNode*  parentNode,
+                      hoxPieceInfoList& pieceInfoList );
+    bool _LoadMoves( const wxXmlNode* parentNode,
+                     hoxStringList&   pastMoves );
 
 private:
     const wxString  m_fileName;
