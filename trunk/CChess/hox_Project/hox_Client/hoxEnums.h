@@ -231,7 +231,7 @@ enum hoxNetworkContant
     * !!! Do not change the values nor orders of the following !!!
     */
 
-    hoxNETWORK_MAX_MSG_SIZE         = (5 * 1024), // 5-KByte buffer
+    hoxNETWORK_MAX_MSG_SIZE    = (10 * 1024), // 10-KByte buffer
 };
 
 /**

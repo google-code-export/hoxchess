@@ -57,7 +57,7 @@
 class hoxPlayer;
 class hoxTable;
 
-DECLARE_EVENT_TYPE(hoxEVT_APP_SITE_CLOSE_READY, wxID_ANY)
+wxDECLARE_EVENT(hoxEVT_APP_SITE_CLOSE_READY, wxCommandEvent);
 
 /**
  * The main Application.
