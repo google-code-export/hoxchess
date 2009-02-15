@@ -10,8 +10,10 @@ The page's content is based entirely on my experience working on the project.
 Starting from version _0.0.2.0_ (released on Nov 10, 2007), the project can be built under Windows and Linux, thanks to the cross platform portability of [http://www.wxwidgets.org wxWidgets].
 
   * [http://www.wxwidgets.org/ wxWidgets] 2.9.0 (the not-yet-released *trunk* version)
-    * I tested [http://wxwindows.sourceforge.net/snapshots/ the daily builds] on Feb 14, 2009 using *wxGTK*
-    * To build, simply follow the instruction of _readme-gtk.txt_ of the downloaded *wxGTK-YYYY-MM-DD.tar.gz* to build wxGTK:
+    * I tested [http://wxwindows.sourceforge.net/snapshots/ the daily builds] on Feb 14, 2009
+    * Note for Ubuntu: 
+      * Use *wxGTK*
+      * To build, simply follow the instruction of _readme-gtk.txt_ of the downloaded *wxGTK-YYYY-MM-DD.tar.gz* to build wxGTK:
   * [http://www.boost.org Boost C++ 1_36_0 Libraries] Headers only. Already included in the source code 
   * Operating Systems
     * Under Windows
