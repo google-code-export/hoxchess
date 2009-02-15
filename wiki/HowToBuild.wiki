@@ -3,12 +3,12 @@
 
 <wiki:toc max_depth="1" />
 
-== Introduction ==
+= Introduction =
 
 This page contains the instruction on how to build [http://hoxchess.googlecode.com/ HOXChess] based on the _latest_ version of the source code.
 The page's content is based entirely on my experience working on the project.
 
-== Requirements ==
+= Requirements =
 Starting from version _0.0.2.0_ (released on Nov 10, 2007), the project can be built under Windows and Linux, thanks to the cross platform portability of [http://www.wxwidgets.org wxWidgets].
 
   * [http://www.wxwidgets.org/ wxWidgets] 2.9.0 (the not-yet-released *trunk* version)
@@ -26,12 +26,12 @@ Starting from version _0.0.2.0_ (released on Nov 10, 2007), the project can be b
         * [http://www.centos.org/ CentOS] 4.7 using [http://www.eclipse.org/cdt/ Eclipse CDT] 4.0.1, or
         * [http://www.ubuntu.com/ Ubuntu] 8.10 using [http://www.kdevelop.org KDevelop] 3.5 (as a _custom Makefile_ project or as an _Automake_ based project).
 
-== Detailed Instructions under Windows ==
+= Detailed Instructions under Windows =
   * wxWidgets: Put the libraries and headers under _C:\wxMSW-2.9.0_
     * If your wxWidgets' location is different, then you need to adjust the appropriate settings of _hox_Client.vcproj_.
   * Open the project *hox_Client* under the solution _hox_Project/hox_Project.sln_ inside Visual Studio C++ and build from there.
 
-== Detailed Instructions under Linux ==
+= Detailed Instructions under Linux =
   * $ cd _.../CChess/hox_Project/hox_Client_
   * $ *make prepare*
   * $ *make*
@@ -43,7 +43,7 @@ Starting from version _0.0.2.0_ (released on Nov 10, 2007), the project can be b
     * For those who develop in [http://www.kdevelop.org KDevelop], I also created an KDevelop project _CChess/hox_Project/hox_Project.kdevelop_
     * This project file is simply a wrapper of the _Makefile_ mentioned above.
 
-== Detailed Instructions under Eclipse in Linux ==
+= Detailed Instructions under Eclipse in Linux =
   * For [http://www.eclipse.org/cdt/ Eclipse C++ (CDT)], the project files (_.project_ and _.cproject_) have been included under _/hox_Project_ folder in the .zip archive since version _0.1.0.0_
   * If you ever need to create a new project yourself, here is the summary of the steps:
     * Add all the source code (.h and .cpp) files to the your new project.
