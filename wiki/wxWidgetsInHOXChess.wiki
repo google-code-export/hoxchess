@@ -1,0 +1,43 @@
+#summary wxWidgets (and wxGTK) Libraries in HOXChess
+#labels Phase-Implementation
+
+<wiki:toc max_depth="1" />
+
+= Introduction =
+
+This page describes how to build [http://www.wxwidgets.org/ wxWidgets] (and wxGTK) libraries to be used by HOXChess.
+Starting from version _0.6.0.0_, HOXChess needs on the _not-yet-released_ *trunk* version *wxWidgets-2.9.0* of wxWidgets in order to handle Unicode characters (in Chinese, Vietnamese, etc).
+The daily builds of wxWidgets [http://wxwindows.sourceforge.net/snapshots/ can be downloaded here]
+
+= Instructions under Linux =
+
+This following procedure has been test under *Ubuntu 8.10* (64-bit).
+I use the *wxGTK* port of wxWidgets.
+The latest snapshot trunk version that has been tested is *wxGTK-2009-02-14.tar.gz*
+
+  * Required packages before building wxWidgets 2.9.0
+    * $ sudo apt-get install libgtk2.0-dev
+    * $ sudo apt-get install libtiff4-dev
+  * Download wxGTK-2009-02-14.tar.gz daily source archive from:
+    * http://wxwindows.sourceforge.net/snapshots/
+  * Unpack the archived file
+  * Follow instructions in _wxGTK/readme-gtk.txt_. Here are the steps I use:
+    * $ mkdir build_gtk
+    * $ cd build_gtk
+    * $ ../configure --prefix=/opt/wxGTK-2.9.0 --disable-stc
+      * For debug build, add the option [--enable-debug] 
+    * $ make
+    * $ sudo make install
+  * Make HOXChess using the new wxGTK libraries
+    * $ cd .../hox_Project/hox_Client
+      * You may need to modify the _Makefile_ to make _Debug_ build.
+      * The default is _Release_ build.
+      * To modify, simple comment/uncomment the _RELEASE_ or _DEBUG_ build session in the _Makefile_
+    * $ make clean
+    * $ make prepare
+    * $ make
+
+= Instructions under Windows =
+
+The procedure is much easier under Windows (XP or Vista). Simply locate the _workspace_ (or _solution_) file under _build/msw/..._, open it under Visual C++ 2008 Express, and build
+  * See the other HowToBuild wiki page for more details.
