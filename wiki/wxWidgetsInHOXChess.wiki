@@ -18,8 +18,9 @@ The latest snapshot trunk version that has been tested is *wxGTK-2009-02-14.tar.
   * Required packages before building wxWidgets 2.9.0
     * $ sudo apt-get install libgtk2.0-dev
     * $ sudo apt-get install libtiff4-dev
-  * Download wxGTK-2009-02-14.tar.gz daily source archive from:
+  * Download a daily source archive from:
     * http://wxwindows.sourceforge.net/snapshots/
+    * Note: I put a working copy of wxGTK [http://www.playxiangqi.com/cchess/libs/ on my server here].
   * Unpack the archived file
   * Follow instructions in _wxGTK/readme-gtk.txt_. Here are the steps I use:
     * $ mkdir build_gtk
@@ -39,5 +40,5 @@ The latest snapshot trunk version that has been tested is *wxGTK-2009-02-14.tar.
 
 = Instructions under Windows =
 
-The procedure is much easier under Windows (XP or Vista). Simply locate the _workspace_ (or _solution_) file under _build/msw/..._, open it under Visual C++ 2008 Express, and build
+The procedure is much easier under Windows (XP or Vista). Simply locate the _workspace_ (or _solution_) file under *.../build/msw/wx.dsw*, open it under Visual C++ 2008 Express, and build
   * See the other HowToBuild wiki page for more details.
