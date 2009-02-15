@@ -1,6 +1,8 @@
 #summary How to build the project?
 #labels Phase-Implementation,Phase-Requirements,Phase-Deploy,Featured
 
+<wiki:toc max_depth="1" />
+
 == Introduction ==
 
 This page contains the instruction on how to build [http://hoxchess.googlecode.com/ HOXChess] based on the _latest_ version of the source code.
