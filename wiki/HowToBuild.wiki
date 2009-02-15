@@ -13,9 +13,7 @@ Starting from version _0.0.2.0_ (released on Nov 10, 2007), the project can be b
 
   * [http://www.wxwidgets.org/ wxWidgets] 2.9.0 (the not-yet-released *trunk* version)
     * I tested [http://wxwindows.sourceforge.net/snapshots/ the daily builds] on Feb 14, 2009
-    * Note for Ubuntu: 
-      * Use *wxGTK*
-      * To build, simply follow the instruction of _readme-gtk.txt_ of the downloaded *wxGTK-YYYY-MM-DD.tar.gz* to build wxGTK:
+    * For Ubuntu, we need the *wxGTK* port.
   * [http://www.boost.org Boost C++ 1_36_0 Libraries] Headers only. Already included in the source code 
   * Operating Systems
     * Under Windows
@@ -32,6 +30,7 @@ Starting from version _0.0.2.0_ (released on Nov 10, 2007), the project can be b
   * Open the project *hox_Client* under the solution _hox_Project/hox_Project.sln_ inside Visual Studio C++ and build from there.
 
 = Detailed Instructions under Linux =
+  * Follow [wxWidgetsInHOXChess the instructions here] to build *wxGTK* libraries
   * $ cd _.../CChess/hox_Project/hox_Client_
   * $ *make prepare*
   * $ *make*
