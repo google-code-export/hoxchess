@@ -29,7 +29,7 @@
 #include "hoxConnection.h"
 #include "hoxSite.h"
 
-DEFINE_EVENT_TYPE(hoxEVT_CONNECTION_RESPONSE)
+wxDEFINE_EVENT(hoxEVT_CONNECTION_RESPONSE, wxCommandEvent);
 
 IMPLEMENT_DYNAMIC_CLASS(hoxPlayer, wxEvtHandler)
 

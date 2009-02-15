@@ -36,7 +36,7 @@ class hoxSite;
 /* 
  * Connection event-type for responses.
  */
-DECLARE_EVENT_TYPE(hoxEVT_CONNECTION_RESPONSE, wxID_ANY)
+wxDECLARE_EVENT(hoxEVT_CONNECTION_RESPONSE, wxCommandEvent);
 
 // ----------------------------------------------------------------------------
 // The Player class
