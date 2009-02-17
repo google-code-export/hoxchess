@@ -41,6 +41,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;C:\wxMSW-2.9.0\include&quot;;&quot;C:\wxMSW-2.9.0\lib\vc_lib\mswud&quot;;&quot;$(ProjectDir)..\lib\boost_1_36_0&quot;"
+				PreprocessorDefinitions="WIN32"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				SmallerTypeCheck="true"
@@ -177,6 +178,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hoxAIPluginMgr.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\hoxBoard.cpp"
 				>
 			</File>
@@ -194,10 +199,6 @@
 			</File>
 			<File
 				RelativePath=".\hoxCoreBoard.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\hoxFoliumPlayer.cpp"
 				>
 			</File>
 			<File
@@ -277,19 +278,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\hoxTSITOPlayer.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\hoxTypes.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\hoxUtil.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\hoxXQWLightPlayer.cpp"
 				>
 			</File>
 			<File
@@ -315,6 +308,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hoxAIPluginMgr.h"
+				>
+			</File>
+			<File
 				RelativePath=".\hoxBoard.h"
 				>
 			</File>
@@ -336,10 +333,6 @@
 			</File>
 			<File
 				RelativePath=".\hoxEnums.h"
-				>
-			</File>
-			<File
-				RelativePath=".\hoxFoliumPlayer.h"
 				>
 			</File>
 			<File
@@ -423,19 +416,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\hoxTSITOPlayer.h"
-				>
-			</File>
-			<File
 				RelativePath=".\hoxTypes.h"
 				>
 			</File>
 			<File
 				RelativePath=".\hoxUtil.h"
-				>
-			</File>
-			<File
-				RelativePath=".\hoxXQWLightPlayer.h"
 				>
 			</File>
 			<File
@@ -458,202 +443,6 @@
 			>
 			<File
 				RelativePath=".\hox_Client.rc"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="tsito"
-			>
-			<File
-				RelativePath="..\tsito\Board.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\tsito\Board.h"
-				>
-			</File>
-			<File
-				RelativePath="..\tsito\Evaluator.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\tsito\Evaluator.h"
-				>
-			</File>
-			<File
-				RelativePath="..\tsito\HashTable.h"
-				>
-			</File>
-			<File
-				RelativePath="..\tsito\Lawyer.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\tsito\Lawyer.h"
-				>
-			</File>
-			<File
-				RelativePath="..\tsito\Move.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\tsito\Move.h"
-				>
-			</File>
-			<File
-				RelativePath="..\tsito\OpeningBook.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\tsito\OpeningBook.h"
-				>
-			</File>
-			<File
-				RelativePath="..\tsito\Options.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\tsito\Options.h"
-				>
-			</File>
-			<File
-				RelativePath="..\tsito\Timer.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\tsito\Timer.h"
-				>
-			</File>
-			<File
-				RelativePath="..\tsito\Transposition.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\tsito\Transposition.h"
-				>
-			</File>
-			<File
-				RelativePath="..\tsito\tsiEngine.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\tsito\tsiEngine.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="folium"
-			>
-			<File
-				RelativePath="..\folium\bitmap.h"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\bitmap_data.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\defines.h"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\engine_data.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\engine_data.h"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\folEngine.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\folEngine.h"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\folHOXEngine.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\folHOXEngine.h"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\folSearch.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\generator.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\generator.h"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\hash.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\hash.h"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\history.h"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\history_data.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\int.h"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\killer.h"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\move.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\move.h"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\movelist.h"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\xq.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\xq.h"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\xq_data.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\folium\xq_data.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="xqwlight"
-			>
-			<File
-				RelativePath="..\xqwlight\XQWLight.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\xqwlight\XQWLight.h"
 				>
 			</File>
 		</Filter>

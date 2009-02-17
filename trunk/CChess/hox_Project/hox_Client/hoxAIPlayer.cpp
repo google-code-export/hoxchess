@@ -29,6 +29,7 @@
 #include "hoxUtil.h"
 #include "hoxReferee.h"
 #include "hoxTable.h"
+#include "../plugins/common/AIEngineLib.h"
 
 IMPLEMENT_DYNAMIC_CLASS(hoxAIPlayer, hoxPlayer)
 
@@ -44,16 +45,23 @@ hoxAIPlayer::hoxAIPlayer( const wxString& name,
                           hoxPlayerType   type,
                           int             score )
             : hoxPlayer( name, type, score )
+            , m_engineAPI( NULL )
 { 
     wxLogDebug("%s: ENTER.", __FUNCTION__);
+}
+
+hoxAIPlayer::~hoxAIPlayer()
+{ 
+    delete m_engineAPI;
 }
 
 void 
 hoxAIPlayer::Start()
 {
-    hoxConnection_APtr connection( new hoxAIConnection( this ) );
-    this->SetConnection( connection );
-    this->GetConnection()->Start();
+    hoxAIConnection* conn = new hoxAIConnection( this );
+    hoxConnection_APtr connection( conn );
+    this->SetConnection( connection ); // Release control.
+    conn->StartAIEngine( m_engineAPI );
 }
 
 void 
@@ -89,11 +97,12 @@ hoxAIPlayer::OnConnectionResponse( wxCommandEvent& event )
 // hoxAIEngine
 // ----------------------------------------------------------------------------
 
-hoxAIEngine::hoxAIEngine( wxEvtHandler* player )
+hoxAIEngine::hoxAIEngine( wxEvtHandler* player,
+                          AIEngineLib*  engineAPI /* = NULL */ )
         : wxThread( wxTHREAD_JOINABLE )
         , m_player( player )
         , m_shutdownRequested( false )
-        , m_referee( new hoxReferee() )
+        , m_engineAPI( engineAPI )
 {
 }
 
@@ -162,24 +171,17 @@ hoxAIEngine::_HandleRequest_MOVE( hoxRequest_APtr apRequest )
 {
     const wxString sMove = apRequest->parameters["move"];
     wxLogDebug("%s: Received Move [%s].", __FUNCTION__, sMove.c_str());
-    hoxMove move = m_referee->StringToMove( sMove );
-    wxASSERT( move.IsValid() );
-
-    hoxGameStatus gameStatus = hoxGAME_STATUS_UNKNOWN;
-    bool bValid = m_referee->ValidateMove( move, gameStatus );
-    wxASSERT( bValid );
 
     this->OnOpponentMove( sMove );
+
+    const hoxGameStatus gameStatus =
+        hoxUtil::StringToGameStatus( apRequest->parameters["status"] );
 
     if ( hoxIReferee::IsGameOverStatus( gameStatus ) )
         return;
 
     const wxString sNextMove = this->GenerateNextMove();
     wxLogDebug("%s: Generated next Move = [%s].", __FUNCTION__, sNextMove.c_str());
-
-    hoxMove hNextMove = m_referee->StringToMove( sNextMove );
-    bValid = m_referee->ValidateMove( hNextMove, gameStatus );
-    wxASSERT( bValid );
 
     /* Notify the Player. */
     const hoxRequestType type = apRequest->type;
@@ -194,34 +196,22 @@ hoxAIEngine::_HandleRequest_MOVE( hoxRequest_APtr apRequest )
 void
 hoxAIEngine::OnOpponentMove( const wxString& sMove )
 {
-    // Do nothing.
+    if ( m_engineAPI )
+    {
+        const std::string stdMove = hoxUtil::wx2std( sMove );
+        m_engineAPI->onHumanMove( stdMove );
+    }
 }
 
 wxString
 hoxAIEngine::GenerateNextMove()
 {
-    /* -----------------------------------------------------------
-     * Here is a naive algorithm to generate the next Move:
-     *
-     *  (1) Get the list of all available 'next' Moves.
-     *  (2) Randomly pick a Move from the 'available' list.
-     *
-     * ----------------------------------------------------------- */
-
-    hoxMoveVector availableMoves;
-
-    m_referee->GetAvailableNextMoves( availableMoves );
-    if ( availableMoves.empty() )
+    if ( m_engineAPI )
     {
-        return ""; // NOTE: An invalid move;
+        std::string stdMove = m_engineAPI->generateMove();
+        return hoxUtil::std2wx( stdMove );
     }
-
-    ::srand( ::time(NULL) );
-    int someNumber = ::rand();
-    someNumber %= availableMoves.size();
-    
-    const hoxMove nextMove = availableMoves[someNumber];
-    return nextMove.ToString();
+    return ""; // NOTE: An invalid move;
 }
 
 hoxRequest_APtr
@@ -276,12 +266,6 @@ hoxAIConnection::hoxAIConnection( wxEvtHandler* player )
 }
 
 void
-hoxAIConnection::Start()
-{
-    this->StartAIEngine();
-}
-
-void
 hoxAIConnection::Shutdown()
 {
     wxLogDebug("%s: Request the AI Engine thread to be shutdown...", __FUNCTION__);
@@ -300,13 +284,13 @@ hoxAIConnection::AddRequest( hoxRequest_APtr apRequest )
 }
 
 void
-hoxAIConnection::CreateAIEngine()
+hoxAIConnection::CreateAIEngine( AIEngineLib* engineAPI )
 {
-    m_aiEngine.reset( new hoxAIEngine( this->GetPlayer() ) );
+    m_aiEngine.reset( new hoxAIEngine( this->GetPlayer(), engineAPI ) );
 }
 
 void
-hoxAIConnection::StartAIEngine()
+hoxAIConnection::StartAIEngine( AIEngineLib* engineAPI )
 {
     if ( m_aiEngine && m_aiEngine->IsRunning() )
     {
@@ -315,7 +299,7 @@ hoxAIConnection::StartAIEngine()
     }
 
     wxLogDebug("%s: Create the AI Engine Thread...", __FUNCTION__);
-    this->CreateAIEngine();
+    this->CreateAIEngine( engineAPI);
 
     if ( m_aiEngine->Create() != wxTHREAD_NO_ERROR )
     {

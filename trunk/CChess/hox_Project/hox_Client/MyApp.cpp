@@ -26,6 +26,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "MyApp.h"
+#include "hoxAIPluginMgr.h"
 #include <wx/socket.h>
 
 
@@ -99,6 +100,9 @@ MyApp::OnInit()
     // Create the LOCAL site.
     hoxSiteManager::GetInstance()->CreateLocalSite();
 
+    const wxString sDefaultAI = wxGetApp().GetOption("defaultAI");
+    hoxAIPluginMgr::SetDefaultPluginName( sDefaultAI );
+
     // success: wxApp::OnRun() will be called which will enter the main message
     // loop and the application will run. If we returned false here, the
     // application would exit immediately.
@@ -114,6 +118,7 @@ MyApp::OnExit()
      *      system is being shutdowned.
      */
 
+    delete hoxAIPluginMgr::GetInstance();
 	delete hoxSiteManager::GetInstance();
     wxSocketBase::Shutdown(); // Shut down the sockets.
     _SaveAppOptions();
@@ -228,6 +233,7 @@ void
 MyApp::_LoadAppOptions()
 {
 	m_options["sound"] = m_config->Read("/Options/sound", "1");
+    m_options["defaultAI"] = m_config->Read("/Options/defaultAI", "AI_XQWLight");
 
     m_options["/Board/Piece/path"] =
         m_config->Read("/Board/Piece/path", DEFAULT_PIECE_PATH);
@@ -243,6 +249,7 @@ void
 MyApp::_SaveAppOptions()
 {
 	m_config->Write("/Options/sound", m_options["sound"]);
+    m_config->Write("/Options/defaultAI", m_options["defaultAI"]);
     m_config->Write("/Board/Piece/path", m_options["/Board/Piece/path"]);
     m_config->Write("/Board/Color/background", m_options["/Board/Color/background"]);
     m_config->Write("/Board/Color/foreground", m_options["/Board/Color/foreground"]);

@@ -207,10 +207,8 @@ typedef std::list<hoxSite*>  hoxSiteList;
 class hoxLocalSite : public hoxSite
 {
 public:
-    hoxLocalSite(const hoxServerAddress& address,
-                 hoxSiteType             type = hoxSITE_TYPE_LOCAL)
-            : hoxSite( type, address ) {}
-    virtual ~hoxLocalSite() {}
+    hoxLocalSite(const hoxServerAddress& address);
+    virtual ~hoxLocalSite();
 
     virtual hoxResult Connect()  { return hoxRC_OK; }
     virtual hoxResult Disconnect() { return hoxRC_OK; }

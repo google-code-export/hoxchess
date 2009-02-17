@@ -26,6 +26,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxUtil.h"
+#include "hoxReferee.h"
 #include <wx/tokenzr.h>
 
 using namespace hoxUtil;
@@ -466,6 +467,53 @@ hoxUtil::std2wx( const std::string& input )
 {
     // --- std::string ==> wxString
     return wxString( input.c_str(), wxConvUTF8 );
+}
+
+void
+hoxUtil::hoxPcsPos2XQWLight( const hoxIReferee_SPtr& pReferee,
+                             unsigned char           pcsPos[10][9] )
+{
+    /* Get the current positions. */
+
+    hoxPieceInfoList pieceInfoList;
+    hoxColor         nextColor;  // obtained but not used now!
+    
+    pReferee->GetGameState( pieceInfoList, nextColor );
+
+    /* Convert to array-type positions. */
+
+	int x, y, color, type;
+
+    for ( hoxPieceInfoList::const_iterator it = pieceInfoList.begin();
+                                           it != pieceInfoList.end(); ++it )
+    {
+		x = (*it).position.x;
+		y = (*it).position.y;
+		
+        switch ( (*it).color )
+        {
+			case hoxCOLOR_RED:    color = 0x8; break;
+			case hoxCOLOR_BLACK:  color = 0x10; break;
+			default:              color = -1;
+		};
+
+		switch ( (*it).type )
+        {
+			case hoxPIECE_KING:     type = 0; break;
+			case hoxPIECE_ADVISOR:  type = 1; break;
+			case hoxPIECE_ELEPHANT: type = 2; break;
+			case hoxPIECE_HORSE:    type = 3; break;
+			case hoxPIECE_CHARIOT:  type = 4; break;
+			case hoxPIECE_CANNON:   type = 5; break;
+			case hoxPIECE_PAWN:     type = 6; break;
+			default:                type = -1;
+		};
+
+		if ( color >= 0 && type >= 0 )
+        {
+			pcsPos[y][x] = color + type;
+        }
+	}
 }
 
 /************************* END OF FILE ***************************************/

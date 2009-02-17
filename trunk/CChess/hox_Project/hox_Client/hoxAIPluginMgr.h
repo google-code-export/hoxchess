@@ -19,45 +19,67 @@
  ***************************************************************************/
 
 /////////////////////////////////////////////////////////////////////////////
-// Name:            XQWLight.h
-// Created:         10/11/2008
+// Name:            hoxAIPluginMgr.h
+// Created:         02/16/2009
 //
-// Description:     This is 'XQWLight' Engine to interface with HOXChess.
-//                  XQWLight is an open-source (?) Xiangqi AI Engine
-//                  written by Huang Chen at www.elephantbase.net
-//
-//  (Original Chinese URL)
-//        http://www.elephantbase.net/computer/stepbystep1.htm
-//
-//  (Translated English URL using Goold Translate)
-//       http://74.125.93.104/translate_c?hl=en&langpair=
-//         zh-CN|en&u=http://www.elephantbase.net/computer/stepbystep1.htm&
-//         usg=ALkJrhj7W0v3J1P-xmbufsWzYq7uKciL1w
+// Description:     The Manager that manages a group of AI Engine Plugins.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_XQWLIGHT_HOX_ENGINE_H__
-#define __INCLUDED_XQWLIGHT_HOX_ENGINE_H__
+#ifndef __INCLUDED_HOX_AI_PLUGIN_MGR_H__
+#define __INCLUDED_HOX_AI_PLUGIN_MGR_H__
 
-#include <string>
+#include "hoxTypes.h"
+#include <list>
+#include <wx/dynload.h>
+#include "../plugins/common/AIEngineLib.h"
 
-namespace XQWLight
+/* Forward declaration. */
+class hoxAIPluginMgr;
+
+typedef std::auto_ptr<AIEngineLib> AIEngineLib_APtr;
+
+/**
+ * An AI Engine Plugin.
+ */
+class hoxAIPlugin
 {
-	/* PUBLIC API */
+public:
+	hoxAIPlugin();
+    ~hoxAIPlugin();
 
-	void initialize(unsigned char pcsSavedPos[][9]=NULL);
+    bool IsOk() const { return (m_pCreateAIEngineLibFunc != NULL); }
 
-	std::string generate_move();
-    void        on_human_move( const std::string& sMove );
+    AIEngineLib_APtr createAIEngineLib();
 
-    void set_search_time( int nSeconds );
-	    /* Only approximately... */
+private:
+    wxPluginLibrary*         m_aiPluginLibrary;
+    PICreateAIEngineLibFunc  m_pCreateAIEngineLibFunc;
 
+    friend class hoxAIPluginMgr;
+};
 
-    /* PRIVATE API (declared here for documentation purpose) */
+/**
+ * The Manager of AI Plugins.
+ * This is implemented as a singleton since we only need one instance.
+ */
+class hoxAIPluginMgr
+{
+public:
+	static hoxAIPluginMgr* GetInstance();
+    static void SetDefaultPluginName( const wxString& sDefaultName );
+    ~hoxAIPluginMgr();
 
-	unsigned int _hox2xqwlight( const std::string& sMove );
-	std::string _xqwlight2hox( unsigned int move );
+    AIEngineLib_APtr createDefaultAIEngineLib();
 
-} // namespace XQWLight
+private:
+    hoxAIPluginMgr();
+	static hoxAIPluginMgr* m_instance;
+    static wxString        m_defaultPluginName;
 
-#endif /* __INCLUDED_XQWLIGHT_HOX_ENGINE_H__ */
+    bool _loadDefaultPluginFromDisk();
+
+private:
+    hoxAIPlugin           m_defaultPlugin;
+};
+
+#endif /* __INCLUDED_HOX_AI_PLUGIN_MGR_H__ */
