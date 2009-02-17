@@ -59,6 +59,11 @@
  */
 #define SOUNDS_PATH  "../resource/sounds"
 
+/**
+ * The default path of AI Engine Plugins
+ */
+#define AI_PLUGINS_PATH  "../plugins"
+
 /* Use the Color-Mixer tool from the following site to generate the colors:
  *       http://colormixers.com/mixers/cmr/
  */

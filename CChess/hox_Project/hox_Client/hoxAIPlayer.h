@@ -32,6 +32,9 @@
 #include "hoxTypes.h"
 #include "hoxConnection.h"
 
+/* Forward declaration */
+class AIEngineLib;
+
 /**
  * The AI player.
  */
@@ -43,7 +46,7 @@ public:
                  hoxPlayerType   type,
                  int             score );
 
-    virtual ~hoxAIPlayer() {}
+    virtual ~hoxAIPlayer();
 
     // **** Override the parent's API ****
     virtual void Start();
@@ -58,10 +61,12 @@ public:
      * Other API
      *******************************/
 
+    void SetEngineAPI( AIEngineLib*  engineAPI ) { m_engineAPI = engineAPI; }
     void SetSavedFile( const wxString& sFile ) { m_sSavedFile = sFile; }
 
 protected:
-    wxString   m_sSavedFile; // Containing a previously saved table.
+    AIEngineLib*  m_engineAPI;
+    wxString      m_sSavedFile; // Containing a previously saved table.
 
 private:
 
@@ -76,7 +81,8 @@ private:
 class hoxAIEngine : public wxThread
 {
 public:
-    hoxAIEngine( wxEvtHandler* player );
+    hoxAIEngine( wxEvtHandler* player,
+                 AIEngineLib*  engineAPI = NULL );
     virtual ~hoxAIEngine() {}
 
     bool AddRequest( hoxRequest_APtr apRequest );
@@ -103,12 +109,7 @@ protected:
     bool                    m_shutdownRequested;
                 /* Has a shutdown-request been received? */
 
-    hoxIReferee_SPtr        m_referee;
-        /* Currently, this is a very simple-minded AI Player
-         * who only selects Moves randomly from the list
-         * of current valid Moves.
-         * This Referee helps to return the list of valid Moves.
-         */
+    AIEngineLib*             m_engineAPI;
 };
 
 // ----------------------------------------------------------------------------
@@ -129,14 +130,16 @@ public:
     virtual ~hoxAIConnection() {}
 
     // **** Override the parent's API ****
-    virtual void Start();
+    virtual void Start() {}
     virtual void Shutdown();
     virtual bool AddRequest( hoxRequest_APtr apRequest );
     virtual bool IsConnected() const { return true; }
 
+    // *** My own.
+    virtual void StartAIEngine( AIEngineLib* engineAPI );
+
 protected:
-    virtual void CreateAIEngine();
-    virtual void StartAIEngine();
+    virtual void CreateAIEngine( AIEngineLib* engineAPI );
 
 protected:
     hoxAIEngine_SPtr  m_aiEngine; // The AI Engine thread.

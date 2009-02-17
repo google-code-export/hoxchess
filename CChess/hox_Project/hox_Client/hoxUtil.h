@@ -139,6 +139,12 @@ namespace hoxUtil
     std::string wx2std( const wxString&    input );
     wxString    std2wx( const std::string& input );
 
+    /**
+     * A helper to convert Piece-positions to 'XQWLight'-type positions.
+     */
+    void hoxPcsPos2XQWLight( const hoxIReferee_SPtr& pReferee,
+                             unsigned char           pcsPos[10][9] );
+
 }
 
 #endif /* __INCLUDED_HOX_UTIL_H_ */

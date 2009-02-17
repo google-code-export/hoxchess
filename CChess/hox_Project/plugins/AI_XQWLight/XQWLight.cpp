@@ -58,7 +58,7 @@ typedef unsigned int       DWORD;
 
 // *** Additional variables ***
 static int         s_search_time = 1;  // In seconds (search-time)
-static const char* s_opening_book = "../xqwlight/BOOK.DAT";
+static const char* s_opening_book = "../plugins/BOOK.DAT";
 
 ///////          END of  HPHAN's changes                      /////////////
 ///////////////////////////////////////////////////////////////////////////////

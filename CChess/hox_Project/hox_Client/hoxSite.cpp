@@ -37,13 +37,11 @@
 #include "hoxTablesDialog.h"
 #include "hoxBoard.h"
 #include "hoxSitesUI.h"
-
 #include "hoxAIPlayer.h"
-#include "hoxTSITOPlayer.h"
-#include "hoxFoliumPlayer.h"
-#include "hoxXQWLightPlayer.h"
+#include "hoxAIPluginMgr.h"
 
 #include <wx/progdlg.h>
+
 
 /**
  * A progress Dialog with Timer built-in.
@@ -293,6 +291,15 @@ hoxSite::CreateNewTableWithGUI( const hoxNetworkTableInfo& tableInfo,
 // hoxLocalSite
 // --------------------------------------------------------------------------
 
+hoxLocalSite::hoxLocalSite( const hoxServerAddress& address )
+            : hoxSite( hoxSITE_TYPE_LOCAL, address )
+{
+}
+
+hoxLocalSite::~hoxLocalSite()
+{
+}
+
 hoxLocalPlayer* 
 hoxLocalSite::CreateLocalPlayer( const wxString& playerName )
 {
@@ -359,12 +366,24 @@ hoxLocalSite::OnLocalRequest_PRACTICE( const wxString& sSavedFile /* = "" */ )
     result = m_player->JoinTableAs( pTable, hoxCOLOR_RED );
     wxASSERT( result == hoxRC_OK );
 
-    hoxAIPlayer* pAIPlayer =
-        new hoxXQWLightPlayer( sAIId, hoxPLAYER_TYPE_AI, 1500 );
-        //new hoxFoliumPlayer( sAIId, hoxPLAYER_TYPE_AI, 1500 );
-        //new hoxTSITOPlayer( sAIId, hoxPLAYER_TYPE_AI, 1500 );
-        //new hoxAIPlayer( sAIId, hoxPLAYER_TYPE_AI, 1500 );
+    /* Load the AI Plugin. */
+    AIEngineLib_APtr apAIEngineLib =
+        hoxAIPluginMgr::GetInstance()->createDefaultAIEngineLib();
+    if ( apAIEngineLib.get() == NULL )
+    {
+        ::wxMessageBox( "No AI Plugin found.", _("Create Pratice Table"),
+                wxOK | wxICON_STOP );
+        return;
+    }
 
+    /* Get current current Piece-positions. */
+	unsigned char initPcsPos[10][9] = { 0 };
+    hoxUtil::hoxPcsPos2XQWLight( pTable->GetReferee(), initPcsPos );
+    apAIEngineLib->initGame( initPcsPos );
+
+    hoxAIPlayer* pAIPlayer = new hoxAIPlayer( sAIId, hoxPLAYER_TYPE_AI, 1500 );
+
+    pAIPlayer->SetEngineAPI( apAIEngineLib.release() ); // Caller will de-allocate.
     pAIPlayer->SetSavedFile( sSavedFile );
     pAIPlayer->Start();
 
