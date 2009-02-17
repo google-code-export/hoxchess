@@ -27,7 +27,7 @@
 
 #include "AIPlayer.h"
 #include "hoxCommand.h"
-#include "../xqwlight/XQWLight.h"
+#include "../plugins/AI_XQWLight/XQWLight.h"
 
 #include <stdexcept>   // std::runtime_error
 
