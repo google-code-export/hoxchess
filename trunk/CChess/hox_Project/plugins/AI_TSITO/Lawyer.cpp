@@ -104,6 +104,7 @@ bool Lawyer::drawn() // Tells us if the game is a draw.
         case CHE:
         case MA:
           return false; // If we find any of these pieces it is not a draw.
+        default: break;
         }
     }
   message = "Insufficient material";
@@ -113,7 +114,6 @@ bool Lawyer::drawn() // Tells us if the game is a draw.
 bool Lawyer::legalMove(Move &theMove) // This method checks to make sure the user has entered a legal move.
 {
   bool currentlyInCheck = false;
-  bool legal = true;
   message = "";
   if (board->pieceAt(theMove.origin()) == EMPTY ||
       board->colorAt(theMove.origin()) != board->sideToMove() ||
@@ -213,6 +213,7 @@ bool Lawyer::underAttack(int loc, int c)
                         case CHE: // Any time we have hit a cannon here it is an attack.
                           return true;
 
+                        default: break;
                         }
                     }
                   else if (currentPiece == PAO) // We have jumped and hit a cannon - attack
@@ -288,6 +289,7 @@ void Lawyer::generateMoves(list<Move> &moveList, int loc, bool onlyLegal)
     case JIANG:
       generateGeneralMoves(loc,moveList, onlyLegal);
       break;
+    default: break;
     }
 }
       

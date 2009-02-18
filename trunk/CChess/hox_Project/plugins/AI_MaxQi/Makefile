@@ -1,5 +1,5 @@
 ####################################################################
-# The 'makefile' of MaxQi AI Engine.
+# The 'Makefile' of MaxQi AI Engine.
 #
 ####################################################################
 
@@ -27,6 +27,7 @@ OBJECTS := $(SOURCES:.cpp=.o)
 	$(CXX) $(CXXFLAGS) $(DEBUGFLAGS) -c -o $@ $<
 
 all: $(LIBRARY)
+	cp -v libAI_MaxQi.so.1.0 ../AI_MaxQi.so
 
 $(LIBRARY): $(OBJECTS)
 	$(CXX) -shared -Wl,-soname,lib$(LIBRARY).so.1 -o lib$(LIBRARY).so.1.0 $(OBJECTS)

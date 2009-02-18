@@ -1,5 +1,5 @@
 ####################################################################
-# The 'makefile' of XQWLight AI Engine.
+# The 'Makefile' of XQWLight AI Engine.
 #
 ####################################################################
 
@@ -14,7 +14,7 @@ DEBUGFLAGS  = -g
 
 # The main source
 MAIN_SRC := \
-	AI_xqwlight.cpp \
+	AI_XQWLight.cpp \
 	XQWLight.cpp
 
 # Define our sources and object files
@@ -27,6 +27,7 @@ OBJECTS := $(SOURCES:.cpp=.o)
 	$(CXX) $(CXXFLAGS) $(DEBUGFLAGS) -c -o $@ $<
 
 all: $(LIBRARY)
+	cp -v libAI_XQWLight.so.1.0 ../AI_XQWLight.so
 
 $(LIBRARY): $(OBJECTS)
 	$(CXX) -shared -Wl,-soname,lib$(LIBRARY).so.1 -o lib$(LIBRARY).so.1.0 $(OBJECTS)

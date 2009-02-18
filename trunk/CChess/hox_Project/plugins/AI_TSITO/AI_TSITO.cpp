@@ -9,7 +9,7 @@
 
 #include <AIEngineLib.h>
 #include <DefaultDelete.h>
-//#include <algorithm>
+#include <memory>
 #include "Move.h"
 #include "Board.h"
 #include "Lawyer.h"

@@ -1,5 +1,5 @@
 ####################################################################
-# The 'makefile' of HOXChess.
+# The 'Makefile' of HOXChess.
 #
 # Reference: 
 #     http://wiki.wxwidgets.org/Makefile
@@ -24,36 +24,6 @@ DEBUGFLAGS  = -g
 
 CXXFLAGS = $(WX_CXXFLAGS) -I../lib/boost_1_36_0
 LDFLAGS     = -pthread
-
-# XQWLight AI Engine source
-XQWLight_SRC := \
- 	XQWLight.cpp
-
-# TSITO AI Engine source
-TSITO_SRC := \
-	Board.cpp \
-	tsiEngine.cpp \
-	Evaluator.cpp \
-	Lawyer.cpp \
-	Move.cpp \
-	OpeningBook.cpp \
-	Options.cpp \
-	Timer.cpp \
-	Transposition.cpp
-
-# FOLIUM AI Engine source
-FOLIUM_SRC := \
-	bitmap_data.cpp \
-	folEngine.cpp \
-	engine_data.cpp \
-	generator.cpp \
-	hash.cpp \
-	history_data.cpp \
-	move.cpp \
-	folSearch.cpp \
-	xq.cpp \
-	xq_data.cpp \
-	folHOXEngine.cpp
 
 # The main source
 MAIN_SRC := \
@@ -82,20 +52,15 @@ MAIN_SRC := \
 	hoxSitesUI.cpp \
 	hoxOptionsUI.cpp \
 	hoxAIPlayer.cpp \
-	hoxTSITOPlayer.cpp \
-	hoxFoliumPlayer.cpp \
-	hoxXQWLightPlayer.cpp \
 	hoxSavedTable.cpp \
+	hoxAIPluginMgr.cpp \
 	hoxLog.cpp \
 	MyApp.cpp \
 	MyChild.cpp \
 	MyFrame.cpp
 
-# Define our sources and object files
+# Define our source and object files
 SOURCES := \
-	$(XQWLight_SRC) \
-	$(TSITO_SRC) \
-	$(FOLIUM_SRC) \
 	$(MAIN_SRC)
 
 OBJECTS := $(SOURCES:.cpp=.o)
@@ -106,15 +71,13 @@ OBJECTS := $(SOURCES:.cpp=.o)
 all: $(PROGRAM)
 
 prepare:
-	cp -v ../xqwlight/*.h ../xqwlight/*.cpp .
-	cp -v ../tsito/* .
-	cp -v ../folium/* .
+	@echo No longer needed.
 
 $(PROGRAM): $(OBJECTS)
 	$(CXX) $(LDFLAGS) -o $(PROGRAM) $(OBJECTS) $(WX_LDLIBS)
 
 clean:
-	rm -vrf $(PROGRAM) $(OBJECTS) $(XQWLight_SRC) $(TSITO_SRC) $(FOLIUM_SRC)
+	rm -vrf $(PROGRAM) $(OBJECTS)
 
 ############## END OF FILE ###############################################
 

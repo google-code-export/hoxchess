@@ -163,7 +163,6 @@ tsiEngine::mtd( std::vector<PVEntry> &pv, long guess, int depth )
   long upperbound = INFIN;
   long lowerbound = -INFIN;
   long beta = 0;
-  long best = -INFIN;
   vector<PVEntry> tempPV;
   do
     {
@@ -433,7 +432,6 @@ long tsiEngine::search(vector<PVEntry> &pv, long alpha, long beta, int ply, int 
   long value = 0;
   bool failHigh = false;
   list<Move>		moveList;
-  int			pvPreSize = pv.size();
 
   if (_searchAborted) return 0;
 
@@ -572,7 +570,6 @@ long tsiEngine::quiescence(long alpha, long beta, int ply, int depth, bool nullO
     */
 {
   long value = 0;
-  bool failHigh = false;
   list<Move>	moveList;
   bool		legalonly = false;
   vector<PVEntry> myPV;
