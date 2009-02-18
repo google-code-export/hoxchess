@@ -41,7 +41,7 @@ OpeningBook::_read(std::string filename)
         nline++;
         string line(buffer);
 
-        int indexOfColon = line.find(':');
+        size_t indexOfColon = line.find(':');
         if (indexOfColon == string::npos)
         {
             cerr << "Illegal book entry at line " << nline << endl;

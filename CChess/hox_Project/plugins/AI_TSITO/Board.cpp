@@ -220,8 +220,8 @@ bool Board::setPosition(string fen)
               return false;
             }
           // Add the piece to the hash key
-          t_primaryHash ^= hashValues[0][row+board_j][tempBoard[row+board_j]];
-          t_secondaryHash ^= hashValues[1][row+board_j][tempBoard[row+board_j]];
+          t_primaryHash ^= hashValues[0][row+board_j][(size_t)tempBoard[row+board_j]];
+          t_secondaryHash ^= hashValues[1][row+board_j][(size_t)tempBoard[row+board_j]];
 
           // Add the piece to the piece index tables...
           if ((tempBoard[row+board_j]&8) == RED)
