@@ -483,35 +483,35 @@ MyFrame::OnServersSashDrag(wxSashEvent& event)
 void 
 MyFrame::InitToolBar(wxToolBar* toolBar)
 {
-    toolBar->AddTool( MDI_CONNECT_SERVER, _("Connect"), 
+    toolBar->AddTool( MDI_CONNECT_SERVER, "Connect", 
                       wxBitmap(connect_xpm), _("Connect Server"));
 
-    toolBar->AddTool( MDI_DISCONNECT_SERVER, _("Disconnect"), 
+    toolBar->AddTool( MDI_DISCONNECT_SERVER, "Disconnect", 
                       wxBitmap(disconnect_xpm), _("Disconnect Server"));
 
     toolBar->AddSeparator();
 
-	toolBar->AddTool( MDI_LIST_TABLES, _("List"), 
+	toolBar->AddTool( MDI_LIST_TABLES, "List", 
 		              wxBitmap(folder_open_xpm), _("List Tables"));
 
-    toolBar->AddTool( MDI_NEW_TABLE, _("New"), 
+    toolBar->AddTool( MDI_NEW_TABLE, "New", 
 		              wxBitmap(new_xpm), _("Open Table"));
 
-    toolBar->AddTool( MDI_CLOSE_TABLE, _("Close"), 
+    toolBar->AddTool( MDI_CLOSE_TABLE, "Close", 
 		              wxBitmap(delete_xpm), _("Close Table"));
 
     toolBar->AddSeparator();
 
-    toolBar->AddTool( MDI_SOUND, _("Sounds"),
+    toolBar->AddTool( MDI_SOUND, "Sounds",
                       hoxUtil::LoadImage("speaker.png"),
-		              _("Toggle sounds"), wxITEM_CHECK);
+		              _("Toggle Sounds"), wxITEM_CHECK);
     toolBar->ToggleTool( MDI_SOUND,
                          wxGetApp().GetOption("sound") == "1" );
 
-    toolBar->AddTool( MDI_ABOUT, _("About"), 
-		              wxBitmap(help_xpm), _("Help"));
+    toolBar->AddTool( MDI_ABOUT, "About", 
+		              wxBitmap(help_xpm), _("About"));
 
-    toolBar->AddTool( MDI_QUIT, _("Exit"), 
+    toolBar->AddTool( MDI_QUIT, "Exit", 
 		              wxBitmap(quit_xpm), _("Quit the Program"));
 
     toolBar->Realize();
@@ -542,10 +542,10 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
     view_menu->AppendCheckItem(MDI_SHOW_SERVERS_WINDOW, _("Site&s View\tCtrl-S"));
     if ( hasTable )
     {
-        view_menu->Append(MDI_TOGGLE, _("Toggle Table &View\tCtrl-V"));
+        view_menu->Append(MDI_TOGGLE, _("Toggle Table &View\tCtrl-V"), _("Toggle Table View"));
     }
     view_menu->AppendSeparator();
-    view_menu->AppendCheckItem(MDI_SHOW_LOG_WINDOW, _("Lo&g Window\tCtrl-G"));
+    view_menu->AppendCheckItem(MDI_SHOW_LOG_WINDOW, _("Lo&g Window\tCtrl-G"), _("Log Window"));
 
     /* Tools menu. */
     wxMenu* tools_menu = new wxMenu;

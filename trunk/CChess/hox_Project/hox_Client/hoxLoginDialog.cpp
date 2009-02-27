@@ -132,7 +132,7 @@ hoxLoginDialog::hoxLoginDialog( wxWindow*       parent,
 	/* Server-Address. */
 
 	wxBoxSizer* addressSizer = new wxStaticBoxSizer(
-		new wxStaticBox(this, wxID_ANY, _T("Server &Address")), 
+		new wxStaticBox(this, wxID_ANY, _("Server &Address")), 
 		wxHORIZONTAL );
 
     m_textCtrlAddress = new wxTextCtrl( 
@@ -150,7 +150,7 @@ hoxLoginDialog::hoxLoginDialog( wxWindow*       parent,
         wxSize(50, wxDefaultCoord ));
 
     addressSizer->Add( 
-		new wxStaticText(this, wxID_ANY, _T("Name/IP: ")),
+		new wxStaticText(this, wxID_ANY, _("Name/IP: ")),
 		wxSizerFlags().Align(wxALIGN_LEFT).Border(wxTOP, 10));
 
     addressSizer->Add( 
@@ -160,7 +160,7 @@ hoxLoginDialog::hoxLoginDialog( wxWindow*       parent,
 	addressSizer->AddSpacer(30);
 
     addressSizer->Add( 
-		new wxStaticText(this, wxID_ANY, _T("Port: ")),
+		new wxStaticText(this, wxID_ANY, _("Port: ")),
         wxSizerFlags().Align(wxALIGN_LEFT).Border(wxTOP, 10));
 
 	addressSizer->Add( 
@@ -174,7 +174,7 @@ hoxLoginDialog::hoxLoginDialog( wxWindow*       parent,
 	/* User-Login. */
 
 	wxBoxSizer* loginSizer = new wxStaticBoxSizer(
-		new wxStaticBox(this, wxID_ANY, _T("Login &Info")), 
+		new wxStaticBox(this, wxID_ANY, _("Login &Info")), 
 		wxHORIZONTAL );
 
     m_textCtrlUserName = new wxTextCtrl( 
@@ -193,7 +193,7 @@ hoxLoginDialog::hoxLoginDialog( wxWindow*       parent,
 		wxTE_PASSWORD);
 
     loginSizer->Add( 
-		new wxStaticText(this, wxID_ANY, _T("Username: ")),
+		new wxStaticText(this, wxID_ANY, _("Username: ")),
 		wxSizerFlags().Align(wxALIGN_LEFT).Border(wxTOP, 10));
 
     loginSizer->Add( 
@@ -203,7 +203,7 @@ hoxLoginDialog::hoxLoginDialog( wxWindow*       parent,
 	loginSizer->AddSpacer(30);
 
     loginSizer->Add( 
-		new wxStaticText(this, wxID_ANY, _T("Password: ")),
+		new wxStaticText(this, wxID_ANY, _("Password: ")),
         wxSizerFlags().Align(wxALIGN_LEFT).Border(wxTOP, 10));
 
 	loginSizer->Add( 

@@ -67,6 +67,8 @@ class MyApp : public wxApp
 {
 public:
 
+    MyApp();
+
     /*********************************
      * Override base class virtuals
      *********************************/
@@ -97,7 +99,13 @@ public:
 	bool GetDefaultFrameLayout( wxPoint& position, wxSize& size );
 	bool SaveDefaultFrameLayout( const wxPoint& position, const wxSize& size );
 
+    wxLanguage SelectAndSaveLanguage( const bool bRestartIfChange = false );
+
 private:
+    void       _SetupLanguageAndLocale();
+    wxLanguage _LoadCurrentLanguage();
+    void       _SaveCurrentLanguage( const wxLanguage language );
+
     void _LoadAppOptions();
     void _SaveAppOptions();
 
@@ -109,6 +117,8 @@ private:
 
     typedef std::map<const wxString, wxString> hoxOptions;
     mutable hoxOptions  m_options;
+
+    wxLocale            m_locale;   // The locale we will be using.
 
     friend class MyFrame;
 

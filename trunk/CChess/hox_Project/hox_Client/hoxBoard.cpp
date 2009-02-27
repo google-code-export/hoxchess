@@ -754,9 +754,9 @@ hoxBoard::_CreateBoardPanel()
      * Create players' info + timers 
      *********************************/
 
-    m_btnPlayRed = new wxButton( boardPanel, ID_ACTION_RED, "Play RED", 
+    m_btnPlayRed = new wxButton( boardPanel, ID_ACTION_RED, _("Play RED"), 
                                  wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT );
-    m_btnPlayBlack = new wxButton( boardPanel, ID_ACTION_BLACK, "Play BLACK", 
+    m_btnPlayBlack = new wxButton( boardPanel, ID_ACTION_BLACK, _("Play BLACK"), 
                                    wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT );
 
     // Create players' info.
@@ -826,7 +826,7 @@ hoxBoard::_CreateBoardPanel()
     m_actionSizer = new wxBoxSizer( wxHORIZONTAL );
 
     m_actionSizer->Add( 
-        new wxButton( boardPanel, ID_ACTION_OPTIONS, "Options", 
+        new wxButton( boardPanel, ID_ACTION_OPTIONS, _("Options"), 
                       wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
         0,    // Unstretchable
         wxALIGN_LEFT | wxFIXED_MINSIZE );
@@ -834,25 +834,25 @@ hoxBoard::_CreateBoardPanel()
     m_actionSizer->AddSpacer( 20 );  // Add some spaces in between.
 
     m_actionSizer->Add( 
-        new wxButton( boardPanel, ID_ACTION_RESIGN, "Resign", 
+        new wxButton( boardPanel, ID_ACTION_RESIGN, _("Resign"), 
                       wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
         0,    // Unstretchable
         wxALIGN_LEFT | wxFIXED_MINSIZE );
 
     m_actionSizer->Add( 
-        new wxButton( boardPanel, ID_ACTION_DRAW, "Draw", 
+        new wxButton( boardPanel, ID_ACTION_DRAW, _("Draw"), 
                       wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
         0,    // Unstretchable
         wxALIGN_LEFT | wxFIXED_MINSIZE );
 
     m_actionSizer->Add( 
-        new wxButton( boardPanel, ID_ACTION_RESET, "Reset", 
+        new wxButton( boardPanel, ID_ACTION_RESET, _("Reset"), 
                       wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
         0,    // Unstretchable
         wxALIGN_LEFT | wxFIXED_MINSIZE );
 
     m_actionSizer->Add( 
-        new wxButton( boardPanel, ID_ACTION_NONE, "Unsit", 
+        new wxButton( boardPanel, ID_ACTION_NONE, _("Unsit"), 
                       wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
         0,    // Unstretchable
         wxALIGN_LEFT | wxFIXED_MINSIZE );
