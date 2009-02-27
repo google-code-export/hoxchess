@@ -55,6 +55,7 @@ public:
 
 protected:
     void OnSound( wxCommandEvent& event );
+    void OnLanguage( wxCommandEvent& event );
     void OnColorChanged( wxColourPickerEvent& event );
 
 private:
@@ -72,6 +73,7 @@ private:
 
     enum {
         ID_SOUND = 100 ,
+        ID_LANG,
         ID_BG_COLOR,   // Background
         ID_FG_COLOR    // Foreground
     };

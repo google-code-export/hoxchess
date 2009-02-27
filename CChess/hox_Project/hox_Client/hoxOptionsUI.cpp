@@ -26,11 +26,13 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxOptionsUI.h"
+#include "MyApp.h"    // wxGetApp()
 #include <wx/notebook.h>
 
 /* Event table. */
 BEGIN_EVENT_TABLE(hoxOptionsUI, wxPropertySheetDialog)
     EVT_CHECKBOX(ID_SOUND, hoxOptionsUI::OnSound)
+    EVT_BUTTON(ID_LANG, hoxOptionsUI::OnLanguage)
     EVT_COLOURPICKER_CHANGED(wxID_ANY, hoxOptionsUI::OnColorChanged)
 END_EVENT_TABLE()
 
@@ -64,19 +66,27 @@ hoxOptionsUI::_CreateGeneralPage( wxWindow* parent )
     wxPanel* panel = new wxPanel(parent);
 
     wxBoxSizer* topSizer = new wxBoxSizer( wxVERTICAL );
-    wxBoxSizer* item0 = new wxBoxSizer( wxVERTICAL );
 
     /* ----------- Sounds. */
 
     wxBoxSizer* soundSizer = new wxBoxSizer( wxHORIZONTAL );
+    wxBoxSizer* item0 = new wxBoxSizer( wxHORIZONTAL );
     m_soundCheck = new wxCheckBox( panel, ID_SOUND, _("&Sounds") );
     m_soundCheck->SetValue( m_data.m_bSound );
-    soundSizer->Add( m_soundCheck,
-                     0, wxALL|wxALIGN_CENTER_VERTICAL, 5);
-    item0->Add( soundSizer, 0, wxGROW|wxALL, 0 );
+    item0->Add( m_soundCheck,
+                wxSizerFlags().Border(wxRIGHT, 10) );
+    soundSizer->Add( item0, 0, wxGROW|wxALL, 0 );
+
+    /* ----------- Language. */
+
+    wxBoxSizer* langSizer = new wxBoxSizer( wxHORIZONTAL );
+    langSizer->Add( 
+        new wxButton( panel, ID_LANG, _("Change &Language") ) );
 
     /* Done. */
-    topSizer->Add( item0, 1, wxGROW|wxALIGN_CENTRE|wxALL, 5 );
+    topSizer->Add( soundSizer, 0, wxGROW|wxALIGN_CENTRE|wxALL, 5 );
+    topSizer->AddSpacer( 40 );  // Add some spaces in between.
+    topSizer->Add( langSizer, 0, wxGROW|wxALIGN_CENTRE|wxALL, 5 );
 
     panel->SetSizer( topSizer );
     topSizer->Fit( panel );
@@ -113,7 +123,7 @@ hoxOptionsUI::_CreateBoardPage( wxWindow* parent )
     item0->Add(fgSizer, 0, wxGROW|wxALL, 0);
 
     /* Done. */
-    topSizer->Add( item0, 1, wxGROW|wxALIGN_CENTRE|wxALL, 5 );
+    topSizer->Add( item0, 0, wxGROW|wxALIGN_CENTRE|wxALL, 5 );
 
     panel->SetSizer( topSizer );
     topSizer->Fit( panel );
@@ -125,6 +135,12 @@ void
 hoxOptionsUI::OnSound( wxCommandEvent& event )
 {
     m_data.m_bSound = event.IsChecked();
+}
+
+void
+hoxOptionsUI::OnLanguage( wxCommandEvent& event )
+{
+    wxGetApp().SelectAndSaveLanguage( true /* bRestartIfChange */ );
 }
 
 void

@@ -43,6 +43,30 @@ BEGIN_EVENT_TABLE(MyApp, wxApp)
 	EVT_COMMAND(wxID_ANY, hoxEVT_APP_SITE_CLOSE_READY, MyApp::OnCloseReady_FromSite)
 END_EVENT_TABLE()
 
+/* Language data. */
+struct _LanguageInfo
+{
+    wxString    name;
+    wxLanguage  code;
+};
+
+static _LanguageInfo s_languages[] =
+{
+    { _("(System Default Language)"), wxLANGUAGE_DEFAULT },
+    // Adding new languages below ....
+
+    { _T("English"),         wxLANGUAGE_ENGLISH          },
+    { _T("Vietnamese"),      wxLANGUAGE_VIETNAMESE       },
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+MyApp::MyApp()
+        : wxApp()
+        , m_frame( NULL )
+{
+}
+
 /**
  * 'Main program' equivalent: the program execution "starts" here
  */
@@ -54,13 +78,13 @@ MyApp::OnInit()
     if ( !wxApp::OnInit() )
         return false;
 
-    m_frame = NULL;    // To avoid "logging to early to Frame".
+	m_config = new wxConfig( HOX_APP_NAME );
+    _LoadAppOptions();
+
+    _SetupLanguageAndLocale();
 
     // Add PNG image-type handler since our pieces use this format.
     wxImage::AddHandler( new wxPNGHandler );
-
-	m_config = new wxConfig( HOX_APP_NAME );
-    _LoadAppOptions();
 
     // Get default size and position.
 	wxPoint defaultPosition;
@@ -107,6 +131,106 @@ MyApp::OnInit()
     // loop and the application will run. If we returned false here, the
     // application would exit immediately.
     return true;
+}
+
+void
+MyApp::_SetupLanguageAndLocale()
+{
+    wxLanguage language = _LoadCurrentLanguage();
+    if ( language == wxLANGUAGE_UNKNOWN )
+    {
+        language= this->SelectAndSaveLanguage();
+    }
+
+    // Don't use wxLOCALE_LOAD_DEFAULT flag so that Init() doesn't return
+    // false just because it failed to load wxstd catalog
+    if ( ! m_locale.Init(language, wxLOCALE_CONV_ENCODING) )
+    {
+        wxLogError(_("This language is not supported by the system."));
+        // NOTE: still allowed to continue!
+    }
+
+    // Normally this wouldn't be necessary as the catalog files would be found
+    // in the default locations, but when the program is not installed the
+    // catalogs are in the build directory where we wouldn't find them by default.
+    wxLocale::AddCatalogLookupPathPrefix( HOX_LOCALE_PATH );
+
+    // Initialize the catalogs we'll be using
+    if ( ! m_locale.AddCatalog( HOX_CATALOG_NAME ) )
+    {
+        wxLogError(_("Fail to find/load the [%s] catalog."), HOX_CATALOG_NAME);
+    }
+}
+
+wxLanguage
+MyApp::SelectAndSaveLanguage( const bool bRestartIfChange /* = false */ )
+{
+    /* References:
+     *  See the open source project 'Poedit' at http://www.poedit.net
+     */
+
+    wxArrayString langNames;
+    for ( int i = 0; i < WXSIZEOF(s_languages); ++i )
+    {
+        langNames.Add( s_languages[i].name );
+    }
+
+    const int nChoice = ::wxGetSingleChoiceIndex(
+                            _("Select your language"),
+                            _("Language selection"),
+                            langNames );
+    const wxLanguage language = (   nChoice == -1
+                                  ? wxLANGUAGE_DEFAULT
+                                  : s_languages[nChoice].code );
+
+    _SaveCurrentLanguage( language );
+
+    if ( nChoice != -1 && bRestartIfChange )
+    {
+        ::wxMessageBox( _("You must restart the program for this change to take effect"),
+                        _("Required Action"),
+                        wxOK | wxICON_INFORMATION );
+    }
+
+    return language;
+}
+
+wxLanguage
+MyApp::_LoadCurrentLanguage()
+{
+    const wxString sLanguage = wxGetApp().GetOption("language");
+    wxLogDebug("%s: Load current language [%s].", __FUNCTION__, sLanguage.c_str());
+
+    if      ( sLanguage.empty() )      return wxLANGUAGE_UNKNOWN;
+    else if ( sLanguage == "default" ) return wxLANGUAGE_DEFAULT;
+
+    const wxLanguageInfo* langInfo = wxLocale::FindLanguageInfo( sLanguage );
+    if ( langInfo == NULL )
+    {
+        wxLogWarning(_("Unknown language setting [%s]."), sLanguage.c_str());
+        return wxLANGUAGE_UNKNOWN;
+    }
+
+    return (wxLanguage) langInfo->Language;
+}
+
+void
+MyApp::_SaveCurrentLanguage( const wxLanguage language )
+{
+    wxString sLanguage;
+    if ( language == wxLANGUAGE_DEFAULT )
+    {
+        sLanguage = "default";
+    }
+    else
+    {
+        const wxLanguageInfo* langInfo = wxLocale::GetLanguageInfo( language );
+        wxCHECK_RET(langInfo != NULL, "Language is unknown");
+        sLanguage = langInfo->CanonicalName;  
+    }
+
+    wxLogDebug("%s: Save current language [%s].", __FUNCTION__, sLanguage.c_str());
+    wxGetApp().SetOption("language", sLanguage);
 }
 
 int 
@@ -232,6 +356,7 @@ MyApp::SaveDefaultFrameLayout( const wxPoint& position,
 void
 MyApp::_LoadAppOptions()
 {
+	m_options["language"] = m_config->Read("/Options/language", "");
 	m_options["sound"] = m_config->Read("/Options/sound", "1");
     m_options["defaultAI"] = m_config->Read("/Options/defaultAI", "AI_XQWLight");
 
@@ -248,6 +373,7 @@ MyApp::_LoadAppOptions()
 void
 MyApp::_SaveAppOptions()
 {
+	m_config->Write("/Options/language", m_options["language"]);
 	m_config->Write("/Options/sound", m_options["sound"]);
     m_config->Write("/Options/defaultAI", m_options["defaultAI"]);
     m_config->Write("/Board/Piece/path", m_options["/Board/Piece/path"]);

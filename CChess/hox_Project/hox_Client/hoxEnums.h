@@ -45,6 +45,16 @@
 #define HOX_VERSION   "0.6.1.0"
 
 /**
+ * The catalog's name to setup Language and Locale.
+ */
+#define HOX_CATALOG_NAME "hoxchess"
+
+/**
+ * The locale path containing language catalogue files.
+ */
+#define HOX_LOCALE_PATH  "../resource/locale"
+
+/**
  * The default path of all the pieces' images.
  */
 #define DEFAULT_PIECE_PATH "../resource/pieces/1"
