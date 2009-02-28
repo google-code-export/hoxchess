@@ -37,6 +37,7 @@
 #include "hoxBoard.h"
 #include "hoxLog.h"
 #include "hoxSavedTable.h"
+#include "hoxAIPluginMgr.h"
 
 #if !defined(__WXMSW__)
     #include "../resource/icons/hoxchess.xpm"
@@ -647,35 +648,45 @@ MyFrame::OnOptions( wxCommandEvent& event )
 {
     hoxOptionsUI::OptionsData optionData;
     optionData.m_bSound = (wxGetApp().GetOption("sound") == "1");
+    optionData.m_language = wxGetApp().GetCurrentLanguage();
     optionData.m_sBgColor = wxGetApp().GetOption("/Board/Color/background");
     optionData.m_sFgColor = wxGetApp().GetOption("/Board/Color/foreground");
+    optionData.m_sDefaultAI = wxGetApp().GetOption("defaultAI");
 
     hoxOptionsUI optionsDialog( this, optionData );
 
-    if ( optionsDialog.ShowModal() == wxID_OK )
+    if ( optionsDialog.ShowModal() != wxID_OK ) return;
+
+    optionData = optionsDialog.GetData();
+    wxGetApp().SetOption( "sound",
+                          optionData.m_bSound ? "1" : "0" );
+    this->GetToolBar()->ToggleTool( MDI_SOUND, optionData.m_bSound );
+
+    if ( optionData.m_language != wxGetApp().GetCurrentLanguage() )
     {
-        optionData = optionsDialog.GetData();
-        wxGetApp().SetOption( "sound",
-                              optionData.m_bSound ? "1" : "0" );
-        this->GetToolBar()->ToggleTool( MDI_SOUND, optionData.m_bSound );
+        wxGetApp().SaveCurrentLanguage( optionData.m_language );
+        ::wxMessageBox( _("You must restart the program for this change to take effect"),
+                        _("Required Action"),
+                        wxOK | wxICON_INFORMATION );
+    }
 
-        wxGetApp().SetOption( "/Board/Color/background",
-                              optionData.m_sBgColor );
-        wxGetApp().SetOption( "/Board/Color/foreground",
-                              optionData.m_sFgColor );
+    wxGetApp().SetOption( "/Board/Color/background", optionData.m_sBgColor );
+    wxGetApp().SetOption( "/Board/Color/foreground", optionData.m_sFgColor );
 
-        // Apply the new Options to the Active Table.
-        MyChild* child = wxDynamicCast(this->GetActiveChild(), MyChild);
-        if ( child != NULL )
+    hoxAIPluginMgr::SetDefaultPluginName( optionData.m_sDefaultAI );
+    wxGetApp().SetOption("defaultAI", optionData.m_sDefaultAI);
+
+    // Apply the new Options to the Active Table.
+    MyChild* child = wxDynamicCast(this->GetActiveChild(), MyChild);
+    if ( child != NULL )
+    {
+        hoxTable_SPtr pTable = child->GetTable();
+        hoxBoard* pBoardUI = pTable->GetBoardUI();
+        if ( pBoardUI )
         {
-            hoxTable_SPtr pTable = child->GetTable();
-            hoxBoard* pBoardUI = pTable->GetBoardUI();
-            if ( pBoardUI )
-            {
-                pBoardUI->EnableSound( optionData.m_bSound );
-                pBoardUI->SetBgColor( wxColor(optionData.m_sBgColor) );
-                pBoardUI->SetFgColor( wxColor(optionData.m_sFgColor) );
-            }
+            pBoardUI->EnableSound( optionData.m_bSound );
+            pBoardUI->SetBgColor( wxColor(optionData.m_sBgColor) );
+            pBoardUI->SetFgColor( wxColor(optionData.m_sFgColor) );
         }
     }
 }

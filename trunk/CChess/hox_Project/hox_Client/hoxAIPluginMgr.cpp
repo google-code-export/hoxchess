@@ -47,7 +47,7 @@ hoxAIPlugin::~hoxAIPlugin()
 }
 
 AIEngineLib_APtr
-hoxAIPlugin::createAIEngineLib()
+hoxAIPlugin::CreateAIEngineLib()
 {
     AIEngineLib_APtr apEngine;
 
@@ -91,10 +91,17 @@ hoxAIPluginMgr::SetDefaultPluginName( const wxString& sDefaultName )
     m_defaultPluginName = sDefaultName;
 }
 
+/* static */
+const wxString
+hoxAIPluginMgr::GetDefaultPluginName()
+{
+    return m_defaultPluginName;
+}
+
 /* private */
 hoxAIPluginMgr::hoxAIPluginMgr()
 {
-    _loadDefaultPluginFromDisk();
+    _loadAvailableAIPlugins();
 }
 
 hoxAIPluginMgr::~hoxAIPluginMgr()
@@ -102,82 +109,127 @@ hoxAIPluginMgr::~hoxAIPluginMgr()
 }
 
 AIEngineLib_APtr
-hoxAIPluginMgr::createDefaultAIEngineLib()
+hoxAIPluginMgr::CreateDefaultAIEngineLib()
 {
     AIEngineLib_APtr apEngine;
 
-    /* Load the default AI Plugin. */
-    if ( ! m_defaultPlugin.IsOk() )
+    wxString sName = m_defaultPluginName;
+
+    if ( sName.empty() && !m_aiPlugins.empty() )
     {
-        wxLogWarning("%s: There is no default Plugin.", __FUNCTION__);
+        sName = m_aiPlugins.begin()->second->m_name;
+        wxLogDebug("%s: *INFO* Select the 1st available Plugin [%s].", __FUNCTION__, sName.c_str());
+    }
+
+    if ( sName.empty() )
+    {
+        ::wxMessageBox( _("There is no AI Engine available."),
+                        _("AI Creation"),
+                        wxOK | wxICON_EXCLAMATION );
         return apEngine;
     }
 
-    return m_defaultPlugin.createAIEngineLib();
+    hoxAIPlugin_SPtr pPlugin = _loadPlugin( sName );
+
+    if ( !pPlugin || !pPlugin->IsLoaded() )
+    {
+        wxLogWarning("%s: The AI Engine [%s] could not be loaded.", __FUNCTION__, sName.c_str());
+        return apEngine;
+    }
+
+    return pPlugin->CreateAIEngineLib();
+}
+
+wxArrayString
+hoxAIPluginMgr::GetNamesOfAllAIPlugins() const
+{
+    wxArrayString aiNames;
+
+    for ( hoxAIPluginMap::const_iterator it = m_aiPlugins.begin();
+                                         it != m_aiPlugins.end(); ++it )
+    {
+        aiNames.Add( it->second->m_name );
+    }
+
+    return aiNames;
 }
 
 bool
-hoxAIPluginMgr::_loadDefaultPluginFromDisk()
+hoxAIPluginMgr::_loadAvailableAIPlugins()
 {
-    wxPluginLibrary* lib = NULL;
-
-	wxString filename;
-	wxString ext = "*"  + wxDynamicLibrary::GetDllExt();
-    //wxString sPluginsDir = wxGetCwd() + "/../plugins/lib";
-    wxString sPluginsDir = AI_PLUGINS_PATH;
-    wxLogDebug("%s: Load Plugins from %s", __FUNCTION__, sPluginsDir.c_str());
-	wxDir dir(sPluginsDir);
-
+    wxString sPluginsDir = AI_PLUGINS_PATH; /* wxGetCwd() + "/../plugins/lib" */
+    wxLogDebug("%s: Get Plugins from [%s].", __FUNCTION__, sPluginsDir.c_str());
+    wxDir dir(sPluginsDir);
 	if ( !dir.IsOpened() )
 	{
         wxLogWarning("%s: Fail to open Plugins folder [%s].", __FUNCTION__, sPluginsDir.c_str());
-		return false;
+		return false; // failure.
 	}
+
+    wxString         filename;
+	const wxString   ext = "*"  + wxDynamicLibrary::GetDllExt();
+    hoxAIPlugin_SPtr pAIPlugin;
 
 	for ( bool cont = dir.GetFirst(&filename, ext, wxDIR_FILES);
 	           cont == true;
                cont = dir.GetNext(&filename) )
     {
-        /* NOTE: If the default AI is NOT set, then just load
-         *       the FIRST plugin.
-         */
+        pAIPlugin.reset( new hoxAIPlugin() );
+        pAIPlugin->m_name = filename.BeforeFirst('.');
+        pAIPlugin->m_path = sPluginsDir + "/" + filename;
 
-        if (   ! m_defaultPluginName.empty()
-            && ! filename.StartsWith( m_defaultPluginName ) )
-        {
-            wxLogDebug("%s: Plugin [%s] not matched [%s]. Skip!",
-                __FUNCTION__, filename.c_str(), m_defaultPluginName.c_str());
-            continue;
-        }
+        wxLogDebug("%s: AI-name = [%s], AI-path = [%s].", __FUNCTION__,
+            pAIPlugin->m_name.c_str(), pAIPlugin->m_path.c_str());
 
-		lib = wxPluginManager::LoadLibrary ( sPluginsDir + "/" + filename );
-		if ( ! lib ) 
-        {
-            wxLogDebug("%s: Fail to load plugin [%s].", __FUNCTION__, filename.c_str());
-            continue;
-        }
-
-        wxLogDebug("%s: Loaded [%s].", __FUNCTION__, filename.c_str());
-
-        const char* szFuncName = "CreateAIEngineLib";
-        PICreateAIEngineLibFunc pfnCreateAIEngineLib =
-            (PICreateAIEngineLibFunc) lib->GetSymbol(szFuncName);
-        if ( !pfnCreateAIEngineLib )
-        {
-            wxLogWarning("%s: Function [%s] not found from [%s].",
-                __FUNCTION__, szFuncName, filename.c_str());
-            lib->Unload();
-        }
-        else
-        {
-            m_defaultPlugin.m_aiPluginLibrary = lib;
-            m_defaultPlugin.m_pCreateAIEngineLibFunc = pfnCreateAIEngineLib;
-            wxLogDebug("%s: Return engine [%s].", __FUNCTION__, filename.c_str());
-            return true;  // TODO: Found one engine. Enough!
-        }
+        m_aiPlugins[pAIPlugin->m_name] = pAIPlugin;
 	}
 
-    return false;  // failure.
+    return true;  // success
+}
+
+hoxAIPlugin_SPtr
+hoxAIPluginMgr::_loadPlugin( const wxString& sName )
+{
+    hoxAIPlugin_SPtr pPlugin;
+
+    pPlugin = m_aiPlugins[sName];
+    if ( ! pPlugin )
+    {
+        wxLogDebug("%s: *INFO* The AI Plugin [%s] is found.", __FUNCTION__, sName.c_str());
+        return pPlugin;
+    }
+
+    if ( pPlugin->IsLoaded() ) // already loaded?
+    {
+        return pPlugin;
+    }
+
+    wxPluginLibrary* lib = wxPluginManager::LoadLibrary ( pPlugin->m_path );
+	if ( ! lib ) 
+    {
+        wxLogDebug("%s: Fail to load plugin [%s].", __FUNCTION__, sName.c_str());
+        pPlugin.reset();
+        return pPlugin;
+    }
+
+    wxLogDebug("%s: Loaded [%s].", __FUNCTION__, sName.c_str());
+
+    const char* szFuncName = "CreateAIEngineLib";
+    PICreateAIEngineLibFunc pfnCreate = (PICreateAIEngineLibFunc) lib->GetSymbol(szFuncName);
+    if ( !pfnCreate )
+    {
+        wxLogWarning("%s: Function [%s] not found in [%s].",
+            __FUNCTION__, szFuncName, sName.c_str());
+        lib->Unload();
+        pPlugin.reset();
+        return pPlugin;
+    }
+
+    pPlugin->m_aiPluginLibrary = lib;
+    pPlugin->m_pCreateAIEngineLibFunc = pfnCreate;
+    wxLogDebug("%s: Return engine [%s].", __FUNCTION__, sName.c_str());
+
+    return pPlugin;
 }
 
 /************************* END OF FILE ***************************************/

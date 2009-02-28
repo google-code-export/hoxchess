@@ -47,16 +47,21 @@ public:
 	hoxAIPlugin();
     ~hoxAIPlugin();
 
-    bool IsOk() const { return (m_pCreateAIEngineLibFunc != NULL); }
+    const wxString GetName() const { return m_name; }
+    bool IsLoaded() const { return (m_pCreateAIEngineLibFunc != NULL); }
 
-    AIEngineLib_APtr createAIEngineLib();
+    AIEngineLib_APtr CreateAIEngineLib();
 
 private:
+    wxString                 m_name;   // The unique name.
+    wxString                 m_path;   // The full-path on disk.
+
     wxPluginLibrary*         m_aiPluginLibrary;
     PICreateAIEngineLibFunc  m_pCreateAIEngineLibFunc;
 
     friend class hoxAIPluginMgr;
 };
+typedef boost::shared_ptr<hoxAIPlugin> hoxAIPlugin_SPtr;
 
 /**
  * The Manager of AI Plugins.
@@ -67,19 +72,23 @@ class hoxAIPluginMgr
 public:
 	static hoxAIPluginMgr* GetInstance();
     static void SetDefaultPluginName( const wxString& sDefaultName );
+    static const wxString GetDefaultPluginName();
     ~hoxAIPluginMgr();
 
-    AIEngineLib_APtr createDefaultAIEngineLib();
+    AIEngineLib_APtr CreateDefaultAIEngineLib();
+    wxArrayString GetNamesOfAllAIPlugins() const;
 
 private:
     hoxAIPluginMgr();
 	static hoxAIPluginMgr* m_instance;
     static wxString        m_defaultPluginName;
 
-    bool _loadDefaultPluginFromDisk();
+    bool _loadAvailableAIPlugins();
+    hoxAIPlugin_SPtr _loadPlugin( const wxString& sName );
 
 private:
-    hoxAIPlugin           m_defaultPlugin;
+    typedef std::map<const wxString, hoxAIPlugin_SPtr> hoxAIPluginMap;
+    hoxAIPluginMap        m_aiPlugins;
 };
 
 #endif /* __INCLUDED_HOX_AI_PLUGIN_MGR_H__ */

@@ -368,7 +368,7 @@ hoxLocalSite::OnLocalRequest_PRACTICE( const wxString& sSavedFile /* = "" */ )
 
     /* Load the AI Plugin. */
     AIEngineLib_APtr apAIEngineLib =
-        hoxAIPluginMgr::GetInstance()->createDefaultAIEngineLib();
+        hoxAIPluginMgr::GetInstance()->CreateDefaultAIEngineLib();
     if ( apAIEngineLib.get() == NULL )
     {
         ::wxMessageBox( "No AI Plugin found.", _("Create Pratice Table"),
