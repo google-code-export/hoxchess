@@ -46,17 +46,17 @@ END_EVENT_TABLE()
 /* Language data. */
 struct _LanguageInfo
 {
-    wxString    name;
     wxLanguage  code;
+    wxString    desc; // description
 };
 
 static _LanguageInfo s_languages[] =
 {
-    { _("(System Default Language)"), wxLANGUAGE_DEFAULT },
+    { wxLANGUAGE_DEFAULT,    _("(Use Default Language)") },
     // Adding new languages below ....
 
-    { _T("English"),         wxLANGUAGE_ENGLISH          },
-    { _T("Vietnamese"),      wxLANGUAGE_VIETNAMESE       },
+    { wxLANGUAGE_ENGLISH,    _("English")                 },
+    { wxLANGUAGE_VIETNAMESE, _("Vietnamese")              },
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -64,6 +64,7 @@ static _LanguageInfo s_languages[] =
 MyApp::MyApp()
         : wxApp()
         , m_frame( NULL )
+        , m_language( wxLANGUAGE_UNKNOWN )
 {
 }
 
@@ -136,15 +137,15 @@ MyApp::OnInit()
 void
 MyApp::_SetupLanguageAndLocale()
 {
-    wxLanguage language = _LoadCurrentLanguage();
-    if ( language == wxLANGUAGE_UNKNOWN )
+    m_language = _LoadCurrentLanguage();
+    if ( m_language == wxLANGUAGE_UNKNOWN )
     {
-        language= this->SelectAndSaveLanguage();
+        m_language = _SelectAndSaveLanguage();
     }
 
     // Don't use wxLOCALE_LOAD_DEFAULT flag so that Init() doesn't return
     // false just because it failed to load wxstd catalog
-    if ( ! m_locale.Init(language, wxLOCALE_CONV_ENCODING) )
+    if ( ! m_locale.Init(m_language, wxLOCALE_CONV_ENCODING) )
     {
         wxLogError(_("This language is not supported by the system."));
         // NOTE: still allowed to continue!
@@ -163,34 +164,75 @@ MyApp::_SetupLanguageAndLocale()
 }
 
 wxLanguage
-MyApp::SelectAndSaveLanguage( const bool bRestartIfChange /* = false */ )
+MyApp::SelectLanguage()
 {
     /* References:
      *  See the open source project 'Poedit' at http://www.poedit.net
      */
 
-    wxArrayString langNames;
+    wxArrayString langDescriptions;
     for ( int i = 0; i < WXSIZEOF(s_languages); ++i )
     {
-        langNames.Add( s_languages[i].name );
+        langDescriptions.Add( s_languages[i].desc );
     }
 
     const int nChoice = ::wxGetSingleChoiceIndex(
                             _("Select your language"),
                             _("Language selection"),
-                            langNames );
-    const wxLanguage language = (   nChoice == -1
-                                  ? wxLANGUAGE_DEFAULT
-                                  : s_languages[nChoice].code );
+                            langDescriptions );
+    return ( nChoice == -1 ? wxLANGUAGE_UNKNOWN : s_languages[nChoice].code );
+}
 
-    _SaveCurrentLanguage( language );
+void
+MyApp::SaveCurrentLanguage( const wxLanguage language )
+{
+    const wxString sLanguage = this->GetLanguageName( language );
+    wxLogDebug("%s: Save current language [%s].", __FUNCTION__, sLanguage.c_str());
+    wxGetApp().SetOption("language", sLanguage);
+}
 
-    if ( nChoice != -1 && bRestartIfChange )
+const wxString
+MyApp::GetLanguageName( const wxLanguage language )
+{
+    wxString sLanguage;
+    if ( language == wxLANGUAGE_DEFAULT )
     {
-        ::wxMessageBox( _("You must restart the program for this change to take effect"),
-                        _("Required Action"),
-                        wxOK | wxICON_INFORMATION );
+        sLanguage = "default";
     }
+    else
+    {
+        const wxLanguageInfo* langInfo = wxLocale::GetLanguageInfo( language );
+        wxCHECK_MSG(langInfo != NULL, _("Unknown"), "Language is unknown");
+        sLanguage = langInfo->CanonicalName;  
+    }
+
+    return sLanguage;
+}
+
+const wxString
+MyApp::GetLanguageDesc( const wxLanguage language )
+{
+    for ( int i = 0; i < WXSIZEOF(s_languages); ++i )
+    {
+        if ( s_languages[i].code == language )
+        {
+            return s_languages[i].desc;
+        }
+    }
+
+    return _("Unknown");
+}
+
+wxLanguage
+MyApp::_SelectAndSaveLanguage()
+{
+    wxLanguage language = this->SelectLanguage();
+    if ( language == wxLANGUAGE_UNKNOWN )
+    {
+        language = wxLANGUAGE_DEFAULT;
+    }
+
+    this->SaveCurrentLanguage( language );
 
     return language;
 }
@@ -212,25 +254,6 @@ MyApp::_LoadCurrentLanguage()
     }
 
     return (wxLanguage) langInfo->Language;
-}
-
-void
-MyApp::_SaveCurrentLanguage( const wxLanguage language )
-{
-    wxString sLanguage;
-    if ( language == wxLANGUAGE_DEFAULT )
-    {
-        sLanguage = "default";
-    }
-    else
-    {
-        const wxLanguageInfo* langInfo = wxLocale::GetLanguageInfo( language );
-        wxCHECK_RET(langInfo != NULL, "Language is unknown");
-        sLanguage = langInfo->CanonicalName;  
-    }
-
-    wxLogDebug("%s: Save current language [%s].", __FUNCTION__, sLanguage.c_str());
-    wxGetApp().SetOption("language", sLanguage);
 }
 
 int 
@@ -358,7 +381,7 @@ MyApp::_LoadAppOptions()
 {
 	m_options["language"] = m_config->Read("/Options/language", "");
 	m_options["sound"] = m_config->Read("/Options/sound", "1");
-    m_options["defaultAI"] = m_config->Read("/Options/defaultAI", "AI_XQWLight");
+    m_options["defaultAI"] = m_config->Read("/Options/defaultAI", "");
 
     m_options["/Board/Piece/path"] =
         m_config->Read("/Board/Piece/path", DEFAULT_PIECE_PATH);

@@ -42,9 +42,11 @@ public:
     class OptionsData
     {
     public:
-        bool      m_bSound;
-        wxString  m_sBgColor;
-        wxString  m_sFgColor;
+        bool         m_bSound;
+        wxLanguage   m_language;
+        wxString     m_sBgColor;
+        wxString     m_sFgColor;
+        wxString     m_sDefaultAI;
     };
 
 public:
@@ -57,26 +59,23 @@ protected:
     void OnSound( wxCommandEvent& event );
     void OnLanguage( wxCommandEvent& event );
     void OnColorChanged( wxColourPickerEvent& event );
+    void OnDefaultAI( wxCommandEvent& event );
 
 private:
     wxPanel* _CreateGeneralPage( wxWindow* parent );
     wxPanel* _CreateBoardPage( wxWindow* parent );
+    wxPanel* _CreateAIPage( wxWindow* parent );
 
 public:
     OptionsData           m_data;
 
     wxCheckBox*           m_soundCheck;
+    wxTextCtrl*           m_languageTextCtrl;
     wxColourPickerCtrl*   m_bgBox;  // Background
     wxColourPickerCtrl*   m_fgBox;  // Foreground
+    wxTextCtrl*           m_defaultAITextCtrl;
 
 private:
-
-    enum {
-        ID_SOUND = 100 ,
-        ID_LANG,
-        ID_BG_COLOR,   // Background
-        ID_FG_COLOR    // Foreground
-    };
 
     DECLARE_EVENT_TABLE()
 

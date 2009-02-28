@@ -99,12 +99,16 @@ public:
 	bool GetDefaultFrameLayout( wxPoint& position, wxSize& size );
 	bool SaveDefaultFrameLayout( const wxPoint& position, const wxSize& size );
 
-    wxLanguage SelectAndSaveLanguage( const bool bRestartIfChange = false );
+    wxLanguage SelectLanguage();
+    void SaveCurrentLanguage( const wxLanguage language );
+    wxLanguage GetCurrentLanguage() const { return m_language; }
+    const wxString GetLanguageName( const wxLanguage language );
+    const wxString GetLanguageDesc( const wxLanguage language );
 
 private:
+    wxLanguage _SelectAndSaveLanguage();
     void       _SetupLanguageAndLocale();
     wxLanguage _LoadCurrentLanguage();
-    void       _SaveCurrentLanguage( const wxLanguage language );
 
     void _LoadAppOptions();
     void _SaveAppOptions();
@@ -118,6 +122,7 @@ private:
     typedef std::map<const wxString, wxString> hoxOptions;
     mutable hoxOptions  m_options;
 
+    wxLanguage          m_language;
     wxLocale            m_locale;   // The locale we will be using.
 
     friend class MyFrame;
