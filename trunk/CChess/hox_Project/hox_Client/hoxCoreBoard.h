@@ -277,9 +277,10 @@ private:
      * This list is maintained so that the players can review the game.
      */
     hoxMoveVector   m_historyMoves; // All (past) Moves made so far.
-    enum HistoryIndex {   // TODO: Temporarily defined here.
-        HISTORY_INDEX_END      = -2,
-        HISTORY_INDEX_BEGIN    = -1
+    enum HistoryIndex // NOTE: Do not change the constants 'values below.
+    {
+        HISTORY_INDEX_END   = -2,
+        HISTORY_INDEX_BEGIN = -1
     };
     int             m_historyIndex; // Which Move the user is reviewing.
 
@@ -287,7 +288,7 @@ private:
     bool            m_isGameOver;
 
     /* HACK: To adjust the height according to the parent 's. */
-    int m_nBestHeightAdjustment;
+    int             m_nBestHeightAdjustment;
 
     DECLARE_DYNAMIC_CLASS(hoxCoreBoard)
     DECLARE_EVENT_TABLE()
