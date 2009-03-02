@@ -26,14 +26,12 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxCoreBoard.h"
-#include "hoxEnums.h"
-#include "hoxPiece.h"
 #include "hoxUtil.h"
-#include "hoxReferee.h"
 
 // ----------------------------------------------------------------------------
 // Constants
 // ----------------------------------------------------------------------------
+#define hoxBOARD_WORKSPACE_BRUSH   wxLIGHT_GREY_BRUSH
 
 enum Constants
 {
@@ -45,10 +43,6 @@ enum Constants
     NUM_HORIZON_CELL  = 8,  // Do not change the value!!!
     NUM_VERTICAL_CELL = 9   // Do not change the value!!!
 };
-
-// ----------------------------------------------------------------------------
-// hoxCoreBoard
-// ----------------------------------------------------------------------------
 
 IMPLEMENT_DYNAMIC_CLASS(hoxCoreBoard, wxPanel)
 
@@ -80,10 +74,7 @@ hoxCoreBoard::hoxCoreBoard( wxWindow*        parent,
                             wxColor          fgColor,
                             const wxPoint&   pos  /* = wxDefaultPosition */, 
                             const wxSize&    size /* = wxDefaultSize*/ )
-        : wxPanel( parent, 
-                   wxID_ANY, 
-                   pos, 
-                   size,
+        : wxPanel( parent, wxID_ANY, pos, size,
                    wxFULL_REPAINT_ON_RESIZE )
         , m_backgroundColor( bgColor )
         , m_foregroundColor( fgColor )
@@ -98,15 +89,7 @@ hoxCoreBoard::hoxCoreBoard( wxWindow*        parent,
         , m_historyIndex( HISTORY_INDEX_END )
         , m_isGameOver( false )
 {
-    /* NOTE: We move this PNG code since to outside to avoid
-     *       having duplicate handles if there are more than
-     *       one Board.
-     *
-     * Add PNG image-type handler since our pieces use this format.
-     * wxImage::AddHandler( new wxPNGHandler );
-     *******/
-
-    wxASSERT_MSG(m_referee.get() != NULL, "A Referee must be set");
+    wxASSERT_MSG(m_referee, "A Referee must be set");
 
     m_borderX = 40;   // TODO: Hard-coded constant
     m_borderY = m_borderX;
@@ -117,7 +100,6 @@ hoxCoreBoard::hoxCoreBoard( wxWindow*        parent,
 hoxCoreBoard::~hoxCoreBoard()
 {
     _ClearPieces();
-
     delete m_dragImage;
 }
 
@@ -196,16 +178,18 @@ hoxCoreBoard::_ClearPieces()
     }
 }
 
-// Find only active piece
 hoxPiece* 
 hoxCoreBoard::_FindPiece( const wxPoint& point ) const
 {
+    // Find only active piece
     for (hoxPieceList::const_iterator it = m_pieces.begin();
                                       it != m_pieces.end(); ++it)
     {
         hoxPiece* piece = *it;
         if ( piece->IsActive() && _PieceHitTest(piece, point))
+        {
             return piece;
+        }
     }
 
     return NULL;
@@ -214,14 +198,15 @@ hoxCoreBoard::_FindPiece( const wxPoint& point ) const
 void 
 hoxCoreBoard::_DoPaint( wxDC& dc )
 {
-    _DrawBoard(dc);       // Display board
-    _DrawAllPieces(dc);   // Display pieces.
+    _DrawWorkSpace( dc );
+    _DrawBoard(dc);
+    _DrawAllPieces(dc);
 }
 
 void 
 hoxCoreBoard::_DrawBoard( wxDC& dc )
 {
-    wxSize totalSize = GetClientSize();   // of this Board
+    const wxSize totalSize = GetClientSize(); // of this Board
 
     dc.SetBrush( wxBrush( m_backgroundColor ) );
     dc.SetPen( wxPen( m_foregroundColor ) );
@@ -355,7 +340,7 @@ hoxCoreBoard::_DrawBoard( wxDC& dc )
         dc.SetFont( wxFont( 24, wxFONTFAMILY_ROMAN, 
                             wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL ) );
         dc.SetTextForeground( *wxRED );
-        dc.DrawText( "Game Over", 
+        dc.DrawText( _("Game Over"), 
                      m_borderX + (int)(2.5*m_cellS), 
                      m_borderY + 4*m_cellS );
     }
@@ -364,8 +349,8 @@ hoxCoreBoard::_DrawBoard( wxDC& dc )
 void 
 hoxCoreBoard::_DrawWorkSpace( wxDC& dc )
 {
-    wxSize sz = GetClientSize();
-    dc.SetBrush( *wxLIGHT_GREY_BRUSH );
+    const wxSize sz = GetClientSize();
+    dc.SetBrush( *hoxBOARD_WORKSPACE_BRUSH );
     dc.DrawRectangle( 0, 0, sz.x, sz.y );;
 }
 
@@ -446,7 +431,7 @@ hoxCoreBoard::_DrawAllPieces( wxDC& dc )
     for (hoxPieceList::const_iterator it = m_pieces.begin(); 
                                       it != m_pieces.end(); ++it)
     {
-        hoxPiece* piece = *it;
+        const hoxPiece* piece = *it;
         if ( piece->IsActive() && piece->IsShown()) 
         {
             _DrawPieceWithDC( dc, piece );
