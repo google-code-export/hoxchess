@@ -25,28 +25,35 @@
 // Description:     The UI Piece.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_PIECE_H_
-#define __INCLUDED_HOX_PIECE_H_
+#ifndef __INCLUDED_HOX_PIECE_H__
+#define __INCLUDED_HOX_PIECE_H__
 
 #include "hoxTypes.h"
-
-// hoxPiece
+#include "hoxUtil.h"
 
 class hoxPiece : public wxObject
 {
 public:
-    hoxPiece( const hoxPieceInfo& info );
-    ~hoxPiece();
+    hoxPiece( const hoxPieceInfo& info )
+            : m_info( info )
+            , m_active( true )
+            , m_show( true )
+            , m_latest( false )
+    {
+        wxImage image;
+        if ( hoxRC_OK == hoxUtil::LoadPieceImage( m_info.type, m_info.color,
+                                                  image ) )
+        {
+            m_bitmap = wxBitmap(image);
+        }
+    }
 
-    /* Main API */
-
-    bool IsInsidePalace() const;  // the 4-square area where the King resides...
-
-    /* Other API */
+    bool IsInsidePalace() const // the 4-square area where the King resides...
+        { return m_info.position.IsInsidePalace( m_info.color); }
 
     const hoxPieceInfo GetInfo() const { return m_info; }
 
-    bool SetPosition(const hoxPosition& pos);
+    void SetPosition(const hoxPosition& pos) { m_info.position = pos; }
     const hoxPosition GetPosition() const { return m_info.position; }
 
     const wxBitmap& GetBitmap() const { return m_bitmap; }
@@ -77,4 +84,4 @@ private:
     bool          m_latest;  // The piece that just moved.
 };
 
-#endif /* __INCLUDED_HOX_PIECE_H_ */
+#endif /* __INCLUDED_HOX_PIECE_H__ */

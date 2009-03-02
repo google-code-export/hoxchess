@@ -27,7 +27,6 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxSavedTable.h"
-#include "hoxPiece.h"
 #include "hoxUtil.h"
 #include <wx/tokenzr.h>
 
@@ -72,13 +71,12 @@ hoxSavedTable::SaveGameState( const wxString&         tableId,
 	for ( hoxPieceInfoList::const_iterator it = pieceInfoList.begin();
                                            it != pieceInfoList.end(); ++it )
 	{
-		hoxPiece* piece = new hoxPiece( (*it) );
 		wxXmlNode* pieceNode = new wxXmlNode( wxXML_ELEMENT_NODE,
-                                              hoxUtil::TypeToString(piece->GetType()) );
+                                              hoxUtil::TypeToString(it->type) );
 
-		pieceNode->AddAttribute("Color",hoxUtil::ColorToString(piece->GetColor()));
-		pieceNode->AddAttribute("Row",wxString::Format("%d",piece->GetPosition().x));
-		pieceNode->AddAttribute("Col",wxString::Format("%d",piece->GetPosition().y));			
+		pieceNode->AddAttribute("Color", hoxUtil::ColorToString(it->color));
+		pieceNode->AddAttribute("Row", wxString::Format("%d", it->position.x));
+		pieceNode->AddAttribute("Col", wxString::Format("%d", it->position.y));			
 		piecesNode->AddChild(pieceNode);
 	}
 

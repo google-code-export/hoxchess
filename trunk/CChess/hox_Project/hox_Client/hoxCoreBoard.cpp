@@ -723,10 +723,8 @@ hoxCoreBoard::_MovePieceTo( hoxPiece*          piece,
     // Simply set the position without validation.
     piece->SetPosition( newPosition );
 
-    if ( hightlight )
-        _DrawAndHighlightPiece( piece );
-    else
-        _DrawPiece( piece );
+    if ( hightlight ) _DrawAndHighlightPiece( piece );
+    else              _DrawPiece( piece );
 
     return true;
 }

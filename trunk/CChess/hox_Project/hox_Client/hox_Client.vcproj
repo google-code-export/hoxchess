@@ -230,10 +230,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\hoxPiece.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\hoxPlayer.cpp"
 				>
 			</File>
