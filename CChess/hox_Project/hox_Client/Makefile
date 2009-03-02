@@ -36,7 +36,6 @@ MAIN_SRC := \
 	hoxLoginDialog.cpp \
 	hoxMyPlayer.cpp \
 	hoxNetworkAPI.cpp \
-	hoxPiece.cpp \
 	hoxPlayer.cpp \
 	hoxPlayerMgr.cpp \
 	hoxReferee.cpp \

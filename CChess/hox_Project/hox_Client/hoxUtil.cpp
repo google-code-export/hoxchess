@@ -98,13 +98,12 @@ hoxUtil::LoadPieceImage( hoxPieceType  type,
                             hoxColor color, 
                             wxImage&      image)
 {
-    const char* FNAME = "hoxUtil::LoadPieceImage";
     wxString filename;
 
     filename = _get_piece_image_path( type, color );
     if ( ! image.LoadFile(filename, wxBITMAP_TYPE_PNG) ) 
     {
-        wxLogError("%s: Failed to load piece-image from path [%s].", FNAME, filename.c_str());
+        wxLogError("%s: Failed to load piece-image from path [%s].", __FUNCTION__, filename.c_str());
         return hoxRC_ERR;
     }
 
