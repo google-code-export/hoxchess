@@ -394,8 +394,7 @@ hoxCoreBoard::LoadPieces()
     m_referee->GetGameState( pieceInfoList, nextColor );
 
     for ( hoxPieceInfoList::const_iterator it = pieceInfoList.begin();
-                                           it != pieceInfoList.end(); 
-                                         ++it )
+                                           it != pieceInfoList.end(); ++it )
     {
         hoxPiece* piece = new hoxPiece( (*it) );
         m_pieces.push_back( piece );
@@ -412,8 +411,6 @@ hoxCoreBoard::ResetBoard()
 
     /* Initialize other stated-info. */
     m_latestPiece = NULL;
-
-    /* Clear the Game-Over state in the last game, if any. */
     m_isGameOver = false;
 
     /* Reload the Pieces according to the Referee. */
@@ -475,7 +472,7 @@ void
 hoxCoreBoard::_DrawPieceWithDC( wxDC&           dc, 
                                 const hoxPiece* piece )
 {
-    const wxPoint& pos = _GetPieceLocation( piece );
+    const wxPoint pos = _GetPieceLocation( piece );
     const wxBitmap& bitmap = piece->GetBitmap();
     if ( ! bitmap.Ok() )
       return;
@@ -505,7 +502,7 @@ hoxCoreBoard::_DrawPieceWithDC( wxDC&           dc,
 wxRect 
 hoxCoreBoard::_GetPieceRect( const hoxPiece* piece ) const
 {
-    const wxPoint& pos = _GetPieceLocation(piece);
+    const wxPoint pos = _GetPieceLocation(piece);
     const wxBitmap& bitmap = piece->GetBitmap();
 
     return wxRect( pos.x, pos.y, bitmap.GetWidth(), bitmap.GetHeight() ); 

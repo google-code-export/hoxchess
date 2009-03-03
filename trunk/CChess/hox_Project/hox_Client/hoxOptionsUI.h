@@ -46,6 +46,7 @@ public:
         wxLanguage   m_language;
         wxString     m_sBgColor;
         wxString     m_sFgColor;
+        wxString     m_sPiece;
         wxString     m_sDefaultAI;
     };
 
@@ -59,12 +60,15 @@ protected:
     void OnSound( wxCommandEvent& event );
     void OnLanguage( wxCommandEvent& event );
     void OnColorChanged( wxColourPickerEvent& event );
+    void OnPiece( wxCommandEvent& event );
     void OnDefaultAI( wxCommandEvent& event );
 
 private:
     wxPanel* _CreateGeneralPage( wxWindow* parent );
     wxPanel* _CreateBoardPage( wxWindow* parent );
     wxPanel* _CreateAIPage( wxWindow* parent );
+
+    wxArrayString _loadAvailablePieceSets() const;
 
 public:
     OptionsData           m_data;
@@ -73,6 +77,7 @@ public:
     wxTextCtrl*           m_languageTextCtrl;
     wxColourPickerCtrl*   m_bgBox;  // Background
     wxColourPickerCtrl*   m_fgBox;  // Foreground
+    wxTextCtrl*           m_pieceTextCtrl;
     wxTextCtrl*           m_defaultAITextCtrl;
 
 private:

@@ -57,7 +57,8 @@
 /**
  * The default path of all the pieces' images.
  */
-#define DEFAULT_PIECE_PATH "../resource/pieces/1"
+#define PIECE_SETS_PATH      "../resource/pieces"
+#define DEFAULT_PIECE_PATH   (PIECE_SETS_PATH "/1")
 
 /**
  * The default path of other Images.

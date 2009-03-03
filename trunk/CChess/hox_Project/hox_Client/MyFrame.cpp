@@ -647,14 +647,14 @@ void
 MyFrame::OnOptions( wxCommandEvent& event )
 {
     hoxOptionsUI::OptionsData optionData;
-    optionData.m_bSound = (wxGetApp().GetOption("sound") == "1");
-    optionData.m_language = wxGetApp().GetCurrentLanguage();
-    optionData.m_sBgColor = wxGetApp().GetOption("/Board/Color/background");
-    optionData.m_sFgColor = wxGetApp().GetOption("/Board/Color/foreground");
+    optionData.m_bSound     = (wxGetApp().GetOption("sound") == "1");
+    optionData.m_language   = wxGetApp().GetCurrentLanguage();
+    optionData.m_sBgColor   = wxGetApp().GetOption("/Board/Color/background");
+    optionData.m_sFgColor   = wxGetApp().GetOption("/Board/Color/foreground");
+    optionData.m_sPiece     = wxGetApp().GetOption("/Board/Piece/path");
     optionData.m_sDefaultAI = wxGetApp().GetOption("defaultAI");
 
     hoxOptionsUI optionsDialog( this, optionData );
-
     if ( optionsDialog.ShowModal() != wxID_OK ) return;
 
     optionData = optionsDialog.GetData();
@@ -672,6 +672,7 @@ MyFrame::OnOptions( wxCommandEvent& event )
 
     wxGetApp().SetOption( "/Board/Color/background", optionData.m_sBgColor );
     wxGetApp().SetOption( "/Board/Color/foreground", optionData.m_sFgColor );
+    wxGetApp().SetOption( "/Board/Piece/path", optionData.m_sPiece );
 
     hoxAIPluginMgr::SetDefaultPluginName( optionData.m_sDefaultAI );
     wxGetApp().SetOption("defaultAI", optionData.m_sDefaultAI);

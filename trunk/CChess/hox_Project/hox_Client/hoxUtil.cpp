@@ -95,8 +95,8 @@ hoxUtil::SetPiecesPath(const wxString& piecesPath)
 
 hoxResult 
 hoxUtil::LoadPieceImage( hoxPieceType  type, 
-                            hoxColor color, 
-                            wxImage&      image)
+                         hoxColor      color, 
+                         wxImage&      image)
 {
     wxString filename;
 

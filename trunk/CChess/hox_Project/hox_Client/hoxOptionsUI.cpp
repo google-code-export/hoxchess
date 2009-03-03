@@ -29,6 +29,7 @@
 #include "MyApp.h"    // wxGetApp()
 #include "hoxAIPluginMgr.h"
 #include <wx/notebook.h>
+#include <wx/dir.h>
 
 /* Windows ID */
 enum
@@ -37,6 +38,7 @@ enum
     ID_LANGUAGE,
     ID_BG_COLOR,   // Background
     ID_FG_COLOR,   // Foreground
+    ID_CHOOSE_PIECE,
     ID_CHOOSE_AI,  // Default AI
 };
 
@@ -45,6 +47,7 @@ BEGIN_EVENT_TABLE(hoxOptionsUI, wxPropertySheetDialog)
     EVT_CHECKBOX(ID_SOUND, hoxOptionsUI::OnSound)
     EVT_BUTTON(ID_LANGUAGE, hoxOptionsUI::OnLanguage)
     EVT_COLOURPICKER_CHANGED(wxID_ANY, hoxOptionsUI::OnColorChanged)
+    EVT_BUTTON(ID_CHOOSE_PIECE, hoxOptionsUI::OnPiece)
     EVT_BUTTON(ID_CHOOSE_AI, hoxOptionsUI::OnDefaultAI)
 END_EVENT_TABLE()
 
@@ -93,7 +96,7 @@ hoxOptionsUI::_CreateGeneralPage( wxWindow* parent )
     soundSizer->Add( m_soundCheck,
                      wxSizerFlags().Border(wxRIGHT, 100) );
     miscSizer->Add( soundSizer,
-                    wxSizerFlags().Border(wxALL, 10) );
+                    wxSizerFlags().Border(wxALL, 5) );
     
     topSizer->Add( miscSizer, 
                    wxSizerFlags().Expand().Border(wxALL, 10));
@@ -142,8 +145,7 @@ hoxOptionsUI::_CreateBoardPage( wxWindow* parent )
     wxBoxSizer* topSizer = new wxBoxSizer( wxVERTICAL );
 
     wxBoxSizer* colorSizer = new wxStaticBoxSizer(
-		new wxStaticBox(panel, wxID_ANY, _("Colors")), 
-		wxVERTICAL );
+		new wxStaticBox( panel, wxID_ANY, _("Colors")), wxVERTICAL );
 
     /* ----------- Background Color. */
 
@@ -157,7 +159,7 @@ hoxOptionsUI::_CreateBoardPage( wxWindow* parent )
     bgSizer->Add( m_bgBox,
                   wxSizerFlags().Center().Border(wxALL, 5));
     colorSizer->Add( bgSizer,
-                     wxSizerFlags().Border(wxALL, 5));
+                     wxSizerFlags().Border(wxALL, 0));
 
     /* ----------- Foreground Color. */
 
@@ -171,15 +173,36 @@ hoxOptionsUI::_CreateBoardPage( wxWindow* parent )
     fgSizer->Add( m_fgBox,
                   wxSizerFlags().Center().Border(wxALL, 5) );
     colorSizer->Add( fgSizer,
-                     wxSizerFlags().Border(wxALL, 5) );
+                     wxSizerFlags().Border(wxALL, 0) );
+
+    /* ----------- Piece. */
+    wxBoxSizer* pieceSizer = new wxStaticBoxSizer(
+        new wxStaticBox( panel, wxID_ANY, _("Piece")), wxHORIZONTAL );
+
+    m_pieceTextCtrl = new wxTextCtrl( 
+		panel, wxID_ANY,
+        m_data.m_sPiece,
+        wxDefaultPosition, wxSize(150, wxDefaultCoord),
+        wxTE_READONLY );
+
+    pieceSizer->Add( 
+        new wxStaticText(panel, wxID_ANY, _("Current &Set:")),
+		wxSizerFlags().Align(wxALIGN_CENTER).Border(wxALL, 5));
+
+    pieceSizer->Add( 
+		m_pieceTextCtrl,
+        wxSizerFlags().Align(wxALIGN_CENTER).Border(wxALL, 5));
+
+    pieceSizer->Add( 
+		new wxButton(panel, ID_CHOOSE_PIECE, _("&Choose...")),
+        wxSizerFlags().Align(wxALIGN_CENTER).Border(wxALL, 10));
 
     /* Done. */
-    topSizer->Add( colorSizer, 
-                   wxSizerFlags().Expand().Border(wxALL, 10));
+    topSizer->Add( colorSizer, wxSizerFlags().Expand().Border(wxALL, 10));
+    topSizer->Add( pieceSizer, wxSizerFlags().Expand().Border(wxALL, 10));
 
     panel->SetSizer( topSizer );
     topSizer->Fit( panel );
-
     return panel;
 }
 
@@ -253,9 +276,34 @@ hoxOptionsUI::OnColorChanged( wxColourPickerEvent& event )
 }
 
 void
+hoxOptionsUI::OnPiece( wxCommandEvent& event )
+{
+    const wxArrayString pieceSets = _loadAvailablePieceSets();
+    if ( pieceSets.IsEmpty() )
+    {
+        ::wxMessageBox( _("There is no Piece-Set available."),
+                        _("Piece-Set Selection"),
+                        wxOK | wxICON_EXCLAMATION );
+        return;
+    }
+
+    const int nChoice = ::wxGetSingleChoiceIndex(
+                            _("Select the Piece-Set"),
+                            _("Piece-Set Selection"),
+                            pieceSets );
+    if ( nChoice != -1 )
+    {
+        const wxString sSetName = pieceSets[nChoice];
+        m_data.m_sPiece = wxString(PIECE_SETS_PATH) + "/" + sSetName;
+        m_pieceTextCtrl->SetValue( m_data.m_sPiece );
+    }
+}
+
+void
 hoxOptionsUI::OnDefaultAI( wxCommandEvent& event )
 {
-    wxArrayString aiNames = hoxAIPluginMgr::GetInstance()->GetNamesOfAllAIPlugins();
+    const wxArrayString aiNames =
+        hoxAIPluginMgr::GetInstance()->GetNamesOfAllAIPlugins();
 
     if ( aiNames.IsEmpty() )
     {
@@ -274,6 +322,33 @@ hoxOptionsUI::OnDefaultAI( wxCommandEvent& event )
         m_data.m_sDefaultAI = aiNames[nChoice];
         m_defaultAITextCtrl->SetValue( m_data.m_sDefaultAI );
     }
+}
+
+wxArrayString
+hoxOptionsUI::_loadAvailablePieceSets() const
+{
+    wxArrayString pieceSets;
+
+    wxString sPiecesDir = PIECE_SETS_PATH;
+    wxLogDebug("%s: Get Piece-Sets from [%s].", __FUNCTION__, sPiecesDir.c_str());
+    wxDir dir(sPiecesDir);
+	if ( !dir.IsOpened() )
+	{
+        wxLogWarning("%s: Fail to open Piece-Sets folder [%s].", __FUNCTION__, sPiecesDir.c_str());
+		return pieceSets; // Just return the current set.
+	}
+
+    wxString  sFolder;  // ... also used as the name of the Piece-Set.
+
+	for ( bool cont = dir.GetFirst(&sFolder, wxEmptyString, wxDIR_DIRS);
+	           cont == true;
+               cont = dir.GetNext(&sFolder) )
+    {
+        wxLogDebug("%s: Piece-Set = [%s].", __FUNCTION__, sFolder.c_str());
+        pieceSets.Add( sFolder );
+	}
+
+    return pieceSets;
 }
 
 /************************* END OF FILE ***************************************/
