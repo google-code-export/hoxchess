@@ -453,14 +453,13 @@ void
 hoxBoard::OnGameReset( wxCommandEvent &event )
 {
     m_coreBoard->ResetBoard();
-    
     _SyncInfoWithTable();
 
     m_status = hoxGAME_STATUS_OPEN;
 	_UpdateStatus();
 
 	/* Display the "reset" message. */
-    const wxString boardMessage = "Game Reset"; 
+    const wxString boardMessage = _("Game Reset"); 
 	this->OnBoardMsg( boardMessage );
 }
 
