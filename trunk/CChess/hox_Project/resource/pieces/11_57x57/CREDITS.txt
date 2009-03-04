@@ -1,0 +1,5 @@
+These images were downloaded from the following site:
+------------------------------------------------------
++ http://sourceforge.net/projects/xqwizard/
+
+... and converted to PNG format using GIMP
