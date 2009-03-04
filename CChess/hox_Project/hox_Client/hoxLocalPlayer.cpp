@@ -135,7 +135,7 @@ hoxLocalPlayer::OpenNewNetworkTable()
 {
     hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_NEW ) );
 	apRequest->parameters["pid"] = this->GetId();
-    const hoxTimeInfo timeInfo( 1500, 300, 20 ); // TODO: Hard-coded time-info.
+    const hoxTimeInfo timeInfo( 1200, 300, 20 ); // TODO: Hard-coded time-info.
     apRequest->parameters["itimes"] = hoxUtil::TimeInfoToString( timeInfo );
     this->AddRequestToConnection( apRequest );
 

@@ -1,0 +1,5 @@
+These images were downloaded from the following site:
+------------------------------------------------------
++ http://en.wikipedia.org/wiki/Xiangqi
+
+... the editted using GIMP
