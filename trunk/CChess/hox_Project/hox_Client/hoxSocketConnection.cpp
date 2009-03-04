@@ -58,7 +58,6 @@ hoxSocketWriter::hoxSocketWriter( wxEvtHandler*           evtHandler,
     m_socket = new wxSocketClient( socketFlags );
 
     m_socket->Notify( false /* Disable socket-events */ );
-    m_socket->SetTimeout( hoxSOCKET_CLIENT_SOCKET_TIMEOUT );
 }
 
 hoxSocketWriter::~hoxSocketWriter()
@@ -274,13 +273,15 @@ hoxSocketWriter::Connect( wxString& sError )
 
     if ( ! m_socket->Connect( addr, true /* wait */ ) )
     {
-        wxLogDebug("%s: *WARN* Failed to connect to the server [%s]. Error = [%s].",
+        wxLogWarning("%s: *WARN* Failed to connect to the server [%s]. Error = [%s].",
             __FUNCTION__, m_serverAddress.c_str(), 
             hoxNetworkAPI::SocketErrorToString(m_socket->LastError()).c_str());
         sError = "Failed to connect to server";
         return hoxRC_ERR;
     }
     
+    m_socket->SetTimeout( hoxSOCKET_CLIENT_SOCKET_TIMEOUT );
+
     this->StartReader( m_socket ); // Start the READER thread.
 
     wxLogDebug("%s: Succeeded! Connection established to the server.", __FUNCTION__);

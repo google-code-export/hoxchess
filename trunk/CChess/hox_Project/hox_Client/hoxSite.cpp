@@ -344,7 +344,7 @@ hoxLocalSite::OnLocalRequest_PRACTICE( const wxString& sSavedFile /* = "" */ )
     tableInfo.id = sTableId;
     tableInfo.gameType = hoxGAME_TYPE_PRACTICE;
 
-    const hoxTimeInfo timeInfo( 1500, 300, 20 );
+    const hoxTimeInfo timeInfo( 1200, 300, 20 );
 	tableInfo.initialTime = timeInfo;
     tableInfo.redTime     = tableInfo.initialTime;
     tableInfo.blackTime   = tableInfo.initialTime;
