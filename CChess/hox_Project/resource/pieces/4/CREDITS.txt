@@ -6,3 +6,4 @@ These images were downloaded from the following site:
 Conversion from GIF to PNG images:
 ----------------------------------
 + http://www.pictureresize.org/online-images-converter.html#
++ Later editted using GIMP
