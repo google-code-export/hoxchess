@@ -28,7 +28,7 @@
 #include "hoxOptionsUI.h"
 #include "MyApp.h"    // wxGetApp()
 #include "hoxAIPluginMgr.h"
-#include <wx/notebook.h>
+#include "hoxUtil.h"
 #include <wx/dir.h>
 
 /* Windows ID */
@@ -49,6 +49,9 @@ BEGIN_EVENT_TABLE(hoxOptionsUI, wxPropertySheetDialog)
     EVT_COLOURPICKER_CHANGED(wxID_ANY, hoxOptionsUI::OnColorChanged)
     EVT_BUTTON(ID_CHOOSE_PIECE, hoxOptionsUI::OnPiece)
     EVT_BUTTON(ID_CHOOSE_AI, hoxOptionsUI::OnDefaultAI)
+
+    EVT_PAINT            (hoxOptionsUI::OnPaint)
+    EVT_ERASE_BACKGROUND (hoxOptionsUI::OnEraseBackground)
 END_EVENT_TABLE()
 
 // ---------------------------------------------------------------------------
@@ -71,8 +74,8 @@ hoxOptionsUI::hoxOptionsUI( wxWindow*          parent,
     wxPanel* aiPage      = _CreateAIPage( notebook );
 
     notebook->AddPage( generalPage, _("General"), true /* select */ );
-    notebook->AddPage( boardPage, _("Board"), false );
-    notebook->AddPage( aiPage, _("AI"), false );
+    notebook->AddPage( boardPage,   _("Board"), false );
+    notebook->AddPage( aiPage,      _("AI"), false );
 
     this->LayoutDialog();
 }
@@ -142,7 +145,10 @@ hoxOptionsUI::_CreateBoardPage( wxWindow* parent )
 {
     wxPanel* panel = new wxPanel(parent);
 
-    wxBoxSizer* topSizer = new wxBoxSizer( wxVERTICAL );
+    wxBoxSizer* topSizer = new wxBoxSizer( wxHORIZONTAL );
+    wxBoxSizer* settingsSizer = new wxBoxSizer( wxVERTICAL );
+    wxBoxSizer* previewSizer = new wxStaticBoxSizer(
+        new wxStaticBox( panel, wxID_ANY, _("Preview") ), wxVERTICAL);
 
     wxBoxSizer* colorSizer = new wxStaticBoxSizer(
 		new wxStaticBox( panel, wxID_ANY, _("Colors")), wxVERTICAL );
@@ -186,7 +192,7 @@ hoxOptionsUI::_CreateBoardPage( wxWindow* parent )
         wxTE_READONLY );
 
     pieceSizer->Add( 
-        new wxStaticText(panel, wxID_ANY, _("Current &Set:")),
+        new wxStaticText(panel, wxID_ANY, _("&Set:")),
 		wxSizerFlags().Align(wxALIGN_CENTER).Border(wxALL, 5));
 
     pieceSizer->Add( 
@@ -195,11 +201,22 @@ hoxOptionsUI::_CreateBoardPage( wxWindow* parent )
 
     pieceSizer->Add( 
 		new wxButton(panel, ID_CHOOSE_PIECE, _("&Choose...")),
-        wxSizerFlags().Align(wxALIGN_CENTER).Border(wxALL, 10));
+        wxSizerFlags().Align(wxALIGN_CENTER).Border(wxALL, 5));
+
+    settingsSizer->Add( colorSizer, wxSizerFlags().Expand().Border(wxBOTTOM, 5));
+    settingsSizer->Add( pieceSizer, wxSizerFlags().Expand().Border(wxALL, 0));
+
+    /* ----------- The Preview panel. */
+    m_previewPanel = new wxPanel( panel, wxID_ANY, wxDefaultPosition,
+                                  wxSize(90, 170),
+                                  wxBORDER_SUNKEN );
+    previewSizer->Add( m_previewPanel,
+                       wxSizerFlags().Proportion(1).Border(wxALL, 5));
+    m_previewPanel->SetBackgroundColour( *wxLIGHT_GREY );
 
     /* Done. */
-    topSizer->Add( colorSizer, wxSizerFlags().Expand().Border(wxALL, 10));
-    topSizer->Add( pieceSizer, wxSizerFlags().Expand().Border(wxALL, 10));
+    topSizer->Add( settingsSizer, wxSizerFlags().Expand().Border(wxALL, 10));
+    topSizer->Add( previewSizer, wxSizerFlags().Expand().Border(wxALL, 10));
 
     panel->SetSizer( topSizer );
     topSizer->Fit( panel );
@@ -296,6 +313,7 @@ hoxOptionsUI::OnPiece( wxCommandEvent& event )
         const wxString sSetName = pieceSets[nChoice];
         m_data.m_sPiece = wxString(PIECE_SETS_PATH) + "/" + sSetName;
         m_pieceTextCtrl->SetValue( m_data.m_sPiece );
+        this->Refresh();  // Repaint the "Preview" of Piece-Set.
     }
 }
 
@@ -322,6 +340,59 @@ hoxOptionsUI::OnDefaultAI( wxCommandEvent& event )
         m_data.m_sDefaultAI = aiNames[nChoice];
         m_defaultAITextCtrl->SetValue( m_data.m_sDefaultAI );
     }
+}
+
+void
+hoxOptionsUI::OnPaint( wxPaintEvent& event )
+{
+    _DrawPiecePreview( m_previewPanel );
+    event.Skip(); // Let the search for the event handler should continue.
+}
+
+void
+hoxOptionsUI::OnEraseBackground( wxEraseEvent& event )
+{
+    _DrawPiecePreview( m_previewPanel );
+    event.Skip(); // Let the search for the event handler should continue.
+}
+
+void
+hoxOptionsUI::_DrawPiecePreview( wxPanel* panel )
+{
+    wxCHECK_RET( panel, "The panel must not be NULL" );
+
+    hoxUtil::SetPiecesPath( m_data.m_sPiece ); // FIXME: Need to fix this.
+    wxClientDC dc( panel );
+
+    wxPoint pos(5, 5);
+    _DrawOnePieceAt( dc, hoxPIECE_KING, hoxCOLOR_RED, pos );
+
+    pos.y += 75;
+    _DrawOnePieceAt( dc, hoxPIECE_KING, hoxCOLOR_BLACK, pos );
+}
+
+void
+hoxOptionsUI::_DrawOnePieceAt( wxDC&          dc,
+                               hoxPieceType   pieceType,
+                               hoxColor       pieceColor,
+                               const wxPoint& pos )
+{
+    wxImage  image;
+    wxBitmap bitmap;
+    if ( hoxRC_OK == hoxUtil::LoadPieceImage( pieceType, pieceColor,
+                                              image ) )
+    {
+        bitmap = wxBitmap(image);
+    }
+    if ( ! bitmap.Ok() )
+      return;
+
+    wxMemoryDC memDC;
+    memDC.SelectObject( const_cast<wxBitmap&>(bitmap) );
+
+    dc.Blit( pos.x, pos.y, 
+             bitmap.GetWidth(), bitmap.GetHeight(),
+             &memDC, 0, 0, wxCOPY, true);
 }
 
 wxArrayString
