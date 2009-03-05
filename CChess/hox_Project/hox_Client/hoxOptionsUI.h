@@ -31,6 +31,8 @@
 #include <wx/wx.h>
 #include <wx/propdlg.h>
 #include <wx/clrpicker.h> // Color Picker Dialog
+#include <wx/notebook.h>
+#include "hoxEnums.h"
 
 // ---------------------------------------------------------------------------
 // hoxOptionsUI class
@@ -63,16 +65,25 @@ protected:
     void OnPiece( wxCommandEvent& event );
     void OnDefaultAI( wxCommandEvent& event );
 
+    void OnPaint( wxPaintEvent& event );
+    void OnEraseBackground( wxEraseEvent& event );
+
 private:
     wxPanel* _CreateGeneralPage( wxWindow* parent );
     wxPanel* _CreateBoardPage( wxWindow* parent );
     wxPanel* _CreateAIPage( wxWindow* parent );
 
     wxArrayString _loadAvailablePieceSets() const;
+    void _DrawPiecePreview( wxPanel* panel );
+    void _DrawOnePieceAt( wxDC&          dc,
+                          hoxPieceType   pieceType,
+                          hoxColor       pieceColor,
+                          const wxPoint& pos );
 
 public:
     OptionsData           m_data;
 
+private:
     wxCheckBox*           m_soundCheck;
     wxTextCtrl*           m_languageTextCtrl;
     wxColourPickerCtrl*   m_bgBox;  // Background
@@ -80,7 +91,7 @@ public:
     wxTextCtrl*           m_pieceTextCtrl;
     wxTextCtrl*           m_defaultAITextCtrl;
 
-private:
+    wxPanel*              m_previewPanel;
 
     DECLARE_EVENT_TABLE()
 
