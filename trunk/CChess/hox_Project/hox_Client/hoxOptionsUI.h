@@ -45,6 +45,7 @@ public:
     {
     public:
         bool         m_bSound;
+        bool         m_bWelcome;
         wxLanguage   m_language;
         wxString     m_sBgColor;
         wxString     m_sFgColor;
@@ -60,6 +61,7 @@ public:
 
 protected:
     void OnSound( wxCommandEvent& event );
+    void OnWelcome( wxCommandEvent& event );
     void OnLanguage( wxCommandEvent& event );
     void OnColorChanged( wxColourPickerEvent& event );
     void OnPiece( wxCommandEvent& event );
@@ -85,6 +87,7 @@ public:
 
 private:
     wxCheckBox*           m_soundCheck;
+    wxCheckBox*           m_welcomeCheck;
     wxTextCtrl*           m_languageTextCtrl;
     wxColourPickerCtrl*   m_bgBox;  // Background
     wxColourPickerCtrl*   m_fgBox;  // Foreground

@@ -62,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wxbase29ud_xml.lib wxmsw29ud_adv.lib wxmsw29ud_core.lib wxbase29ud_net.lib wxbase29ud.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexud.lib wxexpatd.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib odbc32.lib ole32.lib User32.lib Gdi32.lib shell32.lib Comdlg32.lib oleaut32.lib Advapi32.lib"
+				AdditionalDependencies="wxmsw29ud_html.lib wxmsw29ud_xrc.lib wxbase29ud_xml.lib wxmsw29ud_adv.lib wxmsw29ud_core.lib wxbase29ud_net.lib wxbase29ud.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexud.lib wxexpatd.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib odbc32.lib ole32.lib User32.lib Gdi32.lib shell32.lib Comdlg32.lib oleaut32.lib Advapi32.lib"
 				AdditionalLibraryDirectories="&quot;C:\wxMSW-2.9.0\lib\vc_lib&quot;"
 				GenerateDebugInformation="true"
 				RandomizedBaseAddress="1"
@@ -282,6 +282,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hoxWelcomeUI.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MyApp.cpp"
 				>
 			</File>
@@ -417,6 +421,10 @@
 			</File>
 			<File
 				RelativePath=".\hoxUtil.h"
+				>
+			</File>
+			<File
+				RelativePath=".\hoxWelcomeUI.h"
 				>
 			</File>
 			<File

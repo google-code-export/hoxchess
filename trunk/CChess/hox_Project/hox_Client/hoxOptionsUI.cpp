@@ -31,10 +31,10 @@
 #include "hoxUtil.h"
 #include <wx/dir.h>
 
-/* Windows ID */
 enum
 {
-    ID_SOUND = 100 ,
+    ID_SOUND    = (wxID_HIGHEST + 1),
+    ID_WELCOME,
     ID_LANGUAGE,
     ID_BG_COLOR,   // Background
     ID_FG_COLOR,   // Foreground
@@ -42,9 +42,9 @@ enum
     ID_CHOOSE_AI,  // Default AI
 };
 
-/* Event table. */
 BEGIN_EVENT_TABLE(hoxOptionsUI, wxPropertySheetDialog)
     EVT_CHECKBOX(ID_SOUND, hoxOptionsUI::OnSound)
+    EVT_CHECKBOX(ID_WELCOME, hoxOptionsUI::OnWelcome)
     EVT_BUTTON(ID_LANGUAGE, hoxOptionsUI::OnLanguage)
     EVT_COLOURPICKER_CHANGED(wxID_ANY, hoxOptionsUI::OnColorChanged)
     EVT_BUTTON(ID_CHOOSE_PIECE, hoxOptionsUI::OnPiece)
@@ -87,20 +87,25 @@ hoxOptionsUI::_CreateGeneralPage( wxWindow* parent )
 
     wxBoxSizer* topSizer = new wxBoxSizer( wxVERTICAL );
 
-    /* ----------- Sounds. */
-
     wxBoxSizer* miscSizer = new wxStaticBoxSizer(
 		new wxStaticBox(panel, wxID_ANY, ""), 
 		wxVERTICAL );
 
+    /* ----------- Sounds. */
+
     wxBoxSizer* soundSizer = new wxBoxSizer( wxHORIZONTAL );
     m_soundCheck = new wxCheckBox( panel, ID_SOUND, _("Enable &Sounds") );
     m_soundCheck->SetValue( m_data.m_bSound );
-    soundSizer->Add( m_soundCheck,
-                     wxSizerFlags().Border(wxRIGHT, 100) );
-    miscSizer->Add( soundSizer,
-                    wxSizerFlags().Border(wxALL, 5) );
-    
+    soundSizer->Add( m_soundCheck );
+    miscSizer->Add( soundSizer, wxSizerFlags().Border(wxALL, 5) );
+
+    /* ----------- Welcome. */
+    wxBoxSizer* welcomeSizer = new wxBoxSizer( wxHORIZONTAL );
+    m_welcomeCheck = new wxCheckBox( panel, ID_WELCOME, _("Show &Welcome Dialog at startup") );
+    m_welcomeCheck->SetValue( m_data.m_bWelcome );
+    welcomeSizer->Add( m_welcomeCheck );
+    miscSizer->Add( welcomeSizer, wxSizerFlags().Border(wxALL, 5) );
+
     topSizer->Add( miscSizer, 
                    wxSizerFlags().Expand().Border(wxALL, 10));
 
@@ -269,6 +274,12 @@ void
 hoxOptionsUI::OnSound( wxCommandEvent& event )
 {
     m_data.m_bSound = event.IsChecked();
+}
+
+void
+hoxOptionsUI::OnWelcome( wxCommandEvent& event )
+{
+    m_data.m_bWelcome = event.IsChecked();
 }
 
 void

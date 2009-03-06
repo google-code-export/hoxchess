@@ -28,7 +28,7 @@
 #include "MyApp.h"
 #include "hoxAIPluginMgr.h"
 #include <wx/socket.h>
-
+#include "hoxWelcomeUI.h"
 
 // Create a new application object: this macro will allow wxWidgets to create
 // the application object during program execution (it's better than using a
@@ -127,6 +127,12 @@ MyApp::OnInit()
 
     const wxString sDefaultAI = wxGetApp().GetOption("defaultAI");
     hoxAIPluginMgr::SetDefaultPluginName( sDefaultAI );
+
+    // Display welcome dialog, if required.
+    if ( wxGetApp().GetOption("welcome") == "1" )
+    {
+        _ShowWelcomeDialog();
+    }
 
     // success: wxApp::OnRun() will be called which will enter the main message
     // loop and the application will run. If we returned false here, the
@@ -256,6 +262,32 @@ MyApp::_LoadCurrentLanguage()
     return (wxLanguage) langInfo->Language;
 }
 
+void
+MyApp::_ShowWelcomeDialog()
+{
+    hoxWelcomeUI welcomeDlg( m_frame );
+    const int nCommandId = welcomeDlg.ShowModal();
+    switch ( nCommandId )
+    {
+        case hoxWelcomeUI::COMMAND_ID_PRACTICE:
+        {
+            m_frame->ProcessCommand( MDI_PRACTICE ); break;
+        }
+        case hoxWelcomeUI::COMMAND_ID_REMOTE:
+        {
+            m_frame->ProcessCommand( MDI_CONNECT_SERVER ); break;
+        }
+        case hoxWelcomeUI::COMMAND_ID_OPTIONS:
+        {
+            m_frame->ProcessCommand( MDI_OPTIONS ); break;
+        }
+        default: break;
+    }
+
+    wxGetApp().SetOption( "welcome",
+                          welcomeDlg.ShowNextStartup() ? "1" : "0" );
+}
+
 int 
 MyApp::OnExit()
 {
@@ -379,8 +411,9 @@ MyApp::SaveDefaultFrameLayout( const wxPoint& position,
 void
 MyApp::_LoadAppOptions()
 {
-	m_options["language"] = m_config->Read("/Options/language", "");
-	m_options["sound"] = m_config->Read("/Options/sound", "1");
+    m_options["language"] = m_config->Read("/Options/language", "");
+    m_options["sound"] = m_config->Read("/Options/sound", "1");
+    m_options["welcome"] = m_config->Read("/Options/welcome", "1");
     m_options["defaultAI"] = m_config->Read("/Options/defaultAI", "");
 
     m_options["/Board/Piece/path"] =
@@ -396,8 +429,9 @@ MyApp::_LoadAppOptions()
 void
 MyApp::_SaveAppOptions()
 {
-	m_config->Write("/Options/language", m_options["language"]);
-	m_config->Write("/Options/sound", m_options["sound"]);
+    m_config->Write("/Options/language", m_options["language"]);
+    m_config->Write("/Options/sound", m_options["sound"]);
+    m_config->Write("/Options/welcome", m_options["welcome"]);
     m_config->Write("/Options/defaultAI", m_options["defaultAI"]);
     m_config->Write("/Board/Piece/path", m_options["/Board/Piece/path"]);
     m_config->Write("/Board/Color/background", m_options["/Board/Color/background"]);
