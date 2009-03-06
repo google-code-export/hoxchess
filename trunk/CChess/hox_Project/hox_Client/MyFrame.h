@@ -123,8 +123,9 @@ public:
     void OnOpenSavedTable(wxCommandEvent& event);
     void OnUpdateOpenSavedTable(wxUpdateUIEvent& event);
 
-    void OnQuit(wxCommandEvent& event);
-    void OnClose(wxCloseEvent& event);
+    void OnIdle( wxIdleEvent& event );
+    void OnQuit( wxCommandEvent& event );
+    void OnClose( wxCloseEvent& event );
 
     /**
      * Invoke by the Child window when it is being closed.
@@ -160,6 +161,7 @@ public:
 
 private:
     void _CreateSitesUI();
+    void _ShowWelcomeDialog();
 
     /**
      * Close all children (child-frame) of a specified Site.
@@ -192,6 +194,8 @@ private:
 
     typedef std::list<MyChild*> MyChildList;
     MyChildList         m_children;
+
+    bool                m_bShowWelcomeChecked;
 
     DECLARE_DYNAMIC_CLASS(MyFrame)
     DECLARE_EVENT_TABLE()

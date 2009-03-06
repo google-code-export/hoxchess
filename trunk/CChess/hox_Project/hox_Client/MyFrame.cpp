@@ -38,7 +38,7 @@
 #include "hoxLog.h"
 #include "hoxSavedTable.h"
 #include "hoxAIPluginMgr.h"
-//#include "wx/xrc/xmlres.h"
+#include "hoxWelcomeUI.h"
 
 #if !defined(__WXMSW__)
     #include "../resource/icons/hoxchess.xpm"
@@ -83,6 +83,7 @@ BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
 
     EVT_MENU(MDI_QUIT, MyFrame::OnQuit)
 
+    EVT_IDLE(MyFrame::OnIdle)
     EVT_CLOSE(MyFrame::OnClose)
     EVT_SIZE(MyFrame::OnSize)
     EVT_SASH_DRAGGED(ID_WINDOW_SITES, MyFrame::OnServersSashDrag)
@@ -103,6 +104,7 @@ MyFrame::MyFrame( wxWindow*        parent,
                   const wxSize&    size,
                   const long       style )
        : wxMDIParentFrame( parent, id, title, pos, size, style )
+       , m_bShowWelcomeChecked( false )
 {
     m_log = new hoxLog(this, _("Log Window"), false);
 
@@ -126,6 +128,19 @@ MyFrame::MyFrame( wxWindow*        parent,
     CreateStatusBar();
 
 	wxLogStatus("%s %s is ready.", HOX_APP_NAME, HOX_VERSION);
+}
+
+void
+MyFrame::OnIdle(wxIdleEvent& event)
+{
+    if ( ! m_bShowWelcomeChecked )
+    {
+        m_bShowWelcomeChecked = true;
+        if ( wxGetApp().GetOption("welcome") == "1" )
+        {
+            _ShowWelcomeDialog();
+        }
+    }
 }
 
 void 
@@ -663,7 +678,7 @@ MyFrame::OnOptions( wxCommandEvent& event )
     wxGetApp().SetOption( "sound", optionData.m_bSound ? "1" : "0" );
     this->GetToolBar()->ToggleTool( MDI_SOUND, optionData.m_bSound );
 
-    wxGetApp().SetOption( "welcome",optionData.m_bWelcome ? "1" : "0" );
+    wxGetApp().SetOption( "welcome", optionData.m_bWelcome ? "1" : "0" );
 
     if ( optionData.m_language != wxGetApp().GetCurrentLanguage() )
     {
@@ -827,6 +842,36 @@ MyFrame::_CreateSitesUI()
     m_sitesUI = new hoxSitesUI( m_sitesSplitter );
     hoxSiteManager::GetInstance()->SetUI( m_sitesUI );
     m_sitesSplitter->Initialize( m_sitesUI );
+}
+
+void
+MyFrame::_ShowWelcomeDialog()
+{
+    hoxWelcomeUI welcomeDlg( this );
+    const int nCommandId = welcomeDlg.ShowModal();
+
+    /* NOTE: Do this setting first before the "Options" dialog
+     *       could be invoked.
+     */
+    wxGetApp().SetOption( "welcome",
+                          welcomeDlg.ShowNextStartup() ? "1" : "0" );
+
+    switch ( nCommandId )
+    {
+        case hoxWelcomeUI::COMMAND_ID_PRACTICE:
+        {
+            this->ProcessCommand( MDI_PRACTICE ); break;
+        }
+        case hoxWelcomeUI::COMMAND_ID_REMOTE:
+        {
+            this->ProcessCommand( MDI_CONNECT_SERVER ); break;
+        }
+        case hoxWelcomeUI::COMMAND_ID_OPTIONS:
+        {
+            this->ProcessCommand( MDI_OPTIONS ); break;
+        }
+        default: break;
+    }
 }
 
 void     

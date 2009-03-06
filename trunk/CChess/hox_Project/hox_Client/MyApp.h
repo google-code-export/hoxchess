@@ -66,7 +66,6 @@ wxDECLARE_EVENT(hoxEVT_APP_SITE_CLOSE_READY, wxCommandEvent);
 class MyApp : public wxApp
 {
 public:
-
     MyApp();
 
     /*********************************
@@ -88,8 +87,8 @@ public:
     void OnSystemClose();
 	void OnCloseReady_FromSite( wxCommandEvent&  event ); 
 
-    MyFrame*       GetFrame() const { return m_frame; }
-    wxConfig*      GetConfig() const { return m_config; }
+    MyFrame*  GetFrame() const { return m_frame; }
+    wxConfig* GetConfig() const { return m_config; }
 
     wxString GetOption( const wxString& name ) const
         { return m_options[name]; }
@@ -109,8 +108,6 @@ private:
     wxLanguage _SelectAndSaveLanguage();
     void       _SetupLanguageAndLocale();
     wxLanguage _LoadCurrentLanguage();
-
-    void _ShowWelcomeDialog();
 
     void _LoadAppOptions();
     void _SaveAppOptions();
