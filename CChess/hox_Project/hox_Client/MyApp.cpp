@@ -28,7 +28,6 @@
 #include "MyApp.h"
 #include "hoxAIPluginMgr.h"
 #include <wx/socket.h>
-#include "hoxWelcomeUI.h"
 
 // Create a new application object: this macro will allow wxWidgets to create
 // the application object during program execution (it's better than using a
@@ -122,17 +121,10 @@ MyApp::OnInit()
         return false;
     }
 
-    // Create the LOCAL site.
     hoxSiteManager::GetInstance()->CreateLocalSite();
 
     const wxString sDefaultAI = wxGetApp().GetOption("defaultAI");
     hoxAIPluginMgr::SetDefaultPluginName( sDefaultAI );
-
-    // Display welcome dialog, if required.
-    if ( wxGetApp().GetOption("welcome") == "1" )
-    {
-        _ShowWelcomeDialog();
-    }
 
     // success: wxApp::OnRun() will be called which will enter the main message
     // loop and the application will run. If we returned false here, the
@@ -260,32 +252,6 @@ MyApp::_LoadCurrentLanguage()
     }
 
     return (wxLanguage) langInfo->Language;
-}
-
-void
-MyApp::_ShowWelcomeDialog()
-{
-    hoxWelcomeUI welcomeDlg( m_frame );
-    const int nCommandId = welcomeDlg.ShowModal();
-    switch ( nCommandId )
-    {
-        case hoxWelcomeUI::COMMAND_ID_PRACTICE:
-        {
-            m_frame->ProcessCommand( MDI_PRACTICE ); break;
-        }
-        case hoxWelcomeUI::COMMAND_ID_REMOTE:
-        {
-            m_frame->ProcessCommand( MDI_CONNECT_SERVER ); break;
-        }
-        case hoxWelcomeUI::COMMAND_ID_OPTIONS:
-        {
-            m_frame->ProcessCommand( MDI_OPTIONS ); break;
-        }
-        default: break;
-    }
-
-    wxGetApp().SetOption( "welcome",
-                          welcomeDlg.ShowNextStartup() ? "1" : "0" );
 }
 
 int 
