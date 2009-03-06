@@ -39,6 +39,7 @@
 #include "hoxSavedTable.h"
 #include "hoxAIPluginMgr.h"
 #include "hoxWelcomeUI.h"
+#include <wx/aboutdlg.h>
 
 #if !defined(__WXMSW__)
     #include "../resource/icons/hoxchess.xpm"
@@ -117,10 +118,9 @@ MyFrame::MyFrame( wxWindow*        parent,
     InitToolBar(GetToolBar());
 
     // Accelerators
-    wxAcceleratorEntry entries[3];
+    wxAcceleratorEntry entries[2];
     entries[0].Set(wxACCEL_CTRL, (int) 'N', MDI_NEW_TABLE);
     entries[1].Set(wxACCEL_CTRL, (int) 'X', MDI_QUIT);
-    entries[2].Set(wxACCEL_CTRL, (int) 'A', MDI_ABOUT);
     wxAcceleratorTable accel(WXSIZEOF(entries), entries);
     SetAcceleratorTable(accel);
 
@@ -182,22 +182,36 @@ MyFrame::OnQuit( wxCommandEvent& event )
 void 
 MyFrame::OnAbout( wxCommandEvent& event )
 {
-    wxMessageBox( wxString::Format(
-                    _("%s %s\n"
-                      "\n"
-                      "Author: Huy Phan (c) 2007, 2008, 2009\n"
-                      "Email: huyphan@playxiangqi.com\n"
-                      "\n"
-                      "This application is powered by %s, running under %s.\n"
-                      "\n"),
-				    HOX_APP_NAME,
-                    HOX_VERSION,
-                    wxVERSION_STRING,
-                    wxGetOsDescription().c_str()
-                 ),
-                 _("About HOXChess"),
-                 wxOK | wxICON_INFORMATION,
-                 this );
+    wxAboutDialogInfo info;
+    
+    info.SetName( HOX_APP_NAME );
+    info.SetVersion( HOX_VERSION );
+    info.SetDescription( wxString::Format(
+        _("An open source Xiangqi (Chinese Chess) desktop application.          \n"
+          "Powered by %s, under %s      "
+          ), wxVERSION_STRING, wxGetOsDescription().c_str() )
+    );
+    info.SetCopyright( "(C) 2007-2009 Huy Phan, PlayXiangqi" );
+    info.AddDeveloper( "Huy Phan" );
+    info.AddDeveloper( "Darick Le" );
+    info.SetWebSite( "http://hoxchess.googlecode.com", "HOXChess on GoogleCode" );
+    info.SetLicence(
+        "                GNU General Public License v3                          \n"
+        "           =======================================                     \n"
+        "\n"
+        "  HOXChess is free software: you can redistribute it and/or modify     \n"
+        "  it under the terms of the GNU General Public License as published by \n"
+        "  the Free Software Foundation, either version 3 of the License, or    \n"
+        "  (at your option) any later version.                                  \n"
+        "\n"
+        "  HOXChess is distributed in the hope that it will be useful,          \n"
+        "  but WITHOUT ANY WARRANTY; without even the implied warranty of       \n"
+        "  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        \n"
+        "  GNU General Public License for more details.                         \n"
+    );
+    info.AddTranslator( "Huy Phan" );
+
+    wxAboutBox(info);
 }
 
 void 
@@ -524,10 +538,6 @@ MyFrame::InitToolBar(wxToolBar* toolBar)
 		              _("Toggle Sounds"), wxITEM_CHECK);
     toolBar->ToggleTool( MDI_SOUND,
                          wxGetApp().GetOption("sound") == "1" );
-
-    toolBar->AddTool( MDI_ABOUT, "About", 
-		              wxBitmap(help_xpm), _("About"));
-
     toolBar->AddTool( MDI_QUIT, "Exit", 
 		              wxBitmap(quit_xpm), _("Quit the Program"));
 
