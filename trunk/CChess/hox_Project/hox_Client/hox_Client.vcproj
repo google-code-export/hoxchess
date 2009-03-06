@@ -133,9 +133,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wxbase29u_xml.lib wxmsw29u_adv.lib wxmsw29u_core.lib wxbase29u_net.lib wxbase29u.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregexu.lib wxexpat.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib odbc32.lib ole32.lib User32.lib Gdi32.lib shell32.lib Comdlg32.lib oleaut32.lib Advapi32.lib"
+				AdditionalDependencies="wxmsw29u_html.lib wxbase29u_xml.lib wxmsw29u_adv.lib wxmsw29u_core.lib wxbase29u_net.lib wxbase29u.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregexu.lib wxexpat.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib odbc32.lib ole32.lib User32.lib Gdi32.lib shell32.lib Comdlg32.lib oleaut32.lib Advapi32.lib"
 				AdditionalLibraryDirectories="&quot;C:\wxMSW-2.9.0\lib\vc_lib&quot;"
-				GenerateDebugInformation="true"
+				GenerateDebugInformation="false"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				RandomizedBaseAddress="1"
