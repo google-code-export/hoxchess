@@ -53,6 +53,7 @@ MAIN_SRC := \
 	hoxAIPlayer.cpp \
 	hoxSavedTable.cpp \
 	hoxAIPluginMgr.cpp \
+	hoxWelcomeUI.cpp \
 	hoxLog.cpp \
 	MyApp.cpp \
 	MyChild.cpp \
