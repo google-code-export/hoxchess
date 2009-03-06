@@ -38,6 +38,7 @@
 #include "hoxLog.h"
 #include "hoxSavedTable.h"
 #include "hoxAIPluginMgr.h"
+//#include "wx/xrc/xmlres.h"
 
 #if !defined(__WXMSW__)
     #include "../resource/icons/hoxchess.xpm"
@@ -648,6 +649,7 @@ MyFrame::OnOptions( wxCommandEvent& event )
 {
     hoxOptionsUI::OptionsData optionData;
     optionData.m_bSound     = (wxGetApp().GetOption("sound") == "1");
+    optionData.m_bWelcome   = (wxGetApp().GetOption("welcome") == "1");
     optionData.m_language   = wxGetApp().GetCurrentLanguage();
     optionData.m_sBgColor   = wxGetApp().GetOption("/Board/Color/background");
     optionData.m_sFgColor   = wxGetApp().GetOption("/Board/Color/foreground");
@@ -658,9 +660,10 @@ MyFrame::OnOptions( wxCommandEvent& event )
     if ( optionsDialog.ShowModal() != wxID_OK ) return;
 
     optionData = optionsDialog.GetData();
-    wxGetApp().SetOption( "sound",
-                          optionData.m_bSound ? "1" : "0" );
+    wxGetApp().SetOption( "sound", optionData.m_bSound ? "1" : "0" );
     this->GetToolBar()->ToggleTool( MDI_SOUND, optionData.m_bSound );
+
+    wxGetApp().SetOption( "welcome",optionData.m_bWelcome ? "1" : "0" );
 
     if ( optionData.m_language != wxGetApp().GetCurrentLanguage() )
     {

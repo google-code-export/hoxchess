@@ -110,6 +110,8 @@ private:
     void       _SetupLanguageAndLocale();
     wxLanguage _LoadCurrentLanguage();
 
+    void _ShowWelcomeDialog();
+
     void _LoadAppOptions();
     void _SaveAppOptions();
 

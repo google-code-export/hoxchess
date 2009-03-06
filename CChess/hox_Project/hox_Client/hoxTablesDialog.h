@@ -25,8 +25,8 @@
 // Description:     The dialog of a list of Tables.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_TABLES_DIALOG_H_
-#define __INCLUDED_HOX_TABLES_DIALOG_H_
+#ifndef __INCLUDED_HOX_TABLES_DIALOG_H__
+#define __INCLUDED_HOX_TABLES_DIALOG_H__
 
 #include <wx/wx.h>
 #include <wx/listctrl.h>
@@ -80,4 +80,4 @@ private:
     DECLARE_EVENT_TABLE()
 };
 
-#endif /* __INCLUDED_HOX_TABLES_DIALOG_H_ */
+#endif /* __INCLUDED_HOX_TABLES_DIALOG_H__ */
