@@ -66,7 +66,7 @@ struct SiteInfo
 /* Default sites info. */
 static SiteInfo s_siteList[] =
 {
-    { hoxSITE_TYPE_REMOTE, "HOXChess", "HOXChess Server", "games.playxiangqi.com", "8000", "", "" },
+    { hoxSITE_TYPE_REMOTE, "HOXChess", "PlayXiangqi.com", "games.playxiangqi.com", "8000", "", "" },
     { hoxSITE_TYPE_CHESSCAPE, "Chesscape", "Chesscape.com", "games.chesscape.com", "3534", "", "" },
 };
 
@@ -248,12 +248,11 @@ hoxLoginDialog::hoxLoginDialog( wxWindow*       parent,
 void 
 hoxLoginDialog::OnSiteSelected(wxCommandEvent& event)
 {
-    const char* FNAME = __FUNCTION__;
     int nSelectedType = m_radioSiteTypes->GetSelection();
 
     if ( nSelectedType < 0 || nSelectedType >= SITETYPE_SELECTION_MAX )
     {
-        wxLogError("%s: Unknown site choice [%d].", FNAME, nSelectedType);
+        wxLogError("%s: Unknown site choice [%d].", __FUNCTION__, nSelectedType);
         return;
     }
 
@@ -266,15 +265,13 @@ hoxLoginDialog::OnSiteSelected(wxCommandEvent& event)
 void 
 hoxLoginDialog::OnButtonLogin(wxCommandEvent& event)
 {
-    const char* FNAME = __FUNCTION__;
-
 	/* Determine the selected Site-Type */
 
     int nSelectedType = m_radioSiteTypes->GetSelection();
 
     if ( nSelectedType < 0 || nSelectedType >= SITETYPE_SELECTION_MAX )
     {
-        wxLogError("%s: Unknown site choice [%d].", FNAME, nSelectedType);
+        wxLogError("%s: Unknown site choice [%d].", __FUNCTION__, nSelectedType);
         return;
     }
 
@@ -324,8 +321,6 @@ hoxLoginDialog::OnButtonLogin(wxCommandEvent& event)
 bool 
 hoxLoginDialog::_GetDefaultLoginInfo( int& siteChoice )
 {
-	const char* FNAME = __FUNCTION__;
-
 	wxConfig* config = wxGetApp().GetConfig();
 
 	if ( ! config->Read( "/Sites/siteChoice", &siteChoice) )
@@ -335,7 +330,7 @@ hoxLoginDialog::_GetDefaultLoginInfo( int& siteChoice )
 
     if ( siteChoice < 0 || siteChoice >= SITETYPE_SELECTION_MAX )
     {
-        wxLogError("%s: Unknown site choice [%d].", FNAME, siteChoice);
+        wxLogError("%s: Unknown site choice [%d].", __FUNCTION__, siteChoice);
         return false;
     }
 
@@ -355,8 +350,6 @@ hoxLoginDialog::_GetDefaultLoginInfo( int& siteChoice )
 bool 
 hoxLoginDialog::_SaveDefaultLoginInfo( const int siteChoice )
 {
-	const char* FNAME = __FUNCTION__;
-
 	wxConfig* config = wxGetApp().GetConfig();
 
 	config->Write("/Sites/siteChoice", siteChoice);
