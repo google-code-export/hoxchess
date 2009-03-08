@@ -550,7 +550,12 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
 {
     /* File menu. */
     wxMenu* file_menu = new wxMenu;
-    file_menu->Append(MDI_CONNECT_SERVER, _("Connect Server...\tCtrl-L"), _("Connect to remote server"));
+    
+    wxMenuItem* item = new wxMenuItem( file_menu, MDI_CONNECT_SERVER, _("Connect Server...\tCtrl-L"),
+                                       _("Connect to remote server"));
+    item->SetBitmap(connect_xpm);
+    file_menu->Append(item);
+
     file_menu->Append(MDI_DISCONNECT_SERVER, _("&Disconnect Server\tCtrl-D"), _("Disconnect from remote server"));
     file_menu->AppendSeparator();
 	file_menu->Append(MDI_LIST_TABLES, _("List &Tables\tCtrl-T"), _("Get the list of tables"));
@@ -580,7 +585,9 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
 
     /* Help menu. */
     wxMenu* help_menu = new wxMenu;
-    help_menu->Append(MDI_ABOUT, _("&About HOXChess...\tF1"));
+    item = new wxMenuItem(help_menu, MDI_ABOUT, _("&About HOXChess...\tF1"));
+    item->SetBitmap(help_xpm);
+    help_menu->Append(item);
 
     /* The main menu bar */
     wxMenuBar* menu_bar = new wxMenuBar;

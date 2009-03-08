@@ -25,6 +25,7 @@
 // Description:     The Chesscape LOCAL Player.
 /////////////////////////////////////////////////////////////////////////////
 
+#include <asio.hpp>
 #include "hoxChesscapePlayer.h"
 #include "hoxChesscapeConnection.h"
 #include "hoxUtil.h"
@@ -1346,16 +1347,6 @@ hoxChesscapePlayer::OnConnectionResponse( wxCommandEvent& event )
 			wxLogDebug("%s: *WARN* Unsupported Request [%s].", __FUNCTION__, sType.c_str());
 			break;
 	} // switch
-
-
-	/* Post event to the sender if it is THIS player */
-
-    if ( apResponse->sender && apResponse->sender != this )
-    {
-        wxEvtHandler* sender = apResponse->sender;
-        apResponse.release();
-        wxPostEvent( sender, event );
-    }
 
     wxLogDebug("%s: END.", __FUNCTION__);
 }

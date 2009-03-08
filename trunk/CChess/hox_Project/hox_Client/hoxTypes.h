@@ -26,8 +26,8 @@
 //                  the project.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_TYPES_H_
-#define __INCLUDED_HOX_TYPES_H_
+#ifndef __INCLUDED_HOX_TYPES_H__
+#define __INCLUDED_HOX_TYPES_H__
 
 #include <wx/wx.h>
 #include <boost/shared_ptr.hpp>
@@ -366,4 +366,4 @@ public:
 };
 typedef std::auto_ptr<hoxPlayerStats> hoxPlayerStats_APtr;
 
-#endif /* __INCLUDED_HOX_TYPES_H_ */
+#endif /* __INCLUDED_HOX_TYPES_H__ */

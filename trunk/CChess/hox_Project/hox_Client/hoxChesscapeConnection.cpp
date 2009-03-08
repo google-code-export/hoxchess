@@ -30,6 +30,10 @@
 #include "hoxUtil.h"
 #include "hoxNetworkAPI.h"
 
+/* Constants. */
+const wxUint8 START_CHAR = 0x02;
+const wxUint8 END_CHAR   = 0x03;
+
 IMPLEMENT_DYNAMIC_CLASS(hoxChesscapeConnection, hoxSocketConnection)
 
 //-----------------------------------------------------------------------------
@@ -42,70 +46,56 @@ hoxChesscapeWriter::hoxChesscapeWriter( wxEvtHandler*           player,
 {
 }
 
-void 
-hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest )
+hoxResult 
+hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest,
+                                   wxString&       sError )
 {
-    hoxResult    result = hoxRC_ERR;
-    const hoxRequestType requestType = apRequest->type;
-    hoxResponse_APtr apResponse( new hoxResponse(requestType, 
-                                                 apRequest->sender) );
+    sError = "";
 
     /* Make sure the connection is established. */
     if ( ! m_bConnected )
     {
-        wxString sError;
-        result = this->Connect( sError );
+        hoxResult result = this->Connect( sError );
         if ( result != hoxRC_OK )
         {
             wxLogDebug("%s: *WARN* Failed to establish a connection.", __FUNCTION__);
-            apResponse->content = sError;
+            return result;
         }
     }
 
     /* Process the request. */
 
+    const hoxRequestType requestType = apRequest->type;
     switch( requestType )
     {
-        case hoxREQUEST_LOGIN:  result = _Login( apRequest ); break;
-        case hoxREQUEST_LOGOUT: result = _Logout( apRequest ); break;
-        case hoxREQUEST_JOIN:   result = _Join( apRequest ); break;
-        case hoxREQUEST_INVITE: result = _Invite( apRequest ); break;
-        case hoxREQUEST_PLAYER_INFO:  result = _GetPlayerInfo( apRequest ); break;
-        case hoxREQUEST_PLAYER_STATUS: result = _UpdateStatus( apRequest ); break;
-        case hoxREQUEST_LEAVE:  result = _Leave( apRequest ); break;
-        case hoxREQUEST_MOVE:   result = _Move( apRequest ); break;
-        case hoxREQUEST_NEW:    result = _New( apRequest ); break;
-        case hoxREQUEST_MSG:    result = _WallMessage( apRequest ); break;
-        case hoxREQUEST_UPDATE: result = _Update( apRequest ); break;
-        case hoxREQUEST_RESIGN: result = _Resign( apRequest ); break;
-        case hoxREQUEST_DRAW:   result = _Draw( apRequest ); break;
+        case hoxREQUEST_LOGIN:         return _Login( apRequest );
+        case hoxREQUEST_LOGOUT:        return _Logout( apRequest );
+        case hoxREQUEST_JOIN:          return _Join( apRequest );
+        case hoxREQUEST_INVITE:        return _Invite( apRequest );
+        case hoxREQUEST_PLAYER_INFO:   return _GetPlayerInfo( apRequest );
+        case hoxREQUEST_PLAYER_STATUS: return _UpdateStatus( apRequest );
+        case hoxREQUEST_LEAVE:         return _Leave( apRequest );
+        case hoxREQUEST_MOVE:          return _Move( apRequest );
+        case hoxREQUEST_NEW:           return _New( apRequest );
+        case hoxREQUEST_MSG:           return _WallMessage( apRequest );
+        case hoxREQUEST_UPDATE:        return _Update( apRequest );
+        case hoxREQUEST_RESIGN:        return _Resign( apRequest );
+        case hoxREQUEST_DRAW:          return _Draw( apRequest );
         default:
-            wxLogDebug("%s: *WARN* Unsupported Request [%s].", 
+            wxLogWarning("%s: Unsupported Request [%s].", 
                 __FUNCTION__, hoxUtil::RequestTypeToString(requestType).c_str());
-            result = hoxRC_NOT_SUPPORTED;
-            break;
+            return hoxRC_NOT_SUPPORTED;
     }
 
-    if ( result != hoxRC_OK )
-    {
-        wxLogDebug("%s: *INFO* Request [%s]: return error-code = [%s]...", 
-            __FUNCTION__, hoxUtil::RequestTypeToString(requestType).c_str(), 
-            hoxUtil::ResultToStr(result));
-
-        /* Notify the Player of this error. */
-        wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, requestType );
-        apResponse->code = result;
-        event.SetEventObject( apResponse.release() );  // Caller will de-allocate.
-        wxPostEvent( m_evtHandler, event );
-    }
+    return hoxRC_OK;
 }
 
-hoxSocketReader_SPtr
-hoxChesscapeWriter::CreateReader( wxEvtHandler*   evtHandler,
-                                  wxSocketClient* socket )
+hoxSocketAgent*
+hoxChesscapeWriter::CreateSocketAgent( asio::io_service& io_service,
+                                       tcp::resolver::iterator endpoint_iterator,
+                                       wxEvtHandler*       evtHandler)
 {
-    hoxSocketReader_SPtr reader( new hoxChesscapeReader( evtHandler, socket ) );
-    return reader;
+    return new hoxChesscapeSocketAgent( io_service, endpoint_iterator, evtHandler);
 }
 
 hoxResult
@@ -354,82 +344,91 @@ hoxChesscapeWriter::_Draw( hoxRequest_APtr apRequest )
 hoxResult
 hoxChesscapeWriter::_WriteLine( const wxString& cmdRequest )
 {
-	wxString sFormattedCmd;
+	wxString sRawMsg;
+	sRawMsg.Printf("\x02\x10%s\x10\x03", cmdRequest.c_str());
 
-	sFormattedCmd.Printf("\x02\x10%s\x10\x03", cmdRequest.c_str());
-    return hoxNetworkAPI::WriteLine( m_socket, sFormattedCmd );
+    this->AskSocketAgentToWrite( sRawMsg );
+    return hoxRC_OK;
 }
 
 //-----------------------------------------------------------------------------
-// hoxChesscapeReader
+// hoxChesscapeSocketAgent
 //-----------------------------------------------------------------------------
 
-hoxChesscapeReader::hoxChesscapeReader( wxEvtHandler*   player,
-                                        wxSocketClient* socket )
-            : hoxSocketReader( player, socket )
+hoxChesscapeSocketAgent::hoxChesscapeSocketAgent( asio::io_service&       io_service,
+                                                  tcp::resolver::iterator endpoint_iterator,
+                                                  wxEvtHandler*           evtHandler )
+        : hoxSocketAgent( io_service,
+                          endpoint_iterator,
+                          evtHandler )
 {
-    wxLogDebug("%s: ENTER.", __FUNCTION__);
 }
 
-hoxResult
-hoxChesscapeReader::ReadLine( wxSocketBase*   sock, 
-                              wxMemoryBuffer& data )
+void
+hoxChesscapeSocketAgent::handleConnect( const asio::error_code& error,
+                                        tcp::resolver::iterator endpoint_iterator )
 {
-    data.SetDataLen( 0 );  // Clear old data.
-
-    const size_t maxSize = hoxNETWORK_MAX_MSG_SIZE;
-
-	/* Read a line between '0x02' and '0x03' */
-
-	const wxUint8 START_CHAR = 0x02;
-	const wxUint8 END_CHAR   = 0x03;
-	bool   bStart = false;
-    wxUint8 c;
-
-    for (;;)
+    if (!error)
     {
-        sock->Read( &c, 1 );
-        if ( sock->LastCount() == 1 )
-        {
-			if ( !bStart && c == START_CHAR )
-			{
-				bStart = true;
-			}
-			else if ( bStart && c == END_CHAR )
-			{
-                return hoxRC_OK;  // Done.
-			}
-            else
-            {
-                data.AppendByte( c );
-                if ( data.GetDataLen() >= maxSize ) // Impose some limit.
-                {
-                    wxLogDebug("%s: *WARN* Max size [%d] reached.", __FUNCTION__, maxSize);
-                    break;
-                }
-            }
-        }
-        else if ( sock->Error() )
-        {
-            wxSocketError err = sock->LastError();
-            /* NOTE: This checking is now working given that
-             *       we have used wxSOCKET_BLOCK as the socket option.
-             */
-            if (  err == wxSOCKET_TIMEDOUT )
-                wxLogDebug("%s: *INFO* Socket timeout.", __FUNCTION__);
-            else
-                wxLogDebug("%s: *WARN* Some socket error [%s].", __FUNCTION__,
-                    hoxNetworkAPI::SocketErrorToString(err).c_str());
-            break;
-        }
-        else
-        {
-            wxLogDebug("%s: No more data. Len of data = [%d].", __FUNCTION__, data.GetDataLen());
-            return hoxRC_NOT_FOUND;  // Done.
-        }
+        m_connectState = CONNECT_STATE_CONNECTED;
+        asio::async_read_until( m_socket, m_inBuffer, END_CHAR,
+                                boost::bind(&hoxChesscapeSocketAgent::handleIncomingData, this,
+                                            asio::placeholders::error));
+    }
+    else if (endpoint_iterator != tcp::resolver::iterator())
+    {
+        m_socket.close();
+        tcp::endpoint endpoint = *endpoint_iterator;
+        m_socket.async_connect( endpoint,
+                                boost::bind(&hoxChesscapeSocketAgent::handleConnect, this,
+                                            asio::placeholders::error, ++endpoint_iterator));
+    }
+    else  // Failed.
+    {
+        m_connectState = CONNECT_STATE_CLOSED;
+        wxLogDebug("%s: *WARN* Fail to connect to server.", __FUNCTION__);
+        this->postEvent( hoxRC_CLOSED, "Fail to connect to server", hoxREQUEST_LOGIN );
+        m_socket.close();
+        //_io_service.stop(); // FORCE to stop!
+    }
+}
+
+void
+hoxChesscapeSocketAgent::handleIncomingData( const asio::error_code& error )
+{
+    if ( error )
+    {
+        closeSocket();
+        return;
     }
 
-    return hoxRC_ERR;
+    this->consumeIncomingData();
+}
+
+void
+hoxChesscapeSocketAgent::consumeIncomingData()
+{
+    std::istream response_stream( &m_inBuffer );
+    wxUint8      b;
+
+    while ( response_stream.read( (char*) &b, 1 ) )
+    {
+        if ( b == START_CHAR ) {
+            m_sCurrentEvent = ""; // Clear old data.
+            continue;
+        }
+        else if ( b == END_CHAR ) {
+            this->postEvent( hoxRC_OK, m_sCurrentEvent );
+            m_sCurrentEvent = ""; // Clear old data (... TO BE SAFE!).
+            continue;
+        }
+        m_sCurrentEvent.append( 1, b );
+    }
+
+    // Read the END token (AGAIN!).
+    asio::async_read_until( m_socket, m_inBuffer, END_CHAR,
+                            boost::bind(&hoxChesscapeSocketAgent::handleIncomingData, this,
+                                        asio::placeholders::error));
 }
 
 //-----------------------------------------------------------------------------

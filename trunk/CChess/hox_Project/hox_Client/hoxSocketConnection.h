@@ -28,17 +28,20 @@
 #ifndef __INCLUDED_HOX_SOCKET_CONNECTION_H__
 #define __INCLUDED_HOX_SOCKET_CONNECTION_H__
 
-#include <wx/socket.h>
+#include <asio.hpp>
 #include "hoxConnection.h"
 #include "hoxTypes.h"
+#include <deque>
+#include <boost/bind.hpp>
+
+using asio::ip::tcp;
 
 /* Forward declarations. */
+class hoxSocketAgent;
 class hoxSocketWriter;
-class hoxSocketReader;
 
 /* Typedef(s) */
 typedef boost::shared_ptr<hoxSocketWriter> hoxSocketWriter_SPtr;
-typedef boost::shared_ptr<hoxSocketReader> hoxSocketReader_SPtr;
 
 // ----------------------------------------------------------------------------
 // hoxSocketWriter
@@ -57,32 +60,30 @@ public:
 protected:
     virtual void* Entry(); // Entry point for the thread.
 
-    virtual void HandleRequest( hoxRequest_APtr apRequest );
+    virtual hoxResult HandleRequest( hoxRequest_APtr apRequest,
+                                     wxString&       sError );
     virtual hoxResult Connect( wxString& sError );
-    virtual void Disconnect();
-    virtual void StartReader( wxSocketClient* socket );
-    virtual hoxSocketReader_SPtr CreateReader( wxEvtHandler*   evtHandler,
-                                               wxSocketClient* socket );
-    virtual void WaitUntilReaderExit();
+
+    virtual hoxSocketAgent* CreateSocketAgent( asio::io_service&       io_service,
+                                               tcp::resolver::iterator endpoint_iterator,
+                                               wxEvtHandler*           evtHandler );
+    // ----
+    void AskSocketAgentToWrite( const wxString& sRawMsg );
+    void CloseSocketAgent();
 
 private:
     hoxRequest_APtr _GetRequest();
+    hoxResult       _WriteLine( const wxString& sContent );
 
-    hoxResult _WriteLine( wxSocketBase*   sock, 
-                          const wxString& contentStr );
+    void _postEventToHandler( const hoxResult      result,
+                              const wxString&      sEvent,
+                              const hoxRequestType requestType );
 
 protected:
     wxEvtHandler*           m_evtHandler;
-
     const hoxServerAddress  m_serverAddress;
 
-    wxSocketClient*         m_socket;
-                /* The socket to handle network connections */
-
-    hoxSocketReader_SPtr    m_reader;
-                /* The Reader Thread. */
-
-    // Storage to hold pending outgoing request.
+    // Storage to hold pending outgoing requests.
     wxSemaphore             m_semRequests;
     hoxRequestQueue         m_requests;
 
@@ -91,31 +92,70 @@ protected:
 
     bool                    m_bConnected;
                 /* Has the connection been established with the server */
+
+private:
+    asio::io_service        m_io_service;
+    hoxSocketAgent*         m_pSocketAgent;
+    asio::thread*           m_io_service_thread;
 };
 
 // ----------------------------------------------------------------------------
-// hoxSocketReader
+// hoxSocketAgent
 // ----------------------------------------------------------------------------
 
-class hoxSocketReader : public wxThread
+class hoxSocketAgent
 {
+    typedef std::deque<std::string> MessageQueue;
+
+protected:
+    enum ConnectState
+    {
+        CONNECT_STATE_INIT,
+        CONNECT_STATE_CONNECTING,
+        CONNECT_STATE_CONNECTED,
+        CONNECT_STATE_CLOSED
+    };
+
 public:
-    hoxSocketReader( wxEvtHandler*   evtHandler,
-                     wxSocketClient* socket );
-    virtual ~hoxSocketReader() {}
+    hoxSocketAgent( asio::io_service&       io_service,
+                    tcp::resolver::iterator endpoint_iterator,
+                    wxEvtHandler*           evtHandler );
+    virtual ~hoxSocketAgent() {}
+
+    void write( const std::string& msg );
+    void close();
 
 protected:
-    virtual void* Entry(); // Entry point for the thread.
+    virtual void handleConnect( const asio::error_code& error,
+                                tcp::resolver::iterator endpoint_iterator );
+    virtual void handleIncomingData( const asio::error_code& error );
+    virtual void consumeIncomingData();
 
-    virtual hoxResult ReadLine( wxSocketBase*   sock,
-                                wxMemoryBuffer& data );
+    // ----
+    void closeSocket();
+    void postEvent( const hoxResult      result,
+                    const std::string&   sEvent,
+                    const hoxRequestType type = hoxREQUEST_PLAYER_DATA );
+
+private:
+    void _doWrite( const std::string msg );
+    void _handleWrite( const asio::error_code& error );
 
 protected:
-    wxEvtHandler*         m_evtHandler;
-                /* The handler that would receive notifications */
+    asio::io_service&    _io_service; // A reference only!
+    tcp::socket          m_socket;
+    asio::deadline_timer m_timer;
+ 
+    int                  out_tries_; // FIXME: Concurrency problem!
+    std::string          out_msg_;   // FIXME: Concurrency problem!
+    MessageQueue         m_writeQueue;
 
-    wxSocketClient*       m_socket;
-                /* The socket to handle network connections */
+    std::string          m_sCurrentEvent;
+                /* The incoming event (being accumulated so far). */
+
+    asio::streambuf      m_inBuffer; // The buffer of incoming data.
+    ConnectState         m_connectState;
+    wxEvtHandler*        m_evtHandler;
 };
 
 // ----------------------------------------------------------------------------
@@ -140,11 +180,13 @@ public:
     virtual bool IsConnected() const;
 
 protected:
-    virtual void StartWriter();
     virtual hoxSocketWriter_SPtr CreateWriter( wxEvtHandler*           evtHandler,
                                                const hoxServerAddress& serverAddress );
 
-protected:
+private:
+    void _StartWriter();
+
+private:
     const hoxServerAddress   m_serverAddress;
 
     hoxSocketWriter_SPtr     m_writer;

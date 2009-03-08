@@ -25,6 +25,7 @@
 // Description:     The new "advanced" LOCAL Player.
 /////////////////////////////////////////////////////////////////////////////
 
+#include <asio.hpp>
 #include "hoxMyPlayer.h"
 #include "hoxSocketConnection.h"
 #include "hoxNetworkAPI.h"
@@ -83,8 +84,8 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
             this->DisconnectFromServer();
             m_site->OnShutdownReadyFromLocalPlayer();
             wxLogDebug("%s: END (exception).", __FUNCTION__);
-            return;  // *** Exit immediately.
         }
+        return;  // *** Exit immediately.
     }
 
     /* Handle other type of data. */

@@ -158,44 +158,4 @@ hoxNetworkAPI::ParseOneNetworkTable( const wxString&      tableStr,
     return hoxRC_OK;
 }
 
-hoxResult 
-hoxNetworkAPI::WriteLine( wxSocketBase*   sock,
-                          const wxString& message )
-{
-    const std::string myCmd( message.ToUTF8() );
-    const wxUint32 nWrite = myCmd.size();
-
-    sock->Write( (const void*) myCmd.c_str(), nWrite );
-    if ( sock->LastCount() != nWrite )
-    {
-        wxLogDebug("%s: *WARN* Writing to socket failed. Error = [%s]", 
-            __FUNCTION__, hoxNetworkAPI::SocketErrorToString(sock->LastError()).c_str());
-        return hoxRC_ERR;
-    }
-    return hoxRC_OK;
-}
-
-/**
- * Convert a given socket-error to a (human-readable) string.
- */
-const wxString 
-hoxNetworkAPI::SocketErrorToString( const wxSocketError socketError )
-{
-    switch( socketError )
-    {
-        case wxSOCKET_NOERROR:    return "wxSOCKET_NOERROR"; //No error happened
-        case wxSOCKET_INVOP:      return "wxSOCKET_INVOP";   // invalid operation
-        case wxSOCKET_IOERR:      return "wxSOCKET_IOERR";   // Input/Output error
-        case wxSOCKET_INVADDR:    return "wxSOCKET_INVADDR"; // Invalid address passed to wxSocket
-        case wxSOCKET_INVSOCK:    return "wxSOCKET_INVSOCK"; // Invalid socket (uninitialized).
-        case wxSOCKET_NOHOST:     return "wxSOCKET_NOHOST";  // No corresponding host
-        case wxSOCKET_INVPORT:    return "wxSOCKET_INVPORT"; // Invalid port
-        case wxSOCKET_WOULDBLOCK: return "wxSOCKET_WOULDBLOCK"; // The socket is non-blocking and the operation would block
-        case wxSOCKET_TIMEDOUT:   return "wxSOCKET_TIMEDOUT"; // The timeout for this operation expired
-        case wxSOCKET_MEMERR:     return "wxSOCKET_MEMERR";   // Memory exhausted
-
-        default:                  return "Unexpected error!";
-    }
-}
-
 /************************* END OF FILE ***************************************/

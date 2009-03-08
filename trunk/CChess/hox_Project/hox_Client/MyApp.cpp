@@ -27,7 +27,6 @@
 
 #include "MyApp.h"
 #include "hoxAIPluginMgr.h"
-#include <wx/socket.h>
 
 // Create a new application object: this macro will allow wxWidgets to create
 // the application object during program execution (it's better than using a
@@ -113,13 +112,6 @@ MyApp::OnInit()
     m_frame->Show(true);
 
 	m_appClosing = false;
-
-    // Initialize socket so that secondary threads can use network-related API.
-    if ( ! wxSocketBase::Initialize() )
-    {
-        wxLogError("Failed to initialize socket.");
-        return false;
-    }
 
     hoxSiteManager::GetInstance()->CreateLocalSite();
 
@@ -265,7 +257,6 @@ MyApp::OnExit()
 
     delete hoxAIPluginMgr::GetInstance();
 	delete hoxSiteManager::GetInstance();
-    wxSocketBase::Shutdown(); // Shut down the sockets.
     _SaveAppOptions();
 	delete m_config; // The changes will be written back automatically
 
