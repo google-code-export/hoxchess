@@ -42,9 +42,11 @@ public:
     virtual ~hoxChesscapeWriter() {}
 
 protected:
-    virtual void HandleRequest( hoxRequest_APtr apRequest );
-    virtual hoxSocketReader_SPtr CreateReader( wxEvtHandler*   evtHandler,
-                                               wxSocketClient* socket );
+    virtual hoxResult HandleRequest( hoxRequest_APtr apRequest,
+                                     wxString&       sError );
+    virtual hoxSocketAgent* CreateSocketAgent( asio::io_service& io_service,
+                                               tcp::resolver::iterator endpoint_iterator,
+                                               wxEvtHandler*       evtHandler);
 
 private:
     // ------
@@ -67,19 +69,22 @@ private:
 };
 
 // ----------------------------------------------------------------------------
-// hoxChesscapeReader
+// hoxChesscapeSocketAgent
 // ----------------------------------------------------------------------------
 
-class hoxChesscapeReader : public hoxSocketReader
+class hoxChesscapeSocketAgent : public hoxSocketAgent
 {
 public:
-    hoxChesscapeReader( wxEvtHandler*   player,
-                        wxSocketClient* socket );
-    virtual ~hoxChesscapeReader() {}
+    hoxChesscapeSocketAgent( asio::io_service&       io_service,
+                             tcp::resolver::iterator endpoint_iterator,
+                             wxEvtHandler*           evtHandler );
+    virtual ~hoxChesscapeSocketAgent() {}
 
 protected:
-    virtual hoxResult ReadLine( wxSocketBase*   sock,
-                                wxMemoryBuffer& data );
+    virtual void handleConnect( const asio::error_code& error,
+                                tcp::resolver::iterator endpoint_iterator );
+    virtual void handleIncomingData( const asio::error_code& error );
+    virtual void consumeIncomingData();
 };
 
 // ----------------------------------------------------------------------------

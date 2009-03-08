@@ -40,8 +40,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\wxMSW-2.9.0\include&quot;;&quot;C:\wxMSW-2.9.0\lib\vc_lib\mswud&quot;;&quot;$(ProjectDir)..\lib\boost_1_36_0&quot;"
-				PreprocessorDefinitions="WIN32"
+				AdditionalIncludeDirectories="&quot;C:\wxMSW-2.9.0\include&quot;;&quot;C:\wxMSW-2.9.0\lib\vc_lib\mswud&quot;;&quot;$(ProjectDir)..\lib\boost_1_38_0&quot;;&quot;$(ProjectDir)..\lib\asio-1.4.1\include&quot;"
+				PreprocessorDefinitions="_WIN32_WINNT=0x0501;_CRT_SECURE_NO_WARNINGS;BOOST_DATE_TIME_NO_LIB;BOOST_REGEX_NO_LIB;WIN32"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				SmallerTypeCheck="true"
@@ -116,7 +116,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;C:\wxMSW-2.9.0\include&quot;;&quot;C:\wxMSW-2.9.0\lib\vc_lib\mswu&quot;;&quot;$(ProjectDir)..\lib\boost_1_36_0&quot;"
+				AdditionalIncludeDirectories="&quot;C:\wxMSW-2.9.0\include&quot;;&quot;C:\wxMSW-2.9.0\lib\vc_lib\mswu&quot;;&quot;$(ProjectDir)..\lib\boost_1_38_0&quot;;&quot;$(ProjectDir)..\lib\asio-1.4.1\include&quot;"
+				PreprocessorDefinitions="_WIN32_WINNT=0x0501;_CRT_SECURE_NO_WARNINGS;BOOST_DATE_TIME_NO_LIB;BOOST_REGEX_NO_LIB;WIN32"
 				RuntimeLibrary="2"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"

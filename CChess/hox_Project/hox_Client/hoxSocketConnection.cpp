@@ -33,6 +33,202 @@
 IMPLEMENT_DYNAMIC_CLASS(hoxSocketConnection, hoxConnection)
 
 // ----------------------------------------------------------------------------
+//
+//     hoxSocketAgent
+//
+// ----------------------------------------------------------------------------
+
+hoxSocketAgent::hoxSocketAgent( asio::io_service&       io_service,
+                                tcp::resolver::iterator endpoint_iterator,
+                                wxEvtHandler*           evtHandler)
+        : _io_service( io_service )
+        , m_socket( io_service )
+        , m_timer( io_service )
+        , m_connectState( CONNECT_STATE_INIT )
+        , m_evtHandler( evtHandler )
+{
+    m_connectState = CONNECT_STATE_CONNECTING;
+    tcp::endpoint endpoint = *endpoint_iterator;
+    m_socket.async_connect( endpoint,
+                            boost::bind(&hoxSocketAgent::handleConnect, this,
+                                        asio::placeholders::error, ++endpoint_iterator));
+}
+
+void
+hoxSocketAgent::write( const std::string& msg )
+{
+    out_tries_ = 0;
+    out_msg_   = msg;  // *** make a copy
+    _io_service.post( boost::bind(&hoxSocketAgent::_doWrite, this, out_msg_) );
+}
+
+void
+hoxSocketAgent::close()
+{
+    _io_service.post( boost::bind(&hoxSocketAgent::closeSocket, this) );
+}
+
+void
+hoxSocketAgent::handleConnect( const asio::error_code& error,
+                               tcp::resolver::iterator endpoint_iterator)
+{
+    if ( !error )
+    {
+        m_connectState = CONNECT_STATE_CONNECTED;
+        wxLogDebug("%s: Connection established to the server.", __FUNCTION__);
+        asio::async_read_until( m_socket, m_inBuffer, "\n\n",
+                                boost::bind(&hoxSocketAgent::handleIncomingData, this,
+                                            asio::placeholders::error));
+    }
+    else if ( endpoint_iterator != tcp::resolver::iterator() )
+    {
+        m_socket.close();
+        tcp::endpoint endpoint = *endpoint_iterator;
+        m_socket.async_connect( endpoint,
+                                boost::bind(&hoxSocketAgent::handleConnect, this,
+                                            asio::placeholders::error, ++endpoint_iterator));
+    }
+    else  // Failed.
+    {
+        m_connectState = CONNECT_STATE_CLOSED;
+        wxLogDebug("%s: *WARN* Fail to connect to server.", __FUNCTION__);
+        this->postEvent( hoxRC_CLOSED, "Fail to connect to server", hoxREQUEST_LOGIN );
+        m_socket.close();
+        //_io_service.stop(); // FORCE to stop!
+    }
+}
+
+void
+hoxSocketAgent::handleIncomingData( const asio::error_code& error )
+{
+    if ( error )
+    {
+        closeSocket();
+        this->postEvent( hoxRC_CLOSED, "Connection closed while reading" );
+        return;
+    }
+
+    this->consumeIncomingData();
+}
+
+void
+hoxSocketAgent::consumeIncomingData()
+{
+    std::istream response_stream( &m_inBuffer );
+    wxUint8      b;
+    bool         bSawOne = false; // just saw one '\n'?
+
+	/* Read a line until "\n\n" */
+
+    while ( response_stream.read( (char*) &b, 1 ) )
+    {
+        if ( !bSawOne && b == '\n' )
+        {
+	        bSawOne = true;
+        }
+        else if ( bSawOne && b == '\n' )
+        {
+            this->postEvent( hoxRC_OK, m_sCurrentEvent );
+            m_sCurrentEvent = ""; // Clear old data (... TO BE SAFE!).
+        }
+        else
+        {
+            if ( bSawOne ) {
+                m_sCurrentEvent.append( 1, '\n' );
+                bSawOne = false;
+            }
+            m_sCurrentEvent.append( 1, b );
+        }
+    }
+
+    // Read incomgin data (AGAIN!).
+    asio::async_read_until( m_socket, m_inBuffer, "\n\n",
+                            boost::bind(&hoxSocketAgent::handleIncomingData, this,
+                                        asio::placeholders::error));
+}
+
+void
+hoxSocketAgent::_doWrite( const std::string msg )
+{
+    if ( m_connectState == CONNECT_STATE_CLOSED )
+    {
+        wxLogDebug("%s: Connection closed. Abort (tries = [%d]).", __FUNCTION__, out_tries_);
+        return;
+    }
+    else if ( m_connectState != CONNECT_STATE_CONNECTED )
+    {
+        const int WAIT_INTERVAL = 100; // in milliseconds.
+        const int MAX_TRIES     = 200; // a total of 20 seconds!!!
+        if ( ++out_tries_ > MAX_TRIES )   
+        {
+            wxLogDebug("%s: Timeout after [%d] tries.", __FUNCTION__, out_tries_);
+            return;
+        }
+        m_timer.expires_from_now(boost::posix_time::milliseconds(WAIT_INTERVAL));
+        m_timer.async_wait(boost::bind(&hoxSocketAgent::_doWrite, this, msg));
+        return;
+    }
+
+    bool write_in_progress = !m_writeQueue.empty();
+    m_writeQueue.push_back(msg);
+    if (!write_in_progress)
+    {
+        asio::async_write( m_socket,
+                           asio::buffer( m_writeQueue.front().data(),
+                                         m_writeQueue.front().length()),
+                           boost::bind( &hoxSocketAgent::_handleWrite, this,
+                                        asio::placeholders::error));
+    }
+}
+
+void
+hoxSocketAgent::_handleWrite( const asio::error_code& error )
+{
+    if ( error )
+    {
+        closeSocket();
+        this->postEvent( hoxRC_CLOSED, "Connection closed while writing" );
+        return;
+    }
+
+    m_writeQueue.pop_front();
+    if (!m_writeQueue.empty())
+    {
+        asio::async_write( m_socket,
+                           asio::buffer( m_writeQueue.front().data(),
+                                         m_writeQueue.front().length()),
+                           boost::bind( &hoxSocketAgent::_handleWrite, this,
+                                        asio::placeholders::error));
+    }
+}
+
+void
+hoxSocketAgent::closeSocket()
+{
+    m_socket.close();
+}
+
+void
+hoxSocketAgent::postEvent( const hoxResult      result,
+                           const std::string&   sEvent,
+                           const hoxRequestType type /* = hoxREQUEST_PLAYER_DATA */ )
+{
+    hoxResponse_APtr apResponse( new hoxResponse(type) );
+
+    for ( std::string::const_iterator it = sEvent.begin(); it != sEvent.end(); ++it )
+    {
+        apResponse->data.AppendByte( *it );
+    }
+ 
+    /* Notify the Player. */
+    wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, type );
+    apResponse->code = result;
+    event.SetEventObject( apResponse.release() );  // Caller will de-allocate.
+    wxPostEvent( m_evtHandler, event );
+}
+
+
+// ----------------------------------------------------------------------------
 // hoxSocketWriter
 // ----------------------------------------------------------------------------
 
@@ -41,29 +237,15 @@ hoxSocketWriter::hoxSocketWriter( wxEvtHandler*           evtHandler,
         : wxThread( wxTHREAD_JOINABLE )
         , m_evtHandler( evtHandler )
         , m_serverAddress( serverAddress )
-        , m_socket( NULL )
         , m_shutdownRequested( false )
         , m_bConnected( false )
+        , m_pSocketAgent( NULL )
+        , m_io_service_thread( NULL )
 {
-    /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-     * NOTE: We need to use wxSOCKET_BLOCK option to avoid the problem
-     *       of high CPU usage in secondary threads.
-     *       To find out why, look into the source code of wxSocket).
-     *
-     * Reference:
-     *     http://www.wxwidgets.org/wiki/index.php/WxSocket
-     * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-     */
-    const wxSocketFlags socketFlags = wxSOCKET_BLOCK; // *** See NOTE above!
-    m_socket = new wxSocketClient( socketFlags );
-
-    m_socket->Notify( false /* Disable socket-events */ );
 }
 
 hoxSocketWriter::~hoxSocketWriter()
 {
-    wxLogDebug("%s: ENTER.", __FUNCTION__);
-    this->Disconnect();
 }
 
 bool
@@ -81,49 +263,45 @@ hoxSocketWriter::AddRequest( hoxRequest_APtr apRequest )
 	return true;
 }
 
-void
-hoxSocketWriter::StartReader( wxSocketClient* socket )
+hoxSocketAgent*
+hoxSocketWriter::CreateSocketAgent( asio::io_service&       io_service,
+                                    tcp::resolver::iterator endpoint_iterator,
+                                    wxEvtHandler*           evtHandler)
 {
-    wxLogDebug("%s: ENTER.", __FUNCTION__);
-
-    if ( m_reader && m_reader->IsRunning() )
-    {
-        wxLogDebug("%s: The Reader has already been started. END.", __FUNCTION__);
-        return;
-    }
-
-    wxLogDebug("%s: Create the Reader Thread...", __FUNCTION__);
-    m_reader = this->CreateReader( m_evtHandler, socket );
-
-    if ( m_reader->Create() != wxTHREAD_NO_ERROR )
-    {
-        wxLogDebug("%s: *WARN* Failed to create the Reader thread.", __FUNCTION__);
-        m_reader.reset();
-        return;
-    }
-    wxASSERT_MSG(!m_reader->IsDetached(), "The Reader thread must be joinable");
-
-    m_reader->Run();
-}
-
-hoxSocketReader_SPtr
-hoxSocketWriter::CreateReader( wxEvtHandler*   evtHandler,
-                               wxSocketClient* socket )
-{
-    hoxSocketReader_SPtr reader( new hoxSocketReader( evtHandler, socket ) );
-    return reader;
+    return new hoxSocketAgent( io_service, endpoint_iterator, evtHandler);
 }
 
 void
-hoxSocketWriter::WaitUntilReaderExit()
+hoxSocketWriter::AskSocketAgentToWrite( const wxString& sRawMsg )
 {
-    if ( m_reader )
+    if ( ! m_pSocketAgent )
     {
-        wxLogDebug("%s: Request the Reader thread to be shutdowned...", __FUNCTION__);
-        wxThread::ExitCode exitCode = 0;
-        m_reader->Delete( &exitCode );
-        wxLogDebug("%s: The Reader thread shutdowned with exit-code = [%d].", __FUNCTION__, exitCode);
-        m_reader.reset();
+        wxLogDebug("%s: *WARN* Socket Agent not available. END.", __FUNCTION__);
+        return;
+    }
+
+    const std::string sOutMsg( sRawMsg.ToUTF8() ); // Convert to UTF8.
+    m_pSocketAgent->write( sOutMsg );
+}
+
+void
+hoxSocketWriter::CloseSocketAgent()
+{
+    if ( m_io_service_thread )
+    {
+        m_pSocketAgent->close();
+                /* Need to call since some server does NOT
+                 * auto-close the connection upon receiving LOGOUT.
+                 */
+
+        wxLogDebug("%s: Waiting for IO-Service Thread to end...", __FUNCTION__);
+        m_io_service_thread->join();   // ************ WAIT HERE
+        wxLogDebug("%s: IO-Service Thread ended.", __FUNCTION__);
+        delete m_pSocketAgent;
+        m_pSocketAgent = NULL;
+        delete m_io_service_thread;
+        m_io_service_thread = NULL;
+        //m_bConnected = false;
     }
 }
 
@@ -170,6 +348,8 @@ void*
 hoxSocketWriter::Entry()
 {
     hoxRequest_APtr apRequest;
+    hoxResult       result = hoxRC_OK;
+    wxString        sError;
 
     wxLogDebug("%s: ENTER.", __FUNCTION__);
 
@@ -182,77 +362,57 @@ hoxSocketWriter::Entry()
             wxASSERT_MSG( m_shutdownRequested, "This thread must be shutdowning." );
             break;  // Exit the thread.
         }
-        wxLogDebug("%s: Processing request Type = [%s]...", 
-            __FUNCTION__, hoxUtil::RequestTypeToString(apRequest->type).c_str());
-
         const hoxRequestType requestType = apRequest->type;
-        if ( requestType == hoxREQUEST_LOGOUT )
+        wxLogDebug("%s: Processing request = [%s]...", 
+            __FUNCTION__, hoxUtil::RequestTypeToString(requestType).c_str());
+
+        result = this->HandleRequest( apRequest, sError );
+        if ( result != hoxRC_OK )
         {
-            this->WaitUntilReaderExit();
-            m_shutdownRequested = true; // !!! Force to close !!!
+            _postEventToHandler( result, sError, requestType );
         }
 
-        this->HandleRequest( apRequest );
+        if ( requestType == hoxREQUEST_LOGOUT )
+        {
+            break; // !!! Force to close !!!
+        }
     }
 
-    /* Make sure that the Reader Thread to exit. */
-    this->WaitUntilReaderExit();
-
     /* Close the socket-connection. */
-    this->Disconnect();
+    this->CloseSocketAgent();
 
     /* Notify the Player. */
     wxLogDebug("%s: Notify event-handler of connection CLOSED.", __FUNCTION__);
-    const hoxRequestType type = hoxREQUEST_PLAYER_DATA;
-    hoxResponse_APtr apResponse( new hoxResponse(type) );
-    wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, type );
-    apResponse->code = hoxRC_CLOSED;
-    event.SetEventObject( apResponse.release() );  // Caller will de-allocate.
-    wxPostEvent( m_evtHandler, event );
+    _postEventToHandler( hoxRC_CLOSED, "Connection CLOSED", hoxREQUEST_PLAYER_DATA );
 
     return NULL;
 }
 
-void
-hoxSocketWriter::HandleRequest( hoxRequest_APtr apRequest )
+hoxResult
+hoxSocketWriter::HandleRequest( hoxRequest_APtr apRequest,
+                                wxString&       sError )
 {
     hoxResult    result = hoxRC_OK;
     const hoxRequestType requestType = apRequest->type;
-    hoxResponse_APtr apResponse( new hoxResponse(requestType, 
-                                                 apRequest->sender) );
+
+    sError = "";
 
     /* Make sure the connection is established. */
     if ( ! m_bConnected )
     {
-        wxString sError;
         result = this->Connect( sError );
         if ( result != hoxRC_OK )
         {
             wxLogDebug("%s: *WARN* Failed to establish a connection.", __FUNCTION__);
-            apResponse->content = sError;
+            return result;
         }
     }
 
     /* Send the request. */
-    if ( result == hoxRC_OK )
-    {
-        const wxString sRequest = apRequest->ToString();
-        result = _WriteLine( m_socket, sRequest );
-    }
+    const wxString sRequest = apRequest->ToString();
+    result = _WriteLine( sRequest );
 
-    /* Return error. */
-    if ( result != hoxRC_OK )
-    {
-        wxLogDebug("%s: *INFO* Request [%s]: return error-code = [%s]...", 
-            __FUNCTION__, hoxUtil::RequestTypeToString(requestType).c_str(), 
-            hoxUtil::ResultToStr(result));
-
-        /* Notify the Player of this error. */
-        wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, requestType );
-        apResponse->code = result;
-        event.SetEventObject( apResponse.release() );  // Caller will de-allocate.
-        wxPostEvent( m_evtHandler, event );
-    }
+    return result;
 }
 
 hoxResult
@@ -264,166 +424,62 @@ hoxSocketWriter::Connect( wxString& sError )
         return hoxRC_OK; // Consider "success".
     }
 
-    /* Get the server address. */
-    wxIPV4address addr;
-    addr.Hostname( m_serverAddress.name );
-    addr.Service( m_serverAddress.port );
-
-    wxLogDebug("%s: Trying to connect to [%s]...", __FUNCTION__, m_serverAddress.c_str());
-
-    if ( ! m_socket->Connect( addr, true /* wait */ ) )
+    try
     {
-        wxLogWarning("%s: *WARN* Failed to connect to the server [%s]. Error = [%s].",
-            __FUNCTION__, m_serverAddress.c_str(), 
-            hoxNetworkAPI::SocketErrorToString(m_socket->LastError()).c_str());
-        sError = "Failed to connect to server";
+        const std::string sHost = hoxUtil::wx2std( m_serverAddress.name );
+        const wxString sPort = wxString::Format("%d", m_serverAddress.port ); 
+        const std::string sService = hoxUtil::wx2std( sPort );
+
+        tcp::resolver resolver( m_io_service );
+        tcp::resolver::query query( sHost, sService );
+        tcp::resolver::iterator iterator = resolver.resolve(query);
+
+        m_pSocketAgent = this->CreateSocketAgent( m_io_service, iterator, m_evtHandler);
+    
+        // TODO: Set timeout = hoxSOCKET_CLIENT_SOCKET_TIMEOUT.
+
+        m_io_service_thread =
+            new asio::thread( boost::bind(&asio::io_service::run, &m_io_service) );
+
+        // TODO: Not really have enough info to declare a 'success' connection!
+        m_bConnected = true;
+    }
+    catch (std::exception& e)
+    {
+        sError.Printf("Exception [%s] when connect to [%s]", e.what(), m_serverAddress.c_str());
+        wxLogWarning("%s: %s.", __FUNCTION__, sError.c_str());
         return hoxRC_ERR;
     }
-    
-    m_socket->SetTimeout( hoxSOCKET_CLIENT_SOCKET_TIMEOUT );
-
-    this->StartReader( m_socket ); // Start the READER thread.
-
-    wxLogDebug("%s: Succeeded! Connection established to the server.", __FUNCTION__);
-    m_bConnected = true;
 
     return hoxRC_OK;
 }
 
+hoxResult
+hoxSocketWriter::_WriteLine( const wxString& sContent )
+{
+    wxString sRawMsg;
+	sRawMsg.Printf("%s\n", sContent.c_str());
+
+    this->AskSocketAgentToWrite( sRawMsg );
+    return hoxRC_OK;
+}
+
 void
-hoxSocketWriter::Disconnect()
+hoxSocketWriter::_postEventToHandler( const hoxResult      result,
+                                      const wxString&      sEvent,
+                                      const hoxRequestType requestType )
 {
-    if ( m_socket != NULL )
-    {
-        wxLogDebug("%s: Closing the client socket...", __FUNCTION__);
-        m_socket->Destroy();
-        m_socket = NULL;
-    }
-    m_bConnected = false;
-}
+    wxLogDebug("%s: *INFO* Request [%s] return error-code = [%s].", 
+        __FUNCTION__, hoxUtil::RequestTypeToString(requestType).c_str(), 
+        hoxUtil::ResultToStr(result));
 
-hoxResult
-hoxSocketWriter::_WriteLine( wxSocketBase*   sock, 
-                             const wxString& contentStr )
-{
-	wxString sRequest;
-	sRequest.Printf("%s\n", contentStr.c_str());
+    hoxResponse_APtr apResponse( new hoxResponse(requestType) );
+    apResponse->content = sEvent;
+    apResponse->code = result;
 
-    return hoxNetworkAPI::WriteLine( sock, sRequest );
-}
-
-// ----------------------------------------------------------------------------
-// hoxSocketReader
-// ----------------------------------------------------------------------------
-
-hoxSocketReader::hoxSocketReader( wxEvtHandler*   evtHandler,
-                                  wxSocketClient* socket )
-        : wxThread( wxTHREAD_JOINABLE )
-        , m_evtHandler( evtHandler )
-        , m_socket( socket )
-{
-    wxLogDebug("%s: ENTER.", __FUNCTION__);
-}
-
-void*
-hoxSocketReader::Entry()
-{
-    wxLogDebug("%s: ENTER.", __FUNCTION__);
-
-    wxCHECK_MSG(m_socket, NULL, "Socket must be set first");
-
-    const hoxRequestType type = hoxREQUEST_PLAYER_DATA;
-    hoxResult result = hoxRC_OK;
-
-    while (   !TestDestroy()
-            && result != hoxRC_CLOSED )
-    {
-        hoxResponse_APtr apResponse( new hoxResponse(type) );
-
-        if ( !m_socket->WaitForRead( 0, 500 ) ) // timeout (0.5 sec)?
-        {
-            continue;
-        }
-
-        if ( hoxRC_OK != (result = this->ReadLine( m_socket, 
-                                                   apResponse->data )) )
-        {
-            wxLogDebug("%s: *INFO* Failed to read incoming command.", __FUNCTION__);
-            result = hoxRC_CLOSED;   // *** Shutdown the Thread.
-        }
-
-        /* Notify the Player. */
-        wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, type );
-        apResponse->code = result;
-        event.SetEventObject( apResponse.release() );  // Caller will de-allocate.
-        wxPostEvent( m_evtHandler, event );
-    }
-
-    return NULL;
-}
-
-hoxResult
-hoxSocketReader::ReadLine( wxSocketBase*   sock, 
-                           wxMemoryBuffer& data )
-{
-    data.SetDataLen( 0 );  // Clear old data.
-
-    const size_t maxSize = hoxNETWORK_MAX_MSG_SIZE;
-
-	/* Read a line until "\n\n" */
-
-	bool   bSawOne = false; // just saw one '\n'?
-    wxUint8 c;
-
-    for (;;)
-    {
-        sock->Read( &c, 1 );
-        if ( sock->LastCount() == 1 )
-        {
-			if ( !bSawOne && c == '\n' )
-			{
-				bSawOne = true;
-                data.AppendByte( c );
-			}
-			else if ( bSawOne && c == '\n' )
-			{
-                data.SetDataLen( data.GetDataLen()-1 ); // Remove '\n'
-				return hoxRC_OK;  // Done.
-			}
-            else
-            {
-                bSawOne = false;
-
-                data.AppendByte( c );
-                if ( data.GetDataLen() >= maxSize ) // Impose some limit.
-                {
-                    wxLogDebug("%s: *WARN* Max size [%d] reached.", __FUNCTION__, maxSize);
-                    break;
-                }
-            }
-        }
-        else if ( sock->Error() )
-        {
-            wxSocketError err = sock->LastError();
-            /* NOTE: This checking is now working given that
-             *       we have used wxSOCKET_BLOCK as the socket option.
-             */
-            if (  err == wxSOCKET_TIMEDOUT ) {
-                wxLogDebug("%s: *INFO* Socket timeout (%d).", __FUNCTION__, data.GetDataLen());
-            } else {
-                wxLogDebug("%s: *WARN* Some socket error [%s] (%d).", __FUNCTION__,
-                    hoxNetworkAPI::SocketErrorToString(err).c_str(), data.GetDataLen());
-            }
-            break;
-        }
-        else
-        {
-            wxLogDebug("%s: No more data. Len of data = [%d].", __FUNCTION__, data.GetDataLen());
-            return hoxRC_NOT_FOUND;  // Done.
-        }
-    }
-
-    return hoxRC_ERR;
+    wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, requestType );
+    event.SetEventObject( apResponse.release() );  // Caller will de-allocate.
+    wxPostEvent( m_evtHandler, event );
 }
 
 //-----------------------------------------------------------------------------
@@ -448,12 +504,12 @@ hoxSocketConnection::Start()
 {
     wxLogDebug("%s: ENTER.", __FUNCTION__);
 
-    this->StartWriter();
+    _StartWriter();
     // *** This thread will also create and manage the Reader thread.
 }
 
 void
-hoxSocketConnection::StartWriter()
+hoxSocketConnection::_StartWriter()
 {
     wxLogDebug("%s: ENTER.", __FUNCTION__);
 
@@ -489,9 +545,9 @@ hoxSocketConnection::CreateWriter( wxEvtHandler*           evtHandler,
 void
 hoxSocketConnection::Shutdown()
 {
-    wxLogDebug("%s: Request the Writer thread to shutdown...", __FUNCTION__);
     if ( m_writer )
     {
+        wxLogDebug("%s: Request the Writer thread to shutdown...", __FUNCTION__);
         wxThread::ExitCode exitCode = m_writer->Wait();
         wxLogDebug("%s: The Writer thread shutdowned with exit-code = [%d].", __FUNCTION__, exitCode);
         m_writer.reset();

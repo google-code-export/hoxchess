@@ -29,7 +29,6 @@
 #define __INCLUDED_HOX_NETWORK_API_H_
 
 #include <wx/wx.h>
-#include <wx/socket.h>
 #include "hoxTypes.h"
 
 namespace hoxNetworkAPI
@@ -39,15 +38,6 @@ namespace hoxNetworkAPI
 
     hoxResult ParseOneNetworkTable( const wxString&      tableStr,
                                     hoxNetworkTableInfo &tableInfo );
-
-    hoxResult WriteLine( wxSocketBase*   sock,
-                         const wxString& message );
-
-    /**
-     * Convert a given socket-error to a (human-readable) string.
-     */
-    const wxString SocketErrorToString( const wxSocketError socketError );
-
 
 } /* namespace hoxNetwork */
 
