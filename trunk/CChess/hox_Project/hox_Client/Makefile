@@ -13,16 +13,16 @@ PROGRAM = hoxchess
 CXX         = g++
 
 # RELEASE build
-#WX_CXXFLAGS = $(shell /opt/wxGTK-2.9.0/bin/wx-config --cxxflags --debug=no)
-#WX_LDLIBS   = $(shell /opt/wxGTK-2.9.0/bin/wx-config --libs --debug=no)
-#DEBUGFLAGS  =
+WX_CXXFLAGS = $(shell /opt/wxGTK-2.9.0/bin/wx-config --cxxflags --debug=no)
+WX_LDLIBS   = $(shell /opt/wxGTK-2.9.0/bin/wx-config --libs --debug=no)
+DEBUGFLAGS  =
 
 # DEBUG build
-WX_CXXFLAGS = $(shell /opt/wxGTK-2.9.0/bin/wx-config --cxxflags --debug=yes)
-WX_LDLIBS   = $(shell /opt/wxGTK-2.9.0/bin/wx-config --libs --debug=yes)
-DEBUGFLAGS  = -g
+#WX_CXXFLAGS = $(shell /opt/wxGTK-2.9.0/bin/wx-config --cxxflags --debug=yes)
+#WX_LDLIBS   = $(shell /opt/wxGTK-2.9.0/bin/wx-config --libs --debug=yes)
+#DEBUGFLAGS  = -g
 
-CXXFLAGS = $(WX_CXXFLAGS) -I../lib/boost_1_36_0
+CXXFLAGS = $(WX_CXXFLAGS) -I../lib/boost_1_38_0 -I../lib/asio-1.4.1/include
 LDFLAGS     = -pthread
 
 # The main source
