@@ -5,6 +5,25 @@
 
 This page describes how Boost libraries are installed to be used in HOXChess
 
+== UPGRADE boost to 1.38.0 HOWTO ==
+
+  * Download the SOURCE: *boost_1_38_0.tar.bz2*
+  * Also, download binary *bjam.exe* from the same place
+    * I put it under folder _C:\Tmp\boost_1_38_0\bjam_
+
+  * Build the *bcp.exe* executable as follows:
+    * _C:\Tmp\boost_1_38_0\tools\bcp>..\..\bjam\bjam.exe_
+    * The above command will create *.\dist\bin\bcp.exe*
+
+  * Read: http://www.boost.org/doc/libs/1_38_0/tools/bcp/bcp.html
+  * Under _C:\Tmp\boost_1_38_0_
+    * .\dist\bin\bcp.exe shared_ptr enable_shared_from_this tokenizer algorithm date_time functional intrusive_ptr c:\tmp
+    * The above commands will copy all dependent files to c:\tmp\...
+    * *Notes*: Here are the new headers added to support *Asio* library 
+      * _date_time_
+      * _functional_
+      * _intrusive_ptr_
+
 == UPGRADE boost to 1.36.0 HOWTO ==
 
   * Download the SOURCE: *boost_1_36_0.7z*
