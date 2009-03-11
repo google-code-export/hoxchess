@@ -679,38 +679,40 @@ MyFrame::OnToggleSound( wxCommandEvent& event )
 void
 MyFrame::OnOptions( wxCommandEvent& event )
 {
-    hoxOptionsUI::OptionsData optionData;
-    optionData.m_bSound     = (wxGetApp().GetOption("sound") == "1");
-    optionData.m_bWelcome   = (wxGetApp().GetOption("welcome") == "1");
-    optionData.m_language   = wxGetApp().GetCurrentLanguage();
-    optionData.m_sBgColor   = wxGetApp().GetOption("/Board/Color/background");
-    optionData.m_sFgColor   = wxGetApp().GetOption("/Board/Color/foreground");
-    optionData.m_sPiece     = wxGetApp().GetOption("/Board/Piece/path");
-    optionData.m_sDefaultAI = wxGetApp().GetOption("defaultAI");
+    hoxOptionsUI dlg;
 
-    hoxOptionsUI optionsDialog( this, optionData );
-    if ( optionsDialog.ShowModal() != wxID_OK ) return;
+    dlg.m_bSound     = (wxGetApp().GetOption("sound") == "1");
+    dlg.m_bWelcome   = (wxGetApp().GetOption("welcome") == "1");
+    dlg.m_language   = wxGetApp().GetCurrentLanguage();
+    dlg.m_sBgColor   = wxGetApp().GetOption("/Board/Color/background");
+    dlg.m_sFgColor   = wxGetApp().GetOption("/Board/Color/foreground");
+    dlg.m_sPiece     = wxGetApp().GetOption("/Board/Piece/path");
+    dlg.m_sDefaultAI = wxGetApp().GetOption("defaultAI");
 
-    optionData = optionsDialog.GetData();
-    wxGetApp().SetOption( "sound", optionData.m_bSound ? "1" : "0" );
-    this->GetToolBar()->ToggleTool( MDI_SOUND, optionData.m_bSound );
+    wxGetApp().GetLanguageList( dlg.m_langList );
 
-    wxGetApp().SetOption( "welcome", optionData.m_bWelcome ? "1" : "0" );
+    dlg.Create( this );
+    if ( dlg.ShowModal() != wxID_OK ) return;
 
-    if ( optionData.m_language != wxGetApp().GetCurrentLanguage() )
+    wxGetApp().SetOption( "sound", dlg.m_bSound ? "1" : "0" );
+    this->GetToolBar()->ToggleTool( MDI_SOUND, dlg.m_bSound );
+
+    wxGetApp().SetOption( "welcome", dlg.m_bWelcome ? "1" : "0" );
+
+    if ( dlg.m_language != wxGetApp().GetCurrentLanguage() )
     {
-        wxGetApp().SaveCurrentLanguage( optionData.m_language );
+        wxGetApp().SaveCurrentLanguage( dlg.m_language );
         ::wxMessageBox( _("You must restart the program for this change to take effect"),
                         _("Required Action"),
                         wxOK | wxICON_INFORMATION );
     }
 
-    wxGetApp().SetOption( "/Board/Color/background", optionData.m_sBgColor );
-    wxGetApp().SetOption( "/Board/Color/foreground", optionData.m_sFgColor );
-    wxGetApp().SetOption( "/Board/Piece/path", optionData.m_sPiece );
+    wxGetApp().SetOption( "/Board/Color/background", dlg.m_sBgColor );
+    wxGetApp().SetOption( "/Board/Color/foreground", dlg.m_sFgColor );
+    wxGetApp().SetOption( "/Board/Piece/path",       dlg.m_sPiece );
 
-    hoxAIPluginMgr::SetDefaultPluginName( optionData.m_sDefaultAI );
-    wxGetApp().SetOption("defaultAI", optionData.m_sDefaultAI);
+    hoxAIPluginMgr::SetDefaultPluginName( dlg.m_sDefaultAI );
+    wxGetApp().SetOption("defaultAI", dlg.m_sDefaultAI);
 
     // Apply the new Options to the Active Table.
     MyChild* child = wxDynamicCast(this->GetActiveChild(), MyChild);
@@ -720,9 +722,9 @@ MyFrame::OnOptions( wxCommandEvent& event )
         hoxBoard* pBoardUI = pTable->GetBoardUI();
         if ( pBoardUI )
         {
-            pBoardUI->EnableSound( optionData.m_bSound );
-            pBoardUI->SetBgColor( wxColor(optionData.m_sBgColor) );
-            pBoardUI->SetFgColor( wxColor(optionData.m_sFgColor) );
+            pBoardUI->EnableSound( dlg.m_bSound );
+            pBoardUI->SetBgColor( wxColor(dlg.m_sBgColor) );
+            pBoardUI->SetFgColor( wxColor(dlg.m_sFgColor) );
         }
     }
 }

@@ -59,6 +59,16 @@ class hoxTable;
 
 wxDECLARE_EVENT(hoxEVT_APP_SITE_CLOSE_READY, wxCommandEvent);
 
+/* Language data.
+ * TODO: Temporarily place here. Maybe move to hoxTypes.h
+ */
+struct hoxLanguageInfo
+{
+    wxLanguage  code;
+    wxString    desc; // description
+};
+typedef std::vector<hoxLanguageInfo> hoxLanguageInfoVector;
+
 /**
  * The main Application.
  * Everything starts from here (i.e., the entry point).
@@ -98,6 +108,7 @@ public:
 	bool GetDefaultFrameLayout( wxPoint& position, wxSize& size );
 	bool SaveDefaultFrameLayout( const wxPoint& position, const wxSize& size );
 
+    void GetLanguageList( hoxLanguageInfoVector& langs ) const;
     wxLanguage SelectLanguage();
     void SaveCurrentLanguage( const wxLanguage language );
     wxLanguage GetCurrentLanguage() const { return m_language; }

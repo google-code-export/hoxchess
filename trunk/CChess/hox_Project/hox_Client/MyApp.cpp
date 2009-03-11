@@ -41,14 +41,7 @@ BEGIN_EVENT_TABLE(MyApp, wxApp)
 	EVT_COMMAND(wxID_ANY, hoxEVT_APP_SITE_CLOSE_READY, MyApp::OnCloseReady_FromSite)
 END_EVENT_TABLE()
 
-/* Language data. */
-struct _LanguageInfo
-{
-    wxLanguage  code;
-    wxString    desc; // description
-};
-
-static _LanguageInfo s_languages[] =
+static hoxLanguageInfo s_languages[] =
 {
     { wxLANGUAGE_DEFAULT,    _("(Use Default Language)") },
     // Adding new languages below ....
@@ -150,6 +143,20 @@ MyApp::_SetupLanguageAndLocale()
     if ( ! m_locale.AddCatalog( HOX_CATALOG_NAME ) )
     {
         wxLogError(_("Fail to find/load the [%s] catalog."), HOX_CATALOG_NAME);
+    }
+}
+
+void
+MyApp::GetLanguageList( hoxLanguageInfoVector& langs ) const
+{
+    langs.clear();
+    for ( int i = 0; i < WXSIZEOF(s_languages); ++i )
+    {
+        hoxLanguageInfo langInfo;
+        langInfo.code = s_languages[i].code;
+        langInfo.desc = s_languages[i].desc;
+
+        langs.push_back( langInfo );
     }
 }
 
