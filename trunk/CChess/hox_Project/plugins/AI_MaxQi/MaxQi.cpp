@@ -1,3 +1,10 @@
+/***************************************************************************/
+/*                                 MaxQi,                                  */
+/* Xiangqi version of the sub-2KB (source) micro-Max Chess program,        */
+/* by H.G. Muller ( http://home.hccnet.nl/h.g.muller/chess.html ).         */
+/* This source contains only the AI routine, for integration in HOXChess.  */
+/***************************************************************************/
+
 #include "MaxQi.h"
 
 #include <cstdio>
@@ -13,12 +20,6 @@ int GetTickCount() // with thanks to Tord Romstad
 	return t.tv_sec*1000 + t.tv_usec/1000;
 }
 #endif
-
-/***************************************************************************/
-/*                                 MaxQi,                                  */
-/* Xiangqi version of the sub-2KB (source) micro-Max Chess program,        */
-/* AI-only source, for integration in HOXChess                             */
-/***************************************************************************/
 
 int Side;
 int Post = 0;           /* set to 1 to see machine thinking printed */
