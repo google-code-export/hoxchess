@@ -6,7 +6,7 @@
 // Created:     3/9/2009 6:58:33 AM
 // RCS-ID:      
 // Copyright:   Copyright 2007-2009 Huy Phan  <huyphan@playxiangqi.com>
-// Licence:     
+// Licence:     GNU General Public License v3
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _HOXOPTIONSUI_H_
