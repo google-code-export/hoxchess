@@ -621,7 +621,8 @@ void
 hoxBoard::OnUpdateUI_ActionNone( wxUpdateUIEvent& event )
 {
 	bool bMenuEnabled = ( m_status != hoxGAME_STATUS_IN_PROGRESS
-                        && _IsOwnerSeated() );
+                        && _IsOwnerSeated()
+                        && (m_featureFlags & hoxBOARD_FEATURE_UNSIT) );
     event.Enable( bMenuEnabled );
 }
 

@@ -85,6 +85,8 @@ public:
         hoxBOARD_FEATURE_RESET        = ( (unsigned int) 1 ),
                 /* RESET action */
 
+        hoxBOARD_FEATURE_UNSIT        = ( (unsigned int) 2 ),
+                /* UNSIT action */
 
         hoxBOARD_FEATURE_ALL = 0xffffffff
                 /* Special flag: ALL FEATURES enabled. */

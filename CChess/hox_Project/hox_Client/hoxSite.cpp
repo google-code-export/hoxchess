@@ -209,7 +209,6 @@ unsigned int
 hoxSite::GetBoardFeatureFlags() const
 {
 	unsigned int flags = hoxBoard::hoxBOARD_FEATURE_ALL;
-
 	return flags;
 }
 
@@ -389,6 +388,18 @@ hoxLocalSite::OnLocalRequest_PRACTICE( const wxString& sSavedFile /* = "" */ )
 
     result = pAIPlayer->JoinTableAs( pTable, hoxCOLOR_BLACK );
     wxASSERT( result == hoxRC_OK );
+}
+
+unsigned int
+hoxLocalSite::GetBoardFeatureFlags() const
+{
+	unsigned int flags = hoxBoard::hoxBOARD_FEATURE_ALL;
+
+    /* Disable the some features. */
+    flags &= ~hoxBoard::hoxBOARD_FEATURE_RESET;
+    flags &= ~hoxBoard::hoxBOARD_FEATURE_UNSIT;
+
+	return flags;
 }
 
 

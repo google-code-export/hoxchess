@@ -237,6 +237,9 @@ public:
     virtual void OnLocalRequest_NEW()
         {}
     virtual void OnLocalRequest_PRACTICE( const wxString& sSavedFile = "" );
+
+protected:
+    virtual unsigned int GetBoardFeatureFlags() const;
 };
 
 /**
