@@ -142,13 +142,13 @@ public:
      * Callback function from the Board to let this Table know about
      * RESIGN-command button that has been pressed by the "local" player.
      */
-    void OnResignCommand_FromBoard();
+    virtual void OnResignCommand_FromBoard();
 
     /**
      * Callback function from the Board to let this Table know about
      * DRAW-command button that has been pressed by the "local" player.
      */
-    void OnDrawCommand_FromBoard();
+    virtual void OnDrawCommand_FromBoard();
 
     /**
      * Callback function from the Board to let this Table know about
@@ -392,18 +392,13 @@ public:
     
     virtual ~hoxPracticeTable();
 
-    /**
-     * Callback function from the Board to let this Table know about
-     * physical (Board) Moves.
-     *
-     * @param move The current design assumes that the Board has contacted
-     *             the referee to validate the Move.
-	 * @param status The game's status.
-	 * @param playerTime The time of the Player that made the Move.
-     */
+    /* Override the parent' s API */
+
     virtual void OnMove_FromBoard( const hoxMove&     move,
 		                           hoxGameStatus      status,
 					     	       const hoxTimeInfo& playerTime );
+    virtual void OnResignCommand_FromBoard();
+    virtual void OnDrawCommand_FromBoard();
 };
 
 #endif /* __INCLUDED_HOX_TABLE_H__ */

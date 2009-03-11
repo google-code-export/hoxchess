@@ -721,4 +721,19 @@ hoxPracticeTable::OnMove_FromBoard( const hoxMove&     move,
                           playerTime );
 }
 
+void
+hoxPracticeTable::OnResignCommand_FromBoard()
+{
+    const hoxGameStatus gameStatus = (   m_boardPlayer == m_redPlayer
+                                       ? hoxGAME_STATUS_BLACK_WIN 
+                                       : hoxGAME_STATUS_RED_WIN );
+    this->OnGameOver_FromNetwork( gameStatus );
+}
+
+void
+hoxPracticeTable::OnDrawCommand_FromBoard()
+{
+    this->OnGameOver_FromNetwork( hoxGAME_STATUS_DRAWN );
+}
+
 /************************* END OF FILE ***************************************/
