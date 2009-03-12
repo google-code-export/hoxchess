@@ -101,13 +101,12 @@ public:
     void OnNewTable(wxCommandEvent& event);
     void OnCloseTable(wxCommandEvent& event);
 	void OnUpdateNewTable(wxUpdateUIEvent& event);
-    void OnUpdateCloseTable(wxUpdateUIEvent& event);
 
     void OnDisconnectServer(wxCommandEvent& event);
-    void OnUpdateDisconnectServer(wxUpdateUIEvent& event);
+    void OnUpdateRemoveSiteRequired(wxUpdateUIEvent& event);
+    void OnUpdateCloseTable(wxUpdateUIEvent& event);
     void OnConnectServer(wxCommandEvent& event);
     void OnListTables(wxCommandEvent& event);
-	void OnUpdateListTables(wxUpdateUIEvent& event);
 
     void OnShowServersWindow(wxCommandEvent& event);
     void OnUpdateServersWindow(wxUpdateUIEvent& event);
@@ -119,7 +118,6 @@ public:
     void OnUpdatePractice(wxUpdateUIEvent& event);
 
     void OnSaveTable(wxCommandEvent& event);
-    void OnUpdateSaveTable(wxUpdateUIEvent& event);
     void OnOpenSavedTable(wxCommandEvent& event);
     void OnUpdateOpenSavedTable(wxUpdateUIEvent& event);
 
@@ -182,6 +180,11 @@ private:
 
 public: /* Static API */
     static wxMenuBar* Create_Menu_Bar( bool hasTable = false );
+    static void Add_Menu_Item( wxMenu*         parentMenu,
+                               const int       id,
+                               const wxString& name,
+                               const wxString& help,
+                               const wxBitmap& bitmap );
 
 private:
     // Sites.
