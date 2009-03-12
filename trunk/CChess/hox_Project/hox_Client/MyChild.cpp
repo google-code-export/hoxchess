@@ -59,9 +59,6 @@ MyChild::MyChild( wxMDIParentFrame* parent,
     wxMenuBar* menu_bar = MyFrame::Create_Menu_Bar( true /* hasTable */);
     SetMenuBar( menu_bar );
 
-    //CreateStatusBar();
-    //SetStatusText( this->GetTitle() );
-
     // This should work for MDI frames as well as for normal ones.
     SetSizeHints(100, 100);
 }

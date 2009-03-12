@@ -52,45 +52,42 @@
 #include "../resource/bitmaps/folder_open.xpm"
 #include "../resource/bitmaps/connect.xpm"
 #include "../resource/bitmaps/disconnect.xpm"
+#include "../resource/bitmaps/save.xpm"
 
 IMPLEMENT_DYNAMIC_CLASS(MyFrame, wxMDIParentFrame)
 
 BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
-    EVT_MENU(MDI_ABOUT, MyFrame::OnAbout)
-    EVT_MENU(MDI_NEW_TABLE, MyFrame::OnNewTable)
-    EVT_MENU(MDI_CLOSE_TABLE, MyFrame::OnCloseTable)
-	EVT_UPDATE_UI(MDI_NEW_TABLE, MyFrame::OnUpdateNewTable)
+    EVT_MENU(MDI_ABOUT,          MyFrame::OnAbout)
+    EVT_MENU(MDI_NEW_TABLE,      MyFrame::OnNewTable)
+    EVT_MENU(MDI_CLOSE_TABLE,    MyFrame::OnCloseTable)
     EVT_UPDATE_UI(MDI_CLOSE_TABLE, MyFrame::OnUpdateCloseTable)
+	EVT_UPDATE_UI(MDI_NEW_TABLE, MyFrame::OnUpdateNewTable)
 
-    EVT_MENU(MDI_DISCONNECT_SERVER, MyFrame::OnDisconnectServer)
-	EVT_UPDATE_UI(MDI_DISCONNECT_SERVER, MyFrame::OnUpdateDisconnectServer)
-    EVT_MENU(MDI_CONNECT_SERVER, MyFrame::OnConnectServer)
-    EVT_MENU(MDI_LIST_TABLES, MyFrame::OnListTables)
-	EVT_UPDATE_UI(MDI_LIST_TABLES, MyFrame::OnUpdateListTables)
+    EVT_MENU(MDI_DISCONNECT_SERVER,      MyFrame::OnDisconnectServer)
+	EVT_UPDATE_UI(MDI_DISCONNECT_SERVER, MyFrame::OnUpdateRemoveSiteRequired)
+    EVT_MENU(MDI_CONNECT_SERVER,         MyFrame::OnConnectServer)
+    EVT_MENU(MDI_LIST_TABLES,            MyFrame::OnListTables)
+	EVT_UPDATE_UI(MDI_LIST_TABLES,       MyFrame::OnUpdateRemoveSiteRequired)
 
-    EVT_MENU(MDI_SHOW_SERVERS_WINDOW, MyFrame::OnShowServersWindow)
+    EVT_MENU(MDI_SHOW_SERVERS_WINDOW,      MyFrame::OnShowServersWindow)
     EVT_UPDATE_UI(MDI_SHOW_SERVERS_WINDOW, MyFrame::OnUpdateServersWindow)
+    EVT_MENU(MDI_SHOW_LOG_WINDOW,          MyFrame::OnShowLogWindow)
+    EVT_UPDATE_UI(MDI_SHOW_LOG_WINDOW,     MyFrame::OnUpdateShowLogWindow)
 
-    EVT_MENU(MDI_SHOW_LOG_WINDOW, MyFrame::OnShowLogWindow)
-    EVT_UPDATE_UI(MDI_SHOW_LOG_WINDOW, MyFrame::OnUpdateShowLogWindow)
-
-    EVT_MENU(MDI_PRACTICE, MyFrame::OnPractice)
-    EVT_UPDATE_UI(MDI_PRACTICE, MyFrame::OnUpdatePractice)
-
-    EVT_MENU(MDI_SAVE_TABLE, MyFrame::OnSaveTable)
-    EVT_UPDATE_UI(MDI_SAVE_TABLE, MyFrame::OnUpdateSaveTable)
-    EVT_MENU(MDI_OPEN_SAVED_TABLE, MyFrame::OnOpenSavedTable)
+    EVT_MENU(MDI_PRACTICE,              MyFrame::OnPractice)
+    EVT_UPDATE_UI(MDI_PRACTICE,         MyFrame::OnUpdatePractice)
+    EVT_MENU(MDI_SAVE_TABLE,            MyFrame::OnSaveTable)
+    EVT_MENU(MDI_OPEN_SAVED_TABLE,      MyFrame::OnOpenSavedTable)
     EVT_UPDATE_UI(MDI_OPEN_SAVED_TABLE, MyFrame::OnUpdateOpenSavedTable)
 
     EVT_MENU(MDI_QUIT, MyFrame::OnQuit)
-
     EVT_IDLE(MyFrame::OnIdle)
     EVT_CLOSE(MyFrame::OnClose)
     EVT_SIZE(MyFrame::OnSize)
     EVT_SASH_DRAGGED(ID_WINDOW_SITES, MyFrame::OnServersSashDrag)
 
     EVT_CONTEXT_MENU(MyFrame::OnContextMenu)
-    EVT_MENU(MDI_SOUND, MyFrame::OnToggleSound)
+    EVT_MENU(MDI_SOUND,   MyFrame::OnToggleSound)
     EVT_MENU(MDI_OPTIONS, MyFrame::OnOptions)
 END_EVENT_TABLE()
 
@@ -125,6 +122,14 @@ MyFrame::MyFrame( wxWindow*        parent,
     SetAcceleratorTable(accel);
 
     SetMenuBar( MyFrame::Create_Menu_Bar() );
+    // This shows that the standard window menu may be customized:
+    wxMenu* const windowMenu = GetWindowMenu();
+    if ( windowMenu )
+    {
+        windowMenu->Delete(wxID_MDI_WINDOW_ARRANGE_ICONS);
+        SetWindowMenu(windowMenu);
+    }
+
     CreateStatusBar();
 
 	wxLogStatus("%s %s is ready.", HOX_APP_NAME, HOX_VERSION);
@@ -255,50 +260,27 @@ MyFrame::OnUpdateNewTable( wxUpdateUIEvent& event )
     event.Enable( enableMenu );
 }
 
-void 
-MyFrame::OnUpdateCloseTable( wxUpdateUIEvent& event )
-{
-    event.Enable( this->GetActiveChild() != NULL );
-}
-
-void 
-MyFrame::OnUpdateListTables( wxUpdateUIEvent& event )
-{
-    hoxSite* selectedSite = _GetSelectedSite();
-    event.Enable( selectedSite != NULL );
-}
-
 void
 MyFrame::OnChildClose( wxCloseEvent& event,
                        MyChild*      child, 
                        hoxTable_SPtr pTable )
 {
-    wxLogDebug("%s: ENTER.", __FUNCTION__);
+    wxCHECK_RET( pTable, "The table is NULL." );
 
-    wxCHECK_RET( pTable.get() != NULL, "The table is NULL." );
-
-	/* Save the layout. */
-	_SaveDefaultTableLayout( child->GetSize() );
+    _SaveDefaultTableLayout( child->GetSize() );
 
     pTable->OnClose_FromSystem();
     m_children.remove( child );
 
-    /* Inform the Site. */
     hoxSite* site = pTable->GetSite();
     site->CloseTable( pTable );
 
-    event.Skip(); // let the search for the event handler should continue...
-
-    wxLogDebug("%s: END.", __FUNCTION__);
+    event.Skip(); // let the search for the event handler continue...
 }
 
 void 
 MyFrame::OnDisconnectServer( wxCommandEvent& event )
 {
-    wxLogDebug("%s: ENTER.", __FUNCTION__);
-
-    /* Find out which site is selected. */
-
     hoxSite* selectedSite = _GetSelectedSite();
     if ( selectedSite == NULL )
     {
@@ -311,17 +293,22 @@ MyFrame::OnDisconnectServer( wxCommandEvent& event )
      */
     _CloseChildrenOfSite( selectedSite );
 
-    /* Disconnect the site itself. */
     selectedSite->Disconnect();
 }
 
 void 
-MyFrame::OnUpdateDisconnectServer(wxUpdateUIEvent& event)
+MyFrame::OnUpdateRemoveSiteRequired(wxUpdateUIEvent& event)
 {
     hoxSite*  selectedSite = _GetSelectedSite();
-	bool bEnabled = ( selectedSite != NULL
-                   && selectedSite->GetType() != hoxSITE_TYPE_LOCAL );
-    event.Enable( bEnabled );
+    event.Enable(   selectedSite != NULL
+                  && selectedSite->GetType() != hoxSITE_TYPE_LOCAL );
+}
+
+void 
+MyFrame::OnUpdateCloseTable(wxUpdateUIEvent& event)
+{
+    MyChild* child = wxDynamicCast( this->GetActiveChild(), MyChild );
+    event.Enable( child != NULL );
 }
 
 void 
@@ -433,12 +420,6 @@ MyFrame::OnSaveTable( wxCommandEvent& event )
 }
 
 void
-MyFrame::OnUpdateSaveTable( wxUpdateUIEvent& event )
-{
-    event.Enable( this->GetActiveChild() != NULL );
-}
-
-void
 MyFrame::OnOpenSavedTable( wxCommandEvent& event )
 {
     hoxSite* selectedSite = _GetSelectedSite();
@@ -516,21 +497,16 @@ MyFrame::InitToolBar(wxToolBar* toolBar)
 {
     toolBar->AddTool( MDI_CONNECT_SERVER, "Connect", 
                       wxBitmap(connect_xpm), _("Connect Server"));
-
     toolBar->AddTool( MDI_DISCONNECT_SERVER, "Disconnect", 
                       wxBitmap(disconnect_xpm), _("Disconnect Server"));
-
     toolBar->AddSeparator();
 
 	toolBar->AddTool( MDI_LIST_TABLES, "List", 
 		              wxBitmap(folder_open_xpm), _("List Tables"));
-
     toolBar->AddTool( MDI_NEW_TABLE, "New", 
 		              wxBitmap(new_xpm), _("Open Table"));
-
     toolBar->AddTool( MDI_CLOSE_TABLE, "Close", 
 		              wxBitmap(delete_xpm), _("Close Table"));
-
     toolBar->AddSeparator();
 
     toolBar->AddTool( MDI_SOUND, "Sounds",
@@ -550,21 +526,26 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
 {
     /* File menu. */
     wxMenu* file_menu = new wxMenu;
-    
-    wxMenuItem* item = new wxMenuItem( file_menu, MDI_CONNECT_SERVER, _("Connect Server...\tCtrl-L"),
-                                       _("Connect to remote server"));
-    item->SetBitmap(connect_xpm);
-    file_menu->Append(item);
-
+    Add_Menu_Item( file_menu,
+                   MDI_CONNECT_SERVER, _("Connect Server...\tCtrl-L"), _("Connect to remote server"),
+                   connect_xpm );
     file_menu->Append(MDI_DISCONNECT_SERVER, _("&Disconnect Server\tCtrl-D"), _("Disconnect from remote server"));
     file_menu->AppendSeparator();
 	file_menu->Append(MDI_LIST_TABLES, _("List &Tables\tCtrl-T"), _("Get the list of tables"));
     file_menu->Append(MDI_NEW_TABLE, _("&New Table\tCtrl-N"), _("Create New Table"));
-    file_menu->Append(MDI_CLOSE_TABLE, _("&Close Table\tCtrl-C"), _("Close Table"));
+    if ( hasTable )
+    {
+        file_menu->Append(MDI_CLOSE_TABLE, _("&Close Table\tCtrl-C"), _("Close Table"));
+    }
     file_menu->AppendSeparator();
     file_menu->Append(MDI_PRACTICE, _("&Practice with Computer\tCtrl-P"),
                                     _("Practice with your local Computer"));
-    file_menu->Append(MDI_SAVE_TABLE, _("&Save Table..."), _("Save the current table"));
+    if ( hasTable )
+    {
+        Add_Menu_Item( file_menu,
+                       MDI_SAVE_TABLE, _("&Save Table..."), _("Save the current table"),
+                       save_xpm );
+    }
     file_menu->Append(MDI_OPEN_SAVED_TABLE, _("Open Saved Table..."), _("Open a saved table"));
     file_menu->AppendSeparator();
     file_menu->Append(MDI_QUIT, _("&Exit\tAlt-X"), _("Quit the program"));
@@ -581,13 +562,13 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
 
     /* Tools menu. */
     wxMenu* tools_menu = new wxMenu;
-    tools_menu->Append(MDI_OPTIONS, _("&Options...\tCtrl-O"));
+    tools_menu->Append(MDI_OPTIONS, _("&Options...\tCtrl-O"), _("Set options"));
 
     /* Help menu. */
     wxMenu* help_menu = new wxMenu;
-    item = new wxMenuItem(help_menu, MDI_ABOUT, _("&About HOXChess...\tF1"));
-    item->SetBitmap(help_xpm);
-    help_menu->Append(item);
+    Add_Menu_Item( help_menu,
+                   MDI_ABOUT, _("&About HOXChess...\tF1"), wxEmptyString,
+                   help_xpm );
 
     /* The main menu bar */
     wxMenuBar* menu_bar = new wxMenuBar;
@@ -597,6 +578,19 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
     menu_bar->Append(help_menu, _("&Help"));
 
     return menu_bar;
+}
+
+/* static */
+void
+MyFrame::Add_Menu_Item( wxMenu*         parentMenu,
+                        const int       id,
+                        const wxString& name,
+                        const wxString& help,
+                        const wxBitmap& bitmap )
+{
+    wxMenuItem* item = new wxMenuItem( parentMenu, id, name, help );
+    item->SetBitmap( bitmap );
+    parentMenu->Append( item );
 }
 
 void 
