@@ -100,7 +100,7 @@ private:
 
     hoxResult _ParsePlayerMoveEvent( const wxString& sContent,
                                      hoxTable_SPtr&  pTable,
-                                     hoxPlayer*&     player,
+                                     wxString&       playerId,
                                      wxString&       sMove );
 
     hoxResult _ParsePlayerDrawEvent( const wxString& sContent,

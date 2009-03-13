@@ -259,11 +259,11 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
         }
         case hoxREQUEST_MOVE:
         {
-            hoxPlayer*    movePlayer = NULL;
+            wxString      playerId;  // Who sent the Move?
             wxString      sMove;
 
 		    result = _ParsePlayerMoveEvent( sContent,
-									        pTable, movePlayer, sMove );
+									        pTable, playerId, sMove );
 		    if ( result != hoxRC_OK )
 		    {
 			    wxLogDebug("%s: Failed to parse MOVE's event [%s].",
@@ -271,8 +271,8 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
                 break;
 		    }
             wxLogDebug("%s: Player [%s] sent move [%s] in Table [%s].", __FUNCTION__, 
-                movePlayer->GetId().c_str(), sMove.c_str(), pTable->GetId().c_str());
-            pTable->OnMove_FromNetwork( movePlayer, sMove );
+                playerId.c_str(), sMove.c_str(), pTable->GetId().c_str());
+            pTable->OnMove_FromNetwork( sMove );
             break;
         }
         case hoxREQUEST_DRAW:
@@ -359,7 +359,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 		    }
             wxLogDebug("%s: Inform Table [%s] of past Moves [%s].", __FUNCTION__, 
                 pTable->GetId().c_str(), sContent.c_str());
-            pTable->OnPastMoves_FromNetwork( this, moves );
+            pTable->OnPastMoves_FromNetwork( moves );
             break;
         }
         case hoxREQUEST_INVITE:
@@ -728,14 +728,13 @@ hoxMyPlayer::_ParsePlayerMsgEvent( const wxString& sContent,
 hoxResult
 hoxMyPlayer::_ParsePlayerMoveEvent( const wxString& sContent,
                                     hoxTable_SPtr&  pTable,
-                                    hoxPlayer*&     player,
+                                    wxString&       playerId,
                                     wxString&       sMove )
 {
     wxString tableId;
-    wxString playerId;
 
     pTable.reset();
-    player  = NULL;
+    playerId = "";
     sMove   = "";
 
     /* Parse the input string. */
@@ -762,14 +761,6 @@ hoxMyPlayer::_ParsePlayerMoveEvent( const wxString& sContent,
     if ( pTable.get() == NULL )
     {
         wxLogDebug("%s: Table [%s] not found.", __FUNCTION__, tableId.c_str());
-        return hoxRC_NOT_FOUND;
-    }
-
-    /* Lookup Player. */
-    player = this->GetSite()->FindPlayer( playerId );
-    if ( player == NULL ) 
-    {
-        wxLogDebug("%s: Player [%s] not found.", __FUNCTION__, playerId.c_str());
         return hoxRC_NOT_FOUND;
     }
 
