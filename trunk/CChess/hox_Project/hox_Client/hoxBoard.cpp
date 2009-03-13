@@ -1222,7 +1222,7 @@ hoxBoard::_OnValidMove( const hoxMove& move,
     }
 
     /* Play the sound for the MOVE. */
-    if ( m_bSoundEnabled )
+    if ( m_bSoundEnabled && !bSetupMode )
     {
         m_soundMove.Play();   
     }

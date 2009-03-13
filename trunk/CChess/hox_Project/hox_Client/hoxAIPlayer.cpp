@@ -81,7 +81,7 @@ hoxAIPlayer::OnConnectionResponse( wxCommandEvent& event )
 
             hoxTable_SPtr pTable = this->GetFrontTable();
             wxCHECK_RET( pTable, "No front table found" );
-            pTable->OnMove_FromNetwork( this, sMove );
+            pTable->OnMove_FromNetwork( sMove );
             break;
         }
         default:

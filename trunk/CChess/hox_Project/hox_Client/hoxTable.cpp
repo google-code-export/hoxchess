@@ -295,18 +295,14 @@ hoxTable::OnPlayerInviteRequest_FromBoard( const wxString& sPlayerId )
 }
 
 void 
-hoxTable::OnMove_FromNetwork( hoxPlayer*       player,
-                              const wxString&  moveStr )
+hoxTable::OnMove_FromNetwork( const wxString&  moveStr )
 {
-    /* Inform the Board about this Move. */
 	_PostBoard_MoveEvent( moveStr );
 }
 
 void
-hoxTable::OnPastMoves_FromNetwork( hoxPlayer*           player,
-                                   const hoxStringList& moves )
+hoxTable::OnPastMoves_FromNetwork( const hoxStringList& moves )
 {
-    /* Inform the Board about this event. */
     for ( hoxStringList::const_iterator it = moves.begin();
                                         it != moves.end(); ++it )
     {

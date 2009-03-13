@@ -178,24 +178,17 @@ public:
      * Callback function from the NETWORK Player to let this Table know about
      * the newly-received "remote" Moves.
      *
-     * @param player Currently, this player can be the one that made the Move
-	 *               OR can be the Player that informs about the Move.
-	 *               TODO: We need to look at this 'dual-role' issue.
-	 *
      * @param moveStr The string containing the Move.
      */
-    void OnMove_FromNetwork( hoxPlayer*       player,
-                             const wxString&  moveStr );
+    void OnMove_FromNetwork( const wxString&  moveStr );
 
     /**
      * Callback function from the NETWORK Player to let this Table know about
      * the "past/history" Moves.
      *
-     * @param player The player who informs about the Move.
      * @param moves The list of past Moves.
      */
-    void OnPastMoves_FromNetwork( hoxPlayer*           player,
-                                  const hoxStringList& moves );
+    void OnPastMoves_FromNetwork( const hoxStringList& moves );
 
     /**
      * Callback function from the NETWORK Player to let this Table know about
