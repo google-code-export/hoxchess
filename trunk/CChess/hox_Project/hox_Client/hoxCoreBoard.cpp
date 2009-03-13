@@ -382,22 +382,24 @@ hoxCoreBoard::SetPiecesPath(const wxString& piecesPath)
 }
 
 void 
-hoxCoreBoard::LoadPieces()
+hoxCoreBoard::LoadPiecesAndStatus()
 {
     _ClearPieces();  // Clear old pieces.
 
-    /* Load new pices. */
+    hoxGameState gameState;
+    m_referee->GetGameState( gameState );
 
-    hoxPieceInfoList pieceInfoList;
-    hoxColor         nextColor;  // obtained but not used now!
-    
-    m_referee->GetGameState( pieceInfoList, nextColor );
-
-    for ( hoxPieceInfoList::const_iterator it = pieceInfoList.begin();
-                                           it != pieceInfoList.end(); ++it )
+    for ( hoxPieceInfoList::const_iterator it = gameState.pieceList.begin();
+                                           it != gameState.pieceList.end(); ++it )
     {
         hoxPiece* piece = new hoxPiece( (*it) );
         m_pieces.push_back( piece );
+    }
+
+    /* Display the game-status. */
+    if ( hoxIReferee::IsGameOverStatus( gameState.gameStatus ) )
+    {
+        SetGameOver( true );
     }
 }
 
@@ -414,7 +416,7 @@ hoxCoreBoard::ResetBoard()
     m_isGameOver = false;
 
     /* Reload the Pieces according to the Referee. */
-    this->LoadPieces();
+    this->LoadPiecesAndStatus();
 
      wxClientDC dc(this);
     _DrawWorkSpace( dc );

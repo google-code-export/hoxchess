@@ -29,7 +29,6 @@
 #define __INCLUDED_HOX_REFEREE_H__
 
 #include "hoxIReferee.h"
-#include "hoxTypes.h"
 
 namespace BoardInfoAPI
 {
@@ -52,10 +51,9 @@ public:
     virtual void ResetGame( const wxString& sSavedFile = "" );
     virtual bool ValidateMove( hoxMove&       move,
                                hoxGameStatus& status );
-    virtual void GetGameState( hoxPieceInfoList& pieceInfoList,
-                               hoxColor&         nextColor );
-    virtual void GetHistoryMoves( hoxMoveList& moveList );
-    virtual hoxColor GetNextColor();
+    virtual void GetGameState( hoxGameState& gameState ) const;
+    virtual void GetHistoryMoves( hoxMoveList& moveList ) const;
+    virtual hoxColor GetNextColor() const;
     virtual hoxMove StringToMove( const wxString& sMove ) const;
     virtual void GetAvailableNextMoves( hoxMoveVector& moves ) const;
 
