@@ -236,8 +236,7 @@ namespace BoardInfoAPI
         bool ValidateMove( hoxMove&       move,
                            hoxGameStatus& status );
 
-        void GetGameState( hoxPieceInfoList& pieceInfoList,
-                           hoxColor&         nextColor ) const;
+        void GetGameState( hoxGameState& gameState ) const;
 
         hoxMove StringToMove( const wxString& sMove ) const;
 
@@ -286,6 +285,8 @@ namespace BoardInfoAPI
         hoxColor       m_nextColor;
             /* Which side (RED or BLACK) will move next? */
 
+        hoxGameStatus  m_gameStatus;
+
         hoxMoveList    m_historyMoves;  // All (past) Moves made so far.
     };
 
@@ -316,6 +317,7 @@ using namespace BoardInfoAPI;
 
 Board::Board( hoxColor nextColor /* = hoxCOLOR_NONE */ )
         : m_nextColor( nextColor )
+        , m_gameStatus( hoxGAME_STATUS_READY )
 {
 	_InitializePieceCells();
 	_CreateNewGame();  // Initialize Board.
@@ -324,6 +326,7 @@ Board::Board( hoxColor nextColor /* = hoxCOLOR_NONE */ )
 
 Board::Board( const wxString &fileName)
         : m_nextColor( hoxCOLOR_RED )
+        , m_gameStatus( hoxGAME_STATUS_READY )
 {
 	_InitializePieceCells();
     _CreateNewGame();
@@ -452,22 +455,22 @@ Board::_OpenSavedGame( const wxString& fileName )
 }
 
 void 
-Board::GetGameState( hoxPieceInfoList& pieceInfoList,
-                     hoxColor&         nextColor ) const
+Board::GetGameState( hoxGameState& gameState ) const
 {
-    pieceInfoList.clear();    // Clear the old info, if exists.
+    gameState.Clear();    // Clear the old info, if exists.
 
     /* Return all the ACTIVE Pieces. */
     for ( PieceList::const_iterator it = m_pieces.begin();
                                     it != m_pieces.end(); ++it )
     {
-        pieceInfoList.push_back( hoxPieceInfo( (*it)->GetType(), 
-                                               (*it)->GetColor(), 
-                                               (*it)->GetPosition() ) );
+        gameState.pieceList.push_back( hoxPieceInfo( (*it)->GetType(), 
+                                                     (*it)->GetColor(), 
+                                                     (*it)->GetPosition() ) );
     }
 
-    /* Return the Next Color */
-    nextColor = m_nextColor;
+    /* Return other info. */
+    gameState.nextColor  = m_nextColor;
+    gameState.gameStatus = m_gameStatus;
 }
 
 hoxMove
@@ -840,14 +843,16 @@ Board::ValidateMove( hoxMove&       move,
     if ( ! _DoesNextMoveExist() )
     {
         wxLogDebug("%s: The game is over.", __FUNCTION__);
-        status = (  m_nextColor == hoxCOLOR_BLACK 
-                  ? hoxGAME_STATUS_RED_WIN
-                  : hoxGAME_STATUS_BLACK_WIN );
+        m_gameStatus = (  m_nextColor == hoxCOLOR_BLACK 
+                        ? hoxGAME_STATUS_RED_WIN
+                        : hoxGAME_STATUS_BLACK_WIN );
     }
     else
     {
-        status = hoxGAME_STATUS_IN_PROGRESS;
+        m_gameStatus = hoxGAME_STATUS_IN_PROGRESS;
     }
+
+    status = m_gameStatus;
 
     return true;
 }
@@ -1567,20 +1572,19 @@ hoxReferee::ValidateMove( hoxMove&      move,
 }
 
 void 
-hoxReferee::GetGameState( hoxPieceInfoList& pieceInfoList,
-                          hoxColor&         nextColor )
+hoxReferee::GetGameState( hoxGameState& gameState ) const
 {
-    return m_board->GetGameState( pieceInfoList, nextColor );
+    return m_board->GetGameState( gameState );
 }
 
 void
-hoxReferee::GetHistoryMoves( hoxMoveList& moveList )
+hoxReferee::GetHistoryMoves( hoxMoveList& moveList ) const
 {
     m_board->GetHistoryMoves( moveList );
 }
 
 hoxColor 
-hoxReferee::GetNextColor()
+hoxReferee::GetNextColor() const
 {
     return m_board->GetNextColor();
 }

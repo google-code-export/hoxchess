@@ -679,7 +679,7 @@ hoxBoard::Show( bool show /* = true */ )
     if ( !this->IsShown() && show ) // hidden -> shown?
     {
         /* Ask the board to display the pieces. */
-        m_coreBoard->LoadPieces();
+        m_coreBoard->LoadPiecesAndStatus();
 
         /* Create the whole panel with player-info + timers */
         _CreateBoardPanel();

@@ -474,17 +474,15 @@ hoxUtil::hoxPcsPos2XQWLight( const hoxIReferee_SPtr& pReferee,
 {
     /* Get the current positions. */
 
-    hoxPieceInfoList pieceInfoList;
-    hoxColor         nextColor;  // obtained but not used now!
-    
-    pReferee->GetGameState( pieceInfoList, nextColor );
+    hoxGameState  gameState;
+    pReferee->GetGameState( gameState );
 
     /* Convert to array-type positions. */
 
 	int x, y, color, type;
 
-    for ( hoxPieceInfoList::const_iterator it = pieceInfoList.begin();
-                                           it != pieceInfoList.end(); ++it )
+    for ( hoxPieceInfoList::const_iterator it = gameState.pieceList.begin();
+                                           it != gameState.pieceList.end(); ++it )
     {
 		x = (*it).position.x;
 		y = (*it).position.y;

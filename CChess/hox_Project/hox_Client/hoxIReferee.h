@@ -57,20 +57,20 @@ public:
      * Get the current state of the game:
      *   + The info of all 'live' pieces.
      *   + Which side (RED or BLACK) should move next.
+     *   + Whether the game has ended (in-progress, red-win, black-win).
      */
-    virtual void GetGameState( hoxPieceInfoList& pieceInfoList,
-                               hoxColor&         nextColor ) = 0;
+    virtual void GetGameState( hoxGameState& gameState ) const = 0;
 
     /**
      * Get the list of (past) Moves made so far.
      */
-    virtual void GetHistoryMoves( hoxMoveList& moveList ) = 0;
+    virtual void GetHistoryMoves( hoxMoveList& moveList ) const = 0;
 
     /**
      * Get the NEXT color, which specifies who (RED or BLACK) should
      * move next.
      */
-    virtual hoxColor GetNextColor() = 0;
+    virtual hoxColor GetNextColor() const = 0;
 
     /**
      * Convert a string into a Move.

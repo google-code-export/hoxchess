@@ -92,9 +92,10 @@ public:
     void SetPiecesPath( const wxString& piecesPath );
 
     /**
-     * Load pieces according the Referee's list of pieces' positions.
+     * Load pieces according the Referee and set the
+     * game-status accordingly (e.g. showing 'game-over' message).
      */
-    void LoadPieces();
+    void LoadPiecesAndStatus();
 
     /**
      * Reset the Board.

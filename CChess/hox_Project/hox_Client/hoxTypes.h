@@ -132,6 +132,25 @@ class hoxPieceInfo
 
 typedef std::list<hoxPieceInfo> hoxPieceInfoList;
 
+/**
+ * Representing the state of a game.
+ */
+class hoxGameState
+{
+  public:
+    hoxPieceInfoList  pieceList;
+    hoxColor          nextColor;
+    hoxGameStatus     gameStatus;
+
+    hoxGameState() : nextColor( hoxCOLOR_UNKNOWN )
+                   , gameStatus( hoxGAME_STATUS_UNKNOWN ) {}
+    void Clear()
+        {
+            pieceList.clear();
+            nextColor  = hoxCOLOR_UNKNOWN;
+            gameStatus = hoxGAME_STATUS_UNKNOWN;
+        }
+};
 
 /**
  * Representing a (game) MOVE.
@@ -178,12 +197,7 @@ class hoxTimeInfo
 
 	hoxTimeInfo( int g = 0, int m = 0, int f = 0 ) 
         : nGame( g ), nMove( m ), nFree( f ) {}
-	void Clear()
-		{
-			nGame = 0;
-			nMove = 0;
-			nFree = 0;
-		}
+	void Clear() { nGame = nMove = nFree = 0; }
     bool IsEmpty() const 
         { return (nGame == 0) && (nMove == 0) && (nFree == 0); }
 };

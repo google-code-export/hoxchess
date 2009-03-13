@@ -979,15 +979,14 @@ MyFrame::_SaveCurrentTableToDisk( const hoxTable_SPtr& pTable,
                                   const wxString&      fileName ) const
 {
     hoxMoveList      moveList;
-    hoxPieceInfoList pieceInfoList;
-	hoxColor         nextColor;
+    hoxGameState     gameState;
 
     pTable->GetReferee()->GetHistoryMoves( moveList );
-    pTable->GetReferee()->GetGameState( pieceInfoList, nextColor );
+    pTable->GetReferee()->GetGameState( gameState );
 
     hoxSavedTable savedTable( fileName );
     savedTable.SaveGameState( pTable->GetId(), moveList,
-                              pieceInfoList, nextColor );
+                              gameState.pieceList, gameState.nextColor );
 }
 
 /************************* END OF FILE ***************************************/
