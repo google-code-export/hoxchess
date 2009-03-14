@@ -137,8 +137,8 @@ hoxBoard::hoxBoard( wxWindow*        parent,
 {
     wxLogDebug("%s: ENTER.", __FUNCTION__);
     
-    wxCHECK_RET( m_referee.get() != NULL, "A Referee must be set" );
-    wxCHECK_RET( m_pTable.get() != NULL, "A Table must be set" );
+    wxCHECK_RET( m_referee, "A Referee must be set" );
+    wxCHECK_RET( m_pTable, "A Table must be set" );
     wxCHECK_RET( !m_ownerId.empty(), "An Owner must be set" );
 
     /* Create the core board. */
@@ -158,8 +158,8 @@ hoxBoard::hoxBoard( wxWindow*        parent,
     m_soundMove.Create( soundFile );
     wxASSERT_MSG(m_soundMove.IsOk(), "Failed to load sound file " + soundFile);
 
-	// *** NOTE: By default, the Board is NOT visible.
-    wxPanel::Show( false );  // invoke the parent's API.
+    /* Finally, show the UI. */
+    _Show();
 }
 
 hoxBoard::~hoxBoard()
@@ -673,31 +673,26 @@ hoxBoard::OnTimer( wxTimerEvent& event )
     _OnTimerUpdated();
 }
 
-bool 
-hoxBoard::Show( bool show /* = true */ )
+void
+hoxBoard::_Show()
 {
-    if ( !this->IsShown() && show ) // hidden -> shown?
-    {
-        /* Ask the board to display the pieces. */
-        m_coreBoard->LoadPiecesAndStatus();
+    /* Ask the board to display the pieces. */
+    m_coreBoard->LoadPiecesAndStatus();
 
-        /* Create the whole panel with player-info + timers */
-        _CreateBoardPanel();
+    /* Create the whole panel with player-info + timers */
+    _CreateBoardPanel();
 
-        /* Indicate that all UI elements have been created. */
-        m_bUICreated = true;
+    /* Indicate that all UI elements have been created. */
+    m_bUICreated = true;
 
-        /* Set its background color. */
-        wxColour bgPanelCol = wxTheColourDatabase->Find(_T("SKY BLUE"));
-        if ( bgPanelCol.Ok() ) {
-            this->SetBackgroundColour(bgPanelCol);
-        }
-
-        /* NOTE: Force Timer Updated event!!! */
-        _OnTimerUpdated();
+    /* Set its background color. */
+    wxColour bgPanelCol = wxTheColourDatabase->Find(_T("SKY BLUE"));
+    if ( bgPanelCol.Ok() ) {
+        this->SetBackgroundColour(bgPanelCol);
     }
 
-    return wxPanel::Show( show );  // invoke the parent's API.
+    /* NOTE: Force Timer Updated event!!! */
+    _OnTimerUpdated();
 }
 
 void 

@@ -66,7 +66,7 @@ struct SiteInfo
 /* Default sites info. */
 static SiteInfo s_siteList[] =
 {
-    { hoxSITE_TYPE_REMOTE, "HOXChess", "PlayXiangqi.com", "games.playxiangqi.com", "8000", "", "" },
+    { hoxSITE_TYPE_REMOTE, "HOXChess", "PlayXiangqi.com", "games.playxiangqi.com", "80",   "", "" },
     { hoxSITE_TYPE_CHESSCAPE, "Chesscape", "Chesscape.com", "games.chesscape.com", "3534", "", "" },
 };
 

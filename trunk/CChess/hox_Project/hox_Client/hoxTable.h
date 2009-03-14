@@ -86,11 +86,9 @@ public:
     hoxPlayer* GetBlackPlayer() const { return m_blackPlayer; }
 
     /**
-     * View the table's Board (the Table's GUI) by creating a new
-	 * Board using the given 'tableWindow' parameter as the parent Window.
-	 *
+     * Set the table's Board (the Table's GUI).
      */
-    void ViewBoard( hoxBoard* pBoard );
+    void SetBoard( hoxBoard* pBoard );
 
 	void SetGameType(const hoxGameType gameType) { m_gameType = gameType; }
 	hoxGameType GetGameType() const { return m_gameType; }
