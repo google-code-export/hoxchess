@@ -171,6 +171,12 @@ hoxLocalPlayer::InvitePlayer( const wxString& sInviteeId )
 	apRequest->parameters["pid"] = this->GetId();  // Inviter
     apRequest->parameters["invitee"] = sInviteeId; // Invitee
 
+    const hoxTable_SPtr pActiveTable = this->GetActiveTable();
+    if ( pActiveTable )
+    {
+        apRequest->parameters["tid"] = pActiveTable->GetId();
+    }
+
     this->AddRequestToConnection( apRequest );
     return hoxRC_OK;
 }

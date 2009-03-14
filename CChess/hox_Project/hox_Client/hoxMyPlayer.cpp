@@ -106,15 +106,14 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 
     wxLogDebug("%s: Received a command [%s].", __FUNCTION__, sType.c_str());
 
-    /* Lookup Table if the Table-Id is provided. */
+    /* Lookup Table if the Table-Id is provided.
+     * NOTE: It is possible that the table is not found.
+     *       That is the case when, for example, other player is inviting you
+     *       to his/her table.
+     */
     if ( ! sTableId.empty() )
     {
         pTable = m_site->FindTable( sTableId );
-        if ( pTable.get() == NULL )
-        {
-            wxLogDebug("%s: *INFO* Table [%s] not found.", __FUNCTION__, sTableId.c_str());
-            // *** Still allow to continue!
-        }
     }
 
     /* Handle the error-code. */
@@ -123,9 +122,8 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
         const wxString sMessage = "Request " + sType + " failed with code = " + sCode;
         wxLogDebug("%s: %s.", __FUNCTION__, sMessage.c_str());
 
-        if ( pTable.get() != NULL )
+        if ( pTable )
         {
-            // Post the error on the Board.
             pTable->PostBoardMessage( sMessage );
         }
         // *** Allow to continue
@@ -241,20 +239,20 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
         }
         case hoxREQUEST_MSG:
         {
-            wxString      playerId;  // Who sent the message?
+            wxString      senderId;
             wxString      message;
+		    _ParsePlayerMsgEvent( sContent, senderId, message );
 
-		    result = _ParsePlayerMsgEvent( sContent,
-									       pTable, playerId, message );
-		    if ( result != hoxRC_OK )
-		    {
-			    wxLogDebug("%s: Failed to parse MSG's event [%s].",
-                    __FUNCTION__, sContent.c_str());
-                break;
-		    }
-            wxLogDebug("%s: Player [%s] sent msg [%s] in Table [%s].", __FUNCTION__, 
-                playerId.c_str(), message.c_str(), pTable->GetId().c_str());
-            pTable->OnMessage_FromNetwork( playerId, message );
+            wxLogDebug("%s: Player [%s] sent message [%s].", __FUNCTION__, senderId.c_str(), message.c_str());
+            if ( pTable )
+            {
+                pTable->OnMessage_FromNetwork( senderId, message );
+            }
+            else
+            {
+                ::wxMessageBox( message, _("Message from Player"),
+                                wxOK | wxICON_INFORMATION );
+            }
             break;
         }
         case hoxREQUEST_MOVE:
@@ -364,14 +362,21 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
         }
         case hoxREQUEST_INVITE:
         {
-            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            // *** NOTE: The HOXServer does not support INVITATION yet.
-            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            wxString     inviterId;
+            int          nInviterScore = 0;
+            wxString     inviteeId;  /* Not used now but can be used for verification! */
+            _ParseInvitationEvent( sContent, inviterId, nInviterScore, inviteeId );
+
+            const wxString sInvitorTable = ( sTableId.empty() ? "?" : sTableId );
+
             const wxString sMessage =
-                wxString::Format("*INVITE: [%s] (NOT YET SUPPORTED!)", sContent.c_str());
-            if ( pTable )
+                wxString::Format(_("*INVITE from [%s (%d)] to Table [%s]"),
+                inviterId.c_str(), nInviterScore, sInvitorTable.c_str());
+
+            const hoxTable_SPtr pActiveTable = this->GetActiveTable();
+            if ( pActiveTable )
             {
-                pTable->PostBoardMessage( sMessage );
+                pActiveTable->PostBoardMessage( sMessage );
             }
             else
             {
@@ -683,16 +688,12 @@ hoxMyPlayer::_ParsePlayerJoinEvent( const wxString& sContent,
 	return hoxRC_OK;
 }
 
-hoxResult
+void
 hoxMyPlayer::_ParsePlayerMsgEvent( const wxString& sContent,
-                                   hoxTable_SPtr&  pTable,
-                                   wxString&       playerId,
+                                   wxString&       senderId,
                                    wxString&       message )
 {
-    wxString tableId;
-
-    pTable.reset();
-    playerId = "";
+    senderId = "";
     message  = "";
 
     /* Parse the input string. */
@@ -707,22 +708,39 @@ hoxMyPlayer::_ParsePlayerMsgEvent( const wxString& sContent,
 		token = tkz.GetNextToken();
 		switch ( tokenPosition++ )
 		{
-			case 0: tableId  = token;  break;
-			case 1: playerId = token;  break;
-            case 2: message  = token;  break; 
+			case 0: senderId = token;  break;
+            case 1: message  = token;  break; 
 			default: /* Ignore the rest. */ break;
 		}
 	}		
+}
 
-    /* Lookup Table. */
-    pTable = this->GetSite()->FindTable( tableId );
-    if ( pTable.get() == NULL )
-    {
-        wxLogDebug("%s: Table [%s] not found.", __FUNCTION__, tableId.c_str());
-        return hoxRC_NOT_FOUND;
-    }
+void
+hoxMyPlayer::_ParseInvitationEvent( const wxString& sContent,
+                                    wxString&       inviterId,
+                                    int&            nInviterScore,
+                                    wxString&       inviteeId )
+{
+    inviterId  = "";
+    nInviterScore = 0;
+    inviteeId  = "";
 
-	return hoxRC_OK;
+	// ... Do not return empty tokens
+	wxStringTokenizer tkz( sContent, ";", wxTOKEN_STRTOK );
+	int tokenPosition = 0;
+	wxString token;
+
+	while ( tkz.HasMoreTokens() )
+	{
+		token = tkz.GetNextToken();
+		switch ( tokenPosition++ )
+		{
+			case 0: inviterId = token;  break;
+            case 1: nInviterScore = ::atoi(token.c_str()); break;
+            case 2: inviteeId = token;  break; 
+			default: /* Ignore the rest. */ break;
+		}
+	}		
 }
 
 hoxResult
