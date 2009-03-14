@@ -71,10 +71,10 @@ class hoxAIPluginMgr
 {
 public:
 	static hoxAIPluginMgr* GetInstance();
+    static void            DeleteInstance();
     static void SetDefaultPluginName( const wxString& sDefaultName );
-    static const wxString GetDefaultPluginName();
-    ~hoxAIPluginMgr();
-
+    
+    const wxString GetDefaultPluginName() const;
     AIEngineLib_APtr CreateDefaultAIEngineLib();
     wxArrayString GetNamesOfAllAIPlugins() const;
 

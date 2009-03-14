@@ -884,6 +884,13 @@ hoxSiteManager::GetInstance()
 	return m_instance;
 }
 
+/* static */
+void
+hoxSiteManager::DeleteInstance()
+{
+	delete m_instance;
+}
+
 /* private */
 hoxSiteManager::hoxSiteManager()
         : m_sitesUI( NULL )

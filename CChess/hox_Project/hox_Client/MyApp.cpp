@@ -262,8 +262,8 @@ MyApp::OnExit()
      *      system is being shutdowned.
      */
 
-    delete hoxAIPluginMgr::GetInstance();
-	delete hoxSiteManager::GetInstance();
+    hoxAIPluginMgr::DeleteInstance();
+	hoxSiteManager::DeleteInstance();
     _SaveAppOptions();
 	delete m_config; // The changes will be written back automatically
 
