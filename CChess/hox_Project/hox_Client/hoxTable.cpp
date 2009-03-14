@@ -91,12 +91,10 @@ hoxTable::AssignPlayerAs( hoxPlayer* player,
 }
 
 void 
-hoxTable::ViewBoard( hoxBoard* pBoard )
+hoxTable::SetBoard( hoxBoard* pBoard )
 {
 	wxCHECK_RET(m_board == NULL, "The Board has already been set.");
-
     m_board = pBoard;
-    m_board->Show( true );  // Display Board's GUI.
 }
 
 void 

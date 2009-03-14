@@ -178,12 +178,6 @@ public:
 
     void OnTimer( wxTimerEvent& event );
 
-    /****************************************
-     * Override the parent (wxPanel) 's API.
-     ****************************************/
-
-    virtual bool Show(bool show /* = true */);
-
     /*********************************
      * My MAIN public API
      *********************************/
@@ -194,6 +188,7 @@ public:
     void SetFgColor( wxColor color ); // Set Board's Foreground Color
 
 private:
+    void _Show();
     void _SetRedInfo( const hoxPlayerInfo* playerInfo );
     void _SetBlackInfo( const hoxPlayerInfo* playerInfo );
 

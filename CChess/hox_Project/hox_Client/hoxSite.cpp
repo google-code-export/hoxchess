@@ -258,7 +258,6 @@ hoxSite::CreateNewTableWithGUI( const hoxNetworkTableInfo& tableInfo,
     pTable->SetBlackTime( tableInfo.blackTime );
     pTable->SetRedTime( tableInfo.redTime );
 	
-	wxLogDebug("%s: Creating a new Board...", __FUNCTION__);
     unsigned int boardFeatureFlags = this->GetBoardFeatureFlags();
     const wxString sPiecePath = wxGetApp().GetOption("/Board/Piece/path");
     const wxString sBgColor = wxGetApp().GetOption("/Board/Color/background");
@@ -273,13 +272,11 @@ hoxSite::CreateNewTableWithGUI( const hoxNetworkTableInfo& tableInfo,
         					         wxDefaultPosition,
 							         childFrame->GetSize(),
                                      boardFeatureFlags );
-    pTable->ViewBoard( pBoard );
-    
-    bool bSound = wxGetApp().GetOption("sound") == "1";
-    pBoard->EnableSound( bSound );
 
+    pBoard->EnableSound( wxGetApp().GetOption("sound") == "1" );
+
+    pTable->SetBoard( pBoard );
     childFrame->SetTable( pTable );
-    childFrame->Show( true );
 
     hoxSiteManager::GetInstance()->OnTableUICreated( this, pTable );
 
