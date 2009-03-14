@@ -322,6 +322,7 @@ class hoxSiteManager
 {
 public:
 	static hoxSiteManager* GetInstance();
+    static void            DeleteInstance();
     ~hoxSiteManager() {}
 
 	hoxSite* CreateSite( hoxSiteType             siteType, 

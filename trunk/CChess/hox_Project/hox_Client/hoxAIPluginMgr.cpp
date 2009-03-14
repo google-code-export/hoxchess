@@ -86,14 +86,20 @@ hoxAIPluginMgr::GetInstance()
 
 /* static */
 void
+hoxAIPluginMgr::DeleteInstance()
+{
+	delete m_instance;
+}
+
+/* static */
+void
 hoxAIPluginMgr::SetDefaultPluginName( const wxString& sDefaultName )
 {
     m_defaultPluginName = sDefaultName;
 }
 
-/* static */
 const wxString
-hoxAIPluginMgr::GetDefaultPluginName()
+hoxAIPluginMgr::GetDefaultPluginName() const
 {
     return m_defaultPluginName;
 }
@@ -102,10 +108,14 @@ hoxAIPluginMgr::GetDefaultPluginName()
 hoxAIPluginMgr::hoxAIPluginMgr()
 {
     _loadAvailableAIPlugins();
-}
 
-hoxAIPluginMgr::~hoxAIPluginMgr()
-{
+    // Set the default Plugin to be the 1st if none has been specified.
+    if ( m_defaultPluginName.empty() && !m_aiPlugins.empty() )
+    {
+        m_defaultPluginName = m_aiPlugins.begin()->second->m_name;
+        wxLogDebug("%s: *INFO* Select the 1st available Plugin [%s].",
+            __FUNCTION__, m_defaultPluginName.c_str());
+    }
 }
 
 AIEngineLib_APtr
@@ -113,14 +123,7 @@ hoxAIPluginMgr::CreateDefaultAIEngineLib()
 {
     AIEngineLib_APtr apEngine;
 
-    wxString sName = m_defaultPluginName;
-
-    if ( sName.empty() && !m_aiPlugins.empty() )
-    {
-        sName = m_aiPlugins.begin()->second->m_name;
-        wxLogDebug("%s: *INFO* Select the 1st available Plugin [%s].", __FUNCTION__, sName.c_str());
-    }
-
+    const wxString sName = m_defaultPluginName;
     if ( sName.empty() )
     {
         ::wxMessageBox( _("There is no AI Engine available."),

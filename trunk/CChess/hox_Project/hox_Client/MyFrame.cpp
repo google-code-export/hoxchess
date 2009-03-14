@@ -681,7 +681,7 @@ MyFrame::OnOptions( wxCommandEvent& event )
     dlg.m_sBgColor   = wxGetApp().GetOption("/Board/Color/background");
     dlg.m_sFgColor   = wxGetApp().GetOption("/Board/Color/foreground");
     dlg.m_sPiece     = wxGetApp().GetOption("/Board/Piece/path");
-    dlg.m_sDefaultAI = wxGetApp().GetOption("defaultAI");
+    dlg.m_sDefaultAI = hoxAIPluginMgr::GetInstance()->GetDefaultPluginName();
 
     wxGetApp().GetLanguageList( dlg.m_langList );
 
