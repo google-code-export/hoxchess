@@ -93,10 +93,14 @@ private:
                                      int&            nPlayerScore,
                                      hoxColor&       color);
 
-    hoxResult _ParsePlayerMsgEvent( const wxString& sContent,
-                                    hoxTable_SPtr&  pTable,
-                                    wxString&       playerId,
-                                    wxString&       message );
+    void _ParsePlayerMsgEvent( const wxString& sContent,
+                               wxString&       senderId,
+                               wxString&       message );
+
+    void _ParseInvitationEvent( const wxString& sContent,
+                                wxString&       inviterId,
+                                int&            nInviterScore,
+                                wxString&       inviteeId );
 
     hoxResult _ParsePlayerMoveEvent( const wxString& sContent,
                                      hoxTable_SPtr&  pTable,
