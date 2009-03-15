@@ -276,6 +276,7 @@ hoxSite::CreateNewTableWithGUI( const hoxNetworkTableInfo& tableInfo,
 
     pTable->SetBoard( pBoard );
     childFrame->SetTable( pTable );
+    childFrame->Show(true);  // NOTE: Sub-frame won't show by default!
 
     hoxSiteManager::GetInstance()->OnTableUICreated( this, pTable );
 

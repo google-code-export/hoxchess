@@ -222,7 +222,7 @@ void hoxLoginUI::CreateControls()
     wxHyperlinkCtrl* itemHyperlinkCtrl8 = new wxHyperlinkCtrl( itemDialog1, hoxHYPERLINKCTRL, _("www.chesscape.com"), _T("www.chesscape.com"), wxDefaultPosition, wxDefaultSize, wxHL_DEFAULT_STYLE );
     itemGridSizer4->Add(itemHyperlinkCtrl8, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
-    wxCollapsiblePane* itemCollapsiblePane9 = new wxCollapsiblePane( itemDialog1, ID_COLLAPSIBLEPANE, _T(""), wxDefaultPosition, wxDefaultSize, wxCP_DEFAULT_STYLE );
+    wxCollapsiblePane* itemCollapsiblePane9 = new wxCollapsiblePane( itemDialog1, ID_COLLAPSIBLEPANE, _("Server &Address"), wxDefaultPosition, wxDefaultSize, wxCP_DEFAULT_STYLE );
     itemBoxSizer2->Add(itemCollapsiblePane9, 0, wxGROW|wxALL, 5);
 
     wxStaticBox* itemStaticBoxSizer10Static = new wxStaticBox(itemCollapsiblePane9->GetPane(), wxID_ANY, _T(""));
