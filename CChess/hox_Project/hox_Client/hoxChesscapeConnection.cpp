@@ -28,7 +28,6 @@
 #include "hoxChesscapeConnection.h"
 #include "hoxPlayer.h"
 #include "hoxUtil.h"
-#include "hoxNetworkAPI.h"
 
 /* Constants. */
 const wxUint8 START_CHAR = 0x02;

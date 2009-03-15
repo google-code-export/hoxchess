@@ -28,7 +28,6 @@
 #include "hoxSocketConnection.h"
 #include "hoxPlayer.h"
 #include "hoxUtil.h"
-#include "hoxNetworkAPI.h"
 
 IMPLEMENT_DYNAMIC_CLASS(hoxSocketConnection, hoxConnection)
 
