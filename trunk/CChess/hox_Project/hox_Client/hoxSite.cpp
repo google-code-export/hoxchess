@@ -33,7 +33,6 @@
 #include "hoxAIPlayer.h"
 #include "MyFrame.h"
 #include "MyChild.h"
-#include "hoxNetworkAPI.h"
 #include "hoxTablesDialog.h"
 #include "hoxBoard.h"
 #include "hoxSitesUI.h"
