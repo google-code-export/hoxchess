@@ -130,7 +130,7 @@ MyApp::_SetupLanguageAndLocale()
     // false just because it failed to load wxstd catalog
     if ( ! m_locale.Init(m_language, wxLOCALE_CONV_ENCODING) )
     {
-        wxLogError(_("This language is not supported by the system."));
+        wxLogWarning(_("This language is not supported by the system."));
         // NOTE: still allowed to continue!
     }
 
@@ -142,7 +142,7 @@ MyApp::_SetupLanguageAndLocale()
     // Initialize the catalogs we'll be using
     if ( ! m_locale.AddCatalog( HOX_CATALOG_NAME ) )
     {
-        wxLogError(_("Fail to find/load the [%s] catalog."), HOX_CATALOG_NAME);
+        wxLogWarning(_("Fail to find/load the [%s] catalog."), HOX_CATALOG_NAME);
     }
 }
 
