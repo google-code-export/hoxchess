@@ -85,6 +85,9 @@ hoxLocalPlayer::ConnectToServer()
     hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_LOGIN ) );
 	apRequest->parameters["pid"] = this->GetId();
 	apRequest->parameters["password"] = this->GetPassword();
+    apRequest->parameters["version"] =
+        wxString::Format("%s-%s", HOX_APP_NAME, HOX_VERSION);
+    
     this->AddRequestToConnection( apRequest );
 
     return hoxRC_OK;

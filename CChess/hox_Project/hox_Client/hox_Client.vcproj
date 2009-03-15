@@ -219,10 +219,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\hoxNetworkAPI.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\hoxOptionDialog.cpp"
 				>
 			</File>
@@ -354,10 +350,6 @@
 			</File>
 			<File
 				RelativePath=".\hoxMyPlayer.h"
-				>
-			</File>
-			<File
-				RelativePath=".\hoxNetworkAPI.h"
 				>
 			</File>
 			<File
