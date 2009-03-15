@@ -552,7 +552,7 @@ hoxRemoteSite::DisplayListOfTables( const hoxNetworkTableInfoList& tableList )
     MyFrame* frame = wxGetApp().GetFrame();
 	const unsigned int actionFlags = this->GetCurrentActionFlags();
     
-    hoxTablesDialog tablesDlg( frame, wxID_ANY, "Tables", tableList, actionFlags );
+    hoxTablesDialog tablesDlg( frame, wxID_ANY, _("List of Tables"), tableList, actionFlags );
     tablesDlg.ShowModal();
     
     hoxTablesDialog::CommandId selectedCommand = tablesDlg.GetSelectedCommand();

@@ -43,11 +43,12 @@ END_EVENT_TABLE()
 
 static hoxLanguageInfo s_languages[] =
 {
-    { wxLANGUAGE_DEFAULT,    _("(Use Default Language)") },
+    { wxLANGUAGE_DEFAULT,              _("(Use Default Language)") },
     // Adding new languages below ....
 
-    { wxLANGUAGE_ENGLISH,    _("English")                 },
-    { wxLANGUAGE_VIETNAMESE, _("Vietnamese")              },
+    { wxLANGUAGE_ENGLISH,              _("English")                },
+    { wxLANGUAGE_CHINESE_SIMPLIFIED,   _("Chinese (Simplified)")   },
+    { wxLANGUAGE_VIETNAMESE,           _("Vietnamese")             },
 };
 
 ///////////////////////////////////////////////////////////////////////////////

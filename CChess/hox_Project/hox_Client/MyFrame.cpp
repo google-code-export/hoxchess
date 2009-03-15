@@ -498,7 +498,7 @@ MyFrame::InitToolBar(wxToolBar* toolBar)
     toolBar->ToggleTool( MDI_SOUND,
                          wxGetApp().GetOption("sound") == "1" );
     toolBar->AddTool( MDI_QUIT, "Exit", 
-		              wxBitmap(quit_xpm), _("Quit the Program"));
+		              wxBitmap(quit_xpm), _("Quit the program"));
 
     toolBar->Realize();
 }
@@ -598,7 +598,7 @@ MyFrame::OnContextMenu( wxContextMenuEvent& event )
 
 		if ( (actionFlags & hoxSITE_ACTION_CONNECT) != 0 )
 		{
-			menu.Append(MDI_CONNECT_SERVER, _("Connect Remote Server...\tCtrl-L"), 
+			menu.Append(MDI_CONNECT_SERVER, _("Connect Server...\tCtrl-L"), 
 				                            _("Connect to remote server"));
 		}
 		if ( (actionFlags & hoxSITE_ACTION_DISCONNECT) != 0 )
@@ -629,7 +629,7 @@ MyFrame::OnContextMenu( wxContextMenuEvent& event )
     }
 	else
 	{
-		menu.Append(MDI_CONNECT_SERVER, _("Connect Remote Server...\tCtrl-L"), 
+		menu.Append(MDI_CONNECT_SERVER, _("Connect Server...\tCtrl-L"), 
 			                            _("Connect to remote server"));
 	}
 
