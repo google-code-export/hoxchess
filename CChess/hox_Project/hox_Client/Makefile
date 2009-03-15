@@ -33,7 +33,7 @@ MAIN_SRC := \
 	hoxConnection.cpp \
 	hoxCoreBoard.cpp \
 	hoxLocalPlayer.cpp \
-	hoxLoginDialog.cpp \
+	hoxLoginUI.cpp \
 	hoxMyPlayer.cpp \
 	hoxPlayer.cpp \
 	hoxPlayerMgr.cpp \

@@ -211,7 +211,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\hoxLoginDialog.cpp"
+				RelativePath=".\hoxLoginUI.cpp"
 				>
 			</File>
 			<File
@@ -345,7 +345,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\hoxLoginDialog.h"
+				RelativePath=".\hoxLoginUI.h"
 				>
 			</File>
 			<File

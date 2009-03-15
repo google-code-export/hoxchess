@@ -30,7 +30,7 @@
 #include "MyApp.h"    // To access wxGetApp()
 #include "hoxTable.h"
 #include "hoxUtil.h"
-#include "hoxLoginDialog.h"
+#include "hoxLoginUI.h"
 #include "hoxSitesUI.h"
 #include "hoxPlayersUI.h"
 #include "hoxOptionsUI.h"
@@ -314,31 +314,14 @@ MyFrame::OnUpdateCloseTable(wxUpdateUIEvent& event)
 void 
 MyFrame::OnConnectServer( wxCommandEvent& event )
 {
-	/* Ask the user for the server' address and login-info. */
+    hoxLoginUI loginDlg( this );
+    if ( loginDlg.ShowModal() == wxID_CANCEL ) return;
 
-    hoxLoginDialog loginDlg( this, wxID_ANY, 
-                             "Connect to a remote server" );
-	loginDlg.ShowModal();
+    const hoxServerAddress serverAddress( loginDlg.m_sIP,
+                                          ::atoi( loginDlg.m_sPort.c_str() ) );
 
-	if ( loginDlg.GetSelectedCommand() != hoxLoginDialog::COMMAND_ID_LOGIN )
-	{
-		wxLogDebug("%s: Login has been canceled.", __FUNCTION__);
-		return;
-	}
-
-	const hoxSiteType siteType = loginDlg.GetSelectedSiteType();
-	const hoxServerAddress serverAddress( loginDlg.GetSelectedAddress(),
-		                                  loginDlg.GetSelectedPort() );
-	const wxString userName = loginDlg.GetSelectedUserName();
-	const wxString password = loginDlg.GetSelectedPassword();
-
-
-    /* Start connecting... */
-    
-	wxGetApp().ConnectToServer( siteType,
-		                        serverAddress,
-							    userName,
-								password );
+    wxGetApp().ConnectToServer( loginDlg.m_siteType, serverAddress,
+                                loginDlg.m_sUsername, loginDlg.m_sPassword );
 }
 
 void 
