@@ -92,7 +92,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
 
     hoxCommand  command;
 
-    result = hoxNetworkAPI::ParseCommand( apResponse->data, command );
+    result = _ParseCommand( apResponse->data, command );
     if ( result != hoxRC_OK )
     {
         wxLogError("%s: Failed to parse command-data.", __FUNCTION__);
@@ -158,14 +158,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
         case hoxREQUEST_I_TABLE:
         {
 		    std::auto_ptr<hoxNetworkTableInfo> pTableInfo( new hoxNetworkTableInfo() );
-		    result = hoxNetworkAPI::ParseOneNetworkTable( sContent,
-													      *pTableInfo );
-		    if ( result != hoxRC_OK )
-		    {
-			    wxLogDebug("%s: *WARN* Failed to parse [%s]'s event [%s].", 
-				    __FUNCTION__, sType.c_str(), sContent.c_str());
-                break;
-		    }
+            _ParseOneNetworkTable( sContent, *pTableInfo );
 		    m_site->JoinLocalPlayerToTable( *pTableInfo );
 		    break;
         }
@@ -455,6 +448,59 @@ hoxMyPlayer::OnConnectionResponse( wxCommandEvent& event )
     wxLogDebug("%s: END.", __FUNCTION__);
 }
 
+hoxResult
+hoxMyPlayer::_ParseCommand( const wxMemoryBuffer& data,
+                            hoxCommand&           command )
+{
+    /* TODO: Force to convert the buffer to a string. */
+
+    const wxString commandStr =
+        wxString::FromUTF8( (const char*) data.GetData(), data.GetDataLen() );
+    if ( data.GetDataLen() > 0 && commandStr.empty() ) // failed?
+    {
+        wxLogWarning("%s: Fail to convert [%d] bytes of data to string.", 
+            __FUNCTION__, data.GetDataLen());
+        return hoxRC_ERR;
+    }
+
+    wxStringTokenizer tkz( commandStr, "&" );
+
+    while ( tkz.HasMoreTokens() )
+    {
+        wxString token = tkz.GetNextToken();
+
+        size_t foundIndex = token.find( '=' );
+        
+        if ( foundIndex == wxNOT_FOUND )
+            continue;  // ignore this 'error'.
+
+        wxString paramName;
+        wxString paramValue;
+
+        paramName = token.substr( 0, foundIndex );
+        paramValue = token.substr( foundIndex+1 );
+
+        // Special case for "op" param-name.
+        if ( paramName == "op" )
+        {
+            command.type = hoxUtil::StringToRequestType( paramValue );
+
+            if ( command.type == hoxREQUEST_UNKNOWN )
+            {
+                wxLogError("%s: Unsupported command-type = [%s].", __FUNCTION__, paramValue.c_str());
+                return hoxRC_NOT_SUPPORTED;
+            }
+        }
+        else
+        {
+			paramValue.Trim();
+            command.parameters[paramName] = paramValue;
+        }
+    }
+
+    return hoxRC_OK;
+}
+
 void 
 hoxMyPlayer::_HandleResponseEvent_LOGIN( const wxString&         sCode,
                                          const wxString&         sContent,
@@ -548,6 +594,71 @@ hoxMyPlayer::_ParsePlayerLoginEvent( const wxString& sContent,
 	}		
 }
 
+void
+hoxMyPlayer::_ParseOneNetworkTable( const wxString&      tableStr,
+                                    hoxNetworkTableInfo& tableInfo )
+{
+	tableInfo.Clear();
+
+	wxStringTokenizer tkz( tableStr, ";" );
+    int i = 0;
+
+    while ( tkz.HasMoreTokens() )
+    {
+        wxString token = tkz.GetNextToken();
+        switch (i++)
+        {
+            case 0:  // Id
+                tableInfo.id = token; 
+                break;
+
+            case 1:  // Group
+				tableInfo.group = (  token == "0" 
+					               ? hoxGAME_GROUP_PUBLIC 
+								   : hoxGAME_GROUP_PRIVATE ); 
+                break;
+
+            case 2:  // Type
+				tableInfo.gameType = (  token == "0" 
+					               ? hoxGAME_TYPE_RATED 
+								   : hoxGAME_TYPE_NONRATED ); 
+                break;
+
+            case 3:  // Initial-Time
+				tableInfo.initialTime = hoxUtil::StringToTimeInfo( token );
+                break;
+
+            case 4:  // RED-Time
+				tableInfo.redTime = hoxUtil::StringToTimeInfo( token );
+                break;
+
+            case 5:  // BLACK-Time
+				tableInfo.blackTime = hoxUtil::StringToTimeInfo( token );
+                break;
+
+            case 6:  // RED-Id
+                tableInfo.redId = token; 
+                break;
+
+            case 7:  // RED-Score
+				tableInfo.redScore = token; 
+                break;
+
+            case 8:  // BLACK-Id
+                tableInfo.blackId = token;
+                break;
+
+            case 9:  // BLACK-Score
+				tableInfo.blackScore = token;
+                break;
+
+			default:
+				// Ignore the rest
+				break;
+        }
+    }
+}
+
 hoxResult
 hoxMyPlayer::_ParseNetworkTables( const wxString&          responseStr,
                                    hoxNetworkTableInfoList& tableList )
@@ -565,7 +676,7 @@ hoxMyPlayer::_ParseNetworkTables( const wxString&          responseStr,
 	{
         wxString token = tkz.GetNextToken();
 
-        hoxNetworkAPI::ParseOneNetworkTable(token, tableInfo);
+        _ParseOneNetworkTable(token, tableInfo);
 		tableList.push_back( tableInfo );
     }
 

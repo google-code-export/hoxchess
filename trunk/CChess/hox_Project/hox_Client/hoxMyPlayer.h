@@ -57,6 +57,9 @@ public:
     void OnConnectionResponse( wxCommandEvent& event ); 
 
 private:
+    hoxResult _ParseCommand( const wxMemoryBuffer& data, 
+                             hoxCommand&           command );
+
     void _HandleResponseEvent_LOGIN( const wxString&         sCode,
                                      const wxString&         sContent,
                                      const hoxResponse_APtr& apResponse );
@@ -73,6 +76,9 @@ private:
     void _ParsePlayerLoginEvent( const wxString& sContent,
                                  wxString&       playerId,
                                  int&            nPlayerScore );
+
+    void _ParseOneNetworkTable( const wxString&      tableStr,
+                                hoxNetworkTableInfo& tableInfo );
 
     hoxResult _ParseNetworkTables( const wxString&          responseStr,
                                    hoxNetworkTableInfoList& tableList );
