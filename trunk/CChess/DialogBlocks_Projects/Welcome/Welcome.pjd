@@ -224,7 +224,7 @@
           <string name="proxy-Window kind">"wxDialog"</string>
           <string name="proxy-Implementation filename">"C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client\hoxWelcomeUI.cpp"</string>
           <string name="proxy-Header filename">"C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client\hoxWelcomeUI.h"</string>
-          <string name="proxy-XRC filename">"Welcome.xrc"</string>
+          <string name="proxy-XRC filename">""</string>
           <string name="proxy-Title">"Getting Started"</string>
           <bool name="proxy-Centre">1</bool>
           <string name="proxy-Icon">""</string>

@@ -1796,18 +1796,6 @@
         <long name="owns-file">1</long>
         <long name="title-mode">0</long>
         <long name="locked">1</long>
-        <document>
-          <string name="title">"Options.rc"</string>
-          <string name="type">"source-editor-document"</string>
-          <string name="filename">"Options.rc"</string>
-          <string name="icon-name">"source-editor"</string>
-          <long name="is-transient">0</long>
-          <long name="owns-file">0</long>
-          <long name="title-mode">1</long>
-          <long name="locked">0</long>
-          <string name="created">"8/3/2009"</string>
-          <string name="language">""</string>
-        </document>
       </document>
       <document>
         <string name="title">"Images"</string>
