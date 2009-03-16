@@ -184,4 +184,28 @@ hoxLocalPlayer::InvitePlayer( const wxString& sInviteeId )
     return hoxRC_OK;
 }
 
+hoxResult
+hoxLocalPlayer::SendPrivateMessage( const wxString& sOtherId )
+{
+    wxString message; // The message to be sent.
+
+    /* Ask for the message. */
+    ::wxTextEntryDialog dialog(
+        NULL, /* parent */
+        wxString::Format( _("Enter your message for [%s]:"),
+                          sOtherId.c_str()),
+        _("Send a private message") );
+    if ( dialog.ShowModal() != wxID_OK ) return hoxRC_OK;
+    message = dialog.GetValue();
+
+    /* Send the mesage. */
+    hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_MSG ) );
+	apRequest->parameters["pid"] = this->GetId();  // Sender
+    apRequest->parameters["oid"] = sOtherId;   // Receiver
+    apRequest->parameters["msg"] = message;
+
+    this->AddRequestToConnection( apRequest );
+    return hoxRC_OK;
+}
+
 /************************* END OF FILE ***************************************/

@@ -288,8 +288,14 @@ void
 hoxTable::OnPlayerInviteRequest_FromBoard( const wxString& sPlayerId )
 {
     wxCHECK_RET(m_boardPlayer, "The Board Player cannot be NULL.");
-
     m_boardPlayer->InvitePlayer( sPlayerId );
+}
+
+void
+hoxTable::OnPrivateMessageRequest_FromBoard( const wxString& sPlayerId )
+{
+    wxCHECK_RET(m_boardPlayer, "The Board Player cannot be NULL.");
+    m_boardPlayer->SendPrivateMessage( sPlayerId );
 }
 
 void 

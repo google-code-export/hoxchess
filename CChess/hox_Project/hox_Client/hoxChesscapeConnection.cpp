@@ -76,7 +76,7 @@ hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest,
         case hoxREQUEST_LEAVE:         return _Leave( apRequest );
         case hoxREQUEST_MOVE:          return _Move( apRequest );
         case hoxREQUEST_NEW:           return _New( apRequest );
-        case hoxREQUEST_MSG:           return _WallMessage( apRequest );
+        case hoxREQUEST_MSG:           return _SendMessage( apRequest );
         case hoxREQUEST_UPDATE:        return _Update( apRequest );
         case hoxREQUEST_RESIGN:        return _Resign( apRequest );
         case hoxREQUEST_DRAW:          return _Draw( apRequest );
@@ -260,13 +260,24 @@ hoxChesscapeWriter::_Move( hoxRequest_APtr apRequest )
 }
 
 hoxResult   
-hoxChesscapeWriter::_WallMessage( hoxRequest_APtr apRequest )
+hoxChesscapeWriter::_SendMessage( hoxRequest_APtr apRequest )
 {
-	const wxString message = apRequest->parameters["msg"];
+	const wxString sOtherId = apRequest->parameters["oid"];
+    const wxString message = apRequest->parameters["msg"];
 
-	wxLogDebug("%s: Send MESSAGE [%s]...", __FUNCTION__, message.c_str());
-	wxString cmdRequest;
-    cmdRequest.Printf("tMsg?%s", message.c_str());
+    wxString cmdRequest;
+
+    if ( sOtherId.empty() ) // a "table" message?
+    {
+	    wxLogDebug("%s: Send (table) MESSAGE [%s]...", __FUNCTION__, message.c_str());
+        cmdRequest.Printf("tMsg?%s", message.c_str());
+    }
+    else  // a "private/instant" message?
+    {
+	    wxLogDebug("%s: Send (private) MESSAGE [%s] to [%s]...",
+            __FUNCTION__, message.c_str(), sOtherId.c_str());
+        cmdRequest.Printf("iMsg?%s\x10%s", sOtherId.c_str(), message.c_str());
+    }
 
     return _WriteLine( cmdRequest );
 }
