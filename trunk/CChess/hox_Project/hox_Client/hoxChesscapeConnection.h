@@ -59,7 +59,7 @@ private:
 	hoxResult   _Leave( hoxRequest_APtr apRequest );
 	hoxResult   _Move( hoxRequest_APtr apRequest );
     hoxResult   _New( hoxRequest_APtr apRequest );
-	hoxResult   _WallMessage( hoxRequest_APtr apRequest );
+	hoxResult   _SendMessage( hoxRequest_APtr apRequest );
     hoxResult   _Update( hoxRequest_APtr apRequest );
     hoxResult   _Resign( hoxRequest_APtr apRequest );
 	hoxResult   _Draw( hoxRequest_APtr apRequest );

@@ -173,6 +173,12 @@ public:
     void OnPlayerInviteRequest_FromBoard( const wxString& sPlayerId );
 
     /**
+     * Callback function from the Board to let this Table know about
+     * the Send-Private-Message Request.
+     */
+    void OnPrivateMessageRequest_FromBoard( const wxString& sPlayerId );
+
+    /**
      * Callback function from the NETWORK Player to let this Table know about
      * the newly-received "remote" Moves.
      *

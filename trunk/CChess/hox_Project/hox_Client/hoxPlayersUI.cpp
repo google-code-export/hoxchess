@@ -26,13 +26,13 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxPlayersUI.h"
-#include "hoxTypes.h"
 
 /* Menu Items IDs. */
 enum hoxPLAYERS_Menu_Id
 {
     hoxPLAYERS_UI_ID_INFO = 2000,
-    hoxPLAYERS_UI_ID_INVITE
+    hoxPLAYERS_UI_ID_INVITE,
+    hoxPLAYERS_UI_ID_MSG
 };
 
 /* Columns */
@@ -74,11 +74,12 @@ static hoxPLAYERS_ImageInfo s_imageList[] =
 
 /* Event table. */
 BEGIN_EVENT_TABLE(hoxPlayersUI, wxListCtrl)
-    EVT_LEFT_DCLICK(hoxPlayersUI::OnLMouseDClick)
-    EVT_CONTEXT_MENU(hoxPlayersUI::OnContextMenu)
-    EVT_MENU(hoxPLAYERS_UI_ID_INFO, hoxPlayersUI::OnPlayerInfo)
-    EVT_MENU(hoxPLAYERS_UI_ID_INVITE, hoxPlayersUI::OnPlayerInvite)
-    EVT_LIST_COL_CLICK(wxID_ANY, hoxPlayersUI::OnColumnClick)
+    EVT_LEFT_DCLICK(                             hoxPlayersUI::OnLMouseDClick)
+    EVT_CONTEXT_MENU(                            hoxPlayersUI::OnContextMenu)
+    EVT_MENU(           hoxPLAYERS_UI_ID_INFO,   hoxPlayersUI::OnPlayerInfo)
+    EVT_MENU(           hoxPLAYERS_UI_ID_INVITE, hoxPlayersUI::OnPlayerInvite)
+    EVT_MENU(           hoxPLAYERS_UI_ID_MSG,    hoxPlayersUI::OnPlayerMsg)
+    EVT_LIST_COL_CLICK( wxID_ANY,                hoxPlayersUI::OnColumnClick)
 END_EVENT_TABLE()
 
 // ---------------------------------------------------------------------------
@@ -88,10 +89,10 @@ END_EVENT_TABLE()
 int wxCALLBACK
 ComparePlayersCallBack( long item1, 
                         long item2, 
-                        long sortOrder /* not used */ )
+                        long sortOrder )
 {
-    if (item1 < item2)  return sortOrder == PLAYERS_SORT_ASCENDING ? -1 : 1;
-    if (item1 > item2)  return sortOrder == PLAYERS_SORT_ASCENDING ? 1 : -1;
+    if (item1 < item2)  return sortOrder == hoxPlayersUI::PLAYERS_SORT_ASCENDING ? -1 : 1;
+    if (item1 > item2)  return sortOrder == hoxPlayersUI::PLAYERS_SORT_ASCENDING ? 1 : -1;
     return 0;
 }
 
@@ -249,8 +250,9 @@ hoxPlayersUI::OnContextMenu( wxContextMenuEvent& event )
 
     wxMenu menu;
 
-    menu.Append( hoxPLAYERS_UI_ID_INFO, _("&Info\tCtrl-P"), _("Info of Player") );
-    menu.Append( hoxPLAYERS_UI_ID_INVITE, _("&Invite\tCtrl-I"), _("Invite Player") );
+    menu.Append( hoxPLAYERS_UI_ID_INFO, _("&Info"), _("Info of Player") );
+    menu.Append( hoxPLAYERS_UI_ID_INVITE, _("&Invite"), _("Invite Player") );
+    menu.Append( hoxPLAYERS_UI_ID_MSG, _("&Message..."), _("Send a private message") );
 
     PopupMenu(&menu, point.x, point.y);
 }
@@ -276,6 +278,18 @@ hoxPlayersUI::OnPlayerInvite( wxCommandEvent& event )
 
     wxLogDebug("%s: Invite Player [%s]...", __FUNCTION__, sPlayerId.c_str());
     m_owner->OnPlayersUIEvent( EVENT_TYPE_INVITE, sPlayerId );
+}
+
+void
+hoxPlayersUI::OnPlayerMsg( wxCommandEvent& event )
+{
+    if ( m_owner == NULL ) return;
+
+    const wxString sPlayerId = this->GetSelectedPlayer();
+    if ( sPlayerId.empty() ) return;
+
+    wxLogDebug("%s: Send a message to Player [%s]...", __FUNCTION__, sPlayerId.c_str());
+    m_owner->OnPlayersUIEvent( EVENT_TYPE_MSG, sPlayerId );
 }
 
 void

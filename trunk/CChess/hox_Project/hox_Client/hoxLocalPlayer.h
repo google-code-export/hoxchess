@@ -68,6 +68,7 @@ public:
 
     virtual hoxResult QueryPlayerInfo( const wxString& sInfoId );
     virtual hoxResult InvitePlayer( const wxString& sInviteeId );
+    virtual hoxResult SendPrivateMessage( const wxString& sOtherId );
 
 private:
 	bool            m_bRequestingLogout;

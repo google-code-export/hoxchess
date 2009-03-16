@@ -459,6 +459,11 @@ hoxRemoteSite::OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
             m_player->InvitePlayer( sPlayerId );
             break;
         }
+        case hoxPlayersUI::EVENT_TYPE_MSG:
+        {
+            m_player->SendPrivateMessage( sPlayerId );
+            break;
+        }
         default:
             wxLogDebug("%s: Unsupported eventType [%d].", __FUNCTION__, eventType);
     }

@@ -235,15 +235,29 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
             wxString      message;
 		    _ParsePlayerMsgEvent( sContent, senderId, message );
 
+            /* NOTE: For now, just assume that if no 'table' was specified,
+             *       then this is a "private" message.
+             */
+            const bool bPublic = !sTableId.empty();
             wxLogDebug("%s: Player [%s] sent message [%s].", __FUNCTION__, senderId.c_str(), message.c_str());
-            if ( pTable )
+
+            hoxTable_SPtr pReceiveTable = pTable;
+            if ( ! pReceiveTable )
             {
-                pTable->OnMessage_FromNetwork( senderId, message );
+                pReceiveTable = this->GetActiveTable();
+            }
+
+            if ( pReceiveTable )
+            {
+                pReceiveTable->OnMessage_FromNetwork( senderId, message, bPublic );
             }
             else
             {
-                ::wxMessageBox( message, _("Message from Player"),
-                                wxOK | wxICON_INFORMATION );
+                const wxString sCaption =
+                    (   bPublic ? _("Message from Player")
+                                : wxString::Format( _("A private message from [%s]"),
+                                                    senderId.c_str()) );
+                ::wxMessageBox( message, sCaption, wxOK|wxICON_INFORMATION );
             }
             break;
         }
@@ -805,8 +819,6 @@ hoxMyPlayer::_ParsePlayerMsgEvent( const wxString& sContent,
 {
     senderId = "";
     message  = "";
-
-    /* Parse the input string. */
 
 	// ... Do not return empty tokens
 	wxStringTokenizer tkz( sContent, ";", wxTOKEN_STRTOK );

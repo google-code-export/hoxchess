@@ -239,14 +239,17 @@ hoxBoard::OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
     {
         case hoxPlayersUI::EVENT_TYPE_INFO:
         {
-            wxLogDebug("%s: Request Info for Player [%s]...", __FUNCTION__, sPlayerId.c_str());
             m_pTable->OnPlayerInfoRequest_FromBoard( sPlayerId );
             break;
         }
         case hoxPlayersUI::EVENT_TYPE_INVITE:
         {
-            wxLogDebug("%s: Invite Player [%s]...", __FUNCTION__, sPlayerId.c_str());
             m_pTable->OnPlayerInviteRequest_FromBoard( sPlayerId );
+            break;
+        }
+        case hoxPlayersUI::EVENT_TYPE_MSG:
+        {
+            m_pTable->OnPrivateMessageRequest_FromBoard( sPlayerId );
             break;
         }
         default:
