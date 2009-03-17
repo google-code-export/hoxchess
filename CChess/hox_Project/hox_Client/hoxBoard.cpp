@@ -41,6 +41,7 @@
 enum
 {
     ID_BOARD_WALL_INPUT = hoxUI_ID_RANGE_BOARD,
+    ID_BOARD_INPUT_BUTTON,
 
     ID_HISTORY_BEGIN,
     ID_HISTORY_PREV,
@@ -83,6 +84,7 @@ BEGIN_EVENT_TABLE(hoxBoard, wxPanel)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_TABLE_UPDATE, hoxBoard::OnTableUpdate)
 
     EVT_TEXT_ENTER(ID_BOARD_WALL_INPUT, hoxBoard::OnWallInputEnter)
+    EVT_BUTTON(ID_BOARD_INPUT_BUTTON, hoxBoard::OnWallInputEnter)
     EVT_BUTTON(ID_HISTORY_BEGIN, hoxBoard::OnButtonHistory_BEGIN)
     EVT_BUTTON(ID_HISTORY_PREV, hoxBoard::OnButtonHistory_PREV)
     EVT_BUTTON(ID_HISTORY_NEXT, hoxBoard::OnButtonHistory_NEXT)
@@ -492,8 +494,12 @@ hoxBoard::OnTableUpdate( wxCommandEvent &event )
 void 
 hoxBoard::OnWallInputEnter( wxCommandEvent &event )
 {
-    m_wallInput->Clear();
-    m_pTable->OnMessage_FromBoard( event.GetString() );
+    const wxString sText = m_wallInput->GetValue();
+    if ( ! sText.empty() )
+    {
+        m_pTable->OnMessage_FromBoard( sText );
+        m_wallInput->Clear();
+    }
 }
 
 void 
@@ -881,9 +887,15 @@ hoxBoard::_CreateBoardPanel()
                                    wxTE_MULTILINE | wxRAISED_BORDER | wxTE_READONLY 
                                    | wxHSCROLL | wxTE_RICH /* needed for Windows */ );
 
-    m_wallInput  = new wxTextCtrl( boardPanel, ID_BOARD_WALL_INPUT, _T(""),
+    wxBoxSizer* inputSizer  = new wxBoxSizer( wxHORIZONTAL );
+    m_wallInput  = new wxTextCtrl( boardPanel, ID_BOARD_WALL_INPUT,
+                                   _("[Type your message here]"),
                                    wxDefaultPosition, wxDefaultSize,
                                    wxTE_PROCESS_ENTER | wxSUNKEN_BORDER );
+    inputSizer->Add( m_wallInput, 1, wxEXPAND|wxALL, 0 );
+    wxBitmapButton* inputBtn = new wxBitmapButton( boardPanel, ID_BOARD_INPUT_BUTTON,
+                                                   hoxUtil::LoadImage("go-up.png") );
+    inputSizer->Add( inputBtn, 0, wxEXPAND|wxALL, 0 );
 
     /****************************************
      * Arrange the players' info + timers 
@@ -999,7 +1011,7 @@ hoxBoard::_CreateBoardPanel()
         1 );         // set border width
 
     m_wallSizer->Add(
-        m_wallInput,
+        inputSizer,
         0,            // fixed-size vertically
         wxEXPAND |    // make horizontally stretchable
         wxRIGHT|wxLEFT, // and make border
