@@ -148,6 +148,12 @@ private:
 	 *       Thus, this player needs to maintain a "cache" list of players.
 	 */
 
+	bool                             m_bRequestingList;
+			/* Whether this Player is requesting a LIST of tables. */
+
+	bool                             m_bListReceived;
+			/* Whether a LIST has been received from the server. */
+
 	wxString                         m_pendingJoinTableId;
 			/* The Id of the table that this player is requesting to join. */
 

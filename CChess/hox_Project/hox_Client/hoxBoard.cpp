@@ -894,7 +894,7 @@ hoxBoard::_CreateBoardPanel()
                                    wxTE_PROCESS_ENTER | wxSUNKEN_BORDER );
     inputSizer->Add( m_wallInput, 1, wxEXPAND|wxALL, 0 );
     wxBitmapButton* inputBtn = new wxBitmapButton( boardPanel, ID_BOARD_INPUT_BUTTON,
-                                                   hoxUtil::LoadImage("go-up.png") );
+                                                   hoxUtil::LoadImage("go-jump.png") );
     inputSizer->Add( inputBtn, 0, wxEXPAND|wxALL, 0 );
 
     /****************************************
