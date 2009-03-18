@@ -276,7 +276,12 @@ hoxSite::CreateNewTableWithGUI( const hoxNetworkTableInfo& tableInfo,
 
     pTable->SetBoard( pBoard );
     childFrame->SetTable( pTable );
+
+    // TODO: The 1st 'ifdef' to help avoid the "flickering" issue under Windows
+    //       and avoid "the-window-never-show" issue in other platforms.
+#ifndef WIN32
     childFrame->Show(true);  // NOTE: Sub-frame won't show by default!
+#endif
 
     hoxSiteManager::GetInstance()->OnTableUICreated( this, pTable );
 
@@ -430,14 +435,18 @@ hoxRemoteSite::OnResponse_LOGIN( const hoxResponse_APtr& response )
 {
     this->ShowProgressDialog( false );
 
-    if ( response->code != hoxRC_OK )
+    if ( response->code == hoxRC_OK )
+    {
+        (void) m_player->QueryForNetworkTables();
+    }
+    else
     {
         wxString sMessage;
         sMessage.Printf("The response's code for [%s] is ERROR [%s: %s].", 
             hoxUtil::RequestTypeToString(response->type).c_str(), 
             hoxUtil::ResultToStr(response->code),
             response->content.c_str());
-        ::wxMessageBox( sMessage, _("Login error"), wxOK | wxICON_EXCLAMATION );
+        ::wxMessageBox( sMessage, _("Login failure"), wxOK | wxICON_EXCLAMATION );
     }
 }
 

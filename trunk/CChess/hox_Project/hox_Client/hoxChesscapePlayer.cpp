@@ -51,6 +51,8 @@ hoxChesscapePlayer::hoxChesscapePlayer( const wxString& name,
                                         hoxPlayerType   type,
                                         int             score )
             : hoxLocalPlayer( name, type, score )
+            , m_bRequestingList( false )
+            , m_bListReceived( false )
             , m_bRequestingLogin( false )
 			, m_bRequestingNewTable( false )
             , m_playerStatus( hoxPLAYER_STATUS_UNKNOWN )
@@ -76,6 +78,12 @@ hoxChesscapePlayer::ConnectToServer()
 hoxResult 
 hoxChesscapePlayer::QueryForNetworkTables()
 {
+    if ( ! m_bListReceived )
+    {
+        m_bRequestingList = true;
+        return hoxRC_OK;
+    }
+
 	/* Clone the "cache" list and return the cloned */
     std::auto_ptr<hoxNetworkTableInfoList> pTableList( new hoxNetworkTableInfoList );
 
@@ -702,6 +710,13 @@ hoxChesscapePlayer::_HandleCmd_Show(const wxString& cmdStr)
 		token = tkz.GetNextToken();
 		_AddTableToList( token );
 	}
+
+    m_bListReceived = true;
+    if ( m_bRequestingList )
+    {
+        m_bRequestingList = false;
+        (void) this->QueryForNetworkTables();
+    }
 }
 
 void 
