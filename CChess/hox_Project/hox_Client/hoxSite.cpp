@@ -435,9 +435,12 @@ hoxRemoteSite::OnResponse_LOGIN( const hoxResponse_APtr& response )
 {
     this->ShowProgressDialog( false );
 
-    if ( response->code == hoxRC_OK )
+    if ( response->code == hoxRC_OK ) 
     {
-        (void) m_player->QueryForNetworkTables();
+        if ( wxGetApp().GetOption("showTables") == "1" )
+        {
+            (void) m_player->QueryForNetworkTables();
+        }
     }
     else
     {

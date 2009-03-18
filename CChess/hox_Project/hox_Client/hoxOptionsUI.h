@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 // Name:        hoxOptionsUI.h
-// Purpose:     
+// Purpose:     The UI managing all the options/preferences of HOXChess.
 // Author:      Huy Phan
 // Modified by: 
 // Created:     3/9/2009 6:58:33 AM
@@ -41,7 +41,8 @@ class wxColourPickerCtrl;
 #define ID_HOXOPTIONSAPP 10018
 #define m_panelMain 10002
 #define ID_CHECKBOX_SOUND 10003
-#define m_checkBox2 10004
+#define ID_CHECKBOX_WELCOME 10004
+#define ID_CHECKBOX_LIST_ON_LOGIN 10001
 #define ID_STATIC_TEXT_LANG 10005
 #define ID_CHOICE_LANGUAGE 10006
 #define m_panelBoard 10007
@@ -141,6 +142,7 @@ public:
 public:
     bool m_bSound;
     bool m_bWelcome;
+    bool m_bTables;
 ////@end hoxOptionsUI member variables
 
 private:
