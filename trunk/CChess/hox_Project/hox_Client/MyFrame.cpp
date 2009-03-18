@@ -660,6 +660,7 @@ MyFrame::OnOptions( wxCommandEvent& event )
 
     dlg.m_bSound     = (wxGetApp().GetOption("sound") == "1");
     dlg.m_bWelcome   = (wxGetApp().GetOption("welcome") == "1");
+    dlg.m_bTables    = (wxGetApp().GetOption("showTables") == "1");
     dlg.m_language   = wxGetApp().GetCurrentLanguage();
     dlg.m_sBgColor   = wxGetApp().GetOption("/Board/Color/background");
     dlg.m_sFgColor   = wxGetApp().GetOption("/Board/Color/foreground");
@@ -675,6 +676,7 @@ MyFrame::OnOptions( wxCommandEvent& event )
     this->GetToolBar()->ToggleTool( MDI_SOUND, dlg.m_bSound );
 
     wxGetApp().SetOption( "welcome", dlg.m_bWelcome ? "1" : "0" );
+    wxGetApp().SetOption( "showTables", dlg.m_bTables ? "1" : "0" );
 
     if ( dlg.m_language != wxGetApp().GetCurrentLanguage() )
     {
