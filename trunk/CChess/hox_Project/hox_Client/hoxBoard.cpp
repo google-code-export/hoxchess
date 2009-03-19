@@ -108,6 +108,56 @@ BEGIN_EVENT_TABLE(hoxBoard, wxPanel)
 END_EVENT_TABLE()
 
 // ----------------------------------------------------------------------------
+// hoxInputTextCtrl
+// ----------------------------------------------------------------------------
+
+class hoxInputTextCtrl : public wxTextCtrl
+{
+public:
+    hoxInputTextCtrl(wxWindow *parent, wxWindowID id, const wxString &value = wxEmptyString )
+        : wxTextCtrl( parent, id, value,
+                      wxDefaultPosition, wxDefaultSize,
+                      wxTE_PROCESS_ENTER | wxSUNKEN_BORDER
+                        | wxTE_RICH /* needed for Windows */ )
+        , m_bFirstEnter( true )
+    {
+        const wxTextAttr defaultStyle = GetDefaultStyle();
+        SetDefaultStyle(wxTextAttr(wxNullColour, *wxLIGHT_GREY));
+        AppendText( _("[Type your message here]") );
+        SetDefaultStyle(defaultStyle);
+    }
+
+private:
+    void OnMouseEvent( wxMouseEvent& event );
+
+    bool  m_bFirstEnter;
+
+    DECLARE_EVENT_TABLE()
+};
+
+BEGIN_EVENT_TABLE(hoxInputTextCtrl, wxTextCtrl)
+    EVT_MOUSE_EVENTS( hoxInputTextCtrl::OnMouseEvent  )
+END_EVENT_TABLE()
+
+void
+hoxInputTextCtrl::OnMouseEvent( wxMouseEvent& event )
+{
+    event.Skip();
+    if ( event.LeftUp() )
+    {
+        if ( m_bFirstEnter )
+        {
+            m_bFirstEnter = false;
+            Clear();
+        }
+        else if ( ! IsEmpty() )
+        {
+            SelectAll();
+        }
+    }
+}
+
+// ----------------------------------------------------------------------------
 // hoxBoard
 // ----------------------------------------------------------------------------
 
@@ -888,10 +938,7 @@ hoxBoard::_CreateBoardPanel()
                                    | wxHSCROLL | wxTE_RICH /* needed for Windows */ );
 
     wxBoxSizer* inputSizer  = new wxBoxSizer( wxHORIZONTAL );
-    m_wallInput  = new wxTextCtrl( boardPanel, ID_BOARD_WALL_INPUT,
-                                   _("[Type your message here]"),
-                                   wxDefaultPosition, wxDefaultSize,
-                                   wxTE_PROCESS_ENTER | wxSUNKEN_BORDER );
+    m_wallInput  = new hoxInputTextCtrl( boardPanel, ID_BOARD_WALL_INPUT );
     inputSizer->Add( m_wallInput, 1, wxEXPAND|wxALL, 0 );
     wxBitmapButton* inputBtn = new wxBitmapButton( boardPanel, ID_BOARD_INPUT_BUTTON,
                                                    hoxUtil::LoadImage("go-jump.png") );
