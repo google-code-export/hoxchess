@@ -103,7 +103,7 @@ public:
 	void OnUpdateNewTable(wxUpdateUIEvent& event);
 
     void OnDisconnectServer(wxCommandEvent& event);
-    void OnUpdateRemoveSiteRequired(wxUpdateUIEvent& event);
+    void OnUpdateRemoteSiteRequired(wxUpdateUIEvent& event);
     void OnUpdateCloseTable(wxUpdateUIEvent& event);
     void OnConnectServer(wxCommandEvent& event);
     void OnListTables(wxCommandEvent& event);
