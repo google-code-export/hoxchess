@@ -64,10 +64,10 @@ BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
 	EVT_UPDATE_UI(MDI_NEW_TABLE, MyFrame::OnUpdateNewTable)
 
     EVT_MENU(MDI_DISCONNECT_SERVER,      MyFrame::OnDisconnectServer)
-	EVT_UPDATE_UI(MDI_DISCONNECT_SERVER, MyFrame::OnUpdateRemoveSiteRequired)
+	EVT_UPDATE_UI(MDI_DISCONNECT_SERVER, MyFrame::OnUpdateRemoteSiteRequired)
     EVT_MENU(MDI_CONNECT_SERVER,         MyFrame::OnConnectServer)
     EVT_MENU(MDI_LIST_TABLES,            MyFrame::OnListTables)
-	EVT_UPDATE_UI(MDI_LIST_TABLES,       MyFrame::OnUpdateRemoveSiteRequired)
+	EVT_UPDATE_UI(MDI_LIST_TABLES,       MyFrame::OnUpdateRemoteSiteRequired)
 
     EVT_MENU(MDI_SHOW_SERVERS_WINDOW,      MyFrame::OnShowServersWindow)
     EVT_UPDATE_UI(MDI_SHOW_SERVERS_WINDOW, MyFrame::OnUpdateServersWindow)
@@ -297,7 +297,7 @@ MyFrame::OnDisconnectServer( wxCommandEvent& event )
 }
 
 void 
-MyFrame::OnUpdateRemoveSiteRequired(wxUpdateUIEvent& event)
+MyFrame::OnUpdateRemoteSiteRequired(wxUpdateUIEvent& event)
 {
     hoxSite*  selectedSite = _GetSelectedSite();
     event.Enable(   selectedSite != NULL
