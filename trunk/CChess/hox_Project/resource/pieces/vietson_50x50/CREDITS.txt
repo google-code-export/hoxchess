@@ -2,6 +2,12 @@ These images were downloaded from the following site:
 ------------------------------------------------------
 + http://vietson.com/VSCC/Learn.cfm
 
+Note: (Mar 22, 2009)
+---------------------
+ Look like the images in the above site are no longer there.
+ Instead, the site points to "http://brainking.com" site, which
+ seems to be the images ' owner.
+
 
 Conversion from GIF to PNG images:
 ----------------------------------
