@@ -203,13 +203,7 @@ hoxSitesUI::OnTreeSelChanged( wxTreeEvent& event )
     hoxSite* selectedSite = this->GetSelectedSite();
     if ( selectedSite )
     {
-        hoxPlayersUI* playersUI = selectedSite->GetPlayersUI();
-        if ( playersUI )
-        {
-            wxLogDebug("%s: Set active Players-UI to [%s].",
-                __FUNCTION__, selectedSite->GetName().c_str());
-            wxGetApp().GetFrame()->SetActiveSitePlayersUI( playersUI );
-        }
+        wxGetApp().GetFrame()->OnSiteSelectionChanged( selectedSite );
     }
 }
 

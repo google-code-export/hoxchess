@@ -514,7 +514,7 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
                    connect_xpm );
     file_menu->Append(MDI_DISCONNECT_SERVER, _("&Disconnect Server\tCtrl-D"), _("Disconnect from remote server"));
     file_menu->AppendSeparator();
-	file_menu->Append(MDI_LIST_TABLES, _("List &Tables\tCtrl-T"), _("Get the list of tables"));
+    file_menu->Append(MDI_LIST_TABLES, _("List &Tables\tCtrl-T"), _("Get the list of tables"));
     file_menu->Append(MDI_NEW_TABLE, _("&New Table\tCtrl-N"), _("Create New Table"));
     if ( hasTable )
     {
@@ -743,7 +743,28 @@ MyFrame::CreateFrameForTable( const wxString& sTableId )
 }
 
 void
-MyFrame::SetActiveSitePlayersUI( hoxPlayersUI* newPlayersUI )
+MyFrame::OnSiteSelectionChanged( hoxSite* selectedSite )
+{
+    wxASSERT( selectedSite );
+
+    hoxPlayersUI* playersUI = selectedSite->GetPlayersUI();
+    if ( playersUI )
+    {
+        wxLogDebug("%s: Set active Players-UI to [%s].", __FUNCTION__, selectedSite->GetName().c_str());
+        _SetActiveSitePlayersUI( playersUI );
+    }
+
+    if ( selectedSite->GetType() != hoxSITE_TYPE_LOCAL )
+    {
+        wxMenuBar* frameMenu = this->GetMenuBar();
+        frameMenu->Enable( MDI_DISCONNECT_SERVER, true );
+        frameMenu->Enable( MDI_LIST_TABLES, true );
+        frameMenu->Enable( MDI_NEW_TABLE, true );
+    }
+}
+
+void
+MyFrame::_SetActiveSitePlayersUI( hoxPlayersUI* newPlayersUI )
 {
     wxWindow* currentPlayersUI = m_sitesSplitter->GetWindow2();
     bool bNeedToSplit = false;
