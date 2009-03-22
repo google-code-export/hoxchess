@@ -83,9 +83,9 @@ _get_piece_image_path( hoxPieceType  type,
 }
 
 
-//
+// -----------------------------------------------------------------------
 // hoxUtil
-//
+// -----------------------------------------------------------------------
 
 void 
 hoxUtil::SetPiecesPath(const wxString& piecesPath)
@@ -182,80 +182,71 @@ hoxUtil::GenerateRandomNumber( const unsigned int max_value )
     return randNum;
 }
 
-/**
- * Convert a given request-type to a (human-readable) string.
- */
 const wxString 
 hoxUtil::RequestTypeToString( const hoxRequestType requestType )
 {
     switch( requestType )
     {
-        case hoxREQUEST_UNKNOWN:     return "UNKNOWN";
+        case hoxREQUEST_UNKNOWN:       return "UNKNOWN";
 
-        case hoxREQUEST_PLAYER_DATA: return "PLAYER_DATA";
-        case hoxREQUEST_LOGIN:       return "LOGIN";
-        case hoxREQUEST_LOGOUT:      return "LOGOUT";
-        case hoxREQUEST_SHUTDOWN:    return "SHUTDOWN";
-        case hoxREQUEST_MOVE:        return "MOVE";
-        case hoxREQUEST_LIST:        return "LIST";
-        case hoxREQUEST_NEW:         return "NEW";
-        case hoxREQUEST_JOIN:        return "JOIN";
-        case hoxREQUEST_LEAVE:       return "LEAVE";
-        case hoxREQUEST_UPDATE:      return "UPDATE";
-        case hoxREQUEST_RESIGN:      return "RESIGN";
-		case hoxREQUEST_DRAW:        return "DRAW";
-        case hoxREQUEST_RESET:       return "RESET";
-        case hoxREQUEST_E_JOIN:      return "E_JOIN";
-        case hoxREQUEST_E_END:       return "E_END";
-        case hoxREQUEST_E_SCORE:     return "E_SCORE";
-        case hoxREQUEST_I_TABLE:     return "I_TABLE";
-        case hoxREQUEST_I_MOVES:     return "I_MOVES";
-        case hoxREQUEST_INVITE:      return "INVITE";
+        case hoxREQUEST_PLAYER_DATA:   return "PLAYER_DATA";
+        case hoxREQUEST_LOGIN:         return "LOGIN";
+        case hoxREQUEST_LOGOUT:        return "LOGOUT";
+        case hoxREQUEST_SHUTDOWN:      return "SHUTDOWN";
+        case hoxREQUEST_MOVE:          return "MOVE";
+        case hoxREQUEST_LIST:          return "LIST";
+        case hoxREQUEST_NEW:           return "NEW";
+        case hoxREQUEST_JOIN:          return "JOIN";
+        case hoxREQUEST_LEAVE:         return "LEAVE";
+        case hoxREQUEST_UPDATE:        return "UPDATE";
+        case hoxREQUEST_RESIGN:        return "RESIGN";
+		case hoxREQUEST_DRAW:          return "DRAW";
+        case hoxREQUEST_RESET:         return "RESET";
+        case hoxREQUEST_E_JOIN:        return "E_JOIN";
+        case hoxREQUEST_E_END:         return "E_END";
+        case hoxREQUEST_E_SCORE:       return "E_SCORE";
+        case hoxREQUEST_I_TABLE:       return "I_TABLE";
+        case hoxREQUEST_I_MOVES:       return "I_MOVES";
+        case hoxREQUEST_INVITE:        return "INVITE";
         case hoxREQUEST_PLAYER_INFO:   return "PLAYER_INFO";
 		case hoxREQUEST_PLAYER_STATUS: return "PLAYER_STATUS";
-        case hoxREQUEST_MSG:         return "MSG";
+        case hoxREQUEST_MSG:           return "MSG";
 
-        default:                     return "UNKNOWN";
+        default:                       return "UNKNOWN";
     }
 }
 
-/**
- * Convert a given (human-readable) string to a request-type.
- */
 hoxRequestType
 hoxUtil::StringToRequestType( const wxString& input )
 {
-    if ( input == "UNKNOWN" )     return hoxREQUEST_UNKNOWN;
+    if ( input == "UNKNOWN" )       return hoxREQUEST_UNKNOWN;
 
-    if ( input == "PLAYER_DATA" ) return hoxREQUEST_PLAYER_DATA;
-    if ( input == "LOGIN" )       return hoxREQUEST_LOGIN;
-    if ( input == "LOGOUT" )      return hoxREQUEST_LOGOUT;
-    if ( input == "SHUTDOWN" )    return hoxREQUEST_SHUTDOWN;
-    if ( input == "MOVE" )        return hoxREQUEST_MOVE;
-    if ( input == "LIST" )        return hoxREQUEST_LIST;
-    if ( input == "NEW" )         return hoxREQUEST_NEW;
-    if ( input == "JOIN" )        return hoxREQUEST_JOIN;
-    if ( input == "LEAVE" )       return hoxREQUEST_LEAVE;
-    if ( input == "UPDATE" )      return hoxREQUEST_UPDATE;
-    if ( input == "RESIGN" )      return hoxREQUEST_RESIGN;
-	if ( input == "DRAW" )        return hoxREQUEST_DRAW;
-    if ( input == "RESET" )       return hoxREQUEST_RESET;
-    if ( input == "E_JOIN" )      return hoxREQUEST_E_JOIN;
-    if ( input == "E_END" )       return hoxREQUEST_E_END;
-    if ( input == "E_SCORE" )     return hoxREQUEST_E_SCORE;
-    if ( input == "I_TABLE" )     return hoxREQUEST_I_TABLE;
-    if ( input == "I_MOVES" )     return hoxREQUEST_I_MOVES;
-    if ( input == "INVITE" )      return hoxREQUEST_INVITE;
+    if ( input == "PLAYER_DATA" )   return hoxREQUEST_PLAYER_DATA;
+    if ( input == "LOGIN" )         return hoxREQUEST_LOGIN;
+    if ( input == "LOGOUT" )        return hoxREQUEST_LOGOUT;
+    if ( input == "SHUTDOWN" )      return hoxREQUEST_SHUTDOWN;
+    if ( input == "MOVE" )          return hoxREQUEST_MOVE;
+    if ( input == "LIST" )          return hoxREQUEST_LIST;
+    if ( input == "NEW" )           return hoxREQUEST_NEW;
+    if ( input == "JOIN" )          return hoxREQUEST_JOIN;
+    if ( input == "LEAVE" )         return hoxREQUEST_LEAVE;
+    if ( input == "UPDATE" )        return hoxREQUEST_UPDATE;
+    if ( input == "RESIGN" )        return hoxREQUEST_RESIGN;
+	if ( input == "DRAW" )          return hoxREQUEST_DRAW;
+    if ( input == "RESET" )         return hoxREQUEST_RESET;
+    if ( input == "E_JOIN" )        return hoxREQUEST_E_JOIN;
+    if ( input == "E_END" )         return hoxREQUEST_E_END;
+    if ( input == "E_SCORE" )       return hoxREQUEST_E_SCORE;
+    if ( input == "I_TABLE" )       return hoxREQUEST_I_TABLE;
+    if ( input == "I_MOVES" )       return hoxREQUEST_I_MOVES;
+    if ( input == "INVITE" )        return hoxREQUEST_INVITE;
     if ( input == "PLAYER_INFO" )   return hoxREQUEST_PLAYER_INFO;
 	if ( input == "PLAYER_STATUS" ) return hoxREQUEST_PLAYER_STATUS;
-    if ( input == "MSG" )         return hoxREQUEST_MSG;
+    if ( input == "MSG" )           return hoxREQUEST_MSG;
 
     return hoxREQUEST_UNKNOWN;
 }
 
-/**
- * Convert a given game-type to a (human-readable) string.
- */
 const wxString 
 hoxUtil::GameTypeToString( const hoxGameType gameType )
 {
@@ -272,9 +263,6 @@ hoxUtil::GameTypeToString( const hoxGameType gameType )
     }
 }
 
-/**
- * Convert a given Color (Piece's Color or Role) to a (human-readable) string.
- */
 const wxString 
 hoxUtil::ColorToString( const hoxColor color )
 {
@@ -290,9 +278,6 @@ hoxUtil::ColorToString( const hoxColor color )
     }
 }
 
-/**
- * Convert a given (human-readable) string to a Color (Piece's Color or Role).
- */
 hoxColor 
 hoxUtil::StringToColor( const wxString& input )
 {
@@ -306,51 +291,44 @@ hoxUtil::StringToColor( const wxString& input )
 }
 
 const wxString
-hoxUtil::TypeToString( const hoxPieceType type )
+hoxUtil::PieceToString( const hoxPieceType type )
 {
     switch( type )
     {
-		case hoxCOLOR_UNKNOWN:   return "UNKNOWN";
+		case hoxCOLOR_UNKNOWN:  return "UNKNOWN";
 
-		case hoxPIECE_KING:		return "KING";             // King (or General)
-		case hoxPIECE_ADVISOR:	return "ADVISOR";          // Advisor (or Guard, or Mandarin)
-		case hoxPIECE_ELEPHANT:	return "ELEPHANT";         // Elephant (or Ministers)
-		case hoxPIECE_CHARIOT:	return "CHARIOT";          // Chariot ( Rook, or Car)
-		case hoxPIECE_HORSE:	return "HORSE";            // Horse ( Knight )
-		case hoxPIECE_CANNON:	return "CANNON";           // Canon
-		case hoxPIECE_PAWN:		return "PAWN";             // Pawn (or Soldier)
+		case hoxPIECE_KING:		return "KING";     // King (or General)
+		case hoxPIECE_ADVISOR:	return "ADVISOR";  // Advisor (or Guard, or Mandarin)
+		case hoxPIECE_ELEPHANT:	return "ELEPHANT"; // Elephant (or Minister)
+		case hoxPIECE_CHARIOT:	return "ROOT";     // Chariot ( Rook, or Car)
+		case hoxPIECE_HORSE:	return "HORSE";    // Horse ( Knight )
+		case hoxPIECE_CANNON:	return "CANNON";   // Canon
+		case hoxPIECE_PAWN:		return "PAWN";     // Pawn (or Soldier)
 
-        default:                 return "INVALID PIECE";
+        default:                return "UNKNOWN";
     }
 }
 
-/**
- * Convert a given (human-readable) string to a Color (Piece's Color or Role).
- */
 hoxPieceType
-hoxUtil::StringToType( const wxString type )
+hoxUtil::StringToPiece( const wxString& type )
 {
     switch( type[0].GetValue() )
     {
-	case 'K': return hoxPIECE_KING;             // King (or General)
-	case 'A': return hoxPIECE_ADVISOR;          // Advisor (or Guard, or Mandarin)
-	case 'E': return hoxPIECE_ELEPHANT;         // Elephant (or Ministers)
-	case 'C': return (type[1] == 'H'? hoxPIECE_CHARIOT:hoxPIECE_CANNON);          // Chariot ( Rook, or Car) or Cannon
-	case 'H': return hoxPIECE_HORSE;            // Horse ( Knight )
-	case 'P': return hoxPIECE_PAWN;             // Pawn (or Soldier)
+	    case 'K': return hoxPIECE_KING;     // King (or General)
+	    case 'A': return hoxPIECE_ADVISOR;  // Advisor (or Guard, or Mandarin)
+	    case 'E': return hoxPIECE_ELEPHANT; // Elephant (or Minister)
+	    case 'R': return hoxPIECE_CHARIOT;  // Chariot ( Rook, or Car)
+	    case 'C': return hoxPIECE_CANNON;   // Cannon
+	    case 'H': return hoxPIECE_HORSE;    // Horse ( Knight )
+	    case 'P': return hoxPIECE_PAWN;     // Pawn (or Soldier)
 
-    default:  return hoxPIECE_INVALID;
+        default:  return hoxPIECE_INVALID;
     }
 }
-/**
- * Parse a given string of the format "hostname:port" into a host-name
- * and a port.
- *
- * @return true if everything is fine. Otherwise, return false.
- */
+
 bool 
 hoxUtil::ParseServerAddress( const wxString&   input,
-                                hoxServerAddress& serverAddress )
+                             hoxServerAddress& serverAddress )
 {
     const char SEPARATOR = ':';
 
@@ -387,24 +365,13 @@ hoxUtil::StringToTimeInfo( const wxString& input )
 
     while ( tkz.HasMoreTokens() )
     {
-        wxString token = tkz.GetNextToken();
-        switch (i++)
+        const wxString token = tkz.GetNextToken();
+        switch ( i++ )
         {
-			case 0:   // Game-Time
-				timeInfo.nGame = ::atoi(token.c_str());
-				break;
-
-			case 1:   // Move-Time
-				timeInfo.nMove = ::atoi(token.c_str());
-				break;
-
-			case 2:   // Free-Time
-				timeInfo.nFree = ::atoi(token.c_str());
-				break;
-
-			default:
-				// Ignore the rest.
-				break;
+			case 0: timeInfo.nGame = ::atoi(token.c_str()); break;
+			case 1: timeInfo.nMove = ::atoi(token.c_str()); break;
+			case 2: timeInfo.nFree = ::atoi(token.c_str()); break;
+			default: /* Ignore the rest. */ break;
 		}
 	}
 
@@ -414,11 +381,9 @@ hoxUtil::StringToTimeInfo( const wxString& input )
 const wxString 
 hoxUtil::TimeInfoToString( const hoxTimeInfo timeInfo )
 {
-	wxString result = 
-		wxString::Format("%d/%d/%d", timeInfo.nGame, 
-		                             timeInfo.nMove, 
-		                             timeInfo.nFree);
-	return result;
+	return wxString::Format("%d/%d/%d", timeInfo.nGame, 
+		                                timeInfo.nMove, 
+		                                timeInfo.nFree);
 }
 
 const wxString
@@ -482,7 +447,8 @@ hoxUtil::hoxPcsPos2XQWLight( const hoxIReferee_SPtr& pReferee,
 	int x, y, color, type;
 
     for ( hoxPieceInfoList::const_iterator it = gameState.pieceList.begin();
-                                           it != gameState.pieceList.end(); ++it )
+                                           it != gameState.pieceList.end();
+                                         ++it )
     {
 		x = (*it).position.x;
 		y = (*it).position.y;

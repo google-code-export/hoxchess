@@ -132,7 +132,7 @@ hoxResult
 hoxPlayer::JoinTableAs( hoxTable_SPtr pTable,
                         hoxColor      requestColor )
 {
-    wxCHECK_MSG( pTable.get() != NULL, hoxRC_ERR, "The table is NULL." );
+    wxCHECK_MSG( pTable, hoxRC_ERR, "The table is NULL." );
 
     hoxResult result = pTable->AssignPlayerAs( this, requestColor );
     if ( result == hoxRC_OK )

@@ -487,23 +487,20 @@ hoxRemoteSite::OnPlayerJoined( const wxString&  tableId,
                                const int        playerScore,
 				 			   const hoxColor   requestColor)
 {
-    hoxTable_SPtr pTable;
-    hoxPlayer*    player = NULL;
-
 	/* Lookup the Table.
      * Make sure that it must be already created.
      */
-	pTable = this->FindTable( tableId );
-	if ( pTable.get() == NULL )
+	hoxTable_SPtr pTable = this->FindTable( tableId );
+	if ( ! pTable )
 	{
-        wxLogDebug("%s: *** WARN *** Table [%s] NOT exist.", __FUNCTION__, tableId.c_str());
+        wxLogDebug("%s: *WARN* Table [%s] not found.", __FUNCTION__, tableId.c_str());
 		return hoxRC_ERR;
 	}
 
 	/* Lookup the Player (create a new "dummy" player if necessary).
      */
-    player = this->GetPlayerById( playerId, playerScore );
-    wxASSERT( player != NULL );
+    hoxPlayer* player = this->GetPlayerById( playerId, playerScore );
+    wxCHECK_MSG(player, hoxRC_ERR, "Player not found");
 
     /* Attempt to join the table with the requested color.
      */
@@ -603,7 +600,6 @@ hoxRemoteSite::DisplayListOfTables( const hoxNetworkTableInfoList& tableList )
         }
 
         default:
-            wxLogDebug("%s: No command is selected. Fine.", __FUNCTION__);
             break;
     }
 

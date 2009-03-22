@@ -72,7 +72,7 @@ hoxSavedTable::SaveGameState( const wxString&         tableId,
                                            it != pieceInfoList.end(); ++it )
 	{
 		wxXmlNode* pieceNode = new wxXmlNode( wxXML_ELEMENT_NODE,
-                                              hoxUtil::TypeToString(it->type) );
+                                              hoxUtil::PieceToString(it->type) );
 
 		pieceNode->AddAttribute("Color", hoxUtil::ColorToString(it->color));
 		pieceNode->AddAttribute("Row", wxString::Format("%d", it->position.x));
@@ -146,7 +146,7 @@ hoxSavedTable::_LoadPieces( const wxXmlNode*  parentNode,
 	{
         hoxPieceInfo pieceInfo;
 
-		pieceInfo.type = hoxUtil::StringToType( node->GetName() );
+		pieceInfo.type = hoxUtil::StringToPiece( node->GetName() );
 		pieceInfo.color = hoxUtil::StringToColor( node->GetAttribute("Color") );
 
         node->GetAttribute("Row").ToLong( &lVal );
