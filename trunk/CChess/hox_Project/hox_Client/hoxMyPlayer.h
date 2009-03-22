@@ -64,6 +64,7 @@ private:
                              const hoxResponse_APtr& apResponse );
     void _HandleEvent_LOGOUT( const wxString& sContent );
     void _HandleEvent_LIST( const wxString& sContent );
+    void _HandleEvent_I_PLAYERS( const wxString& sContent );
     void _HandleEvent_I_TABLE( const wxString& sContent );
     void _HandleEvent_LEAVE( const wxString& sContent );
     void _HandleEvent_UPDATE( const wxString& sContent );
