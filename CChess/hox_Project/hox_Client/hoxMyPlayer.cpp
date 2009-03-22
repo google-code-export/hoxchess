@@ -22,7 +22,8 @@
 // Name:            hoxMyPlayer.cpp
 // Created:         10/28/2007
 //
-// Description:     The new "advanced" LOCAL Player.
+// Description:     The LOCAL Player specialized to login to
+//                  my "games.PlayXiangqi.com" server
 /////////////////////////////////////////////////////////////////////////////
 
 #include <asio.hpp>
@@ -39,6 +40,19 @@ BEGIN_EVENT_TABLE(hoxMyPlayer, hoxLocalPlayer)
     EVT_COMMAND(hoxREQUEST_PLAYER_DATA, hoxEVT_CONNECTION_RESPONSE, hoxMyPlayer::OnConnectionResponse_PlayerData)
     EVT_COMMAND(wxID_ANY, hoxEVT_CONNECTION_RESPONSE, hoxMyPlayer::OnConnectionResponse)
 END_EVENT_TABLE()
+
+//-----------------------------------------------------------------------------
+// _ContentTokenizer
+//-----------------------------------------------------------------------------
+
+class _ContentTokenizer : public wxStringTokenizer
+{
+public:
+    _ContentTokenizer( const wxString& sContent )
+        : wxStringTokenizer( sContent, ";", wxTOKEN_RET_EMPTY )
+        {}
+    const int GetNextInt() { return ::atoi( GetNextToken().c_str() ); }
+};
 
 //-----------------------------------------------------------------------------
 // hoxMyPlayer
@@ -249,23 +263,9 @@ hoxMyPlayer::_HandleEvent_LOGIN( const wxString&         sCode,
 
     /* Handle data. */
 
-    wxString  sPlayerId;
-	int       nScore = 0;
-
-	wxStringTokenizer tkz( sContent, ";", wxTOKEN_STRTOK /* no empty token */ );
-	int      i = 0;
-	wxString token;
-
-	while ( tkz.HasMoreTokens() )
-	{
-		token = tkz.GetNextToken();
-		switch ( i++ )
-		{
-			case 0: sPlayerId = token;  break;
-            case 1: nScore = ::atoi( token.c_str() ); break; 
-			default: /* Ignore the rest. */ break;
-		}
-	}		
+    _ContentTokenizer tkz( sContent );
+    const wxString sPlayerId = tkz.GetNextToken();
+	const int      nScore    = tkz.GetNextInt();
 
     wxLogDebug("%s: LOGIN from [%s %d].", __FUNCTION__, sPlayerId.c_str(), nScore);
 
@@ -286,7 +286,7 @@ hoxMyPlayer::_HandleEvent_LOGIN( const wxString&         sCode,
 void 
 hoxMyPlayer::_HandleEvent_LOGOUT( const wxString& sContent )
 {
-    const wxString sPlayerId = sContent.BeforeFirst('\n');
+    const wxString sPlayerId = sContent;
     wxLogDebug("%s: LOGOUT from [%s].", __FUNCTION__, sPlayerId.c_str());
     m_site->OnPlayerLoggedOut( sPlayerId );
 }
@@ -322,8 +322,9 @@ hoxMyPlayer::_HandleEvent_I_TABLE( const wxString& sContent )
 void
 hoxMyPlayer::_HandleEvent_LEAVE( const wxString& sContent )
 {
-    const wxString tableId = sContent.BeforeFirst(';');
-    const wxString leaveId = sContent.AfterFirst(';');
+    _ContentTokenizer tkz( sContent );
+    const wxString tableId = tkz.GetNextToken();
+    const wxString leaveId = tkz.GetNextToken();
 
     wxLogDebug("%s: Player [%s] left Table [%s].", __FUNCTION__, 
         leaveId.c_str(), tableId.c_str());
@@ -348,29 +349,13 @@ hoxMyPlayer::_HandleEvent_LEAVE( const wxString& sContent )
 void
 hoxMyPlayer::_HandleEvent_UPDATE( const wxString& sContent )
 {
-    wxString     tableId;
-    wxString     playerId;
-    hoxGameType  gameType = hoxGAME_TYPE_RATED;
-    hoxTimeInfo  newTimeInfo;
-
-	wxStringTokenizer tkz( sContent, ";", wxTOKEN_STRTOK /* no empty token */ );
-	int      i = 0;
-	wxString token;
-
-	while ( tkz.HasMoreTokens() )
-	{
-		token = tkz.GetNextToken();
-		switch ( i++ )
-		{
-			case 0: tableId  = token; break;
-			case 1: playerId = token; break;
-            case 2: gameType = (token == "1") ? hoxGAME_TYPE_RATED
-                                              : hoxGAME_TYPE_NONRATED;
-                    break;
-            case 3: newTimeInfo = hoxUtil::StringToTimeInfo(token); break; 
-			default: /* Ignore the rest. */ break;
-		}
-	}		
+    _ContentTokenizer tkz( sContent );
+    const wxString    tableId  = tkz.GetNextToken();
+    const wxString    playerId = tkz.GetNextToken();
+    const hoxGameType gameType = (  tkz.GetNextToken() == "1"
+                                  ? hoxGAME_TYPE_RATED
+                                  : hoxGAME_TYPE_NONRATED );
+    const hoxTimeInfo newTimeInfo = hoxUtil::StringToTimeInfo( tkz.GetNextToken() );
 
     wxLogDebug("%s: Player [%s] updated Timers to [%s] in Table [%s].", __FUNCTION__, 
         playerId.c_str(), hoxUtil::TimeInfoToString(newTimeInfo).c_str(),
@@ -396,37 +381,21 @@ hoxMyPlayer::_HandleEvent_UPDATE( const wxString& sContent )
 void
 hoxMyPlayer::_HandleEvent_E_JOIN( const wxString& sContent )
 {
-    wxString  tableId;
-    wxString  playerId;
-    int       nPlayerScore = 0;
-    hoxColor  joinColor  = hoxCOLOR_NONE; // Default = observer.
+    _ContentTokenizer tkz( sContent );
+    const wxString tableId  = tkz.GetNextToken();
+    const wxString playerId = tkz.GetNextToken();
+    const int      nScore   = tkz.GetNextInt();
+    const hoxColor color    = hoxUtil::StringToColor( tkz.GetNextToken() );
 
-	wxStringTokenizer tkz( sContent, ";", wxTOKEN_STRTOK /* no empty token */ );
-	int      i = 0;
-	wxString token;
-
-	while ( tkz.HasMoreTokens() )
-	{
-		token = tkz.GetNextToken();
-		switch ( i++ )
-		{
-			case 0: tableId = token;  break;
-			case 1: playerId = token;  break;
-            case 2: nPlayerScore = ::atoi( token.c_str() ); break; 
-            case 3: joinColor = hoxUtil::StringToColor( token ); break;
-			default: /* Ignore the rest. */ break;
-		}
-	}		
-
-    wxLogDebug("%s: Player [%s] joining Table [%s] as [%d].", __FUNCTION__,
-        playerId.c_str(), tableId.c_str(), joinColor);
+    wxLogDebug("%s: Player [%s %d] joining Table [%s] as [%d].", __FUNCTION__,
+        playerId.c_str(), nScore, tableId.c_str(), color);
 
     if ( hoxRC_OK != m_site->OnPlayerJoined( tableId, 
-                                             playerId, nPlayerScore,
-                                             joinColor ) )
+                                             playerId, nScore,
+                                             color ) )
     {
         wxLogDebug("%s: *WARN* Failed to ask table to join as color [%d].",
-            __FUNCTION__, joinColor);
+            __FUNCTION__, color);
         return;
     }
 }
@@ -436,29 +405,16 @@ hoxMyPlayer::_HandleEvent_MSG( const wxString&      sTableId,
                                const wxString&      sContent,
                                const hoxTable_SPtr& pTable )
 {
-    wxString  senderId;
-    wxString  message;
-
-	wxStringTokenizer tkz( sContent, ";", wxTOKEN_STRTOK /* no empty token */ );
-	int      i = 0;
-	wxString token;
-
-	while ( tkz.HasMoreTokens() )
-	{
-		token = tkz.GetNextToken();
-		switch ( i++ )
-		{
-			case 0: senderId = token;  break;
-            case 1: message  = token;  break; 
-			default: /* Ignore the rest. */ break;
-		}
-	}		
+    _ContentTokenizer tkz( sContent );
+    const wxString senderId = tkz.GetNextToken();
+    const wxString message  = tkz.GetNextToken();
 
     /* NOTE: For now, just assume that if no 'table' was specified,
      *       then this is a "private" message.
      */
     const bool bPublic = !sTableId.empty();
-    wxLogDebug("%s: Player [%s] sent message [%s].", __FUNCTION__, senderId.c_str(), message.c_str());
+    wxLogDebug("%s: Player [%s] sent message [%s].", __FUNCTION__,
+        senderId.c_str(), message.c_str());
 
     hoxTable_SPtr pReceiveTable = pTable;
     if ( ! pReceiveTable )
@@ -483,25 +439,10 @@ hoxMyPlayer::_HandleEvent_MSG( const wxString&      sTableId,
 void
 hoxMyPlayer::_HandleEvent_MOVE( const wxString& sContent )
 {
-    wxString  tableId;
-    wxString  playerId;  // Who sent the Move?
-    wxString  sMove;
-
-	wxStringTokenizer tkz( sContent, ";", wxTOKEN_STRTOK /* no empty token */ );
-	int      i = 0;
-	wxString token;
-
-	while ( tkz.HasMoreTokens() )
-	{
-		token = tkz.GetNextToken();
-		switch ( i++ )
-		{
-			case 0: tableId  = token;  break;
-			case 1: playerId = token;  break;
-            case 2: sMove    = token;  break; 
-			default: /* Ignore the rest. */ break;
-		}
-	}		
+    _ContentTokenizer tkz( sContent );
+    const wxString tableId  = tkz.GetNextToken();
+    const wxString playerId = tkz.GetNextToken(); // Who sent the Move?
+    const wxString sMove    = tkz.GetNextToken();
 
     wxLogDebug("%s: Player [%s] sent move [%s] in Table [%s].", __FUNCTION__, 
         playerId.c_str(), sMove.c_str(), tableId.c_str());
@@ -519,25 +460,11 @@ hoxMyPlayer::_HandleEvent_MOVE( const wxString& sContent )
 void
 hoxMyPlayer::_HandleEvent_DRAW( const wxString& sContent )
 {
-    wxString  tableId;
-    wxString  playerId;
+    _ContentTokenizer tkz( sContent );
+    const wxString tableId  = tkz.GetNextToken();
+    const wxString playerId = tkz.GetNextToken();
 
-	wxStringTokenizer tkz( sContent, ";", wxTOKEN_STRTOK /* no empty token */ );
-	int      i = 0;
-	wxString token;
-
-	while ( tkz.HasMoreTokens() )
-	{
-		token = tkz.GetNextToken();
-		switch ( i++ )
-		{
-			case 0: tableId  = token;  break;
-            case 1: playerId = token;  break;
-			default: /* Ignore the rest. */ break;
-		}
-	}		
-
-    wxLogDebug("%s: Player [%s] offering Draw-Request in Table [%s] .", 
+    wxLogDebug("%s: Player [%s] requested 'Draw' in Table [%s].", 
         __FUNCTION__, playerId.c_str(), tableId.c_str());
 
     hoxTable_SPtr pTable = m_site->FindTable( tableId );
@@ -560,7 +487,7 @@ hoxMyPlayer::_HandleEvent_DRAW( const wxString& sContent )
 void
 hoxMyPlayer::_HandleEvent_RESET( const wxString& sContent )
 {
-    const wxString tableId = sContent.BeforeFirst(';');
+    const wxString tableId = sContent;
     wxLogDebug("%s: RESET Table [%s].", __FUNCTION__, tableId.c_str());
 
     hoxTable_SPtr pTable = m_site->FindTable( tableId );
@@ -576,28 +503,13 @@ hoxMyPlayer::_HandleEvent_RESET( const wxString& sContent )
 void
 hoxMyPlayer::_HandleEvent_E_END( const wxString& sContent )
 {
-    wxString  tableId;
-    wxString  sStatus;  // Game-status.
-    wxString  sReason;
+    _ContentTokenizer tkz( sContent );
+    const wxString      tableId = tkz.GetNextToken();
+    const hoxGameStatus status  = hoxUtil::StringToGameStatus( tkz.GetNextToken() );
+    const wxString      sReason = tkz.GetNextToken();
 
-	wxStringTokenizer tkz( sContent, ";", wxTOKEN_STRTOK /* no empty token */ );
-	int      i = 0;
-	wxString token;
-
-	while ( tkz.HasMoreTokens() )
-	{
-		token = tkz.GetNextToken();
-		switch ( i++ )
-		{
-			case 0: tableId  = token;  break;
-            case 1: sStatus  = token;  break;
-            case 2: sReason  = token;  break; 
-			default: /* Ignore the rest. */ break;
-		}
-	}		
-
-    wxLogDebug("%s: Table [%s] ended. Status = [%s]. Reason = [%s]",
-        __FUNCTION__, tableId.c_str(), sStatus.c_str(), sReason.c_str());
+    wxLogDebug("%s: Table [%s] ended. Status = [%d]. Reason = [%s]",
+        __FUNCTION__, tableId.c_str(), status, sReason.c_str());
 
     hoxTable_SPtr pTable = m_site->FindTable( tableId );
     if ( ! pTable )
@@ -606,32 +518,16 @@ hoxMyPlayer::_HandleEvent_E_END( const wxString& sContent )
         return;
     }
 
-    const hoxGameStatus gameStatus = hoxUtil::StringToGameStatus( sStatus );
-    pTable->OnGameOver_FromNetwork( gameStatus );
+    pTable->OnGameOver_FromNetwork( status );
 }
 
 void
 hoxMyPlayer::_HandleEvent_E_SCORE( const wxString& sContent )
 {
-    wxString  tableId;
-    wxString  playerId;
-    int       nScore = 0;
-
-	wxStringTokenizer tkz( sContent, ";", wxTOKEN_STRTOK /* no empty token */ );
-	int      i = 0;
-	wxString token;
-
-	while ( tkz.HasMoreTokens() )
-	{
-		token = tkz.GetNextToken();
-		switch ( i++ )
-		{
-			case 0: tableId  = token;  break;
-            case 1: playerId = token;  break;
-            case 2: nScore   = ::atoi(token.c_str());  break;
-			default: /* Ignore the rest. */ break;
-		}
-	}		
+    _ContentTokenizer tkz( sContent );
+    const wxString tableId  = tkz.GetNextToken();
+    const wxString playerId = tkz.GetNextToken();
+    const int      nScore   = tkz.GetNextInt();
 
     wxLogDebug("%s: Inform table [%s] of player [%s] new Score [%d].", 
         __FUNCTION__, tableId.c_str(), playerId.c_str(), nScore);
@@ -657,23 +553,9 @@ hoxMyPlayer::_HandleEvent_E_SCORE( const wxString& sContent )
 void
 hoxMyPlayer::_HandleEvent_I_MOVES( const wxString& sContent )
 {
-    wxString tableId;
-    wxString sMoves;
-
-	wxStringTokenizer tkz( sContent, ";", wxTOKEN_STRTOK /* no emtpy token */ );
-	int      i = 0;
-	wxString token;
-
-	while ( tkz.HasMoreTokens() )
-	{
-		token = tkz.GetNextToken();
-		switch ( i++ )
-		{
-			case 0: tableId = token;  break;
-            case 1: sMoves  = token;  break;
-			default: /* Ignore the rest. */ break;
-		}
-	}		
+    _ContentTokenizer tkz( sContent );
+    const wxString tableId = tkz.GetNextToken();
+    const wxString sMoves  = tkz.GetNextToken();
 
     wxLogDebug("%s: Inform Table [%s] of past Moves [%s].", __FUNCTION__, 
         tableId.c_str(), sMoves.c_str());
@@ -695,26 +577,12 @@ void
 hoxMyPlayer::_HandleEvent_INVITE( const wxString& sTableId,
                                   const wxString& sContent )
 {
-    wxString  inviterId;
-    int       nInviterScore = 0;
-    wxString  inviteeId;  /* Not used now but can be used for verification! */
+    _ContentTokenizer tkz( sContent );
+    const wxString inviterId     = tkz.GetNextToken();
+    const int      nInviterScore = tkz.GetNextInt();
+    const wxString inviteeId     = tkz.GetNextToken(); 
+            /* TODO: Not used now but can be used for verification! */
     
-	wxStringTokenizer tkz( sContent, ";", wxTOKEN_STRTOK /* no empty token */ );
-	int      i = 0;
-	wxString token;
-
-	while ( tkz.HasMoreTokens() )
-	{
-		token = tkz.GetNextToken();
-		switch ( i++ )
-		{
-			case 0: inviterId = token;  break;
-            case 1: nInviterScore = ::atoi(token.c_str()); break;
-            case 2: inviteeId = token;  break; 
-			default: /* Ignore the rest. */ break;
-		}
-	}		
-
     const wxString sInvitorTable = ( sTableId.empty() ? "?" : sTableId );
 
     const wxString sMessage =
@@ -738,20 +606,9 @@ hoxMyPlayer::_HandleEvent_PLAYER_INFO( const wxString& sContent )
 {
     hoxPlayerStats  playerStats;
 
-	wxStringTokenizer tkz( sContent, ";", wxTOKEN_STRTOK /* no empty token */ );
-	int      i = 0;
-	wxString token;
-
-	while ( tkz.HasMoreTokens() )
-	{
-		token = tkz.GetNextToken();
-		switch ( i++ )
-		{
-			case 0: playerStats.id = token;  break;
-            case 1: playerStats.score = ::atoi( token.c_str() ); break;
-			default: /* Ignore the rest. */ break;
-		}
-	}		
+    _ContentTokenizer tkz( sContent );
+    playerStats.id    = tkz.GetNextToken();
+    playerStats.score = tkz.GetNextInt();
 
     hoxTable_SPtr pTable = this->GetActiveTable();
 
@@ -792,61 +649,31 @@ hoxMyPlayer::_ParseOneNetworkTable( const wxString&      tableStr,
 {
 	tableInfo.Clear();
 
-	wxStringTokenizer tkz( tableStr, ";" );
-    int i = 0;
+    _ContentTokenizer tkz( tableStr );
+    int               i = 0;
 
     while ( tkz.HasMoreTokens() )
     {
-        wxString token = tkz.GetNextToken();
-        switch (i++)
+        const wxString token = tkz.GetNextToken();
+        switch ( i++ )
         {
-            case 0:  // Id
-                tableInfo.id = token; 
+            case 0: tableInfo.id = token; break;
+            case 1:
+				tableInfo.group = ( token == "0" ? hoxGAME_GROUP_PUBLIC 
+								                 : hoxGAME_GROUP_PRIVATE );
                 break;
-
-            case 1:  // Group
-				tableInfo.group = (  token == "0" 
-					               ? hoxGAME_GROUP_PUBLIC 
-								   : hoxGAME_GROUP_PRIVATE ); 
+            case 2:
+				tableInfo.gameType = ( token == "0" ? hoxGAME_TYPE_RATED 
+								                    : hoxGAME_TYPE_NONRATED );
                 break;
-
-            case 2:  // Type
-				tableInfo.gameType = (  token == "0" 
-					               ? hoxGAME_TYPE_RATED 
-								   : hoxGAME_TYPE_NONRATED ); 
-                break;
-
-            case 3:  // Initial-Time
-				tableInfo.initialTime = hoxUtil::StringToTimeInfo( token );
-                break;
-
-            case 4:  // RED-Time
-				tableInfo.redTime = hoxUtil::StringToTimeInfo( token );
-                break;
-
-            case 5:  // BLACK-Time
-				tableInfo.blackTime = hoxUtil::StringToTimeInfo( token );
-                break;
-
-            case 6:  // RED-Id
-                tableInfo.redId = token; 
-                break;
-
-            case 7:  // RED-Score
-				tableInfo.redScore = token; 
-                break;
-
-            case 8:  // BLACK-Id
-                tableInfo.blackId = token;
-                break;
-
-            case 9:  // BLACK-Score
-				tableInfo.blackScore = token;
-                break;
-
-			default:
-				// Ignore the rest
-				break;
+            case 3: tableInfo.initialTime = hoxUtil::StringToTimeInfo( token ); break;
+            case 4: tableInfo.redTime     = hoxUtil::StringToTimeInfo( token ); break;
+            case 5: tableInfo.blackTime   = hoxUtil::StringToTimeInfo( token ); break;
+            case 6: tableInfo.redId       = token; break;
+            case 7: tableInfo.redScore    = token; break;
+            case 8: tableInfo.blackId     = token; break;
+            case 9: tableInfo.blackScore  = token; break;
+			default: /* Ignore the rest */ break;
         }
     }
 }
