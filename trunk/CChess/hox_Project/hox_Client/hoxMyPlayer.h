@@ -30,7 +30,6 @@
 #define __INCLUDED_HOX_MY_PLAYER_H__
 
 #include "hoxLocalPlayer.h"
-#include "hoxTypes.h"
 
 /**
  * The MY player.
@@ -58,14 +57,29 @@ public:
 
 private:
     hoxResult _ParseCommand( const wxMemoryBuffer& data, 
-                             hoxCommand&           command );
+                             hoxCommand&           command ) const;
 
-    void _HandleResponseEvent_LOGIN( const wxString&         sCode,
-                                     const wxString&         sContent,
-                                     const hoxResponse_APtr& apResponse );
-
-    void _HandleResponseEvent_LOGOUT( const wxString&         sContent,
-                                      const hoxResponse_APtr& apResponse );
+    void _HandleEvent_LOGIN( const wxString&         sCode,
+                             const wxString&         sContent,
+                             const hoxResponse_APtr& apResponse );
+    void _HandleEvent_LOGOUT( const wxString& sContent );
+    void _HandleEvent_LIST( const wxString& sContent );
+    void _HandleEvent_I_TABLE( const wxString& sContent );
+    void _HandleEvent_LEAVE( const wxString& sContent );
+    void _HandleEvent_UPDATE( const wxString& sContent );
+    void _HandleEvent_E_JOIN( const wxString& sContent );
+    void _HandleEvent_MSG( const wxString&      sTableId,
+                           const wxString&      sContent,
+                           const hoxTable_SPtr& pTable );
+    void _HandleEvent_MOVE( const wxString& sContent );
+    void _HandleEvent_DRAW( const wxString& sContent );
+    void _HandleEvent_RESET( const wxString& sContent );
+    void _HandleEvent_E_END( const wxString& sContent );
+    void _HandleEvent_E_SCORE( const wxString& sContent );
+    void _HandleEvent_I_MOVES( const wxString& sContent );
+    void _HandleEvent_INVITE( const wxString& sTableId,
+                              const wxString& sContent );
+    void _HandleEvent_PLAYER_INFO( const wxString& sContent );
 
 	/* Private event-handlers */
 
@@ -73,69 +87,8 @@ private:
 
     /* Private parsers */
 
-    void _ParsePlayerLoginEvent( const wxString& sContent,
-                                 wxString&       playerId,
-                                 int&            nPlayerScore );
-
     void _ParseOneNetworkTable( const wxString&      tableStr,
                                 hoxNetworkTableInfo& tableInfo );
-
-    hoxResult _ParseNetworkTables( const wxString&          responseStr,
-                                   hoxNetworkTableInfoList& tableList );
-
-    hoxResult _ParsePlayerLeaveEvent( const wxString& sContent,
-                                      hoxTable_SPtr&  pTable,
-                                      hoxPlayer*&     player );
-
-    hoxResult _ParseTableUpdateEvent( const wxString& sContent,
-                                      hoxTable_SPtr&  pTable,
-                                      hoxPlayer*&     player,
-                                      bool&           bRatedGame,
-                                      hoxTimeInfo&    newTimeInfo );
-
-    hoxResult _ParsePlayerJoinEvent( const wxString& sContent,
-                                     wxString&       tableId,
-                                     wxString&       playerId,
-                                     int&            nPlayerScore,
-                                     hoxColor&       color);
-
-    void _ParsePlayerMsgEvent( const wxString& sContent,
-                               wxString&       senderId,
-                               wxString&       message );
-
-    void _ParseInvitationEvent( const wxString& sContent,
-                                wxString&       inviterId,
-                                int&            nInviterScore,
-                                wxString&       inviteeId );
-
-    hoxResult _ParsePlayerMoveEvent( const wxString& sContent,
-                                     hoxTable_SPtr&  pTable,
-                                     wxString&       playerId,
-                                     wxString&       sMove );
-
-    hoxResult _ParsePlayerDrawEvent( const wxString& sContent,
-                                     hoxTable_SPtr&  pTable,
-                                     hoxPlayer*&     player );
-
-    hoxResult _ParsePlayerEndEvent( const wxString& sContent,
-                                    hoxTable_SPtr&  pTable,
-                                    hoxGameStatus&  gameStatus,
-                                    wxString&       sReason );
-
-    hoxResult _ParsePlayerResetEvent( const wxString& sContent,
-                                      hoxTable_SPtr&  pTable );
-
-    hoxResult _ParsePlayerScoreEvent( const wxString& sContent,
-                                      hoxTable_SPtr&  pTable,
-                                      hoxPlayer*&     player,
-                                      int&            nScore );
-
-    hoxResult _ParsePastMovesEvent( const wxString& sContent,
-                                    hoxTable_SPtr&  pTable,
-                                    hoxStringList&  moves );
-
-    void _ParsePlayerInfoEvent( const wxString& sContent,
-                                 hoxPlayerStats& playerStats );
 
     hoxResult _ParseMovesString( const wxString& sMoves,
                                  hoxStringList&  moves );

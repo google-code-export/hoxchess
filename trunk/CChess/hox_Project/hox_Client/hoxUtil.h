@@ -25,13 +25,12 @@
 // Description:     Containing various helper API used in the project.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_UTIL_H_
-#define __INCLUDED_HOX_UTIL_H_
+#ifndef __INCLUDED_HOX_UTIL_H__
+#define __INCLUDED_HOX_UTIL_H__
 
 #include <wx/wx.h>
 #include <wx/image.h>
 #include <wx/uri.h>
-#include "hoxEnums.h"
 #include "hoxTypes.h"
 
 namespace hoxUtil
@@ -89,12 +88,13 @@ namespace hoxUtil
     /**
      * Convert a given Piece's Type to a (human-readable) string.
      */
-    const wxString TypeToString( const hoxPieceType type );
+    const wxString PieceToString( const hoxPieceType type );
 
 	/**
      * Convert a given (human-readable) string to a Piece's Type.
      */
-    hoxPieceType StringToType( const wxString type );
+    hoxPieceType StringToPiece( const wxString& type );
+
     /**
      * Parse a given string of the format "hostname:port" into a host-name
      * and a port.
@@ -147,4 +147,4 @@ namespace hoxUtil
 
 }
 
-#endif /* __INCLUDED_HOX_UTIL_H_ */
+#endif /* __INCLUDED_HOX_UTIL_H__ */

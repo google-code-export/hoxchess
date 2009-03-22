@@ -85,16 +85,16 @@ hoxChesscapePlayer::QueryForNetworkTables()
     }
 
 	/* Clone the "cache" list and return the cloned */
-    std::auto_ptr<hoxNetworkTableInfoList> pTableList( new hoxNetworkTableInfoList );
+    hoxNetworkTableInfoList tableList;
 
 	for ( hoxNetworkTableInfoList::const_iterator it = m_networkTables.begin();
 		                                          it != m_networkTables.end(); 
 												++it )
 	{
-		pTableList->push_back( (*it) );
+		tableList.push_back( (*it) );
 	}
 	
-    return m_site->DisplayListOfTables( *pTableList );
+    return m_site->DisplayListOfTables( tableList );
 }
 
 hoxResult 
