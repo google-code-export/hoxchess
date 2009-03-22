@@ -146,7 +146,9 @@ public:
      */
     MyChild* CreateFrameForTable( const wxString& sTableId );
 
-    void SetActiveSitePlayersUI( hoxPlayersUI* newPlayersUI );
+    void OnSiteSelectionChanged( hoxSite* selectedSite );
+
+    void _SetActiveSitePlayersUI( hoxPlayersUI* newPlayersUI );
     hoxPlayersUI* CreateNewSitePlayersUI();
     void DeleteSitePlayersUI( hoxPlayersUI* toDeletePlayersUI );
 
