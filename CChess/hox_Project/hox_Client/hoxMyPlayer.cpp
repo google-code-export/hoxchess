@@ -221,8 +221,14 @@ hoxMyPlayer::_ParseCommand( const wxMemoryBuffer& data,
         paramName = token.BeforeFirst( '=' );
         paramValue = token.AfterFirst( '=' );
 
-        // Special case for "op" param-name.
-        if ( paramName == "op" )
+        /* !!!!!!!!!! wxWidgets' BUG ??? !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+         * NOTE: I have to trim (from left). Otherwise, wxStringTokenizer
+         *       sometimes inserts the '\n' in front of the token.
+         *       For example, instead of getting 'op', I got '\nop'.
+         * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
+        paramName.Trim( false /* from left */ );
+
+        if ( paramName == "op" ) // Special case for "op" param-name.
         {
             command.type = hoxUtil::StringToRequestType( paramValue );
             if ( command.type == hoxREQUEST_UNKNOWN )
