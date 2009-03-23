@@ -94,7 +94,8 @@ hoxChesscapePlayer::QueryForNetworkTables()
 		tableList.push_back( (*it) );
 	}
 	
-    return m_site->DisplayListOfTables( tableList );
+    m_site->DisplayListOfTables( tableList );
+    return hoxRC_OK;
 }
 
 hoxResult 
@@ -1059,7 +1060,6 @@ hoxChesscapePlayer::_HandleTableCmd_Clients( hoxTable_SPtr   pTable,
 	wxStringTokenizer tkz( cmdStr, delims, wxTOKEN_STRTOK );
 	int tokenPosition = 0;
 	wxString sPlayerId;
-    int      nPlayerScore = 0;
 
 	while ( tkz.HasMoreTokens() )
 	{
@@ -1069,29 +1069,13 @@ hoxChesscapePlayer::_HandleTableCmd_Clients( hoxTable_SPtr   pTable,
         if ( currentRole != hoxCOLOR_UNKNOWN )  // already joined the Table?
             continue;
 
-        nPlayerScore = m_site->GetScoreOfOnlinePlayer( sPlayerId );
-        if ( nPlayerScore == hoxSCORE_UNKNOWN )
-        {
-            wxLogDebug("%s: *WARN* Player [%s] not found.", __FUNCTION__, sPlayerId.c_str());
-            nPlayerScore = 0;
-        }
-
         const wxString tableId = pTable->GetId();
-        const hoxColor joinColor = hoxCOLOR_NONE;
 
-        wxLogDebug("%s: Player [%s] joined Table [%s] as [%d].", __FUNCTION__, 
-            sPlayerId.c_str(), tableId.c_str(), joinColor);
+        wxLogDebug("%s: Player [%s] joined Table [%s] as observer.", __FUNCTION__, 
+            sPlayerId.c_str(), tableId.c_str());
 
-        hoxResult result = m_site->OnPlayerJoined( tableId, 
-                                                   sPlayerId, 
-                                                   nPlayerScore,
-                                                   joinColor );
-        if ( result != hoxRC_OK )
-        {
-            wxLogDebug("%s: *** ERROR *** Failed to ask table to join as color [%d].", 
-                __FUNCTION__, joinColor);
-            // *** break;
-        }
+        m_site->OnPlayerJoined( tableId, sPlayerId, 
+                                hoxSCORE_UNKNOWN, hoxCOLOR_NONE );
 	}		
 }
 

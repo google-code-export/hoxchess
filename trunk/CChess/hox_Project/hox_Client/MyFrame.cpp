@@ -442,14 +442,9 @@ void
 MyFrame::OnListTables( wxCommandEvent& event )
 {
     hoxSite* selectedSite = _GetSelectedSite();
-    if ( selectedSite == NULL )
-        return;
-
-    hoxResult result = selectedSite->QueryForNetworkTables();
-    if ( result != hoxRC_OK )
+    if ( selectedSite )
     {
-        wxLogError("%s: Failed to query for LIST of tables from the server.", __FUNCTION__);
-        return;
+        selectedSite->QueryForTables();
     }
 }
 

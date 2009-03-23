@@ -88,8 +88,9 @@ private:
 
     /* Private parsers */
 
-    void _ParseOneNetworkTable( const wxString&      tableStr,
-                                hoxNetworkTableInfo& tableInfo );
+    void _ParseNetworkTable( const wxString&      sTable,
+                             hoxNetworkTableInfo& tableInfo,
+                             hoxStringList*       pObservers = NULL );
 
     hoxResult _ParseMovesString( const wxString& sMoves,
                                  hoxStringList&  moves );

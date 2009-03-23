@@ -481,7 +481,7 @@ hoxRemoteSite::OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
     }
 }
 
-hoxResult
+void
 hoxRemoteSite::OnPlayerJoined( const wxString&  tableId,
                                const wxString&  playerId,
                                const int        playerScore,
@@ -494,20 +494,32 @@ hoxRemoteSite::OnPlayerJoined( const wxString&  tableId,
 	if ( ! pTable )
 	{
         wxLogDebug("%s: *WARN* Table [%s] not found.", __FUNCTION__, tableId.c_str());
-		return hoxRC_ERR;
+		return;
 	}
+
+    /* Look up score if it was not yet specified. */
+    int  nScore = playerScore;
+    if ( nScore == hoxSCORE_UNKNOWN )
+    {
+        nScore = this->GetScoreOfOnlinePlayer( playerId );
+        if ( nScore == hoxSCORE_UNKNOWN )
+        {
+            wxLogDebug("%s: *WARN* Score of Player [%s] not found.", __FUNCTION__, playerId.c_str());
+            nScore = 0;
+        }
+    }
 
 	/* Lookup the Player (create a new "dummy" player if necessary).
      */
-    hoxPlayer* player = this->GetPlayerById( playerId, playerScore );
-    wxCHECK_MSG(player, hoxRC_ERR, "Player not found");
+    hoxPlayer* player = this->GetPlayerById( playerId, nScore );
+    wxCHECK_RET(player, "Player not found");
 
     /* Attempt to join the table with the requested color.
      */
-    return player->JoinTableAs( pTable, requestColor );
+    (void) player->JoinTableAs( pTable, requestColor );
 }
 
-hoxResult 
+void
 hoxRemoteSite::JoinLocalPlayerToTable( const hoxNetworkTableInfo& tableInfo )
 {
     hoxResult      result;
@@ -520,7 +532,7 @@ hoxRemoteSite::JoinLocalPlayerToTable( const hoxNetworkTableInfo& tableInfo )
 	/* Create a table if necessary. */
 
     pTable = this->FindTable( tableId );
-	if ( pTable.get() == NULL )
+	if ( ! pTable )
 	{
         wxLogDebug("%s: Create a new Table [%s].", __FUNCTION__, tableId.c_str());
         pTable = this->CreateNewTableWithGUI( tableInfo );
@@ -539,7 +551,7 @@ hoxRemoteSite::JoinLocalPlayerToTable( const hoxNetworkTableInfo& tableInfo )
      ****************************/
 
     result = m_player->JoinTableAs( pTable, myColor );
-    wxCHECK( result == hoxRC_OK, hoxRC_ERR  );
+    wxCHECK_RET( result == hoxRC_OK, "Fail to join Table"  );
 
 	/* Create additional "dummy" player(s) if required.
      */
@@ -548,19 +560,17 @@ hoxRemoteSite::JoinLocalPlayerToTable( const hoxNetworkTableInfo& tableInfo )
     {
         player = this->GetPlayerById( redId, ::atoi(tableInfo.redScore) );
         wxASSERT( player != NULL );
-        result = player->JoinTableAs( pTable, hoxCOLOR_RED );
+        (void) player->JoinTableAs( pTable, hoxCOLOR_RED );
     }
     if ( !blackId.empty() && pTable->GetBlackPlayer() == NULL )
     {
         player = this->GetPlayerById( blackId, ::atoi(tableInfo.blackScore) );
 	    wxASSERT( player != NULL );
-        result = player->JoinTableAs( pTable, hoxCOLOR_BLACK );
+        (void) player->JoinTableAs( pTable, hoxCOLOR_BLACK );
     }
-
-	return result;
 }
 
-hoxResult
+void
 hoxRemoteSite::DisplayListOfTables( const hoxNetworkTableInfoList& tableList )
 {
     /* Show tables. */
@@ -582,28 +592,19 @@ hoxRemoteSite::DisplayListOfTables( const hoxNetworkTableInfoList& tableList )
             this->OnLocalRequest_JOIN( selectedId );
             break;
         }
-
         case hoxTablesDialog::COMMAND_ID_NEW:
         {
             this->OnLocalRequest_NEW();
             break;
         }
-
 		case hoxTablesDialog::COMMAND_ID_REFRESH:
         {
-            wxLogDebug("%s: Get the latest list of tables...", __FUNCTION__);
-            if ( hoxRC_OK != this->QueryForNetworkTables() )
-            {
-                wxLogError("%s: Failed to get the list of tables.", __FUNCTION__);
-            }
+            this->QueryForTables();
             break;
         }
-
         default:
             break;
     }
-
-    return hoxRC_OK;
 }
 
 hoxResult 
@@ -644,16 +645,16 @@ hoxRemoteSite::Disconnect()
     return result;
 }
 
-hoxResult 
-hoxRemoteSite::QueryForNetworkTables()
+void
+hoxRemoteSite::QueryForTables()
 {
     if ( ! this->IsConnected() )
     {
-        wxLogDebug("%s: This site has NOT been connected.", __FUNCTION__);
-        return hoxRC_ERR;
+        wxLogDebug("%s: *WARN* Site NOT yet connected.", __FUNCTION__);
+        return;
     }
 
-    return m_player->QueryForNetworkTables();
+    (void) m_player->QueryForNetworkTables();
 }
 
 bool 

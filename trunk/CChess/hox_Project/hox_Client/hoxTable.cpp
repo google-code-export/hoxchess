@@ -67,7 +67,7 @@ hoxResult
 hoxTable::AssignPlayerAs( hoxPlayer* player,
                           hoxColor   requestColor )
 {
-    wxCHECK_MSG( player != NULL, hoxRC_ERR, "The player is NULL." );
+    wxCHECK_MSG( player != NULL, hoxRC_ERR, "Player is NULL" );
 
     bool bRequestOK =
            ( requestColor == hoxCOLOR_RED   && m_redPlayer == NULL )
@@ -76,7 +76,7 @@ hoxTable::AssignPlayerAs( hoxPlayer* player,
 
     if ( ! bRequestOK )
     {
-        wxLogDebug("%s: *** WARN *** Failed to handle request-to-join from [%s].", 
+        wxLogDebug("%s: *WARN* Failed to handle JOIN request from [%s].", 
             __FUNCTION__, player->GetId().c_str());
         return hoxRC_ERR;
     }
