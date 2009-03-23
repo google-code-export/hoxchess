@@ -78,15 +78,15 @@ public:
 
     virtual bool IsConnected() const = 0;
 
-    virtual hoxResult QueryForNetworkTables() = 0;
+    virtual void QueryForTables() {}
 
-	virtual hoxResult OnPlayerJoined(const wxString&   tableId,
-		                             const wxString&   playerId,
-                                     const int         playerScore,
-									 const hoxColor    requestColor) = 0;
+	virtual void OnPlayerJoined(const wxString& tableId,
+		                        const wxString& playerId,
+                                const int       playerScore,
+                                const hoxColor  requestColor) {}
 
-	virtual hoxResult JoinLocalPlayerToTable(const hoxNetworkTableInfo& tableInfo) = 0;
-    virtual hoxResult DisplayListOfTables(const hoxNetworkTableInfoList& tableList) = 0;
+    virtual void JoinLocalPlayerToTable(const hoxNetworkTableInfo& tableInfo) {}
+    virtual void DisplayListOfTables(const hoxNetworkTableInfoList& tableList) {}
 
     virtual void OnResponse_LOGIN( const hoxResponse_APtr& response ) {}
 
@@ -215,19 +215,6 @@ public:
 
     virtual bool IsConnected() const { return true; }
 
-    virtual hoxResult QueryForNetworkTables() { return hoxRC_OK; }
-
-	virtual hoxResult OnPlayerJoined(const wxString&   tableId,
-		                             const wxString&   playerId,
-                                     const int         playerScore,
-									 const hoxColor    requestColor)
-        { return hoxRC_OK; }
-
-	virtual hoxResult JoinLocalPlayerToTable(const hoxNetworkTableInfo& tableInfo)
-        { return hoxRC_OK; }
-    virtual hoxResult DisplayListOfTables(const hoxNetworkTableInfoList& tableList)
-        { return hoxRC_OK; }
-
     virtual hoxLocalPlayer* CreateLocalPlayer(const wxString& playerName);
 
 	virtual unsigned int GetCurrentActionFlags() const;
@@ -257,15 +244,15 @@ public:
 
     virtual bool IsConnected() const;
 
-    virtual hoxResult QueryForNetworkTables();
+    virtual void QueryForTables();
 
-	virtual hoxResult OnPlayerJoined(const wxString&   tableId,
-		                             const wxString&   playerId,
-                                     const int         playerScore,
-									 const hoxColor    requestColor);
+	virtual void OnPlayerJoined(const wxString& tableId,
+		                        const wxString& playerId,
+                                const int       playerScore,
+                                const hoxColor  requestColor);
 
-	virtual hoxResult JoinLocalPlayerToTable(const hoxNetworkTableInfo& tableInfo);
-    virtual hoxResult DisplayListOfTables(const hoxNetworkTableInfoList& tableList);
+	virtual void JoinLocalPlayerToTable(const hoxNetworkTableInfo& tableInfo);
+    virtual void DisplayListOfTables(const hoxNetworkTableInfoList& tableList);
 
 	virtual void OnShutdownReadyFromLocalPlayer();
 

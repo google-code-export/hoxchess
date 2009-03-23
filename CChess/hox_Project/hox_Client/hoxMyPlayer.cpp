@@ -102,7 +102,7 @@ hoxMyPlayer::OnConnectionResponse_PlayerData( wxCommandEvent& event )
     hoxCommand  command;
     if ( hoxRC_OK != _ParseCommand( apResponse->data, command ) )
     {
-        wxLogError("%s: Failed to parse command-data.", __FUNCTION__);
+        wxLogDebug("%s: *WARN* Failed to parse command-data.", __FUNCTION__);
         return;
     }
 
@@ -227,7 +227,7 @@ hoxMyPlayer::_ParseCommand( const wxMemoryBuffer& data,
             command.type = hoxUtil::StringToRequestType( paramValue );
             if ( command.type == hoxREQUEST_UNKNOWN )
             {
-                wxLogError("%s: Unsupported command-type = [%s].", __FUNCTION__, paramValue.c_str());
+                wxLogDebug("%s: *WARN* Unsupported command = [%s].", __FUNCTION__, paramValue.c_str());
                 return hoxRC_NOT_SUPPORTED;
             }
         }
@@ -296,7 +296,7 @@ hoxMyPlayer::_HandleEvent_LIST( const wxString& sContent )
 	{
         const wxString token = tkz.GetNextToken();
 
-        _ParseOneNetworkTable(token, tableInfo);
+        _ParseNetworkTable(token, tableInfo);
 		tableList.push_back( tableInfo );
     }
 
@@ -325,9 +325,20 @@ void
 hoxMyPlayer::_HandleEvent_I_TABLE( const wxString& sContent )
 {
     hoxNetworkTableInfo tableInfo;
+    hoxStringList       observers;
 
-    _ParseOneNetworkTable( sContent, tableInfo );
+    _ParseNetworkTable( sContent, tableInfo, &observers );
     m_site->JoinLocalPlayerToTable( tableInfo );
+
+    // Add observers.
+    for ( hoxStringList::const_iterator it = observers.begin();
+                                        it != observers.end(); ++it )
+    {
+        wxLogDebug("%s: ... observer [%s] in Table [%s].", __FUNCTION__,
+            it->c_str(), tableInfo.id.c_str());
+        m_site->OnPlayerJoined( tableInfo.id, (*it),
+                                hoxSCORE_UNKNOWN, hoxCOLOR_NONE );
+    }
 }
 
 void
@@ -401,14 +412,7 @@ hoxMyPlayer::_HandleEvent_E_JOIN( const wxString& sContent )
     wxLogDebug("%s: Player [%s %d] joining Table [%s] as [%d].", __FUNCTION__,
         playerId.c_str(), nScore, tableId.c_str(), color);
 
-    if ( hoxRC_OK != m_site->OnPlayerJoined( tableId, 
-                                             playerId, nScore,
-                                             color ) )
-    {
-        wxLogDebug("%s: *WARN* Failed to ask table to join as color [%d].",
-            __FUNCTION__, color);
-        return;
-    }
+    m_site->OnPlayerJoined( tableId, playerId, nScore, color );
 }
 
 void
@@ -655,12 +659,13 @@ hoxMyPlayer::_OnLoginFailure( const hoxResponse_APtr& apResponse )
 }
 
 void
-hoxMyPlayer::_ParseOneNetworkTable( const wxString&      tableStr,
-                                    hoxNetworkTableInfo& tableInfo )
+hoxMyPlayer::_ParseNetworkTable( const wxString&      sTable,
+                                 hoxNetworkTableInfo& tableInfo,
+                                 hoxStringList*       pObservers /* = NULL */ )
 {
 	tableInfo.Clear();
 
-    _ContentTokenizer tkz( tableStr );
+    _ContentTokenizer tkz( sTable );
     tableInfo.id    = tkz.GetNextToken();
 	tableInfo.group = ( tkz.GetNextToken() == "0" ? hoxGAME_GROUP_PUBLIC 
 						                          : hoxGAME_GROUP_PRIVATE );
@@ -673,6 +678,16 @@ hoxMyPlayer::_ParseOneNetworkTable( const wxString&      tableStr,
     tableInfo.redScore    = tkz.GetNextToken();
     tableInfo.blackId     = tkz.GetNextToken();
     tableInfo.blackScore  = tkz.GetNextToken();
+
+    // Get observers, if requested.
+    if ( pObservers != NULL )
+    {
+        while ( tkz.HasMoreTokens() )
+        {
+		    const wxString observerId = tkz.GetNextToken();
+            pObservers->push_back( observerId );
+        }
+    }
 }
 
 hoxResult
