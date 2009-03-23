@@ -198,6 +198,7 @@ MyFrame::OnAbout( wxCommandEvent& event )
     );
     info.SetCopyright( "(C) 2007-2009 Huy Phan, PlayXiangqi" );
     info.AddDeveloper( "Huy Phan" );
+    info.AddDeveloper( "Wangmao Lin" );
     info.AddDeveloper( "Darick Le" );
     info.SetWebSite( "http://hoxchess.googlecode.com", "HOXChess on GoogleCode" );
     info.SetLicence(
