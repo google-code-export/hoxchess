@@ -36,7 +36,7 @@ enum hoxPLAYERS_Menu_Id
 };
 
 /* Columns */
-static wxString s_columns[] = { "Id", "Rating" };
+static wxString s_columns[] = { _("Id"), _("Rating") };
 enum hoxPLAYERS_ColumnIndex
 {
     hoxPLAYERS_UI_COLUMN_ID    = 0,
