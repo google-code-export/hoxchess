@@ -52,9 +52,10 @@ public:
     {
     }
 
-  	void initGame(unsigned char pcsSavedPos[][9]=NULL)
+  	int initGame( unsigned char pcsSavedPos[][9] = NULL )
     {
-        XQWLight::initialize( pcsSavedPos );
+        XQWLight::init_game( pcsSavedPos );
+        return hoxAI_RC_OK;
     }
 
 	std::string generateMove()

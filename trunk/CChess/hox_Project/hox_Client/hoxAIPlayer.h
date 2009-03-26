@@ -62,11 +62,9 @@ public:
      *******************************/
 
     void SetEngineAPI( AIEngineLib*  engineAPI ) { m_engineAPI = engineAPI; }
-    void SetSavedFile( const wxString& sFile ) { m_sSavedFile = sFile; }
 
 protected:
     AIEngineLib*  m_engineAPI;
-    wxString      m_sSavedFile; // Containing a previously saved table.
 
 private:
 

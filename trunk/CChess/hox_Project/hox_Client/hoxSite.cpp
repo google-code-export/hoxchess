@@ -28,8 +28,7 @@
 #include "hoxSite.h"
 #include "MyApp.h"
 #include "hoxUtil.h"
-#include "hoxMyPlayer.h"
-#include "hoxChesscapePlayer.h"
+#include "hoxReferee.h"
 #include "hoxAIPlayer.h"
 #include "MyFrame.h"
 #include "MyChild.h"
@@ -240,7 +239,7 @@ hoxSite::ShowProgressDialog( bool bShow /* = true */ )
 
 hoxTable_SPtr
 hoxSite::CreateNewTableWithGUI( const hoxNetworkTableInfo& tableInfo,
-                                const wxString&            sSavedFile /* = "" */ )
+                                hoxIReferee_SPtr&          pReferee )
 {
     hoxTable_SPtr pTable;
     const wxString tableId = tableInfo.id;
@@ -252,7 +251,7 @@ hoxSite::CreateNewTableWithGUI( const hoxNetworkTableInfo& tableInfo,
     pTable = m_tableMgr.CreateTable( tableId, 
                                      this,
                                      tableInfo.gameType,
-                                     sSavedFile );
+                                     pReferee );
 	pTable->SetInitialTime( tableInfo.initialTime );
     pTable->SetBlackTime( tableInfo.blackTime );
     pTable->SetRedTime( tableInfo.redTime );
@@ -331,6 +330,37 @@ hoxLocalSite::OnLocalRequest_PRACTICE( const wxString& sSavedFile /* = "" */ )
 {
     wxCHECK_RET( m_player != NULL, "Player is NULL" );
 
+    hoxIReferee_SPtr pReferee( new hoxReferee( sSavedFile ) );
+
+    /* Load the AI Plugin. */
+    AIEngineLib_APtr apAIEngineLib =
+        hoxAIPluginMgr::GetInstance()->CreateDefaultAIEngineLib();
+    if ( apAIEngineLib.get() == NULL )
+    {
+        ::wxMessageBox( "No AI Plugin found.", _("Create Pratice Table"),
+                wxOK | wxICON_STOP );
+        return;
+    }
+
+    /* Get current current Piece-positions. */
+    int nRet = hoxAI_RC_UNKNOWN;
+    if ( sSavedFile.empty() )
+    {
+        nRet = apAIEngineLib->initGame( NULL );
+    }
+    else
+    {
+        unsigned char initPcsPos[10][9] = { 0 };
+        hoxUtil::hoxPcsPos2XQWLight( pReferee, initPcsPos );
+        nRet = apAIEngineLib->initGame( initPcsPos );
+    }
+    if ( nRet != hoxAI_RC_OK )
+    {
+        ::wxMessageBox( "AI Plugin could not initialize the game.", _("Create Pratice Table"),
+                wxOK | wxICON_STOP );
+        return;
+    }
+
     /* Generate new unique IDs for:
      *   (1) This PRACTICE-Table, and
      *   (2) The new AI Player.
@@ -353,7 +383,7 @@ hoxLocalSite::OnLocalRequest_PRACTICE( const wxString& sSavedFile /* = "" */ )
     /* Create an "empty" PRACTICE Table. */
 
     wxLogDebug("%s: Create a PRACTICE Table [%s]...", __FUNCTION__, sTableId.c_str());
-    hoxTable_SPtr pTable = this->CreateNewTableWithGUI( tableInfo, sSavedFile );
+    hoxTable_SPtr pTable = this->CreateNewTableWithGUI( tableInfo, pReferee );
 
     /* Assign Players to the Table.
      *
@@ -367,25 +397,9 @@ hoxLocalSite::OnLocalRequest_PRACTICE( const wxString& sSavedFile /* = "" */ )
     result = m_player->JoinTableAs( pTable, hoxCOLOR_RED );
     wxASSERT( result == hoxRC_OK );
 
-    /* Load the AI Plugin. */
-    AIEngineLib_APtr apAIEngineLib =
-        hoxAIPluginMgr::GetInstance()->CreateDefaultAIEngineLib();
-    if ( apAIEngineLib.get() == NULL )
-    {
-        ::wxMessageBox( "No AI Plugin found.", _("Create Pratice Table"),
-                wxOK | wxICON_STOP );
-        return;
-    }
-
-    /* Get current current Piece-positions. */
-	unsigned char initPcsPos[10][9] = { 0 };
-    hoxUtil::hoxPcsPos2XQWLight( pTable->GetReferee(), initPcsPos );
-    apAIEngineLib->initGame( initPcsPos );
-
     hoxAIPlayer* pAIPlayer = new hoxAIPlayer( sAIId, hoxPLAYER_TYPE_AI, 1500 );
 
     pAIPlayer->SetEngineAPI( apAIEngineLib.release() ); // Caller will de-allocate.
-    pAIPlayer->SetSavedFile( sSavedFile );
     pAIPlayer->Start();
 
     result = pAIPlayer->JoinTableAs( pTable, hoxCOLOR_BLACK );
@@ -535,7 +549,8 @@ hoxRemoteSite::JoinLocalPlayerToTable( const hoxNetworkTableInfo& tableInfo )
 	if ( ! pTable )
 	{
         wxLogDebug("%s: Create a new Table [%s].", __FUNCTION__, tableId.c_str());
-        pTable = this->CreateNewTableWithGUI( tableInfo );
+        hoxIReferee_SPtr pReferee; // Indicate that a standard referee will be used.
+        pTable = this->CreateNewTableWithGUI( tableInfo, pReferee );
 	}
 
 	/* Determine which color (or role) my player will have. */
@@ -745,16 +760,6 @@ hoxRemoteSite::OnLocalRequest_NEW()
     {
         wxLogError("%s: Failed to open a NEW network table.", __FUNCTION__);
     }
-}
-
-void
-hoxRemoteSite::OnLocalRequest_PRACTICE( const wxString& sSavedFile /* = "" */ )
-{
-    wxCHECK_RET( m_player != NULL, "Player is NULL" );
-
-    wxLogDebug("%s: Create a new PRACTICE Table...", __FUNCTION__);
-
-    /* FIXME: Do nothing for now. */
 }
 
 // --------------------------------------------------------------------------

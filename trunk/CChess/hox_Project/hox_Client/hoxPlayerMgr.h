@@ -31,9 +31,6 @@
 #include "hoxPlayer.h"
 
 /* Forward declarations */
-class hoxSite;
-class hoxMyPlayer;
-class hoxChesscapePlayer;
 class hoxLocalPlayer;
 
 /**
@@ -45,11 +42,11 @@ public:
     hoxPlayerMgr();
     ~hoxPlayerMgr();
 
-    hoxChesscapePlayer* CreateChesscapePlayer( const wxString& name,
-                                               int             score = 1500 );
+    hoxLocalPlayer* CreateChesscapePlayer( const wxString& name,
+                                           int             score = 1500 );
 
-    hoxMyPlayer* CreateMyPlayer( const wxString& name,
-                                 int             score = 1500 );
+    hoxLocalPlayer* CreateMyPlayer( const wxString& name,
+                                    int             score = 1500 );
 
     hoxPlayer* CreateDummyPlayer( const wxString& name,
                                   int             score = 1500 );

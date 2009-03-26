@@ -29,13 +29,16 @@
 #include "hoxReferee.h"
 
 hoxTable_SPtr
-hoxTableMgr::CreateTable( const wxString& tableId,
-                          hoxSite*        site,
-                          hoxGameType     gameType,
-                          const wxString& sSavedFile /* = "" */)
+hoxTableMgr::CreateTable( const wxString&   tableId,
+                          hoxSite*          site,
+                          hoxGameType       gameType,
+                          hoxIReferee_SPtr& pReferee )
 {
-    /* Create a Referee */
-    hoxIReferee_SPtr referee( new hoxReferee( sSavedFile ) );
+    /* Create a Referee, if not yet specified. */
+    if ( ! pReferee )
+    {
+        pReferee.reset( new hoxReferee() );
+    }
 
     /* Create a Table (with the referee).
      *
@@ -43,8 +46,8 @@ hoxTableMgr::CreateTable( const wxString& tableId,
      *       to have a notion of a Table withOUT a Board (or Table's GUI).
      */
     hoxTable_SPtr pTable( gameType == hoxGAME_TYPE_PRACTICE
-                         ? new hoxPracticeTable( site, tableId, referee )
-                         : new hoxTable( site, tableId, referee ) );
+                         ? new hoxPracticeTable( site, tableId, pReferee )
+                         : new hoxTable( site, tableId, pReferee ) );
     
     pTable->SetGameType( gameType );
 

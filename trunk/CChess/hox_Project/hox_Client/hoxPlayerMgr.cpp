@@ -43,22 +43,22 @@ hoxPlayerMgr::~hoxPlayerMgr()
     }
 }
 
-hoxChesscapePlayer*
+hoxLocalPlayer*
 hoxPlayerMgr::CreateChesscapePlayer( const wxString& name,
                                      int             score /* = 1500 */)
 {
-    hoxChesscapePlayer* player 
+    hoxLocalPlayer* player 
         = new hoxChesscapePlayer( name, hoxPLAYER_TYPE_LOCAL, score );
     m_players.push_back( player );
 
     return player;
 }
 
-hoxMyPlayer*
+hoxLocalPlayer*
 hoxPlayerMgr::CreateMyPlayer( const wxString& name,
                               int             score /* = 1500 */)
 {
-    hoxMyPlayer* player 
+    hoxLocalPlayer* player 
         = new hoxMyPlayer( name, hoxPLAYER_TYPE_LOCAL, score );
     m_players.push_back( player );
 
