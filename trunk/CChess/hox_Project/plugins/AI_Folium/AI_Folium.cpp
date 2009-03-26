@@ -49,11 +49,11 @@ public:
     {
     }
 
-  	int initGame( unsigned char pcsSavedPos[][9] = NULL )
+  	int initGame( const std::string& fen )
     {
-        if ( pcsSavedPos != NULL ) return hoxAI_RC_NOT_SUPPORTED;
+        if ( ! fen.empty() ) return hoxAI_RC_NOT_SUPPORTED;
 
-        m_engine.reset( new folHOXEngine() );
+        m_engine.reset( new folHOXEngine( fen ) );
         return hoxAI_RC_OK;
     }
 

@@ -52,11 +52,11 @@ public:
     {
     }
 
-  	int initGame( unsigned char pcsSavedPos[][9] = NULL )
+  	int initGame( const std::string& fen )
     {
-        if ( pcsSavedPos != NULL ) return hoxAI_RC_NOT_SUPPORTED;
+        if ( ! fen.empty() ) return hoxAI_RC_NOT_SUPPORTED;
 
-        MaxQi::init_game( pcsSavedPos );
+        MaxQi::init_game();
         return hoxAI_RC_OK;
     }
 

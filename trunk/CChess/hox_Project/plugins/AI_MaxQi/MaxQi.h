@@ -27,7 +27,7 @@ namespace MaxQi
 {
     /* PUBLIC API */
 
-    void init_game(unsigned char pcsSavedPos[][9]=NULL);
+    void init_game();
     std::string generate_move();
     void        on_human_move( const std::string& sMove );
 

@@ -76,7 +76,7 @@ class Board
   
  public:
   Board();
-  Board(std::string position);
+  Board(std::string fen);
 
   // Move management...
   void makeMove(Move &theMove);

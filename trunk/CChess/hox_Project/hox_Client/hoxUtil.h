@@ -140,10 +140,10 @@ namespace hoxUtil
     wxString    std2wx( const std::string& input );
 
     /**
-     * A helper to convert Piece-positions to 'XQWLight'-type positions.
+     * A helper to convert Piece-positions to
+     * Forsyth-Edwards Notation (FEN) notation.
      */
-    void hoxPcsPos2XQWLight( const hoxIReferee_SPtr& pReferee,
-                             unsigned char           pcsPos[10][9] );
+    const std::string hoxGameStateToFEN( const hoxGameState& gameState );
 
 }
 

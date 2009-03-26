@@ -69,19 +69,20 @@ public:
     virtual void        initEngine() = 0;
 
     // ------------
-	virtual int         initGame( unsigned char pcsSavedPos[][9] = NULL ) = 0;
+    // ............................................. fen - Forsyth-Edwards Notation (FEN)
+	virtual int         initGame( const std::string& fen ) = 0;
 	virtual std::string generateMove() = 0;
     virtual void        onHumanMove( const std::string& sMove ) = 0;
     // ------------
 
     void operator delete(void* p)
-    {
-        if (p)
         {
-            AIEngineLib* engine = static_cast<AIEngineLib*>(p);
-            engine->destroy();
+            if (p)
+            {
+                AIEngineLib* engine = static_cast<AIEngineLib*>(p);
+                engine->destroy();
+            }
         }
-    }
 };
 
 
