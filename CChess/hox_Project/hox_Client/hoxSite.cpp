@@ -343,21 +343,24 @@ hoxLocalSite::OnLocalRequest_PRACTICE( const wxString& sSavedFile /* = "" */ )
     }
 
     /* Get current current Piece-positions. */
-    int nRet = hoxAI_RC_UNKNOWN;
-    if ( sSavedFile.empty() )
+    std::string fen; // Forsyth-Edwards Notation (FEN)
+    if ( ! sSavedFile.empty() )
     {
-        nRet = apAIEngineLib->initGame( NULL );
+        hoxGameState gameState;
+        pReferee->GetGameState( gameState );
+        fen = hoxUtil::hoxGameStateToFEN( gameState );
     }
-    else
+    const int nRet = apAIEngineLib->initGame( fen );
+    if ( nRet == hoxAI_RC_NOT_SUPPORTED && !sSavedFile.empty() )
     {
-        unsigned char initPcsPos[10][9] = { 0 };
-        hoxUtil::hoxPcsPos2XQWLight( pReferee, initPcsPos );
-        nRet = apAIEngineLib->initGame( initPcsPos );
+        ::wxMessageBox( "The AI Plugin does not support the 'resume game' feature.",
+            _("Create Pratice Table"), wxOK | wxICON_STOP );
+        return;
     }
     if ( nRet != hoxAI_RC_OK )
     {
-        ::wxMessageBox( "AI Plugin could not initialize the game.", _("Create Pratice Table"),
-                wxOK | wxICON_STOP );
+        ::wxMessageBox( "The AI Plugin could not initialize the game.",
+            _("Create Pratice Table"), wxOK | wxICON_STOP );
         return;
     }
 

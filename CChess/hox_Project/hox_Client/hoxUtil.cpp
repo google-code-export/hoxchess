@@ -435,50 +435,81 @@ hoxUtil::std2wx( const std::string& input )
     return wxString( input.c_str(), wxConvUTF8 );
 }
 
-void
-hoxUtil::hoxPcsPos2XQWLight( const hoxIReferee_SPtr& pReferee,
-                             unsigned char           pcsPos[10][9] )
+const std::string
+hoxUtil::hoxGameStateToFEN( const hoxGameState& gameState )
 {
-    /* Get the current positions. */
+    // STEP 1: Convert the piece-positions to 90-cell board first.
 
-    hoxGameState  gameState;
-    pReferee->GetGameState( gameState );
-
-    /* Convert to array-type positions. */
-
-	int x, y, color, type;
-
-    for ( hoxPieceInfoList::const_iterator it = gameState.pieceList.begin();
-                                           it != gameState.pieceList.end();
-                                         ++it )
+    std::pair<hoxColor, hoxPieceType> board[90];
+    for ( int i = 0; i < 90; ++i )
     {
-		x = (*it).position.x;
-		y = (*it).position.y;
-		
-        switch ( (*it).color )
-        {
-			case hoxCOLOR_RED:    color = 0x8; break;
-			case hoxCOLOR_BLACK:  color = 0x10; break;
-			default:              color = -1;
-		};
+        board[i].first = hoxCOLOR_UNKNOWN;
+        board[i].second = hoxPIECE_INVALID;
+    }
 
-		switch ( (*it).type )
-        {
-			case hoxPIECE_KING:     type = 0; break;
-			case hoxPIECE_ADVISOR:  type = 1; break;
-			case hoxPIECE_ELEPHANT: type = 2; break;
-			case hoxPIECE_HORSE:    type = 3; break;
-			case hoxPIECE_CHARIOT:  type = 4; break;
-			case hoxPIECE_CANNON:   type = 5; break;
-			case hoxPIECE_PAWN:     type = 6; break;
-			default:                type = -1;
-		};
+    const hoxPieceInfoList& pieces = gameState.pieceList;
+    int index = 0;  // cell-index.
+    for ( hoxPieceInfoList::const_iterator it = pieces.begin();
+                                           it != pieces.end(); ++it )
+    {
+        index = (it->position.y * 9) + it->position.x;
+        board[index].first  = it->color;
+        board[index].second = it->type;
+    }
 
-		if ( color >= 0 && type >= 0 )
+    // STEP 2: Convert the 90-cell board to a FEN string.
+    //
+    // References:
+    //    http://en.wikipedia.org/wiki/Xiangqi
+
+    std::string fen; // Forsyth-Edwards Notation (FEN) notation.
+    int  files  = 0; // X-position ... or the index of vertical lines.
+    int  zeros  = 0; // The # of empty cells.
+    char cPiece = 0;
+    for ( int i = 0; i < 90; ++i )
+    {
+        switch ( board[i].second )
         {
-			pcsPos[y][x] = color + type;
+            /* Piece notation: 
+             *    http://www.wxf.org/xq/computer/fen.pdf
+             *    http://www.wxf.org/xq/computer/wxf_notation.html
+             */
+            case hoxPIECE_KING:     cPiece = 'K'; break;
+            case hoxPIECE_ADVISOR:  cPiece = 'A'; break;
+            case hoxPIECE_ELEPHANT: cPiece = 'E'; break;
+            case hoxPIECE_CHARIOT:  cPiece = 'R'; break;
+            case hoxPIECE_HORSE:    cPiece = 'H'; break;
+            case hoxPIECE_CANNON:   cPiece = 'C'; break;
+            case hoxPIECE_PAWN:     cPiece = 'P'; break;
+            default: /* empty */ ++zeros; cPiece = 0;
         }
-	}
+
+        // Convert lowercase if the color is BLACK (or BLUE).
+        if ( board[i].first == hoxCOLOR_BLACK ) { cPiece += 'a' - 'A'; }
+
+        // Output the piece.
+        if ( cPiece != 0 )
+        {
+            if ( zeros > 0 ) { fen += '0' + zeros; zeros = 0; }
+            fen += cPiece;
+        }
+
+        if ( ++files == 9 ) // new row (new rank)?
+        { 
+            files = 0;
+            if ( zeros > 0 ) { fen += '0' + zeros; zeros = 0; }
+            if ( i != 89 ) fen += '/';
+        }
+    }
+
+    // STEP 3: Add 'active color' to the FEN string.
+    //          'w' - White/Red moves next
+    //          'b' - Black/Blue moves next.
+
+    fen += ' ';
+    fen += ( gameState.nextColor == hoxCOLOR_RED ? 'w' : 'b' );
+
+    return fen;
 }
 
 /************************* END OF FILE ***************************************/

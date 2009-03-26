@@ -36,12 +36,22 @@
 //
 // ----------------------------------------------------------------------------
 
-folHOXEngine::folHOXEngine( int searchDepth /* = 3 */ )
+folHOXEngine::folHOXEngine( const std::string& fen,
+                            const int          searchDepth /* = 3 */ )
         : _searchDepth( searchDepth )
 {
 	/* FEN starting position of the Board. */
-	const std::string fenStartPosition = 
-		"rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1";
+	std::string fenStartPosition = fen;
+    if ( fenStartPosition.empty() )
+    {
+		fenStartPosition = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1";
+    }
+    else
+    {
+        // FIXME: Hack to make it look the 'starting' positions above.
+        //        Still, this engine crashes.
+        fenStartPosition += " - - 0 1";
+    }
 
 	/* TODO:
 	 *    Wangmao, I think we should hide this '21' magic number.

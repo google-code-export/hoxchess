@@ -34,7 +34,7 @@
 class AIEngineImpl : public DefaultDelete<AIEngineLib>
 {
 public:
-    AIEngineImpl(const char* engineName)
+    AIEngineImpl( const char* engineName )
     {
         m_name = engineName ? engineName : "__UNKNOWN__";
     }
@@ -52,9 +52,21 @@ public:
     {
     }
 
-  	int initGame( unsigned char pcsSavedPos[][9] = NULL )
+  	int initGame( const std::string& fen )
     {
-        XQWLight::init_game( pcsSavedPos );
+        if ( fen.empty() )
+        {
+            XQWLight::init_game();
+        }
+        else
+        {
+            unsigned char board[10][9];
+            if ( ! _convertFENtoBoard( fen, board ) )
+            {
+                return hoxAI_RC_ERR;
+            }
+            XQWLight::init_game( board );
+        }
         return hoxAI_RC_OK;
     }
 
@@ -68,12 +80,79 @@ public:
         XQWLight::on_human_move( sMove );
     }
 
+private:
+    bool _convertFENtoBoard( const std::string& fen,
+                             unsigned char      board[10][9] ) const;
 
 private:
     std::string m_name;
 
 }; /* class AIEngineImpl */
 
+bool
+AIEngineImpl::_convertFENtoBoard( const std::string& fen,
+                                  unsigned char      board[10][9] ) const
+{
+    int r  = 0; // Row ... or the index of horizontal lines.
+    int c  = 0; // Column ... or the index of vertical lines.
+
+    for ( r = 0; r < 10; ++r )
+    {
+        for ( c = 0; c < 9; ++c )
+        {
+            board[r][c] = 0;
+        }
+    }
+
+    r = 0;
+    c = 0;
+    for ( std::string::const_iterator it = fen.begin();
+                                      it != fen.end(); ++it )
+    {
+        if ( *it >= '1' && *it <= '9' )
+        {
+            c += *it - '0';
+        }
+        else if ( *it == '/' )
+        {
+            ++r;
+            c = 0;
+        }
+        else if ( *it == ' ' )
+        {
+            break;
+        }
+        else
+        {
+            const int color = ( *it < 'a' ? 0x08 : 0x10 );
+            int cType = *it;
+            if ( cType >= 'a' )
+            {
+                cType -= 'a' - 'A';  // ... to uppercase.
+            }
+
+            int type = 0;
+            switch ( cType )
+            {
+                case 'K': type = 0; break;
+                case 'A': type = 1; break;
+                case 'E': type = 2; break;
+                case 'R': type = 4; break;
+                case 'H': type = 3; break;
+                case 'C': type = 5; break;
+                case 'P': type = 6; break;
+                default: return false; /* failure */
+            }
+
+            board[r][c] = color + type;
+            ++c;
+        }
+    }
+
+    return true; // success
+}
+
+////////////////// END OF AIEngineImpl ////////////////////////////////////////
 
 AIEngineLib* CreateAIEngineLib()
 {

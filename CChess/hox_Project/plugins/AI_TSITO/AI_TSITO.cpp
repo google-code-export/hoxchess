@@ -57,11 +57,10 @@ public:
     {
     }
 
-  	int initGame( unsigned char pcsSavedPos[][9] = NULL )
+  	int initGame( const std::string& fen )
     {
-        if ( pcsSavedPos != NULL ) return hoxAI_RC_NOT_SUPPORTED;
-
-        m_board.reset( new Board() );
+        m_board.reset( fen.empty() ? new Board()
+                                   : new Board( fen ) );
         m_lawyer.reset( new Lawyer( m_board.get() ) );
         m_engine.reset( new tsiEngine( m_board.get(),
                                        m_lawyer.get() ) );

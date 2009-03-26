@@ -235,7 +235,12 @@ bool Board::setPosition(string fen)
     }
   if (*fen_p != ' ') return false; // Position must be followed by a space and then...
   fen_p++;
-  if (*fen_p == 'r') _sideToMove = RED; // A character representing the side to move.
+  /* FEN notation: 
+   *    http://www.wxf.org/xq/computer/fen.pdf
+   *    http://www.wxf.org/xq/computer/wxf_notation.html
+   */
+  if (   *fen_p == 'w'
+      || *fen_p == 'r' ) _sideToMove = RED; // A character representing the side to move.
   else if (*fen_p == 'b') _sideToMove = BLUE;
   else return false;
 
