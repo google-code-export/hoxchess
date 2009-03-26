@@ -1696,7 +1696,7 @@ static void Startup(unsigned char pcsSavedPos[][9]) {
 ////////////////// HPHAN Code addition //////////////////////
 
 void
-XQWLight::initialize(unsigned char pcsSavedPos[][9])
+XQWLight::init_game( unsigned char pcsSavedPos[][9] /* = NULL */ )
 {
     srand((DWORD) time(NULL));
     InitZobrist();

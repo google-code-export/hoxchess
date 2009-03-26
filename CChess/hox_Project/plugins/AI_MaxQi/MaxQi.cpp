@@ -263,7 +263,7 @@ const char *_GenerateNextMove()
 ///////////////////////////////////////////
 
 void
-MaxQi::initialize(unsigned char pcsSavedPos[][9]/*=NULL*/)
+MaxQi::init_game(unsigned char pcsSavedPos[][9]/*=NULL*/)
 {
     InitGame();
 }

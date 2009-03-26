@@ -39,14 +39,9 @@
 class AIEngineImpl : public DefaultDelete<AIEngineLib>
 {
 public:
-    AIEngineImpl(const char* engineName)
+    AIEngineImpl( const char* engineName )
+        : m_name( engineName ? engineName : "__UNKNOWN__" )
     {
-        m_name = engineName ? engineName : "__UNKNOWN__";
-
-        m_board.reset( new Board() );
-        m_lawyer.reset( new Lawyer( m_board.get() ) );
-        m_engine.reset( new tsiEngine( m_board.get(),
-                                    m_lawyer.get() ) );
     }
 
     ~AIEngineImpl()
@@ -62,9 +57,15 @@ public:
     {
     }
 
-  	void initGame(unsigned char pcsSavedPos[][9]=NULL)
+  	int initGame( unsigned char pcsSavedPos[][9] = NULL )
     {
-        // TODO: ...
+        if ( pcsSavedPos != NULL ) return hoxAI_RC_NOT_SUPPORTED;
+
+        m_board.reset( new Board() );
+        m_lawyer.reset( new Lawyer( m_board.get() ) );
+        m_engine.reset( new tsiEngine( m_board.get(),
+                                       m_lawyer.get() ) );
+        return hoxAI_RC_OK;
     }
 
 	std::string generateMove()
@@ -134,7 +135,7 @@ private:
 //////////////////////////////////////////////////////////////
 AIEngineLib* CreateAIEngineLib()
 {
-  return new AIEngineImpl("MaxQi Engine Lib");
+  return new AIEngineImpl("TSITO Engine Lib");
 }
 
 /************************* END OF FILE ***************************************/

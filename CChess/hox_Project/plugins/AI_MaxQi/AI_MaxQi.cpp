@@ -52,9 +52,12 @@ public:
     {
     }
 
-  	void initGame(unsigned char pcsSavedPos[][9]=NULL)
+  	int initGame( unsigned char pcsSavedPos[][9] = NULL )
     {
-        MaxQi::initialize( pcsSavedPos );
+        if ( pcsSavedPos != NULL ) return hoxAI_RC_NOT_SUPPORTED;
+
+        MaxQi::init_game( pcsSavedPos );
+        return hoxAI_RC_OK;
     }
 
 	std::string generateMove()

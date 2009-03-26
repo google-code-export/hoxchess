@@ -25,20 +25,19 @@
 
 #include <AIEngineLib.h>
 #include <DefaultDelete.h>
+#include <memory>
 #include "folHOXEngine.h"
 
 class AIEngineImpl : public DefaultDelete<AIEngineLib>
 {
 public:
-    AIEngineImpl(const char* engineName)
+    AIEngineImpl( const char* engineName )
         : m_name( engineName ? engineName : "__UNKNOWN__" )
-        , m_engine( new folHOXEngine() )
     {
     }
 
     ~AIEngineImpl()
     {
-        delete m_engine;
     }
 
     void destroy()
@@ -50,9 +49,12 @@ public:
     {
     }
 
-  	void initGame(unsigned char pcsSavedPos[][9]=NULL)
+  	int initGame( unsigned char pcsSavedPos[][9] = NULL )
     {
-        // TODO: ...
+        if ( pcsSavedPos != NULL ) return hoxAI_RC_NOT_SUPPORTED;
+
+        m_engine.reset( new folHOXEngine() );
+        return hoxAI_RC_OK;
     }
 
 	std::string generateMove()
@@ -68,7 +70,9 @@ public:
 
 private:
     std::string    m_name;
-    folHOXEngine*  m_engine;
+
+    typedef std::auto_ptr<folHOXEngine>  Engine_APtr;
+    Engine_APtr    m_engine;
 
 }; /* class AIEngineImpl */
 

@@ -250,7 +250,7 @@ AIPlayer::_SendCommand( hoxCommand& command )
 void
 AIPlayer::_ResetAIEngine()
 {
-    XQWLight::initialize();
+    XQWLight::init_game();
 }
 
 /************************* END OF FILE ***************************************/

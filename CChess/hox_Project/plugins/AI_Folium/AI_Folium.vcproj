@@ -190,10 +190,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\folHOXEngine.h"
-				>
-			</File>
-			<File
 				RelativePath=".\folSearch.cpp"
 				>
 			</File>
@@ -241,6 +237,10 @@
 			</File>
 			<File
 				RelativePath=".\folEngine.h"
+				>
+			</File>
+			<File
+				RelativePath=".\folHOXEngine.h"
 				>
 			</File>
 			<File

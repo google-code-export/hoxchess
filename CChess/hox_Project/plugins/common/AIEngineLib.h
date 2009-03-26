@@ -18,13 +18,22 @@
  *  along with HOXChess.  If not, see <http://www.gnu.org/licenses/>.      *
  ***************************************************************************/
 
-/**
- * DLL Interface classes for C++ Binary Compatibility article
- * article at http://aegisknight.org/cppinterface.html
- *
- * code author:     Ben Scott   (bscott@iastate.edu)
- * article author:  Chad Austin (aegis@aegisknight.org)
- */
+/////////////////////////////////////////////////////////////////////////////
+// Name:            AIEngineLib.h
+// Created:         02/17/2009
+//
+// Description:     The interface of an AI Engine Plugin.
+//
+// Copyright:
+//   This file is based on the following:
+// ---------------------------------------------------------------------------
+//   DLL Interface classes for C++ Binary Compatibility article
+//   article at http://aegisknight.org/cppinterface.html
+//
+//   code author:     Ben Scott   (bscott@iastate.edu)
+//   article author:  Chad Austin (aegis@aegisknight.org)
+// ---------------------------------------------------------------------------
+/////////////////////////////////////////////////////////////////////////////
 
 #ifndef __INCLUDED_AI_ENGINE_LIB_H__
 #define __INCLUDED_AI_ENGINE_LIB_H__
@@ -42,6 +51,15 @@
 #include <string>
 
 /**
+ * Plugin error codes (or Return-Codes).
+ */
+#define hoxAI_RC_UNKNOWN       -1
+#define hoxAI_RC_OK             0  /* A generic success       */
+#define hoxAI_RC_ERR            1  /* A generic error         */
+#define hoxAI_RC_NOT_FOUND      2  /* Something not found     */
+#define hoxAI_RC_NOT_SUPPORTED  3  /* Something not supported */
+
+/**
  * AIEngineLib interface.
  */
 class AIEngineLib
@@ -51,7 +69,7 @@ public:
     virtual void        initEngine() = 0;
 
     // ------------
-	virtual void        initGame(unsigned char pcsSavedPos[][9]=NULL) = 0;
+	virtual int         initGame( unsigned char pcsSavedPos[][9] = NULL ) = 0;
 	virtual std::string generateMove() = 0;
     virtual void        onHumanMove( const std::string& sMove ) = 0;
     // ------------
