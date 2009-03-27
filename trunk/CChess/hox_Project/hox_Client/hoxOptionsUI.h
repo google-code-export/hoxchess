@@ -2,7 +2,6 @@
 // Name:        hoxOptionsUI.h
 // Purpose:     The UI managing all the options/preferences of HOXChess.
 // Author:      Huy Phan
-// Modified by: 
 // Created:     3/9/2009 6:58:33 AM
 // RCS-ID:      
 // Copyright:   Copyright 2007-2009 Huy Phan  <huyphan@playxiangqi.com>
@@ -24,6 +23,7 @@
 ////@end includes
 
 #include "MyApp.h"
+#include "wx/bookctrl.h"
 
 /*!
  * Forward declarations
@@ -81,6 +81,9 @@ public:
     wxString     m_sPiece;
     wxString     m_sDefaultAI;
 
+    bool         m_bAlreadySetSelectedPage;
+    size_t   	 m_selectedPage;
+
     /// Constructors
     hoxOptionsUI();
     hoxOptionsUI( wxWindow* parent, wxWindowID id = SYMBOL_HOXOPTIONSUI_IDNAME, const wxString& caption = SYMBOL_HOXOPTIONSUI_TITLE, const wxPoint& pos = SYMBOL_HOXOPTIONSUI_POSITION, const wxSize& size = SYMBOL_HOXOPTIONSUI_SIZE, long style = SYMBOL_HOXOPTIONSUI_STYLE );
@@ -118,6 +121,8 @@ public:
     void OnListboxEnginesSelected( wxCommandEvent& event );
 
 ////@end hoxOptionsUI event handler declarations
+
+    void OnPageChanged( wxBookCtrlEvent& event );
 
 ////@begin hoxOptionsUI member function declarations
 
