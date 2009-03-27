@@ -1188,7 +1188,7 @@ static void LoadBook(void) {
     fp_in.read ((char*)Search.BookTable, Search.nBookSize * sizeof(BookItem));
     fp_in.close();   // close the streams
     
-    printf("%s: Success opening book Size = [%d (of %lu)].\n",
+    printf("%s: Success opening book Size = [%d (of %u)].\n",
         __FUNCTION__, Search.nBookSize, sizeof(BookItem));
 }
 
