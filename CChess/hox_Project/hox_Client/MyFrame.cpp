@@ -652,21 +652,30 @@ MyFrame::OnToggleSound( wxCommandEvent& event )
 void
 MyFrame::OnOptions( wxCommandEvent& event )
 {
+    /* STEP 1: Show options ............................ */
+
     hoxOptionsUI dlg;
 
-    dlg.m_bSound     = (wxGetApp().GetOption("sound") == "1");
-    dlg.m_bWelcome   = (wxGetApp().GetOption("welcome") == "1");
-    dlg.m_bTables    = (wxGetApp().GetOption("showTables") == "1");
-    dlg.m_language   = wxGetApp().GetCurrentLanguage();
-    dlg.m_sBgColor   = wxGetApp().GetOption("/Board/Color/background");
-    dlg.m_sFgColor   = wxGetApp().GetOption("/Board/Color/foreground");
-    dlg.m_sPiece     = wxGetApp().GetOption("/Board/Piece/path");
-    dlg.m_sDefaultAI = hoxAIPluginMgr::GetInstance()->GetDefaultPluginName();
+    dlg.m_bSound       = (wxGetApp().GetOption("sound") == "1");
+    dlg.m_bWelcome     = (wxGetApp().GetOption("welcome") == "1");
+    dlg.m_bTables      = (wxGetApp().GetOption("showTables") == "1");
+    dlg.m_language     = wxGetApp().GetCurrentLanguage();
+    dlg.m_sBgColor     = wxGetApp().GetOption("/Board/Color/background");
+    dlg.m_sFgColor     = wxGetApp().GetOption("/Board/Color/foreground");
+    dlg.m_sPiece       = wxGetApp().GetOption("/Board/Piece/path");
+    dlg.m_sDefaultAI   = hoxAIPluginMgr::GetInstance()->GetDefaultPluginName();
+
+    const wxString selectedPage = wxGetApp().GetOption("optionsPage");
+    long lSelectedPage = 0;
+    if ( ! selectedPage.ToLong( &lSelectedPage ) ) lSelectedPage = 0;
+    dlg.m_selectedPage = (size_t) lSelectedPage;
 
     wxGetApp().GetLanguageList( dlg.m_langList );
 
     dlg.Create( this );
     if ( dlg.ShowModal() != wxID_OK ) return;
+
+    /* STEP 2: Save options ............................ */
 
     wxGetApp().SetOption( "sound", dlg.m_bSound ? "1" : "0" );
     this->GetToolBar()->ToggleTool( MDI_SOUND, dlg.m_bSound );
@@ -678,8 +687,7 @@ MyFrame::OnOptions( wxCommandEvent& event )
     {
         wxGetApp().SaveCurrentLanguage( dlg.m_language );
         ::wxMessageBox( _("You must restart the program for this change to take effect"),
-                        _("Required Action"),
-                        wxOK | wxICON_INFORMATION );
+                        _("Required Action"), wxOK | wxICON_INFORMATION );
     }
 
     wxGetApp().SetOption( "/Board/Color/background", dlg.m_sBgColor );
@@ -687,7 +695,9 @@ MyFrame::OnOptions( wxCommandEvent& event )
     wxGetApp().SetOption( "/Board/Piece/path",       dlg.m_sPiece );
 
     hoxAIPluginMgr::SetDefaultPluginName( dlg.m_sDefaultAI );
-    wxGetApp().SetOption("defaultAI", dlg.m_sDefaultAI);
+    wxGetApp().SetOption( "defaultAI", dlg.m_sDefaultAI );
+
+    wxGetApp().SetOption( "optionsPage", wxString::Format("%d", dlg.m_selectedPage) );
 
     // Apply the new Options to the Active Table.
     MyChild* child = wxDynamicCast(this->GetActiveChild(), MyChild);

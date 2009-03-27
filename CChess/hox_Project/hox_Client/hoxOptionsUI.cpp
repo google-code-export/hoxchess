@@ -2,7 +2,6 @@
 // Name:        hoxOptionsUI.cpp
 // Purpose:     The UI managing all the options/preferences of HOXChess.
 // Author:      Huy Phan
-// Modified by: 
 // Created:     3/9/2009 6:58:33 AM
 // RCS-ID:      
 // Copyright:   Copyright 2007-2009 Huy Phan  <huyphan@playxiangqi.com>
@@ -58,6 +57,8 @@ BEGIN_EVENT_TABLE( hoxOptionsUI, wxPropertySheetDialog )
     EVT_LISTBOX( ID_LISTBOX_ENGINES, hoxOptionsUI::OnListboxEnginesSelected )
 
 ////@end hoxOptionsUI event table entries
+
+    EVT_BOOKCTRL_PAGE_CHANGED( wxID_ANY, hoxOptionsUI::OnPageChanged )
 
 END_EVENT_TABLE()
 
@@ -127,6 +128,9 @@ void hoxOptionsUI::Init()
     m_panelPiecePreview = NULL;
     m_listBoxEngines = NULL;
 ////@end hoxOptionsUI member initialisation
+
+    m_bAlreadySetSelectedPage = false;
+    m_selectedPage = 0;
 }
 
 
@@ -258,6 +262,11 @@ void hoxOptionsUI::CreateControls()
     m_colorPickerForeground->SetColour( m_sFgColor );
     _InitPieceSetChoices();
     _InitAIChoices();
+    if ( m_selectedPage >=0 && m_selectedPage < GetBookCtrl()->GetPageCount() )
+    {
+        GetBookCtrl()->SetSelection( m_selectedPage );
+        m_bAlreadySetSelectedPage = true;
+    }
 }
 
 
@@ -504,3 +513,12 @@ void hoxOptionsUI::OnPaint( wxPaintEvent& event )
     _DrawPiecePreview( m_panelPiecePreview, p1, p2 );
 }
 
+void
+hoxOptionsUI::OnPageChanged( wxBookCtrlEvent& event )
+{
+    // To avoid revert to the default selection of 0 upon initialized.
+    if ( m_bAlreadySetSelectedPage )
+    {
+        m_selectedPage = event.GetSelection();
+    }
+}
