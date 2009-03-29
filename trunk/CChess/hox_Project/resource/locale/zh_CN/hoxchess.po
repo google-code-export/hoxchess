@@ -1,4 +1,4 @@
-# Vietnamese translation for HOXChess
+# Chinese (Simplified) translation for HOXChess
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Huy Phan <huyphan@playxiangqi.com>, 2009.
@@ -6,9 +6,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.7.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-24 09:57-0800\n"
-"PO-Revision-Date: 2009-03-24 09:57-0800\n"
-"Last-Translator: Huy Phan <huyphan@playxiangqi.com>\n"
+"POT-Creation-Date: 2009-03-29 16:01-0800\n"
+"PO-Revision-Date: 2009-03-29 16:03-0800\n"
+"Last-Translator: Kathleen Mak <huyphan@playxiangqi.com>\n"
 "Language-Team: PlayXiangqi <huyphan@playxiangqi.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -22,7 +22,7 @@ msgstr ""
 "X-Poedit-SearchPath-0: C:\\Users\\HPhan\\Documents\\CChess\\hox_Project\\hox_Client\n"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxAIPluginMgr.cpp:129
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:349
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:358
 msgid "There is no AI Engine available."
 msgstr "没有任何人工智能引擎。"
 
@@ -36,15 +36,15 @@ msgstr ""
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:517
 msgid "Game Reset"
-msgstr "游戏复位"
+msgstr "游戏重新设置"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:811
 msgid "Play RED"
-msgstr "采取红"
+msgstr "选择红色"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:813
 msgid "Play BLACK"
-msgstr "采取黑"
+msgstr "选择黑色"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:883
 msgid "Options"
@@ -52,7 +52,7 @@ msgstr "选项"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:891
 msgid "Resign"
-msgstr "辞职"
+msgstr "放弃"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:897
 msgid "Draw"
@@ -74,22 +74,22 @@ msgstr ""
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxChesscapePlayer.cpp:1113
 #, c-format
 msgid "A Message from Player [%s]"
-msgstr ""
+msgstr "游戏者%s信息"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxChesscapePlayer.cpp:1175
 msgid "Player Information"
-msgstr ""
+msgstr "游戏者消息"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxCoreBoard.cpp:343
 msgid "Game Over"
 msgstr "游戏结束"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLocalPlayer.cpp:195
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLocalPlayer.cpp:191
 #, c-format
 msgid "Enter your message for [%s]:"
 msgstr ""
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLocalPlayer.cpp:197
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLocalPlayer.cpp:193
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxPlayersUI.cpp:255
 msgid "Send a private message"
 msgstr ""
@@ -144,12 +144,12 @@ msgstr "取消"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxMyPlayer.cpp:453
 msgid "Message from Player"
-msgstr ""
+msgstr "游戏者信息"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxMyPlayer.cpp:454
 #, c-format
 msgid "A private message from [%s]"
-msgstr ""
+msgstr "游戏者%s信息"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxMyPlayer.cpp:610
 #, c-format
@@ -162,29 +162,35 @@ msgstr ""
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionDialog.cpp:73
 msgid "&Rated Game"
-msgstr ""
+msgstr "估价游戏"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionDialog.cpp:87
 msgid "&Timers"
-msgstr ""
+msgstr "&计时器"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionDialog.cpp:112
 msgid ""
 "Game: \n"
 "(minutes)"
 msgstr ""
+"游戏: \n"
+"(分钟)"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionDialog.cpp:121
 msgid ""
 "Move: \n"
 "(seconds)"
 msgstr ""
+"移动: \n"
+"(秒)"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionDialog.cpp:130
 msgid ""
 "Free: \n"
 "(seconds)"
 msgstr ""
+"免费: \n"
+"(秒)"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionDialog.cpp:145
 msgid "&Save Options"
@@ -194,85 +200,83 @@ msgstr "\t保存选项(&S)"
 msgid "&Cancel"
 msgstr "取消(C)"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:157
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:161
 msgid "General"
 msgstr "一般"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:160
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:164
 msgid "Enable &Sounds"
 msgstr "使声音(&S)"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:164
-#, fuzzy
-msgid "Show &Welcome Dialog at startup"
-msgstr "显示欢迎对话框在启动"
-
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:168
-#, fuzzy
-msgid "Show List of &Tables at login"
-msgstr "表格清单"
+msgid "Show &Welcome Dialog at startup"
+msgstr "在启动显示欢迎对话框 (&W)"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:172
+msgid "Show List of &Tables at login"
+msgstr "表格清单 (&T)"
+
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:176
 msgid "Language"
 msgstr "语言"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:175
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:179
 msgid "Current Language:"
 msgstr "当前语言："
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:182
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:186
 msgid "Main"
 msgstr "主要"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:190
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:194
 msgid "Colors"
 msgstr "颜色"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:195
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:199
 msgid "Background:"
 msgstr "背景："
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:203
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:207
 msgid "Foreground:"
 msgstr "前线:"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:209
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:213
 msgid "Pieces"
 msgstr "棋子"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:214
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:218
 msgid "Set:"
 msgstr "当前选择"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:221
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:225
 msgid "Preview"
-msgstr ""
+msgstr "预览"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:228
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:232
 msgid "Board"
 msgstr "木板"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:234
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:238
 msgid "Artificial Intelligence"
 msgstr "人工智能"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:239
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:243
 msgid "Default Engine:"
 msgstr "目前人工智能："
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:246
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:250
 msgid "AI"
 msgstr "人工智能"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:332
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:341
 msgid "There is no Piece-Set available."
 msgstr "没有任何作品集可用。"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:333
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:342
 msgid "Piece-Set Selection"
 msgstr ""
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:350
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:359
 msgid "AI Selection"
 msgstr "人工智能选择"
 
@@ -281,7 +285,6 @@ msgid "Id"
 msgstr ""
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxPlayersUI.cpp:39
-#, fuzzy
 msgid "Rating"
 msgstr "主要"
 
@@ -295,11 +298,11 @@ msgstr ""
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxPlayersUI.cpp:254
 msgid "&Invite"
-msgstr ""
+msgstr "&邀请"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxPlayersUI.cpp:254
 msgid "Invite Player"
-msgstr ""
+msgstr "邀请游戏者"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxPlayersUI.cpp:255
 msgid "&Message..."
@@ -307,26 +310,27 @@ msgstr ""
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxReferee.cpp:336
 msgid "Load Saved Game"
-msgstr ""
+msgstr "负载储存游戏"
+
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:225
+msgid "Progress dialog"
+msgstr "进度对话框"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:226
-msgid "Progress dialog"
-msgstr ""
-
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:227
 msgid "Wait until connection is established or press [Cancel]"
 msgstr "等到连接建立或按[取消]"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:375
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:340
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:357
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:363
 msgid "Create Pratice Table"
-msgstr ""
+msgstr "创造练习表"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:452
-#, fuzzy
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:469
 msgid "Login failure"
-msgstr "登录客户(&G)"
+msgstr "登录错误"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:580
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:598
 msgid "List of Tables"
 msgstr "表格清单"
 
@@ -367,7 +371,7 @@ msgid ""
 "Contact: <a href=\"mailto:huyphan@playxiangqi.com\">huyphan@playxiangqi.com</a>\n"
 "</p>"
 msgstr ""
-"<b>HOXChess</b> - <i>一个开源湘奇计划</i>\n"
+"<b>HOXChess</b> - <i>一个开源象棋计划</i>\n"
 "\n"
 "<p>\n"
 "要开始使用，请选择一个正确的行动。\n"
@@ -383,11 +387,11 @@ msgstr ""
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxWelcomeUI.cpp:137
 msgid "Show this dialog next time"
-msgstr "查看此对话框下一次"
+msgstr "下一次展示此对话框"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxWelcomeUI.cpp:144
 msgid "&Play With Computer"
-msgstr "与计算机的戏剧(&P)"
+msgstr "与电脑戏剧(&P)"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxWelcomeUI.cpp:147
 msgid "&Login Remote Server"
@@ -399,27 +403,27 @@ msgstr "变更选项(&O)..."
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxWelcomeUI.cpp:155
 msgid "&Close Dialog"
-msgstr "接近的对话(&C)"
+msgstr "关闭对话(&C)"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:46
 msgid "(Use Default Language)"
-msgstr "\t（使用默认语言）"
+msgstr "\t（使用目前语言）"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:49
 msgid "English"
-msgstr ""
+msgstr "英語"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:50
 msgid "Chinese (Simplified)"
-msgstr ""
+msgstr "中文簡體"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:51
 msgid "Vietnamese"
-msgstr ""
+msgstr "越南語言"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:134
 msgid "This language is not supported by the system."
-msgstr "这种语言不支持的系统。"
+msgstr "这系统不支持这种语言"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:146
 #, c-format
@@ -437,12 +441,12 @@ msgstr "语言选择"
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:203
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:221
 msgid "Unknown"
-msgstr ""
+msgstr "不明"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:250
 #, c-format
 msgid "Unknown language setting [%s]."
-msgstr ""
+msgstr "不明的语言设置%s"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:107
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:540
@@ -458,7 +462,7 @@ msgstr ""
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:394
 msgid "Please choose a file to save"
-msgstr ""
+msgstr "请选择一个文件保存"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:413
 msgid "Please choose a file to open"
@@ -470,7 +474,7 @@ msgstr "连接服务器"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:480
 msgid "Disconnect Server"
-msgstr "断开服务器"
+msgstr "停止连接服务器"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:484
 msgid "List Tables"
@@ -488,7 +492,7 @@ msgstr "关闭表"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:493
 msgid "Toggle Sounds"
-msgstr "涨跌卷"
+msgstr "切换声音"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:497
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:530
@@ -510,12 +514,12 @@ msgstr "连接到远程服务器"
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:511
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:602
 msgid "&Disconnect Server\tCtrl-D"
-msgstr "分开服务器(&D)\tCtrl-D"
+msgstr "停止连接服务器(&D)\tCtrl-D"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:511
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:603
 msgid "Disconnect from remote server"
-msgstr "断开远程服务器"
+msgstr "停止连接远程服务器"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:513
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:607
@@ -545,12 +549,12 @@ msgstr "关闭表(&C)\tCtrl-C"
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:520
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:617
 msgid "&Practice with Computer\tCtrl-P"
-msgstr "与计算机的戏剧(&P)\tCtrl-P"
+msgstr "与电脑练习(&P)\tCtrl-P"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:521
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:618
 msgid "Practice with your local Computer"
-msgstr "实践与您的本地计算机"
+msgstr "与电脑练习"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:525
 msgid "&Save Table..."
@@ -568,7 +572,7 @@ msgstr "打开保存表..."
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:528
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:623
 msgid "Open a saved table"
-msgstr ""
+msgstr "打开保存表"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:530
 msgid "&Exit\tAlt-X"
@@ -596,7 +600,7 @@ msgstr "选项(&O)...\tCtrl-O"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:544
 msgid "Set options"
-msgstr ""
+msgstr "设置选项"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:549
 msgid "&About HOXChess...\tF1"
@@ -618,11 +622,11 @@ msgstr "工具 (&T)"
 msgid "&Help"
 msgstr "帮助(&H)"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:680
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:689
 msgid "You must restart the program for this change to take effect"
 msgstr "您必须重新启动程序修改生效"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:681
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:690
 msgid "Required Action"
 msgstr "所需的行动"
 
@@ -633,9 +637,4 @@ msgstr "登录到远程服务器"
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxWelcomeUI.h:43
 msgid "Getting Started"
 msgstr "使用入门"
-
-#~ msgid "Login error"
-#~ msgstr "登录错误"
-#~ msgid "Quit the Program"
-#~ msgstr "退出此程序"
 
