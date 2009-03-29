@@ -68,11 +68,11 @@ hoxChesscapePlayer::Start()
     this->SetConnection( connection );
 }
 
-hoxResult
+void
 hoxChesscapePlayer::ConnectToServer()
 {
     m_bRequestingLogin = true;
-    return this->hoxLocalPlayer::ConnectToServer();
+    this->hoxLocalPlayer::ConnectToServer();
 }
 
 hoxResult 

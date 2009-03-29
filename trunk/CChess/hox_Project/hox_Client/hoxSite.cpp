@@ -625,42 +625,34 @@ hoxRemoteSite::DisplayListOfTables( const hoxNetworkTableInfoList& tableList )
     }
 }
 
-hoxResult 
+void 
 hoxRemoteSite::Connect()
 {
     if ( this->IsConnected() )
     {
         wxLogDebug("%s: This site has been connected. END.", __FUNCTION__);
-        return hoxRC_OK;
+        return;
     }
 
-    /* Start connecting... */
-
     this->ShowProgressDialog( true );
-
-    return m_player->ConnectToServer();
+    m_player->ConnectToServer();
 }
 
-hoxResult 
+void 
 hoxRemoteSite::Disconnect()
 {
-	hoxResult result = hoxRC_OK;
-    wxLogDebug("%s: ENTER.", __FUNCTION__);
-
 	if ( m_siteDisconnecting )
 	{
 		wxLogDebug("%s: Site [%s] is already being disconnected. END.",
             __FUNCTION__, this->GetName().c_str());
-		return hoxRC_OK;
+		return;
 	}
 	m_siteDisconnecting = true;
 
 	if ( m_player != NULL )
 	{
-		result = m_player->DisconnectFromServer();
+		m_player->DisconnectFromServer();
 	}
-
-    return result;
 }
 
 void

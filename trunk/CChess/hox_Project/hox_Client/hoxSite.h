@@ -73,8 +73,8 @@ public:
     virtual const wxString GetName() const
         { return wxString( m_address.c_str() ); }
 
-    virtual hoxResult Connect() = 0;
-    virtual hoxResult Disconnect() = 0;
+    virtual void Connect() {}
+    virtual void Disconnect() {}
 
     virtual bool IsConnected() const = 0;
 
@@ -210,9 +210,6 @@ public:
     hoxLocalSite(const hoxServerAddress& address);
     virtual ~hoxLocalSite();
 
-    virtual hoxResult Connect()  { return hoxRC_OK; }
-    virtual hoxResult Disconnect() { return hoxRC_OK; }
-
     virtual bool IsConnected() const { return true; }
 
     virtual hoxLocalPlayer* CreateLocalPlayer(const wxString& playerName);
@@ -239,8 +236,8 @@ public:
                   hoxSiteType             type = hoxSITE_TYPE_REMOTE);
     virtual ~hoxRemoteSite();
 
-    virtual hoxResult Connect();
-    virtual hoxResult Disconnect();
+    virtual void Connect();
+    virtual void Disconnect();
 
     virtual bool IsConnected() const;
 

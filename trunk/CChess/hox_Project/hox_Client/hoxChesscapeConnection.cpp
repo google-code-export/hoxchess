@@ -170,7 +170,7 @@ hoxChesscapeWriter::_Join( hoxRequest_APtr apRequest )
 hoxResult
 hoxChesscapeWriter::_Invite( hoxRequest_APtr apRequest )
 {
-    const wxString sPlayerId = apRequest->parameters["invitee"];
+    const wxString sPlayerId = apRequest->parameters["oid"];
 
 	wxLogDebug("%s: Send INVITE for player = [%s]...", __FUNCTION__, sPlayerId.c_str());
 	wxString cmdRequest;
@@ -182,7 +182,7 @@ hoxChesscapeWriter::_Invite( hoxRequest_APtr apRequest )
 hoxResult
 hoxChesscapeWriter::_GetPlayerInfo( hoxRequest_APtr apRequest )
 {
-    const wxString sPlayerId = apRequest->parameters["info_pid"];
+    const wxString sPlayerId = apRequest->parameters["oid"];
 
 	wxLogDebug("%s: Send PLAYER-INFO for player = [%s]...", __FUNCTION__, sPlayerId.c_str());
 	wxString cmdRequest;
