@@ -58,8 +58,8 @@ public:
      * MY-specific Network API
      *******************************/
 
-    virtual hoxResult ConnectToServer();
-    virtual hoxResult DisconnectFromServer();
+    virtual void ConnectToServer();
+    virtual void DisconnectFromServer();
 
     virtual hoxResult QueryForNetworkTables();
     virtual hoxResult JoinNetworkTable( const wxString& tableId );

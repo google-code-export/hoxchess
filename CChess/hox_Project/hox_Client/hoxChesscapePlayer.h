@@ -50,7 +50,7 @@ public:
      * Override the parent's API
      *******************************/
 
-    virtual hoxResult ConnectToServer();
+    virtual void ConnectToServer();
 	virtual hoxResult QueryForNetworkTables();
     virtual hoxResult JoinNetworkTable( const wxString& tableId );
 	virtual hoxResult OpenNewNetworkTable();

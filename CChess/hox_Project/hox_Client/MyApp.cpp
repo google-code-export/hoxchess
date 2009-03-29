@@ -294,10 +294,7 @@ MyApp::ConnectToServer( const hoxSiteType       siteType,
     wxCHECK_RET(site != NULL, "Failed to create a Site");
 
     /* Connect to the site. */
-    if ( site->Connect() != hoxRC_OK )
-    {
-        wxLogError("%s: Failed to connect to server [%s].", __FUNCTION__, address.c_str());
-    }
+    site->Connect();
 }
 
 void 

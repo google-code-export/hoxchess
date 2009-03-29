@@ -66,8 +66,8 @@ hoxLocalPlayer::OnClose_FromTable( const wxString& tableId )
 {
     wxLogDebug("%s: ENTER. Table-Id = [%s].", __FUNCTION__, tableId.c_str());
 
-    hoxTable_SPtr pTable = this->FindTable( tableId );
-    if ( pTable.get() != NULL )
+    const hoxTable_SPtr pTable = this->FindTable( tableId );
+    if ( pTable )
     {
         if ( pTable->GetGameType() != hoxGAME_TYPE_PRACTICE )
         {
@@ -77,7 +77,7 @@ hoxLocalPlayer::OnClose_FromTable( const wxString& tableId )
     }
 }
 
-hoxResult 
+void 
 hoxLocalPlayer::ConnectToServer()
 {
     this->StartConnection();
@@ -89,21 +89,17 @@ hoxLocalPlayer::ConnectToServer()
         wxString::Format("%s-%s", HOX_APP_NAME, HOX_VERSION);
     
     this->AddRequestToConnection( apRequest );
-
-    return hoxRC_OK;
 }
 
-hoxResult 
+void 
 hoxLocalPlayer::DisconnectFromServer()
 {
-    if ( m_bRequestingLogout ) return hoxRC_HANDLED;
+    if ( m_bRequestingLogout ) return;
     m_bRequestingLogout = true;
 
     hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_LOGOUT ) );
 	apRequest->parameters["pid"] = this->GetId();
 	this->AddRequestToConnection( apRequest );
-
-    return hoxRC_OK;
 }
 
 hoxResult 
@@ -161,7 +157,7 @@ hoxLocalPlayer::QueryPlayerInfo( const wxString& sInfoId )
 {
     hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_PLAYER_INFO ) );
 	apRequest->parameters["pid"] = this->GetId();  // The one who asks.
-    apRequest->parameters["info_pid"] = sInfoId;   // To-be-queried Player.
+    apRequest->parameters["oid"] = sInfoId;   // To-be-queried Player.
 
     this->AddRequestToConnection( apRequest );
     return hoxRC_OK;
@@ -172,7 +168,7 @@ hoxLocalPlayer::InvitePlayer( const wxString& sInviteeId )
 {
     hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_INVITE ) );
 	apRequest->parameters["pid"] = this->GetId();  // Inviter
-    apRequest->parameters["invitee"] = sInviteeId; // Invitee
+    apRequest->parameters["oid"] = sInviteeId; // Invitee
 
     const hoxTable_SPtr pActiveTable = this->GetActiveTable();
     if ( pActiveTable )
