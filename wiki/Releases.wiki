@@ -2,6 +2,21 @@
 
 _All releases can be found from_ [http://code.google.com/p/hoxchess/downloads/list this Downloads page]
 
+  * *Mar 29, 2009*
+    * Released version *0.7.0.0* of the _source_ code and Windows Binary _Installer_
+    * The main _new features_ are:
+      * Localization: English, Chinese (Simplified), Vietnamese
+        * For both the program itself and the Installer.
+      * AI Plugin Framework: embedded 4 engines (TSITO, Folium, XQWLight, and !MaxQi)
+        * AI Engines are separated into different dynamic libraries (.dll on Windows and .so on Linux)
+      * Added the option to change Piece-Set.
+      * Fixed the disconnect problem in Linux (Ubuntu, CentOS,...)
+        * This is done by replacing wxSocket with the *Asio* network library.   
+      * Implemented a private/instant message for Chesscape and !PlayXiangqi servers.
+      * Ability to resume games with AI Engines using Forsyth-Edwards Notation (FEN) format
+      * Change the default !PlayXiangqi 's port from 8000 to 80.
+      * Display the Getting Started dialog upon startup to help novice users.
+
   * *Jan 21, 2009*
     * Released version *0.6.0.0* of the _source_ code and Windows Binary _Installer_
     * The main _new features_ are:
