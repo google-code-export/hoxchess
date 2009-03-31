@@ -31,20 +31,21 @@ Starting from version _0.0.2.0_ (released on Nov 10, 2007), the project can be b
 
 = Detailed Instructions under Linux =
   * Follow [wxWidgetsInHOXChess the instructions here] to build *wxGTK* libraries
-  * $ cd _.../hox_Project/plugins/AI_XQWLight_
-  * $ *make*
-  * $ cd _.../hox_Project/plugins/AI_TSITO_
-  * $ *make*
-  * $ cd _.../hox_Project/plugins/AI_Folium_
-  * $ *make*
-  * $ cd _.../hox_Project/plugins/AI_MaxQi_
-  * $ *make*
-  * $ cd _.../CChess/hox_Project/hox_Client_
-  * $ *make*
-    * Everything is contained within one simple _Makefile_ located under _CChess/hox_Project/hox_Client_
-      * Once the _hoxchess_ executable file is built, run it as follows:
-        * LD_LIBRARY_PATH=/path/to/wxWidgets/libs ./hoxchess
-          * For example: LD_LIBRARY_PATH=/opt/wxGTK-2.9.0/lib ./hoxchess
+{{{
+  $ cd .../hox_Project/plugins/AI_XQWLight
+  $ make
+  $ cd .../hox_Project/plugins/AI_TSITO
+  $ make
+  $ cd .../hox_Project/plugins/AI_Folium
+  $ make
+  $ cd .../hox_Project/plugins/AI_MaxQi
+  $ make
+  $ cd .../CChess/hox_Project/hox_Client
+  $ make
+  }}}
+  * Once the _hoxchess_ executable file is built, run it as follows:
+    * LD_LIBRARY_PATH=/path/to/wxWidgets/libs ./hoxchess
+      * For example: LD_LIBRARY_PATH=/opt/wxGTK-2.9.0/lib ./hoxchess
   * *Note* : 
     * For those who develop in [http://www.kdevelop.org KDevelop], I also created an KDevelop project _CChess/hox_Project/hox_Project.kdevelop_
     * This project file is simply a wrapper of the _Makefile_ mentioned above.
