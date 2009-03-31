@@ -12,9 +12,9 @@ The page's content is based entirely on my experience working on the project.
 Starting from version _0.0.2.0_ (released on Nov 10, 2007), the project can be built under Windows and Linux, thanks to the cross platform portability of [http://www.wxwidgets.org wxWidgets].
 
   * [http://www.wxwidgets.org/ wxWidgets] 2.9.0 (the not-yet-released *trunk* version)
-    * I tested [http://wxwindows.sourceforge.net/snapshots/ the daily builds] on Feb 14, 2009
+    * I tested [http://wxwindows.sourceforge.net/snapshots/ the daily builds] on Mar 29, 2009
     * For Ubuntu, we need the *wxGTK* port.
-  * [http://www.boost.org Boost C++ 1_36_0 Libraries] Headers only. Already included in the source code 
+  * [http://www.boost.org Boost C++ 1_38_0 Libraries] Headers only. Already included in the source code 
   * Operating Systems
     * Under Windows
       * Windows XP or Vista
@@ -31,8 +31,15 @@ Starting from version _0.0.2.0_ (released on Nov 10, 2007), the project can be b
 
 = Detailed Instructions under Linux =
   * Follow [wxWidgetsInHOXChess the instructions here] to build *wxGTK* libraries
+  * $ cd _.../hox_Project/plugins/AI_XQWLight_
+  * $ *make*
+  * $ cd _.../hox_Project/plugins/AI_TSITO_
+  * $ *make*
+  * $ cd _.../hox_Project/plugins/AI_Folium_
+  * $ *make*
+  * $ cd _.../hox_Project/plugins/AI_MaxQi_
+  * $ *make*
   * $ cd _.../CChess/hox_Project/hox_Client_
-  * $ *make prepare*
   * $ *make*
     * Everything is contained within one simple _Makefile_ located under _CChess/hox_Project/hox_Client_
       * Once the _hoxchess_ executable file is built, run it as follows:
