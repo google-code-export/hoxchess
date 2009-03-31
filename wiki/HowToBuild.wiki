@@ -32,6 +32,7 @@ Starting from version _0.0.2.0_ (released on Nov 10, 2007), the project can be b
 
 = Detailed Instructions under Linux =
   * Follow [wxWidgetsInHOXChess the instructions here] to build *wxGTK* libraries
+  * Build AI Engine Plugins and the main _hoxchess_ executable as follows:
 {{{
   $ cd .../hox_Project/plugins/AI_XQWLight
   $ make
@@ -44,7 +45,7 @@ Starting from version _0.0.2.0_ (released on Nov 10, 2007), the project can be b
   $ cd .../CChess/hox_Project/hox_Client
   $ make
   }}}
-  * Once the _hoxchess_ executable file is built, run it as follows:
+  * Once AI _plugins_ and _hoxchess_ executable are built, run _hoxchess_ as follows:
     * LD_LIBRARY_PATH=/path/to/wxWidgets/libs ./hoxchess
       * For example: LD_LIBRARY_PATH=/opt/wxGTK-2.9.0/lib ./hoxchess
   * *Note* : 
