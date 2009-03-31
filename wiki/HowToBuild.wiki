@@ -15,6 +15,7 @@ Starting from version _0.0.2.0_ (released on Nov 10, 2007), the project can be b
     * I tested [http://wxwindows.sourceforge.net/snapshots/ the daily builds] on Mar 29, 2009
     * For Ubuntu, we need the *wxGTK* port.
   * [http://www.boost.org Boost C++ 1_38_0 Libraries] Headers only. Already included in the source code 
+  * [http://www.think-async.com/Asio/WebHome Asio 1.4.1 C++ Library] Headers only. Already included in the source code 
   * Operating Systems
     * Under Windows
       * Windows XP or Vista
