@@ -1,8 +1,3 @@
 These images were downloaded from the following site:
 ------------------------------------------------------
-+ http://home1.gte.net/res1bup4/chess_intro.htm#pieces
-
-
-Conversion from GIF to PNG images:
-----------------------------------
-+ ???
++ http://sourceforge.net/projects/xiangqi/
