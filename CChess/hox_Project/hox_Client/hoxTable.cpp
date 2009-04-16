@@ -356,9 +356,10 @@ hoxTable::OnDrawRequest_FromNetwork( hoxPlayer* fromPlayer )
 }
 
 void 
-hoxTable::OnGameOver_FromNetwork( const hoxGameStatus gameStatus )
+hoxTable::OnGameOver_FromNetwork( const hoxGameStatus gameStatus,
+                                  const wxString& sReason /* = "" */ )
 {
-	_PostBoard_GameOverEvent( gameStatus );
+	_PostBoard_GameOverEvent( gameStatus, sReason );
 }
 
 void 
@@ -554,13 +555,15 @@ hoxTable::_PostBoard_DrawRequestEvent( hoxPlayer* fromPlayer,
 }
 
 void 
-hoxTable::_PostBoard_GameOverEvent( const hoxGameStatus gameStatus ) const
+hoxTable::_PostBoard_GameOverEvent( const hoxGameStatus gameStatus,
+                                    const wxString& sReason ) const
 {
 	if ( m_board == NULL )
 		return;
 
     wxCommandEvent event( hoxEVT_BOARD_GAME_OVER );
     event.SetInt( (int) gameStatus );
+    event.SetString( sReason );
     wxPostEvent( m_board, event );
 }
 
