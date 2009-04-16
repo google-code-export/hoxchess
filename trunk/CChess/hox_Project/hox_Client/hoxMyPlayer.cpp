@@ -539,7 +539,7 @@ hoxMyPlayer::_HandleEvent_E_END( const wxString& sContent )
         return;
     }
 
-    pTable->OnGameOver_FromNetwork( status );
+    pTable->OnGameOver_FromNetwork( status, sReason );
 }
 
 void

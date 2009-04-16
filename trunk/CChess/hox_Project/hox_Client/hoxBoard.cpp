@@ -495,10 +495,11 @@ void
 hoxBoard::OnGameOver( wxCommandEvent &event )
 {
 	const int gameStatus = event.GetInt();
-	
-    const wxString boardMessage = _GetGameOverMessage( gameStatus );
+	const wxString sReason = event.GetString();
 
-	/* Display the status */
+    wxString boardMessage = _GetGameOverMessage( gameStatus );
+    if ( !sReason.empty() ) boardMessage += " " + sReason;
+
 	m_status = (hoxGameStatus) gameStatus; // TODO: Force it!!!
 	this->OnBoardMsg( boardMessage );
 	m_coreBoard->SetGameOver( true );

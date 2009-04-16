@@ -237,7 +237,8 @@ public:
      *
      * @param gameStatus The game's status.
      */
-    void OnGameOver_FromNetwork( const hoxGameStatus gameStatus );
+    void OnGameOver_FromNetwork( const hoxGameStatus gameStatus,
+                                 const wxString& sReason = "" );
 
     /**
      * Callback function from the NETWORK Player to let this Table know about
@@ -335,7 +336,8 @@ private:
     void _PostBoard_DrawRequestEvent( hoxPlayer* fromPlayer,
                                       bool       bPopupRequest ) const;
 
-    void _PostBoard_GameOverEvent( const hoxGameStatus gameStatus ) const;
+    void _PostBoard_GameOverEvent( const hoxGameStatus gameStatus,
+                                   const wxString& sReason ) const;
 
     void _PostBoard_GameResetEvent() const;
 
