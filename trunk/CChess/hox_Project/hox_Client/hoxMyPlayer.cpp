@@ -628,14 +628,13 @@ hoxMyPlayer::_HandleEvent_PLAYER_INFO( const wxString& sContent )
     hoxPlayerStats  playerStats;
 
     _ContentTokenizer tkz( sContent );
-    playerStats.id    = tkz.GetNextToken();
-    playerStats.score = tkz.GetNextInt();
+    playerStats.id     = tkz.GetNextToken();
+    playerStats.score  = tkz.GetNextInt();
+    playerStats.wins   = tkz.GetNextInt();
+    playerStats.draws  = tkz.GetNextInt();
+    playerStats.losses = tkz.GetNextInt();
 
     hoxTable_SPtr pTable = this->GetActiveTable();
-
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // TODO: HOXServer does not support player's statistics yet.
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     const wxString sMessage = wxString::Format("*INFO: %s %d W%d D%d L%d",
         playerStats.id.c_str(), playerStats.score,
