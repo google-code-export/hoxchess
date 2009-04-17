@@ -77,6 +77,17 @@ op=LOGOUT&pid=myid
 op=LOGOUT&code=0&content=otherid
 }}}
 
+  * *I_PLAYERS* - The event containing the list of online players
+    * Response
+      * To Player - The list of all online Players on in the server
+{{{
+op=I_PLAYERS&code=0&content=mypid;1500
+Guest#t_4733;1500
+hoxchess;1488
+
+In this example, there are three online Players with player-ID = 'myid', 'Guest#t_4733', and 'hoxchess'
+}}}
+
   * *LIST* - Get the list of Tables
     * Request
       * Parameters:
