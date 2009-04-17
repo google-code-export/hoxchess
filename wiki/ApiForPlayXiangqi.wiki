@@ -163,17 +163,20 @@ op=UPDATE&code=0&content=2;p1;1;900/300/20
     * Request
       * Parameters:
         * _pid_ - The Player's ID
-        * _tid_ - The ID of the Table to leave
         * _msg_ - The message to be sent to others at the Table
+        * _tid_ - _optional_ table-ID (the message is for everyone at this table)
+        * _oid_ - _optional_ other player ID (the message is private only for this player)
       * Example:
 {{{
 op=MSG&pid=myid&tid=1&msg=Hi every at this table
+op=MSG&pid=myid&oid=p1&msg=A private message from another player
 }}}
     * Response
       * To Player - _None_
       * To Others:
 {{{
-op=MSG&code=0&content=1;myid;Hi every at this table
+op=MSG&code=0&tid=2&content=1;myid;Hello everyone at this table
+op=MSG&code=0&content=hoxchess;hello from hoxchess
 }}}
 
   * *PING* - Ping (keep-alive) the server to avoid being timed out.
@@ -198,11 +201,13 @@ op=PING&code=0&content=PONG
         * _move_ - The _move_ of format: x1y1x2y2
       * Example:
 {{{
-op=MOVE&pid=myid&tid=1&move=6665&game_time=1499&status=in_progress
+op=MOVE&pid=myid&tid=1&move=6665&game_time=1499
 }}}
     * Response
       * To Player - _None_
       * To Others:
+      * To Others:
+        * op=MOVE&code=0&content=tableid;playerid;move;status
 {{{
 op=MOVE&code=0&content=1;myid;6665;in_progress
 }}}
@@ -257,34 +262,35 @@ op=RESET&code=0&content=2
 }}}
 
   * *INVITE* - Send an invitation to another Player
-    * *Not yet fully implemented*
     * Request
       * Parameters:
         * _pid_ - The Player's ID
-        * _invitee_ - The ID of the _invitee_
+        * _oid_ - The (other) ID of the _invitee_
+        * _tid_ - The _optional_ Id of a table
       * Example:
 {{{
-op=INVITE&pid=p1&invitee=p2
+op=INVITE&pid=p1&oid=p2&tid=2
 }}}
     * Response
       * To the other ( _invitee_ )
 {{{
-op=INVITE&code=0&content=p1;p2
+op=INVITE&code=0&tid=2&content=p1;1488;p2
 }}}
 
   * *PLAYER_INFO* - Query for a Player's information
     * Request
       * Parameters:
         * _pid_ - The Player's ID
-        * _info_pid_ - The ID of the Player to be queried
+        * _oid_ - The ID of the (other) Player to be queried
       * Example:
 {{{
-op=PLAYER_INFO&pid=p1&info_pid=p2
+op=PLAYER_INFO&pid=p1&oid=p2
 }}}
     * Response
       * To Player:
+        * op=PLAYER_INFO&code=0&content=playerid;score;wins;draws;losses
 {{{
-op=PLAYER_INFO&code=0&content=p2;1396
+op=PLAYER_INFO&code=0&content=p2;1698;128;18;224
 }}}
 
   * *POLL* - Poll for new events (specified used by _polling_ clients)
