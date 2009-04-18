@@ -161,9 +161,9 @@ hoxPlayersUI::UpdateScore( const wxString& sPlayerId,
                            const int       nPlayerScore )
 {
     const long playerIndex = _FindPlayerIndex( sPlayerId );
-    if ( playerIndex == -1 ) // notfound?
+    if ( playerIndex == -1 ) // not found?
     {
-        wxLogDebug("%s: *WARN* Player [%s] not found.", __FUNCTION__, sPlayerId.c_str());
+        wxLogDebug("%s: Player [%s] not found.", __FUNCTION__, sPlayerId.c_str());
         return false;
     }
 
@@ -188,13 +188,20 @@ hoxPlayersUI::UpdateStatus( const wxString&       sPlayerId,
     const long playerIndex = _FindPlayerIndex( sPlayerId );
     if ( playerIndex == -1 ) // notfound?
     {
-        wxLogDebug("%s: *WARN* Player [%s] not found.", __FUNCTION__, sPlayerId.c_str());
+        wxLogDebug("%s: Player [%s] not found.", __FUNCTION__, sPlayerId.c_str());
         return false;
     }
 
     const int imageIndex = _StatusToImageIndex( playerStatus );
     this->SetItemImage( playerIndex, imageIndex );
     return true;
+}
+
+bool
+hoxPlayersUI::HasPlayer( const wxString& sPlayerId ) const
+{
+    const long playerIndex = _FindPlayerIndex( sPlayerId );
+    return ( playerIndex != -1 );
 }
 
 int

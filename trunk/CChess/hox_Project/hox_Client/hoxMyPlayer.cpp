@@ -568,7 +568,8 @@ hoxMyPlayer::_HandleEvent_E_SCORE( const wxString& sContent )
     }
 
     player->SetScore( nScore );
-    pTable->OnScore_FromNetwork( player );
+    m_site->UpdateScoreOfOnlinePlayer( playerId, nScore );
+    pTable->OnScore_FromNetwork( playerId, nScore );
 }
 
 void
