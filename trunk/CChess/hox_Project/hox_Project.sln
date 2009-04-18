@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AI_Folium", "plugins\AI_Fol
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AI_TSITO", "plugins\AI_TSITO\AI_TSITO.vcproj", "{7B8EE86A-42F9-4CC8-A587-D93079C1C484}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AI_HaQiKiD", "plugins\AI_HaQiKiD\AI_HaQiKiD.vcproj", "{FDAFF45E-C1B6-4B00-A015-05F48396944D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -43,6 +45,10 @@ Global
 		{7B8EE86A-42F9-4CC8-A587-D93079C1C484}.Debug|Win32.Build.0 = Debug|Win32
 		{7B8EE86A-42F9-4CC8-A587-D93079C1C484}.Release|Win32.ActiveCfg = Release|Win32
 		{7B8EE86A-42F9-4CC8-A587-D93079C1C484}.Release|Win32.Build.0 = Release|Win32
+		{FDAFF45E-C1B6-4B00-A015-05F48396944D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FDAFF45E-C1B6-4B00-A015-05F48396944D}.Debug|Win32.Build.0 = Debug|Win32
+		{FDAFF45E-C1B6-4B00-A015-05F48396944D}.Release|Win32.ActiveCfg = Release|Win32
+		{FDAFF45E-C1B6-4B00-A015-05F48396944D}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
