@@ -317,26 +317,27 @@ hoxBoard::OnPlayerJoin( wxCommandEvent &event )
     wxCHECK_RET(apPlayerInfo.get(), "Player cannot be NULL.");
 
     const wxString playerId    = apPlayerInfo->id;
+    const int      nScore      = apPlayerInfo->score;
     const int      nPlayerRole = event.GetInt();
     hoxColor       playerColor = hoxCOLOR_UNKNOWN;
 
     if ( nPlayerRole == hoxCOLOR_RED )
     {
         playerColor = hoxCOLOR_RED;
-        _SetRedInfo( apPlayerInfo.get() );
-        if ( playerId == m_blackId ) _SetBlackInfo( NULL );
+        _SetRedInfo( playerId, nScore );
+        if ( playerId == m_blackId ) _SetBlackInfo( "" );
     } 
     else if ( nPlayerRole == hoxCOLOR_BLACK )
     {
         playerColor = hoxCOLOR_BLACK;
-        _SetBlackInfo( apPlayerInfo.get() );
-        if ( playerId == m_redId ) _SetRedInfo( NULL );
+        _SetBlackInfo( playerId, nScore );
+        if ( playerId == m_redId ) _SetRedInfo( "" );
     }
     else
     {
         playerColor = hoxCOLOR_NONE;
-        if ( playerId == m_redId )   _SetRedInfo( NULL );
-        if ( playerId == m_blackId ) _SetBlackInfo( NULL );
+        if ( playerId == m_redId )   _SetRedInfo( "" );
+        if ( playerId == m_blackId ) _SetBlackInfo( "" );
     }
 
     /* Toggle the view if necessary. There two cases:
@@ -350,7 +351,7 @@ hoxBoard::OnPlayerJoin( wxCommandEvent &event )
         this->ToggleViewSide();
     }
 
-    bool bNewlyJoined = _AddPlayerToList( playerId, apPlayerInfo->score );
+    const bool bNewlyJoined = _AddPlayerToList( playerId, nScore );
     if ( bNewlyJoined )
     {
         const wxString sMessage = wxString::Format("%s joined", playerId.c_str());
@@ -382,11 +383,11 @@ hoxBoard::OnPlayerLeave( wxCommandEvent &event )
 
     if ( playerId == m_redId )     // Check RED
     {
-        _SetRedInfo( NULL );
+        _SetRedInfo( "" );
     }
     else if ( playerId == m_blackId ) // Check BLACK
     {
-        _SetBlackInfo( NULL );
+        _SetBlackInfo( "" );
     }
 
     bool bRemoved = _RemovePlayerFromList( playerId );
@@ -402,22 +403,13 @@ hoxBoard::OnPlayerLeave( wxCommandEvent &event )
 void 
 hoxBoard::OnPlayerScore( wxCommandEvent &event )
 {
-    hoxPlayerInfo_APtr apPlayerInfo( wxDynamicCast(event.GetEventObject(), hoxPlayerInfo) );
-    wxCHECK_RET(apPlayerInfo.get(), "Player cannot be NULL.");
+    const wxString playerId = event.GetString();
+    const int      nScore   = event.GetInt();
 
-    const wxString playerId = apPlayerInfo->id;
+    if      ( playerId == m_redId )   _SetRedInfo( playerId, nScore );
+    else if ( playerId == m_blackId ) _SetBlackInfo( playerId, nScore );
 
-    if ( playerId == m_redId )
-    {
-        _SetRedInfo( apPlayerInfo.get() );
-    } 
-    else if ( playerId == m_blackId )
-    {
-        _SetBlackInfo( apPlayerInfo.get() );
-    } 
-
-    /* NOTE: This action "add" can be used as an "update" action. */
-    _AddPlayerToList( playerId, apPlayerInfo->score );
+    _UpdatePlayerScore( playerId, nScore );
 }
 
 void 
@@ -755,45 +747,31 @@ hoxBoard::_Show()
     _OnTimerUpdated();
 }
 
-void 
-hoxBoard::_SetRedInfo( const hoxPlayerInfo* playerInfo )
+void
+hoxBoard::_SetRedInfo( const wxString& playerId,
+                       const int       nScore /* = 0 */ )
 {
     if ( ! m_bUICreated ) return;
 
+    m_redId = playerId;
+
     wxString info;
-
-    if ( playerInfo != NULL )
-    {
-        m_redId = playerInfo->id;
-        info = wxString::Format("%s (%d)", m_redId.c_str(), playerInfo->score);
-    }
-    else
-    {
-        m_redId = "";
-        info = "*";
-    }
-
+    if ( m_redId.empty() ) info = "*";
+    else                   info.Printf("%s (%d)", m_redId.c_str(), nScore);
     m_redInfo->SetLabel( info );
 }
 
-void 
-hoxBoard::_SetBlackInfo( const hoxPlayerInfo* playerInfo )
+void
+hoxBoard::_SetBlackInfo( const wxString& playerId,
+                         const int       nScore /* = 0 */ )
 {
     if ( ! m_bUICreated ) return;
 
+    m_blackId = playerId;
+
     wxString info;
-
-    if ( playerInfo != NULL )
-    {
-        m_blackId = playerInfo->id;
-        info = wxString::Format("%s (%d)", m_blackId.c_str(), playerInfo->score);
-    }
-    else
-    {
-        m_blackId = "";
-        info = "*";
-    }
-
+    if ( m_blackId.empty() ) info = "*";
+    else                     info.Printf("%s (%d)", m_blackId.c_str(), nScore);
     m_blackInfo->SetLabel( info );
 }
 
@@ -1183,11 +1161,23 @@ hoxBoard::SetFgColor( wxColor color )
 
 bool 
 hoxBoard::_AddPlayerToList( const wxString& playerId,
-                            const int       playerScore )
+                            const int       nScore )
 {
     if ( ! m_bUICreated ) return false;
 
-    return m_playerListBox->AddPlayer( playerId, playerScore );
+    return m_playerListBox->AddPlayer( playerId, nScore );
+}
+
+void
+hoxBoard::_UpdatePlayerScore( const wxString& playerId,
+                              const int       nScore )
+{
+    if ( ! m_bUICreated ) return;
+
+    if ( m_playerListBox->HasPlayer( playerId ) )
+    {
+        m_playerListBox->UpdateScore( playerId, nScore );
+    }
 }
 
 bool 

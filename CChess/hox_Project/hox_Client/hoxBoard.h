@@ -189,9 +189,10 @@ public:
 
 private:
     void _Show();
-    void _SetRedInfo( const hoxPlayerInfo* playerInfo );
-    void _SetBlackInfo( const hoxPlayerInfo* playerInfo );
-
+    void _SetRedInfo( const wxString& playerId,
+                      const int       nScore = 0 );
+    void _SetBlackInfo( const wxString& playerId,
+                        const int       nScore = 0 );
     void _CreateBoardPanel();
     void _LayoutBoardPanel( bool viewInverted );
     
@@ -200,7 +201,14 @@ private:
      * @return true if the Player is NEWLY inserted.
      */
     bool _AddPlayerToList( const wxString& playerId,
-                           const int       playerScore );
+                           const int       nScore );
+
+    /**
+     * Update a Player's Score in the Player-List GUI.
+     * Do nothing if the Player is not found.
+     */
+    void _UpdatePlayerScore( const wxString& playerId,
+                             const int       nScore );
 
     /**
      * Remove a Player's Id from the Player-List GUI.

@@ -250,9 +250,11 @@ public:
      * Callback function from the NETWORK Player to let this Table know about
      * a player's new Score.
      *
-     * @param player The Player who has the new score.
+     * @param playerId The ID of the Player who has the new score.
+     * @param nScore   The new Score.
      */
-    void OnScore_FromNetwork( hoxPlayer* player );
+    void OnScore_FromNetwork( const wxString& playerId,
+                              const int       nScore );
 
     /**
      * Callback function from a player who is leaving the table.
@@ -287,6 +289,7 @@ public:
 
     hoxSite* GetSite() const { return m_site; }
 
+    bool     HasPlayer( const wxString& sPlayerId ) const;
     hoxColor GetPlayerRole( const wxString& sPlayerId ) const;
 
 protected:
@@ -341,8 +344,8 @@ private:
 
     void _PostBoard_GameResetEvent() const;
 
-    void _PostBoard_ScoreEvent( hoxPlayer*  player ) const;
-
+    void _PostBoard_ScoreEvent( const wxString& playerId,
+                                const int       nScore ) const;
     void _PostBoard_UpdateEvent( hoxPlayer* player ) const;
 
     void       _AddPlayer( hoxPlayer* player, hoxColor role );

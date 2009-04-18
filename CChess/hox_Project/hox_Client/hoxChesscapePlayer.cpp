@@ -511,7 +511,7 @@ hoxChesscapePlayer::_UpdateTableInList( const wxString&      tableStr,
 		m_networkTables.push_back( tableInfo );
         
         hoxTable_SPtr pTable = _GetMyTable();
-        if ( pTable.get() != NULL )
+        if ( pTable )
         {
             wxString message;
             if ( ! tableInfo.redId.empty() ) 
@@ -765,7 +765,7 @@ hoxChesscapePlayer::_HandleTableCmd( const wxString& cmdStr )
 	    /* NOTE: The Chesscape server only support 1 table for now. */
 
         hoxTable_SPtr pTable = _GetMyTable();
-	    if ( pTable.get() == NULL )
+	    if ( ! pTable )
 	    {
 		    wxLogDebug("%s: *WARN* This player [%s] not yet joined any table.", 
 			    __FUNCTION__, this->GetId().c_str());
@@ -932,15 +932,13 @@ hoxChesscapePlayer::_HandleTableCmd_Invite( const wxString& cmdStr )
         sTableId.c_str());
 
     hoxTable_SPtr pTable = _GetMyTable();
-
-    if ( pTable.get() != NULL )
+    if ( pTable )
     {
         pTable->PostBoardMessage( sMessage );
     }
     else
     {
-        ::wxMessageBox( sMessage,
-                        _("Invitation from Player"),
+        ::wxMessageBox( sMessage, _("Invitation from Player"),
                         wxOK | wxICON_INFORMATION );
     }
 }
@@ -1065,8 +1063,7 @@ hoxChesscapePlayer::_HandleTableCmd_Clients( hoxTable_SPtr   pTable,
 	{
 		sPlayerId = tkz.GetNextToken();
 
-        const hoxColor currentRole = pTable->GetPlayerRole( sPlayerId );
-        if ( currentRole != hoxCOLOR_UNKNOWN )  // already joined the Table?
+        if ( pTable->HasPlayer( sPlayerId ) ) // already joined the Table?
             continue;
 
         const wxString tableId = pTable->GetId();
@@ -1130,6 +1127,12 @@ hoxChesscapePlayer::_HandleCmd_UpdateRating( const wxString& cmdStr )
 	}
 
     m_site->UpdateScoreOfOnlinePlayer( sPlayerId, nScore );
+
+    hoxTable_SPtr pTable = _GetMyTable();
+    if ( pTable && pTable->HasPlayer( sPlayerId ) )
+	{
+        pTable->OnScore_FromNetwork( sPlayerId, nScore );
+	}
 }
 
 void
@@ -1309,7 +1312,6 @@ hoxChesscapePlayer::_GetMyTable() const
 	/* NOTE: The Chesscape server only support 1 table for now. */
 
     hoxTable_SPtr pTable = this->GetFrontTable();
-
     return pTable;
 }
 

@@ -87,6 +87,8 @@ public:
     bool UpdateStatus( const wxString&       sPlayerId,
                        const hoxPlayerStatus playerStatus );
 
+    bool HasPlayer( const wxString& sPlayerId ) const;
+
     /**
      * Get the score of given Player.
      * @return hoxSCORE_UNKNOWN - if the Player is not found.
