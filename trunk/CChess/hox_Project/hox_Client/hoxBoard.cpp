@@ -903,7 +903,7 @@ hoxBoard::_CreateBoardPanel()
      * Create Wall's contents.
      *********************************/
 
-	m_playerListBox = new hoxPlayersUI( this );
+    m_playerListBox = new hoxPlayersUI( this, hoxPlayersUI::UI_TYPE_TABLE );
     m_playerListBox->SetOwner( this );
 
     m_systemOutput = new wxTextCtrl( boardPanel, wxID_ANY, _T(""),

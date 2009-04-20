@@ -26,6 +26,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxPlayersUI.h"
+#include "MyApp.h"    // wxGetApp()
 
 /* Menu Items IDs. */
 enum hoxPLAYERS_Menu_Id
@@ -35,12 +36,13 @@ enum hoxPLAYERS_Menu_Id
     hoxPLAYERS_UI_ID_MSG
 };
 
-/* Columns */
-static wxString s_columns[] = { _("Id"), _("Rating") };
+/* Columns:
+ *  |  "Id"     |  "Rating"  |
+ */
 enum hoxPLAYERS_ColumnIndex
 {
-    hoxPLAYERS_UI_COLUMN_ID    = 0,
-    hoxPLAYERS_UI_COLUMN_SCORE = 1 /* ... or 'Rating' */
+    hoxPLAYERS_UI_COLUMN_ID     = 0,
+    hoxPLAYERS_UI_COLUMN_RATING = 1 /* ... or 'Score' */
 };
 
 
@@ -87,9 +89,9 @@ END_EVENT_TABLE()
 // ---------------------------------------------------------------------------
 
 int wxCALLBACK
-ComparePlayersCallBack( long item1, 
-                        long item2, 
-                        long sortOrder )
+_ComparePlayersCallBack( long item1, 
+                         long item2, 
+                         long sortOrder )
 {
     if (item1 < item2)  return sortOrder == hoxPlayersUI::PLAYERS_SORT_ASCENDING ? -1 : 1;
     if (item1 > item2)  return sortOrder == hoxPlayersUI::PLAYERS_SORT_ASCENDING ? 1 : -1;
@@ -100,22 +102,32 @@ ComparePlayersCallBack( long item1,
 // hoxPlayersUI class
 // ---------------------------------------------------------------------------
 
-hoxPlayersUI::hoxPlayersUI( wxWindow* parent )
-            : wxListCtrl( parent,
-                          wxID_ANY,
-                          wxDefaultPosition,
-                          wxDefaultSize,
+hoxPlayersUI::hoxPlayersUI( wxWindow* parent,
+                            UIType    uiType )
+            : wxListCtrl( parent, wxID_ANY,
+                          wxDefaultPosition, wxDefaultSize,
                           wxLC_REPORT | wxLC_SINGLE_SEL )
+            , m_uiType( uiType )
             , m_owner( NULL )
             , m_sortOrderByRating( PLAYERS_SORT_NONE )
             , m_imageList( NULL )
 {
     _InitializeImageList();
 
-    for ( long colIndex = 0; colIndex < WXSIZEOF( s_columns ); ++colIndex )
-    {
-	    this->InsertColumn( colIndex, s_columns[colIndex] );
-    }
+    int wId     = -1;
+    int wRating = -1;
+    _GetDefaultLayout( wId, wRating );
+
+    long colIndex = 0;
+    this->InsertColumn( colIndex++, _("Id"), wxLIST_FORMAT_LEFT, wId );
+    this->InsertColumn( colIndex++, _("Rating"), wxLIST_FORMAT_LEFT, wRating );
+}
+
+hoxPlayersUI::~hoxPlayersUI()
+{
+    const int wId     = GetColumnWidth( hoxPLAYERS_UI_COLUMN_ID );
+    const int wRating = GetColumnWidth( hoxPLAYERS_UI_COLUMN_RATING );
+    _SaveDefaultLayout( wId, wRating );
 }
 
 bool
@@ -129,7 +141,7 @@ hoxPlayersUI::AddPlayer( const wxString&       sPlayerId,
     const long itemIndex = this->InsertItem( 0 /* Front of the list */, 
                                              sPlayerId );
 
-    this->SetItem( itemIndex, hoxPLAYERS_UI_COLUMN_SCORE,
+    this->SetItem( itemIndex, hoxPLAYERS_UI_COLUMN_RATING,
                    wxString::Format("%d", nPlayerScore));
 
     /* Set the item-date for sorting purpose (sort-by-score). */
@@ -172,7 +184,7 @@ hoxPlayersUI::UpdateScore( const wxString& sPlayerId,
     // Set what row it is (m_itemId is a member of the regular wxListCtrl class)
     row_info.m_itemId = playerIndex;
     // Set what column of that row we want to query for information.
-    row_info.m_col = hoxPLAYERS_UI_COLUMN_SCORE;
+    row_info.m_col = hoxPLAYERS_UI_COLUMN_RATING;
     row_info.m_mask = wxLIST_MASK_TEXT; // Set text mask
 
     row_info.m_text = wxString::Format("%d", nPlayerScore);
@@ -211,7 +223,7 @@ hoxPlayersUI::GetPlayerScore( const wxString& sPlayerId ) const
     if ( playerIndex != -1 ) // found?
     {
         const wxString sScore = _GetCellContent( playerIndex,
-                                                 hoxPLAYERS_UI_COLUMN_SCORE );
+                                                 hoxPLAYERS_UI_COLUMN_RATING );
         return ::atoi( sScore.c_str() );
     }
     return hoxSCORE_UNKNOWN;
@@ -242,7 +254,6 @@ void
 hoxPlayersUI::OnLMouseDClick( wxMouseEvent& event )
 {
     wxCommandEvent DUMMY_event;
-    
     this->OnPlayerInfo( DUMMY_event );
 }
 
@@ -304,13 +315,13 @@ hoxPlayersUI::OnColumnClick( wxListEvent& event )
 {
     int col = event.GetColumn();
 
-    if ( col == hoxPLAYERS_UI_COLUMN_SCORE )  // "Rating" column?
+    if ( col == hoxPLAYERS_UI_COLUMN_RATING )
     {
         m_sortOrderByRating = ( m_sortOrderByRating == PLAYERS_SORT_ASCENDING
                                ? PLAYERS_SORT_DESCENDING
                                : PLAYERS_SORT_ASCENDING  );
 
-        this->SortItems( ComparePlayersCallBack, m_sortOrderByRating );
+        this->SortItems( _ComparePlayersCallBack, m_sortOrderByRating );
 
         wxListItem item;
         item.SetMask(wxLIST_MASK_IMAGE);
@@ -397,6 +408,28 @@ hoxPlayersUI::_StatusToImageIndex( const hoxPlayerStatus playerStatus ) const
         case hoxPLAYER_STATUS_SOLO:      return hoxPLAYERS_UI_IMG_GRAY;
         default: /* UNKNOWN */           return hoxPLAYERS_UI_IMG_GREEN;
     }
+}
+
+void
+hoxPlayersUI::_GetDefaultLayout( int& wId,
+                                 int& wRating ) const
+{
+	wxConfig* config = wxGetApp().GetConfig();
+    wxString prefix = ( m_uiType == UI_TYPE_SITE ? "/Layout/Players/Site"
+                                                 : "/Layout/Players/Table" );
+    config->Read(prefix + "/Id/w", &wId, -1 );
+    config->Read(prefix + "/Rating/w", &wRating, -1 );
+}
+
+void
+hoxPlayersUI::_SaveDefaultLayout( const int wId,
+                                  const int wRating )
+{
+	wxConfig* config = wxGetApp().GetConfig();
+    wxString prefix = ( m_uiType == UI_TYPE_SITE ? "/Layout/Players/Site"
+                                                 : "/Layout/Players/Table" );
+    config->Write(prefix + "/Id/w", wId);
+    config->Write(prefix + "/Rating/w", wRating);
 }
 
 /************************* END OF FILE ***************************************/

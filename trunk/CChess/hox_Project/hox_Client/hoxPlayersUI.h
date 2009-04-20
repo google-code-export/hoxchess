@@ -40,6 +40,15 @@ class hoxPlayersUI : public wxListCtrl
 {
 public:
     /**
+     * Type of Players-UI.
+     */
+    enum UIType
+    {
+        UI_TYPE_SITE,   /* This list belongs to a Site. */
+        UI_TYPE_TABLE   /* This list belongs to a Table. */
+    };
+
+    /**
      * Sorting order for players in the list.
      */
     enum SortOrder
@@ -70,8 +79,9 @@ public:
     };
 
 public:
-    hoxPlayersUI( wxWindow* parent );
-    virtual ~hoxPlayersUI() {}
+    hoxPlayersUI( wxWindow* parent,
+                  UIType    uiType );
+    virtual ~hoxPlayersUI();
 
     void SetOwner( UIOwner* owner ) { m_owner = owner; }
 
@@ -115,7 +125,13 @@ private:
     void _InitializeImageList();
     int  _StatusToImageIndex( const hoxPlayerStatus playerStatus ) const;
 
+	void _GetDefaultLayout( int& wId,
+                            int& wRating ) const;
+    void _SaveDefaultLayout( const int wId,
+                             const int wRating );
+
 private:
+    const UIType      m_uiType;
     UIOwner*          m_owner;   // This UI's owner.
 
     SortOrder         m_sortOrderByRating;
