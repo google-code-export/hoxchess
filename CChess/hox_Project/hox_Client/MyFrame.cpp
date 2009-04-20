@@ -802,7 +802,7 @@ MyFrame::_SetActiveSitePlayersUI( hoxPlayersUI* newPlayersUI )
 hoxPlayersUI*
 MyFrame::CreateNewSitePlayersUI()
 {
-    return new hoxPlayersUI( m_sitesSplitter );
+    return new hoxPlayersUI( m_sitesSplitter, hoxPlayersUI::UI_TYPE_SITE );
 }
 
 void
