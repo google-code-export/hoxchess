@@ -206,7 +206,7 @@ hoxBoard::hoxBoard( wxWindow*        parent,
     m_timer->Start( hoxTIME_ONE_SECOND_INTERVAL );
 
     /* Prepare sounds. */
-    const wxString soundFile( wxString(SOUNDS_PATH) + "/" + "move.wav" );
+    const wxString soundFile( HOX_PATH + wxString(SOUNDS_PATH) + "/" + "move.wav" );
     m_soundMove.Create( soundFile );
     wxASSERT_MSG(m_soundMove.IsOk(), "Failed to load sound file " + soundFile);
 

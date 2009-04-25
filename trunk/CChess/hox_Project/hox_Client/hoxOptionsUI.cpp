@@ -141,9 +141,9 @@ void hoxOptionsUI::Init()
 void hoxOptionsUI::CreateControls()
 {    
 ////@begin hoxOptionsUI content construction
-    hoxOptionsUI* itemPropertySheetDialog1 = this;
+    //hoxOptionsUI* itemPropertySheetDialog1 = this;
 
-    wxImageList* itemPropertySheetDialog1ImageList = new wxImageList(16, 16, true, 3);
+    wxImageList* itemPropertySheetDialog1ImageList = new wxImageList(22, 22, true, 3);
     {
         wxIcon itemPropertySheetDialog1Icon0(GetIconResource(wxT("../resource/images/go-home.png")));
         itemPropertySheetDialog1ImageList->Add(itemPropertySheetDialog1Icon0);
@@ -303,17 +303,17 @@ wxIcon hoxOptionsUI::GetIconResource( const wxString& name )
     wxUnusedVar(name);
     if (name == _T("../resource/images/go-home.png"))
     {
-        wxIcon icon(_T("../resource/images/go-home.png"), wxBITMAP_TYPE_PNG);
+        wxIcon icon(wxString(HOX_PATH) + _T("../resource/images/go-home.png"), wxBITMAP_TYPE_PNG);
         return icon;
     }
     else if (name == _T("../resource/images/preferences.png"))
     {
-        wxIcon icon(_T("../resource/images/preferences.png"), wxBITMAP_TYPE_PNG);
+        wxIcon icon(wxString(HOX_PATH) + _T("../resource/images/preferences.png"), wxBITMAP_TYPE_PNG);
         return icon;
     }
     else if (name == _T("../resource/images/system-users.png"))
     {
-        wxIcon icon(_T("../resource/images/system-users.png"), wxBITMAP_TYPE_PNG);
+        wxIcon icon(wxString(HOX_PATH) + _T("../resource/images/system-users.png"), wxBITMAP_TYPE_PNG);
         return icon;
     }
     return wxNullIcon;
@@ -370,7 +370,7 @@ hoxOptionsUI::_loadAvailablePieceSets() const
 {
     wxArrayString pieceSets;
 
-    wxString sPiecesDir = PIECE_SETS_PATH;
+    wxString sPiecesDir = HOX_PATH + wxString(PIECE_SETS_PATH);
     wxLogDebug("%s: Get Piece-Sets from [%s].", __FUNCTION__, sPiecesDir.c_str());
     wxDir dir(sPiecesDir);
 	if ( !dir.IsOpened() )

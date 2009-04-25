@@ -479,12 +479,15 @@ hoxCoreBoard::_DrawPieceWithDC( wxDC&           dc,
     if ( ! bitmap.Ok() )
       return;
 
+#ifdef __WXOSX_CARBON__
+	dc.DrawBitmap( bitmap, pos.x, pos.y, true );
+#else
     wxMemoryDC memDC;
     memDC.SelectObject( const_cast<wxBitmap&>(bitmap) );
-
     dc.Blit( pos.x, pos.y, 
              bitmap.GetWidth(), bitmap.GetHeight(),
              &memDC, 0, 0, wxCOPY, true);
+#endif
 
     /* Highlight the piece if it is the latest piece that moves. */
     if ( piece->IsLatest() )
@@ -696,6 +699,11 @@ hoxCoreBoard::DoMove( hoxMove& move )
         return false;
     }
 
+#ifdef __WXOSX_CARBON__
+	Refresh(true);  // redraw immediately
+	Update();
+#endif
+
     return true;
 }
 
@@ -796,6 +804,11 @@ hoxCoreBoard::DoGameReview_PREV()
         _DrawAndHighlightPiece( prevPiece );
     }
 
+#ifdef __WXOSX_CARBON__
+	Refresh(true);  // redraw immediately
+	Update();
+#endif
+
     return true;
 }
 
@@ -830,7 +843,14 @@ hoxCoreBoard::DoGameReview_NEXT()
     hoxPiece* piece = _FindPieceAt( move.piece.position );
     wxCHECK_MSG(piece, false, "No Piece found at the ORIGINAL position.");
 
-    return _MovePieceTo( piece, move.newPosition );
+    _MovePieceTo( piece, move.newPosition );
+
+#ifdef __WXOSX_CARBON__
+	Refresh(true);  // redraw immediately
+	Update();
+#endif
+
+	return true;
 }
 
 bool 
@@ -881,6 +901,11 @@ hoxCoreBoard::OnMouseEvent( wxMouseEvent& event )
         // Erase the dragged shape from the board
         m_draggedPiece->SetShow(false);
         _ErasePiece(m_draggedPiece);
+		
+#ifdef __WXOSX_CARBON__
+		Refresh(true);  // redraw immediately;
+		Update();
+#endif
 
         m_dragImage = new wxDragImage( m_draggedPiece->GetBitmap(), 
                                        wxCursor(wxCURSOR_HAND) );

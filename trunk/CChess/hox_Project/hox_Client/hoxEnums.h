@@ -50,6 +50,15 @@
 #define HOX_CATALOG_NAME "hoxchess"
 
 /**
+ * The App's path.
+ */
+#ifdef __WXOSX_CARBON__
+	#define HOX_PATH "../"
+#else
+	#define HOX_PATH ""
+#endif
+
+/**
  * The locale path containing language catalogue files.
  */
 #define HOX_LOCALE_PATH  "../resource/locale"

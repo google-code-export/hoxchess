@@ -160,7 +160,7 @@ hoxAIPluginMgr::GetNamesOfAllAIPlugins() const
 bool
 hoxAIPluginMgr::_loadAvailableAIPlugins()
 {
-    wxString sPluginsDir = AI_PLUGINS_PATH; /* wxGetCwd() + "/../plugins/lib" */
+    wxString sPluginsDir = HOX_PATH + wxString(AI_PLUGINS_PATH);
     wxLogDebug("%s: Get Plugins from [%s].", __FUNCTION__, sPluginsDir.c_str());
     wxDir dir(sPluginsDir);
 	if ( !dir.IsOpened() )
