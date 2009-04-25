@@ -385,18 +385,17 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
-					"-I/Users/huyphan74/Projects/wxWidgets-2.9.0/build-debug/lib/wx/include/osx_carbon-unicode-debug-2.9",
-					"-I/Users/huyphan74/Projects/wxWidgets-2.9.0/include",
-					"-I/Users/huyphan74/Projects/wxWidgets-2.9.0/include",
-					"-I/Users/huyphan74/Projects/hoxchess-read-only/CChess/hox_Project/lib/boost_1_38_0",
-					"-I/Users/huyphan74/Projects/hoxchess-read-only/CChess/hox_Project/lib/asio-1.4.1/include",
+					"-I/opt/wxWidgets-2.9.0/lib/wx/include/osx_carbon-unicode-debug-2.9",
+					"-I/opt/wxWidgets-2.9.0/include/wx-2.9",
 					"-D_FILE_OFFSET_BITS=64",
 					"-D__WXDEBUG__",
 					"-DWXUSINGDLL",
 					"-D__WXOSX_CARBON__",
+					"-I./lib/boost_1_38_0",
+					"-I./lib/asio-1.4.1/include",
 				);
 				OTHER_LDFLAGS = (
-					"-L/Users/huyphan74/Projects/wxWidgets-2.9.0/build-debug/lib",
+					"-L/opt/wxWidgets-2.9.0/lib",
 					"-framework",
 					QuickTime,
 					"-framework",
@@ -441,16 +440,16 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
-					"-I/Users/huyphan74/Projects/wxWidgets-2.9.0/build-release/lib/wx/include/osx_carbon-unicode-release-2.9",
-					"-I/Users/huyphan74/Projects/wxWidgets-2.9.0/include",
-					"-I/Users/huyphan74/Projects/hoxchess-read-only/CChess/hox_Project/lib/boost_1_38_0",
-					"-I/Users/huyphan74/Projects/hoxchess-read-only/CChess/hox_Project/lib/asio-1.4.1/include",
+					"-I/opt/wxWidgets-2.9.0/lib/wx/include/osx_carbon-unicode-release-2.9",
+					"-I/opt/wxWidgets-2.9.0/include/wx-2.9",
 					"-D_FILE_OFFSET_BITS=64",
 					"-DWXUSINGDLL",
 					"-D__WXOSX_CARBON__",
+					"-I./lib/boost_1_38_0",
+					"-I./lib/asio-1.4.1/include",
 				);
 				OTHER_LDFLAGS = (
-					"-L/Users/huyphan74/Projects/wxWidgets-2.9.0/build-release/lib",
+					"-L/opt/wxWidgets-2.9.0/lib",
 					"-framework",
 					QuickTime,
 					"-framework",
