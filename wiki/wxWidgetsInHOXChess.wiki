@@ -5,35 +5,36 @@
 
 = Introduction =
 
-This page describes how to build [http://www.wxwidgets.org/ wxWidgets] (and wxGTK) libraries to be used by HOXChess.
-Starting from version _0.6.0.0_, HOXChess needs on the _not-yet-released_ *trunk* version *wxWidgets-2.9.0* of wxWidgets in order to handle Unicode characters (in Chinese, Vietnamese, etc).
-The daily builds of wxWidgets [http://wxwindows.sourceforge.net/snapshots/ can be downloaded here]
+This page describes how to build [http://www.wxwidgets.org/ wxWidgets] libraries to be used by HOXChess.
+Starting from version _0.6.0.0_, HOXChess needs on the _to-be-released_ *2.9.0* branch of wxWidgets in order to handle Unicode characters (in Chinese, Vietnamese, etc).
 
 = Instructions under Linux =
 
-This following procedure has been test under *Ubuntu 8.10* (64-bit).
-I use the *wxGTK* port of wxWidgets.
-The latest snapshot trunk version that has been tested is *wxWidgets.tar_2009_03_29.bz2*
+On Linux distributions, I use the *GTK* based port of wxWidgets.
+
+This following procedure has been test under the following Linux distributions:
+  * *Ubuntu / Kubuntu 8.10, 9.04* (both 64 and 32-bit)
+  * *Gentoo 2008.0* (32-bit)
 
   * Required packages before building wxWidgets 2.9.0
-    * $ sudo apt-get install libgtk2.0-dev
-    * $ sudo apt-get install libtiff4-dev
-  * Download a daily source archive from:
-    * http://wxwindows.sourceforge.net/snapshots/
-    * Note: I put a working copy of wxGTK [http://www.playxiangqi.com/cchess/libs/ on my server here].
-  * Unpack the archived file
-  * Follow instructions in _wxGTK/readme-gtk.txt_. Here are the steps I use:
 {{{
-    $ mkdir build_gtk
-    $ cd build_gtk
-    $ ../configure --prefix=/opt/wxGTK-2.9.0 --disable-compat28
-      # Note: For debug build, add the option [--enable-debug] 
-    $ make
-    $ sudo make install
+  $ sudo apt-get install libgtk2.0-dev
 }}}
-  * In the end, you would have wxGTK under /opt/wxGTK-2.9.0
+  * Download the source code for wxWidgets-2.9.0 from *WX_2_9_0_BRANCH*:
+{{{
+  $ sudo apt-get install subversion
+  $ svn co http://svn.wxwidgets.org/svn/wx/wxWidgets/branches/WX_2_9_0_BRANCH wxWidgets-2.9.0
+  $ cd wxWidgets-2.9.0
+  $ mkdir build-release
+  $ cd build-release
+  $ ../configure --prefix=/opt/wxGTK-2.9.0 --disable-compat28 --without-libtiff --disable-shared
+    # Note: For debug build, add the option [--enable-debug] 
+  $ make
+  $ sudo make install
+}}}
+  * In the end, you would have the GTK-based port of wxWidgets under */opt/wxGTK-2.9.0*
 
 = Instructions under Windows =
 
-The procedure is much easier under Windows (XP or Vista). Simply locate the _workspace_ (or _solution_) file under *.../build/msw/wx.dsw*, open it under Visual C++ 2008 Express, and build
+The procedure is much easier under Windows (XP or Vista). Simply open the _solution_ file *.../build/msw/wx_vc9.sln* using the free Visual C++ 2008 Express edition, and build
   * See the other HowToBuild wiki page for more details.
