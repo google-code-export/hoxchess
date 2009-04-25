@@ -134,35 +134,29 @@ hoxCoreBoard::OnPaint( wxPaintEvent& event )
     _DoPaint(dc);
 }
 
-/**
- * Erase a given piece using THIS window's Device-Context.
- */
 void 
 hoxCoreBoard::_ErasePiece( hoxPiece* piece )
 {
     wxClientDC dc(this);
     PrepareDC(dc);   // ... for drawing a scrolled image
 
-    _ErasePieceWithDC( piece, dc );
-}
-
-/**
- * Erase a given piece using a specific Device-Context (DC).
- */
-void 
-hoxCoreBoard::_ErasePieceWithDC( hoxPiece* piece, 
-                                 wxDC&     dc )
-{
     /* Erase the piece by repainting the piece's area with
      * the Board's background.
      */
+    
+    const wxRect rect( _GetPieceRect(piece) );
 
-    wxRect rect( _GetPieceRect(piece) );
+#ifdef __WXOSX_CARBON__
+    //// Extra code added to remove the 'highlight'. ///
+        dc.SetPen( wxPen( m_backgroundColor ) );
+        dc.SetBrush( *wxTRANSPARENT_BRUSH );
+        dc.DrawRectangle( rect );
+    //// END of 'extra' code ///////////////////////////
+#endif
+
     dc.SetClippingRegion( rect );
-
     _DrawWorkSpace(dc);
     _DrawBoard(dc);
-
     dc.DestroyClippingRegion();
 }
 
@@ -351,7 +345,7 @@ hoxCoreBoard::_DrawWorkSpace( wxDC& dc )
 {
     const wxSize sz = GetClientSize();
     dc.SetBrush( *hoxBOARD_WORKSPACE_BRUSH );
-    dc.DrawRectangle( 0, 0, sz.x, sz.y );;
+    dc.DrawRectangle( 0, 0, sz.x, sz.y );
 }
 
 void 
