@@ -228,7 +228,6 @@ private:
 
     void      _DoPaint( wxDC& dc );
     void      _ErasePiece( hoxPiece* piece );
-    void      _ErasePieceWithDC( hoxPiece* piece, wxDC& dc );
     void      _ClearPieces();
     hoxPiece* _FindPiece( const wxPoint& point ) const;
     wxPoint   _GetPieceLocation( const hoxPiece* piece ) const;
