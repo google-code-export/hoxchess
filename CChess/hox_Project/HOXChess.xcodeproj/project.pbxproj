@@ -1,0 +1,507 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 45;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1DDD57E40DA1CFC700B32029 /* main.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD57E20DA1CFC700B32029 /* main.xib */; };
+		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
+		8D0C4E920486CD37000505A6 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20286C33FDCF999611CA2CEA /* Carbon.framework */; };
+		AF4839360FA27BAD00F734C4 /* hoxAIPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4838F60FA27BAD00F734C4 /* hoxAIPlayer.cpp */; };
+		AF4839370FA27BAD00F734C4 /* hoxAIPluginMgr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4838F80FA27BAD00F734C4 /* hoxAIPluginMgr.cpp */; };
+		AF4839380FA27BAD00F734C4 /* hoxBoard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4838FA0FA27BAD00F734C4 /* hoxBoard.cpp */; };
+		AF4839390FA27BAD00F734C4 /* hoxChesscapeConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4838FC0FA27BAD00F734C4 /* hoxChesscapeConnection.cpp */; };
+		AF48393A0FA27BAD00F734C4 /* hoxChesscapePlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4838FE0FA27BAD00F734C4 /* hoxChesscapePlayer.cpp */; };
+		AF48393B0FA27BAD00F734C4 /* hoxConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4839000FA27BAD00F734C4 /* hoxConnection.cpp */; };
+		AF48393C0FA27BAD00F734C4 /* hoxCoreBoard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4839020FA27BAD00F734C4 /* hoxCoreBoard.cpp */; };
+		AF48393D0FA27BAD00F734C4 /* hoxLocalPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4839060FA27BAD00F734C4 /* hoxLocalPlayer.cpp */; };
+		AF48393E0FA27BAD00F734C4 /* hoxLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4839080FA27BAD00F734C4 /* hoxLog.cpp */; };
+		AF48393F0FA27BAD00F734C4 /* hoxLoginUI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF48390A0FA27BAD00F734C4 /* hoxLoginUI.cpp */; };
+		AF4839400FA27BAD00F734C4 /* hoxMyPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF48390C0FA27BAD00F734C4 /* hoxMyPlayer.cpp */; };
+		AF4839410FA27BAD00F734C4 /* hoxOptionDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF48390E0FA27BAD00F734C4 /* hoxOptionDialog.cpp */; };
+		AF4839420FA27BAD00F734C4 /* hoxOptionsUI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4839100FA27BAD00F734C4 /* hoxOptionsUI.cpp */; };
+		AF4839430FA27BAD00F734C4 /* hoxPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4839130FA27BAD00F734C4 /* hoxPlayer.cpp */; };
+		AF4839440FA27BAD00F734C4 /* hoxPlayerMgr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4839150FA27BAD00F734C4 /* hoxPlayerMgr.cpp */; };
+		AF4839450FA27BAD00F734C4 /* hoxPlayersUI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4839170FA27BAD00F734C4 /* hoxPlayersUI.cpp */; };
+		AF4839460FA27BAD00F734C4 /* hoxReferee.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4839190FA27BAD00F734C4 /* hoxReferee.cpp */; };
+		AF4839470FA27BAD00F734C4 /* hoxSavedTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF48391B0FA27BAD00F734C4 /* hoxSavedTable.cpp */; };
+		AF4839480FA27BAD00F734C4 /* hoxSite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF48391D0FA27BAD00F734C4 /* hoxSite.cpp */; };
+		AF4839490FA27BAD00F734C4 /* hoxSitesUI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF48391F0FA27BAD00F734C4 /* hoxSitesUI.cpp */; };
+		AF48394A0FA27BAD00F734C4 /* hoxSocketConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4839210FA27BAD00F734C4 /* hoxSocketConnection.cpp */; };
+		AF48394B0FA27BAD00F734C4 /* hoxTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4839230FA27BAD00F734C4 /* hoxTable.cpp */; };
+		AF48394C0FA27BAD00F734C4 /* hoxTableMgr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4839250FA27BAD00F734C4 /* hoxTableMgr.cpp */; };
+		AF48394D0FA27BAD00F734C4 /* hoxTablesDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4839270FA27BAD00F734C4 /* hoxTablesDialog.cpp */; };
+		AF48394E0FA27BAD00F734C4 /* hoxTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4839290FA27BAD00F734C4 /* hoxTypes.cpp */; };
+		AF48394F0FA27BAD00F734C4 /* hoxUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF48392B0FA27BAD00F734C4 /* hoxUtil.cpp */; };
+		AF4839500FA27BAD00F734C4 /* hoxWelcomeUI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF48392D0FA27BAD00F734C4 /* hoxWelcomeUI.cpp */; };
+		AF4839520FA27BAD00F734C4 /* MyApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4839300FA27BAD00F734C4 /* MyApp.cpp */; };
+		AF4839530FA27BAD00F734C4 /* MyChild.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4839320FA27BAD00F734C4 /* MyChild.cpp */; };
+		AF4839540FA27BAD00F734C4 /* MyFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4839340FA27BAD00F734C4 /* MyFrame.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0867D6ABFE840B52C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		1DDD57E30DA1CFC700B32029 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/main.xib; sourceTree = "<group>"; };
+		20286C33FDCF999611CA2CEA /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
+		508344B209E5C41E0093A071 /* HOXChess.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HOXChess.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8D0C4E960486CD37000505A6 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AF4838F60FA27BAD00F734C4 /* hoxAIPlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxAIPlayer.cpp; path = hox_Client/hoxAIPlayer.cpp; sourceTree = "<group>"; };
+		AF4838F70FA27BAD00F734C4 /* hoxAIPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxAIPlayer.h; path = hox_Client/hoxAIPlayer.h; sourceTree = "<group>"; };
+		AF4838F80FA27BAD00F734C4 /* hoxAIPluginMgr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxAIPluginMgr.cpp; path = hox_Client/hoxAIPluginMgr.cpp; sourceTree = "<group>"; };
+		AF4838F90FA27BAD00F734C4 /* hoxAIPluginMgr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxAIPluginMgr.h; path = hox_Client/hoxAIPluginMgr.h; sourceTree = "<group>"; };
+		AF4838FA0FA27BAD00F734C4 /* hoxBoard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxBoard.cpp; path = hox_Client/hoxBoard.cpp; sourceTree = "<group>"; };
+		AF4838FB0FA27BAD00F734C4 /* hoxBoard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxBoard.h; path = hox_Client/hoxBoard.h; sourceTree = "<group>"; };
+		AF4838FC0FA27BAD00F734C4 /* hoxChesscapeConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxChesscapeConnection.cpp; path = hox_Client/hoxChesscapeConnection.cpp; sourceTree = "<group>"; };
+		AF4838FD0FA27BAD00F734C4 /* hoxChesscapeConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxChesscapeConnection.h; path = hox_Client/hoxChesscapeConnection.h; sourceTree = "<group>"; };
+		AF4838FE0FA27BAD00F734C4 /* hoxChesscapePlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxChesscapePlayer.cpp; path = hox_Client/hoxChesscapePlayer.cpp; sourceTree = "<group>"; };
+		AF4838FF0FA27BAD00F734C4 /* hoxChesscapePlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxChesscapePlayer.h; path = hox_Client/hoxChesscapePlayer.h; sourceTree = "<group>"; };
+		AF4839000FA27BAD00F734C4 /* hoxConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxConnection.cpp; path = hox_Client/hoxConnection.cpp; sourceTree = "<group>"; };
+		AF4839010FA27BAD00F734C4 /* hoxConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxConnection.h; path = hox_Client/hoxConnection.h; sourceTree = "<group>"; };
+		AF4839020FA27BAD00F734C4 /* hoxCoreBoard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxCoreBoard.cpp; path = hox_Client/hoxCoreBoard.cpp; sourceTree = "<group>"; };
+		AF4839030FA27BAD00F734C4 /* hoxCoreBoard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxCoreBoard.h; path = hox_Client/hoxCoreBoard.h; sourceTree = "<group>"; };
+		AF4839040FA27BAD00F734C4 /* hoxEnums.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxEnums.h; path = hox_Client/hoxEnums.h; sourceTree = "<group>"; };
+		AF4839050FA27BAD00F734C4 /* hoxIReferee.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxIReferee.h; path = hox_Client/hoxIReferee.h; sourceTree = "<group>"; };
+		AF4839060FA27BAD00F734C4 /* hoxLocalPlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxLocalPlayer.cpp; path = hox_Client/hoxLocalPlayer.cpp; sourceTree = "<group>"; };
+		AF4839070FA27BAD00F734C4 /* hoxLocalPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxLocalPlayer.h; path = hox_Client/hoxLocalPlayer.h; sourceTree = "<group>"; };
+		AF4839080FA27BAD00F734C4 /* hoxLog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxLog.cpp; path = hox_Client/hoxLog.cpp; sourceTree = "<group>"; };
+		AF4839090FA27BAD00F734C4 /* hoxLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxLog.h; path = hox_Client/hoxLog.h; sourceTree = "<group>"; };
+		AF48390A0FA27BAD00F734C4 /* hoxLoginUI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxLoginUI.cpp; path = hox_Client/hoxLoginUI.cpp; sourceTree = "<group>"; };
+		AF48390B0FA27BAD00F734C4 /* hoxLoginUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxLoginUI.h; path = hox_Client/hoxLoginUI.h; sourceTree = "<group>"; };
+		AF48390C0FA27BAD00F734C4 /* hoxMyPlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxMyPlayer.cpp; path = hox_Client/hoxMyPlayer.cpp; sourceTree = "<group>"; };
+		AF48390D0FA27BAD00F734C4 /* hoxMyPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxMyPlayer.h; path = hox_Client/hoxMyPlayer.h; sourceTree = "<group>"; };
+		AF48390E0FA27BAD00F734C4 /* hoxOptionDialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxOptionDialog.cpp; path = hox_Client/hoxOptionDialog.cpp; sourceTree = "<group>"; };
+		AF48390F0FA27BAD00F734C4 /* hoxOptionDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxOptionDialog.h; path = hox_Client/hoxOptionDialog.h; sourceTree = "<group>"; };
+		AF4839100FA27BAD00F734C4 /* hoxOptionsUI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxOptionsUI.cpp; path = hox_Client/hoxOptionsUI.cpp; sourceTree = "<group>"; };
+		AF4839110FA27BAD00F734C4 /* hoxOptionsUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxOptionsUI.h; path = hox_Client/hoxOptionsUI.h; sourceTree = "<group>"; };
+		AF4839120FA27BAD00F734C4 /* hoxPiece.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxPiece.h; path = hox_Client/hoxPiece.h; sourceTree = "<group>"; };
+		AF4839130FA27BAD00F734C4 /* hoxPlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxPlayer.cpp; path = hox_Client/hoxPlayer.cpp; sourceTree = "<group>"; };
+		AF4839140FA27BAD00F734C4 /* hoxPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxPlayer.h; path = hox_Client/hoxPlayer.h; sourceTree = "<group>"; };
+		AF4839150FA27BAD00F734C4 /* hoxPlayerMgr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxPlayerMgr.cpp; path = hox_Client/hoxPlayerMgr.cpp; sourceTree = "<group>"; };
+		AF4839160FA27BAD00F734C4 /* hoxPlayerMgr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxPlayerMgr.h; path = hox_Client/hoxPlayerMgr.h; sourceTree = "<group>"; };
+		AF4839170FA27BAD00F734C4 /* hoxPlayersUI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxPlayersUI.cpp; path = hox_Client/hoxPlayersUI.cpp; sourceTree = "<group>"; };
+		AF4839180FA27BAD00F734C4 /* hoxPlayersUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxPlayersUI.h; path = hox_Client/hoxPlayersUI.h; sourceTree = "<group>"; };
+		AF4839190FA27BAD00F734C4 /* hoxReferee.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxReferee.cpp; path = hox_Client/hoxReferee.cpp; sourceTree = "<group>"; };
+		AF48391A0FA27BAD00F734C4 /* hoxReferee.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxReferee.h; path = hox_Client/hoxReferee.h; sourceTree = "<group>"; };
+		AF48391B0FA27BAD00F734C4 /* hoxSavedTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxSavedTable.cpp; path = hox_Client/hoxSavedTable.cpp; sourceTree = "<group>"; };
+		AF48391C0FA27BAD00F734C4 /* hoxSavedTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxSavedTable.h; path = hox_Client/hoxSavedTable.h; sourceTree = "<group>"; };
+		AF48391D0FA27BAD00F734C4 /* hoxSite.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxSite.cpp; path = hox_Client/hoxSite.cpp; sourceTree = "<group>"; };
+		AF48391E0FA27BAD00F734C4 /* hoxSite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxSite.h; path = hox_Client/hoxSite.h; sourceTree = "<group>"; };
+		AF48391F0FA27BAD00F734C4 /* hoxSitesUI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxSitesUI.cpp; path = hox_Client/hoxSitesUI.cpp; sourceTree = "<group>"; };
+		AF4839200FA27BAD00F734C4 /* hoxSitesUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxSitesUI.h; path = hox_Client/hoxSitesUI.h; sourceTree = "<group>"; };
+		AF4839210FA27BAD00F734C4 /* hoxSocketConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxSocketConnection.cpp; path = hox_Client/hoxSocketConnection.cpp; sourceTree = "<group>"; };
+		AF4839220FA27BAD00F734C4 /* hoxSocketConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxSocketConnection.h; path = hox_Client/hoxSocketConnection.h; sourceTree = "<group>"; };
+		AF4839230FA27BAD00F734C4 /* hoxTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxTable.cpp; path = hox_Client/hoxTable.cpp; sourceTree = "<group>"; };
+		AF4839240FA27BAD00F734C4 /* hoxTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxTable.h; path = hox_Client/hoxTable.h; sourceTree = "<group>"; };
+		AF4839250FA27BAD00F734C4 /* hoxTableMgr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxTableMgr.cpp; path = hox_Client/hoxTableMgr.cpp; sourceTree = "<group>"; };
+		AF4839260FA27BAD00F734C4 /* hoxTableMgr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxTableMgr.h; path = hox_Client/hoxTableMgr.h; sourceTree = "<group>"; };
+		AF4839270FA27BAD00F734C4 /* hoxTablesDialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxTablesDialog.cpp; path = hox_Client/hoxTablesDialog.cpp; sourceTree = "<group>"; };
+		AF4839280FA27BAD00F734C4 /* hoxTablesDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxTablesDialog.h; path = hox_Client/hoxTablesDialog.h; sourceTree = "<group>"; };
+		AF4839290FA27BAD00F734C4 /* hoxTypes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxTypes.cpp; path = hox_Client/hoxTypes.cpp; sourceTree = "<group>"; };
+		AF48392A0FA27BAD00F734C4 /* hoxTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxTypes.h; path = hox_Client/hoxTypes.h; sourceTree = "<group>"; };
+		AF48392B0FA27BAD00F734C4 /* hoxUtil.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxUtil.cpp; path = hox_Client/hoxUtil.cpp; sourceTree = "<group>"; };
+		AF48392C0FA27BAD00F734C4 /* hoxUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxUtil.h; path = hox_Client/hoxUtil.h; sourceTree = "<group>"; };
+		AF48392D0FA27BAD00F734C4 /* hoxWelcomeUI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxWelcomeUI.cpp; path = hox_Client/hoxWelcomeUI.cpp; sourceTree = "<group>"; };
+		AF48392E0FA27BAD00F734C4 /* hoxWelcomeUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxWelcomeUI.h; path = hox_Client/hoxWelcomeUI.h; sourceTree = "<group>"; };
+		AF4839300FA27BAD00F734C4 /* MyApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MyApp.cpp; path = hox_Client/MyApp.cpp; sourceTree = "<group>"; };
+		AF4839310FA27BAD00F734C4 /* MyApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyApp.h; path = hox_Client/MyApp.h; sourceTree = "<group>"; };
+		AF4839320FA27BAD00F734C4 /* MyChild.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MyChild.cpp; path = hox_Client/MyChild.cpp; sourceTree = "<group>"; };
+		AF4839330FA27BAD00F734C4 /* MyChild.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyChild.h; path = hox_Client/MyChild.h; sourceTree = "<group>"; };
+		AF4839340FA27BAD00F734C4 /* MyFrame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MyFrame.cpp; path = hox_Client/MyFrame.cpp; sourceTree = "<group>"; };
+		AF4839350FA27BAD00F734C4 /* MyFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyFrame.h; path = hox_Client/MyFrame.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8D0C4E910486CD37000505A6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8D0C4E920486CD37000505A6 /* Carbon.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		195DF8CFFE9D517E11CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				508344B209E5C41E0093A071 /* HOXChess.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		20286C29FDCF999611CA2CEA /* HOXChess */ = {
+			isa = PBXGroup;
+			children = (
+				20286C2AFDCF999611CA2CEA /* Sources */,
+				20286C2CFDCF999611CA2CEA /* Resources */,
+				20286C32FDCF999611CA2CEA /* External Frameworks and Libraries */,
+				195DF8CFFE9D517E11CA2CBB /* Products */,
+			);
+			name = HOXChess;
+			sourceTree = "<group>";
+		};
+		20286C2AFDCF999611CA2CEA /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				AF4838F60FA27BAD00F734C4 /* hoxAIPlayer.cpp */,
+				AF4838F70FA27BAD00F734C4 /* hoxAIPlayer.h */,
+				AF4838F80FA27BAD00F734C4 /* hoxAIPluginMgr.cpp */,
+				AF4838F90FA27BAD00F734C4 /* hoxAIPluginMgr.h */,
+				AF4838FA0FA27BAD00F734C4 /* hoxBoard.cpp */,
+				AF4838FB0FA27BAD00F734C4 /* hoxBoard.h */,
+				AF4838FC0FA27BAD00F734C4 /* hoxChesscapeConnection.cpp */,
+				AF4838FD0FA27BAD00F734C4 /* hoxChesscapeConnection.h */,
+				AF4838FE0FA27BAD00F734C4 /* hoxChesscapePlayer.cpp */,
+				AF4838FF0FA27BAD00F734C4 /* hoxChesscapePlayer.h */,
+				AF4839000FA27BAD00F734C4 /* hoxConnection.cpp */,
+				AF4839010FA27BAD00F734C4 /* hoxConnection.h */,
+				AF4839020FA27BAD00F734C4 /* hoxCoreBoard.cpp */,
+				AF4839030FA27BAD00F734C4 /* hoxCoreBoard.h */,
+				AF4839040FA27BAD00F734C4 /* hoxEnums.h */,
+				AF4839050FA27BAD00F734C4 /* hoxIReferee.h */,
+				AF4839060FA27BAD00F734C4 /* hoxLocalPlayer.cpp */,
+				AF4839070FA27BAD00F734C4 /* hoxLocalPlayer.h */,
+				AF4839080FA27BAD00F734C4 /* hoxLog.cpp */,
+				AF4839090FA27BAD00F734C4 /* hoxLog.h */,
+				AF48390A0FA27BAD00F734C4 /* hoxLoginUI.cpp */,
+				AF48390B0FA27BAD00F734C4 /* hoxLoginUI.h */,
+				AF48390C0FA27BAD00F734C4 /* hoxMyPlayer.cpp */,
+				AF48390D0FA27BAD00F734C4 /* hoxMyPlayer.h */,
+				AF48390E0FA27BAD00F734C4 /* hoxOptionDialog.cpp */,
+				AF48390F0FA27BAD00F734C4 /* hoxOptionDialog.h */,
+				AF4839100FA27BAD00F734C4 /* hoxOptionsUI.cpp */,
+				AF4839110FA27BAD00F734C4 /* hoxOptionsUI.h */,
+				AF4839120FA27BAD00F734C4 /* hoxPiece.h */,
+				AF4839130FA27BAD00F734C4 /* hoxPlayer.cpp */,
+				AF4839140FA27BAD00F734C4 /* hoxPlayer.h */,
+				AF4839150FA27BAD00F734C4 /* hoxPlayerMgr.cpp */,
+				AF4839160FA27BAD00F734C4 /* hoxPlayerMgr.h */,
+				AF4839170FA27BAD00F734C4 /* hoxPlayersUI.cpp */,
+				AF4839180FA27BAD00F734C4 /* hoxPlayersUI.h */,
+				AF4839190FA27BAD00F734C4 /* hoxReferee.cpp */,
+				AF48391A0FA27BAD00F734C4 /* hoxReferee.h */,
+				AF48391B0FA27BAD00F734C4 /* hoxSavedTable.cpp */,
+				AF48391C0FA27BAD00F734C4 /* hoxSavedTable.h */,
+				AF48391D0FA27BAD00F734C4 /* hoxSite.cpp */,
+				AF48391E0FA27BAD00F734C4 /* hoxSite.h */,
+				AF48391F0FA27BAD00F734C4 /* hoxSitesUI.cpp */,
+				AF4839200FA27BAD00F734C4 /* hoxSitesUI.h */,
+				AF4839210FA27BAD00F734C4 /* hoxSocketConnection.cpp */,
+				AF4839220FA27BAD00F734C4 /* hoxSocketConnection.h */,
+				AF4839230FA27BAD00F734C4 /* hoxTable.cpp */,
+				AF4839240FA27BAD00F734C4 /* hoxTable.h */,
+				AF4839250FA27BAD00F734C4 /* hoxTableMgr.cpp */,
+				AF4839260FA27BAD00F734C4 /* hoxTableMgr.h */,
+				AF4839270FA27BAD00F734C4 /* hoxTablesDialog.cpp */,
+				AF4839280FA27BAD00F734C4 /* hoxTablesDialog.h */,
+				AF4839290FA27BAD00F734C4 /* hoxTypes.cpp */,
+				AF48392A0FA27BAD00F734C4 /* hoxTypes.h */,
+				AF48392B0FA27BAD00F734C4 /* hoxUtil.cpp */,
+				AF48392C0FA27BAD00F734C4 /* hoxUtil.h */,
+				AF48392D0FA27BAD00F734C4 /* hoxWelcomeUI.cpp */,
+				AF48392E0FA27BAD00F734C4 /* hoxWelcomeUI.h */,
+				AF4839300FA27BAD00F734C4 /* MyApp.cpp */,
+				AF4839310FA27BAD00F734C4 /* MyApp.h */,
+				AF4839320FA27BAD00F734C4 /* MyChild.cpp */,
+				AF4839330FA27BAD00F734C4 /* MyChild.h */,
+				AF4839340FA27BAD00F734C4 /* MyFrame.cpp */,
+				AF4839350FA27BAD00F734C4 /* MyFrame.h */,
+			);
+			name = Sources;
+			sourceTree = "<group>";
+		};
+		20286C2CFDCF999611CA2CEA /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				8D0C4E960486CD37000505A6 /* Info.plist */,
+				0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */,
+				1DDD57E20DA1CFC700B32029 /* main.xib */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		20286C32FDCF999611CA2CEA /* External Frameworks and Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				20286C33FDCF999611CA2CEA /* Carbon.framework */,
+			);
+			name = "External Frameworks and Libraries";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8D0C4E890486CD37000505A6 /* HOXChess */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C0E91AC508A95435008D54AB /* Build configuration list for PBXNativeTarget "HOXChess" */;
+			buildPhases = (
+				8D0C4E8C0486CD37000505A6 /* Resources */,
+				8D0C4E8F0486CD37000505A6 /* Sources */,
+				8D0C4E910486CD37000505A6 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HOXChess;
+			productInstallPath = "$(HOME)/Applications";
+			productName = HOXChess;
+			productReference = 508344B209E5C41E0093A071 /* HOXChess.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		20286C28FDCF999611CA2CEA /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = C0E91AC908A95435008D54AB /* Build configuration list for PBXProject "HOXChess" */;
+			compatibilityVersion = "Xcode 3.1";
+			hasScannedForEncodings = 1;
+			mainGroup = 20286C29FDCF999611CA2CEA /* HOXChess */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8D0C4E890486CD37000505A6 /* HOXChess */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		8D0C4E8C0486CD37000505A6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */,
+				1DDD57E40DA1CFC700B32029 /* main.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8D0C4E8F0486CD37000505A6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AF4839360FA27BAD00F734C4 /* hoxAIPlayer.cpp in Sources */,
+				AF4839370FA27BAD00F734C4 /* hoxAIPluginMgr.cpp in Sources */,
+				AF4839380FA27BAD00F734C4 /* hoxBoard.cpp in Sources */,
+				AF4839390FA27BAD00F734C4 /* hoxChesscapeConnection.cpp in Sources */,
+				AF48393A0FA27BAD00F734C4 /* hoxChesscapePlayer.cpp in Sources */,
+				AF48393B0FA27BAD00F734C4 /* hoxConnection.cpp in Sources */,
+				AF48393C0FA27BAD00F734C4 /* hoxCoreBoard.cpp in Sources */,
+				AF48393D0FA27BAD00F734C4 /* hoxLocalPlayer.cpp in Sources */,
+				AF48393E0FA27BAD00F734C4 /* hoxLog.cpp in Sources */,
+				AF48393F0FA27BAD00F734C4 /* hoxLoginUI.cpp in Sources */,
+				AF4839400FA27BAD00F734C4 /* hoxMyPlayer.cpp in Sources */,
+				AF4839410FA27BAD00F734C4 /* hoxOptionDialog.cpp in Sources */,
+				AF4839420FA27BAD00F734C4 /* hoxOptionsUI.cpp in Sources */,
+				AF4839430FA27BAD00F734C4 /* hoxPlayer.cpp in Sources */,
+				AF4839440FA27BAD00F734C4 /* hoxPlayerMgr.cpp in Sources */,
+				AF4839450FA27BAD00F734C4 /* hoxPlayersUI.cpp in Sources */,
+				AF4839460FA27BAD00F734C4 /* hoxReferee.cpp in Sources */,
+				AF4839470FA27BAD00F734C4 /* hoxSavedTable.cpp in Sources */,
+				AF4839480FA27BAD00F734C4 /* hoxSite.cpp in Sources */,
+				AF4839490FA27BAD00F734C4 /* hoxSitesUI.cpp in Sources */,
+				AF48394A0FA27BAD00F734C4 /* hoxSocketConnection.cpp in Sources */,
+				AF48394B0FA27BAD00F734C4 /* hoxTable.cpp in Sources */,
+				AF48394C0FA27BAD00F734C4 /* hoxTableMgr.cpp in Sources */,
+				AF48394D0FA27BAD00F734C4 /* hoxTablesDialog.cpp in Sources */,
+				AF48394E0FA27BAD00F734C4 /* hoxTypes.cpp in Sources */,
+				AF48394F0FA27BAD00F734C4 /* hoxUtil.cpp in Sources */,
+				AF4839500FA27BAD00F734C4 /* hoxWelcomeUI.cpp in Sources */,
+				AF4839520FA27BAD00F734C4 /* MyApp.cpp in Sources */,
+				AF4839530FA27BAD00F734C4 /* MyChild.cpp in Sources */,
+				AF4839540FA27BAD00F734C4 /* MyFrame.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0867D6ABFE840B52C02AAC07 /* English */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		1DDD57E20DA1CFC700B32029 /* main.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				1DDD57E30DA1CFC700B32029 /* English */,
+			);
+			name = main.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		C0E91AC608A95435008D54AB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_GLIBCXX_DEBUG=1",
+					"_GLIBCXX_DEBUG_PEDANTIC=1",
+				);
+			};
+			name = Debug;
+		};
+		C0E91AC708A95435008D54AB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_PREFIX_HEADER = "";
+				INSTALL_PATH = "$(HOME)/Applications";
+				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
+			};
+			name = Release;
+		};
+		C0E91ACA08A95435008D54AB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Applications";
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"-I/Users/huyphan74/Projects/wxWidgets-2.9.0/build-debug/lib/wx/include/osx_carbon-unicode-debug-2.9",
+					"-I/Users/huyphan74/Projects/wxWidgets-2.9.0/include",
+					"-I/Users/huyphan74/Projects/wxWidgets-2.9.0/include",
+					"-I/Users/huyphan74/Projects/hoxchess-read-only/CChess/hox_Project/lib/boost_1_38_0",
+					"-I/Users/huyphan74/Projects/hoxchess-read-only/CChess/hox_Project/lib/asio-1.4.1/include",
+					"-D_FILE_OFFSET_BITS=64",
+					"-D__WXDEBUG__",
+					"-DWXUSINGDLL",
+					"-D__WXOSX_CARBON__",
+				);
+				OTHER_LDFLAGS = (
+					"-L/Users/huyphan74/Projects/wxWidgets-2.9.0/build-debug/lib",
+					"-framework",
+					QuickTime,
+					"-framework",
+					IOKit,
+					"-framework",
+					Carbon,
+					"-framework",
+					Cocoa,
+					"-framework",
+					AudioToolbox,
+					"-framework",
+					System,
+					"-framework",
+					OpenGL,
+					"-lwx_osx_carbonud_xrc-2.9",
+					"-lwx_osx_carbonud_html-2.9",
+					"-lwx_osx_carbonud_qa-2.9",
+					"-lwx_osx_carbonud_adv-2.9",
+					"-lwx_osx_carbonud_core-2.9",
+					"-lwx_baseud_xml-2.9",
+					"-lwx_baseud_net-2.9",
+					"-lwx_baseud-2.9",
+				);
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
+				PRODUCT_NAME = HOXChess;
+				SDKROOT = macosx10.5;
+			};
+			name = Debug;
+		};
+		C0E91ACB08A95435008D54AB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_INCREASE_PRECOMPILED_HEADER_SHARING = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Applications";
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"-I/Users/huyphan74/Projects/wxWidgets-2.9.0/build-release/lib/wx/include/osx_carbon-unicode-release-2.9",
+					"-I/Users/huyphan74/Projects/wxWidgets-2.9.0/include",
+					"-I/Users/huyphan74/Projects/hoxchess-read-only/CChess/hox_Project/lib/boost_1_38_0",
+					"-I/Users/huyphan74/Projects/hoxchess-read-only/CChess/hox_Project/lib/asio-1.4.1/include",
+					"-D_FILE_OFFSET_BITS=64",
+					"-DWXUSINGDLL",
+					"-D__WXOSX_CARBON__",
+				);
+				OTHER_LDFLAGS = (
+					"-L/Users/huyphan74/Projects/wxWidgets-2.9.0/build-release/lib",
+					"-framework",
+					QuickTime,
+					"-framework",
+					IOKit,
+					"-framework",
+					Carbon,
+					"-framework",
+					Cocoa,
+					"-framework",
+					AudioToolbox,
+					"-framework",
+					System,
+					"-framework",
+					OpenGL,
+					"-lwx_osx_carbonu_xrc-2.9",
+					"-lwx_osx_carbonu_html-2.9",
+					"-lwx_osx_carbonu_qa-2.9",
+					"-lwx_osx_carbonu_adv-2.9",
+					"-lwx_osx_carbonu_core-2.9",
+					"-lwx_baseu_xml-2.9",
+					"-lwx_baseu_net-2.9",
+					"-lwx_baseu-2.9",
+				);
+				PRODUCT_NAME = HOXChess;
+				SDKROOT = macosx10.5;
+				SEPARATE_STRIP = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C0E91AC508A95435008D54AB /* Build configuration list for PBXNativeTarget "HOXChess" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C0E91AC608A95435008D54AB /* Debug */,
+				C0E91AC708A95435008D54AB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C0E91AC908A95435008D54AB /* Build configuration list for PBXProject "HOXChess" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C0E91ACA08A95435008D54AB /* Debug */,
+				C0E91ACB08A95435008D54AB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 20286C28FDCF999611CA2CEA /* Project object */;
+}

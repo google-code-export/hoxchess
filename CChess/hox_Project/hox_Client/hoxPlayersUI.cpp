@@ -383,7 +383,7 @@ hoxPlayersUI::_InitializeImageList()
     wxImage image;
     for ( int index = 0; index < WXSIZEOF( s_imageList ); ++index )
     {
-        filename.Printf("%s/%s", IMAGES_PATH, s_imageList[index].name.c_str());
+        filename.Printf("%s%s/%s", HOX_PATH, IMAGES_PATH, s_imageList[index].name.c_str());
         if ( ! image.LoadFile(filename, wxBITMAP_TYPE_PNG) ) 
         {
             wxLogWarning("%s: Failed to load Image for Player-List from path [%s].",

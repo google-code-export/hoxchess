@@ -90,7 +90,7 @@ _get_piece_image_path( hoxPieceType  type,
 void 
 hoxUtil::SetPiecesPath(const wxString& piecesPath)
 {
-    gPiecePath = piecesPath;
+    gPiecePath = HOX_PATH + piecesPath;
 }
 
 hoxResult 
@@ -113,7 +113,7 @@ hoxUtil::LoadPieceImage( hoxPieceType  type,
 wxBitmap
 hoxUtil::LoadImage( const wxString& imageName )
 {
-    const wxString filename( wxString(IMAGES_PATH) + "/" + imageName );
+    const wxString filename( HOX_PATH + wxString(IMAGES_PATH) + "/" + imageName );
     wxImage image;
     if ( ! image.LoadFile(filename, wxBITMAP_TYPE_PNG) ) 
     {

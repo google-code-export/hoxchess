@@ -730,10 +730,10 @@ MyFrame::CreateFrameForTable( const wxString& sTableId )
 	wxPoint defaultPosition = wxDefaultPosition;
 	wxSize  defaultSize;
 
-	if ( m_children.empty() )
-	{
-		defaultPosition = wxPoint(0, 0);
-	}
+	//if ( m_children.empty() )
+	//{
+	//	defaultPosition = wxPoint(0, 0);
+	//}
 
 	if ( ! _GetDefaultTableLayout( defaultSize ) ) // not exist?
 	{
