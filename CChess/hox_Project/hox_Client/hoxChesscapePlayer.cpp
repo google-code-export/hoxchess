@@ -1056,7 +1056,6 @@ hoxChesscapePlayer::_HandleTableCmd_Clients( hoxTable_SPtr   pTable,
 	delims += 0x10;
 	// ... Do not return empty tokens
 	wxStringTokenizer tkz( cmdStr, delims, wxTOKEN_STRTOK );
-	int tokenPosition = 0;
 	wxString sPlayerId;
 
 	while ( tkz.HasMoreTokens() )

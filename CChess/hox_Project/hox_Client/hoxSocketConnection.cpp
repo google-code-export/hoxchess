@@ -392,7 +392,6 @@ hoxSocketWriter::HandleRequest( hoxRequest_APtr apRequest,
                                 wxString&       sError )
 {
     hoxResult    result = hoxRC_OK;
-    const hoxRequestType requestType = apRequest->type;
 
     sError = "";
 
