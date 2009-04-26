@@ -730,10 +730,12 @@ MyFrame::CreateFrameForTable( const wxString& sTableId )
 	wxPoint defaultPosition = wxDefaultPosition;
 	wxSize  defaultSize;
 
-	//if ( m_children.empty() )
-	//{
-	//	defaultPosition = wxPoint(0, 0);
-	//}
+#ifdef WIN32
+	if ( m_children.empty() )
+	{
+		defaultPosition = wxPoint(0, 0);
+	}
+#endif
 
 	if ( ! _GetDefaultTableLayout( defaultSize ) ) // not exist?
 	{
@@ -741,9 +743,9 @@ MyFrame::CreateFrameForTable( const wxString& sTableId )
 	}
 
     childFrame = new MyChild( this, 
-		                      windowTitle, 
-		                      defaultPosition, 
-							  defaultSize );
+	                          windowTitle, 
+	                          defaultPosition, 
+						      defaultSize );
     m_children.push_back( childFrame );
 
     return childFrame;
