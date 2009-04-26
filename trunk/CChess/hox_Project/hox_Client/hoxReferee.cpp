@@ -1128,7 +1128,6 @@ ElephantPiece::GetPotentialNextPositions(PositionList& positions) const
 bool 
 ChariotPiece::CanMoveTo( const hoxPosition& newPos ) const
 {
-    const hoxColor myColor = m_info.color;
     const hoxPosition   curPos = m_info.position;
 
     bool bIsValidMove = false;
@@ -1246,10 +1245,7 @@ ChariotPiece::GetPotentialNextPositions(PositionList& positions) const
 bool 
 HorsePiece::CanMoveTo( const hoxPosition& newPos ) const
 {
-    const hoxColor myColor = m_info.color;
     const hoxPosition   curPos = m_info.position;
-
-    bool bMoveValid = false;
 
     /* Is a 2-1-rectangle move? */
 

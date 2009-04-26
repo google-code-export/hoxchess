@@ -147,11 +147,10 @@ hoxCoreBoard::_ErasePiece( hoxPiece* piece )
     const wxRect rect( _GetPieceRect(piece) );
 
 #ifdef __WXOSX_CARBON__
-    //// Extra code added to remove the 'highlight'. ///
-        dc.SetPen( wxPen( m_backgroundColor ) );
-        dc.SetBrush( *wxTRANSPARENT_BRUSH );
-        dc.DrawRectangle( rect );
-    //// END of 'extra' code ///////////////////////////
+    // Extra code added to remove the 'highlight'.
+    dc.SetPen( wxPen( m_backgroundColor ) );
+    dc.SetBrush( *wxTRANSPARENT_BRUSH );
+    dc.DrawRectangle( rect );
 #endif
 
     dc.SetClippingRegion( rect );
@@ -478,8 +477,7 @@ hoxCoreBoard::_DrawPieceWithDC( wxDC&           dc,
 #else
     wxMemoryDC memDC;
     memDC.SelectObject( const_cast<wxBitmap&>(bitmap) );
-    dc.Blit( pos.x, pos.y, 
-             bitmap.GetWidth(), bitmap.GetHeight(),
+    dc.Blit( pos.x, pos.y, bitmap.GetWidth(), bitmap.GetHeight(),
              &memDC, 0, 0, wxCOPY, true);
 #endif
 
@@ -693,11 +691,6 @@ hoxCoreBoard::DoMove( hoxMove& move )
         return false;
     }
 
-#ifdef __WXOSX_CARBON__
-	Refresh(true);  // redraw immediately
-	Update();
-#endif
-
     return true;
 }
 
@@ -798,11 +791,6 @@ hoxCoreBoard::DoGameReview_PREV()
         _DrawAndHighlightPiece( prevPiece );
     }
 
-#ifdef __WXOSX_CARBON__
-	Refresh(true);  // redraw immediately
-	Update();
-#endif
-
     return true;
 }
 
@@ -838,11 +826,6 @@ hoxCoreBoard::DoGameReview_NEXT()
     wxCHECK_MSG(piece, false, "No Piece found at the ORIGINAL position.");
 
     _MovePieceTo( piece, move.newPosition );
-
-#ifdef __WXOSX_CARBON__
-	Refresh(true);  // redraw immediately
-	Update();
-#endif
 
 	return true;
 }
@@ -895,11 +878,6 @@ hoxCoreBoard::OnMouseEvent( wxMouseEvent& event )
         // Erase the dragged shape from the board
         m_draggedPiece->SetShow(false);
         _ErasePiece(m_draggedPiece);
-		
-#ifdef __WXOSX_CARBON__
-		Refresh(true);  // redraw immediately;
-		Update();
-#endif
 
         m_dragImage = new wxDragImage( m_draggedPiece->GetBitmap(), 
                                        wxCursor(wxCURSOR_HAND) );
