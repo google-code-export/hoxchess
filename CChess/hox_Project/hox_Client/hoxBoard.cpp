@@ -710,17 +710,12 @@ hoxBoard::OnTimer( wxTimerEvent& event )
         return;
 
     const hoxColor nextColor = m_referee->GetNextColor();
-
-    if ( nextColor == hoxCOLOR_BLACK )
-    {
-		if ( m_blackTime.nGame > 0 ) --m_blackTime.nGame;
-		if ( m_blackTime.nMove > 0 ) --m_blackTime.nMove;
-    }
-    else
-    {
-		if ( m_redTime.nGame > 0 ) --m_redTime.nGame;
-		if ( m_redTime.nMove > 0 ) --m_redTime.nMove;
-    }
+    hoxTimeInfo* pNextTime = ( nextColor == hoxCOLOR_RED ? &m_redTime
+                                                         : &m_blackTime );
+	if ( pNextTime->nGame > 0 ) --pNextTime->nGame;
+	if ( pNextTime->nMove > 0 ) --pNextTime->nMove;
+    if ( pNextTime->nGame == 0
+      && pNextTime->nFree > 0 ) --pNextTime->nFree;
 
     _OnTimerUpdated();
 }
@@ -1229,9 +1224,10 @@ void
 hoxBoard::_OnValidMove( const hoxMove& move,
 					    bool           bSetupMode /* = false */ )
 {
-    /* For the 1st move, change the game-status to 'in-progress'. 
+    /* For the 1st move of BLACK, change the game-status to 'in-progress'. 
      */
-    if ( m_status == hoxGAME_STATUS_READY )
+    if ( m_status == hoxGAME_STATUS_READY
+      && move.piece.color == hoxCOLOR_BLACK )
     {
         m_status = hoxGAME_STATUS_IN_PROGRESS;
         /* NOTE: The above action is enough to trigger the timer which will
@@ -1252,21 +1248,19 @@ hoxBoard::_OnValidMove( const hoxMove& move,
 		//       Thus, we can detect whether Move time == 0 to indicate that this is
 		//       a Chesscape server.  If so, the Free time is added to the Game time.
 
-        // TODO: Need to handle the case in which the Game time is
-        //       less than Move time or is zero.
+		const bool bIsChesscape = (m_initialTime.nMove == 0);
 
-		bool bIsChesscape = (m_initialTime.nMove == 0);
+        hoxTimeInfo* pCurrTime = &m_blackTime;
+        hoxTimeInfo* pNextTime = &m_redTime;
+        if ( move.piece.color == hoxCOLOR_RED )
+        {
+            pCurrTime = &m_redTime;
+            pNextTime = &m_blackTime;
+        }
 
-        if ( move.piece.color == hoxCOLOR_BLACK )
-		{
-            m_redTime.nMove = m_initialTime.nMove;
-			if ( bIsChesscape ) m_blackTime.nGame += m_initialTime.nFree;
-		}
-        else
-		{
-            m_blackTime.nMove = m_initialTime.nMove;
-			if ( bIsChesscape ) m_redTime.nGame += m_initialTime.nFree;
-		}
+        pNextTime->nMove = m_initialTime.nMove;
+        pNextTime->nFree = m_initialTime.nFree;
+		if ( bIsChesscape ) pCurrTime->nGame += m_initialTime.nFree;
     }
 
     /* Play the sound for the MOVE. */
