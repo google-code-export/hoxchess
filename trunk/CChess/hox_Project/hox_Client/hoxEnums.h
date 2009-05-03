@@ -166,7 +166,7 @@ enum hoxGameStatus
 
     hoxGAME_STATUS_OPEN = 0,    // Open but not enough Player.
     hoxGAME_STATUS_READY,       // Enough (2) players, waiting for 1st Move.
-    hoxGAME_STATUS_IN_PROGRESS, // At least 1 Move has been made.
+    hoxGAME_STATUS_IN_PROGRESS, // At least 1 Move has been made by BLACK.
     hoxGAME_STATUS_RED_WIN,     // Game Over. Red won.
     hoxGAME_STATUS_BLACK_WIN,   // Game Over. Black won.
     hoxGAME_STATUS_DRAWN        // Game Over. Drawn.
