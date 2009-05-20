@@ -146,7 +146,7 @@ hoxCoreBoard::_ErasePiece( hoxPiece* piece )
     
     const wxRect rect( _GetPieceRect(piece) );
 
-#ifdef __WXOSX_CARBON__
+#ifdef __WXMAC__
     // Extra code added to remove the 'highlight'.
     dc.SetPen( wxPen( m_backgroundColor ) );
     dc.SetBrush( *wxTRANSPARENT_BRUSH );
@@ -472,7 +472,7 @@ hoxCoreBoard::_DrawPieceWithDC( wxDC&           dc,
     if ( ! bitmap.Ok() )
       return;
 
-#ifdef __WXOSX_CARBON__
+#ifdef __WXMAC__
 	dc.DrawBitmap( bitmap, pos.x, pos.y, true );
 #else
     wxMemoryDC memDC;
