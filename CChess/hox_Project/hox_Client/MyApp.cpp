@@ -27,6 +27,7 @@
 
 #include "MyApp.h"
 #include "hoxAIPluginMgr.h"
+#include "hoxUtil.h"
 
 // Create a new application object: this macro will allow wxWidgets to create
 // the application object during program execution (it's better than using a
@@ -138,7 +139,7 @@ MyApp::_SetupLanguageAndLocale()
     // Normally this wouldn't be necessary as the catalog files would be found
     // in the default locations, but when the program is not installed the
     // catalogs are in the build directory where we wouldn't find them by default.
-    wxLocale::AddCatalogLookupPathPrefix( HOX_LOCALE_PATH );
+    wxLocale::AddCatalogLookupPathPrefix( hoxUtil::GetPath(hoxRT_LOCALE) );
 
     // Initialize the catalogs we'll be using
     if ( ! m_locale.AddCatalog( HOX_CATALOG_NAME ) )

@@ -299,21 +299,22 @@ wxBitmap hoxOptionsUI::GetBitmapResource( const wxString& name )
 wxIcon hoxOptionsUI::GetIconResource( const wxString& name )
 {
     // Icon retrieval
+    const wxString sImagePath = hoxUtil::GetPath(hoxRT_IMAGE);
 ////@begin hoxOptionsUI icon retrieval
     wxUnusedVar(name);
     if (name == _T("../resource/images/go-home.png"))
     {
-        wxIcon icon(wxString(HOX_PATH) + _T("../resource/images/go-home.png"), wxBITMAP_TYPE_PNG);
+        wxIcon icon(sImagePath + _T("go-home.png"), wxBITMAP_TYPE_PNG);
         return icon;
     }
     else if (name == _T("../resource/images/preferences.png"))
     {
-        wxIcon icon(wxString(HOX_PATH) + _T("../resource/images/preferences.png"), wxBITMAP_TYPE_PNG);
+        wxIcon icon(sImagePath + _T("preferences.png"), wxBITMAP_TYPE_PNG);
         return icon;
     }
     else if (name == _T("../resource/images/system-users.png"))
     {
-        wxIcon icon(wxString(HOX_PATH) + _T("../resource/images/system-users.png"), wxBITMAP_TYPE_PNG);
+        wxIcon icon(sImagePath + _T("system-users.png"), wxBITMAP_TYPE_PNG);
         return icon;
     }
     return wxNullIcon;
@@ -370,7 +371,7 @@ hoxOptionsUI::_loadAvailablePieceSets() const
 {
     wxArrayString pieceSets;
 
-    wxString sPiecesDir = HOX_PATH + wxString(PIECE_SETS_PATH);
+    const wxString sPiecesDir = hoxUtil::GetPath(hoxRT_PIECE);
     wxLogDebug("%s: Get Piece-Sets from [%s].", __FUNCTION__, sPiecesDir.c_str());
     wxDir dir(sPiecesDir);
 	if ( !dir.IsOpened() )
@@ -485,7 +486,7 @@ void hoxOptionsUI::OnListboxEnginesSelected( wxCommandEvent& event )
 
 void hoxOptionsUI::OnPieceSetChoicesSelected( wxCommandEvent& event )
 {
-    m_sPiece = wxString(PIECE_SETS_PATH) + "/" + event.GetString();
+    m_sPiece = event.GetString();
     m_panelPiecePreview->Refresh();  // repaint...
 }
 

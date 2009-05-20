@@ -29,6 +29,10 @@
 #include "hoxReferee.h"
 #include <wx/tokenzr.h>
 
+#ifdef __WXMAC__
+    #include <wx/stdpaths.h>
+#endif
+
 using namespace hoxUtil;
 
 static wxString gPiecePath = "";
@@ -87,10 +91,49 @@ _get_piece_image_path( hoxPieceType  type,
 // hoxUtil
 // -----------------------------------------------------------------------
 
+wxString
+hoxUtil::GetPath( const hoxResourceType rType )
+{
+    /* Copied from FileZilla source */
+    
+	/*
+	 * Finding the resources in all cases is a difficult task,
+	 * due to the huge variety of diffent systems and their filesystem
+	 * structure.
+	 * Basically we just check a couple of paths for presence of the resources,
+	 * and hope we find them. If not, the user can still specify on the cmdline
+	 * and using environment variables where the resources are.
+	 *
+	 * At least on OS X it's simple: All inside application bundle.
+	 */
+    
+    wxString base;
+    wxString prefix;
+#ifdef __WXMAC__
+	base = wxStandardPaths::Get().GetDataDir();
+    wxLogDebug("%s: wxStandardPaths::Get().GetDataDir() = [%s].", __FUNCTION__, base.c_str());
+    prefix = "";
+#else
+    base = "..";
+    prefix = "/resource";
+#endif
+
+    switch ( rType )
+    {
+        case hoxRT_IMAGE:     return base + prefix + "/images/";
+        case hoxRT_SOUND:     return base + prefix + "/sounds/";
+        case hoxRT_PIECE:     return base + prefix + "/pieces/";
+        case hoxRT_LOCALE:    return base + prefix + "/locale/";
+        case hoxRT_AI_PLUGIN: return base + "/plugins/";
+
+        default /* hoxRT_UNKNOWN */: return "__UNKNOWN__";
+    }
+}
+
 void 
 hoxUtil::SetPiecesPath(const wxString& piecesPath)
 {
-    gPiecePath = HOX_PATH + piecesPath;
+    gPiecePath = hoxUtil::GetPath(hoxRT_PIECE) + "/" + piecesPath;
 }
 
 hoxResult 
@@ -113,7 +156,7 @@ hoxUtil::LoadPieceImage( hoxPieceType  type,
 wxBitmap
 hoxUtil::LoadImage( const wxString& imageName )
 {
-    const wxString filename( HOX_PATH + wxString(IMAGES_PATH) + "/" + imageName );
+    const wxString filename( GetPath(hoxRT_IMAGE) + imageName );
     wxImage image;
     if ( ! image.LoadFile(filename, wxBITMAP_TYPE_PNG) ) 
     {
