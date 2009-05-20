@@ -50,39 +50,9 @@
 #define HOX_CATALOG_NAME "hoxchess"
 
 /**
- * The App's path.
+ * The default Piece-Set.
  */
-#ifdef __WXOSX_CARBON__
-	#define HOX_PATH "../"
-#else
-	#define HOX_PATH ""
-#endif
-
-/**
- * The locale path containing language catalogue files.
- */
-#define HOX_LOCALE_PATH  "../resource/locale"
-
-/**
- * The default path of all the pieces' images.
- */
-#define PIECE_SETS_PATH      "../resource/pieces"
-#define DEFAULT_PIECE_PATH   (PIECE_SETS_PATH "/1")
-
-/**
- * The default path of other Images.
- */
-#define IMAGES_PATH  "../resource/images"
-
-/**
- * The default path of sound files.
- */
-#define SOUNDS_PATH  "../resource/sounds"
-
-/**
- * The default path of AI Engine Plugins
- */
-#define AI_PLUGINS_PATH  "../plugins"
+#define DEFAULT_PIECE_PATH   "1"
 
 /* Use the Color-Mixer tool from the following site to generate the colors:
  *       http://colormixers.com/mixers/cmr/
@@ -115,6 +85,19 @@ enum hoxResult
     hoxRC_CLOSED,    // Something (socket,...) has been closed.
     hoxRC_NOT_FOUND, // Something is not found.
     hoxRC_NOT_SUPPORTED
+};
+
+/**
+ * File based Resource Types.
+ */
+enum hoxResourceType
+{
+    hoxRT_UNKNOWN = -1,
+    hoxRT_IMAGE,
+    hoxRT_SOUND,
+    hoxRT_PIECE,
+    hoxRT_LOCALE,
+    hoxRT_AI_PLUGIN
 };
 
 /**

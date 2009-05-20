@@ -35,7 +35,7 @@ OBJECTS := $(SOURCES:.cpp=.o)
 	$(CXX) $(CXXFLAGS) $(DEBUGFLAGS) -c -o $@ $<
 
 all: $(LIBRARY)
-	cp -v libAI_TSITO.dylib ../AI_TSITO.bundle
+	cp -v libAI_TSITO.dylib ../
 
 $(LIBRARY): $(OBJECTS)
 	$(CXX) -dynamiclib -Wl,-install_name,lib$(LIBRARY).dylib -o lib$(LIBRARY).dylib $(OBJECTS)

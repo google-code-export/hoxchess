@@ -27,6 +27,7 @@
 
 #include "hoxPlayersUI.h"
 #include "MyApp.h"    // wxGetApp()
+#include "hoxUtil.h"
 
 /* Menu Items IDs. */
 enum hoxPLAYERS_Menu_Id
@@ -383,7 +384,7 @@ hoxPlayersUI::_InitializeImageList()
     wxImage image;
     for ( int index = 0; index < WXSIZEOF( s_imageList ); ++index )
     {
-        filename.Printf("%s%s/%s", HOX_PATH, IMAGES_PATH, s_imageList[index].name.c_str());
+        filename = hoxUtil::GetPath(hoxRT_IMAGE) + s_imageList[index].name;
         if ( ! image.LoadFile(filename, wxBITMAP_TYPE_PNG) ) 
         {
             wxLogWarning("%s: Failed to load Image for Player-List from path [%s].",

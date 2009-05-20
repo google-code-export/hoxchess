@@ -26,6 +26,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxAIPluginMgr.h"
+#include "hoxUtil.h"
 #include <wx/dir.h>
 
 // --------------------------------------------------------------------------
@@ -160,7 +161,7 @@ hoxAIPluginMgr::GetNamesOfAllAIPlugins() const
 bool
 hoxAIPluginMgr::_loadAvailableAIPlugins()
 {
-    wxString sPluginsDir = HOX_PATH + wxString(AI_PLUGINS_PATH);
+    wxString sPluginsDir = hoxUtil::GetPath(hoxRT_AI_PLUGIN);
     wxLogDebug("%s: Get Plugins from [%s].", __FUNCTION__, sPluginsDir.c_str());
     wxDir dir(sPluginsDir);
 	if ( !dir.IsOpened() )
@@ -170,7 +171,11 @@ hoxAIPluginMgr::_loadAvailableAIPlugins()
 	}
 
     wxString         filename;
-	const wxString   ext = "*"  + wxDynamicLibrary::GetDllExt();
+#ifdef __WXMAC__
+	const wxString   ext = wxString("*")  + ".dylib";
+#else
+	const wxString   ext = wxString("*")  + wxDynamicLibrary::GetDllExt();
+#endif
     hoxAIPlugin_SPtr pAIPlugin;
 
 	for ( bool cont = dir.GetFirst(&filename, ext, wxDIR_FILES);

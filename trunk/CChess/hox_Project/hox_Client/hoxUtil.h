@@ -35,6 +35,11 @@
 
 namespace hoxUtil
 {
+    /**
+     * Return the Path (relative or absolute) based on the type of Resource.
+     */
+    wxString GetPath( const hoxResourceType rType );
+
     void SetPiecesPath(const wxString& piecesPath);
 
     hoxResult LoadPieceImage(hoxPieceType type, hoxColor color, wxImage& image);

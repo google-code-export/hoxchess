@@ -27,7 +27,7 @@ OBJECTS := $(SOURCES:.cpp=.o)
 	$(CXX) $(CXXFLAGS) $(DEBUGFLAGS) -c -o $@ $<
 
 all: $(LIBRARY)
-	cp -v libAI_HaQiKiD.dylib ../AI_HaQiKiD.bundle
+	cp -v libAI_HaQiKiD.dylib ../
 
 $(LIBRARY): $(OBJECTS)
 	$(CXX) -dynamiclib -Wl,-install_name,lib$(LIBRARY).dylib -o lib$(LIBRARY).dylib $(OBJECTS)
