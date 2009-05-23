@@ -699,6 +699,170 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		AF6627AC0FC85B48006CA244 /* Debug-static */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CURRENT_PROJECT_VERSION = 0.7.1.0;
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Applications";
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"-I/opt/wxWidgets-2.9.0/lib/wx/include/osx_carbon-unicode-debug-static-2.9",
+					"-I/opt/wxWidgets-2.9.0/include/wx-2.9",
+					"-D_FILE_OFFSET_BITS=64",
+					"-D__WXDEBUG__",
+					"-D__WXOSX_CARBON__",
+					"-I./lib/boost_1_38_0",
+					"-I./lib/asio-1.4.1/include",
+				);
+				OTHER_LDFLAGS = (
+					"-L/opt/wxWidgets-2.9.0/lib",
+					"-framework",
+					QuickTime,
+					"-framework",
+					IOKit,
+					"-framework",
+					Carbon,
+					"-framework",
+					Cocoa,
+					"-framework",
+					AudioToolbox,
+					"-framework",
+					System,
+					"-framework",
+					OpenGL,
+					"/opt/wxWidgets-2.9.0/lib/libwx_osx_carbonud_xrc-2.9.a",
+					"/opt/wxWidgets-2.9.0/lib/libwx_osx_carbonud_html-2.9.a",
+					"/opt/wxWidgets-2.9.0/lib/libwx_osx_carbonud_qa-2.9.a",
+					"/opt/wxWidgets-2.9.0/lib/libwx_osx_carbonud_adv-2.9.a",
+					"/opt/wxWidgets-2.9.0/lib/libwx_osx_carbonud_core-2.9.a",
+					"/opt/wxWidgets-2.9.0/lib/libwx_baseud_xml-2.9.a",
+					"/opt/wxWidgets-2.9.0/lib/libwx_baseud_net-2.9.a",
+					"/opt/wxWidgets-2.9.0/lib/libwx_baseud-2.9.a",
+					"-framework",
+					WebKit,
+					"-lexpat",
+					"-lwxregexud-2.9",
+					"-lwxjpegd-2.9",
+					"-lwxpngd-2.9",
+					"-lz",
+					"-lpthread",
+					"-liconv",
+				);
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
+				PRODUCT_NAME = HOXChess;
+				SDKROOT = macosx10.5;
+			};
+			name = "Debug-static";
+		};
+		AF6627AD0FC85B48006CA244 /* Debug-static */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_GLIBCXX_DEBUG=1",
+					"_GLIBCXX_DEBUG_PEDANTIC=1",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+					"\"$(SRCROOT)/plugins\"",
+				);
+			};
+			name = "Debug-static";
+		};
+		AF6627C00FC8617B006CA244 /* Release-static */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_INCREASE_PRECOMPILED_HEADER_SHARING = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Applications";
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"-I/opt/wxWidgets-2.9.0/lib/wx/include/osx_carbon-unicode-release-static-2.9",
+					"-I/opt/wxWidgets-2.9.0/include/wx-2.9",
+					"-D_FILE_OFFSET_BITS=64",
+					"-D__WXOSX_CARBON__",
+					"-I./lib/boost_1_38_0",
+					"-I./lib/asio-1.4.1/include",
+				);
+				OTHER_LDFLAGS = (
+					"-L/opt/wxWidgets-2.9.0/lib",
+					"-framework",
+					QuickTime,
+					"-framework",
+					IOKit,
+					"-framework",
+					Carbon,
+					"-framework",
+					Cocoa,
+					"-framework",
+					AudioToolbox,
+					"-framework",
+					System,
+					"-framework",
+					OpenGL,
+					"/opt/wxWidgets-2.9.0/lib/libwx_osx_carbonu_xrc-2.9.a",
+					"/opt/wxWidgets-2.9.0/lib/libwx_osx_carbonu_html-2.9.a",
+					"/opt/wxWidgets-2.9.0/lib/libwx_osx_carbonu_qa-2.9.a",
+					"/opt/wxWidgets-2.9.0/lib/libwx_osx_carbonu_adv-2.9.a",
+					"/opt/wxWidgets-2.9.0/lib/libwx_osx_carbonu_core-2.9.a",
+					"/opt/wxWidgets-2.9.0/lib/libwx_baseu_xml-2.9.a",
+					"/opt/wxWidgets-2.9.0/lib/libwx_baseu_net-2.9.a",
+					"/opt/wxWidgets-2.9.0/lib/libwx_baseu-2.9.a",
+					"-framework",
+					WebKit,
+					"-lexpat",
+					"-lwxregexu-2.9",
+					"-lwxjpeg-2.9",
+					"-lwxpng-2.9",
+					"-lz",
+					"-lpthread",
+					"-liconv",
+				);
+				PRODUCT_NAME = HOXChess;
+				SDKROOT = macosx10.5;
+				SEPARATE_STRIP = YES;
+			};
+			name = "Release-static";
+		};
+		AF6627C10FC8617B006CA244 /* Release-static */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_PREFIX_HEADER = "";
+				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+					"\"$(SRCROOT)/plugins\"",
+				);
+				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
+			};
+			name = "Release-static";
+		};
 		C0E91AC608A95435008D54AB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -854,7 +1018,9 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C0E91AC608A95435008D54AB /* Debug */,
+				AF6627AD0FC85B48006CA244 /* Debug-static */,
 				C0E91AC708A95435008D54AB /* Release */,
+				AF6627C10FC8617B006CA244 /* Release-static */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -863,7 +1029,9 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C0E91ACA08A95435008D54AB /* Debug */,
+				AF6627AC0FC85B48006CA244 /* Debug-static */,
 				C0E91ACB08A95435008D54AB /* Release */,
+				AF6627C00FC8617B006CA244 /* Release-static */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
