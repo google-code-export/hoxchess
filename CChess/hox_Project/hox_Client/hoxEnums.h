@@ -96,6 +96,7 @@ enum hoxResourceType
     hoxRT_IMAGE,
     hoxRT_SOUND,
     hoxRT_PIECE,
+    hoxRT_BOARD,
     hoxRT_LOCALE,
     hoxRT_AI_PLUGIN
 };

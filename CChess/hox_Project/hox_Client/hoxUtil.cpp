@@ -123,6 +123,7 @@ hoxUtil::GetPath( const hoxResourceType rType )
         case hoxRT_IMAGE:     return base + prefix + "/images/";
         case hoxRT_SOUND:     return base + prefix + "/sounds/";
         case hoxRT_PIECE:     return base + prefix + "/pieces/";
+        case hoxRT_BOARD:     return base + prefix + "/boards/";
         case hoxRT_LOCALE:    return base + prefix + "/locale/";
         case hoxRT_AI_PLUGIN: return base + "/plugins/";
 

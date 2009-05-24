@@ -34,6 +34,79 @@
 #include "hoxPiece.h"
 #include "hoxIReferee.h"
 
+///////////////////////////////////////////////////////////////////////////////
+class hoxCoreBackground
+{
+public:
+    hoxCoreBackground() : m_borderX( 40 )
+                        , m_borderY( 40 )
+                        , m_cellS( 56 )
+                        , m_bViewInverted( false ) {}
+    virtual ~hoxCoreBackground() {}
+
+    virtual void OnPaint( wxDC& dc ) = 0;
+    virtual void OnResize( const wxSize totalSize ) = 0;
+
+    virtual void OnBgColor( wxColor color ) {}
+    virtual void OnFgColor( wxColor color ) {}
+
+    void OnToggleViewSide() { m_bViewInverted = !m_bViewInverted; }
+
+    wxCoord BorderX() const { return m_borderX; }
+    wxCoord BorderY() const { return m_borderY; }
+    wxCoord CellS() const { return m_cellS; }
+
+protected:
+    wxCoord    m_borderX;
+    wxCoord    m_borderY;
+    wxCoord    m_cellS;  // Squares ' size.
+
+    bool       m_bViewInverted;
+};
+
+// ----------------------------------------------------------------------------
+class hoxCustomBackground : public hoxCoreBackground
+{
+public:
+    hoxCustomBackground();
+    virtual ~hoxCustomBackground() {}
+
+    virtual void OnPaint( wxDC& dc );
+    virtual void OnResize( const wxSize totalSize );
+    virtual void OnBgColor( wxColor color );
+    virtual void OnFgColor( wxColor color );
+
+private:
+    void _DrawWorkSpace( wxDC& dc, const wxSize totalSize );
+    void _DrawBoard( wxDC& dc, const wxSize totalSize );
+
+private:
+    wxSize   m_totalSize;
+
+    wxColor  m_backgroundColor;
+    wxColor  m_foregroundColor;
+
+    bool     m_isGameOver;
+};
+
+// ----------------------------------------------------------------------------
+class hoxImageBackground : public hoxCoreBackground
+{
+public:
+    hoxImageBackground();
+    virtual ~hoxImageBackground() {}
+
+    virtual void OnPaint( wxDC& dc );
+    virtual void OnResize( const wxSize totalSize );
+
+private:
+    void _DrawBoardImage( wxDC& dc );
+
+private:
+    wxString   m_imageFile;
+    wxBitmap   m_bitmap;
+};
+///////////////////////////////////////////////////////////////////////////////
 
 /*
  * hoxCoreBoard
@@ -138,6 +211,7 @@ public:
     void OnPaint( wxPaintEvent& event );
     void OnEraseBackground( wxEraseEvent &event );
     void OnIdle( wxIdleEvent& event );
+    void OnSize( wxSizeEvent& event );
     void OnMouseEvent( wxMouseEvent& event );
     void OnMouseCaptureLost( wxMouseCaptureLostEvent& event );
 
@@ -218,8 +292,6 @@ private:
      */
     bool _IsBoardInReviewMode() const;
 
-    void   _DrawBoard( wxDC& dc );
-    void   _DrawWorkSpace( wxDC& dc );
     void   _DrawAllPieces( wxDC& dc );
     void   _DrawAndHighlightPiece( hoxPiece* piece );
     void   _DrawPiece( const hoxPiece* piece );
@@ -246,14 +318,9 @@ private:
     void _PrintDebug( const wxString& debugMsg ) const;
 
 private:
-    /* Board's colors. */
-    wxColor         m_backgroundColor;
-    wxColor         m_foregroundColor;
+    hoxCoreBackground* m_background;
 
     /* Board's characteristics. */
-    wxCoord         m_borderX;  // X-position from the border
-    wxCoord         m_borderY;  // Y-position from the border
-    wxCoord         m_cellS;    // The size of each cell.
     bool            m_bViewInverted; // true if Black is at the bottom
 
     typedef std::list<hoxPiece*> hoxPieceList;
