@@ -45,6 +45,8 @@
 		AF4839520FA27BAD00F734C4 /* MyApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4839300FA27BAD00F734C4 /* MyApp.cpp */; };
 		AF4839530FA27BAD00F734C4 /* MyChild.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4839320FA27BAD00F734C4 /* MyChild.cpp */; };
 		AF4839540FA27BAD00F734C4 /* MyFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4839340FA27BAD00F734C4 /* MyFrame.cpp */; };
+		AF790B4A0FC9BD91005729B0 /* ixiangqi.png in Copy Files (boards) */ = {isa = PBXBuildFile; fileRef = AF790B440FC9BD39005729B0 /* ixiangqi.png */; };
+		AF790B4B0FC9BD91005729B0 /* qianhong.png in Copy Files (boards) */ = {isa = PBXBuildFile; fileRef = AF790B450FC9BD39005729B0 /* qianhong.png */; };
 		AF864A340FC3090D0034C83B /* down.png in Copy Files (images) */ = {isa = PBXBuildFile; fileRef = AF864A290FC3090D0034C83B /* down.png */; };
 		AF864A350FC3090D0034C83B /* go-home.png in Copy Files (images) */ = {isa = PBXBuildFile; fileRef = AF864A2A0FC3090D0034C83B /* go-home.png */; };
 		AF864A360FC3090D0034C83B /* go-jump.png in Copy Files (images) */ = {isa = PBXBuildFile; fileRef = AF864A2B0FC3090D0034C83B /* go-jump.png */; };
@@ -112,6 +114,18 @@
 				AF0CD9EB0FC3D8470042A414 /* hoxchess.mo in Copy Files (locale\zh_CN) */,
 			);
 			name = "Copy Files (locale\\zh_CN)";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AF790B490FC9BD82005729B0 /* Copy Files (boards) */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = boards;
+			dstSubfolderSpec = 12;
+			files = (
+				AF790B4A0FC9BD91005729B0 /* ixiangqi.png in Copy Files (boards) */,
+				AF790B4B0FC9BD91005729B0 /* qianhong.png in Copy Files (boards) */,
+			);
+			name = "Copy Files (boards)";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		AF864A270FC308900034C83B /* Copy Files (images) */ = {
@@ -287,6 +301,8 @@
 		AF4839330FA27BAD00F734C4 /* MyChild.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyChild.h; path = hox_Client/MyChild.h; sourceTree = "<group>"; };
 		AF4839340FA27BAD00F734C4 /* MyFrame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MyFrame.cpp; path = hox_Client/MyFrame.cpp; sourceTree = "<group>"; };
 		AF4839350FA27BAD00F734C4 /* MyFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyFrame.h; path = hox_Client/MyFrame.h; sourceTree = "<group>"; };
+		AF790B440FC9BD39005729B0 /* ixiangqi.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ixiangqi.png; path = resource/boards/ixiangqi.png; sourceTree = "<group>"; };
+		AF790B450FC9BD39005729B0 /* qianhong.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = qianhong.png; path = resource/boards/qianhong.png; sourceTree = "<group>"; };
 		AF864A290FC3090D0034C83B /* down.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = down.png; path = resource/images/down.png; sourceTree = "<group>"; };
 		AF864A2A0FC3090D0034C83B /* go-home.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "go-home.png"; path = "resource/images/go-home.png"; sourceTree = "<group>"; };
 		AF864A2B0FC3090D0034C83B /* go-jump.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "go-jump.png"; path = "resource/images/go-jump.png"; sourceTree = "<group>"; };
@@ -478,6 +494,15 @@
 			name = zh_CN;
 			sourceTree = "<group>";
 		};
+		AF790B430FC9BD23005729B0 /* boards */ = {
+			isa = PBXGroup;
+			children = (
+				AF790B440FC9BD39005729B0 /* ixiangqi.png */,
+				AF790B450FC9BD39005729B0 /* qianhong.png */,
+			);
+			name = boards;
+			sourceTree = "<group>";
+		};
 		AF864A4A0FC309BD0034C83B /* 1 */ = {
 			isa = PBXGroup;
 			children = (
@@ -522,6 +547,7 @@
 		AF9659E30FC3BCDB00370E48 /* SharedSupport */ = {
 			isa = PBXGroup;
 			children = (
+				AF790B430FC9BD23005729B0 /* boards */,
 				AF864A730FC30D0B0034C83B /* images */,
 				AF9659FD0FC3BD6900370E48 /* sounds */,
 				AF0CD9DB0FC3D7890042A414 /* locale */,
@@ -599,6 +625,7 @@
 				AF864C530FC328DB0034C83B /* Copy Files (sounds) */,
 				AF0CD9E80FC3D7EB0042A414 /* Copy Files (locale\vi_VN) */,
 				AF0CD9EE0FC3D8520042A414 /* Copy Files (locale\zh_CN) */,
+				AF790B490FC9BD82005729B0 /* Copy Files (boards) */,
 			);
 			buildRules = (
 			);
