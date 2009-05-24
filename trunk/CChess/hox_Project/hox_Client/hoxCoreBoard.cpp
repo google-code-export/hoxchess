@@ -54,6 +54,7 @@ BEGIN_EVENT_TABLE(hoxCoreBoard, wxPanel)
     EVT_MOUSE_EVENTS     (hoxCoreBoard::OnMouseEvent)
     EVT_ERASE_BACKGROUND (hoxCoreBoard::OnEraseBackground)
     EVT_IDLE             (hoxCoreBoard::OnIdle)
+    EVT_SIZE(hoxCoreBoard::OnSize)
 
     // NOTE: We have to handle this. Otherwise, the program crashes.
     //   @see http://www.nabble.com/EVT_MOUSE_CAPTURE_LOST-t2872494.html
@@ -76,8 +77,7 @@ hoxCoreBoard::hoxCoreBoard( wxWindow*        parent,
                             const wxSize&    size /* = wxDefaultSize*/ )
         : wxPanel( parent, wxID_ANY, pos, size,
                    wxFULL_REPAINT_ON_RESIZE )
-        , m_backgroundColor( bgColor )
-        , m_foregroundColor( fgColor )
+        , m_background( NULL )
         , m_bViewInverted( false )  // Normal view: RED is at bottom of the screen
         , m_referee( referee )
         , m_owner( NULL )
@@ -91,37 +91,37 @@ hoxCoreBoard::hoxCoreBoard( wxWindow*        parent,
 {
     wxASSERT_MSG(m_referee, "A Referee must be set");
 
-    m_borderX = 40;   // TODO: Hard-coded constant
-    m_borderY = m_borderX;
-
     m_nBestHeightAdjustment = 0; // HACK!
+
+    ////////////////////////////////
+    m_background = new hoxCustomBackground();
+                   //new hoxImageBackground();
+    m_background->OnBgColor( bgColor );
+    m_background->OnFgColor( fgColor );
 }
 
 hoxCoreBoard::~hoxCoreBoard()
 {
     _ClearPieces();
     delete m_dragImage;
+    delete m_background;
 }
 
 void
 hoxCoreBoard::SetBgColor( wxColor color )
 {
-    m_backgroundColor = color;
-
     wxClientDC dc(this);
-    _DrawWorkSpace( dc );
-    _DrawBoard( dc );
+    m_background->OnBgColor( color );
+    m_background->OnPaint( dc );
     _DrawAllPieces( dc );
 }
 
 void
 hoxCoreBoard::SetFgColor( wxColor color )
 {
-    m_foregroundColor = color;
-
     wxClientDC dc(this);
-    _DrawWorkSpace( dc );
-    _DrawBoard( dc );
+    m_background->OnFgColor( color );
+    m_background->OnPaint( dc );
     _DrawAllPieces( dc );
 }
 
@@ -148,14 +148,15 @@ hoxCoreBoard::_ErasePiece( hoxPiece* piece )
 
 #ifdef __WXMAC__
     // Extra code added to remove the 'highlight'.
-    dc.SetPen( wxPen( m_backgroundColor ) );
+    // *** NOT NEEDED!!! dc.SetPen( wxPen( m_backgroundColor ) );
     dc.SetBrush( *wxTRANSPARENT_BRUSH );
     dc.DrawRectangle( rect );
 #endif
 
     dc.SetClippingRegion( rect );
-    _DrawWorkSpace(dc);
-    _DrawBoard(dc);
+    
+    m_background->OnPaint(dc);
+
     dc.DestroyClippingRegion();
 }
 
@@ -191,160 +192,7 @@ hoxCoreBoard::_FindPiece( const wxPoint& point ) const
 void 
 hoxCoreBoard::_DoPaint( wxDC& dc )
 {
-    _DrawWorkSpace( dc );
-    _DrawBoard(dc);
     _DrawAllPieces(dc);
-}
-
-void 
-hoxCoreBoard::_DrawBoard( wxDC& dc )
-{
-    const wxSize totalSize = GetClientSize(); // of this Board
-
-    dc.SetBrush( wxBrush( m_backgroundColor ) );
-    dc.SetPen( wxPen( m_foregroundColor ) );
-
-    // --- Get the board's max-dimension.
-    wxCoord borderW = totalSize.GetWidth() - 2*m_borderX;
-    wxCoord borderH = totalSize.GetHeight() - 2*m_borderY;
-
-    // --- Calculate the cell's size (*** cell is a square ***)
-    m_cellS = wxMin(borderW / NUM_HORIZON_CELL, borderH / NUM_VERTICAL_CELL);
-
-    // --- Calculate the new "effective" board's size.
-    wxCoord boardW = m_cellS * NUM_HORIZON_CELL;
-    wxCoord boardH = m_cellS * NUM_VERTICAL_CELL;
-
-    // *** Paint the board with a background's color.
-    dc.DrawRectangle( m_borderX, m_borderY, boardW, boardH );
-
-    // Draw vertial lines.
-    int line;
-    wxCoord x1, y1, x2, y2;
-    y1 = m_borderY;
-    y2 = m_borderY + boardH;
-    const wxCoord leftLabelY = 0; // TODO: Hard-coded for now
-    const wxCoord rightLabelY = y2 + m_borderY - dc.GetCharHeight() - leftLabelY;
-    wxChar c = m_bViewInverted ? 'i' : 'a';
-    for (line = 0; line < NUM_HORIZON_CELL+1; ++line)
-    {
-        x1 = m_borderX + line * m_cellS;
-        x2 = x1;
-
-        dc.DrawText(c, x1, leftLabelY);
-        dc.DrawLine(x1, y1, x2, y2);
-        dc.DrawText(c, x2, rightLabelY);
-        if (m_bViewInverted) --c;
-        else                 ++c;
-    }
-
-    // Draw horizontal lines.
-    x1 = m_borderX;
-    x2 = m_borderX + boardW;
-    const wxCoord leftLabelX = 5; // TODO: Hard-coded for now
-    const wxCoord rightLabelX = m_borderX - dc.GetCharWidth() - leftLabelX;
-    c = m_bViewInverted ? '9' : '0';
-    for (line = 0; line < NUM_VERTICAL_CELL+1; ++line)
-    {
-        y1 = m_borderY + line * m_cellS;
-        y2 = y1;
-
-        dc.DrawText(c, leftLabelX, y1);
-        dc.DrawLine(x1, y1, x2, y2);
-        dc.DrawText(c, x2 + rightLabelX, y2);
-        if (m_bViewInverted) --c;
-        else                 ++c;
-    }
-
-    // Draw crossing lines at the red-palace.
-    dc.DrawLine(m_borderX+3*m_cellS, m_borderY+9*m_cellS, 
-                m_borderX+5*m_cellS, m_borderY+7*m_cellS);
-    dc.DrawLine(m_borderX+3*m_cellS, m_borderY+7*m_cellS, 
-                m_borderX+5*m_cellS, m_borderY+9*m_cellS);
-
-    // Draw crossing lines at the black-palace.
-    dc.DrawLine(m_borderX+3*m_cellS, m_borderY,
-                m_borderX+5*m_cellS, m_borderY+2*m_cellS);
-    dc.DrawLine(m_borderX+3*m_cellS, m_borderY+2*m_cellS, 
-                m_borderX+5*m_cellS, m_borderY);
-
-    // Draw the "miror" lines for Cannon and Pawn.
-    const int nSize  = m_cellS / 7;  // The "miror" 's size.
-    const int nSpace = 3;            // The "miror" 's space (how close/far).
-    
-    int locations[][2] = { { 1, 2 }, { 7, 2 },
-                           { 0, 3 }, { 2, 3 }, { 4, 3 }, { 6, 3 }, { 8, 3 },
-                           { 0, 6 }, { 2, 6 }, { 4, 6 }, { 6, 6 }, { 8, 6 },
-                           { 1, 7 }, { 7, 7 },
-                         };
-    wxPoint mirrors[3];
-    for ( int i = 0; i < 14; ++i )
-    {
-        wxPoint oriPoint( m_borderX+locations[i][0]*m_cellS, 
-                          m_borderY+locations[i][1]*m_cellS );
-        bool bNoLeft = ( locations[i][0] == 0 )
-                    && ( locations[i][1] == 3 || locations[i][1] == 6 );
-        bool bNoRight = ( locations[i][0] == 8 )
-                     && ( locations[i][1] == 3 || locations[i][1] == 6 );
-
-        if ( !bNoLeft )
-        {
-            mirrors[0] = wxPoint( oriPoint.x - nSpace, oriPoint.y - nSpace - nSize );
-            mirrors[1] = wxPoint( oriPoint.x - nSpace, oriPoint.y - nSpace );
-            mirrors[2] = wxPoint( oriPoint.x - nSpace - nSize, oriPoint.y - nSpace );
-            dc.DrawLines(3, mirrors);
-
-            mirrors[0] = wxPoint( oriPoint.x - nSpace - nSize, oriPoint.y + nSpace );
-            mirrors[1] = wxPoint( oriPoint.x - nSpace, oriPoint.y + nSpace );
-            mirrors[2] = wxPoint( oriPoint.x - nSpace, oriPoint.y + nSpace + nSize );
-            dc.DrawLines(3, mirrors);
-        }
-
-        if ( !bNoRight )
-        {
-            mirrors[0] = wxPoint( oriPoint.x + nSpace, oriPoint.y - nSpace - nSize );
-            mirrors[1] = wxPoint( oriPoint.x + nSpace, oriPoint.y - nSpace );
-            mirrors[2] = wxPoint( oriPoint.x + nSpace + nSize, oriPoint.y - nSpace );
-            dc.DrawLines(3, mirrors);
-
-            mirrors[0] = wxPoint( oriPoint.x + nSpace, oriPoint.y + nSpace + nSize );
-            mirrors[1] = wxPoint( oriPoint.x + nSpace, oriPoint.y + nSpace );
-            mirrors[2] = wxPoint( oriPoint.x + nSpace + nSize, oriPoint.y + nSpace );
-            dc.DrawLines(3, mirrors);
-        }
-    }
-
-    // Delete lines at the 'river' by drawing lines with
-    // the background's color.
-    y1 = m_borderY + 4*m_cellS;
-    y2 = y1 + m_cellS;
-    dc.SetPen( wxPen( m_backgroundColor ) );
-    for (line = 1; line < NUM_VERTICAL_CELL-1; ++line)
-    {
-        x1 = m_borderX + line * m_cellS;
-        x2 = x1;
-
-        dc.DrawLine(x1, y1, x2, y2);
-    }
-
-    // Drawing "Game Over" if specified.
-    if ( m_isGameOver )
-    {
-        dc.SetFont( wxFont( 24, wxFONTFAMILY_ROMAN, 
-                            wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL ) );
-        dc.SetTextForeground( *wxRED );
-        dc.DrawText( _("Game Over"), 
-                     m_borderX + (int)(2.5*m_cellS), 
-                     m_borderY + 4*m_cellS );
-    }
-}
-
-void 
-hoxCoreBoard::_DrawWorkSpace( wxDC& dc )
-{
-    const wxSize sz = GetClientSize();
-    dc.SetBrush( *hoxBOARD_WORKSPACE_BRUSH );
-    dc.DrawRectangle( 0, 0, sz.x, sz.y );
 }
 
 void 
@@ -353,12 +201,12 @@ hoxCoreBoard::OnEraseBackground( wxEraseEvent& event )
     // *** Paint the entire working space with a background's color.
     if ( event.GetDC() )
     {
-        _DrawWorkSpace( *event.GetDC() );
+        m_background->OnPaint( *event.GetDC() );
     }
     else
     {
         wxClientDC dc(this);
-        _DrawWorkSpace( dc );
+        m_background->OnPaint( dc );
     }
 }
 
@@ -366,6 +214,15 @@ void
 hoxCoreBoard::OnIdle( wxIdleEvent& event )
 {
     // Do nothing for now.
+}
+
+void 
+hoxCoreBoard::OnSize( wxSizeEvent& event )
+{
+    //wxLogDebug("%s: (%d, %d)", __FUNCTION__, event.GetSize().x, event.GetSize().y);
+    m_background->OnResize( event.GetSize() );
+    wxClientDC dc(this);
+    m_background->OnPaint( dc );
 }
 
 void
@@ -412,8 +269,7 @@ hoxCoreBoard::ResetBoard()
     this->LoadPiecesAndStatus();
 
      wxClientDC dc(this);
-    _DrawWorkSpace( dc );
-    _DrawBoard( dc );
+     m_background->OnPaint( dc );
     _DrawAllPieces( dc );
 }
 
@@ -517,6 +373,12 @@ hoxPosition
 hoxCoreBoard::_PointToPosition( const hoxPiece* piece, 
                                 const wxPoint&  p ) const
 {
+    /////////////////////
+    const wxCoord borderX = m_background->BorderX();
+    const wxCoord borderY = m_background->BorderY();
+    const wxCoord cellS = m_background->CellS();
+    /////////////////////
+
     const wxBitmap& bitmap = piece->GetBitmap();
     hoxPosition pos;
 
@@ -538,39 +400,39 @@ hoxCoreBoard::_PointToPosition( const hoxPiece* piece,
 
     wxPoint p1, p2, p3, p4;
 
-    p1.x = point.x - ((point.x - m_borderX) % m_cellS);
-    p1.y = point.y - ((point.y - m_borderY) % m_cellS);
+    p1.x = point.x - ((point.x - borderX) % cellS);
+    p1.y = point.y - ((point.y - borderY) % cellS);
 
-    p2.x = p1.x + m_cellS; 
+    p2.x = p1.x + cellS; 
     p2.y = p1.y; 
 
     p3.x = p2.x; 
-    p3.y = p2.y + m_cellS; 
+    p3.y = p2.y + cellS; 
 
     p4.x = p1.x; 
     p4.y = p3.y; 
 
-    wxSize tolerance(m_cellS / 3, m_cellS / 3);
+    wxSize tolerance(cellS / 3, cellS / 3);
     wxRect  r1(p1 - tolerance, tolerance*2);
 	wxRect  r2(p2 - tolerance, tolerance*2);
 	wxRect  r3(p3 - tolerance, tolerance*2);
 	wxRect  r4(p4 - tolerance, tolerance*2);
 
     if ( r1.Contains(point) ) {
-        pos.x = (p1.x - m_borderX) / m_cellS;
-        pos.y = (p1.y - m_borderY) / m_cellS;
+        pos.x = (p1.x - borderX) / cellS;
+        pos.y = (p1.y - borderY) / cellS;
     }
     else if ( r2.Contains(point) ) {
-        pos.x = (p2.x - m_borderX) / m_cellS;
-        pos.y = (p2.y - m_borderY) / m_cellS;
+        pos.x = (p2.x - borderX) / cellS;
+        pos.y = (p2.y - borderY) / cellS;
     }
     else if ( r3.Contains(point) ) {
-        pos.x = (p3.x - m_borderX) / m_cellS;
-        pos.y = (p3.y - m_borderY) / m_cellS;
+        pos.x = (p3.x - borderX) / cellS;
+        pos.y = (p3.y - borderY) / cellS;
     }
     else if ( r4.Contains(point) ) {
-        pos.x = (p4.x - m_borderX) / m_cellS;
-        pos.y = (p4.y - m_borderY) / m_cellS;
+        pos.x = (p4.x - borderX) / cellS;
+        pos.y = (p4.y - borderY) / cellS;
     }
 
     // Convert to the 'real' position since we can be in the *inverted* view.
@@ -943,6 +805,12 @@ hoxCoreBoard::OnMouseCaptureLost( wxMouseCaptureLostEvent& event )
 wxPoint 
 hoxCoreBoard::_GetPieceLocation( const hoxPiece* piece ) const
 {
+    /////////////////////
+    const wxCoord borderX = m_background->BorderX();
+    const wxCoord borderY = m_background->BorderY();
+    const wxCoord cellS = m_background->CellS();
+    /////////////////////
+
     hoxPosition pos = piece->GetPosition();
 
     // Convert to the 'real' position since we can be in the *inverted* view.
@@ -953,8 +821,8 @@ hoxCoreBoard::_GetPieceLocation( const hoxPiece* piece ) const
     }
 
     // Determine the center of the piece.
-    int posX = m_borderX + pos.x * m_cellS;
-    int posY = m_borderY + pos.y * m_cellS;
+    int posX = borderX + pos.x * cellS;
+    int posY = borderY + pos.y * cellS;
 
     // Return the top-left point of the piece.
     const wxBitmap& bitmap = piece->GetBitmap();
@@ -1012,9 +880,11 @@ hoxCoreBoard::ToggleViewSide()
     m_bViewInverted = !m_bViewInverted;
 
     wxClientDC dc(this);
-    _DrawWorkSpace( dc );
-    _DrawBoard( dc );
+    m_background->OnToggleViewSide();
+    m_background->OnPaint( dc );
+
     _DrawAllPieces( dc );
+    this->Refresh();  // Somehow this is needed to show the pieces.
 
     return m_bViewInverted;
 }
@@ -1022,20 +892,21 @@ hoxCoreBoard::ToggleViewSide()
 wxSize 
 hoxCoreBoard::GetBestBoardSize( const int proposedHeight ) const
 {
-    wxSize totalSize( proposedHeight, proposedHeight );
+    const wxSize totalSize( proposedHeight, proposedHeight );
 
-    // --- Get the board's max-dimension.
-    wxCoord borderW = totalSize.GetWidth() - 2*m_borderX;
-    wxCoord borderH = totalSize.GetHeight() - 2*m_borderY;
-
-    wxCoord cellS = wxMin(borderW / NUM_HORIZON_CELL, borderH / NUM_VERTICAL_CELL);
+    /////////////////////
+    m_background->OnResize( totalSize );   // *** Recaculated!!!
+    const wxCoord borderX = m_background->BorderX();
+    const wxCoord borderY = m_background->BorderY();
+    const wxCoord cellS = m_background->CellS();
+    /////////////////////
 
     // --- Calculate the new "effective" board's size.
     wxCoord boardW = cellS * NUM_HORIZON_CELL;
     wxCoord boardH = cellS * NUM_VERTICAL_CELL;
 
-    int wholeBoardX = boardW + 2*m_borderX;
-    int wholeBoardY = boardH + 2*m_borderY;
+    int wholeBoardX = boardW + 2*borderX;
+    int wholeBoardY = boardH + 2*borderY;
 
     wxSize bestSize( wholeBoardX, wholeBoardY );
 
@@ -1048,7 +919,7 @@ hoxCoreBoard::GetBestBoardSize( const int proposedHeight ) const
 wxSize 
 hoxCoreBoard::DoGetBestSize() const
 {
-    wxSize availableSize = GetParent()->GetClientSize();    
+    const wxSize availableSize = GetParent()->GetClientSize();    
 
     int proposedHeight = availableSize.GetHeight()
         - m_nBestHeightAdjustment /* TODO: The two players' info + The command bar */;
@@ -1089,6 +960,262 @@ hoxCoreBoard::_PrintDebug( const wxString& debugMsg ) const
         m_owner->OnBoardMsg( debugMsg );
     }
     wxLogDebug( debugMsg.c_str() );
+}
+
+
+/*****************************************************************************
+ *
+ *          hoxCustomBackground
+ *
+ *****************************************************************************/
+
+hoxCustomBackground::hoxCustomBackground()
+{
+    m_totalSize = wxSize( 600, 700 );
+
+    m_borderX = m_borderY = 40;   // TODO: Hard-coded constant
+    m_cellS = 56;  /* TODO: Size of the board's square.
+                    *       To be adjusted later.
+                    */
+
+    m_backgroundColor = DEFAULT_BOARD_BACKGROUND_COLOR;
+    m_foregroundColor = DEFAULT_BOARD_FOREGROUND_COLOR;
+
+    m_isGameOver = false;
+}
+
+void
+hoxCustomBackground::OnPaint( wxDC& dc )
+{
+    _DrawWorkSpace( dc, m_totalSize );
+    _DrawBoard( dc, m_totalSize );
+}
+
+void
+hoxCustomBackground::OnResize( const wxSize totalSize )
+{
+    /* NOTE: Enfore some minimal size. */
+    const wxSize minimumSize = wxSize( 400, 470 );
+
+    if ( totalSize.x < minimumSize.x || totalSize.y < minimumSize.y )
+    {
+        // Do nothing.
+    }
+    else
+    {
+        m_totalSize = totalSize;
+
+        // --- Get the board's max-dimension.
+        const wxCoord borderW = m_totalSize.GetWidth() - 2*m_borderX;
+        const wxCoord borderH = m_totalSize.GetHeight() - 2*m_borderY;
+        // --- Calculate the cell's size (*** cell is a square ***)
+        m_cellS = wxMin(borderW / NUM_HORIZON_CELL, borderH / NUM_VERTICAL_CELL);
+    }
+}
+
+void
+hoxCustomBackground::OnBgColor( wxColor color )
+{
+    m_backgroundColor = color;
+}
+
+void
+hoxCustomBackground::OnFgColor( wxColor color )
+{
+    m_foregroundColor = color;
+}
+
+void 
+hoxCustomBackground::_DrawWorkSpace( wxDC&        dc,
+                                     const wxSize totalSize )
+{
+    dc.SetBrush( *hoxBOARD_WORKSPACE_BRUSH );
+    dc.DrawRectangle( 0, 0, totalSize.x, totalSize.y );
+}
+
+void 
+hoxCustomBackground::_DrawBoard( wxDC&        dc,
+                                 const wxSize totalSize )
+{
+    dc.SetBrush( wxBrush( m_backgroundColor ) );
+    dc.SetPen( wxPen( m_foregroundColor ) );
+
+    // --- Calculate the new "effective" board's size.
+    wxCoord boardW = m_cellS * NUM_HORIZON_CELL;
+    wxCoord boardH = m_cellS * NUM_VERTICAL_CELL;
+
+    // *** Paint the board with a background's color.
+    dc.DrawRectangle( m_borderX, m_borderY, boardW, boardH );
+
+    // Draw vertial lines.
+    int line;
+    wxCoord x1, y1, x2, y2;
+    y1 = m_borderY;
+    y2 = m_borderY + boardH;
+    const wxCoord leftLabelY = 0; // TODO: Hard-coded for now
+    const wxCoord rightLabelY = y2 + m_borderY - dc.GetCharHeight() - leftLabelY;
+    wxChar c = m_bViewInverted ? 'i' : 'a';
+    for (line = 0; line < NUM_HORIZON_CELL+1; ++line)
+    {
+        x1 = m_borderX + line * m_cellS;
+        x2 = x1;
+
+        dc.DrawText(c, x1, leftLabelY);
+        dc.DrawLine(x1, y1, x2, y2);
+        dc.DrawText(c, x2, rightLabelY);
+        if (m_bViewInverted) --c;
+        else                 ++c;
+    }
+
+    // Draw horizontal lines.
+    x1 = m_borderX;
+    x2 = m_borderX + boardW;
+    const wxCoord leftLabelX = 5; // TODO: Hard-coded for now
+    const wxCoord rightLabelX = m_borderX - dc.GetCharWidth() - leftLabelX;
+    c = m_bViewInverted ? '9' : '0';
+    for (line = 0; line < NUM_VERTICAL_CELL+1; ++line)
+    {
+        y1 = m_borderY + line * m_cellS;
+        y2 = y1;
+
+        dc.DrawText(c, leftLabelX, y1);
+        dc.DrawLine(x1, y1, x2, y2);
+        dc.DrawText(c, x2 + rightLabelX, y2);
+        if (m_bViewInverted) --c;
+        else                 ++c;
+    }
+
+    // Draw crossing lines at the red-palace.
+    dc.DrawLine(m_borderX+3*m_cellS, m_borderY+9*m_cellS, 
+                m_borderX+5*m_cellS, m_borderY+7*m_cellS);
+    dc.DrawLine(m_borderX+3*m_cellS, m_borderY+7*m_cellS, 
+                m_borderX+5*m_cellS, m_borderY+9*m_cellS);
+
+    // Draw crossing lines at the black-palace.
+    dc.DrawLine(m_borderX+3*m_cellS, m_borderY,
+                m_borderX+5*m_cellS, m_borderY+2*m_cellS);
+    dc.DrawLine(m_borderX+3*m_cellS, m_borderY+2*m_cellS, 
+                m_borderX+5*m_cellS, m_borderY);
+
+    // Draw the "miror" lines for Cannon and Pawn.
+    const int nSize  = m_cellS / 7;  // The "miror" 's size.
+    const int nSpace = 3;            // The "miror" 's space (how close/far).
+    
+    int locations[][2] = { { 1, 2 }, { 7, 2 },
+                           { 0, 3 }, { 2, 3 }, { 4, 3 }, { 6, 3 }, { 8, 3 },
+                           { 0, 6 }, { 2, 6 }, { 4, 6 }, { 6, 6 }, { 8, 6 },
+                           { 1, 7 }, { 7, 7 },
+                         };
+    wxPoint mirrors[3];
+    for ( int i = 0; i < 14; ++i )
+    {
+        wxPoint oriPoint( m_borderX+locations[i][0]*m_cellS, 
+                          m_borderY+locations[i][1]*m_cellS );
+        bool bNoLeft = ( locations[i][0] == 0 )
+                    && ( locations[i][1] == 3 || locations[i][1] == 6 );
+        bool bNoRight = ( locations[i][0] == 8 )
+                     && ( locations[i][1] == 3 || locations[i][1] == 6 );
+
+        if ( !bNoLeft )
+        {
+            mirrors[0] = wxPoint( oriPoint.x - nSpace, oriPoint.y - nSpace - nSize );
+            mirrors[1] = wxPoint( oriPoint.x - nSpace, oriPoint.y - nSpace );
+            mirrors[2] = wxPoint( oriPoint.x - nSpace - nSize, oriPoint.y - nSpace );
+            dc.DrawLines(3, mirrors);
+
+            mirrors[0] = wxPoint( oriPoint.x - nSpace - nSize, oriPoint.y + nSpace );
+            mirrors[1] = wxPoint( oriPoint.x - nSpace, oriPoint.y + nSpace );
+            mirrors[2] = wxPoint( oriPoint.x - nSpace, oriPoint.y + nSpace + nSize );
+            dc.DrawLines(3, mirrors);
+        }
+
+        if ( !bNoRight )
+        {
+            mirrors[0] = wxPoint( oriPoint.x + nSpace, oriPoint.y - nSpace - nSize );
+            mirrors[1] = wxPoint( oriPoint.x + nSpace, oriPoint.y - nSpace );
+            mirrors[2] = wxPoint( oriPoint.x + nSpace + nSize, oriPoint.y - nSpace );
+            dc.DrawLines(3, mirrors);
+
+            mirrors[0] = wxPoint( oriPoint.x + nSpace, oriPoint.y + nSpace + nSize );
+            mirrors[1] = wxPoint( oriPoint.x + nSpace, oriPoint.y + nSpace );
+            mirrors[2] = wxPoint( oriPoint.x + nSpace + nSize, oriPoint.y + nSpace );
+            dc.DrawLines(3, mirrors);
+        }
+    }
+
+    // Delete lines at the 'river' by drawing lines with
+    // the background's color.
+    y1 = m_borderY + 4*m_cellS;
+    y2 = y1 + m_cellS;
+    dc.SetPen( wxPen( m_backgroundColor ) );
+    for (line = 1; line < NUM_VERTICAL_CELL-1; ++line)
+    {
+        x1 = m_borderX + line * m_cellS;
+        x2 = x1;
+
+        dc.DrawLine(x1, y1, x2, y2);
+    }
+
+    // Drawing "Game Over" if specified.
+    if ( m_isGameOver )
+    {
+        dc.SetFont( wxFont( 24, wxFONTFAMILY_ROMAN, 
+                            wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL ) );
+        dc.SetTextForeground( *wxRED );
+        dc.DrawText( _("Game Over"), 
+                     m_borderX + (int)(2.5*m_cellS), 
+                     m_borderY + 4*m_cellS );
+    }
+}
+
+/*****************************************************************************
+ *
+ *          hoxImageBackground
+ *
+ *****************************************************************************/
+
+hoxImageBackground::hoxImageBackground()
+{
+    // *** iXiangqi Board 's characteristics.
+    const wxString imageName("ixiangqi.png");
+    m_borderX = m_borderY = 30;   // TODO: Hard-coded constant
+    m_cellS = 55;     // TODO: Size of the board's square.
+
+    // *** Qianhong Board 's characteristics.
+    //const wxString imageName("qianhong.png");
+    //m_borderX = m_borderY = 36;   // TODO: Hard-coded constant
+    //m_cellS = 56;     // TODO: Size of the board's square.
+
+    m_imageFile = hoxUtil::GetPath(hoxRT_BOARD) + imageName;
+    wxImage image;
+    if ( ! image.LoadFile(m_imageFile, wxBITMAP_TYPE_PNG) ) 
+    {
+        wxLogError("%s: Failed to load board-image from [%s].", __FUNCTION__, m_imageFile.c_str());
+        return;
+    }
+
+    m_bitmap = wxBitmap(image);
+}
+
+void
+hoxImageBackground::OnPaint( wxDC& dc )
+{
+    _DrawBoardImage( dc );
+}
+
+void
+hoxImageBackground::OnResize( const wxSize totalSize )
+{
+    // Do nothing since this Background does not support Resize!
+}
+
+void 
+hoxImageBackground::_DrawBoardImage( wxDC& dc )
+{
+    wxMemoryDC memDC;
+    memDC.SelectObject( const_cast<wxBitmap&>(m_bitmap) );
+    dc.Blit( 0, 0, m_bitmap.GetWidth(), m_bitmap.GetHeight(),
+             &memDC, 0, 0, wxCOPY, true );
 }
 
 /************************* END OF FILE ***************************************/
