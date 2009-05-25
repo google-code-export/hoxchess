@@ -3,7 +3,6 @@
 // Purpose:     The UI managing all the options/preferences of HOXChess.
 // Author:      Huy Phan
 // Created:     3/9/2009 6:58:33 AM
-// RCS-ID:      
 // Copyright:   Copyright 2007-2009 Huy Phan  <huyphan@playxiangqi.com>
 // Licence:     GNU General Public License v3 
 /////////////////////////////////////////////////////////////////////////////
@@ -143,18 +142,7 @@ void hoxOptionsUI::CreateControls()
 ////@begin hoxOptionsUI content construction
     //hoxOptionsUI* itemPropertySheetDialog1 = this;
 
-    wxImageList* itemPropertySheetDialog1ImageList = new wxImageList(22, 22, true, 3);
-    {
-        wxIcon itemPropertySheetDialog1Icon0(GetIconResource(wxT("../resource/images/go-home.png")));
-        itemPropertySheetDialog1ImageList->Add(itemPropertySheetDialog1Icon0);
-        wxIcon itemPropertySheetDialog1Icon1(GetIconResource(wxT("../resource/images/preferences.png")));
-        itemPropertySheetDialog1ImageList->Add(itemPropertySheetDialog1Icon1);
-        wxIcon itemPropertySheetDialog1Icon2(GetIconResource(wxT("../resource/images/system-users.png")));
-        itemPropertySheetDialog1ImageList->Add(itemPropertySheetDialog1Icon2);
-    }
-    GetBookCtrl()->AssignImageList(itemPropertySheetDialog1ImageList);
-
-    wxPanel* itemPanel2 = new wxPanel( GetBookCtrl(), m_panelMain, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+    wxPanel* itemPanel2 = new wxPanel( GetBookCtrl(), ID_OPTIONS_MAIN, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
     wxBoxSizer* itemBoxSizer3 = new wxBoxSizer(wxVERTICAL);
     itemPanel2->SetSizer(itemBoxSizer3);
 
@@ -183,9 +171,9 @@ void hoxOptionsUI::CreateControls()
     m_choiceLanguage = new wxChoice( itemPanel2, ID_CHOICE_LANGUAGE, wxDefaultPosition, wxDefaultSize, m_choiceLanguageStrings, 0 );
     itemStaticBoxSizer8->Add(m_choiceLanguage, 0, wxALIGN_TOP|wxALL, 5);
 
-    GetBookCtrl()->AddPage(itemPanel2, _("Main"), false, 0);
+    GetBookCtrl()->AddPage(itemPanel2, _("Main"));
 
-    wxPanel* itemPanel11 = new wxPanel( GetBookCtrl(), m_panelBoard, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+    wxPanel* itemPanel11 = new wxPanel( GetBookCtrl(), ID_OPTIONS_BOARD, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
     wxBoxSizer* itemBoxSizer12 = new wxBoxSizer(wxHORIZONTAL);
     itemPanel11->SetSizer(itemBoxSizer12);
 
@@ -203,7 +191,7 @@ void hoxOptionsUI::CreateControls()
     itemBoxSizer15->Add(m_colorPickerBackground, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5);
 
     wxBoxSizer* itemBoxSizer18 = new wxBoxSizer(wxHORIZONTAL);
-    itemStaticBoxSizer14->Add(itemBoxSizer18, 1, wxGROW|wxALL, 5);
+    itemStaticBoxSizer14->Add(itemBoxSizer18, 1, wxGROW|wxLEFT|wxRIGHT|wxBOTTOM, 5);
     wxStaticText* itemStaticText19 = new wxStaticText( itemPanel11, m_staticText4, _("Foreground:"), wxDefaultPosition, wxDefaultSize, 0 );
     itemBoxSizer18->Add(itemStaticText19, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5);
 
@@ -229,9 +217,9 @@ void hoxOptionsUI::CreateControls()
     m_panelPiecePreview->SetBackgroundColour(wxColour(128, 128, 192));
     itemStaticBoxSizer25->Add(m_panelPiecePreview, 0, wxGROW|wxALL, 5);
 
-    GetBookCtrl()->AddPage(itemPanel11, _("Board"), false, 1);
+    GetBookCtrl()->AddPage(itemPanel11, _("Board"));
 
-    wxPanel* itemPanel27 = new wxPanel( GetBookCtrl(), m_panelAI, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+    wxPanel* itemPanel27 = new wxPanel( GetBookCtrl(), ID_OPTIONS_AI, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
     wxBoxSizer* itemBoxSizer28 = new wxBoxSizer(wxVERTICAL);
     itemPanel27->SetSizer(itemBoxSizer28);
 
@@ -247,7 +235,7 @@ void hoxOptionsUI::CreateControls()
     m_listBoxEngines = new wxListBox( itemPanel27, ID_LISTBOX_ENGINES, wxDefaultPosition, wxSize(150, -1), m_listBoxEnginesStrings, wxLB_SINGLE );
     itemBoxSizer30->Add(m_listBoxEngines, 0, wxALIGN_TOP|wxALL, 5);
 
-    GetBookCtrl()->AddPage(itemPanel27, _("AI"), false, 2);
+    GetBookCtrl()->AddPage(itemPanel27, _("AI"));
 
     // Set validators
     m_checkBoxSound->SetValidator( wxGenericValidator(& m_bSound) );
@@ -256,6 +244,17 @@ void hoxOptionsUI::CreateControls()
     // Connect events and objects
     m_panelPiecePreview->Connect(ID_PANEL_PIECE_PREVIEW, wxEVT_PAINT, wxPaintEventHandler(hoxOptionsUI::OnPaint), NULL, this);
 ////@end hoxOptionsUI content construction
+
+    wxImageList* imageList = new wxImageList(22, 22, true, 3);
+    {
+        imageList->Add( GetIconResource("go-home.png") );
+        imageList->Add( GetIconResource("preferences.png") );
+        imageList->Add( GetIconResource("system-users.png") );
+    }
+    GetBookCtrl()->AssignImageList(imageList);
+    GetBookCtrl()->SetPageImage(0, 0);
+    GetBookCtrl()->SetPageImage(1, 1);
+    GetBookCtrl()->SetPageImage(2, 2);
 
     _InitLanguageChoices();
     m_colorPickerBackground->SetColour( m_sBgColor );
@@ -300,25 +299,8 @@ wxIcon hoxOptionsUI::GetIconResource( const wxString& name )
 {
     // Icon retrieval
     const wxString sImagePath = hoxUtil::GetPath(hoxRT_IMAGE);
-////@begin hoxOptionsUI icon retrieval
-    wxUnusedVar(name);
-    if (name == _T("../resource/images/go-home.png"))
-    {
-        wxIcon icon(sImagePath + _T("go-home.png"), wxBITMAP_TYPE_PNG);
-        return icon;
-    }
-    else if (name == _T("../resource/images/preferences.png"))
-    {
-        wxIcon icon(sImagePath + _T("preferences.png"), wxBITMAP_TYPE_PNG);
-        return icon;
-    }
-    else if (name == _T("../resource/images/system-users.png"))
-    {
-        wxIcon icon(sImagePath + _T("system-users.png"), wxBITMAP_TYPE_PNG);
-        return icon;
-    }
-    return wxNullIcon;
-////@end hoxOptionsUI icon retrieval
+    wxIcon icon(sImagePath + name, wxBITMAP_TYPE_PNG);
+    return icon;
 }
 
 
