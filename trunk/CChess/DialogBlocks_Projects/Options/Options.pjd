@@ -142,6 +142,8 @@
         <string name="Use exceptions">"Yes"</string>
         <string name="Use ODBC">"No"</string>
         <string name="Use OpenGL">"No"</string>
+        <string name="Use wxMediaCtrl">"Yes"</string>
+        <string name="Use wxRichTextCtrl">"Yes"</string>
         <string name="wxWidgets version">"%WXVERSION%"</string>
         <string name="Executable name">"%EXECUTABLE%"</string>
         <string name="Program arguments">""</string>
@@ -224,8 +226,8 @@
           <long name="proxy-Id value">10018</long>
           <string name="proxy-Class">"hoxOptionsUI"</string>
           <string name="proxy-Base class">"wxPropertySheetDialog"</string>
-          <string name="proxy-Implementation filename">"C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client\hoxOptionsUI.cpp"</string>
-          <string name="proxy-Header filename">"C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client\hoxOptionsUI.h"</string>
+          <string name="proxy-Implementation filename">"C:\Documents and Settings\Administrator\My Documents\Projects\hoxchess\CChess\hox_Project\hox_Client\hoxOptionsUI.cpp"</string>
+          <string name="proxy-Header filename">"C:\Documents and Settings\Administrator\My Documents\Projects\hoxchess\CChess\hox_Project\hox_Client\hoxOptionsUI.h"</string>
           <string name="proxy-XRC filename">""</string>
           <string name="proxy-Title">"Options"</string>
           <bool name="proxy-Centre">1</bool>
@@ -286,7 +288,7 @@
           <long name="proxy-Height">-1</long>
           <string name="proxy-Event sources">""</string>
           <document>
-            <string name="title">"wxPanel: m_panelMain"</string>
+            <string name="title">"wxPanel: ID_OPTIONS_MAIN"</string>
             <string name="type">"dialog-control-document"</string>
             <string name="filename">""</string>
             <string name="icon-name">"panel"</string>
@@ -295,7 +297,7 @@
             <long name="title-mode">0</long>
             <long name="locked">0</long>
             <string name="proxy-type">"wbPanelProxy"</string>
-            <string name="proxy-Id name">"m_panelMain"</string>
+            <string name="proxy-Id name">"ID_OPTIONS_MAIN"</string>
             <long name="proxy-Id value">10002</long>
             <string name="proxy-Name">""</string>
             <string name="proxy-Class">"wxPanel"</string>
@@ -306,7 +308,7 @@
             <string name="proxy-Header filename">""</string>
             <string name="proxy-Member variable name">""</string>
             <string name="proxy-Tab label">"Main"</string>
-            <string name="proxy-Tab icon">"../resource/images/go-home.png"</string>
+            <string name="proxy-Tab icon">""</string>
             <string name="proxy-Help text">""</string>
             <string name="proxy-Tooltip text">""</string>
             <string name="proxy-Background colour">""</string>
@@ -772,7 +774,7 @@
             </document>
           </document>
           <document>
-            <string name="title">"wxPanel: m_panelBoard"</string>
+            <string name="title">"wxPanel: ID_OPTIONS_BOARD"</string>
             <string name="type">"dialog-control-document"</string>
             <string name="filename">""</string>
             <string name="icon-name">"panel"</string>
@@ -781,7 +783,7 @@
             <long name="title-mode">0</long>
             <long name="locked">0</long>
             <string name="proxy-type">"wbPanelProxy"</string>
-            <string name="proxy-Id name">"m_panelBoard"</string>
+            <string name="proxy-Id name">"ID_OPTIONS_BOARD"</string>
             <long name="proxy-Id value">10007</long>
             <string name="proxy-Name">""</string>
             <string name="proxy-Class">"wxPanel"</string>
@@ -792,7 +794,7 @@
             <string name="proxy-Header filename">""</string>
             <string name="proxy-Member variable name">""</string>
             <string name="proxy-Tab label">"Board"</string>
-            <string name="proxy-Tab icon">"../resource/images/preferences.png"</string>
+            <string name="proxy-Tab icon">""</string>
             <string name="proxy-Help text">""</string>
             <string name="proxy-Tooltip text">""</string>
             <string name="proxy-Background colour">""</string>
@@ -1105,7 +1107,7 @@
                     <long name="proxy-Border">5</long>
                     <bool name="proxy-wxLEFT">1</bool>
                     <bool name="proxy-wxRIGHT">1</bool>
-                    <bool name="proxy-wxTOP">1</bool>
+                    <bool name="proxy-wxTOP">0</bool>
                     <bool name="proxy-wxBOTTOM">1</bool>
                     <bool name="proxy-wxSHAPED">0</bool>
                     <bool name="proxy-wxADJUST_MINSIZE">0</bool>
@@ -1549,7 +1551,7 @@
             </document>
           </document>
           <document>
-            <string name="title">"wxPanel: m_panelAI"</string>
+            <string name="title">"wxPanel: ID_OPTIONS_AI"</string>
             <string name="type">"dialog-control-document"</string>
             <string name="filename">""</string>
             <string name="icon-name">"panel"</string>
@@ -1558,7 +1560,7 @@
             <long name="title-mode">0</long>
             <long name="locked">0</long>
             <string name="proxy-type">"wbPanelProxy"</string>
-            <string name="proxy-Id name">"m_panelAI"</string>
+            <string name="proxy-Id name">"ID_OPTIONS_AI"</string>
             <long name="proxy-Id value">10015</long>
             <string name="proxy-Name">""</string>
             <string name="proxy-Class">"wxPanel"</string>
@@ -1569,7 +1571,7 @@
             <string name="proxy-Header filename">""</string>
             <string name="proxy-Member variable name">""</string>
             <string name="proxy-Tab label">"AI"</string>
-            <string name="proxy-Tab icon">"../resource/images/system-users.png"</string>
+            <string name="proxy-Tab icon">""</string>
             <string name="proxy-Help text">""</string>
             <string name="proxy-Tooltip text">""</string>
             <string name="proxy-Background colour">""</string>

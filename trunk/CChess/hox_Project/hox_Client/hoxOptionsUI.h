@@ -3,7 +3,6 @@
 // Purpose:     The UI managing all the options/preferences of HOXChess.
 // Author:      Huy Phan
 // Created:     3/9/2009 6:58:33 AM
-// RCS-ID:      
 // Copyright:   Copyright 2007-2009 Huy Phan  <huyphan@playxiangqi.com>
 // Licence:     GNU General Public License v3
 /////////////////////////////////////////////////////////////////////////////
@@ -39,13 +38,13 @@ class wxColourPickerCtrl;
 
 ////@begin control identifiers
 #define ID_HOXOPTIONSAPP 10018
-#define m_panelMain 10002
+#define ID_OPTIONS_MAIN 10002
 #define ID_CHECKBOX_SOUND 10003
 #define ID_CHECKBOX_WELCOME 10004
 #define ID_CHECKBOX_LIST_ON_LOGIN 10001
 #define ID_STATIC_TEXT_LANG 10005
 #define ID_CHOICE_LANGUAGE 10006
-#define m_panelBoard 10007
+#define ID_OPTIONS_BOARD 10007
 #define m_staticText31 10008
 #define ID_COLOR_BACKGROUND 10009
 #define m_staticText4 10010
@@ -53,7 +52,7 @@ class wxColourPickerCtrl;
 #define m_staticText5 10012
 #define ID_PIECE_SET_CHOICES 10013
 #define ID_PANEL_PIECE_PREVIEW 10014
-#define m_panelAI 10015
+#define ID_OPTIONS_AI 10015
 #define m_staticText3 10016
 #define ID_LISTBOX_ENGINES 10000
 #define SYMBOL_HOXOPTIONSUI_STYLE wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX
