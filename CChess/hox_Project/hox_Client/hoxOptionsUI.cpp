@@ -143,7 +143,7 @@ void hoxOptionsUI::Init()
 void hoxOptionsUI::CreateControls()
 {    
 ////@begin hoxOptionsUI content construction
-    //hoxOptionsUI* itemPropertySheetDialog1 = this;
+    hoxOptionsUI* itemPropertySheetDialog1 = this;
 
     wxPanel* itemPanel2 = new wxPanel( GetBookCtrl(), ID_OPTIONS_MAIN, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
     wxBoxSizer* itemBoxSizer3 = new wxBoxSizer(wxVERTICAL);
@@ -235,7 +235,7 @@ void hoxOptionsUI::CreateControls()
     itemBoxSizer29->Add(itemStaticBoxSizer30, 1, wxGROW|wxALL, 5);
     wxBoxSizer* itemBoxSizer31 = new wxBoxSizer(wxHORIZONTAL);
     itemStaticBoxSizer30->Add(itemBoxSizer31, 1, wxGROW|wxALL, 5);
-    wxStaticText* itemStaticText32 = new wxStaticText( itemPanel28, m_staticText3, _("Default Engine:"), wxDefaultPosition, wxDefaultSize, 0 );
+    wxStaticText* itemStaticText32 = new wxStaticText( itemPanel28, wxID_ANY, _("Default Engine:"), wxDefaultPosition, wxDefaultSize, 0 );
     itemBoxSizer31->Add(itemStaticText32, 0, wxALIGN_TOP|wxALL, 5);
 
     wxArrayString m_listBoxEnginesStrings;

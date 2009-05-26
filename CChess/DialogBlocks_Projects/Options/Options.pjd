@@ -257,7 +257,7 @@
           <bool name="proxy-wxPROPSHEET_SHRINKTOFIT">0</bool>
           <bool name="proxy-wxDEFAULT_DIALOG_STYLE">0</bool>
           <bool name="proxy-wxCAPTION">1</bool>
-          <bool name="proxy-wxRESIZE_BORDER">1</bool>
+          <bool name="proxy-wxRESIZE_BORDER">0</bool>
           <bool name="proxy-wxSYSTEM_MENU">1</bool>
           <bool name="proxy-wxSTAY_ON_TOP">0</bool>
           <bool name="proxy-wxDIALOG_NO_PARENT">0</bool>
@@ -1757,7 +1757,7 @@
                   <bool name="proxy-wxFIXED_MINSIZE">0</bool>
                   <string name="proxy-Platform">"&lt;Any platform&gt;"</string>
                   <document>
-                    <string name="title">"wxStaticText: m_staticText3"</string>
+                    <string name="title">"wxStaticText: wxID_ANY"</string>
                     <string name="type">"dialog-control-document"</string>
                     <string name="filename">""</string>
                     <string name="icon-name">"statictext"</string>
@@ -1766,8 +1766,8 @@
                     <long name="title-mode">0</long>
                     <long name="locked">0</long>
                     <string name="proxy-type">"wbStaticTextProxy"</string>
-                    <string name="proxy-Id name">"m_staticText3"</string>
-                    <long name="proxy-Id value">10016</long>
+                    <string name="proxy-Id name">"wxID_ANY"</string>
+                    <long name="proxy-Id value">-1</long>
                     <string name="proxy-Name">""</string>
                     <string name="proxy-Class">"wxStaticText"</string>
                     <string name="proxy-Base class">"wxStaticText"</string>
