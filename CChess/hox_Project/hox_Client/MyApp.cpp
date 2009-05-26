@@ -381,6 +381,9 @@ MyApp::_LoadAppOptions()
     m_options["defaultAI"] = m_config->Read("/Options/defaultAI", "");
     m_options["optionsPage"] = m_config->Read("/Options/optionsPage", "0");
 
+    m_options["/Board/Image/path"] =
+        m_config->Read("/Board/Image/path", "");
+
     m_options["/Board/Piece/path"] =
         m_config->Read("/Board/Piece/path", DEFAULT_PIECE_PATH);
 
@@ -400,6 +403,7 @@ MyApp::_SaveAppOptions()
     m_config->Write("/Options/showTables", m_options["showTables"]);
     m_config->Write("/Options/defaultAI", m_options["defaultAI"]);
     m_config->Write("/Options/optionsPage", m_options["optionsPage"]);
+    m_config->Write("/Board/Image/path", m_options["/Board/Image/path"]);
     m_config->Write("/Board/Piece/path", m_options["/Board/Piece/path"]);
     m_config->Write("/Board/Color/background", m_options["/Board/Color/background"]);
     m_config->Write("/Board/Color/foreground", m_options["/Board/Color/foreground"]);

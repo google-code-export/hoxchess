@@ -166,6 +166,7 @@ hoxBoard::hoxBoard( wxWindow*        parent,
                     hoxIReferee_SPtr referee,
                     hoxTable_SPtr    pTable,
                     const wxString&  ownerId,
+                    const wxString&  sBgImage,
                     wxColor          bgColor,
                     wxColor          fgColor,
                     const wxPoint&   pos  /* = wxDefaultPosition */, 
@@ -194,7 +195,7 @@ hoxBoard::hoxBoard( wxWindow*        parent,
     wxCHECK_RET( !m_ownerId.empty(), "An Owner must be set" );
 
     /* Create the core board. */
-    m_coreBoard = new hoxCoreBoard( this, m_referee, bgColor, fgColor );
+    m_coreBoard = new hoxCoreBoard( this, m_referee, sBgImage, bgColor, fgColor );
     m_coreBoard->SetBoardOwner( this );
     m_coreBoard->SetPiecesPath( piecesPath );
 
@@ -1140,6 +1141,12 @@ hoxBoard::ToggleViewSide()
 
     /* Force the layout update (just to make sure!). */
     m_boardSizer->Layout();
+}
+
+void
+hoxBoard::SetBackgroundImage( const wxString& sImage )
+{
+    m_coreBoard->SetBackgroundImage( sImage );
 }
 
 void

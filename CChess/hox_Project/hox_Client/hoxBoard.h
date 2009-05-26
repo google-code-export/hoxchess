@@ -99,6 +99,7 @@ public:
               hoxIReferee_SPtr referee,
               hoxTable_SPtr    pTable,
               const wxString&  ownerId,
+              const wxString&  sBgImage,
               wxColor          bgColor,
               wxColor          fgColor,
               const wxPoint&   pos = wxDefaultPosition, 
@@ -184,6 +185,7 @@ public:
 
     void ToggleViewSide();
     void EnableSound( bool bEnabled ) { m_bSoundEnabled = bEnabled; }
+    void SetBackgroundImage( const wxString& sImage );
     void SetBgColor( wxColor color ); // Set Board's Background Color
     void SetFgColor( wxColor color ); // Set Board's Foreground Color
 

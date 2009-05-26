@@ -27,6 +27,7 @@
 
 #include "hoxCoreBoard.h"
 #include "hoxUtil.h"
+#include <wx/textfile.h>
 
 // ----------------------------------------------------------------------------
 // Constants
@@ -71,12 +72,14 @@ END_EVENT_TABLE()
  */
 hoxCoreBoard::hoxCoreBoard( wxWindow*        parent, 
                             hoxIReferee_SPtr referee,
+                            const wxString&  sBgImage,
                             wxColor          bgColor,
                             wxColor          fgColor,
                             const wxPoint&   pos  /* = wxDefaultPosition */, 
                             const wxSize&    size /* = wxDefaultSize*/ )
         : wxPanel( parent, wxID_ANY, pos, size,
                    wxFULL_REPAINT_ON_RESIZE )
+        , m_sImage( sBgImage )
         , m_background( NULL )
         , m_bViewInverted( false )  // Normal view: RED is at bottom of the screen
         , m_referee( referee )
@@ -93,9 +96,8 @@ hoxCoreBoard::hoxCoreBoard( wxWindow*        parent,
 
     m_nBestHeightAdjustment = 0; // HACK!
 
-    ////////////////////////////////
-    m_background = new hoxCustomBackground();
-                   //new hoxImageBackground();
+    if ( m_sImage.empty() ) m_background = new hoxCustomBackground();
+    else  m_background = new hoxImageBackground( m_sImage );
     m_background->OnBgColor( bgColor );
     m_background->OnFgColor( fgColor );
 }
@@ -105,6 +107,21 @@ hoxCoreBoard::~hoxCoreBoard()
     _ClearPieces();
     delete m_dragImage;
     delete m_background;
+}
+
+void
+hoxCoreBoard::SetBackgroundImage( const wxString& sImage )
+{
+    if ( m_sImage == sImage ) return;
+
+    m_sImage = sImage;
+    delete m_background;
+    if ( m_sImage.empty() ) m_background = new hoxCustomBackground();
+    else  m_background = new hoxImageBackground( m_sImage );
+
+    wxClientDC dc(this);
+    m_background->OnPaint( dc );
+    _DrawAllPieces( dc );
 }
 
 void
@@ -1174,19 +1191,17 @@ hoxCustomBackground::_DrawBoard( wxDC&        dc,
  *
  *****************************************************************************/
 
-hoxImageBackground::hoxImageBackground()
+hoxImageBackground::hoxImageBackground( const wxString& sImage )
 {
-    // *** iXiangqi Board 's characteristics.
-    const wxString imageName("ixiangqi.png");
-    m_borderX = m_borderY = 30;   // TODO: Hard-coded constant
-    m_cellS = 55;     // TODO: Size of the board's square.
+    m_borderX = m_borderY = 30;
+    m_cellS = 55;
 
-    // *** Qianhong Board 's characteristics.
-    //const wxString imageName("qianhong.png");
-    //m_borderX = m_borderY = 36;   // TODO: Hard-coded constant
-    //m_cellS = 56;     // TODO: Size of the board's square.
+    const wxString sPrefixPath = hoxUtil::GetPath(hoxRT_BOARD);
 
-    m_imageFile = hoxUtil::GetPath(hoxRT_BOARD) + imageName;
+    const wxString sIniFile = sPrefixPath + sImage.BeforeFirst('.') + ".ini";
+    _LoadIniFile( sIniFile );
+
+    m_imageFile = sPrefixPath + sImage;
     wxImage image;
     if ( ! image.LoadFile(m_imageFile, wxBITMAP_TYPE_PNG) ) 
     {
@@ -1216,6 +1231,28 @@ hoxImageBackground::_DrawBoardImage( wxDC& dc )
     memDC.SelectObject( const_cast<wxBitmap&>(m_bitmap) );
     dc.Blit( 0, 0, m_bitmap.GetWidth(), m_bitmap.GetHeight(),
              &memDC, 0, 0, wxCOPY, true );
+}
+
+void
+hoxImageBackground::_LoadIniFile( const wxString& sIniFile )
+{
+    wxTextFile file( sIniFile );
+    if ( file.Exists() && file.Open() )
+    {
+        wxLogDebug("%s: Loadding Board INI file [%s].", __FUNCTION__, sIniFile.c_str());
+        wxString sKey;
+        int      nValue = 0;
+        for ( wxString sLine = file.GetFirstLine(); !file.Eof();
+                       sLine = file.GetNextLine() )
+        {
+            if ( sLine.StartsWith("#") ) continue;  // Skip comments.
+            sKey = sLine.BeforeFirst('=').Trim(/* fromRight */);
+            nValue = ::atoi( sLine.AfterFirst('=').c_str() );
+            if      ( sKey == "borderX" )  m_borderX = nValue;
+            else if ( sKey == "borderY" )  m_borderY = nValue;
+            else if ( sKey == "cellS" )    m_cellS   = nValue;
+        }
+    }
 }
 
 /************************* END OF FILE ***************************************/
