@@ -73,6 +73,7 @@ END_EVENT_TABLE()
 hoxCoreBoard::hoxCoreBoard( wxWindow*        parent, 
                             hoxIReferee_SPtr referee,
                             const wxString&  sBgImage,
+                            const wxString&  piecesPath,
                             wxColor          bgColor,
                             wxColor          fgColor,
                             const wxPoint&   pos  /* = wxDefaultPosition */, 
@@ -81,6 +82,7 @@ hoxCoreBoard::hoxCoreBoard( wxWindow*        parent,
                    wxFULL_REPAINT_ON_RESIZE )
         , m_sImage( sBgImage )
         , m_background( NULL )
+        , m_piecesPath( piecesPath )
         , m_bViewInverted( false )  // Normal view: RED is at bottom of the screen
         , m_referee( referee )
         , m_owner( NULL )
@@ -118,26 +120,24 @@ hoxCoreBoard::SetBackgroundImage( const wxString& sImage )
     delete m_background;
     if ( m_sImage.empty() ) m_background = new hoxCustomBackground();
     else  m_background = new hoxImageBackground( m_sImage );
-
-    wxClientDC dc(this);
-    m_background->OnPaint( dc );
-    _DrawAllPieces( dc );
 }
 
 void
 hoxCoreBoard::SetBgColor( wxColor color )
 {
-    wxClientDC dc(this);
     m_background->OnBgColor( color );
-    m_background->OnPaint( dc );
-    _DrawAllPieces( dc );
 }
 
 void
 hoxCoreBoard::SetFgColor( wxColor color )
 {
-    wxClientDC dc(this);
     m_background->OnFgColor( color );
+}
+
+void
+hoxCoreBoard::Repaint()
+{
+    wxClientDC dc(this);
     m_background->OnPaint( dc );
     _DrawAllPieces( dc );
 }
@@ -165,15 +165,14 @@ hoxCoreBoard::_ErasePiece( hoxPiece* piece )
 
 #ifdef __WXMAC__
     // Extra code added to remove the 'highlight'.
-    // *** NOT NEEDED!!! dc.SetPen( wxPen( m_backgroundColor ) );
     dc.SetBrush( *wxTRANSPARENT_BRUSH );
     dc.DrawRectangle( rect );
 #endif
 
     dc.SetClippingRegion( rect );
-    
-    m_background->OnPaint(dc);
-
+    {
+        m_background->OnPaint(dc);
+    }
     dc.DestroyClippingRegion();
 }
 
@@ -186,6 +185,17 @@ hoxCoreBoard::_ClearPieces()
         piece = m_pieces.front();
         m_pieces.pop_front();
         delete piece;
+    }
+}
+
+void
+hoxCoreBoard::_ReloadAllPieceBitmaps()
+{
+    // Reload the bitmaps of all Pieces, including inactive + hidden pieces.
+    for (hoxPieceList::const_iterator it = m_pieces.begin();
+                                      it != m_pieces.end(); ++it)
+    {
+        (*it)->LoadBitmap( m_piecesPath );
     }
 }
 
@@ -248,7 +258,8 @@ hoxCoreBoard::OnSize( wxSizeEvent& event )
 void
 hoxCoreBoard::SetPiecesPath(const wxString& piecesPath)
 {
-    hoxUtil::SetPiecesPath( piecesPath );
+    m_piecesPath = piecesPath;
+    _ReloadAllPieceBitmaps();
 }
 
 void 
@@ -262,7 +273,7 @@ hoxCoreBoard::LoadPiecesAndStatus()
     for ( hoxPieceInfoList::const_iterator it = gameState.pieceList.begin();
                                            it != gameState.pieceList.end(); ++it )
     {
-        hoxPiece* piece = new hoxPiece( (*it) );
+        hoxPiece* piece = new hoxPiece(*it, m_piecesPath);
         m_pieces.push_back( piece );
     }
 
@@ -993,11 +1004,6 @@ hoxCustomBackground::hoxCustomBackground()
 {
     m_totalSize = wxSize( 600, 700 );
 
-    m_borderX = m_borderY = 40;   // TODO: Hard-coded constant
-    m_cellS = 56;  /* TODO: Size of the board's square.
-                    *       To be adjusted later.
-                    */
-
     m_backgroundColor = DEFAULT_BOARD_BACKGROUND_COLOR;
     m_foregroundColor = DEFAULT_BOARD_FOREGROUND_COLOR;
 
@@ -1196,9 +1202,6 @@ hoxCustomBackground::_DrawBoard( wxDC&        dc,
 
 hoxImageBackground::hoxImageBackground( const wxString& sImage )
 {
-    m_borderX = m_borderY = 30;
-    m_cellS = 55;
-
     const wxString sPrefixPath = hoxUtil::GetPath(hoxRT_BOARD);
 
     const wxString sIniFile = sPrefixPath + sImage.BeforeFirst('.') + ".ini";

@@ -188,6 +188,8 @@ public:
     void SetBackgroundImage( const wxString& sImage );
     void SetBgColor( wxColor color ); // Set Board's Background Color
     void SetFgColor( wxColor color ); // Set Board's Foreground Color
+    void SetPiecesPath( const wxString& piecesPath );
+    void Repaint(); // Paint again using the current settings.
 
 private:
     void _Show();

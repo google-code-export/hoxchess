@@ -30,7 +30,6 @@
 
 #include <wx/wx.h>
 #include <wx/image.h>
-#include <wx/uri.h>
 #include "hoxTypes.h"
 
 namespace hoxUtil
@@ -40,9 +39,10 @@ namespace hoxUtil
      */
     wxString GetPath( const hoxResourceType rType );
 
-    void SetPiecesPath(const wxString& piecesPath);
-
-    hoxResult LoadPieceImage(hoxPieceType type, hoxColor color, wxImage& image);
+    hoxResult LoadPieceImage( const wxString& sPath,
+                              hoxPieceType    type, 
+                              hoxColor        color, 
+                              wxImage&        image);
 
     /**
      * Load and return a Bitmap containing a given Image file.

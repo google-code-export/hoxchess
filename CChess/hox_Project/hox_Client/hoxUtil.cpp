@@ -35,57 +35,26 @@
 
 using namespace hoxUtil;
 
-static wxString gPiecePath = "";
-
 /**
  * Get the full-path of the image of a given piece.
  */
 static wxString
-_get_piece_image_path( hoxPieceType  type, 
-                       hoxColor color )
+_piece_type_to_image_name( hoxPieceType type )
 {
-    wxString filename;
-    wxChar cColor;
-
-    cColor = ( color == hoxCOLOR_RED ? 'r' : 'b' );
-
     switch ( type )
     {
-    case hoxPIECE_KING:     // King
-        filename.Printf("%s/%cking.png", gPiecePath.c_str(), cColor);
-        break;
-
-    case hoxPIECE_ADVISOR:  // Advisor
-        filename.Printf("%s/%cadvisor.png", gPiecePath.c_str(), cColor);
-        break;
-
-    case hoxPIECE_ELEPHANT: // Elephant 
-        filename.Printf("%s/%celephant.png", gPiecePath.c_str(), cColor);
-        break;
-  
-    case hoxPIECE_HORSE:  // Horse 
-        filename.Printf("%s/%chorse.png", gPiecePath.c_str(), cColor);
-        break;
-  
-    case hoxPIECE_CHARIOT: // Chariot
-        filename.Printf("%s/%cchariot.png", gPiecePath.c_str(), cColor);
-        break;
-  
-    case hoxPIECE_CANNON: // Cannon
-        filename.Printf("%s/%ccannon.png", gPiecePath.c_str(), cColor);
-        break;
-  
-    case hoxPIECE_PAWN: // Soldier
-        filename.Printf("%s/%cpawn.png", gPiecePath.c_str(), cColor);
-        break;
-
-    default:
-        wxASSERT_MSG(false, wxString::Format(_("Unknown piece-type: %d"), (int) type));
-    } // switch
-
-    return filename;
+        case hoxPIECE_KING:     return "king.png";
+        case hoxPIECE_ADVISOR:  return "advisor.png";
+        case hoxPIECE_ELEPHANT: return "elephant.png";
+        case hoxPIECE_HORSE:    return "horse.png";
+        case hoxPIECE_CHARIOT:  return "chariot.png";
+        case hoxPIECE_CANNON:   return "cannon.png";
+        case hoxPIECE_PAWN:     return "pawn.png";
+        default:
+            wxFAIL_MSG(wxString::Format(_("Unknown piece-type: %d"), (int) type));
+    }
+    return "";
 }
-
 
 // -----------------------------------------------------------------------
 // hoxUtil
@@ -131,26 +100,24 @@ hoxUtil::GetPath( const hoxResourceType rType )
     }
 }
 
-void 
-hoxUtil::SetPiecesPath(const wxString& piecesPath)
-{
-    gPiecePath = hoxUtil::GetPath(hoxRT_PIECE) + "/" + piecesPath;
-}
-
 hoxResult 
-hoxUtil::LoadPieceImage( hoxPieceType  type, 
-                         hoxColor      color, 
-                         wxImage&      image)
+hoxUtil::LoadPieceImage( const wxString& sPath,
+                         hoxPieceType    type, 
+                         hoxColor        color, 
+                         wxImage&        image)
 {
-    wxString filename;
+    const wxString sPrefixPath = hoxUtil::GetPath(hoxRT_PIECE) + "/" + sPath;
+    const wxChar   cColor      = (color == hoxCOLOR_RED ? 'r' : 'b');
+    const wxString imageName   = _piece_type_to_image_name( type );
 
-    filename = _get_piece_image_path( type, color );
-    if ( ! image.LoadFile(filename, wxBITMAP_TYPE_PNG) ) 
+    const wxString sFullPath =
+        wxString::Format("%s/%c%s", sPrefixPath.c_str(), cColor, imageName.c_str());
+
+    if ( ! image.LoadFile(sFullPath, wxBITMAP_TYPE_PNG) ) 
     {
-        wxLogError("%s: Failed to load piece-image from path [%s].", __FUNCTION__, filename.c_str());
+        wxLogError("%s: Failed to load piece from [%s].", __FUNCTION__, sFullPath.c_str());
         return hoxRC_ERR;
     }
-
     return hoxRC_OK;
 }
 

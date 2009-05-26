@@ -34,19 +34,27 @@
 class hoxPiece : public wxObject
 {
 public:
-    hoxPiece( const hoxPieceInfo& info )
+    hoxPiece( const hoxPieceInfo& info,
+              const wxString&     bitmapPath )
             : m_info( info )
             , m_active( true )
             , m_show( true )
             , m_latest( false )
     {
+        this->LoadBitmap( bitmapPath );
+    }
+
+    void LoadBitmap( const wxString& bitmapPath )
+    {
         wxImage image;
-        if ( hoxRC_OK == hoxUtil::LoadPieceImage( m_info.type, m_info.color,
+        if ( hoxRC_OK == hoxUtil::LoadPieceImage( bitmapPath,
+                                                  m_info.type, m_info.color,
                                                   image ) )
         {
             m_bitmap = wxBitmap(image);
         }
     }
+    const wxBitmap& GetBitmap() const { return m_bitmap; }
 
     bool IsInsidePalace() const // the 4-square area where the King resides...
         { return m_info.position.IsInsidePalace( m_info.color); }
@@ -56,9 +64,6 @@ public:
     void SetPosition(const hoxPosition& pos) { m_info.position = pos; }
     const hoxPosition GetPosition() const { return m_info.position; }
 
-    const wxBitmap& GetBitmap() const { return m_bitmap; }
-    void SetBitmap(const wxBitmap& bitmap) { m_bitmap = bitmap; }
-
     bool IsActive() const { return m_active; }
     void SetActive(bool active) { m_active = active; }
 
@@ -66,10 +71,7 @@ public:
     void SetShow(bool show) { m_show = show; }
 
     hoxPieceType GetType() const { return m_info.type; }
-    void SetType(hoxPieceType type) { m_info.type = type; }
-
     hoxColor GetColor() const { return m_info.color; }
-    void SetColor(hoxColor color) { m_info.color = color; }
 
     bool IsLatest() const { return m_latest; }
     void SetLatest(bool latest) { m_latest = latest; }

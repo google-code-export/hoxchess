@@ -195,9 +195,9 @@ hoxBoard::hoxBoard( wxWindow*        parent,
     wxCHECK_RET( !m_ownerId.empty(), "An Owner must be set" );
 
     /* Create the core board. */
-    m_coreBoard = new hoxCoreBoard( this, m_referee, sBgImage, bgColor, fgColor );
+    m_coreBoard = new hoxCoreBoard( this, m_referee,
+                                    sBgImage, piecesPath, bgColor, fgColor );
     m_coreBoard->SetBoardOwner( this );
-    m_coreBoard->SetPiecesPath( piecesPath );
 
     /* Sync Info (Rated/Non-Rated + Timers) with Table's. */
     _SyncInfoWithTable();
@@ -1159,6 +1159,18 @@ void
 hoxBoard::SetFgColor( wxColor color )
 {
     m_coreBoard->SetFgColor( color );
+}
+
+void
+hoxBoard::SetPiecesPath( const wxString& piecesPath )
+{
+    m_coreBoard->SetPiecesPath( piecesPath );
+}
+
+void
+hoxBoard::Repaint()
+{
+    m_coreBoard->Repaint();
 }
 
 bool 

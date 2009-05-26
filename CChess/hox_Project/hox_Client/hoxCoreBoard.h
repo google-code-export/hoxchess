@@ -147,6 +147,7 @@ public:
     hoxCoreBoard( wxWindow*        parent,
                   hoxIReferee_SPtr referee,
                   const wxString&  sBgImage,
+                  const wxString&  piecesPath,
                   wxColor          bgColor = DEFAULT_BOARD_BACKGROUND_COLOR,
                   wxColor          fgColor = DEFAULT_BOARD_FOREGROUND_COLOR,
                   const wxPoint&   pos = wxDefaultPosition, 
@@ -160,12 +161,8 @@ public:
     void SetBackgroundImage( const wxString& sImage );
     void SetBgColor( wxColor color ); // Set Board's Background Color
     void SetFgColor( wxColor color ); // Set Board's Foreground Color
-
-    /**
-     * Set the path (such as "C:/cchess/pieces") from where
-     * all the pieces' images are loaded.
-     */
     void SetPiecesPath( const wxString& piecesPath );
+    void Repaint(); // Paint again using the current settings.
 
     /**
      * Load pieces according the Referee and set the
@@ -304,6 +301,7 @@ private:
     void      _DoPaint( wxDC& dc );
     void      _ErasePiece( hoxPiece* piece );
     void      _ClearPieces();
+    void      _ReloadAllPieceBitmaps();
     hoxPiece* _FindPiece( const wxPoint& point ) const;
     wxPoint   _GetPieceLocation( const hoxPiece* piece ) const;
     bool      _PieceHitTest( const hoxPiece* piece, const wxPoint& pt ) const;
@@ -323,6 +321,7 @@ private:
 private:
     wxString           m_sImage;
     hoxCoreBackground* m_background;
+    wxString           m_piecesPath; // The path of all Pieces' bitmaps.
 
     /* Board's characteristics. */
     bool            m_bViewInverted; // true if Black is at the bottom
@@ -364,6 +363,5 @@ private:
     DECLARE_DYNAMIC_CLASS(hoxCoreBoard)
     DECLARE_EVENT_TABLE()
 };
-
 
 #endif /* __INCLUDED_HOX_CORE_BOARD_H__ */

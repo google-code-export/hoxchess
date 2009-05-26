@@ -435,9 +435,7 @@ hoxOptionsUI::_DrawPiecePreview( wxPanel*      panel,
 {
     wxCHECK_RET( panel, "The panel must not be NULL" );
 
-    hoxUtil::SetPiecesPath( m_sPiece ); // FIXME: Need to fix this.
     wxClientDC dc( panel );
-
     _DrawOnePieceAt( dc, hoxPIECE_ELEPHANT, hoxCOLOR_RED, p1 );
     _DrawOnePieceAt( dc, hoxPIECE_ELEPHANT, hoxCOLOR_BLACK, p2 );
 }
@@ -450,7 +448,7 @@ hoxOptionsUI::_DrawOnePieceAt( wxDC&          dc,
 {
     wxImage  image;
     wxBitmap bitmap;
-    if ( hoxRC_OK == hoxUtil::LoadPieceImage( pieceType, pieceColor,
+    if ( hoxRC_OK == hoxUtil::LoadPieceImage( m_sPiece, pieceType, pieceColor,
                                               image ) )
     {
         bitmap = wxBitmap(image);
