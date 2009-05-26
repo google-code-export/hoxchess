@@ -661,6 +661,7 @@ MyFrame::OnOptions( wxCommandEvent& event )
     dlg.m_bWelcome     = (wxGetApp().GetOption("welcome") == "1");
     dlg.m_bTables      = (wxGetApp().GetOption("showTables") == "1");
     dlg.m_language     = wxGetApp().GetCurrentLanguage();
+    dlg.m_sBoardImage  = wxGetApp().GetOption("/Board/Image/path");
     dlg.m_sBgColor     = wxGetApp().GetOption("/Board/Color/background");
     dlg.m_sFgColor     = wxGetApp().GetOption("/Board/Color/foreground");
     dlg.m_sPiece       = wxGetApp().GetOption("/Board/Piece/path");
@@ -691,6 +692,7 @@ MyFrame::OnOptions( wxCommandEvent& event )
                         _("Required Action"), wxOK | wxICON_INFORMATION );
     }
 
+    wxGetApp().SetOption( "/Board/Image/path",       dlg.m_sBoardImage );
     wxGetApp().SetOption( "/Board/Color/background", dlg.m_sBgColor );
     wxGetApp().SetOption( "/Board/Color/foreground", dlg.m_sFgColor );
     wxGetApp().SetOption( "/Board/Piece/path",       dlg.m_sPiece );
@@ -709,6 +711,7 @@ MyFrame::OnOptions( wxCommandEvent& event )
         if ( pBoardUI )
         {
             pBoardUI->EnableSound( dlg.m_bSound );
+            pBoardUI->SetBackgroundImage( dlg.m_sBoardImage );
             pBoardUI->SetBgColor( wxColor(dlg.m_sBgColor) );
             pBoardUI->SetFgColor( wxColor(dlg.m_sFgColor) );
         }

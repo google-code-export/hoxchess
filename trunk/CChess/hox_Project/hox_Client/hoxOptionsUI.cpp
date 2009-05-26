@@ -47,11 +47,13 @@ BEGIN_EVENT_TABLE( hoxOptionsUI, wxPropertySheetDialog )
 ////@begin hoxOptionsUI event table entries
     EVT_CHOICE( ID_CHOICE_LANGUAGE, hoxOptionsUI::OnChoiceLanguageSelected )
 
+    EVT_LISTBOX( ID_BOARD_IMAGE_LIST, hoxOptionsUI::OnBoardImageListSelected )
+
     EVT_COLOURPICKER_CHANGED( ID_COLOR_BACKGROUND, hoxOptionsUI::OnColorBackgroundColourPickerChanged )
 
     EVT_COLOURPICKER_CHANGED( ID_COLOR_FOREGROUND, hoxOptionsUI::OnColorForegroundColourPickerChanged )
 
-    EVT_CHOICE( ID_PIECE_SET_CHOICES, hoxOptionsUI::OnPieceSetChoicesSelected )
+    EVT_LISTBOX( ID_PIECE_SET_LIST, hoxOptionsUI::OnPieceSetListSelected )
 
     EVT_LISTBOX( ID_LISTBOX_ENGINES, hoxOptionsUI::OnListboxEnginesSelected )
 
@@ -121,6 +123,7 @@ void hoxOptionsUI::Init()
     m_bTables = true;
     m_checkBoxSound = NULL;
     m_choiceLanguage = NULL;
+    m_boardImageList = NULL;
     m_colorPickerBackground = NULL;
     m_colorPickerForeground = NULL;
     m_pieceSetChoices = NULL;
@@ -179,63 +182,67 @@ void hoxOptionsUI::CreateControls()
 
     wxBoxSizer* itemBoxSizer13 = new wxBoxSizer(wxVERTICAL);
     itemBoxSizer12->Add(itemBoxSizer13, 1, wxGROW, 5);
-    wxStaticBox* itemStaticBoxSizer14Static = new wxStaticBox(itemPanel11, wxID_ANY, _("Colors"));
-    wxStaticBoxSizer* itemStaticBoxSizer14 = new wxStaticBoxSizer(itemStaticBoxSizer14Static, wxVERTICAL);
+    wxStaticBox* itemStaticBoxSizer14Static = new wxStaticBox(itemPanel11, wxID_ANY, _("Board"));
+    wxStaticBoxSizer* itemStaticBoxSizer14 = new wxStaticBoxSizer(itemStaticBoxSizer14Static, wxHORIZONTAL);
     itemBoxSizer13->Add(itemStaticBoxSizer14, 1, wxGROW|wxALL, 5);
-    wxBoxSizer* itemBoxSizer15 = new wxBoxSizer(wxHORIZONTAL);
-    itemStaticBoxSizer14->Add(itemBoxSizer15, 1, wxGROW|wxLEFT|wxRIGHT|wxTOP, 5);
-    wxStaticText* itemStaticText16 = new wxStaticText( itemPanel11, m_staticText31, _("Background:"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemBoxSizer15->Add(itemStaticText16, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5);
+    wxBoxSizer* itemBoxSizer15 = new wxBoxSizer(wxVERTICAL);
+    itemStaticBoxSizer14->Add(itemBoxSizer15, 1, wxGROW|wxLEFT|wxRIGHT|wxBOTTOM, 5);
+    wxArrayString m_boardImageListStrings;
+    m_boardImageList = new wxListBox( itemPanel11, ID_BOARD_IMAGE_LIST, wxDefaultPosition, wxDefaultSize, m_boardImageListStrings, wxLB_SINGLE );
+    itemBoxSizer15->Add(m_boardImageList, 1, wxGROW|wxALL, 5);
 
-    m_colorPickerBackground = new wxColourPickerCtrl( itemPanel11, ID_COLOR_BACKGROUND, wxColour(0, 0, 0), wxDefaultPosition, wxDefaultSize, wxCLRP_DEFAULT_STYLE );
-    itemBoxSizer15->Add(m_colorPickerBackground, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5);
-
+    wxStaticBox* itemStaticBoxSizer17Static = new wxStaticBox(itemPanel11, wxID_ANY, wxEmptyString);
+    wxStaticBoxSizer* itemStaticBoxSizer17 = new wxStaticBoxSizer(itemStaticBoxSizer17Static, wxVERTICAL);
+    itemStaticBoxSizer14->Add(itemStaticBoxSizer17, 1, wxALIGN_TOP|wxLEFT|wxRIGHT|wxBOTTOM, 5);
     wxBoxSizer* itemBoxSizer18 = new wxBoxSizer(wxHORIZONTAL);
-    itemStaticBoxSizer14->Add(itemBoxSizer18, 1, wxGROW|wxLEFT|wxRIGHT|wxBOTTOM, 5);
-    wxStaticText* itemStaticText19 = new wxStaticText( itemPanel11, m_staticText4, _("Foreground:"), wxDefaultPosition, wxDefaultSize, 0 );
+    itemStaticBoxSizer17->Add(itemBoxSizer18, 0, wxALIGN_LEFT|wxLEFT|wxTOP|wxBOTTOM, 5);
+    wxStaticText* itemStaticText19 = new wxStaticText( itemPanel11, m_staticText31, _("Background:"), wxDefaultPosition, wxDefaultSize, 0 );
     itemBoxSizer18->Add(itemStaticText19, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5);
 
+    m_colorPickerBackground = new wxColourPickerCtrl( itemPanel11, ID_COLOR_BACKGROUND, wxColour(0, 0, 0), wxDefaultPosition, wxDefaultSize, wxCLRP_DEFAULT_STYLE );
+    itemBoxSizer18->Add(m_colorPickerBackground, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5);
+
+    wxBoxSizer* itemBoxSizer21 = new wxBoxSizer(wxHORIZONTAL);
+    itemStaticBoxSizer17->Add(itemBoxSizer21, 0, wxALIGN_LEFT|wxLEFT|wxBOTTOM, 5);
+    wxStaticText* itemStaticText22 = new wxStaticText( itemPanel11, m_staticText4, _("Foreground:"), wxDefaultPosition, wxDefaultSize, 0 );
+    itemBoxSizer21->Add(itemStaticText22, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5);
+
     m_colorPickerForeground = new wxColourPickerCtrl( itemPanel11, ID_COLOR_FOREGROUND, wxColour(0, 0, 0), wxDefaultPosition, wxDefaultSize, wxCLRP_DEFAULT_STYLE );
-    itemBoxSizer18->Add(m_colorPickerForeground, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5);
+    itemBoxSizer21->Add(m_colorPickerForeground, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5);
 
-    wxStaticBox* itemStaticBoxSizer21Static = new wxStaticBox(itemPanel11, wxID_ANY, _("Pieces"));
-    wxStaticBoxSizer* itemStaticBoxSizer21 = new wxStaticBoxSizer(itemStaticBoxSizer21Static, wxVERTICAL);
-    itemBoxSizer13->Add(itemStaticBoxSizer21, 1, wxGROW|wxALL, 5);
-    wxBoxSizer* itemBoxSizer22 = new wxBoxSizer(wxHORIZONTAL);
-    itemStaticBoxSizer21->Add(itemBoxSizer22, 1, wxGROW|wxALL, 5);
-    wxStaticText* itemStaticText23 = new wxStaticText( itemPanel11, m_staticText5, _("Set:"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemBoxSizer22->Add(itemStaticText23, 0, wxALIGN_TOP|wxALL, 5);
-
+    wxStaticBox* itemStaticBoxSizer24Static = new wxStaticBox(itemPanel11, wxID_ANY, _("Pieces"));
+    wxStaticBoxSizer* itemStaticBoxSizer24 = new wxStaticBoxSizer(itemStaticBoxSizer24Static, wxVERTICAL);
+    itemBoxSizer13->Add(itemStaticBoxSizer24, 1, wxGROW|wxALL, 5);
     wxArrayString m_pieceSetChoicesStrings;
-    m_pieceSetChoices = new wxChoice( itemPanel11, ID_PIECE_SET_CHOICES, wxDefaultPosition, wxDefaultSize, m_pieceSetChoicesStrings, 0 );
-    itemBoxSizer22->Add(m_pieceSetChoices, 0, wxALIGN_TOP|wxALL, 5);
+    m_pieceSetChoices = new wxListBox( itemPanel11, ID_PIECE_SET_LIST, wxDefaultPosition, wxDefaultSize, m_pieceSetChoicesStrings, wxLB_SINGLE );
+    itemStaticBoxSizer24->Add(m_pieceSetChoices, 0, wxALIGN_LEFT|wxALL, 5);
 
-    wxStaticBox* itemStaticBoxSizer25Static = new wxStaticBox(itemPanel11, wxID_ANY, _("Preview"));
-    wxStaticBoxSizer* itemStaticBoxSizer25 = new wxStaticBoxSizer(itemStaticBoxSizer25Static, wxHORIZONTAL);
-    itemBoxSizer12->Add(itemStaticBoxSizer25, 0, wxGROW|wxALL, 5);
+    wxStaticBox* itemStaticBoxSizer26Static = new wxStaticBox(itemPanel11, wxID_ANY, _("Preview"));
+    wxStaticBoxSizer* itemStaticBoxSizer26 = new wxStaticBoxSizer(itemStaticBoxSizer26Static, wxHORIZONTAL);
+    itemBoxSizer12->Add(itemStaticBoxSizer26, 0, wxGROW|wxALL, 5);
     m_panelPiecePreview = new wxPanel( itemPanel11, ID_PANEL_PIECE_PREVIEW, wxDefaultPosition, wxSize(100, 180), wxTAB_TRAVERSAL );
     m_panelPiecePreview->SetBackgroundColour(wxColour(128, 128, 192));
-    itemStaticBoxSizer25->Add(m_panelPiecePreview, 0, wxGROW|wxALL, 5);
+    itemStaticBoxSizer26->Add(m_panelPiecePreview, 0, wxGROW|wxALL, 5);
 
     GetBookCtrl()->AddPage(itemPanel11, _("Board"));
 
-    wxPanel* itemPanel27 = new wxPanel( GetBookCtrl(), ID_OPTIONS_AI, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-    wxBoxSizer* itemBoxSizer28 = new wxBoxSizer(wxVERTICAL);
-    itemPanel27->SetSizer(itemBoxSizer28);
+    wxPanel* itemPanel28 = new wxPanel( GetBookCtrl(), ID_OPTIONS_AI, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+    wxBoxSizer* itemBoxSizer29 = new wxBoxSizer(wxVERTICAL);
+    itemPanel28->SetSizer(itemBoxSizer29);
 
-    wxStaticBox* itemStaticBoxSizer29Static = new wxStaticBox(itemPanel27, wxID_ANY, _("Artificial Intelligence"));
-    wxStaticBoxSizer* itemStaticBoxSizer29 = new wxStaticBoxSizer(itemStaticBoxSizer29Static, wxVERTICAL);
-    itemBoxSizer28->Add(itemStaticBoxSizer29, 1, wxGROW|wxALL, 5);
-    wxBoxSizer* itemBoxSizer30 = new wxBoxSizer(wxHORIZONTAL);
-    itemStaticBoxSizer29->Add(itemBoxSizer30, 1, wxGROW|wxALL, 5);
-    wxStaticText* itemStaticText31 = new wxStaticText( itemPanel27, m_staticText3, _("Default Engine:"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemBoxSizer30->Add(itemStaticText31, 0, wxALIGN_TOP|wxALL, 5);
+    wxStaticBox* itemStaticBoxSizer30Static = new wxStaticBox(itemPanel28, wxID_ANY, _("Artificial Intelligence"));
+    wxStaticBoxSizer* itemStaticBoxSizer30 = new wxStaticBoxSizer(itemStaticBoxSizer30Static, wxVERTICAL);
+    itemBoxSizer29->Add(itemStaticBoxSizer30, 1, wxGROW|wxALL, 5);
+    wxBoxSizer* itemBoxSizer31 = new wxBoxSizer(wxHORIZONTAL);
+    itemStaticBoxSizer30->Add(itemBoxSizer31, 1, wxGROW|wxALL, 5);
+    wxStaticText* itemStaticText32 = new wxStaticText( itemPanel28, m_staticText3, _("Default Engine:"), wxDefaultPosition, wxDefaultSize, 0 );
+    itemBoxSizer31->Add(itemStaticText32, 0, wxALIGN_TOP|wxALL, 5);
 
     wxArrayString m_listBoxEnginesStrings;
-    m_listBoxEngines = new wxListBox( itemPanel27, ID_LISTBOX_ENGINES, wxDefaultPosition, wxSize(150, -1), m_listBoxEnginesStrings, wxLB_SINGLE );
-    itemBoxSizer30->Add(m_listBoxEngines, 0, wxALIGN_TOP|wxALL, 5);
+    m_listBoxEngines = new wxListBox( itemPanel28, ID_LISTBOX_ENGINES, wxDefaultPosition, wxSize(150, -1), m_listBoxEnginesStrings, wxLB_SINGLE );
+    itemBoxSizer31->Add(m_listBoxEngines, 0, wxALIGN_TOP|wxALL, 5);
 
-    GetBookCtrl()->AddPage(itemPanel27, _("AI"));
+    GetBookCtrl()->AddPage(itemPanel28, _("AI"));
 
     // Set validators
     m_checkBoxSound->SetValidator( wxGenericValidator(& m_bSound) );
@@ -257,6 +264,7 @@ void hoxOptionsUI::CreateControls()
     GetBookCtrl()->SetPageImage(2, 2);
 
     _InitLanguageChoices();
+    _InitBoardImageChoices();
     m_colorPickerBackground->SetColour( m_sBgColor );
     m_colorPickerForeground->SetColour( m_sFgColor );
     _InitPieceSetChoices();
@@ -316,6 +324,24 @@ void hoxOptionsUI::_InitLanguageChoices()
     }
 }
 
+void hoxOptionsUI::_InitBoardImageChoices()
+{
+    const wxArrayString boardImages = _loadAvailableBoardImages();
+    if ( boardImages.IsEmpty() )
+    {
+        wxLogDebug("%s: There is no built-in Board-Image available.", __FUNCTION__ );
+        return;
+    }
+
+    const wxString sCustomName = _("(Custom)");
+    wxString sSelectedName = m_sBoardImage;
+    if ( m_sBoardImage.empty() ) sSelectedName = sCustomName;
+
+    m_boardImageList->Append( sCustomName );
+    m_boardImageList->Append( boardImages );
+    m_boardImageList->SetStringSelection( sSelectedName );
+}
+
 void hoxOptionsUI::_InitPieceSetChoices()
 {
     const wxArrayString pieceSets = _loadAvailablePieceSets();
@@ -346,6 +372,33 @@ void hoxOptionsUI::_InitAIChoices()
     
     m_listBoxEngines->InsertItems( aiNames, 0 );
     m_listBoxEngines->SetStringSelection( m_sDefaultAI );
+}
+
+wxArrayString
+hoxOptionsUI::_loadAvailableBoardImages() const
+{
+    wxArrayString boardImages;
+
+    const wxString sBoardsDir = hoxUtil::GetPath(hoxRT_BOARD);
+    wxLogDebug("%s: Get Board-Images from [%s].", __FUNCTION__, sBoardsDir.c_str());
+    wxDir dir(sBoardsDir);
+	if ( !dir.IsOpened() )
+	{
+        wxLogWarning("%s: Fail to open Board-Images folder [%s].", __FUNCTION__, sBoardsDir.c_str());
+		return boardImages; // Just return the current set.
+	}
+
+    wxString  sFolder;  // ... also used as the name of the Board-Image.
+
+	for ( bool cont = dir.GetFirst(&sFolder, "*.png", wxDIR_FILES);
+	           cont == true;
+               cont = dir.GetNext(&sFolder) )
+    {
+        wxLogDebug("%s: Board-Image = [%s].", __FUNCTION__, sFolder.c_str());
+        boardImages.Add( sFolder );
+	}
+
+    return boardImages;
 }
 
 wxArrayString
@@ -463,17 +516,6 @@ void hoxOptionsUI::OnListboxEnginesSelected( wxCommandEvent& event )
 
 
 /*!
- * wxEVT_COMMAND_CHOICE_SELECTED event handler for ID_PIECE_SET_CHOICES
- */
-
-void hoxOptionsUI::OnPieceSetChoicesSelected( wxCommandEvent& event )
-{
-    m_sPiece = event.GetString();
-    m_panelPiecePreview->Refresh();  // repaint...
-}
-
-
-/*!
  * wxEVT_PAINT event handler for ID_PANEL_PIECE_PREVIEW
  */
 
@@ -505,3 +547,27 @@ hoxOptionsUI::OnPageChanged( wxBookCtrlEvent& event )
         m_selectedPage = event.GetSelection();
     }
 }
+
+
+/*!
+ * wxEVT_COMMAND_LISTBOX_SELECTED event handler for ID_PIECE_SET_LIST
+ */
+
+void hoxOptionsUI::OnPieceSetListSelected( wxCommandEvent& event )
+{
+    m_sPiece = event.GetString();
+    m_panelPiecePreview->Refresh();  // repaint...
+}
+
+
+/*!
+ * wxEVT_COMMAND_LISTBOX_SELECTED event handler for ID_BOARD_IMAGE_LIST
+ */
+
+void hoxOptionsUI::OnBoardImageListSelected( wxCommandEvent& event )
+{
+    if ( event.GetInt() == 0 ) m_sBoardImage = "";  // "Custom" image.
+    else                       m_sBoardImage = event.GetString();
+    m_panelPiecePreview->Refresh();  // repaint...
+}
+

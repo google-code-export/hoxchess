@@ -93,7 +93,7 @@ private:
 class hoxImageBackground : public hoxCoreBackground
 {
 public:
-    hoxImageBackground();
+    hoxImageBackground( const wxString& sImage );
     virtual ~hoxImageBackground() {}
 
     virtual void OnPaint( wxDC& dc );
@@ -101,6 +101,7 @@ public:
 
 private:
     void _DrawBoardImage( wxDC& dc );
+    void _LoadIniFile( const wxString& sIniFile );
 
 private:
     wxString   m_imageFile;
@@ -145,6 +146,7 @@ public:
     hoxCoreBoard() {} // Dummy default constructor required for RTTI info.
     hoxCoreBoard( wxWindow*        parent,
                   hoxIReferee_SPtr referee,
+                  const wxString&  sBgImage,
                   wxColor          bgColor = DEFAULT_BOARD_BACKGROUND_COLOR,
                   wxColor          fgColor = DEFAULT_BOARD_FOREGROUND_COLOR,
                   const wxPoint&   pos = wxDefaultPosition, 
@@ -155,6 +157,7 @@ public:
      * My MAIN public API
      *********************************/
 
+    void SetBackgroundImage( const wxString& sImage );
     void SetBgColor( wxColor color ); // Set Board's Background Color
     void SetFgColor( wxColor color ); // Set Board's Foreground Color
 
@@ -318,6 +321,7 @@ private:
     void _PrintDebug( const wxString& debugMsg ) const;
 
 private:
+    wxString           m_sImage;
     hoxCoreBackground* m_background;
 
     /* Board's characteristics. */

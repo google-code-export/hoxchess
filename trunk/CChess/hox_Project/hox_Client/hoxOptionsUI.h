@@ -45,12 +45,12 @@ class wxColourPickerCtrl;
 #define ID_STATIC_TEXT_LANG 10005
 #define ID_CHOICE_LANGUAGE 10006
 #define ID_OPTIONS_BOARD 10007
+#define ID_BOARD_IMAGE_LIST 10023
 #define m_staticText31 10008
 #define ID_COLOR_BACKGROUND 10009
 #define m_staticText4 10010
 #define ID_COLOR_FOREGROUND 10011
-#define m_staticText5 10012
-#define ID_PIECE_SET_CHOICES 10013
+#define ID_PIECE_SET_LIST 10012
 #define ID_PANEL_PIECE_PREVIEW 10014
 #define ID_OPTIONS_AI 10015
 #define m_staticText3 10016
@@ -75,6 +75,7 @@ class hoxOptionsUI: public wxPropertySheetDialog
 public:
     hoxLanguageInfoVector m_langList;
     wxLanguage   m_language;
+    wxString     m_sBoardImage;
     wxString     m_sBgColor;
     wxString     m_sFgColor;
     wxString     m_sPiece;
@@ -104,14 +105,17 @@ public:
     /// wxEVT_COMMAND_CHOICE_SELECTED event handler for ID_CHOICE_LANGUAGE
     void OnChoiceLanguageSelected( wxCommandEvent& event );
 
+    /// wxEVT_COMMAND_LISTBOX_SELECTED event handler for ID_BOARD_IMAGE_LIST
+    void OnBoardImageListSelected( wxCommandEvent& event );
+
     /// wxEVT_COLOURPICKER_CHANGED event handler for ID_COLOR_BACKGROUND
     void OnColorBackgroundColourPickerChanged( wxColourPickerEvent& event );
 
     /// wxEVT_COLOURPICKER_CHANGED event handler for ID_COLOR_FOREGROUND
     void OnColorForegroundColourPickerChanged( wxColourPickerEvent& event );
 
-    /// wxEVT_COMMAND_CHOICE_SELECTED event handler for ID_PIECE_SET_CHOICES
-    void OnPieceSetChoicesSelected( wxCommandEvent& event );
+    /// wxEVT_COMMAND_LISTBOX_SELECTED event handler for ID_PIECE_SET_LIST
+    void OnPieceSetListSelected( wxCommandEvent& event );
 
     /// wxEVT_PAINT event handler for ID_PANEL_PIECE_PREVIEW
     void OnPaint( wxPaintEvent& event );
@@ -138,9 +142,10 @@ public:
 ////@begin hoxOptionsUI member variables
     wxCheckBox* m_checkBoxSound;
     wxChoice* m_choiceLanguage;
+    wxListBox* m_boardImageList;
     wxColourPickerCtrl* m_colorPickerBackground;
     wxColourPickerCtrl* m_colorPickerForeground;
-    wxChoice* m_pieceSetChoices;
+    wxListBox* m_pieceSetChoices;
     wxPanel* m_panelPiecePreview;
     wxListBox* m_listBoxEngines;
 public:
@@ -151,8 +156,10 @@ public:
 
 private:
     void _InitLanguageChoices();
+    void _InitBoardImageChoices();
     void _InitPieceSetChoices();
     void _InitAIChoices();
+    wxArrayString _loadAvailableBoardImages() const;
     wxArrayString _loadAvailablePieceSets() const;
     void _DrawPiecePreview( wxPanel*      panel,
                             const wxPoint p1,
@@ -161,7 +168,6 @@ private:
                           hoxPieceType   pieceType,
                           hoxColor       pieceColor,
                           const wxPoint& pos );
-
 };
 
 #endif
