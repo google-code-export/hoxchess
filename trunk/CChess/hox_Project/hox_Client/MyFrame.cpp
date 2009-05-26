@@ -714,6 +714,8 @@ MyFrame::OnOptions( wxCommandEvent& event )
             pBoardUI->SetBackgroundImage( dlg.m_sBoardImage );
             pBoardUI->SetBgColor( wxColor(dlg.m_sBgColor) );
             pBoardUI->SetFgColor( wxColor(dlg.m_sFgColor) );
+            pBoardUI->SetPiecesPath( dlg.m_sPiece );
+            pBoardUI->Repaint();
         }
     }
 }
