@@ -209,6 +209,9 @@ hoxCoreBoard::_FindPiece( const wxPoint& point ) const
 void 
 hoxCoreBoard::_DoPaint( wxDC& dc )
 {
+#ifdef __WXGTK__
+    m_background->OnPaint( dc );
+#endif
     _DrawAllPieces(dc);
 }
 
