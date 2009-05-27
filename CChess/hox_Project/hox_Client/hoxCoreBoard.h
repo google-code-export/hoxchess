@@ -41,7 +41,8 @@ public:
     hoxCoreBackground() : m_borderX( 40 )
                         , m_borderY( 40 )
                         , m_cellS( 56 )
-                        , m_bViewInverted( false ) {}
+                        , m_bViewInverted( false )
+                        , m_isGameOver( false ) {}
     virtual ~hoxCoreBackground() {}
 
     virtual void OnPaint( wxDC& dc ) = 0;
@@ -51,10 +52,14 @@ public:
     virtual void OnFgColor( wxColor color ) {}
 
     void OnToggleViewSide() { m_bViewInverted = !m_bViewInverted; }
+    void SetGameOver( bool isGameOver ) { m_isGameOver = isGameOver; }
 
     wxCoord BorderX() const { return m_borderX; }
     wxCoord BorderY() const { return m_borderY; }
-    wxCoord CellS() const { return m_cellS; }
+    wxCoord CellS()   const { return m_cellS; }
+
+protected:
+    void DrawGameOverText( wxDC& dc );
 
 protected:
     wxCoord    m_borderX;
@@ -62,6 +67,7 @@ protected:
     wxCoord    m_cellS;  // Squares ' size.
 
     bool       m_bViewInverted;
+    bool       m_isGameOver;
 };
 
 // ----------------------------------------------------------------------------
@@ -85,8 +91,6 @@ private:
 
     wxColor  m_backgroundColor;
     wxColor  m_foregroundColor;
-
-    bool     m_isGameOver;
 };
 
 // ----------------------------------------------------------------------------

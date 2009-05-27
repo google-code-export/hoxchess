@@ -973,6 +973,7 @@ void
 hoxCoreBoard::SetGameOver( bool isGameOver /* = true */ )
 {
     m_isGameOver = isGameOver;
+    m_background->SetGameOver( isGameOver );
     this->Refresh();
 }
 
@@ -996,6 +997,24 @@ hoxCoreBoard::_PrintDebug( const wxString& debugMsg ) const
 
 /*****************************************************************************
  *
+ *          hoxCoreBackground
+ *
+ *****************************************************************************/
+
+void 
+hoxCoreBackground::DrawGameOverText( wxDC& dc )
+{
+    dc.SetFont( wxFont( 24, wxFONTFAMILY_ROMAN, 
+                        wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL ) );
+    dc.SetTextForeground( *wxRED );
+    dc.DrawText( _("Game Over"), 
+                 m_borderX + (int)(2.5*m_cellS), 
+                 m_borderY + 4*m_cellS );
+}
+
+
+/*****************************************************************************
+ *
  *          hoxCustomBackground
  *
  *****************************************************************************/
@@ -1006,8 +1025,6 @@ hoxCustomBackground::hoxCustomBackground()
 
     m_backgroundColor = DEFAULT_BOARD_BACKGROUND_COLOR;
     m_foregroundColor = DEFAULT_BOARD_FOREGROUND_COLOR;
-
-    m_isGameOver = false;
 }
 
 void
@@ -1185,12 +1202,7 @@ hoxCustomBackground::_DrawBoard( wxDC&        dc,
     // Drawing "Game Over" if specified.
     if ( m_isGameOver )
     {
-        dc.SetFont( wxFont( 24, wxFONTFAMILY_ROMAN, 
-                            wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL ) );
-        dc.SetTextForeground( *wxRED );
-        dc.DrawText( _("Game Over"), 
-                     m_borderX + (int)(2.5*m_cellS), 
-                     m_borderY + 4*m_cellS );
+        this->DrawGameOverText(dc);
     }
 }
 
@@ -1237,6 +1249,12 @@ hoxImageBackground::_DrawBoardImage( wxDC& dc )
     memDC.SelectObject( const_cast<wxBitmap&>(m_bitmap) );
     dc.Blit( 0, 0, m_bitmap.GetWidth(), m_bitmap.GetHeight(),
              &memDC, 0, 0, wxCOPY, true );
+
+    // Drawing "Game Over" if specified.
+    if ( m_isGameOver )
+    {
+        this->DrawGameOverText(dc);
+    }
 }
 
 void
