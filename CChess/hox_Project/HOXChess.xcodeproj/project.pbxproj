@@ -95,6 +95,21 @@
 		AF864C460FC327E10034C83B /* libAI_XQWLight.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = AF864C440FC327DD0034C83B /* libAI_XQWLight.dylib */; };
 		AF864C560FC328E10034C83B /* move.wav in Copy Files (sounds) */ = {isa = PBXBuildFile; fileRef = AF864C540FC328DC0034C83B /* move.wav */; };
 		AF864C610FC329960034C83B /* BOOK.DAT in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = AF864B6E0FC321730034C83B /* BOOK.DAT */; };
+		AFCFE2D10FCEE2D3000760F2 /* badvisor.png in Copy Files (pieces\xiangqiboard_45x45) */ = {isa = PBXBuildFile; fileRef = AFCFE2C20FCEE2D3000760F2 /* badvisor.png */; };
+		AFCFE2D20FCEE2D3000760F2 /* bcannon.png in Copy Files (pieces\xiangqiboard_45x45) */ = {isa = PBXBuildFile; fileRef = AFCFE2C30FCEE2D3000760F2 /* bcannon.png */; };
+		AFCFE2D30FCEE2D3000760F2 /* bchariot.png in Copy Files (pieces\xiangqiboard_45x45) */ = {isa = PBXBuildFile; fileRef = AFCFE2C40FCEE2D3000760F2 /* bchariot.png */; };
+		AFCFE2D40FCEE2D3000760F2 /* belephant.png in Copy Files (pieces\xiangqiboard_45x45) */ = {isa = PBXBuildFile; fileRef = AFCFE2C50FCEE2D3000760F2 /* belephant.png */; };
+		AFCFE2D50FCEE2D3000760F2 /* bhorse.png in Copy Files (pieces\xiangqiboard_45x45) */ = {isa = PBXBuildFile; fileRef = AFCFE2C60FCEE2D3000760F2 /* bhorse.png */; };
+		AFCFE2D60FCEE2D3000760F2 /* bking.png in Copy Files (pieces\xiangqiboard_45x45) */ = {isa = PBXBuildFile; fileRef = AFCFE2C70FCEE2D3000760F2 /* bking.png */; };
+		AFCFE2D70FCEE2D3000760F2 /* bpawn.png in Copy Files (pieces\xiangqiboard_45x45) */ = {isa = PBXBuildFile; fileRef = AFCFE2C80FCEE2D3000760F2 /* bpawn.png */; };
+		AFCFE2D80FCEE2D3000760F2 /* CREDITS.txt in Copy Files (pieces\xiangqiboard_45x45) */ = {isa = PBXBuildFile; fileRef = AFCFE2C90FCEE2D3000760F2 /* CREDITS.txt */; };
+		AFCFE2D90FCEE2D3000760F2 /* radvisor.png in Copy Files (pieces\xiangqiboard_45x45) */ = {isa = PBXBuildFile; fileRef = AFCFE2CA0FCEE2D3000760F2 /* radvisor.png */; };
+		AFCFE2DA0FCEE2D3000760F2 /* rcannon.png in Copy Files (pieces\xiangqiboard_45x45) */ = {isa = PBXBuildFile; fileRef = AFCFE2CB0FCEE2D3000760F2 /* rcannon.png */; };
+		AFCFE2DB0FCEE2D3000760F2 /* rchariot.png in Copy Files (pieces\xiangqiboard_45x45) */ = {isa = PBXBuildFile; fileRef = AFCFE2CC0FCEE2D3000760F2 /* rchariot.png */; };
+		AFCFE2DC0FCEE2D3000760F2 /* relephant.png in Copy Files (pieces\xiangqiboard_45x45) */ = {isa = PBXBuildFile; fileRef = AFCFE2CD0FCEE2D3000760F2 /* relephant.png */; };
+		AFCFE2DD0FCEE2D3000760F2 /* rhorse.png in Copy Files (pieces\xiangqiboard_45x45) */ = {isa = PBXBuildFile; fileRef = AFCFE2CE0FCEE2D3000760F2 /* rhorse.png */; };
+		AFCFE2DE0FCEE2D3000760F2 /* rking.png in Copy Files (pieces\xiangqiboard_45x45) */ = {isa = PBXBuildFile; fileRef = AFCFE2CF0FCEE2D3000760F2 /* rking.png */; };
+		AFCFE2DF0FCEE2D3000760F2 /* rpawn.png in Copy Files (pieces\xiangqiboard_45x45) */ = {isa = PBXBuildFile; fileRef = AFCFE2D00FCEE2D3000760F2 /* rpawn.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -233,6 +248,31 @@
 			name = "Copy Files (sounds)";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AFCFE2E50FCEE32B000760F2 /* Copy Files (pieces\xiangqiboard_45x45) */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = pieces/xiangqiboard_45x45;
+			dstSubfolderSpec = 12;
+			files = (
+				AFCFE2D10FCEE2D3000760F2 /* badvisor.png in Copy Files (pieces\xiangqiboard_45x45) */,
+				AFCFE2D20FCEE2D3000760F2 /* bcannon.png in Copy Files (pieces\xiangqiboard_45x45) */,
+				AFCFE2D30FCEE2D3000760F2 /* bchariot.png in Copy Files (pieces\xiangqiboard_45x45) */,
+				AFCFE2D40FCEE2D3000760F2 /* belephant.png in Copy Files (pieces\xiangqiboard_45x45) */,
+				AFCFE2D50FCEE2D3000760F2 /* bhorse.png in Copy Files (pieces\xiangqiboard_45x45) */,
+				AFCFE2D60FCEE2D3000760F2 /* bking.png in Copy Files (pieces\xiangqiboard_45x45) */,
+				AFCFE2D70FCEE2D3000760F2 /* bpawn.png in Copy Files (pieces\xiangqiboard_45x45) */,
+				AFCFE2D80FCEE2D3000760F2 /* CREDITS.txt in Copy Files (pieces\xiangqiboard_45x45) */,
+				AFCFE2D90FCEE2D3000760F2 /* radvisor.png in Copy Files (pieces\xiangqiboard_45x45) */,
+				AFCFE2DA0FCEE2D3000760F2 /* rcannon.png in Copy Files (pieces\xiangqiboard_45x45) */,
+				AFCFE2DB0FCEE2D3000760F2 /* rchariot.png in Copy Files (pieces\xiangqiboard_45x45) */,
+				AFCFE2DC0FCEE2D3000760F2 /* relephant.png in Copy Files (pieces\xiangqiboard_45x45) */,
+				AFCFE2DD0FCEE2D3000760F2 /* rhorse.png in Copy Files (pieces\xiangqiboard_45x45) */,
+				AFCFE2DE0FCEE2D3000760F2 /* rking.png in Copy Files (pieces\xiangqiboard_45x45) */,
+				AFCFE2DF0FCEE2D3000760F2 /* rpawn.png in Copy Files (pieces\xiangqiboard_45x45) */,
+			);
+			name = "Copy Files (pieces\\xiangqiboard_45x45)";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -359,6 +399,21 @@
 		AF864B8E0FC321B50034C83B /* rpawn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = rpawn.png; path = resource/pieces/iXiangQi_55x55/rpawn.png; sourceTree = "<group>"; };
 		AF864C440FC327DD0034C83B /* libAI_XQWLight.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libAI_XQWLight.dylib; path = plugins/libAI_XQWLight.dylib; sourceTree = "<group>"; };
 		AF864C540FC328DC0034C83B /* move.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; name = move.wav; path = resource/sounds/move.wav; sourceTree = "<group>"; };
+		AFCFE2C20FCEE2D3000760F2 /* badvisor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = badvisor.png; sourceTree = "<group>"; };
+		AFCFE2C30FCEE2D3000760F2 /* bcannon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bcannon.png; sourceTree = "<group>"; };
+		AFCFE2C40FCEE2D3000760F2 /* bchariot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bchariot.png; sourceTree = "<group>"; };
+		AFCFE2C50FCEE2D3000760F2 /* belephant.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = belephant.png; sourceTree = "<group>"; };
+		AFCFE2C60FCEE2D3000760F2 /* bhorse.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bhorse.png; sourceTree = "<group>"; };
+		AFCFE2C70FCEE2D3000760F2 /* bking.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bking.png; sourceTree = "<group>"; };
+		AFCFE2C80FCEE2D3000760F2 /* bpawn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bpawn.png; sourceTree = "<group>"; };
+		AFCFE2C90FCEE2D3000760F2 /* CREDITS.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CREDITS.txt; sourceTree = "<group>"; };
+		AFCFE2CA0FCEE2D3000760F2 /* radvisor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = radvisor.png; sourceTree = "<group>"; };
+		AFCFE2CB0FCEE2D3000760F2 /* rcannon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rcannon.png; sourceTree = "<group>"; };
+		AFCFE2CC0FCEE2D3000760F2 /* rchariot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rchariot.png; sourceTree = "<group>"; };
+		AFCFE2CD0FCEE2D3000760F2 /* relephant.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = relephant.png; sourceTree = "<group>"; };
+		AFCFE2CE0FCEE2D3000760F2 /* rhorse.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rhorse.png; sourceTree = "<group>"; };
+		AFCFE2CF0FCEE2D3000760F2 /* rking.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rking.png; sourceTree = "<group>"; };
+		AFCFE2D00FCEE2D3000760F2 /* rpawn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rpawn.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -576,6 +631,7 @@
 		AF9659F40FC3BD3D00370E48 /* pieces */ = {
 			isa = PBXGroup;
 			children = (
+				AFCFE2C10FCEE2D3000760F2 /* xiangqiboard_45x45 */,
 				AF965A010FC3BD9200370E48 /* iXiangQi_55x55 */,
 				AF864A4A0FC309BD0034C83B /* 1 */,
 			);
@@ -624,6 +680,29 @@
 			name = plugins;
 			sourceTree = "<group>";
 		};
+		AFCFE2C10FCEE2D3000760F2 /* xiangqiboard_45x45 */ = {
+			isa = PBXGroup;
+			children = (
+				AFCFE2C20FCEE2D3000760F2 /* badvisor.png */,
+				AFCFE2C30FCEE2D3000760F2 /* bcannon.png */,
+				AFCFE2C40FCEE2D3000760F2 /* bchariot.png */,
+				AFCFE2C50FCEE2D3000760F2 /* belephant.png */,
+				AFCFE2C60FCEE2D3000760F2 /* bhorse.png */,
+				AFCFE2C70FCEE2D3000760F2 /* bking.png */,
+				AFCFE2C80FCEE2D3000760F2 /* bpawn.png */,
+				AFCFE2C90FCEE2D3000760F2 /* CREDITS.txt */,
+				AFCFE2CA0FCEE2D3000760F2 /* radvisor.png */,
+				AFCFE2CB0FCEE2D3000760F2 /* rcannon.png */,
+				AFCFE2CC0FCEE2D3000760F2 /* rchariot.png */,
+				AFCFE2CD0FCEE2D3000760F2 /* relephant.png */,
+				AFCFE2CE0FCEE2D3000760F2 /* rhorse.png */,
+				AFCFE2CF0FCEE2D3000760F2 /* rking.png */,
+				AFCFE2D00FCEE2D3000760F2 /* rpawn.png */,
+			);
+			name = xiangqiboard_45x45;
+			path = resource/pieces/xiangqiboard_45x45;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -642,6 +721,7 @@
 				AF0CD9E80FC3D7EB0042A414 /* Copy Files (locale\vi_VN) */,
 				AF0CD9EE0FC3D8520042A414 /* Copy Files (locale\zh_CN) */,
 				AF790B490FC9BD82005729B0 /* Copy Files (boards) */,
+				AFCFE2E50FCEE32B000760F2 /* Copy Files (pieces\xiangqiboard_45x45) */,
 			);
 			buildRules = (
 			);
