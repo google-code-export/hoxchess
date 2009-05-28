@@ -31,7 +31,7 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="1"
-     inkscape:cx="182.05539"
+     inkscape:cx="236.50424"
      inkscape:cy="303.91084"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -154,9 +154,9 @@
        xlink:href="#linearGradient3236"
        id="linearGradient3242"
        x1="40"
-       y1="309.87414"
+       y1="309.87415"
        x2="520"
-       y2="309.87414"
+       y2="309.87415"
        gradientUnits="userSpaceOnUse" />
   </defs>
   <metadata
@@ -175,7 +175,7 @@
      inkscape:groupmode="layer"
      inkscape:label="background">
     <rect
-       style="opacity:0.5;fill:#bfa69a;fill-opacity:1"
+       style="opacity:1;fill:#bfa69a;fill-opacity:1"
        id="rect2392"
        width="560"
        height="620"
