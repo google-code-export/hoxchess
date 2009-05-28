@@ -10,6 +10,8 @@
 		1DDD57E40DA1CFC700B32029 /* main.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD57E20DA1CFC700B32029 /* main.xib */; };
 		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
 		8D0C4E920486CD37000505A6 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20286C33FDCF999611CA2CEA /* Carbon.framework */; };
+		AF0932A00FCDA7C200E6D8F8 /* hoxchess.ini in Copy Files (boards) */ = {isa = PBXBuildFile; fileRef = AF09329E0FCDA7C200E6D8F8 /* hoxchess.ini */; };
+		AF0932A10FCDA7C200E6D8F8 /* hoxchess.png in Copy Files (boards) */ = {isa = PBXBuildFile; fileRef = AF09329F0FCDA7C200E6D8F8 /* hoxchess.png */; };
 		AF0CD9E90FC3D8180042A414 /* hoxchess.mo in Copy Files (locale\vi_VN) */ = {isa = PBXBuildFile; fileRef = AF0CD9E20FC3D7B10042A414 /* hoxchess.mo */; };
 		AF0CD9EB0FC3D8470042A414 /* hoxchess.mo in Copy Files (locale\zh_CN) */ = {isa = PBXBuildFile; fileRef = AF0CD9E40FC3D7BD0042A414 /* hoxchess.mo */; };
 		AF0CDA6B0FC3E0E00042A414 /* libAI_HaQiKiD.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = AF0CDA690FC3E0CC0042A414 /* libAI_HaQiKiD.dylib */; };
@@ -124,6 +126,8 @@
 			dstPath = boards;
 			dstSubfolderSpec = 12;
 			files = (
+				AF0932A00FCDA7C200E6D8F8 /* hoxchess.ini in Copy Files (boards) */,
+				AF0932A10FCDA7C200E6D8F8 /* hoxchess.png in Copy Files (boards) */,
 				AF65FAB10FCB76B8000BB384 /* qianhong.ini in Copy Files (boards) */,
 				AF65FAAF0FCB76B2000BB384 /* ixiangqi.ini in Copy Files (boards) */,
 				AF790B4A0FC9BD91005729B0 /* ixiangqi.png in Copy Files (boards) */,
@@ -237,6 +241,8 @@
 		20286C33FDCF999611CA2CEA /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
 		508344B209E5C41E0093A071 /* HOXChess.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HOXChess.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8D0C4E960486CD37000505A6 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AF09329E0FCDA7C200E6D8F8 /* hoxchess.ini */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = hoxchess.ini; path = resource/boards/hoxchess.ini; sourceTree = "<group>"; };
+		AF09329F0FCDA7C200E6D8F8 /* hoxchess.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = hoxchess.png; path = resource/boards/hoxchess.png; sourceTree = "<group>"; };
 		AF0CD9E20FC3D7B10042A414 /* hoxchess.mo */ = {isa = PBXFileReference; lastKnownFileType = file; name = hoxchess.mo; path = resource/locale/vi_VN/hoxchess.mo; sourceTree = "<group>"; };
 		AF0CD9E40FC3D7BD0042A414 /* hoxchess.mo */ = {isa = PBXFileReference; lastKnownFileType = file; name = hoxchess.mo; path = resource/locale/zh_CN/hoxchess.mo; sourceTree = "<group>"; };
 		AF0CDA690FC3E0CC0042A414 /* libAI_HaQiKiD.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libAI_HaQiKiD.dylib; path = plugins/libAI_HaQiKiD.dylib; sourceTree = "<group>"; };
@@ -503,6 +509,8 @@
 		AF790B430FC9BD23005729B0 /* boards */ = {
 			isa = PBXGroup;
 			children = (
+				AF09329E0FCDA7C200E6D8F8 /* hoxchess.ini */,
+				AF09329F0FCDA7C200E6D8F8 /* hoxchess.png */,
 				AF65FAB00FCB76B8000BB384 /* qianhong.ini */,
 				AF65FAAE0FCB76B2000BB384 /* ixiangqi.ini */,
 				AF790B440FC9BD39005729B0 /* ixiangqi.png */,
