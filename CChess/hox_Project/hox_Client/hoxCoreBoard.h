@@ -51,7 +51,7 @@ public:
     virtual void OnBgColor( wxColor color ) {}
     virtual void OnFgColor( wxColor color ) {}
 
-    void OnToggleViewSide() { m_bViewInverted = !m_bViewInverted; }
+    virtual void OnToggleViewSide() { m_bViewInverted = !m_bViewInverted; }
     void SetGameOver( bool isGameOver ) { m_isGameOver = isGameOver; }
 
     wxCoord BorderX() const { return m_borderX; }
@@ -100,6 +100,7 @@ public:
     hoxImageBackground( const wxString& sImage );
     virtual ~hoxImageBackground() {}
 
+    virtual void OnToggleViewSide();
     virtual void OnPaint( wxDC& dc );
     virtual void OnResize( const wxSize totalSize );
 
