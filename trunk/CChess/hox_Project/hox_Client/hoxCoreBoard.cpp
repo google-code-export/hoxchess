@@ -1115,7 +1115,7 @@ hoxCustomBackground::_DrawBoard( wxDC&        dc,
     x2 = m_borderX + boardW;
     const wxCoord leftLabelX = 5; // TODO: Hard-coded for now
     const wxCoord rightLabelX = m_borderX - dc.GetCharWidth() - leftLabelX;
-    c = m_bViewInverted ? '9' : '0';
+    c = m_bViewInverted ? '0' : '9';
     for (line = 0; line < NUM_VERTICAL_CELL+1; ++line)
     {
         y1 = m_borderY + line * m_cellS;
@@ -1124,8 +1124,8 @@ hoxCustomBackground::_DrawBoard( wxDC&        dc,
         dc.DrawText(c, leftLabelX, y1);
         dc.DrawLine(x1, y1, x2, y2);
         dc.DrawText(c, x2 + rightLabelX, y2);
-        if (m_bViewInverted) --c;
-        else                 ++c;
+        if (m_bViewInverted) ++c;
+        else                 --c;
     }
 
     // Draw crossing lines at the red-palace.
@@ -1228,6 +1228,14 @@ hoxImageBackground::hoxImageBackground( const wxString& sImage )
     }
 
     m_bitmap = wxBitmap(image);
+}
+
+void
+hoxImageBackground::OnToggleViewSide()
+{
+    hoxCoreBackground::OnToggleViewSide();
+    wxImage image = m_bitmap.ConvertToImage();
+    m_bitmap = wxBitmap(image.Rotate90().Rotate90());
 }
 
 void
