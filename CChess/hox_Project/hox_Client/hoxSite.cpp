@@ -371,7 +371,7 @@ hoxLocalSite::OnLocalRequest_PRACTICE( const wxString& sSavedFile /* = "" */ )
      *   (2) The new AI Player.
      */
     const wxString sTableId = hoxUtil::GenerateRandomString("PRACTICE_");
-    const wxString sAIId    = hoxUtil::GenerateRandomString("AI_");
+    const wxString sAIId    = hoxAIPluginMgr::GetInstance()->GetDefaultPluginName();
 
     /* Set the default Table's attributes. */
 
