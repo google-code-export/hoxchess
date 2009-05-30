@@ -27,7 +27,6 @@
 
 #include "hoxCoreBoard.h"
 #include "hoxUtil.h"
-#include <wx/textfile.h>
 
 // ----------------------------------------------------------------------------
 // Constants
@@ -1214,20 +1213,18 @@ hoxCustomBackground::_DrawBoard( wxDC&        dc,
 
 hoxImageBackground::hoxImageBackground( const wxString& sImage )
 {
-    const wxString sPrefixPath = hoxUtil::GetPath(hoxRT_BOARD);
-
-    const wxString sIniFile = sPrefixPath + sImage.BeforeFirst('.') + ".ini";
-    _LoadIniFile( sIniFile );
-
-    m_imageFile = sPrefixPath + sImage;
-    wxImage image;
-    if ( ! image.LoadFile(m_imageFile, wxBITMAP_TYPE_PNG) ) 
+    wxImage           boardImage;
+    hoxBoardImageInfo boardInfo;
+    if ( ! hoxUtil::LoadBoardImage( sImage, boardImage, boardInfo ) )
     {
-        wxLogError("%s: Failed to load board-image from [%s].", __FUNCTION__, m_imageFile.c_str());
+        wxLogError("%s: Failed to load board-image [%s].", __FUNCTION__, sImage.c_str());
         return;
     }
+    m_borderX = boardInfo.borderX;
+    m_borderY = boardInfo.borderY;
+    m_cellS   = boardInfo.cellS;
 
-    m_bitmap = wxBitmap(image);
+    m_bitmap = wxBitmap(boardImage);
 }
 
 void
@@ -1262,28 +1259,6 @@ hoxImageBackground::_DrawBoardImage( wxDC& dc )
     if ( m_isGameOver )
     {
         this->DrawGameOverText(dc);
-    }
-}
-
-void
-hoxImageBackground::_LoadIniFile( const wxString& sIniFile )
-{
-    wxTextFile file( sIniFile );
-    if ( file.Exists() && file.Open() )
-    {
-        wxLogDebug("%s: Loadding Board INI file [%s].", __FUNCTION__, sIniFile.c_str());
-        wxString sKey;
-        int      nValue = 0;
-        for ( wxString sLine = file.GetFirstLine(); !file.Eof();
-                       sLine = file.GetNextLine() )
-        {
-            if ( sLine.StartsWith("#") ) continue;  // Skip comments.
-            sKey = sLine.BeforeFirst('=').Trim(/* fromRight */);
-            nValue = ::atoi( sLine.AfterFirst('=').c_str() );
-            if      ( sKey == "borderX" )  m_borderX = nValue;
-            else if ( sKey == "borderY" )  m_borderY = nValue;
-            else if ( sKey == "cellS" )    m_cellS   = nValue;
-        }
     }
 }
 

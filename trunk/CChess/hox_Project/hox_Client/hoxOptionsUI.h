@@ -167,6 +167,11 @@ private:
                           hoxPieceType   pieceType,
                           hoxColor       pieceColor,
                           const wxPoint& pos );
+    void _LoadBoardImage();
+
+private:
+    wxBitmap          m_boardBitmap;
+    hoxBoardImageInfo m_boardInfo;
 };
 
 #endif
