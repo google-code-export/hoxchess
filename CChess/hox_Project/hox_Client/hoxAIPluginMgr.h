@@ -48,10 +48,12 @@ public:
     ~hoxAIPlugin();
 
     const wxString GetName() const { return m_name; }
-    bool IsLoaded() const { return (m_pCreateAIEngineLibFunc != NULL); }
 
     AIEngineLib_APtr CreateAIEngineLib();
-
+    bool IsLoaded() const;
+    bool Load();
+    bool Unload();
+    
 private:
     wxString                 m_name;   // The unique name.
     wxString                 m_path;   // The full-path on disk.
@@ -89,6 +91,7 @@ private:
 private:
     typedef std::map<const wxString, hoxAIPlugin_SPtr> hoxAIPluginMap;
     hoxAIPluginMap        m_aiPlugins;
+    wxString              m_lastPluginName;  // The previous loaded Plugin.
 };
 
 #endif /* __INCLUDED_HOX_AI_PLUGIN_MGR_H__ */
