@@ -185,6 +185,21 @@ hoxUtil::LoadBoardInfo( const wxString&    sIniFile,
     return true;
 }
 
+void
+hoxUtil::DrawBitmapOnDC( wxDC&         dc,
+                         wxBitmap&     bitmap,
+                         const wxCoord x,
+                         const wxCoord y )
+{
+#ifdef __WXMAC__
+	dc.DrawBitmap( bitmap, x, y, true );
+#else
+    wxMemoryDC memDC( bitmap );
+    dc.Blit( x, y, bitmap.GetWidth(), bitmap.GetHeight(),
+             &memDC, 0, 0, wxCOPY, true );
+#endif
+}
+
 const char*
 hoxUtil::ResultToStr( const hoxResult result )
 {

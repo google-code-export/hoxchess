@@ -541,7 +541,10 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
     view_menu->AppendCheckItem(MDI_SHOW_LOG_WINDOW, _("Lo&g Window\tCtrl-G"), _("Log Window"));
 
     /* Tools menu. */
-    wxMenu* tools_menu = new wxMenu;
+    wxMenu* tools_menu = file_menu;   // Use File menu instead on Mac
+#ifndef __WXMAC__
+    tools_menu = new wxMenu;
+#endif
     tools_menu->Append(MDI_OPTIONS, _("&Options...\tCtrl-O"), _("Set options"));
 
     /* Help menu. */
@@ -554,7 +557,9 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
     wxMenuBar* menu_bar = new wxMenuBar;
     menu_bar->Append(file_menu, _("&File"));
     menu_bar->Append(view_menu, _("&View"));
+#ifndef __WXMAC__
     menu_bar->Append(tools_menu, _("&Tools"));
+#endif
     menu_bar->Append(help_menu, _("&Help"));
 
     return menu_bar;

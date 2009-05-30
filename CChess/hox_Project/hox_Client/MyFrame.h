@@ -63,7 +63,7 @@ enum
     MDI_CHILD_QUIT,
 
     MDI_SOUND,   // toggle sound
-    MDI_OPTIONS, // App's general options
+    MDI_OPTIONS = wxID_PREFERENCES, // App's general options
 
     // Windows' IDs.
     ID_WINDOW_SITES

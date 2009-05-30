@@ -63,6 +63,14 @@ namespace hoxUtil
                         hoxBoardImageInfo& imageInfo );
 
     /**
+     * Draw a bitmap on a Device Context (DC) at a given point.
+     */
+    void DrawBitmapOnDC( wxDC&         dc,
+                         wxBitmap&     bitmap,
+                         const wxCoord x,
+                         const wxCoord y );
+
+    /**
      * Convert a given Result to a (human-readable) string.
      */
     const char* ResultToStr( const hoxResult result );
