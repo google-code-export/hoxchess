@@ -106,7 +106,6 @@ public:
 
 private:
     void _DrawBoardImage( wxDC& dc );
-    void _LoadIniFile( const wxString& sIniFile );
 
 private:
     wxString   m_imageFile;

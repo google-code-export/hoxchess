@@ -378,4 +378,18 @@ public:
     hoxPlayerStats() : score(1500), wins(0), draws(0), losses(0) {}
 };
 
+// ----------------------------------------------------------------------------
+// hoxBoardImageInfo
+// ----------------------------------------------------------------------------
+
+class hoxBoardImageInfo
+{
+public:
+    int    borderX;   // The offset X.
+    int    borderY;   // The offset Y.
+    int    cellS;     // Squares ' size.
+
+    hoxBoardImageInfo() : borderX(40), borderY(40), cellS(56) {}
+};
+
 #endif /* __INCLUDED_HOX_TYPES_H__ */

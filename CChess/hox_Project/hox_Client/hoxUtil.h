@@ -50,6 +50,19 @@ namespace hoxUtil
     wxBitmap LoadImage( const wxString& imageName );
 
     /**
+     * Load a Board Image and its .ini file, if exists.
+     */    
+    bool LoadBoardImage( const wxString&    sImage,
+                         wxImage&           image,
+                         hoxBoardImageInfo& imageInfo );
+
+    /**
+     * Load the .ini of a Board Image.
+     */
+    bool LoadBoardInfo( const wxString&    sIniFile,
+                        hoxBoardImageInfo& imageInfo );
+
+    /**
      * Convert a given Result to a (human-readable) string.
      */
     const char* ResultToStr( const hoxResult result );

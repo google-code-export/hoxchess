@@ -220,9 +220,9 @@ void hoxOptionsUI::CreateControls()
     wxStaticBox* itemStaticBoxSizer26Static = new wxStaticBox(itemPanel11, wxID_ANY, _("Preview"));
     wxStaticBoxSizer* itemStaticBoxSizer26 = new wxStaticBoxSizer(itemStaticBoxSizer26Static, wxHORIZONTAL);
     itemBoxSizer12->Add(itemStaticBoxSizer26, 0, wxGROW|wxALL, 5);
-    m_panelPiecePreview = new wxPanel( itemPanel11, ID_PANEL_PIECE_PREVIEW, wxDefaultPosition, wxSize(100, 180), wxTAB_TRAVERSAL );
+    m_panelPiecePreview = new wxPanel( itemPanel11, ID_PANEL_PIECE_PREVIEW, wxDefaultPosition, wxSize(150, 180), wxTAB_TRAVERSAL );
     m_panelPiecePreview->SetBackgroundColour(wxColour(128, 128, 192));
-    itemStaticBoxSizer26->Add(m_panelPiecePreview, 0, wxGROW|wxALL, 5);
+    itemStaticBoxSizer26->Add(m_panelPiecePreview, 0, wxALIGN_TOP|wxALL, 5);
 
     GetBookCtrl()->AddPage(itemPanel11, _("Board"));
 
@@ -340,6 +340,8 @@ void hoxOptionsUI::_InitBoardImageChoices()
     m_boardImageList->Append( sCustomName );
     m_boardImageList->Append( boardImages );
     m_boardImageList->SetStringSelection( sSelectedName );
+    
+    _LoadBoardImage();
 }
 
 void hoxOptionsUI::_InitPieceSetChoices()
@@ -466,6 +468,19 @@ hoxOptionsUI::_DrawOnePieceAt( wxDC&          dc,
              &memDC, 0, 0, wxCOPY, true );
 }
 
+void
+hoxOptionsUI::_LoadBoardImage()
+{
+    if ( m_sBoardImage.empty() ) return;
+
+    wxImage boardImage;
+    if ( ! hoxUtil::LoadBoardImage( m_sBoardImage, boardImage, m_boardInfo ) )
+    {
+        wxLogError("%s: Failed to load board-image [%s].", __FUNCTION__, m_sBoardImage.c_str());
+        return;
+    }
+    m_boardBitmap = wxBitmap(boardImage);
+}
 
 /*!
  * wxEVT_COMMAND_CHOICE_SELECTED event handler for ID_CHOICE_LANGUAGE
@@ -521,17 +536,32 @@ void hoxOptionsUI::OnPaint( wxPaintEvent& event )
 {
     wxPaintDC dc(m_panelPiecePreview);
     const wxSize sz = m_panelPiecePreview->GetClientSize();
-    dc.SetBrush( wxBrush( wxColor(m_sBgColor) ) );
-    dc.SetPen( wxPen( wxColor(m_sFgColor) ) );
 
-    dc.DrawRectangle( 0, 0, sz.x, sz.y );;
-    
-    const wxPoint p1(50, 40);
-    const wxPoint p2(50, 140);
-    
-    dc.DrawLine( p1.x, 0, p1.x, sz.y );
-    dc.DrawLine( 0, p1.y, sz.x, p1.y );
-    dc.DrawLine( 0, p2.y, sz.x, p2.y );
+    wxPoint p1, p2;
+
+    if ( m_sBoardImage.empty() ) // Draw custom board-background.
+    {
+        p1 = wxPoint(50, 40);
+        p2 = wxPoint(50, 140);
+        dc.SetBrush( wxBrush( wxColor(m_sBgColor) ) );
+        dc.SetPen( wxPen( wxColor(m_sFgColor) ) );
+
+        dc.DrawRectangle( 0, 0, sz.x, sz.y );
+        
+        dc.DrawLine( p1.x, 0, p1.x, sz.y );
+        dc.DrawLine( 0, p1.y, sz.x, p1.y );
+        dc.DrawLine( 0, p2.y, sz.x, p2.y );
+    }
+    else  // Draw image board-background.
+    {
+        if ( !m_boardBitmap.IsOk() ) return;
+        wxMemoryDC memDC( m_boardBitmap );
+        dc.Blit( 0, 0, m_boardBitmap.GetWidth(), m_boardBitmap.GetHeight(),
+                 &memDC, 0, 0, wxCOPY, true );
+        p1 = wxPoint( m_boardInfo.borderX + m_boardInfo.cellS,
+                      m_boardInfo.borderY );
+        p2 = wxPoint( p1.x, p1.y + m_boardInfo.cellS );
+    }
 
     _DrawPiecePreview( m_panelPiecePreview, p1, p2 );
 }
@@ -565,7 +595,11 @@ void hoxOptionsUI::OnPieceSetListSelected( wxCommandEvent& event )
 void hoxOptionsUI::OnBoardImageListSelected( wxCommandEvent& event )
 {
     if ( event.GetInt() == 0 ) m_sBoardImage = "";  // "Custom" image.
-    else                       m_sBoardImage = event.GetString();
+    else
+    {
+        m_sBoardImage = event.GetString();
+        _LoadBoardImage();
+    }
     m_panelPiecePreview->Refresh();  // repaint...
 }
 

@@ -28,6 +28,7 @@
 #include "hoxUtil.h"
 #include "hoxReferee.h"
 #include <wx/tokenzr.h>
+#include <wx/textfile.h>
 
 #ifdef __WXMAC__
     #include <wx/stdpaths.h>
@@ -134,6 +135,54 @@ hoxUtil::LoadImage( const wxString& imageName )
     }
     
     return wxBitmap(image);
+}
+
+bool
+hoxUtil::LoadBoardImage( const wxString&    sImage,
+                         wxImage&           image,
+                         hoxBoardImageInfo& imageInfo )
+{
+    const wxString sPrefixPath = hoxUtil::GetPath(hoxRT_BOARD);
+
+    const wxString sIniFile = sPrefixPath + sImage.BeforeFirst('.') + ".ini";
+    hoxUtil::LoadBoardInfo( sIniFile, imageInfo );
+
+    const wxString imageFile = sPrefixPath + sImage;
+    if ( ! image.LoadFile(imageFile, wxBITMAP_TYPE_PNG) ) 
+    {
+        wxLogWarning("%s: Failed to load board-image from [%s].", __FUNCTION__, imageFile.c_str());
+        return false;
+    }
+
+    return true;
+}
+
+bool
+hoxUtil::LoadBoardInfo( const wxString&    sIniFile,
+                        hoxBoardImageInfo& imageInfo )
+{
+    wxTextFile file( sIniFile );
+    if ( !file.Exists() || !file.Open() )
+    {
+        wxLogDebug("%s: Board INI file [%s] not found.", __FUNCTION__, sIniFile.c_str());
+        return false;
+    }
+
+    wxLogDebug("%s: Loadding Board INI file [%s].", __FUNCTION__, sIniFile.c_str());
+    wxString sKey;
+    int      nValue = 0;
+    for ( wxString sLine = file.GetFirstLine(); !file.Eof();
+                   sLine = file.GetNextLine() )
+    {
+        if ( sLine.StartsWith("#") ) continue;  // Skip comments.
+        sKey = sLine.BeforeFirst('=').Trim(/* fromRight */);
+        nValue = ::atoi( sLine.AfterFirst('=').c_str() );
+        if      ( sKey == "borderX" ) imageInfo.borderX = nValue;
+        else if ( sKey == "borderY" ) imageInfo.borderY = nValue;
+        else if ( sKey == "cellS" )   imageInfo.cellS   = nValue;
+    }
+
+    return true;
 }
 
 const char*
