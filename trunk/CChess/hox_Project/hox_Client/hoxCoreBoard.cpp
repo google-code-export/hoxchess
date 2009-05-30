@@ -252,6 +252,9 @@ hoxCoreBoard::OnSize( wxSizeEvent& event )
     m_background->OnResize( event.GetSize() );
     wxClientDC dc(this);
     m_background->OnPaint( dc );
+#ifdef __WXGTK__
+    _DrawAllPieces(dc);
+#endif
 }
 
 void
