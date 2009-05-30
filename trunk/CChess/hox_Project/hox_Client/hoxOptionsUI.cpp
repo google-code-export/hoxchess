@@ -450,22 +450,15 @@ hoxOptionsUI::_DrawOnePieceAt( wxDC&          dc,
 {
     wxImage  image;
     wxBitmap bitmap;
-    if ( hoxRC_OK == hoxUtil::LoadPieceImage( m_sPiece, pieceType, pieceColor,
-                                              image ) )
+    if ( hoxRC_OK == hoxUtil::LoadPieceImage( m_sPiece, pieceType, pieceColor, image ) )
     {
         bitmap = wxBitmap(image);
     }
-    if ( ! bitmap.Ok() )
-      return;
 
-    wxMemoryDC memDC;
-    memDC.SelectObject( const_cast<wxBitmap&>(bitmap) );
-
-    wxCoord x = pos.x - (bitmap.GetWidth() / 2);
-    wxCoord y = pos.y - (bitmap.GetHeight() / 2);
-    dc.Blit( x, y, 
-             bitmap.GetWidth(), bitmap.GetHeight(),
-             &memDC, 0, 0, wxCOPY, true );
+    const wxCoord x = pos.x - (bitmap.GetWidth() / 2);
+    const wxCoord y = pos.y - (bitmap.GetHeight() / 2);
+    
+    hoxUtil::DrawBitmapOnDC( dc, bitmap, x, y );
 }
 
 void

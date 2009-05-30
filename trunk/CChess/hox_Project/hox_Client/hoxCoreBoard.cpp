@@ -357,31 +357,20 @@ hoxCoreBoard::_DrawPieceWithDC( wxDC&           dc,
                                 const hoxPiece* piece )
 {
     const wxPoint pos = _GetPieceLocation( piece );
-    const wxBitmap& bitmap = piece->GetBitmap();
+    wxBitmap& bitmap = const_cast<wxBitmap&>( piece->GetBitmap() );
     if ( ! bitmap.Ok() )
       return;
 
-#ifdef __WXMAC__
-	dc.DrawBitmap( bitmap, pos.x, pos.y, true );
-#else
-    wxMemoryDC memDC;
-    memDC.SelectObject( const_cast<wxBitmap&>(bitmap) );
-    dc.Blit( pos.x, pos.y, bitmap.GetWidth(), bitmap.GetHeight(),
-             &memDC, 0, 0, wxCOPY, true);
-#endif
+    hoxUtil::DrawBitmapOnDC( dc, bitmap, pos.x, pos.y );
 
     /* Highlight the piece if it is the latest piece that moves. */
     if ( piece->IsLatest() )
     {
-        int delta = 0;  // TODO: Hard-coded value.
-        int x = pos.x + delta;
-        int y = pos.y + delta;
-        int w = bitmap.GetWidth() - 2*delta;
-        int h = bitmap.GetHeight() - 2*delta;
-        
-        dc.SetPen(*wxCYAN);
-        dc.SetBrush(*wxTRANSPARENT_BRUSH);
-        dc.DrawRectangle( wxRect(x, y, w, h) );
+        const int delta = 0;  // TODO: Hard-coded value.
+        dc.SetPen( *wxCYAN );
+        dc.SetBrush( *wxTRANSPARENT_BRUSH );
+        dc.DrawRectangle( pos.x + delta, pos.y + delta,
+                          bitmap.GetWidth() - 2*delta, bitmap.GetHeight() - 2*delta );
     }
 }
 
@@ -1264,12 +1253,10 @@ hoxImageBackground::OnResize( const wxSize totalSize )
 void 
 hoxImageBackground::_DrawBoardImage( wxDC& dc )
 {
-    wxMemoryDC memDC;
-    memDC.SelectObject( const_cast<wxBitmap&>(m_bitmap) );
+    wxMemoryDC memDC( m_bitmap );
     dc.Blit( 0, 0, m_bitmap.GetWidth(), m_bitmap.GetHeight(),
              &memDC, 0, 0, wxCOPY, true );
 
-    // Drawing "Game Over" if specified.
     if ( m_isGameOver )
     {
         this->DrawGameOverText(dc);
