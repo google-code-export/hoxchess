@@ -172,10 +172,7 @@ hoxBoard::hoxBoard( wxWindow*        parent,
                     const wxPoint&   pos  /* = wxDefaultPosition */, 
                     const wxSize&    size /* = wxDefaultSize */,
                     unsigned int     featureFlags /* = hoxBOARD_FEATURE_ALL */ )
-        : wxPanel( parent, 
-                   wxID_ANY, 
-                   pos, 
-                   size,
+        : wxPanel( parent, wxID_ANY, pos, size,
                    wxFULL_REPAINT_ON_RESIZE )
         , m_coreBoard( NULL )
         , m_referee( referee )
@@ -827,26 +824,19 @@ hoxBoard::_CreateBoardPanel()
     m_historySizer->Add( 
         new wxButton( boardPanel, ID_HISTORY_BEGIN, "|<", 
                       wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
-        0,    // Unstretchable
-        wxALIGN_CENTER | wxFIXED_MINSIZE );
-
+        wxSizerFlags(0).Center().FixedMinSize() );
     m_historySizer->Add( 
         new wxButton( boardPanel, ID_HISTORY_PREV, "<",
                       wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
-        0,    // Unstretchable
-        wxALIGN_CENTER | wxFIXED_MINSIZE );
-
+        wxSizerFlags(0).Center().FixedMinSize() );
     m_historySizer->Add( 
         new wxButton( boardPanel, ID_HISTORY_NEXT, ">", 
                       wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
-        0,    // Unstretchable
-        wxALIGN_CENTER | wxFIXED_MINSIZE );
-
+        wxSizerFlags(0).Center().FixedMinSize() );
     m_historySizer->Add( 
         new wxButton( boardPanel, ID_HISTORY_END, ">|", 
                       wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
-        0,    // Unstretchable
-        wxALIGN_CENTER | wxFIXED_MINSIZE );
+        wxSizerFlags(0).Center().FixedMinSize() );
 
     /*********************************
      * Create Action's buttons.
@@ -857,34 +847,24 @@ hoxBoard::_CreateBoardPanel()
     m_actionSizer->Add( 
         new wxButton( boardPanel, ID_ACTION_OPTIONS, _("Options"), 
                       wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
-        0,    // Unstretchable
-        wxALIGN_LEFT | wxFIXED_MINSIZE );
-
+        wxSizerFlags(0).Left().FixedMinSize() );
     m_actionSizer->AddSpacer( 20 );  // Add some spaces in between.
-
     m_actionSizer->Add( 
         new wxButton( boardPanel, ID_ACTION_RESIGN, _("Resign"), 
                       wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
-        0,    // Unstretchable
-        wxALIGN_LEFT | wxFIXED_MINSIZE );
-
+        wxSizerFlags(0).Left().FixedMinSize() );
     m_actionSizer->Add( 
         new wxButton( boardPanel, ID_ACTION_DRAW, _("Draw"), 
                       wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
-        0,    // Unstretchable
-        wxALIGN_LEFT | wxFIXED_MINSIZE );
-
+        wxSizerFlags(0).Left().FixedMinSize() );
     m_actionSizer->Add( 
         new wxButton( boardPanel, ID_ACTION_RESET, _("Reset"), 
                       wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
-        0,    // Unstretchable
-        wxALIGN_LEFT | wxFIXED_MINSIZE );
-
+        wxSizerFlags(0).Left().FixedMinSize() );
     m_actionSizer->Add( 
         new wxButton( boardPanel, ID_ACTION_NONE, _("Unsit"), 
                       wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
-        0,    // Unstretchable
-        wxALIGN_LEFT | wxFIXED_MINSIZE );
+        wxSizerFlags(0).Left().FixedMinSize() );
 
     /*********************************
      * Create Command's buttons (History + Action).
@@ -932,131 +912,54 @@ hoxBoard::_CreateBoardPanel()
     m_redSizer = new wxBoxSizer( wxHORIZONTAL );
 
     // Add Black player-info
-    m_blackSizer->Add(
-        m_btnPlayBlack,
-        1,            // make vertically stretchable
-        wxEXPAND |    // make horizontally stretchable
-        wxRIGHT|wxLEFT|wxTOP,  //   and make border
-        1 );         // set border width
-
-    m_blackSizer->Add(
-        m_blackInfo,
-        1,            // make vertically stretchable
-        wxEXPAND |    // make horizontally stretchable
-        wxRIGHT|wxLEFT|wxTOP,  //   and make border
-        1 );         // set border width
-
-    m_blackSizer->Add(
-        m_blackGameTime,
-        0,            // make vertically fixed
-        wxEXPAND |    // make horizontally stretchable
-        wxRIGHT|wxLEFT|wxTOP,  //   and make border
-        1 );         // set border width
-
-    m_blackSizer->Add(
-        m_blackMoveTime,
-        0,            // make vertically fixed
-        wxEXPAND |    // make horizontally stretchable
-        wxRIGHT|wxLEFT|wxTOP,  //   and make border
-        1 );         // set border width
-
-    m_blackSizer->Add(
-        m_blackFreeTime,
-        0,            // make vertically fixed
-        wxEXPAND |    // make horizontally stretchable
-        wxRIGHT|wxLEFT|wxTOP,  //   and make border
-        1 );         // set border width
+    m_blackSizer->Add( m_btnPlayBlack,
+        wxSizerFlags(1).Expand().Border(wxRIGHT|wxLEFT|wxTOP,1) );
+    m_blackSizer->Add( m_blackInfo,
+        wxSizerFlags(1).Expand().Border(wxRIGHT|wxLEFT|wxTOP,1) );
+    m_blackSizer->Add( m_blackGameTime,
+        wxSizerFlags(0).Expand().Border(wxRIGHT|wxLEFT|wxTOP,1) );
+    m_blackSizer->Add( m_blackMoveTime,
+        wxSizerFlags(0).Expand().Border(wxRIGHT|wxLEFT|wxTOP,1) );
+    m_blackSizer->Add( m_blackFreeTime,
+        wxSizerFlags(0).Expand().Border(wxRIGHT|wxLEFT|wxTOP,1) );
 
     // Add Red player-info
-
-    m_redSizer->Add(
-        m_btnPlayRed,
-        1,            // make vertically stretchable
-        wxEXPAND |    // make horizontally stretchable
-        wxBOTTOM|wxRIGHT|wxLEFT,  //   and make border
-        1 );         // set border width
-
-    m_redSizer->Add(
-        m_redInfo,
-        1,            // make vertically stretchable
-        wxEXPAND |    // make horizontally stretchable
-        wxBOTTOM|wxRIGHT|wxLEFT,  //   and make border
-        1 );         // set border width
-
-    m_redSizer->Add(
-        m_redGameTime,
-        0,            // make vertically fixed
-        wxEXPAND |    // make horizontally stretchable
-        wxRIGHT|wxLEFT|wxTOP,  //   and make border
-        1 );         // set border width
-
-    m_redSizer->Add(
-        m_redMoveTime,
-        0,            // make vertically fixed
-        wxEXPAND |    // make horizontally stretchable
-        wxRIGHT|wxLEFT|wxTOP,  //   and make border
-        1 );         // set border width
-
-    m_redSizer->Add(
-        m_redFreeTime,
-        0,            // make vertically fixed
-        wxEXPAND |    // make horizontally stretchable
-        wxRIGHT|wxLEFT|wxTOP,  //   and make border
-        1 );         // set border width
+    m_redSizer->Add( m_btnPlayRed,
+        wxSizerFlags(1).Expand().Border(wxRIGHT|wxLEFT|wxTOP,1) );
+    m_redSizer->Add( m_redInfo,
+        wxSizerFlags(1).Expand().Border(wxRIGHT|wxLEFT|wxTOP,1) );
+    m_redSizer->Add( m_redGameTime,
+        wxSizerFlags(0).Expand().Border(wxRIGHT|wxLEFT|wxTOP,1) );
+    m_redSizer->Add( m_redMoveTime,
+        wxSizerFlags(0).Expand().Border(wxRIGHT|wxLEFT|wxTOP,1) );
+    m_redSizer->Add( m_redFreeTime,
+        wxSizerFlags(0).Expand().Border(wxRIGHT|wxLEFT|wxTOP,1) );
 
     // Invert view if required.
 
-    bool viewInverted = m_coreBoard->IsViewInverted();
+    const bool viewInverted = m_coreBoard->IsViewInverted();
     _LayoutBoardPanel( viewInverted);
 
     // Setup the Wall.
 
-    m_wallSizer->Add(
-        m_playerListBox,
-        1,            // Proportion
-        wxEXPAND |    // make horizontally stretchable
-        wxRIGHT|wxLEFT, // and make border
-        1 );         // set border width
-
-    m_wallSizer->Add(
-        m_systemOutput,
-        1,            // Proportion
-        wxEXPAND |    // make horizontally stretchable
-        wxRIGHT|wxLEFT, // and make border
-        1 );         // set border width
-
-    m_wallSizer->Add(
-        m_wallOutput,
-        3,            // Proportion
-        wxEXPAND |    // make horizontally stretchable
-        wxRIGHT|wxLEFT, // and make border
-        1 );         // set border width
-
-    m_wallSizer->Add(
-        inputSizer,
-        0,            // fixed-size vertically
-        wxEXPAND |    // make horizontally stretchable
-        wxRIGHT|wxLEFT, // and make border
-        1 );         // set border width
+    m_wallSizer->Add( m_playerListBox,
+        wxSizerFlags(1).Expand().Border(wxRIGHT|wxLEFT,1) );
+    m_wallSizer->Add( m_systemOutput,
+        wxSizerFlags(1).Expand().Border(wxRIGHT|wxLEFT,1) );
+    m_wallSizer->Add( m_wallOutput,
+        wxSizerFlags(3).Expand().Border(wxRIGHT|wxLEFT,1) );
+    m_wallSizer->Add( inputSizer,
+        wxSizerFlags(0).Expand().Border(wxRIGHT|wxLEFT,1) );
 
     // Setup main sizer.
 
-    m_mainSizer->Add(
-        m_boardSizer,
-        0,            // fixed size
-        wxEXPAND |    // make horizontally stretchable
-        wxRIGHT|wxLEFT|wxTOP,  //   and make border
-        1 );         // set border width
+    m_mainSizer->Add( m_boardSizer,
+        wxSizerFlags(0).Expand().Border(wxRIGHT|wxLEFT|wxTOP,1) );
+    m_mainSizer->Add( m_wallSizer,
+        wxSizerFlags(1).Expand().Border(wxRIGHT|wxLEFT|wxTOP,1) );
 
-    m_mainSizer->Add(
-        m_wallSizer,
-        1,            // proportion
-        wxEXPAND |    // make horizontally stretchable
-        wxRIGHT|wxLEFT|wxTOP,  //   and make border
-        1 );         // set border width
-
-    /* Setup the main size */
-    boardPanel->SetSizer( m_mainSizer );      // use the sizer for layout
+    /* Setup the main sizer for layout. */
+    boardPanel->SetSizer( m_mainSizer );
 }
 
 void 

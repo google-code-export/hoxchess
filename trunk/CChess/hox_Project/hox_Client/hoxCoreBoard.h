@@ -38,11 +38,7 @@
 class hoxCoreBackground
 {
 public:
-    hoxCoreBackground() : m_borderX( 40 )
-                        , m_borderY( 40 )
-                        , m_cellS( 56 )
-                        , m_bViewInverted( false )
-                        , m_isGameOver( false ) {}
+    hoxCoreBackground();
     virtual ~hoxCoreBackground() {}
 
     virtual void OnPaint( wxDC& dc ) = 0;
@@ -62,6 +58,8 @@ protected:
     void DrawGameOverText( wxDC& dc );
 
 protected:
+    wxSize     m_totalSize;
+
     wxCoord    m_borderX;
     wxCoord    m_borderY;
     wxCoord    m_cellS;  // Squares ' size.
@@ -87,8 +85,6 @@ private:
     void _DrawBoard( wxDC& dc, const wxSize totalSize );
 
 private:
-    wxSize   m_totalSize;
-
     wxColor  m_backgroundColor;
     wxColor  m_foregroundColor;
 };

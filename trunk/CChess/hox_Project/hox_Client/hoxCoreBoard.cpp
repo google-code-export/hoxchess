@@ -1000,6 +1000,16 @@ hoxCoreBoard::_PrintDebug( const wxString& debugMsg ) const
  *
  *****************************************************************************/
 
+hoxCoreBackground::hoxCoreBackground()
+            : m_totalSize( 600, 700 )
+            , m_borderX( 40 )
+            , m_borderY( 40 )
+            , m_cellS( 56 )
+            , m_bViewInverted( false )
+            , m_isGameOver( false )
+{
+}
+
 void 
 hoxCoreBackground::DrawGameOverText( wxDC& dc )
 {
@@ -1020,8 +1030,6 @@ hoxCoreBackground::DrawGameOverText( wxDC& dc )
 
 hoxCustomBackground::hoxCustomBackground()
 {
-    m_totalSize = wxSize( 600, 700 );
-
     m_backgroundColor = DEFAULT_BOARD_BACKGROUND_COLOR;
     m_foregroundColor = DEFAULT_BOARD_FOREGROUND_COLOR;
 }
@@ -1083,8 +1091,8 @@ hoxCustomBackground::_DrawBoard( wxDC&        dc,
     dc.SetPen( wxPen( m_foregroundColor ) );
 
     // --- Calculate the new "effective" board's size.
-    wxCoord boardW = m_cellS * NUM_HORIZON_CELL;
-    wxCoord boardH = m_cellS * NUM_VERTICAL_CELL;
+    const wxCoord boardW = m_cellS * NUM_HORIZON_CELL;
+    const wxCoord boardH = m_cellS * NUM_VERTICAL_CELL;
 
     // *** Paint the board with a background's color.
     dc.DrawRectangle( m_borderX, m_borderY, boardW, boardH );
@@ -1238,13 +1246,16 @@ hoxImageBackground::OnToggleViewSide()
 void
 hoxImageBackground::OnPaint( wxDC& dc )
 {
+    dc.SetBrush( *hoxBOARD_WORKSPACE_BRUSH );
+    dc.DrawRectangle( m_totalSize );
+
     _DrawBoardImage( dc );
 }
 
 void
 hoxImageBackground::OnResize( const wxSize totalSize )
 {
-    // Do nothing since this Background does not support Resize!
+    m_totalSize = totalSize;
 }
 
 void 
