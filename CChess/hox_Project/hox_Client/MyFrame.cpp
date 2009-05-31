@@ -132,7 +132,7 @@ MyFrame::MyFrame( wxWindow*        parent,
 
     CreateStatusBar();
 
-	wxLogStatus("%s %s is ready.", HOX_APP_NAME, HOX_VERSION);
+	wxLogStatus("%s %s ready.", HOX_APP_NAME, HOX_VERSION);
 }
 
 void
