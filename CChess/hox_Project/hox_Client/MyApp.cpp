@@ -49,6 +49,7 @@ static hoxLanguageInfo s_languages[] =
 
     { wxLANGUAGE_ENGLISH,              _("English")                },
     { wxLANGUAGE_CHINESE_SIMPLIFIED,   _("Chinese (Simplified)")   },
+    { wxLANGUAGE_FRENCH,               _("French")                 },
     { wxLANGUAGE_VIETNAMESE,           _("Vietnamese")             },
 };
 
@@ -126,6 +127,12 @@ MyApp::_SetupLanguageAndLocale()
     if ( m_language == wxLANGUAGE_UNKNOWN )
     {
         m_language = _SelectAndSaveLanguage();
+    }
+
+    // For English, no need to do anything since it is the "built-in" language.
+    if ( m_language == wxLANGUAGE_ENGLISH )
+    {
+        return;
     }
 
     // Don't use wxLOCALE_LOAD_DEFAULT flag so that Init() doesn't return
