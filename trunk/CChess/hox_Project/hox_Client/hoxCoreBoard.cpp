@@ -297,6 +297,7 @@ hoxCoreBoard::ResetBoard()
     /* Initialize other stated-info. */
     m_latestPiece = NULL;
     m_isGameOver = false;
+    m_background->SetGameOver( false );
 
     /* Reload the Pieces according to the Referee. */
     this->LoadPiecesAndStatus();
