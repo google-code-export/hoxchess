@@ -51,6 +51,7 @@
 		AF65FAB10FCB76B8000BB384 /* qianhong.ini in Copy Files (boards) */ = {isa = PBXBuildFile; fileRef = AF65FAB00FCB76B8000BB384 /* qianhong.ini */; };
 		AF790B4A0FC9BD91005729B0 /* ixiangqi.png in Copy Files (boards) */ = {isa = PBXBuildFile; fileRef = AF790B440FC9BD39005729B0 /* ixiangqi.png */; };
 		AF790B4B0FC9BD91005729B0 /* qianhong.png in Copy Files (boards) */ = {isa = PBXBuildFile; fileRef = AF790B450FC9BD39005729B0 /* qianhong.png */; };
+		AF85AFDF0FD422D80068A033 /* hoxchess.mo in Copy Files (locale\fr) */ = {isa = PBXBuildFile; fileRef = AF85AFDE0FD422D80068A033 /* hoxchess.mo */; };
 		AF864A340FC3090D0034C83B /* down.png in Copy Files (images) */ = {isa = PBXBuildFile; fileRef = AF864A290FC3090D0034C83B /* down.png */; };
 		AF864A350FC3090D0034C83B /* go-home.png in Copy Files (images) */ = {isa = PBXBuildFile; fileRef = AF864A2A0FC3090D0034C83B /* go-home.png */; };
 		AF864A360FC3090D0034C83B /* go-jump.png in Copy Files (images) */ = {isa = PBXBuildFile; fileRef = AF864A2B0FC3090D0034C83B /* go-jump.png */; };
@@ -149,6 +150,17 @@
 				AF790B4B0FC9BD91005729B0 /* qianhong.png in Copy Files (boards) */,
 			);
 			name = "Copy Files (boards)";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AF85AFED0FD423320068A033 /* Copy Files (locale\fr) */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = locale/fr;
+			dstSubfolderSpec = 12;
+			files = (
+				AF85AFDF0FD422D80068A033 /* hoxchess.mo in Copy Files (locale\fr) */,
+			);
+			name = "Copy Files (locale\\fr)";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		AF864A270FC308900034C83B /* Copy Files (images) */ = {
@@ -355,6 +367,7 @@
 		AF65FAB00FCB76B8000BB384 /* qianhong.ini */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = qianhong.ini; path = resource/boards/qianhong.ini; sourceTree = "<group>"; };
 		AF790B440FC9BD39005729B0 /* ixiangqi.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ixiangqi.png; path = resource/boards/ixiangqi.png; sourceTree = "<group>"; };
 		AF790B450FC9BD39005729B0 /* qianhong.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = qianhong.png; path = resource/boards/qianhong.png; sourceTree = "<group>"; };
+		AF85AFDE0FD422D80068A033 /* hoxchess.mo */ = {isa = PBXFileReference; lastKnownFileType = file; name = hoxchess.mo; path = resource/locale/fr/hoxchess.mo; sourceTree = "<group>"; };
 		AF864A290FC3090D0034C83B /* down.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = down.png; path = resource/images/down.png; sourceTree = "<group>"; };
 		AF864A2A0FC3090D0034C83B /* go-home.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "go-home.png"; path = "resource/images/go-home.png"; sourceTree = "<group>"; };
 		AF864A2B0FC3090D0034C83B /* go-jump.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "go-jump.png"; path = "resource/images/go-jump.png"; sourceTree = "<group>"; };
@@ -539,6 +552,7 @@
 		AF0CD9DB0FC3D7890042A414 /* locale */ = {
 			isa = PBXGroup;
 			children = (
+				AF85AFDA0FD422B60068A033 /* fr */,
 				AF0CD9DD0FC3D7970042A414 /* zh_CN */,
 				AF0CD9DC0FC3D78F0042A414 /* vi_VN */,
 			);
@@ -572,6 +586,14 @@
 				AF790B450FC9BD39005729B0 /* qianhong.png */,
 			);
 			name = boards;
+			sourceTree = "<group>";
+		};
+		AF85AFDA0FD422B60068A033 /* fr */ = {
+			isa = PBXGroup;
+			children = (
+				AF85AFDE0FD422D80068A033 /* hoxchess.mo */,
+			);
+			name = fr;
 			sourceTree = "<group>";
 		};
 		AF864A4A0FC309BD0034C83B /* 1 */ = {
@@ -722,6 +744,7 @@
 				AF0CD9EE0FC3D8520042A414 /* Copy Files (locale\zh_CN) */,
 				AF790B490FC9BD82005729B0 /* Copy Files (boards) */,
 				AFCFE2E50FCEE32B000760F2 /* Copy Files (pieces\xiangqiboard_45x45) */,
+				AF85AFED0FD423320068A033 /* Copy Files (locale\fr) */,
 			);
 			buildRules = (
 			);
