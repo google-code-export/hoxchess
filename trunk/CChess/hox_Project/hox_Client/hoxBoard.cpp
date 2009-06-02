@@ -65,7 +65,7 @@ wxDEFINE_EVENT( hoxEVT_BOARD_PLAYER_LEAVE, wxCommandEvent );
 wxDEFINE_EVENT( hoxEVT_BOARD_PLAYER_SCORE, wxCommandEvent );
 wxDEFINE_EVENT( hoxEVT_BOARD_SYSTEM_OUTPUT, wxCommandEvent );
 wxDEFINE_EVENT( hoxEVT_BOARD_WALL_OUTPUT, wxCommandEvent );
-wxDEFINE_EVENT( hoxEVT_BOARD_NEW_MOVE, wxCommandEvent );
+//wxDEFINE_EVENT( hoxEVT_BOARD_NEW_MOVE, wxCommandEvent );
 wxDEFINE_EVENT( hoxEVT_BOARD_DRAW_REQUEST, wxCommandEvent );
 wxDEFINE_EVENT( hoxEVT_BOARD_GAME_OVER, wxCommandEvent );
 wxDEFINE_EVENT( hoxEVT_BOARD_GAME_RESET, wxCommandEvent );
@@ -77,7 +77,7 @@ BEGIN_EVENT_TABLE(hoxBoard, wxPanel)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_SCORE, hoxBoard::OnPlayerScore)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_SYSTEM_OUTPUT, hoxBoard::OnSystemOutput)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_WALL_OUTPUT, hoxBoard::OnWallOutput)
-	EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_NEW_MOVE, hoxBoard::OnNewMove)
+	//EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_NEW_MOVE, hoxBoard::OnNewMove)
 	EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_DRAW_REQUEST, hoxBoard::OnDrawRequest)
 	EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_GAME_OVER, hoxBoard::OnGameOver)
     EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_GAME_RESET, hoxBoard::OnGameReset)
@@ -429,14 +429,10 @@ hoxBoard::OnWallOutput( wxCommandEvent &event )
 }
 
 void 
-hoxBoard::OnNewMove( wxCommandEvent &event )
+hoxBoard::OnNewMove( const wxString& moveStr,
+	                 const bool      bSetupMode )
 {
-    hoxMove  move;
-
-    const wxString moveStr = event.GetString();
-	const bool bSetupMode = (event.GetInt() > 0);
-
-    move = m_referee->StringToMove( moveStr );
+    hoxMove move = m_referee->StringToMove( moveStr );
     if ( ! move.IsValid() )
     {
         wxLogError("%s: Failed to parse Move-string [%s].", __FUNCTION__, moveStr.c_str());

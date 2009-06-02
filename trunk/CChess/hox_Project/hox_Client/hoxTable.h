@@ -333,8 +333,8 @@ private:
 
     void _PostBoard_SystemMsgEvent( const wxString& sMessage ) const;
 
-    void _PostBoard_MoveEvent( const wxString& moveStr,
-		                       bool            bSetupMode = false ) const;
+    void _SendBoard_MoveEvent( const wxString& moveStr,
+		                       bool            bSetupMode = false );
 
     void _PostBoard_DrawRequestEvent( hoxPlayer* fromPlayer,
                                       bool       bPopupRequest ) const;

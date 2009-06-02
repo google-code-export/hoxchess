@@ -37,7 +37,7 @@
 #include "hoxSitesUI.h"
 #include "hoxAIPlayer.h"
 #include "hoxAIPluginMgr.h"
-
+#include "hoxSavedTable.h"
 #include <wx/progdlg.h>
 
 
@@ -332,8 +332,6 @@ hoxLocalSite::OnLocalRequest_PRACTICE( const wxString& sSavedFile /* = "" */ )
 {
     wxCHECK_RET( m_player != NULL, "Player is NULL" );
 
-    hoxIReferee_SPtr pReferee( new hoxReferee( sSavedFile ) );
-
     /* Load the AI Plugin. */
     AIEngineLib_APtr apAIEngineLib =
         hoxAIPluginMgr::GetInstance()->CreateDefaultAIEngineLib();
@@ -344,27 +342,7 @@ hoxLocalSite::OnLocalRequest_PRACTICE( const wxString& sSavedFile /* = "" */ )
         return;
     }
 
-    /* Get current current Piece-positions. */
-    std::string fen; // Forsyth-Edwards Notation (FEN)
-    if ( ! sSavedFile.empty() )
-    {
-        hoxGameState gameState;
-        pReferee->GetGameState( gameState );
-        fen = hoxUtil::hoxGameStateToFEN( gameState );
-    }
-    const int nRet = apAIEngineLib->initGame( fen );
-    if ( nRet == hoxAI_RC_NOT_SUPPORTED && !sSavedFile.empty() )
-    {
-        ::wxMessageBox( "The AI Plugin does not support the 'resume game' feature.",
-            _("Create Pratice Table"), wxOK | wxICON_STOP );
-        return;
-    }
-    if ( nRet != hoxAI_RC_OK )
-    {
-        ::wxMessageBox( "The AI Plugin could not initialize the game.",
-            _("Create Pratice Table"), wxOK | wxICON_STOP );
-        return;
-    }
+    hoxIReferee_SPtr pReferee( new hoxReferee() );
 
     /* Generate new unique IDs for:
      *   (1) This PRACTICE-Table, and
@@ -404,11 +382,57 @@ hoxLocalSite::OnLocalRequest_PRACTICE( const wxString& sSavedFile /* = "" */ )
 
     hoxAIPlayer* pAIPlayer = new hoxAIPlayer( sAIId, hoxPLAYER_TYPE_AI, 1500 );
 
-    pAIPlayer->SetEngineAPI( apAIEngineLib.release() ); // Caller will de-allocate.
-    pAIPlayer->Start();
-
     result = pAIPlayer->JoinTableAs( pTable, hoxCOLOR_BLACK );
     wxASSERT( result == hoxRC_OK );
+
+    /* Load the saved game from disk, if requested. */
+
+    std::string fen; // Forsyth-Edwards Notation (FEN)
+
+    if ( ! sSavedFile.empty() )
+    {
+        hoxSavedTable    saveTable( sSavedFile );
+      
+        /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+         * NOTE: We do not need piece-list and the 'next' color.
+         *       The 'past' Moves are enough to re-create the last game.
+         * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+
+        hoxStringList    pastMoves;
+        hoxPieceInfoList pieceInfoList; // Not really needed!
+        hoxColor         nextColor;     // Not really needed!
+
+	    if ( ! saveTable.LoadGameState( pastMoves, pieceInfoList, nextColor ) )
+        {
+            wxLogWarning("%s: Fail to load game from the specified file [%s].",
+                __FUNCTION__, sSavedFile.c_str() );
+            return;
+        }
+
+        pTable->OnPastMoves_FromNetwork( pastMoves );
+
+        hoxGameState gameState;
+        pReferee->GetGameState( gameState );
+        fen = hoxUtil::hoxGameStateToFEN( gameState );
+    }
+
+    /* Initialize the AI engine's game. */
+    const int nRet = apAIEngineLib->initGame( fen );
+    if ( nRet == hoxAI_RC_NOT_SUPPORTED && !sSavedFile.empty() )
+    {
+        ::wxMessageBox( "The AI Plugin does not support the 'resume game' feature.",
+            _("Create Pratice Table"), wxOK | wxICON_STOP );
+        return;
+    }
+    if ( nRet != hoxAI_RC_OK )
+    {
+        ::wxMessageBox( "The AI Plugin could not initialize the game.",
+            _("Create Pratice Table"), wxOK | wxICON_STOP );
+        return;
+    }
+
+    pAIPlayer->SetEngineAPI( apAIEngineLib.release() ); // Caller will de-allocate.
+    pAIPlayer->Start();
 }
 
 unsigned int

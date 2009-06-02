@@ -301,7 +301,7 @@ hoxTable::OnPrivateMessageRequest_FromBoard( const wxString& sPlayerId )
 void 
 hoxTable::OnMove_FromNetwork( const wxString&  moveStr )
 {
-	_PostBoard_MoveEvent( moveStr );
+	_SendBoard_MoveEvent( moveStr );
 }
 
 void
@@ -310,7 +310,7 @@ hoxTable::OnPastMoves_FromNetwork( const hoxStringList& moves )
     for ( hoxStringList::const_iterator it = moves.begin();
                                         it != moves.end(); ++it )
     {
-        _PostBoard_MoveEvent( (*it), true /* in SETUP-MODE */ );
+        _SendBoard_MoveEvent( (*it), true /* in SETUP-MODE */ );
     }
 }
 
@@ -531,15 +531,12 @@ hoxTable::_PostBoard_SystemMsgEvent( const wxString& sMessage ) const
 }
 
 void 
-hoxTable::_PostBoard_MoveEvent( const wxString& moveStr,
-							    bool            bSetupMode /* = false */ ) const
+hoxTable::_SendBoard_MoveEvent( const wxString& moveStr,
+							    bool            bSetupMode /* = false */ )
 {
 	if ( m_board == NULL ) return;
 
-    wxCommandEvent event( hoxEVT_BOARD_NEW_MOVE );
-    event.SetString( moveStr );
-	event.SetInt( bSetupMode ? 1 : 0 );
-    wxPostEvent( m_board, event );
+    m_board->OnNewMove( moveStr, bSetupMode );
 }
 
 void 
