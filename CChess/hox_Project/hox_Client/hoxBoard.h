@@ -42,7 +42,7 @@ wxDECLARE_EVENT(hoxEVT_BOARD_PLAYER_LEAVE, wxCommandEvent);
 wxDECLARE_EVENT(hoxEVT_BOARD_PLAYER_SCORE, wxCommandEvent);
 wxDECLARE_EVENT(hoxEVT_BOARD_SYSTEM_OUTPUT, wxCommandEvent);
 wxDECLARE_EVENT(hoxEVT_BOARD_WALL_OUTPUT, wxCommandEvent);
-wxDECLARE_EVENT(hoxEVT_BOARD_NEW_MOVE, wxCommandEvent);
+//wxDECLARE_EVENT(hoxEVT_BOARD_NEW_MOVE, wxCommandEvent);
 wxDECLARE_EVENT(hoxEVT_BOARD_DRAW_REQUEST, wxCommandEvent);
 wxDECLARE_EVENT(hoxEVT_BOARD_GAME_OVER, wxCommandEvent);
 wxDECLARE_EVENT(hoxEVT_BOARD_GAME_RESET, wxCommandEvent);
@@ -149,7 +149,10 @@ public:
     void OnPlayerScore( wxCommandEvent &event );
     void OnSystemOutput( wxCommandEvent &event );
     void OnWallOutput( wxCommandEvent &event );
-	void OnNewMove( wxCommandEvent &event );
+
+	void OnNewMove( const wxString& moveStr,
+	                const bool      bSetupMode );
+
 	void OnDrawRequest( wxCommandEvent &event );
 	void OnGameOver( wxCommandEvent &event );
     void OnGameReset( wxCommandEvent &event );
