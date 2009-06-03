@@ -1696,7 +1696,8 @@ static void Startup(unsigned char board[10][9]) {
 ////////////////// HPHAN Code addition //////////////////////
 
 void
-XQWLight::init_game( unsigned char board[10][9] /* = NULL */ )
+XQWLight::init_game( unsigned char board[10][9] /* = NULL */,
+                     const char    side /* = 'w' */ )
 {
     srand((DWORD) time(NULL));
     InitZobrist();
@@ -1704,6 +1705,11 @@ XQWLight::init_game( unsigned char board[10][9] /* = NULL */ )
     LoadBook();
     //Xqwl.bFlipped = FALSE;
     Startup(board);
+
+    if ( side == 'b' )
+    {
+        pos.ChangeSide();
+    }
 }
 
 std::string

@@ -52,7 +52,8 @@ public:
     {
     }
 
-  	int initGame( const std::string& fen )
+  	int initGame( const std::string& fen,
+                  const MoveList&    moves )
     {
         if ( ! fen.empty() ) return hoxAI_RC_NOT_SUPPORTED;
 

@@ -44,7 +44,8 @@ namespace XQWLight
 {
 	/* PUBLIC API */
 
-	void init_game( unsigned char board[10][9] = NULL );
+	void init_game( unsigned char board[10][9] = NULL,
+                    const char    side = 'w' );
 
 	std::string generate_move();
     void        on_human_move( const std::string& sMove );

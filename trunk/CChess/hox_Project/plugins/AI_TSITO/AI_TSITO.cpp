@@ -57,7 +57,8 @@ public:
     {
     }
 
-  	int initGame( const std::string& fen )
+  	int initGame( const std::string& fen,
+                  const MoveList&    moves )
     {
         m_board.reset( fen.empty() ? new Board()
                                    : new Board( fen ) );
