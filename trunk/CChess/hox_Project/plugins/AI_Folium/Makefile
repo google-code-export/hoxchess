@@ -10,7 +10,7 @@ LIBRARY = AI_Folium
 CXX         = g++
 
 CXXFLAGS = -fPIC -Wall -I../common
-DEBUGFLAGS  = -g
+#DEBUGFLAGS  = -g
 
 # The main source
 MAIN_SRC := \

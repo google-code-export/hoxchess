@@ -10,7 +10,7 @@ LIBRARY = AI_TSITO
 CXX         = g++
 
 CXXFLAGS = -fPIC -Wall -I../common
-DEBUGFLAGS  = -g
+#DEBUGFLAGS  = -g
 
 # The main source
 MAIN_SRC := \
