@@ -49,6 +49,7 @@
 #endif
 
 #include <string>
+#include <list>
 
 /**
  * Plugin error codes (or Return-Codes).
@@ -58,6 +59,11 @@
 #define hoxAI_RC_ERR            1  /* A generic error         */
 #define hoxAI_RC_NOT_FOUND      2  /* Something not found     */
 #define hoxAI_RC_NOT_SUPPORTED  3  /* Something not supported */
+
+/**
+ * Typdefs
+ */
+typedef std::list<std::string> MoveList;
 
 /**
  * AIEngineLib interface.
@@ -70,7 +76,8 @@ public:
 
     // ------------
     // ............................................. fen - Forsyth-Edwards Notation (FEN)
-	virtual int         initGame( const std::string& fen ) = 0;
+	virtual int         initGame( const std::string& fen,
+                                  const MoveList&    moves ) = 0;
 	virtual std::string generateMove() = 0;
     virtual void        onHumanMove( const std::string& sMove ) = 0;
     // ------------

@@ -49,11 +49,19 @@ public:
     {
     }
 
-  	int initGame( const std::string& fen )
+  	int initGame( const std::string& fen,
+                  const MoveList&    moves )
     {
-        if ( ! fen.empty() ) return hoxAI_RC_NOT_SUPPORTED;
+        //if ( ! fen.empty() ) return hoxAI_RC_NOT_SUPPORTED;
 
-        m_engine.reset( new folHOXEngine( fen ) );
+        m_engine.reset( new folHOXEngine( ""/*fen*/ ) );
+
+        for ( MoveList::const_iterator it = moves.begin();
+                                       it != moves.end(); ++it)
+        {
+            m_engine->OnHumanMove( *it );
+        }
+
         return hoxAI_RC_OK;
     }
 

@@ -172,13 +172,16 @@ hoxAIEngine::_HandleRequest_MOVE( hoxRequest_APtr apRequest )
     const wxString sMove = apRequest->parameters["move"];
     wxLogDebug("%s: Received Move [%s].", __FUNCTION__, sMove.c_str());
 
-    this->OnOpponentMove( sMove );
+    if ( !sMove.empty() )
+    {
+        this->OnOpponentMove( sMove );
 
-    const hoxGameStatus gameStatus =
-        hoxUtil::StringToGameStatus( apRequest->parameters["status"] );
+        const hoxGameStatus gameStatus =
+            hoxUtil::StringToGameStatus( apRequest->parameters["status"] );
 
-    if ( hoxIReferee::IsGameOverStatus( gameStatus ) )
-        return;
+        if ( hoxIReferee::IsGameOverStatus( gameStatus ) )
+            return;
+    }
 
     const wxString sNextMove = this->GenerateNextMove();
     wxLogDebug("%s: Generated next Move = [%s].", __FUNCTION__, sNextMove.c_str());

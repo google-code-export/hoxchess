@@ -333,12 +333,10 @@ hoxLocalSite::OnLocalRequest_PRACTICE( const wxString& sSavedFile /* = "" */ )
     wxCHECK_RET( m_player != NULL, "Player is NULL" );
 
     /* Load the AI Plugin. */
-    AIEngineLib_APtr apAIEngineLib =
-        hoxAIPluginMgr::GetInstance()->CreateDefaultAIEngineLib();
+    AIEngineLib_APtr apAIEngineLib = hoxAIPluginMgr::GetInstance()->CreateDefaultAIEngineLib();
     if ( apAIEngineLib.get() == NULL )
     {
-        ::wxMessageBox( "No AI Plugin found.", _("Create Pratice Table"),
-                wxOK | wxICON_STOP );
+        ::wxMessageBox( "No AI Plugin found.", _("Create Pratice Table"), wxOK|wxICON_STOP );
         return;
     }
 
@@ -381,13 +379,14 @@ hoxLocalSite::OnLocalRequest_PRACTICE( const wxString& sSavedFile /* = "" */ )
     wxASSERT( result == hoxRC_OK );
 
     hoxAIPlayer* pAIPlayer = new hoxAIPlayer( sAIId, hoxPLAYER_TYPE_AI, 1500 );
-
     result = pAIPlayer->JoinTableAs( pTable, hoxCOLOR_BLACK );
     wxASSERT( result == hoxRC_OK );
 
     /* Load the saved game from disk, if requested. */
 
-    std::string fen; // Forsyth-Edwards Notation (FEN)
+    std::string            fen; // Forsyth-Edwards Notation (FEN)
+    hoxGameStatus          gameStatus = hoxGAME_STATUS_READY;
+    std::list<std::string> stdMoves;
 
     if ( ! sSavedFile.empty() )
     {
@@ -404,8 +403,7 @@ hoxLocalSite::OnLocalRequest_PRACTICE( const wxString& sSavedFile /* = "" */ )
 
 	    if ( ! saveTable.LoadGameState( pastMoves, pieceInfoList, nextColor ) )
         {
-            wxLogWarning("%s: Fail to load game from the specified file [%s].",
-                __FUNCTION__, sSavedFile.c_str() );
+            wxLogWarning("%s: Fail to load game from [%s].", __FUNCTION__, sSavedFile.c_str() );
             return;
         }
 
@@ -414,25 +412,41 @@ hoxLocalSite::OnLocalRequest_PRACTICE( const wxString& sSavedFile /* = "" */ )
         hoxGameState gameState;
         pReferee->GetGameState( gameState );
         fen = hoxUtil::hoxGameStateToFEN( gameState );
+        gameStatus = gameState.gameStatus;
+
+        for ( hoxStringList::const_iterator it = pastMoves.begin();
+                                            it != pastMoves.end(); ++it )
+        {
+            stdMoves.push_back( std::string( it->c_str() ) );
+        }
     }
 
     /* Initialize the AI engine's game. */
-    const int nRet = apAIEngineLib->initGame( fen );
+    const int nRet = apAIEngineLib->initGame( fen, stdMoves );
     if ( nRet == hoxAI_RC_NOT_SUPPORTED && !sSavedFile.empty() )
     {
         ::wxMessageBox( "The AI Plugin does not support the 'resume game' feature.",
-            _("Create Pratice Table"), wxOK | wxICON_STOP );
+            _("Create Pratice Table"), wxOK|wxICON_STOP );
         return;
     }
     if ( nRet != hoxAI_RC_OK )
     {
         ::wxMessageBox( "The AI Plugin could not initialize the game.",
-            _("Create Pratice Table"), wxOK | wxICON_STOP );
+            _("Create Pratice Table"), wxOK|wxICON_STOP );
         return;
     }
 
     pAIPlayer->SetEngineAPI( apAIEngineLib.release() ); // Caller will de-allocate.
     pAIPlayer->Start();
+
+    /* Request a Move from AI if the "next" turn is BLACK. */
+    if (    !( hoxIReferee::IsGameOverStatus( gameStatus ) )
+         && pReferee->GetNextColor() == hoxCOLOR_BLACK )
+    {
+	    hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_MOVE ) );
+	    apRequest->parameters["move"] = "";  // Request a Move!
+        pAIPlayer->OnRequest_FromTable( apRequest );
+    }
 }
 
 unsigned int

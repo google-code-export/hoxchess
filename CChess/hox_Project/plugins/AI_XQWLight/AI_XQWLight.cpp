@@ -52,7 +52,8 @@ public:
     {
     }
 
-  	int initGame( const std::string& fen )
+  	int initGame( const std::string& fen,
+                  const MoveList&    moves )
     {
         if ( fen.empty() )
         {
@@ -61,11 +62,12 @@ public:
         else
         {
             unsigned char board[10][9];
-            if ( ! _convertFENtoBoard( fen, board ) )
+            char          side = 'w';
+            if ( ! _convertFENtoBoard( fen, board, side ) )
             {
                 return hoxAI_RC_ERR;
             }
-            XQWLight::init_game( board );
+            XQWLight::init_game( board, side );
         }
         return hoxAI_RC_OK;
     }
@@ -82,7 +84,8 @@ public:
 
 private:
     bool _convertFENtoBoard( const std::string& fen,
-                             unsigned char      board[10][9] ) const;
+                             unsigned char      board[10][9],
+                             char&              side ) const;
 
 private:
     std::string m_name;
@@ -91,7 +94,8 @@ private:
 
 bool
 AIEngineImpl::_convertFENtoBoard( const std::string& fen,
-                                  unsigned char      board[10][9] ) const
+                                  unsigned char      board[10][9],
+                                  char&              side ) const
 {
     int r  = 0; // Row ... or the index of horizontal lines.
     int c  = 0; // Column ... or the index of vertical lines.
@@ -120,6 +124,10 @@ AIEngineImpl::_convertFENtoBoard( const std::string& fen,
         }
         else if ( *it == ' ' )
         {
+            if ( ++it != fen.end() )
+            {
+                side = *it;
+            }
             break;
         }
         else

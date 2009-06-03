@@ -68,42 +68,65 @@ public:
         ::InitEngine();
     }
 
-  	int initGame( const std::string& fen )
+  	int initGame( const std::string& fen,
+                  const MoveList&    moves )
     {
-        if ( ! fen.empty() ) return hoxAI_RC_NOT_SUPPORTED;
+        //if ( ! fen.empty() ) return hoxAI_RC_NOT_SUPPORTED;
 
         ::InitGame();
+
+        for ( MoveList::const_iterator it = moves.begin();
+                                       it != moves.end(); ++it)
+        {
+            std::string stdMove = _hoxToMove( *it );
+            ::OnOpponentMove( stdMove.c_str() );
+        }
+
         return hoxAI_RC_OK;
     }
 
 	std::string generateMove()
     {
         const char* szMove = ::GenerateNextMove();
-     
-        std::string sMove;
-        sMove += szMove[0] - 'a' + '0';
-        sMove += '9' + '0' - szMove[1];
-        sMove += szMove[2] - 'a' + '0';
-        sMove += '9' + '0' - szMove[3];
-        return sMove;
+        return _moveToHox( std::string( szMove ) );
     }
 
     void onHumanMove( const std::string& sMove )
     {
-        std::string stdMove;
-        stdMove += (sMove[0] + 'a' - '0'); 
-        stdMove += ('9' + '0' - sMove[1]); 
-        stdMove += (sMove[2] + 'a' - '0'); 
-        stdMove += ('9' + '0' - sMove[3]); 
-        
+        std::string stdMove = _hoxToMove( sMove );
         ::OnOpponentMove( stdMove.c_str() );
     }
 
+private:
+    std::string _hoxToMove( const std::string& sIn );
+    std::string _moveToHox( const std::string& sIn );
 
 private:
     std::string m_name;
 
 }; /* class AIEngineImpl */
+
+std::string
+AIEngineImpl::_hoxToMove( const std::string& sIn )
+{
+    std::string stdMove;
+    stdMove += (sIn[0] + 'a' - '0'); 
+    stdMove += ('9' + '0' - sIn[1]); 
+    stdMove += (sIn[2] + 'a' - '0'); 
+    stdMove += ('9' + '0' - sIn[3]); 
+    return stdMove;
+}
+
+std::string
+AIEngineImpl::_moveToHox( const std::string& sIn )
+{
+    std::string sMove;
+    sMove += sIn[0] - 'a' + '0';
+    sMove += '9' + '0' - sIn[1];
+    sMove += sIn[2] - 'a' + '0';
+    sMove += '9' + '0' - sIn[3];
+    return sMove;
+}
 
 
 //////////////////////////////////////////////////////////////
