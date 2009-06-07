@@ -48,7 +48,7 @@ public:
         delete this;
     }
 
-    void initEngine()
+    void initEngine( int searchDepth = 0 )
     {
     }
 

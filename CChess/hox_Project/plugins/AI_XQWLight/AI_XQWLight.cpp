@@ -48,8 +48,12 @@ public:
         delete this;
     }
 
-    void initEngine()
+    void initEngine( int searchDepth = 0 )
     {
+        if ( searchDepth > 0 )
+        {
+            XQWLight::init_engine( searchDepth );
+        }
     }
 
   	int initGame( const std::string& fen,

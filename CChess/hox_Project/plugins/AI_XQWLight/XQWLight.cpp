@@ -57,6 +57,7 @@ typedef unsigned int       DWORD;
 #endif
 
 // *** Additional variables ***
+static int         s_search_depth = 7; // Search Depth
 static int         s_search_time = 1;  // In seconds (search-time)
 static const char* s_opening_book = "../plugins/BOOK.DAT";
 
@@ -1667,7 +1668,7 @@ static void SearchMain(void) {
   }
 
   // 迭代加深过程
-  for (i = 1; i <= LIMIT_DEPTH; i ++) {
+  for (i = 1; i <= s_search_depth; i ++) {
     vl = SearchRoot(i);
     // 搜索到杀棋，就终止搜索
     if (vl > WIN_VALUE || vl < -WIN_VALUE) {
@@ -1694,6 +1695,15 @@ static void Startup(unsigned char board[10][9]) {
 
 /////////////////////////////////////////////////////////////
 ////////////////// HPHAN Code addition //////////////////////
+
+void
+XQWLight::init_engine( int searchDepth )
+{
+    if ( searchDepth < LIMIT_DEPTH )
+    {
+        s_search_depth = searchDepth;
+    }
+}
 
 void
 XQWLight::init_game( unsigned char board[10][9] /* = NULL */,

@@ -44,6 +44,8 @@ namespace XQWLight
 {
 	/* PUBLIC API */
 
+    void init_engine( int searchDepth );
+
 	void init_game( unsigned char board[10][9] = NULL,
                     const char    side = 'w' );
 
