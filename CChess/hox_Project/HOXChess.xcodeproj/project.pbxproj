@@ -17,6 +17,21 @@
 		AF0CDA6B0FC3E0E00042A414 /* libAI_HaQiKiD.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = AF0CDA690FC3E0CC0042A414 /* libAI_HaQiKiD.dylib */; };
 		AF0CDA7A0FC3E3080042A414 /* libAI_Folium.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = AF0CDA790FC3E3080042A414 /* libAI_Folium.dylib */; };
 		AF0CDA7C0FC3E3110042A414 /* libAI_TSITO.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = AF0CDA7B0FC3E3110042A414 /* libAI_TSITO.dylib */; };
+		AF3847E50FDB70D700733695 /* badvisor.png in Copy Files(pieces\alfaerie_50x50) */ = {isa = PBXBuildFile; fileRef = AF3847D60FDB70D700733695 /* badvisor.png */; };
+		AF3847E60FDB70D700733695 /* bcannon.png in Copy Files(pieces\alfaerie_50x50) */ = {isa = PBXBuildFile; fileRef = AF3847D70FDB70D700733695 /* bcannon.png */; };
+		AF3847E70FDB70D700733695 /* bchariot.png in Copy Files(pieces\alfaerie_50x50) */ = {isa = PBXBuildFile; fileRef = AF3847D80FDB70D700733695 /* bchariot.png */; };
+		AF3847E80FDB70D700733695 /* belephant.png in Copy Files(pieces\alfaerie_50x50) */ = {isa = PBXBuildFile; fileRef = AF3847D90FDB70D700733695 /* belephant.png */; };
+		AF3847E90FDB70D700733695 /* bhorse.png in Copy Files(pieces\alfaerie_50x50) */ = {isa = PBXBuildFile; fileRef = AF3847DA0FDB70D700733695 /* bhorse.png */; };
+		AF3847EA0FDB70D700733695 /* bking.png in Copy Files(pieces\alfaerie_50x50) */ = {isa = PBXBuildFile; fileRef = AF3847DB0FDB70D700733695 /* bking.png */; };
+		AF3847EB0FDB70D700733695 /* bpawn.png in Copy Files(pieces\alfaerie_50x50) */ = {isa = PBXBuildFile; fileRef = AF3847DC0FDB70D700733695 /* bpawn.png */; };
+		AF3847EC0FDB70D700733695 /* CREDITS.txt in Copy Files(pieces\alfaerie_50x50) */ = {isa = PBXBuildFile; fileRef = AF3847DD0FDB70D700733695 /* CREDITS.txt */; };
+		AF3847ED0FDB70D700733695 /* radvisor.png in Copy Files(pieces\alfaerie_50x50) */ = {isa = PBXBuildFile; fileRef = AF3847DE0FDB70D700733695 /* radvisor.png */; };
+		AF3847EE0FDB70D700733695 /* rcannon.png in Copy Files(pieces\alfaerie_50x50) */ = {isa = PBXBuildFile; fileRef = AF3847DF0FDB70D700733695 /* rcannon.png */; };
+		AF3847EF0FDB70D700733695 /* rchariot.png in Copy Files(pieces\alfaerie_50x50) */ = {isa = PBXBuildFile; fileRef = AF3847E00FDB70D700733695 /* rchariot.png */; };
+		AF3847F00FDB70D700733695 /* relephant.png in Copy Files(pieces\alfaerie_50x50) */ = {isa = PBXBuildFile; fileRef = AF3847E10FDB70D700733695 /* relephant.png */; };
+		AF3847F10FDB70D700733695 /* rhorse.png in Copy Files(pieces\alfaerie_50x50) */ = {isa = PBXBuildFile; fileRef = AF3847E20FDB70D700733695 /* rhorse.png */; };
+		AF3847F20FDB70D700733695 /* rking.png in Copy Files(pieces\alfaerie_50x50) */ = {isa = PBXBuildFile; fileRef = AF3847E30FDB70D700733695 /* rking.png */; };
+		AF3847F30FDB70D700733695 /* rpawn.png in Copy Files(pieces\alfaerie_50x50) */ = {isa = PBXBuildFile; fileRef = AF3847E40FDB70D700733695 /* rpawn.png */; };
 		AF4839360FA27BAD00F734C4 /* hoxAIPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4838F60FA27BAD00F734C4 /* hoxAIPlayer.cpp */; };
 		AF4839370FA27BAD00F734C4 /* hoxAIPluginMgr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4838F80FA27BAD00F734C4 /* hoxAIPluginMgr.cpp */; };
 		AF4839380FA27BAD00F734C4 /* hoxBoard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4838FA0FA27BAD00F734C4 /* hoxBoard.cpp */; };
@@ -134,6 +149,31 @@
 				AF0CD9EB0FC3D8470042A414 /* hoxchess.mo in Copy Files (locale\zh_CN) */,
 			);
 			name = "Copy Files (locale\\zh_CN)";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AF3848030FDB710000733695 /* Copy Files(pieces\alfaerie_50x50) */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = pieces/alfaerie_50x50;
+			dstSubfolderSpec = 12;
+			files = (
+				AF3847E50FDB70D700733695 /* badvisor.png in Copy Files(pieces\alfaerie_50x50) */,
+				AF3847E60FDB70D700733695 /* bcannon.png in Copy Files(pieces\alfaerie_50x50) */,
+				AF3847E70FDB70D700733695 /* bchariot.png in Copy Files(pieces\alfaerie_50x50) */,
+				AF3847E80FDB70D700733695 /* belephant.png in Copy Files(pieces\alfaerie_50x50) */,
+				AF3847E90FDB70D700733695 /* bhorse.png in Copy Files(pieces\alfaerie_50x50) */,
+				AF3847EA0FDB70D700733695 /* bking.png in Copy Files(pieces\alfaerie_50x50) */,
+				AF3847EB0FDB70D700733695 /* bpawn.png in Copy Files(pieces\alfaerie_50x50) */,
+				AF3847EC0FDB70D700733695 /* CREDITS.txt in Copy Files(pieces\alfaerie_50x50) */,
+				AF3847ED0FDB70D700733695 /* radvisor.png in Copy Files(pieces\alfaerie_50x50) */,
+				AF3847EE0FDB70D700733695 /* rcannon.png in Copy Files(pieces\alfaerie_50x50) */,
+				AF3847EF0FDB70D700733695 /* rchariot.png in Copy Files(pieces\alfaerie_50x50) */,
+				AF3847F00FDB70D700733695 /* relephant.png in Copy Files(pieces\alfaerie_50x50) */,
+				AF3847F10FDB70D700733695 /* rhorse.png in Copy Files(pieces\alfaerie_50x50) */,
+				AF3847F20FDB70D700733695 /* rking.png in Copy Files(pieces\alfaerie_50x50) */,
+				AF3847F30FDB70D700733695 /* rpawn.png in Copy Files(pieces\alfaerie_50x50) */,
+			);
+			name = "Copy Files(pieces\\alfaerie_50x50)";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		AF790B490FC9BD82005729B0 /* Copy Files (boards) */ = {
@@ -300,6 +340,21 @@
 		AF0CDA690FC3E0CC0042A414 /* libAI_HaQiKiD.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libAI_HaQiKiD.dylib; path = plugins/libAI_HaQiKiD.dylib; sourceTree = "<group>"; };
 		AF0CDA790FC3E3080042A414 /* libAI_Folium.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libAI_Folium.dylib; path = plugins/libAI_Folium.dylib; sourceTree = "<group>"; };
 		AF0CDA7B0FC3E3110042A414 /* libAI_TSITO.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libAI_TSITO.dylib; path = plugins/libAI_TSITO.dylib; sourceTree = "<group>"; };
+		AF3847D60FDB70D700733695 /* badvisor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = badvisor.png; path = resource/pieces/alfaerie_50x50/badvisor.png; sourceTree = "<group>"; };
+		AF3847D70FDB70D700733695 /* bcannon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = bcannon.png; path = resource/pieces/alfaerie_50x50/bcannon.png; sourceTree = "<group>"; };
+		AF3847D80FDB70D700733695 /* bchariot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = bchariot.png; path = resource/pieces/alfaerie_50x50/bchariot.png; sourceTree = "<group>"; };
+		AF3847D90FDB70D700733695 /* belephant.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = belephant.png; path = resource/pieces/alfaerie_50x50/belephant.png; sourceTree = "<group>"; };
+		AF3847DA0FDB70D700733695 /* bhorse.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = bhorse.png; path = resource/pieces/alfaerie_50x50/bhorse.png; sourceTree = "<group>"; };
+		AF3847DB0FDB70D700733695 /* bking.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = bking.png; path = resource/pieces/alfaerie_50x50/bking.png; sourceTree = "<group>"; };
+		AF3847DC0FDB70D700733695 /* bpawn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = bpawn.png; path = resource/pieces/alfaerie_50x50/bpawn.png; sourceTree = "<group>"; };
+		AF3847DD0FDB70D700733695 /* CREDITS.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = CREDITS.txt; path = resource/pieces/alfaerie_50x50/CREDITS.txt; sourceTree = "<group>"; };
+		AF3847DE0FDB70D700733695 /* radvisor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = radvisor.png; path = resource/pieces/alfaerie_50x50/radvisor.png; sourceTree = "<group>"; };
+		AF3847DF0FDB70D700733695 /* rcannon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = rcannon.png; path = resource/pieces/alfaerie_50x50/rcannon.png; sourceTree = "<group>"; };
+		AF3847E00FDB70D700733695 /* rchariot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = rchariot.png; path = resource/pieces/alfaerie_50x50/rchariot.png; sourceTree = "<group>"; };
+		AF3847E10FDB70D700733695 /* relephant.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = relephant.png; path = resource/pieces/alfaerie_50x50/relephant.png; sourceTree = "<group>"; };
+		AF3847E20FDB70D700733695 /* rhorse.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = rhorse.png; path = resource/pieces/alfaerie_50x50/rhorse.png; sourceTree = "<group>"; };
+		AF3847E30FDB70D700733695 /* rking.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = rking.png; path = resource/pieces/alfaerie_50x50/rking.png; sourceTree = "<group>"; };
+		AF3847E40FDB70D700733695 /* rpawn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = rpawn.png; path = resource/pieces/alfaerie_50x50/rpawn.png; sourceTree = "<group>"; };
 		AF4838F60FA27BAD00F734C4 /* hoxAIPlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxAIPlayer.cpp; path = hox_Client/hoxAIPlayer.cpp; sourceTree = "<group>"; };
 		AF4838F70FA27BAD00F734C4 /* hoxAIPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxAIPlayer.h; path = hox_Client/hoxAIPlayer.h; sourceTree = "<group>"; };
 		AF4838F80FA27BAD00F734C4 /* hoxAIPluginMgr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxAIPluginMgr.cpp; path = hox_Client/hoxAIPluginMgr.cpp; sourceTree = "<group>"; };
@@ -575,6 +630,28 @@
 			name = zh_CN;
 			sourceTree = "<group>";
 		};
+		AF3847D40FDB70B700733695 /* alfaerie_50x50 */ = {
+			isa = PBXGroup;
+			children = (
+				AF3847D60FDB70D700733695 /* badvisor.png */,
+				AF3847D70FDB70D700733695 /* bcannon.png */,
+				AF3847D80FDB70D700733695 /* bchariot.png */,
+				AF3847D90FDB70D700733695 /* belephant.png */,
+				AF3847DA0FDB70D700733695 /* bhorse.png */,
+				AF3847DB0FDB70D700733695 /* bking.png */,
+				AF3847DC0FDB70D700733695 /* bpawn.png */,
+				AF3847DD0FDB70D700733695 /* CREDITS.txt */,
+				AF3847DE0FDB70D700733695 /* radvisor.png */,
+				AF3847DF0FDB70D700733695 /* rcannon.png */,
+				AF3847E00FDB70D700733695 /* rchariot.png */,
+				AF3847E10FDB70D700733695 /* relephant.png */,
+				AF3847E20FDB70D700733695 /* rhorse.png */,
+				AF3847E30FDB70D700733695 /* rking.png */,
+				AF3847E40FDB70D700733695 /* rpawn.png */,
+			);
+			name = alfaerie_50x50;
+			sourceTree = "<group>";
+		};
 		AF790B430FC9BD23005729B0 /* boards */ = {
 			isa = PBXGroup;
 			children = (
@@ -653,6 +730,7 @@
 		AF9659F40FC3BD3D00370E48 /* pieces */ = {
 			isa = PBXGroup;
 			children = (
+				AF3847D40FDB70B700733695 /* alfaerie_50x50 */,
 				AFCFE2C10FCEE2D3000760F2 /* xiangqiboard_45x45 */,
 				AF965A010FC3BD9200370E48 /* iXiangQi_55x55 */,
 				AF864A4A0FC309BD0034C83B /* 1 */,
@@ -745,6 +823,7 @@
 				AF790B490FC9BD82005729B0 /* Copy Files (boards) */,
 				AFCFE2E50FCEE32B000760F2 /* Copy Files (pieces\xiangqiboard_45x45) */,
 				AF85AFED0FD423320068A033 /* Copy Files (locale\fr) */,
+				AF3848030FDB710000733695 /* Copy Files(pieces\alfaerie_50x50) */,
 			);
 			buildRules = (
 			);
