@@ -1,7 +1,7 @@
 ; -------------------------------------------------------------------------
 ; Purpose: The Windows Installer for HOXChess.
 ; Author:  Huy Phan
-; Update:  Mar 28, 2009
+; Update:  Jun 07, 2009
 ;
 ; Reference: http://nsis.sourceforge.net/Docs/Modern%20UI%202/Readme.html
 ; -------------------------------------------------------------------------
@@ -15,7 +15,7 @@
 ; Build environment
 
   !define PRODUCT_NAME          "HOXChess"
-  !define PRODUCT_VERSION       "0.7.0.0"
+  !define PRODUCT_VERSION       "0.7.5.0"
   !define PRODUCT_PUBLISHER     "PlayXiangqi.com"
   !define PRODUCT_WEB_SITE      "http://www.playxiangqi.com"
   !define PRODUCT_CONFIG_REGKEY "Software\HOXChess"
@@ -86,6 +86,7 @@
 
   !define MUI_LANGDLL_ALLLANGUAGES          ; Do not hide any unsupported languages
   !insertmacro MUI_LANGUAGE "English"       ; The 1st is the default language
+  !insertmacro MUI_LANGUAGE "French"
   !insertmacro MUI_LANGUAGE "SimpChinese"
   !insertmacro MUI_LANGUAGE "Vietnamese"
   
@@ -95,10 +96,12 @@
   ; Language strings
   
   LangString S_SecMain ${LANG_ENGLISH} "Required program files, images, and piece sets."
+  LangString S_SecMain ${LANG_FRENCH} "Requis les fichiers de programme et des images."
   LangString S_SecMain ${LANG_SIMPCHINESE} "所需的程序文件，图片和作品集。"
   LangString S_SecMain ${LANG_VIETNAMESE} "Chương trình và mình ảnh cần thiết để chạy."
-  
+
   LangString S_Found_Old ${LANG_ENGLISH} "An old version of ${PRODUCT_NAME} was found in $\n $INSTDIR $\n $\n Click 'OK' to remove it or 'Cancel' to abort this upgrade."
+  LangString S_Found_Old ${LANG_FRENCH} "Une ancienne version de $ (PRODUCT_NAME) a été trouvé dans $\n $INSTDIR $\n $\n Cliquez sur 'OK' pour supprimer ou 'Annuler' pour annuler cette mise à jour."
   LangString S_Found_Old ${LANG_SIMPCHINESE} "An old version of ${PRODUCT_NAME} was found in $\n $INSTDIR $\n $\n Click 'OK' to remove it or 'Cancel' to abort this upgrade."
   LangString S_Found_Old ${LANG_VIETNAMESE} "Một chương trình cũ của ${PRODUCT_NAME} tìm ỏ đây $\n $INSTDIR $\n $\n Click 'OK' to remove it or 'Cancel' to abort this upgrade."
 
@@ -122,10 +125,15 @@ Section "HOXChess" SecMain
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\${PRODUCT_NAME}.lnk" "$INSTDIR\bin\hox_Client.exe"
   CreateShortCut "$DESKTOP\${PRODUCT_NAME}.lnk" "$INSTDIR\bin\hox_Client.exe"
 
+  SetOutPath "$INSTDIR\resource\locale\fr"
+  File "resource\locale\fr\*.*"
   SetOutPath "$INSTDIR\resource\locale\zh_CN"
   File "resource\locale\zh_CN\*.*"
   SetOutPath "$INSTDIR\resource\locale\vi_VN"
   File "resource\locale\vi_VN\*.*"
+
+  SetOutPath "$INSTDIR\resource\boards"
+  File "resource\boards\*.*"
 
   SetOutPath "$INSTDIR\resource\pieces\1"
   File "resource\pieces\1\*.*"
@@ -139,6 +147,10 @@ Section "HOXChess" SecMain
   File "resource\pieces\xqwizard_2_57x57\*.*"
   SetOutPath "$INSTDIR\resource\pieces\iXiangQi_55x55"
   File "resource\pieces\iXiangQi_55x55\*.*"
+  SetOutPath "$INSTDIR\resource\pieces\xiangqiboard_45x45"
+  File "resource\pieces\xiangqiboard_45x45\*.*"
+  SetOutPath "$INSTDIR\resource\pieces\alfaerie_50x50"
+  File "resource\pieces\alfaerie_50x50\*.*"
 
   SetOutPath "$INSTDIR\resource\images"
   File "resource\images\*.png"
@@ -158,6 +170,9 @@ Section "HOXChess" SecMain
 
   ; Set XQWLight as the default AI.
   WriteRegStr HKCU "${PRODUCT_CONFIG_REGKEY}\Options" "defaultAI" "AI_XQWLight"
+
+  ; Set the default piece set.
+  WriteRegStr HKCU "${PRODUCT_CONFIG_REGKEY}\Board\Piece" "path" "xiangqiboard_45x45"
 SectionEnd
 
 ; Microsoft Visual C++ 2008 Redistributable Package (x86)
@@ -218,6 +233,8 @@ Function .onInit
   StrCpy $PRODUCT_LANGUAGE "default"
   StrCmp $LANGUAGE ${LANG_ENGLISH} 0 +2
       StrCpy $PRODUCT_LANGUAGE "en_GB"
+  StrCmp $LANGUAGE ${LANG_FRENCH} 0 +2
+      StrCpy $PRODUCT_LANGUAGE "fr"
   StrCmp $LANGUAGE ${LANG_SIMPCHINESE} 0 +2
       StrCpy $PRODUCT_LANGUAGE "zh_CN"
   StrCmp $LANGUAGE ${LANG_VIETNAMESE} 0 +2
@@ -245,15 +262,19 @@ Section Uninstall
   Delete "$SMPROGRAMS\${PRODUCT_NAME}\HOXChess.lnk"
 
   RMDir "$SMPROGRAMS\${PRODUCT_NAME}"
+  RMDir /r "$INSTDIR\resource\locale\fr"
   RMDir /r "$INSTDIR\resource\locale\zh_CN"
   RMDir /r "$INSTDIR\resource\locale\vi_VN"
   RMDir "$INSTDIR\resource\locale"
+  RMDir /r "$INSTDIR\resource\boards"
   RMDir /r "$INSTDIR\resource\pieces\1"
   RMDir /r "$INSTDIR\resource\pieces\chessvariants_42x42"
   RMDir /r "$INSTDIR\resource\pieces\wikipedia_60x60"
   RMDir /r "$INSTDIR\resource\pieces\xqwizard_1_57x57"
   RMDir /r "$INSTDIR\resource\pieces\xqwizard_2_57x57"
   RMDir /r "$INSTDIR\resource\pieces\iXiangQi_55x55"
+  RMDir /r "$INSTDIR\resource\pieces\xiangqiboard_45x45"
+  RMDir /r "$INSTDIR\resource\pieces\alfaerie_50x50"
   RMDir "$INSTDIR\resource\pieces"
   RMDir /r "$INSTDIR\resource\images"
   RMDir /r "$INSTDIR\resource\sounds"
