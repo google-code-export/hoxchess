@@ -2,6 +2,25 @@
 
 _All releases can be found from_ [http://code.google.com/p/hoxchess/downloads/list this Downloads page]
 
+ * *Jun 09, 2009*
+  * Released version *0.7.5.0* with binary packages for Windows, *Mac OS X*, and Linux
+  * Some of the _new features_ are:
+   * Support for _Mac OS X Leopard 10.5_
+   * Implement Board Background using _pre-made_ images
+   * Support *Review* Moves when loading a previously saved game from disk
+   * Support the review of Board and Pieces inside the *Options* dialog
+   * Add a very good AI engine called [http://home.hccnet.nl/h.g.muller/XQhaqikid.html HaQiKi D] created by *H.G. Muller*
+   * Include a new _western_ piece set *Alfaerie* from http://www.chessvariants.com
+   * Localization: add the initial support for French language (50% translation done)
+  * The Linux binary package has been tested on the following distributions:
+   * *Ubuntu/Kubuntu-8.10, 9.04* (32-bit and 64-bit)
+   * *Fedora-10*   (32-bit)
+   * *openSUSE 11* (32-bit)
+   * *Debian 5.0.1* (32-bit)
+   * *CentOS 5.3* (32-bit)
+   * *Gentoo 2008.0* (32-bit)
+  * *Note:* To player on [http://www.playxiangqi.com PlayXiangqi.com], you play as a *guest* or create an account [http://www.playxiangqi.com/index.php?page=register at this page...]
+
   * *Mar 29, 2009*
     * Released version *0.7.0.0* of the _source_ code and Windows Binary _Installer_
     * The main _new features_ are:
