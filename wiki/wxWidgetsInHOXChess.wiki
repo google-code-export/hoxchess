@@ -34,6 +34,19 @@ This following procedure has been test under the following Linux distributions:
 }}}
   * In the end, you would have the GTK-based port of wxWidgets under */opt/wxGTK-2.9.0*
 
+= Instructions under Mac OS X 10.5 =
+The process is very similar to Linux:
+{{{
+  $ svn co http://svn.wxwidgets.org/svn/wx/wxWidgets/branches/WX_2_9_0_BRANCH wxWidgets-2.9.0
+  $ cd wxWidgets-2.9.0
+  $ mkdir build-release
+  $ cd build-release
+  $ ../configure --prefix=/opt/wxGTK-2.9.0 --disable-compat28 --without-libtiff --disable-shared
+    # Note: For debug build, add the option [--enable-debug] 
+  $ make
+  $ sudo make install
+}}}
+
 = Instructions under Windows =
 
 The procedure is much easier under Windows (XP or Vista). Simply open the _solution_ file *.../build/msw/wx_vc9.sln* using the free Visual C++ 2008 Express edition, and build
