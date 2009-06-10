@@ -49,10 +49,12 @@ Starting from version _0.7.5.0_ (released on Jun 09, 2009), the project can be b
     * Adjust the Eclipse' s C++ compiler's setting (such as _--cppflags_ and _--libs_) based on the output of wxWidgets' s *wx-config* program.
 
 = Detailed Instructions under Xcode in Mac OS X 10.5 =
-  * Similar to Linux, first we need to build wxWidgets
+  * Follow [wxWidgetsInHOXChess the instructions here] to build *wxMac* libraries
 {{{
   $ make build-release
   $ cd build-release
   $ ../configure –prefix=/opt/wxWidgets-2.9.0 –disable-compat28 –without-libtiff –disable-shared
+  $ make
+  $ sudo make install
 }}}
   * Then, simply open the *Xcode* project under _.../hox_Project/HOXChess.xcodeproj_ and build
