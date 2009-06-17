@@ -199,8 +199,10 @@ private:
                       const int       nScore = 0 );
     void _SetBlackInfo( const wxString& playerId,
                         const int       nScore = 0 );
+    void _CreateBoardUI();
     void _CreateBoardPanel();
     void _LayoutBoardPanel( bool bViewInverted );
+    void _CreateAndLayoutWallPanel();
     
     /**
      * Add a Player's Id to the Player-List GUI.

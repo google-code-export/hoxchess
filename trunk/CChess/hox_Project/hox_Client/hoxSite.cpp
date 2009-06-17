@@ -598,11 +598,9 @@ hoxRemoteSite::JoinLocalPlayerToTable( const hoxNetworkTableInfo& tableInfo )
 
 	/* Determine which color (or role) my player will have. */
 	
-	hoxColor myColor = hoxCOLOR_UNKNOWN;
-
+	hoxColor myColor = hoxCOLOR_NONE;
 	if      ( redId == m_player->GetId() )   myColor = hoxCOLOR_RED;
 	else if ( blackId == m_player->GetId() ) myColor = hoxCOLOR_BLACK;
-    else 	                                 myColor = hoxCOLOR_NONE;
 
 	/****************************
 	 * Assign players to table.

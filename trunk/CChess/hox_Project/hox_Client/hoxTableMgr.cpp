@@ -60,7 +60,7 @@ hoxTableMgr::CreateTable( const wxString&   tableId,
 void
 hoxTableMgr::RemoveTable( hoxTable_SPtr pTable )
 {
-    wxASSERT( pTable.get() != NULL );
+    wxASSERT( pTable );
     m_tables.remove( pTable );
 }
 

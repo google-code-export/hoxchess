@@ -710,7 +710,7 @@ hoxBoard::_Show()
     m_coreBoard->LoadPiecesAndStatus();
 
     /* Create the whole panel with player-info + timers */
-    _CreateBoardPanel();
+    _CreateBoardUI();
 
     /* Indicate that all UI elements have been created. */
     m_bUICreated = true;
@@ -753,150 +753,78 @@ hoxBoard::_SetBlackInfo( const wxString& playerId,
     m_blackInfo->SetLabel( info );
 }
 
-/*
- * Create panel with the core board + player-info(s) + timers
- */
+void
+hoxBoard::_CreateBoardUI()
+{
+    // Create the Board and the Wall panels.
+
+    _CreateBoardPanel();
+    _LayoutBoardPanel( m_coreBoard->IsViewInverted() );
+
+    _CreateAndLayoutWallPanel();
+
+    // Setup the main sizer.
+
+    m_mainSizer  = new wxBoxSizer( wxHORIZONTAL );
+    m_mainSizer->Add( m_boardSizer, wxSizerFlags().Expand().Border(wxRIGHT,1) );
+    m_mainSizer->Add( m_wallSizer,  wxSizerFlags(1).Expand() );
+
+    /* Setup the main sizer for layout. */
+    this->SetSizer( m_mainSizer );
+}
+
 void
 hoxBoard::_CreateBoardPanel()
 {
-    wxPanel* boardPanel = this;
+    m_boardSizer = new wxBoxSizer( wxVERTICAL );
 
-    /*********************************
-     * Create players' info + timers 
-     *********************************/
+    /************************************
+     * Create Player-Info + Game-Timers 
+     ************************************/
 
-    m_btnPlayRed = new wxButton( boardPanel, ID_ACTION_RED, _("Play RED"), 
+    m_btnPlayRed = new wxButton( this, ID_ACTION_RED, _("Play RED"), 
                                  wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT );
-    m_btnPlayBlack = new wxButton( boardPanel, ID_ACTION_BLACK, _("Play BLACK"), 
+    m_btnPlayBlack = new wxButton( this, ID_ACTION_BLACK, _("Play BLACK"), 
                                    wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT );
 
-    // Create players' info.
-    m_blackInfo = new wxStaticText( boardPanel, wxID_ANY, "*", 
+    // Player-Info.
+    m_blackInfo = new wxStaticText( this, wxID_ANY, "*", 
         wxDefaultPosition, wxSize(200,20), 
         wxBORDER_SIMPLE|wxALIGN_CENTER|wxST_NO_AUTORESIZE);
-    m_redInfo = new wxStaticText( boardPanel, wxID_ANY, "*", 
+    m_redInfo = new wxStaticText( this, wxID_ANY, "*", 
         wxDefaultPosition, wxSize(200,20), 
         wxBORDER_SIMPLE|wxALIGN_CENTER|wxST_NO_AUTORESIZE);
 
-    // Create players' game-timer.
-    m_blackGameTime = new wxStaticText( boardPanel, wxID_ANY, "00:00", 
+    // Game-Timers.
+    m_blackGameTime = new wxStaticText( this, wxID_ANY, "00:00", 
         wxDefaultPosition, wxSize(50,20), 
         wxBORDER_SIMPLE|wxALIGN_CENTER|wxST_NO_AUTORESIZE);
-    m_redGameTime = new wxStaticText( boardPanel, wxID_ANY, "00:00", 
-        wxDefaultPosition, wxSize(50,20), 
-        wxBORDER_SIMPLE|wxALIGN_CENTER|wxST_NO_AUTORESIZE);
-
-    m_blackMoveTime = new wxStaticText( boardPanel, wxID_ANY, "00:00", 
-        wxDefaultPosition, wxSize(50,20), 
-        wxBORDER_SIMPLE|wxALIGN_CENTER|wxST_NO_AUTORESIZE);
-    m_redMoveTime = new wxStaticText( boardPanel, wxID_ANY, "00:00", 
+    m_redGameTime = new wxStaticText( this, wxID_ANY, "00:00", 
         wxDefaultPosition, wxSize(50,20), 
         wxBORDER_SIMPLE|wxALIGN_CENTER|wxST_NO_AUTORESIZE);
 
-    m_blackFreeTime = new wxStaticText( boardPanel, wxID_ANY, "00:00", 
+    m_blackMoveTime = new wxStaticText( this, wxID_ANY, "00:00", 
         wxDefaultPosition, wxSize(50,20), 
         wxBORDER_SIMPLE|wxALIGN_CENTER|wxST_NO_AUTORESIZE);
-    m_redFreeTime = new wxStaticText( boardPanel, wxID_ANY, "00:00", 
+    m_redMoveTime = new wxStaticText( this, wxID_ANY, "00:00", 
         wxDefaultPosition, wxSize(50,20), 
         wxBORDER_SIMPLE|wxALIGN_CENTER|wxST_NO_AUTORESIZE);
 
-    /*********************************
-     * Create MOVE-History's buttons.
-     *********************************/
-
-    m_historySizer = new wxBoxSizer( wxHORIZONTAL );
-
-    m_historySizer->Add( 
-        new wxButton( boardPanel, ID_HISTORY_BEGIN, "|<", 
-                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
-        wxSizerFlags().Center().FixedMinSize() );
-    m_historySizer->Add( 
-        new wxButton( boardPanel, ID_HISTORY_PREV, "<",
-                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
-        wxSizerFlags().Center().FixedMinSize() );
-    m_historySizer->Add( 
-        new wxButton( boardPanel, ID_HISTORY_NEXT, ">", 
-                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
-        wxSizerFlags().Center().FixedMinSize() );
-    m_historySizer->Add( 
-        new wxButton( boardPanel, ID_HISTORY_END, ">|", 
-                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
-        wxSizerFlags().Center().FixedMinSize() );
-
-    /*********************************
-     * Create Action's buttons.
-     *********************************/
-
-    m_actionSizer = new wxBoxSizer( wxHORIZONTAL );
-
-    m_actionSizer->Add( 
-        new wxButton( boardPanel, ID_ACTION_OPTIONS, _("Options"), 
-                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
-        wxSizerFlags().Left().FixedMinSize() );
-    m_actionSizer->AddSpacer( 20 );  // Add some spaces in between.
-    m_actionSizer->Add( 
-        new wxButton( boardPanel, ID_ACTION_RESIGN, _("Resign"), 
-                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
-        wxSizerFlags().Left().FixedMinSize() );
-    m_actionSizer->Add( 
-        new wxButton( boardPanel, ID_ACTION_DRAW, _("Draw"), 
-                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
-        wxSizerFlags().Left().FixedMinSize() );
-    m_actionSizer->Add( 
-        new wxButton( boardPanel, ID_ACTION_RESET, _("Reset"), 
-                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
-        wxSizerFlags().Left().FixedMinSize() );
-    m_actionSizer->Add( 
-        new wxButton( boardPanel, ID_ACTION_NONE, _("Unsit"), 
-                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
-        wxSizerFlags().Left().FixedMinSize() );
-
-    /*********************************
-     * Create Command's buttons (History + Action).
-     *********************************/
-
-    m_commandSizer = new wxBoxSizer( wxHORIZONTAL );
-    m_commandSizer->Add( m_historySizer, wxSizerFlags().Border(1) );
-	m_commandSizer->AddStretchSpacer();
-    m_commandSizer->Add( m_actionSizer, wxSizerFlags().Border(1) );
-
-    /*********************************
-     * Create Wall's contents.
-     *********************************/
-
-    m_playerListBox = new hoxPlayersUI( this, hoxPlayersUI::UI_TYPE_TABLE );
-    m_playerListBox->SetOwner( this );
-
-    m_systemOutput = new wxTextCtrl( boardPanel, wxID_ANY, _T(""),
-                                     wxDefaultPosition, wxDefaultSize,
-                                     wxTE_MULTILINE | wxRAISED_BORDER | wxTE_READONLY 
-                                     | wxHSCROLL | wxTE_RICH /* needed for Windows */ );
-
-    m_wallOutput = new wxTextCtrl( boardPanel, wxID_ANY, _T(""),
-                                   wxDefaultPosition, wxDefaultSize,
-                                   wxTE_MULTILINE | wxRAISED_BORDER | wxTE_READONLY 
-                                   | wxHSCROLL | wxTE_RICH /* needed for Windows */ );
-
-    wxBoxSizer* inputSizer  = new wxBoxSizer( wxHORIZONTAL );
-    m_wallInput  = new hoxInputTextCtrl( boardPanel, ID_BOARD_WALL_INPUT );
-    inputSizer->Add( m_wallInput, 1, wxEXPAND|wxALL, 0 );
-    wxBitmapButton* inputBtn = new wxBitmapButton( boardPanel, ID_BOARD_INPUT_BUTTON,
-                                                   hoxUtil::LoadImage("go-jump.png") );
-    inputSizer->Add( inputBtn, 0, wxEXPAND|wxALL, 0 );
+    m_blackFreeTime = new wxStaticText( this, wxID_ANY, "00:00", 
+        wxDefaultPosition, wxSize(50,20), 
+        wxBORDER_SIMPLE|wxALIGN_CENTER|wxST_NO_AUTORESIZE);
+    m_redFreeTime = new wxStaticText( this, wxID_ANY, "00:00", 
+        wxDefaultPosition, wxSize(50,20), 
+        wxBORDER_SIMPLE|wxALIGN_CENTER|wxST_NO_AUTORESIZE);
 
     /****************************************
-     * Arrange the players' info + timers 
+     * Arrange Player-Info + Game-Timers 
      ****************************************/
-
-    // Sizers
-    m_mainSizer  = new wxBoxSizer( wxHORIZONTAL );
-    m_boardSizer = new wxBoxSizer( wxVERTICAL );
-    m_wallSizer  = new wxBoxSizer( wxVERTICAL );
-    
+   
     m_blackSizer = new wxBoxSizer( wxHORIZONTAL );
     m_redSizer   = new wxBoxSizer( wxHORIZONTAL );
 
-    // Add Black player-info
+    // BLACK side.
     m_blackSizer->Add( m_btnPlayBlack,
         wxSizerFlags(1).Expand().Border(wxRIGHT|wxLEFT|wxTOP,1) );
     m_blackSizer->Add( m_blackInfo,
@@ -908,7 +836,7 @@ hoxBoard::_CreateBoardPanel()
     m_blackSizer->Add( m_blackFreeTime,
         wxSizerFlags().Expand().Border(wxRIGHT|wxLEFT|wxTOP,1) );
 
-    // Add Red player-info
+    // RED side.
     m_redSizer->Add( m_btnPlayRed,
         wxSizerFlags(1).Expand().Border(wxRIGHT|wxLEFT|wxTOP,1) );
     m_redSizer->Add( m_redInfo,
@@ -920,48 +848,77 @@ hoxBoard::_CreateBoardPanel()
     m_redSizer->Add( m_redFreeTime,
         wxSizerFlags().Expand().Border(wxRIGHT|wxLEFT|wxTOP,1) );
 
-    // Invert view if required.
+    /*********************************
+     * Create MOVE-History's buttons.
+     *********************************/
 
-    const bool bViewInverted = m_coreBoard->IsViewInverted();
-    _LayoutBoardPanel( bViewInverted);
+    m_historySizer = new wxBoxSizer( wxHORIZONTAL );
 
-    // Setup the Wall.
+    m_historySizer->Add( 
+        new wxButton( this, ID_HISTORY_BEGIN, "|<", 
+                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
+        wxSizerFlags().Center().FixedMinSize() );
+    m_historySizer->Add( 
+        new wxButton( this, ID_HISTORY_PREV, "<",
+                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
+        wxSizerFlags().Center().FixedMinSize() );
+    m_historySizer->Add( 
+        new wxButton( this, ID_HISTORY_NEXT, ">", 
+                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
+        wxSizerFlags().Center().FixedMinSize() );
+    m_historySizer->Add( 
+        new wxButton( this, ID_HISTORY_END, ">|", 
+                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
+        wxSizerFlags().Center().FixedMinSize() );
 
-    m_wallSizer->Add( m_playerListBox,
-        wxSizerFlags(1).Expand().Border(wxRIGHT|wxLEFT,1) );
-    m_wallSizer->Add( m_systemOutput,
-        wxSizerFlags(1).Expand().Border(wxRIGHT|wxLEFT,1) );
-    m_wallSizer->Add( m_wallOutput,
-        wxSizerFlags(3).Expand().Border(wxRIGHT|wxLEFT,1) );
-    m_wallSizer->Add( inputSizer,
-        wxSizerFlags().Expand().Border(wxRIGHT|wxLEFT,1) );
+    /*********************************
+     * Create Action's buttons.
+     *********************************/
 
-    // Setup main sizer.
+    m_actionSizer = new wxBoxSizer( wxHORIZONTAL );
 
-    m_mainSizer->Add( m_boardSizer,
-        wxSizerFlags().Expand().Border(wxRIGHT|wxLEFT|wxTOP,1) );
-    m_mainSizer->Add( m_wallSizer,
-        wxSizerFlags(1).Expand().Border(wxRIGHT|wxLEFT|wxTOP,1) );
+    m_actionSizer->Add( 
+        new wxButton( this, ID_ACTION_OPTIONS, _("Options"), 
+                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
+        wxSizerFlags().Left().FixedMinSize() );
+    m_actionSizer->AddSpacer( 20 );  // Add some spaces in between.
+    m_actionSizer->Add( 
+        new wxButton( this, ID_ACTION_RESIGN, _("Resign"), 
+                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
+        wxSizerFlags().Left().FixedMinSize() );
+    m_actionSizer->Add( 
+        new wxButton( this, ID_ACTION_DRAW, _("Draw"), 
+                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
+        wxSizerFlags().Left().FixedMinSize() );
+    m_actionSizer->Add( 
+        new wxButton( this, ID_ACTION_RESET, _("Reset"), 
+                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
+        wxSizerFlags().Left().FixedMinSize() );
+    m_actionSizer->Add( 
+        new wxButton( this, ID_ACTION_NONE, _("Unsit"), 
+                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
+        wxSizerFlags().Left().FixedMinSize() );
 
-    /* Setup the main sizer for layout. */
-    boardPanel->SetSizer( m_mainSizer );
+    /*********************************
+     * Arrange Command's buttons (History + Action).
+     *********************************/
+
+    m_commandSizer = new wxBoxSizer( wxHORIZONTAL );
+    m_commandSizer->Add( m_historySizer, wxSizerFlags().Border(1) );
+	m_commandSizer->AddStretchSpacer();
+    m_commandSizer->Add( m_actionSizer, wxSizerFlags().Border(1) );
 }
 
 void 
 hoxBoard::_LayoutBoardPanel( bool bViewInverted )
 {
-    wxSizer* topSizer = NULL;
-    wxSizer* bottomSizer = NULL;
+    wxSizer* topSizer    = m_blackSizer;
+    wxSizer* bottomSizer = m_redSizer;
 
     if ( bViewInverted )  // inverted view?
     {
-        topSizer = m_redSizer;
+        topSizer    = m_redSizer;
         bottomSizer = m_blackSizer;
-    }
-    else                  // normal view?
-    {
-        topSizer = m_blackSizer;
-        bottomSizer = m_redSizer;
     }
 
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -971,30 +928,55 @@ hoxBoard::_LayoutBoardPanel( bool bViewInverted )
     wxLogDebug("%s: ADJUST Core Board's Height: (%d)", __FUNCTION__, bestHeightAdjust);
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    // Add the top-sizer...
-    m_boardSizer->Add( topSizer,
-        wxSizerFlags().Expand().Border(wxRIGHT|wxLEFT,1) );
-
-    // Add the main board...
-    m_boardSizer->Add( m_coreBoard,
-        wxSizerFlags(1).Expand().Border(wxALL,1) );
-
-    // Add the bottom-sizer...
-    m_boardSizer->Add( bottomSizer,
-        wxSizerFlags().Expand().Border(wxRIGHT|wxLEFT,1) );
+    // Add the top-sizer, the main board, and the bottom size.
+    m_boardSizer->Add( topSizer,    wxSizerFlags().Expand() );
+    m_boardSizer->Add( m_coreBoard, wxSizerFlags(1).Expand() );
+    m_boardSizer->Add( bottomSizer, wxSizerFlags().Expand() );
 
     // Add the command-sizer (History + Action)...
-    m_boardSizer->Add( m_commandSizer,
-        wxSizerFlags().Expand().Border(wxRIGHT|wxLEFT,1) );
+    m_boardSizer->Add( m_commandSizer, wxSizerFlags().Expand() );
+}
+
+void
+hoxBoard::_CreateAndLayoutWallPanel()
+{
+    m_wallSizer  = new wxBoxSizer( wxVERTICAL );
+
+    /*********************************
+     * Create Wall's contents.
+     *********************************/
+
+    m_playerListBox = new hoxPlayersUI( this, hoxPlayersUI::UI_TYPE_TABLE );
+    m_playerListBox->SetOwner( this );
+
+    m_systemOutput = new wxTextCtrl( this, wxID_ANY, _T(""),
+                                     wxDefaultPosition, wxDefaultSize,
+                                     wxTE_MULTILINE | wxRAISED_BORDER | wxTE_READONLY 
+                                     | wxHSCROLL | wxTE_RICH /* needed for Windows */ );
+
+    m_wallOutput = new wxTextCtrl( this, wxID_ANY, _T(""),
+                                   wxDefaultPosition, wxDefaultSize,
+                                   wxTE_MULTILINE | wxRAISED_BORDER | wxTE_READONLY 
+                                   | wxHSCROLL | wxTE_RICH /* needed for Windows */ );
+
+    wxBoxSizer* inputSizer  = new wxBoxSizer( wxHORIZONTAL );
+    m_wallInput  = new hoxInputTextCtrl( this, ID_BOARD_WALL_INPUT );
+    inputSizer->Add( m_wallInput, 1, wxEXPAND|wxALL, 0 );
+    wxBitmapButton* inputBtn = new wxBitmapButton( this, ID_BOARD_INPUT_BUTTON,
+                                                   hoxUtil::LoadImage("go-jump.png") );
+    inputSizer->Add( inputBtn, 0, wxEXPAND|wxALL, 0 );
+
+    // Setup the Wall.
+
+    m_wallSizer->Add( m_playerListBox, wxSizerFlags(1).Expand() );
+    m_wallSizer->Add( m_systemOutput,  wxSizerFlags(1).Expand() );
+    m_wallSizer->Add( m_wallOutput,    wxSizerFlags(3).Expand() );
+    m_wallSizer->Add( inputSizer,      wxSizerFlags().Expand() );
 }
 
 void 
 hoxBoard::ToggleViewSide()
 {
-    /* If the view has NOT been created, do nothing.
-     * Otherwise, invert it. 
-     */
-
     if ( ! m_bUICreated ) return;
 
     /* Invert the "core" board. */
