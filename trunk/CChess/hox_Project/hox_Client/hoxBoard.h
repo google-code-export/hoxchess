@@ -42,7 +42,6 @@ wxDECLARE_EVENT(hoxEVT_BOARD_PLAYER_LEAVE, wxCommandEvent);
 wxDECLARE_EVENT(hoxEVT_BOARD_PLAYER_SCORE, wxCommandEvent);
 wxDECLARE_EVENT(hoxEVT_BOARD_SYSTEM_OUTPUT, wxCommandEvent);
 wxDECLARE_EVENT(hoxEVT_BOARD_WALL_OUTPUT, wxCommandEvent);
-//wxDECLARE_EVENT(hoxEVT_BOARD_NEW_MOVE, wxCommandEvent);
 wxDECLARE_EVENT(hoxEVT_BOARD_DRAW_REQUEST, wxCommandEvent);
 wxDECLARE_EVENT(hoxEVT_BOARD_GAME_OVER, wxCommandEvent);
 wxDECLARE_EVENT(hoxEVT_BOARD_GAME_RESET, wxCommandEvent);
@@ -201,7 +200,7 @@ private:
     void _SetBlackInfo( const wxString& playerId,
                         const int       nScore = 0 );
     void _CreateBoardPanel();
-    void _LayoutBoardPanel( bool viewInverted );
+    void _LayoutBoardPanel( bool bViewInverted );
     
     /**
      * Add a Player's Id to the Player-List GUI.

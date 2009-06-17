@@ -43,7 +43,7 @@ using namespace std;
 //-----------------------------------------------------------------------------
 
 #define  DEFAULT_HOX_SERVER    "games.playxiangqi.com"
-#define  DEFAULT_HOX_PORT      8000
+#define  DEFAULT_HOX_PORT      80
 #define  SOCKET_READ_TIMEOUT   (5 * 60) /* in seconds */
 
 // ----------------------------------------------------------------------------
@@ -135,8 +135,8 @@ main( int argc, char *argv[] )
 {
     printf("%s: AI Robot starting...\n", __FUNCTION__);
 
-    std::string ai_pid       = "AI_xqwlight"; // Player ID
-    std::string ai_password  = "AI_xqwlight"; // Player Password
+    std::string ai_pid       = "Your_AI_PID"; // Player ID
+    std::string ai_password  = "YOur_AI_Password"; // Player Password
     const int   nReadTimeout = SOCKET_READ_TIMEOUT; // Socket's read timeout (in seconds)
 
     if ( argc == 3 ) // pid / password from command-line?
