@@ -42,7 +42,7 @@
  * The Application's Name and Version.
  */
 #define HOX_APP_NAME  "HOXChess"
-#define HOX_VERSION   "0.7.5.0"
+#define HOX_VERSION   "0.7.6.0"
 
 /**
  * The catalog's name to setup Language and Locale.
