@@ -261,18 +261,32 @@ hoxSite::CreateNewTableWithGUI( const hoxNetworkTableInfo& tableInfo,
     const wxString sBgImage = wxGetApp().GetOption("/Board/Image/path");
     const wxString sBgColor = wxGetApp().GetOption("/Board/Color/background");
     const wxString sFgColor = wxGetApp().GetOption("/Board/Color/foreground");
-	hoxBoard* pBoard = new hoxBoard( childFrame, 
-                                     sPiecePath,
-		                             pTable->GetReferee(),
-                                     pTable,
-                                     m_player->GetId(),
-                                     sBgImage,
-                                     sBgColor,
-                                     sFgColor,
-        					         wxDefaultPosition,
-							         childFrame->GetSize(),
-                                     boardFeatureFlags );
-
+    hoxBoard* pBoard = NULL;
+    if ( tableInfo.gameType == hoxGAME_TYPE_PRACTICE )
+    {
+	    pBoard = new hoxPracticeBoard( childFrame, 
+                                       sPiecePath,
+                                       pTable->GetReferee(),
+                                       pTable,
+                                       m_player->GetId(),
+                                       sBgImage, sBgColor, sFgColor,
+                                       wxDefaultPosition,
+                                       childFrame->GetSize(),
+                                       boardFeatureFlags );
+    }
+    else
+    {
+	    pBoard = new hoxBoard( childFrame, 
+                               sPiecePath,
+                               pTable->GetReferee(),
+                               pTable,
+                               m_player->GetId(),
+                               sBgImage, sBgColor, sFgColor,
+                               wxDefaultPosition,
+                               childFrame->GetSize(),
+                               boardFeatureFlags );
+    }
+    pBoard->ShowUI();
     pBoard->EnableSound( wxGetApp().GetOption("sound") == "1" );
 
     pTable->SetBoard( pBoard );
@@ -356,7 +370,7 @@ hoxLocalSite::OnLocalRequest_PRACTICE( const wxString& sSavedFile /* = "" */ )
     tableInfo.id = sTableId;
     tableInfo.gameType = hoxGAME_TYPE_PRACTICE;
 
-    const hoxTimeInfo timeInfo( 1200, 240, 20 );
+    const hoxTimeInfo timeInfo( 1500, 300, 30 );
 	tableInfo.initialTime = timeInfo;
     tableInfo.redTime     = tableInfo.initialTime;
     tableInfo.blackTime   = tableInfo.initialTime;

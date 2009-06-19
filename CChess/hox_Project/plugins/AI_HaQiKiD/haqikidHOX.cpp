@@ -1242,6 +1242,12 @@ void DeInitEngine()
         initDone = 0;
     }
 }
+
+void SetMaxDepth( int searchDepth )
+{
+    MaxDepth = searchDepth;
+}
+
 ///////////////// END of Huy Phan's changes //////////////////////////////////
 
 /************************* END OF FILE ***************************************/

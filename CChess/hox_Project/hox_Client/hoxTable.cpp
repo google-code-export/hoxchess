@@ -33,6 +33,8 @@
 #include "hoxUtil.h"
 #include <algorithm>
 
+IMPLEMENT_DYNAMIC_CLASS(hoxTable, wxObject)
+
 // ----------------------------------------------------------------------------
 // hoxTable
 // ----------------------------------------------------------------------------
@@ -676,6 +678,8 @@ hoxTable::_ResetGame()
 //
 // ----------------------------------------------------------------------------
 
+IMPLEMENT_DYNAMIC_CLASS(hoxPracticeTable, hoxTable)
+
 hoxPracticeTable::hoxPracticeTable( hoxSite*          site,
                                     const wxString&   id,
                                     hoxIReferee_SPtr  referee,
@@ -699,15 +703,7 @@ hoxPracticeTable::OnMove_FromBoard( const hoxMove&     move,
 
     /* Get the AI Player. */
 
-    hoxPlayer* aiPlayer = NULL;
-    if ( m_redPlayer && m_redPlayer->GetType() == hoxPLAYER_TYPE_AI )
-    {
-        aiPlayer = m_redPlayer;
-    }
-    else if ( m_blackPlayer && m_blackPlayer->GetType() == hoxPLAYER_TYPE_AI )
-    {
-        aiPlayer = m_blackPlayer;
-    }
+    hoxPlayer* aiPlayer = _GetAIPlayer();
     wxCHECK_RET(aiPlayer, "The AI Player cannot be NULL.");
 
     /* Inform the AI Player of the new Move. */
@@ -731,6 +727,34 @@ void
 hoxPracticeTable::OnDrawCommand_FromBoard()
 {
     this->OnGameOver_FromNetwork( hoxGAME_STATUS_DRAWN );
+}
+
+void
+hoxPracticeTable::OnAILevelUpdate( const int nAILevel )
+{
+    hoxPlayer* aiPlayer = _GetAIPlayer();
+    wxCHECK_RET(aiPlayer, "The AI Player cannot be NULL.");
+
+	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_AI_LEVEL ) );
+	apRequest->parameters["ai_level"] = wxString::Format("%d", nAILevel);
+
+    aiPlayer->OnRequest_FromTable( apRequest );
+}
+
+hoxPlayer*
+hoxPracticeTable::_GetAIPlayer() const
+{
+    hoxPlayer* aiPlayer = NULL;
+    if ( m_redPlayer && m_redPlayer->GetType() == hoxPLAYER_TYPE_AI )
+    {
+        aiPlayer = m_redPlayer;
+    }
+    else if ( m_blackPlayer && m_blackPlayer->GetType() == hoxPLAYER_TYPE_AI )
+    {
+        aiPlayer = m_blackPlayer;
+    }
+
+    return aiPlayer;
 }
 
 /************************* END OF FILE ***************************************/

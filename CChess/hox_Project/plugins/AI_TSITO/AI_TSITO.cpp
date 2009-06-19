@@ -94,6 +94,22 @@ public:
         m_board->makeMove( tMove);
     }
 
+    int setDifficultyLevel( int nAILevel )
+    {
+        int searchDepth = 1;
+
+        if      ( nAILevel > 8 ) searchDepth = 4;
+        else if ( nAILevel > 5 ) searchDepth = 3;
+        else if ( nAILevel > 2 ) searchDepth = 2;
+        else                     searchDepth = 1;
+
+        char cDepth = '0' + searchDepth;
+        const std::string sDepth(1, cDepth);
+        Options::defaultOptions()->setValue("searchPly", sDepth);
+        m_engine->optionChanged( "searchPly" );
+        return hoxAI_RC_OK;
+    }
+
 private:
     Move _translateStringToMove( const std::string& sMove )
     {

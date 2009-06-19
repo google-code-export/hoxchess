@@ -288,6 +288,8 @@ hoxUtil::RequestTypeToString( const hoxRequestType requestType )
 		case hoxREQUEST_PLAYER_STATUS: return "PLAYER_STATUS";
         case hoxREQUEST_MSG:           return "MSG";
 
+        case hoxREQUEST_AI_LEVEL:      return "AI_LEVEL";
+
         default:                       return "UNKNOWN";
     }
 }
@@ -320,6 +322,8 @@ hoxUtil::StringToRequestType( const wxString& input )
     if ( input == "PLAYER_INFO" )   return hoxREQUEST_PLAYER_INFO;
 	if ( input == "PLAYER_STATUS" ) return hoxREQUEST_PLAYER_STATUS;
     if ( input == "MSG" )           return hoxREQUEST_MSG;
+
+    if ( input == "AI_LEVEL" )      return hoxREQUEST_AI_LEVEL;
 
     return hoxREQUEST_UNKNOWN;
 }

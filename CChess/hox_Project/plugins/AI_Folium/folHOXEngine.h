@@ -36,10 +36,10 @@ class folEngine;   // Forward declaration.
 class folHOXEngine
 {
 public:
-    folHOXEngine( const std::string& fen,
-                  const int          searchDepth = 3 );
+    folHOXEngine( const int searchDepth = 3 );
     ~folHOXEngine();
 
+    void InitGame( const std::string& fen );
     std::string GenerateMove();
     void OnHumanMove( const std::string& sMove );
 

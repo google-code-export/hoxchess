@@ -292,4 +292,10 @@ MaxQi::on_human_move( const std::string& sMove )
     _OnOpponentMove( stdMove.c_str() );
 }
 
+void
+MaxQi::set_max_depth( int searchDepth )
+{
+    MaxDepth = searchDepth;
+}
+
 /************************* END OF FILE ***************************************/

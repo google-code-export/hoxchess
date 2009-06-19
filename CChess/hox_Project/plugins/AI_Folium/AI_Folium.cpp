@@ -47,14 +47,16 @@ public:
 
     void initEngine( int searchDepth = 0 )
     {
+        const int nDepth = ( searchDepth < 1 ? 3 : searchDepth );
+        m_engine.reset( new folHOXEngine( nDepth ) );
     }
 
   	int initGame( const std::string& fen,
                   const MoveList&    moves )
     {
-        //if ( ! fen.empty() ) return hoxAI_RC_NOT_SUPPORTED;
+        if ( m_engine.get() == NULL ) return hoxAI_RC_ERR;
 
-        m_engine.reset( new folHOXEngine( ""/*fen*/ ) );
+        m_engine->InitGame( "" /* fen */ );
 
         for ( MoveList::const_iterator it = moves.begin();
                                        it != moves.end(); ++it)
@@ -75,6 +77,20 @@ public:
         m_engine->OnHumanMove( sMove );
     }
 
+    int setDifficultyLevel( int nAILevel )
+    {
+        int searchDepth = 1;
+
+        if      ( nAILevel > 9 ) searchDepth = 6;
+        else if ( nAILevel > 7 ) searchDepth = 5;
+        else if ( nAILevel > 6 ) searchDepth = 4;
+        else if ( nAILevel > 4 ) searchDepth = 3;
+        else if ( nAILevel > 2 ) searchDepth = 2;
+        else                     searchDepth = 1;
+
+        m_engine->SetSearchDepth( searchDepth );
+        return hoxAI_RC_OK;
+    }
 
 private:
     std::string    m_name;

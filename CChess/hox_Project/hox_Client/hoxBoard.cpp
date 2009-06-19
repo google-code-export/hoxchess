@@ -54,7 +54,9 @@ enum
     ID_ACTION_OPTIONS,
     ID_ACTION_RESIGN,
 	ID_ACTION_DRAW,
-	ID_ACTION_RESET
+	ID_ACTION_RESET,
+
+    ID_AI_LEVEL
 };
 
 
@@ -207,7 +209,7 @@ hoxBoard::hoxBoard( wxWindow*        parent,
     wxASSERT_MSG(m_soundMove.IsOk(), "Failed to load sound file " + soundFile);
 
     /* Finally, show the UI. */
-    _Show();
+    // ShowUI();
 }
 
 hoxBoard::~hoxBoard()
@@ -704,7 +706,7 @@ hoxBoard::OnTimer( wxTimerEvent& event )
 }
 
 void
-hoxBoard::_Show()
+hoxBoard::ShowUI()
 {
     /* Ask the board to display the pieces. */
     m_coreBoard->LoadPiecesAndStatus();
@@ -756,28 +758,28 @@ hoxBoard::_SetBlackInfo( const wxString& playerId,
 void
 hoxBoard::_CreateBoardUI()
 {
+    m_mainSizer  = new wxBoxSizer( wxHORIZONTAL );
+    m_boardSizer = new wxBoxSizer( wxVERTICAL );
+    m_wallSizer  = new wxBoxSizer( wxVERTICAL );
+
     // Create the Board and the Wall panels.
 
     _CreateBoardPanel();
     _LayoutBoardPanel( m_coreBoard->IsViewInverted() );
 
-    _CreateAndLayoutWallPanel();
+    this->CreateAndLayoutWallPanel();
 
     // Setup the main sizer.
 
-    m_mainSizer  = new wxBoxSizer( wxHORIZONTAL );
     m_mainSizer->Add( m_boardSizer, wxSizerFlags().Expand().Border(wxRIGHT,1) );
     m_mainSizer->Add( m_wallSizer,  wxSizerFlags(1).Expand() );
 
-    /* Setup the main sizer for layout. */
     this->SetSizer( m_mainSizer );
 }
 
 void
 hoxBoard::_CreateBoardPanel()
 {
-    m_boardSizer = new wxBoxSizer( wxVERTICAL );
-
     /************************************
      * Create Player-Info + Game-Timers 
      ************************************/
@@ -938,13 +940,9 @@ hoxBoard::_LayoutBoardPanel( bool bViewInverted )
 }
 
 void
-hoxBoard::_CreateAndLayoutWallPanel()
+hoxBoard::CreateAndLayoutWallPanel()
 {
-    m_wallSizer  = new wxBoxSizer( wxVERTICAL );
-
-    /*********************************
-     * Create Wall's contents.
-     *********************************/
+    /* Create the Wall's content. */
 
     m_playerListBox = new hoxPlayersUI( this, hoxPlayersUI::UI_TYPE_TABLE );
     m_playerListBox->SetOwner( this );
@@ -966,7 +964,7 @@ hoxBoard::_CreateAndLayoutWallPanel()
                                                    hoxUtil::LoadImage("go-jump.png") );
     inputSizer->Add( inputBtn, 0, wxEXPAND|wxALL, 0 );
 
-    // Setup the Wall.
+    /* Arrange the Wall. */
 
     m_wallSizer->Add( m_playerListBox, wxSizerFlags(1).Expand() );
     m_wallSizer->Add( m_systemOutput,  wxSizerFlags(1).Expand() );
@@ -1235,6 +1233,65 @@ hoxBoard::_IsOwnerSeated() const
 {
     return (    m_ownerId == m_redId 
              || m_ownerId == m_blackId );
+}
+
+
+// ----------------------------------------------------------------------------
+//
+//                    hoxPracticeBoard
+//
+// ----------------------------------------------------------------------------
+
+BEGIN_EVENT_TABLE(hoxPracticeBoard, hoxBoard)
+    EVT_COMMAND_SCROLL(ID_AI_LEVEL, hoxPracticeBoard::OnAISliderUpdate)
+END_EVENT_TABLE()
+
+void
+hoxPracticeBoard::CreateAndLayoutWallPanel()
+{
+    /* Create the Wall's content. */
+
+    m_playerListBox = new hoxPlayersUI( this, hoxPlayersUI::UI_TYPE_TABLE );
+    m_playerListBox->SetOwner( this );
+
+    m_systemOutput = new wxTextCtrl( this, wxID_ANY, _T(""),
+                                     wxDefaultPosition, wxDefaultSize,
+                                     wxTE_MULTILINE | wxRAISED_BORDER | wxTE_READONLY 
+                                     | wxHSCROLL | wxTE_RICH /* needed for Windows */ );
+
+    m_wallOutput = new wxTextCtrl( this, wxID_ANY, _T(""),
+                                   wxDefaultPosition, wxDefaultSize,
+                                   wxTE_MULTILINE | wxRAISED_BORDER | wxTE_READONLY 
+                                   | wxHSCROLL | wxTE_RICH /* needed for Windows */ );
+    // AI Controls.
+    wxStaticBoxSizer* aiSizer = new wxStaticBoxSizer( wxVERTICAL, this, _("Difficulty level") );
+    wxSlider* aiSlider = new wxSlider( this, ID_AI_LEVEL,
+                                       m_nAILevel /*value*/, 1 /*min*/, 10 /*max*/,
+                                       wxDefaultPosition, wxDefaultSize,
+                                       wxSL_AUTOTICKS | wxSL_LABELS);
+    aiSizer->Add( aiSlider, wxSizerFlags(0).Expand().Border(wxALL,5) );
+
+    /* Arrange the Wall. */
+
+    m_wallSizer->Add( m_playerListBox, wxSizerFlags(1).Expand() );
+    m_wallSizer->Add( m_systemOutput,  wxSizerFlags(1).Expand() );
+    m_wallSizer->Add( m_wallOutput,    wxSizerFlags(1).Expand() );
+    m_wallSizer->Add( aiSizer,         wxSizerFlags(2).Expand().Border(wxALL,5) );
+}
+
+void
+hoxPracticeBoard::OnAISliderUpdate( wxScrollEvent& event )
+{
+    if ( m_nAILevel == event.GetInt() ) return;
+
+    m_nAILevel = event.GetInt();
+    wxLogDebug("%s: AI Level updated to [%d].", __FUNCTION__, m_nAILevel);
+
+    hoxPracticeTable* practiceTable( wxDynamicCast(m_pTable.get(), hoxPracticeTable) );
+    if ( practiceTable )
+    {
+        practiceTable->OnAILevelUpdate( m_nAILevel );
+    }
 }
 
 /************************* END OF FILE ***************************************/

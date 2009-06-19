@@ -329,8 +329,15 @@ enum hoxRequestType
     hoxREQUEST_PLAYER_STATUS,
         /* Event generated from a Player when his Status is changed. */
 
-    hoxREQUEST_MSG
+    hoxREQUEST_MSG,
         /* Message generated (incoming) from a physical Table */
+
+    /* -----------------------------*
+     *     AI specific messages     *   
+     * -----------------------------*/
+    hoxREQUEST_AI_LEVEL
+        /* AI's difficulty level */
+
 };
 
 /**

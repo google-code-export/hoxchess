@@ -193,8 +193,12 @@ public:
     void SetPiecesPath( const wxString& piecesPath );
     void Repaint(); // Paint again using the current settings.
 
+    void ShowUI();
+
+protected:
+    virtual void CreateAndLayoutWallPanel();
+
 private:
-    void _Show();
     void _SetRedInfo( const wxString& playerId,
                       const int       nScore = 0 );
     void _SetBlackInfo( const wxString& playerId,
@@ -202,8 +206,7 @@ private:
     void _CreateBoardUI();
     void _CreateBoardPanel();
     void _LayoutBoardPanel( bool bViewInverted );
-    void _CreateAndLayoutWallPanel();
-    
+
     /**
      * Add a Player's Id to the Player-List GUI.
      * @return true if the Player is NEWLY inserted.
@@ -256,7 +259,7 @@ private:
      */
     bool _IsOwnerSeated() const;
 
-private:
+protected:
     hoxCoreBoard*     m_coreBoard;  // The "core" board.
     hoxIReferee_SPtr  m_referee;    // The Referee.
     hoxTable_SPtr     m_pTable;     // The Table to which this Board belongs.
@@ -333,6 +336,42 @@ private:
 
     bool              m_bSoundEnabled; // Sound is enabled?
     wxSound           m_soundMove;     // Sound of a MOVE
+
+    DECLARE_EVENT_TABLE()
+};
+
+/**
+ * A PRACTICE Board in which the local player is playing with his computer.
+ */
+class hoxPracticeBoard : public hoxBoard
+{
+public:
+    hoxPracticeBoard( wxWindow*        parent,
+                      const wxString&  piecesPath,
+                      hoxIReferee_SPtr referee,
+                      hoxTable_SPtr    pTable,
+                      const wxString&  ownerId,
+                      const wxString&  sBgImage,
+                      wxColor          bgColor,
+                      wxColor          fgColor,
+                      const wxPoint&   pos = wxDefaultPosition, 
+                      const wxSize&    size = wxDefaultSize,
+                      unsigned int     featureFlags = hoxBOARD_FEATURE_ALL )
+        : hoxBoard( parent, piecesPath, referee, pTable, ownerId,
+                    sBgImage, bgColor, fgColor, pos, size, featureFlags )
+        , m_nAILevel( 5 )
+        { /* empty */ }
+
+    virtual ~hoxPracticeBoard() {}
+
+protected:
+    /* Override the parent' s API */
+    virtual void CreateAndLayoutWallPanel();
+
+    void OnAISliderUpdate( wxScrollEvent& event );
+
+private:
+    int   m_nAILevel;
 
     DECLARE_EVENT_TABLE()
 };

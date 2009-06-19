@@ -80,6 +80,7 @@ public:
                                   const MoveList&    moves ) = 0;
 	virtual std::string generateMove() = 0;
     virtual void        onHumanMove( const std::string& sMove ) = 0;
+    virtual int         setDifficultyLevel( int nAILevel ) = 0;
     // ------------
 
     void operator delete(void* p)
