@@ -39,7 +39,7 @@ extern void        InitGame();
 extern const char* GenerateNextMove();
 extern void        OnOpponentMove(const char *line);
 extern void        DeInitEngine();
-
+extern void        SetMaxDepth( int searchDepth );
 
 /*
  * AI Engine Implementation
@@ -95,6 +95,18 @@ public:
     {
         std::string stdMove = _hoxToMove( sMove );
         ::OnOpponentMove( stdMove.c_str() );
+    }
+
+    int setDifficultyLevel( int nAILevel )
+    {
+        int searchDepth = 1;
+
+        if      ( nAILevel > 10 ) searchDepth = 10;
+        else if ( nAILevel < 1 )  searchDepth = 1;
+        else                      searchDepth = nAILevel;
+
+        ::SetMaxDepth( searchDepth );
+        return hoxAI_RC_OK;
     }
 
 private:

@@ -36,9 +36,19 @@
 //
 // ----------------------------------------------------------------------------
 
-folHOXEngine::folHOXEngine( const std::string& fen,
-                            const int          searchDepth /* = 3 */ )
-        : _searchDepth( searchDepth )
+folHOXEngine::folHOXEngine( const int searchDepth /* = 3 */ )
+        : _engine( NULL )
+        , _searchDepth( searchDepth )
+{
+}
+
+folHOXEngine::~folHOXEngine()
+{
+    delete _engine;
+}
+
+void
+folHOXEngine::InitGame( const std::string& fen )
 {
 	/* FEN starting position of the Board. */
 	std::string fenStartPosition = fen;
@@ -58,12 +68,8 @@ folHOXEngine::folHOXEngine( const std::string& fen,
 	 *    For a normal developer (who is not familiar with Xiangqi AI),
 	 *    we have no idea what this 'hash' value is.
 	 */
-	_engine = new folEngine(XQ(fenStartPosition), 21);
-}
-
-folHOXEngine::~folHOXEngine()
-{
     delete _engine;
+	_engine = new folEngine(XQ(fenStartPosition), 21);
 }
 
 std::string

@@ -158,6 +158,16 @@ hoxAIEngine::HandleRequest( hoxRequest_APtr apRequest )
         {
             return _HandleRequest_MOVE( apRequest );
         }
+        case hoxREQUEST_AI_LEVEL:
+        {
+            const wxString sParam = apRequest->parameters["ai_level"];
+            const int nAILevel = ::atoi( sParam.c_str() );
+            if ( m_engineAPI )
+            {
+                m_engineAPI->setDifficultyLevel( nAILevel );
+            }
+            break;
+        }
         default:
         {
             wxLogDebug("%s: *WARN* Unsupported Request [%s].", 

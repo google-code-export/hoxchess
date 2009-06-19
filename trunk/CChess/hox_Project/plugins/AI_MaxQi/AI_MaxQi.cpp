@@ -71,6 +71,17 @@ public:
         MaxQi::on_human_move( sMove );
     }
 
+    int setDifficultyLevel( int nAILevel )
+    {
+        int searchDepth = 1;
+
+        if      ( nAILevel > 10 ) searchDepth = 10;
+        else if ( nAILevel < 1 )  searchDepth = 1;
+        else                      searchDepth = nAILevel;
+
+        MaxQi::set_max_depth( searchDepth );
+        return hoxAI_RC_OK;
+    }
 
 private:
     std::string m_name;

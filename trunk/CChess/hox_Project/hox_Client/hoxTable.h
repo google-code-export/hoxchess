@@ -46,9 +46,10 @@ class hoxSite;
  *      - One RED hoxPlayer.
  *      - One BLACK hoxPlayer.
  */
-class hoxTable
+class hoxTable : public wxObject
 {
 public:
+    hoxTable() {}
     hoxTable( hoxSite*          site,
               const wxString&   id,
               hoxIReferee_SPtr  referee,
@@ -377,6 +378,8 @@ protected:
 	hoxTimeInfo      m_initialTime; // *** Initial time.
     hoxTimeInfo      m_blackTime;   // Black's time.
 	hoxTimeInfo      m_redTime;     // Red's time.
+
+    DECLARE_DYNAMIC_CLASS(hoxTable)
 };
 
 
@@ -387,6 +390,7 @@ protected:
 class hoxPracticeTable : public hoxTable
 {
 public:
+    hoxPracticeTable() {}
     hoxPracticeTable( hoxSite*          site,
                       const wxString&   id,
                       hoxIReferee_SPtr  referee,
@@ -401,6 +405,15 @@ public:
 					     	       const hoxTimeInfo& playerTime );
     virtual void OnResignCommand_FromBoard();
     virtual void OnDrawCommand_FromBoard();
+
+    /* Practice-table specific API. */
+    void OnAILevelUpdate( const int nAILevel );
+
+private:
+    hoxPlayer* _GetAIPlayer() const;
+
+private:
+    DECLARE_DYNAMIC_CLASS(hoxPracticeTable)
 };
 
 #endif /* __INCLUDED_HOX_TABLE_H__ */

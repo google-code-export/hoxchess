@@ -27,9 +27,10 @@ namespace MaxQi
 {
     /* PUBLIC API */
 
-    void init_game();
+    void        init_game();
     std::string generate_move();
     void        on_human_move( const std::string& sMove );
+    void        set_max_depth( int searchDepth );
 
 } // namespace MaxQi
 

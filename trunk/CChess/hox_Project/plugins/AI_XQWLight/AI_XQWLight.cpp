@@ -86,6 +86,18 @@ public:
         XQWLight::on_human_move( sMove );
     }
 
+    int setDifficultyLevel( int nAILevel )
+    {
+        int searchDepth = 1;
+
+        if      ( nAILevel > 10 ) searchDepth = 10;
+        else if ( nAILevel < 1 )  searchDepth = 1;
+        else                      searchDepth = nAILevel;
+
+        XQWLight::init_engine( searchDepth );
+        return hoxAI_RC_OK;
+    }
+
 private:
     bool _convertFENtoBoard( const std::string& fen,
                              unsigned char      board[10][9],
