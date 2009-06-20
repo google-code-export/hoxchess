@@ -72,7 +72,7 @@ class AIEngineLib
 {
 public:
     virtual void        destroy() = 0;
-    virtual void        initEngine( int searchDepth = 0 ) = 0;
+    virtual void        initEngine( int nAILevel = 0 ) = 0;
 
     // ------------
     // ............................................. fen - Forsyth-Edwards Notation (FEN)

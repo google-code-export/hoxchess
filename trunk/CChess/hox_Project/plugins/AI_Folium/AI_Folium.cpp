@@ -45,9 +45,9 @@ public:
         delete this;
     }
 
-    void initEngine( int searchDepth = 0 )
+    void initEngine( int nAILevel = 0 )
     {
-        const int nDepth = ( searchDepth < 1 ? 3 : searchDepth );
+        const int nDepth = ( nAILevel < 1 ? 3 : nAILevel );
         m_engine.reset( new folHOXEngine( nDepth ) );
     }
 

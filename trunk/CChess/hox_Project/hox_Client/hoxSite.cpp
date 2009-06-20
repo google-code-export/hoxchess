@@ -360,7 +360,7 @@ hoxLocalSite::OnLocalRequest_PRACTICE( const wxString& sSavedFile /* = "" */ )
      *   (1) This PRACTICE-Table, and
      *   (2) The new AI Player.
      */
-    const wxString sTableId = hoxUtil::GenerateRandomString("PRACTICE_");
+    const wxString sTableId = "PRACTICE";
     const wxString sAIId    = hoxAIPluginMgr::GetInstance()->GetDefaultPluginName();
 
     /* Set the default Table's attributes. */
