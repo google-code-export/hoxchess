@@ -63,8 +63,9 @@ public:
         delete this;
     }
 
-    void initEngine( int searchDepth = 0 )
+    void initEngine( int nAILevel = 0 )
     {
+        setDifficultyLevel( nAILevel == 0 ? 5 : nAILevel );
         ::InitEngine();
     }
 

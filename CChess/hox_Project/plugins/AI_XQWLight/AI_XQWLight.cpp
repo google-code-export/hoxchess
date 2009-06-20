@@ -48,12 +48,10 @@ public:
         delete this;
     }
 
-    void initEngine( int searchDepth = 0 )
+    void initEngine( int nAILevel = 0 )
     {
-        if ( searchDepth > 0 )
-        {
-            XQWLight::init_engine( searchDepth );
-        }
+        setDifficultyLevel( nAILevel  == 0 ? 5 : nAILevel );
+        XQWLight::set_search_time( 60 /* seconds */ );
     }
 
   	int initGame( const std::string& fen,

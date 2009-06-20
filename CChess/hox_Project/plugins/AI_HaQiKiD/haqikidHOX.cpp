@@ -39,7 +39,7 @@
 int Side;
 int Post = 0;           /* set to 1 to see machine thinking printed */
 int MaxDepth  = 60;     /* must be set 2 higher than actual depth!  */
-int MaxTime   = 300000; /* Time per session, msec                   */
+int MaxTime   = 1200000; /* Time per session, msec                   */
 int MaxMoves  = 40;     /* moves per session; 0 = entire game       */
 int TimeInc   = 0;      /* extra time per move in msec              */
 int TimeLeft;
