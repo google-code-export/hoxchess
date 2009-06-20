@@ -358,10 +358,10 @@ MyFrame::OnUpdateShowLogWindow( wxUpdateUIEvent& event )
 void 
 MyFrame::OnPractice( wxCommandEvent& event )
 {
-    hoxSite* selectedSite = _GetSelectedSite();
-    if ( selectedSite != NULL )
+    hoxSite* localSite = hoxSiteManager::GetInstance()->GetLocalSite();
+    if ( localSite != NULL )
     {
-        selectedSite->OnLocalRequest_PRACTICE();
+        localSite->OnLocalRequest_PRACTICE();
     }
 }
 
@@ -369,11 +369,11 @@ void
 MyFrame::OnUpdatePractice( wxUpdateUIEvent& event )
 {
 	bool bEnabled = false;
-    hoxSite* selectedSite = _GetSelectedSite();
 
-    if ( selectedSite != NULL )
+    hoxSite* localSite = hoxSiteManager::GetInstance()->GetLocalSite();
+    if ( localSite != NULL )
 	{
-		unsigned int actionFlags = selectedSite->GetCurrentActionFlags();
+		const unsigned int actionFlags = localSite->GetCurrentActionFlags();
 		if ( (actionFlags & hoxSITE_ACTION_PRACTICE) != 0 )
 		{
 			bEnabled = true;

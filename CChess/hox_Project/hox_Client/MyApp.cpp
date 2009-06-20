@@ -312,9 +312,7 @@ MyApp::OnSystemClose()
 
 	m_appClosing = true;
 
-    // Delete the LOCAL site.
     hoxSiteManager::GetInstance()->DeleteLocalSite();
-
 	hoxSiteManager::GetInstance()->Close();
 }
 
