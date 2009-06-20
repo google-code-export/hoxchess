@@ -126,6 +126,7 @@
 		AFCFE2DD0FCEE2D3000760F2 /* rhorse.png in Copy Files (pieces\xiangqiboard_45x45) */ = {isa = PBXBuildFile; fileRef = AFCFE2CE0FCEE2D3000760F2 /* rhorse.png */; };
 		AFCFE2DE0FCEE2D3000760F2 /* rking.png in Copy Files (pieces\xiangqiboard_45x45) */ = {isa = PBXBuildFile; fileRef = AFCFE2CF0FCEE2D3000760F2 /* rking.png */; };
 		AFCFE2DF0FCEE2D3000760F2 /* rpawn.png in Copy Files (pieces\xiangqiboard_45x45) */ = {isa = PBXBuildFile; fileRef = AFCFE2D00FCEE2D3000760F2 /* rpawn.png */; };
+		AFD3DA690FED44BD00A0D159 /* hoxchess.icns in Resources */ = {isa = PBXBuildFile; fileRef = AFD3DA680FED44BD00A0D159 /* hoxchess.icns */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -482,6 +483,7 @@
 		AFCFE2CE0FCEE2D3000760F2 /* rhorse.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rhorse.png; sourceTree = "<group>"; };
 		AFCFE2CF0FCEE2D3000760F2 /* rking.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rking.png; sourceTree = "<group>"; };
 		AFCFE2D00FCEE2D3000760F2 /* rpawn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rpawn.png; sourceTree = "<group>"; };
+		AFD3DA680FED44BD00A0D159 /* hoxchess.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = hoxchess.icns; path = resource/icons/hoxchess.icns; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -589,6 +591,7 @@
 		20286C2CFDCF999611CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				AFD3DA680FED44BD00A0D159 /* hoxchess.icns */,
 				8D0C4E960486CD37000505A6 /* Info.plist */,
 				0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */,
 				1DDD57E20DA1CFC700B32029 /* main.xib */,
@@ -859,6 +862,7 @@
 			files = (
 				8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */,
 				1DDD57E40DA1CFC700B32029 /* main.xib in Resources */,
+				AFD3DA690FED44BD00A0D159 /* hoxchess.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1088,178 +1092,26 @@
 			};
 			name = "Release-static";
 		};
-		C0E91AC608A95435008D54AB /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COPY_PHASE_STRIP = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREFIX_HEADER = "";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"_GLIBCXX_DEBUG=1",
-					"_GLIBCXX_DEBUG_PEDANTIC=1",
-				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)\"",
-					"\"$(SRCROOT)/plugins\"",
-				);
-			};
-			name = Debug;
-		};
-		C0E91AC708A95435008D54AB /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				DEAD_CODE_STRIPPING = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_PREFIX_HEADER = "";
-				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)\"",
-					"\"$(SRCROOT)/plugins\"",
-				);
-				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
-			};
-			name = Release;
-		};
-		C0E91ACA08A95435008D54AB /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CURRENT_PROJECT_VERSION = 0.7.1.0;
-				GCC_C_LANGUAGE_STANDARD = c99;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_PREFIX_HEADER = "";
-				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				INFOPLIST_FILE = Info.plist;
-				INSTALL_PATH = "$(HOME)/Applications";
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_CFLAGS = (
-					"-I/opt/wxWidgets-2.9.0/lib/wx/include/osx_carbon-unicode-debug-2.9",
-					"-I/opt/wxWidgets-2.9.0/include/wx-2.9",
-					"-D_FILE_OFFSET_BITS=64",
-					"-D__WXDEBUG__",
-					"-DWXUSINGDLL",
-					"-D__WXOSX_CARBON__",
-					"-I./lib/boost_1_38_0",
-					"-I./lib/asio-1.4.1/include",
-				);
-				OTHER_LDFLAGS = (
-					"-L/opt/wxWidgets-2.9.0/lib",
-					"-framework",
-					QuickTime,
-					"-framework",
-					IOKit,
-					"-framework",
-					Carbon,
-					"-framework",
-					Cocoa,
-					"-framework",
-					AudioToolbox,
-					"-framework",
-					System,
-					"-framework",
-					OpenGL,
-					"-lwx_osx_carbonud_xrc-2.9",
-					"-lwx_osx_carbonud_html-2.9",
-					"-lwx_osx_carbonud_qa-2.9",
-					"-lwx_osx_carbonud_adv-2.9",
-					"-lwx_osx_carbonud_core-2.9",
-					"-lwx_baseud_xml-2.9",
-					"-lwx_baseud_net-2.9",
-					"-lwx_baseud-2.9",
-				);
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				PRODUCT_NAME = HOXChess;
-				SDKROOT = macosx10.5;
-			};
-			name = Debug;
-		};
-		C0E91ACB08A95435008D54AB /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				GCC_C_LANGUAGE_STANDARD = c99;
-				GCC_INCREASE_PRECOMPILED_HEADER_SHARING = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "";
-				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				INFOPLIST_FILE = Info.plist;
-				INSTALL_PATH = "$(HOME)/Applications";
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_CFLAGS = (
-					"-I/opt/wxWidgets-2.9.0/lib/wx/include/osx_carbon-unicode-release-2.9",
-					"-I/opt/wxWidgets-2.9.0/include/wx-2.9",
-					"-D_FILE_OFFSET_BITS=64",
-					"-DWXUSINGDLL",
-					"-D__WXOSX_CARBON__",
-					"-I./lib/boost_1_38_0",
-					"-I./lib/asio-1.4.1/include",
-				);
-				OTHER_LDFLAGS = (
-					"-L/opt/wxWidgets-2.9.0/lib",
-					"-framework",
-					QuickTime,
-					"-framework",
-					IOKit,
-					"-framework",
-					Carbon,
-					"-framework",
-					Cocoa,
-					"-framework",
-					AudioToolbox,
-					"-framework",
-					System,
-					"-framework",
-					OpenGL,
-					"-lwx_osx_carbonu_xrc-2.9",
-					"-lwx_osx_carbonu_html-2.9",
-					"-lwx_osx_carbonu_qa-2.9",
-					"-lwx_osx_carbonu_adv-2.9",
-					"-lwx_osx_carbonu_core-2.9",
-					"-lwx_baseu_xml-2.9",
-					"-lwx_baseu_net-2.9",
-					"-lwx_baseu-2.9",
-				);
-				PRODUCT_NAME = HOXChess;
-				SDKROOT = macosx10.5;
-				SEPARATE_STRIP = YES;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
 		C0E91AC508A95435008D54AB /* Build configuration list for PBXNativeTarget "HOXChess" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				C0E91AC608A95435008D54AB /* Debug */,
 				AF6627AD0FC85B48006CA244 /* Debug-static */,
-				C0E91AC708A95435008D54AB /* Release */,
 				AF6627C10FC8617B006CA244 /* Release-static */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = "Debug-static";
 		};
 		C0E91AC908A95435008D54AB /* Build configuration list for PBXProject "HOXChess" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				C0E91ACA08A95435008D54AB /* Debug */,
 				AF6627AC0FC85B48006CA244 /* Debug-static */,
-				C0E91ACB08A95435008D54AB /* Release */,
 				AF6627C00FC8617B006CA244 /* Release-static */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = "Debug-static";
 		};
 /* End XCConfigurationList section */
 	};
