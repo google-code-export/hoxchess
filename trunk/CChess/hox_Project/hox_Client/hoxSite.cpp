@@ -312,10 +312,6 @@ hoxLocalSite::hoxLocalSite( const hoxServerAddress& address )
 {
 }
 
-hoxLocalSite::~hoxLocalSite()
-{
-}
-
 hoxLocalPlayer* 
 hoxLocalSite::CreateLocalPlayer( const wxString& playerName )
 {
@@ -331,8 +327,7 @@ hoxLocalSite::GetCurrentActionFlags() const
 	unsigned int flags = 0;
 
     /* Only allow ONE Practice Table. */
-    const hoxTableList& tables = this->GetTables();
-    if ( tables.empty() )
+    if ( this->GetTables().empty() )
     {
         flags |= hoxSITE_ACTION_PRACTICE;
         flags |= hoxSITE_ACTION_OPEN;
@@ -350,7 +345,7 @@ hoxLocalSite::OnLocalRequest_PRACTICE( const wxString& sSavedFile /* = "" */ )
     AIEngineLib_APtr apAIEngineLib = hoxAIPluginMgr::GetInstance()->CreateDefaultAIEngineLib();
     if ( apAIEngineLib.get() == NULL )
     {
-        ::wxMessageBox( "No AI Plugin found.", _("Create Pratice Table"), wxOK|wxICON_STOP );
+        ::wxMessageBox( _("No AI Plugin found."), _("Create Pratice Table"), wxOK|wxICON_STOP );
         return;
     }
 
@@ -959,7 +954,8 @@ hoxSiteManager::DeleteInstance()
 
 /* private */
 hoxSiteManager::hoxSiteManager()
-        : m_sitesUI( NULL )
+        : m_localSite( NULL )
+        , m_sitesUI( NULL )
 {
 }
 
@@ -974,24 +970,24 @@ hoxSiteManager::CreateSite( hoxSiteType             siteType,
 
 	switch ( siteType )
 	{
-	case hoxSITE_TYPE_LOCAL:
-	{
-		site = new hoxLocalSite( address );
-		break;
-	}
-	case hoxSITE_TYPE_REMOTE:
-	{
-		site = new hoxRemoteSite( address );
-		break;
-	}
-	case hoxSITE_TYPE_CHESSCAPE:
-	{
-		site = new hoxChesscapeSite( address );
-		break;
-	}
-	default:
-        wxLogError("%s: Unsupported Site-Type [%d].", __FUNCTION__, siteType);
-		return NULL;   // *** Exit with error immediately.
+	    case hoxSITE_TYPE_LOCAL:
+	    {
+		    site = new hoxLocalSite( address );
+		    break;
+	    }
+	    case hoxSITE_TYPE_REMOTE:
+	    {
+		    site = new hoxRemoteSite( address );
+		    break;
+	    }
+	    case hoxSITE_TYPE_CHESSCAPE:
+	    {
+		    site = new hoxChesscapeSite( address );
+		    break;
+	    }
+	    default:
+            wxLogError("%s: Unsupported Site-Type [%d].", __FUNCTION__, siteType);
+		    return NULL;   // *** Exit with error immediately.
 	}
 
     localPlayer = site->CreateLocalPlayer( userName );
@@ -1007,13 +1003,11 @@ hoxSiteManager::CreateSite( hoxSiteType             siteType,
 void
 hoxSiteManager::CreateLocalSite()
 {
+    wxCHECK_RET(!m_localSite, "The local site has been created");
     const hoxServerAddress localAddress("127.0.0.1", 0);
-    const wxString         localUserName = "LOCAL_USER";
-    const wxString         localPassword;
-    this->CreateSite( hoxSITE_TYPE_LOCAL, 
-            		  localAddress,
-					  localUserName,
-					  localPassword );
+    const wxString         localUserName = _("LOCAL_USER");
+    m_localSite = this->CreateSite( hoxSITE_TYPE_LOCAL, localAddress,
+					                localUserName, "" /* no password */ );
 }
 
 hoxSite*
@@ -1046,21 +1040,10 @@ hoxSiteManager::DeleteSite( hoxSite* site )
 void
 hoxSiteManager::DeleteLocalSite()
 {
-    hoxSite* localSite = NULL;
-
-    for ( hoxSiteList::iterator it = m_sites.begin();
-                                it != m_sites.end(); ++it )
+    if ( m_localSite != NULL )
     {
-		if ( (*it)->GetType() == hoxSITE_TYPE_LOCAL )
-        {
-            localSite = (*it);
-            break;
-        }
-    }
-
-    if ( localSite != NULL )
-    {
-        this->DeleteSite( localSite );
+        this->DeleteSite( m_localSite );
+        m_localSite = NULL;
     }
 }
 

@@ -208,7 +208,10 @@ class hoxLocalSite : public hoxSite
 {
 public:
     hoxLocalSite(const hoxServerAddress& address);
-    virtual ~hoxLocalSite();
+    virtual ~hoxLocalSite() {}
+
+    virtual const wxString GetName() const
+        { return _("My Computer"); }
 
     virtual bool IsConnected() const { return true; }
 
@@ -314,6 +317,7 @@ public:
 						 const wxString&         password );
 
     void CreateLocalSite();
+    hoxSite* GetLocalSite() const { return m_localSite; }
 
 	hoxSite* FindSite( const hoxServerAddress& address ) const;
 	
@@ -336,6 +340,7 @@ private:
 
 private:
 	hoxSiteList     m_sites;
+    hoxSite*        m_localSite;
     hoxSitesUI*     m_sitesUI;
 };
 
