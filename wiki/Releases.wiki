@@ -2,6 +2,13 @@
 
 _All releases can be found from_ [http://code.google.com/p/hoxchess/downloads/list this Downloads page]
 
+==== Jun 20, 2009 ====
+
+ * *Jun 20, 2009*
+  * Released version *0.7.6.0* just for *Mac OS X* to fix the wrong _Company Name_ in the last submission to [http://www.apple.com/downloads/ Apple - Downloads]
+  * The only major change is the ability to change the *Difficulty Level* of AI Engines in the Practice Table.
+   * See [http://www.playxiangqi.com/cchess/screenshots/0.7.6.0/HOXChess-0.7.6.0_MacOSX.png the screenshot here...]
+
  * *Jun 09, 2009*
   * Released version *0.7.5.0* with binary packages for Windows, *Mac OS X*, and Linux
   * Some of the _new features_ are:
