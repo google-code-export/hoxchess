@@ -38,15 +38,16 @@ class hoxChesscapeWriter : public hoxSocketWriter
 {
 public:
     hoxChesscapeWriter( wxEvtHandler*           player,
-                        const hoxServerAddress& serverAddress );
+                        const hoxServerAddress& serverAddress )
+                : hoxSocketWriter( player, serverAddress ) {}
     virtual ~hoxChesscapeWriter() {}
 
 protected:
     virtual hoxResult HandleRequest( hoxRequest_APtr apRequest,
                                      wxString&       sError );
-    virtual hoxSocketAgent* CreateSocketAgent( asio::io_service& io_service,
-                                               tcp::resolver::iterator endpoint_iterator,
-                                               wxEvtHandler*       evtHandler);
+    virtual hoxAsyncSocket* CreateSocketAgent( asio::io_service&       io_service,
+                                               tcp::resolver::iterator endpoint_iter,
+                                               wxEvtHandler*           evtHandler);
 
 private:
     // ------
@@ -69,20 +70,21 @@ private:
 };
 
 // ----------------------------------------------------------------------------
-// hoxChesscapeSocketAgent
+// hoxChesscapeSocket
 // ----------------------------------------------------------------------------
 
-class hoxChesscapeSocketAgent : public hoxSocketAgent
+class hoxChesscapeSocket : public hoxAsyncSocket
 {
 public:
-    hoxChesscapeSocketAgent( asio::io_service&       io_service,
-                             tcp::resolver::iterator endpoint_iterator,
-                             wxEvtHandler*           evtHandler );
-    virtual ~hoxChesscapeSocketAgent() {}
+    hoxChesscapeSocket( asio::io_service&       io_service,
+                             tcp::resolver::iterator endpoint_iter,
+                             wxEvtHandler*           evtHandler )
+                : hoxAsyncSocket( io_service, endpoint_iter, evtHandler ) {}
+    virtual ~hoxChesscapeSocket() {}
 
 protected:
     virtual void handleConnect( const asio::error_code& error,
-                                tcp::resolver::iterator endpoint_iterator );
+                                tcp::resolver::iterator endpoint_iter );
     virtual void handleIncomingData( const asio::error_code& error );
     virtual void consumeIncomingData();
 };
@@ -99,8 +101,9 @@ class hoxChesscapeConnection : public hoxSocketConnection
 public:
     hoxChesscapeConnection() {} // DUMMY default constructor required for RTTI.
     hoxChesscapeConnection( const hoxServerAddress& serverAddress,
-                            wxEvtHandler*           player );
-    virtual ~hoxChesscapeConnection();
+                            wxEvtHandler*           player )
+                : hoxSocketConnection( serverAddress, player ) {}
+    virtual ~hoxChesscapeConnection() {}
 
 protected:
     virtual hoxSocketWriter_SPtr CreateWriter( wxEvtHandler*           evtHandler,

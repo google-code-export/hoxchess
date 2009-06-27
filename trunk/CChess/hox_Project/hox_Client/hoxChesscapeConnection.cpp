@@ -26,7 +26,6 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxChesscapeConnection.h"
-#include "hoxPlayer.h"
 #include "hoxUtil.h"
 
 /* Constants. */
@@ -38,12 +37,6 @@ IMPLEMENT_DYNAMIC_CLASS(hoxChesscapeConnection, hoxSocketConnection)
 //-----------------------------------------------------------------------------
 // hoxChesscapeWriter
 //-----------------------------------------------------------------------------
-
-hoxChesscapeWriter::hoxChesscapeWriter( wxEvtHandler*           player,
-                                        const hoxServerAddress& serverAddress )
-            : hoxSocketWriter( player, serverAddress )
-{
-}
 
 hoxResult 
 hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest,
@@ -89,12 +82,12 @@ hoxChesscapeWriter::HandleRequest( hoxRequest_APtr apRequest,
     return hoxRC_OK;
 }
 
-hoxSocketAgent*
-hoxChesscapeWriter::CreateSocketAgent( asio::io_service& io_service,
-                                       tcp::resolver::iterator endpoint_iterator,
-                                       wxEvtHandler*       evtHandler)
+hoxAsyncSocket*
+hoxChesscapeWriter::CreateSocketAgent( asio::io_service&       io_service,
+                                       tcp::resolver::iterator endpoint_iter,
+                                       wxEvtHandler*           evtHandler)
 {
-    return new hoxChesscapeSocketAgent( io_service, endpoint_iterator, evtHandler);
+    return new hoxChesscapeSocket( io_service, endpoint_iter, evtHandler);
 }
 
 hoxResult
@@ -362,36 +355,27 @@ hoxChesscapeWriter::_WriteLine( const wxString& cmdRequest )
 }
 
 //-----------------------------------------------------------------------------
-// hoxChesscapeSocketAgent
+// hoxChesscapeSocket
 //-----------------------------------------------------------------------------
 
-hoxChesscapeSocketAgent::hoxChesscapeSocketAgent( asio::io_service&       io_service,
-                                                  tcp::resolver::iterator endpoint_iterator,
-                                                  wxEvtHandler*           evtHandler )
-        : hoxSocketAgent( io_service,
-                          endpoint_iterator,
-                          evtHandler )
-{
-}
-
 void
-hoxChesscapeSocketAgent::handleConnect( const asio::error_code& error,
-                                        tcp::resolver::iterator endpoint_iterator )
+hoxChesscapeSocket::handleConnect( const asio::error_code& error,
+                                        tcp::resolver::iterator endpoint_iter )
 {
     if (!error)
     {
         m_connectState = CONNECT_STATE_CONNECTED;
         asio::async_read_until( m_socket, m_inBuffer, END_CHAR,
-                                boost::bind(&hoxChesscapeSocketAgent::handleIncomingData, this,
+                                boost::bind(&hoxChesscapeSocket::handleIncomingData, this,
                                             asio::placeholders::error));
     }
-    else if (endpoint_iterator != tcp::resolver::iterator())
+    else if (endpoint_iter != tcp::resolver::iterator())
     {
         m_socket.close();
-        tcp::endpoint endpoint = *endpoint_iterator;
+        tcp::endpoint endpoint = *endpoint_iter;
         m_socket.async_connect( endpoint,
-                                boost::bind(&hoxChesscapeSocketAgent::handleConnect, this,
-                                            asio::placeholders::error, ++endpoint_iterator));
+                                boost::bind(&hoxChesscapeSocket::handleConnect, this,
+                                            asio::placeholders::error, ++endpoint_iter));
     }
     else  // Failed.
     {
@@ -404,7 +388,7 @@ hoxChesscapeSocketAgent::handleConnect( const asio::error_code& error,
 }
 
 void
-hoxChesscapeSocketAgent::handleIncomingData( const asio::error_code& error )
+hoxChesscapeSocket::handleIncomingData( const asio::error_code& error )
 {
     if ( error )
     {
@@ -416,7 +400,7 @@ hoxChesscapeSocketAgent::handleIncomingData( const asio::error_code& error )
 }
 
 void
-hoxChesscapeSocketAgent::consumeIncomingData()
+hoxChesscapeSocket::consumeIncomingData()
 {
     std::istream response_stream( &m_inBuffer );
     wxUint8      b;
@@ -437,25 +421,13 @@ hoxChesscapeSocketAgent::consumeIncomingData()
 
     // Read the END token (AGAIN!).
     asio::async_read_until( m_socket, m_inBuffer, END_CHAR,
-                            boost::bind(&hoxChesscapeSocketAgent::handleIncomingData, this,
+                            boost::bind(&hoxChesscapeSocket::handleIncomingData, this,
                                         asio::placeholders::error));
 }
 
 //-----------------------------------------------------------------------------
 // hoxChesscapeConnection
 //-----------------------------------------------------------------------------
-
-hoxChesscapeConnection::hoxChesscapeConnection( const hoxServerAddress& serverAddress,
-                                                wxEvtHandler*           player )
-        : hoxSocketConnection( serverAddress, player )
-{
-    wxLogDebug("%s: ENTER.", __FUNCTION__);
-}
-
-hoxChesscapeConnection::~hoxChesscapeConnection()
-{
-    wxLogDebug("%s: ENTER.", __FUNCTION__);
-}
 
 hoxSocketWriter_SPtr
 hoxChesscapeConnection::CreateWriter( wxEvtHandler*           evtHandler,

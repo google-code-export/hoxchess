@@ -183,6 +183,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hoxAsyncSocket.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\hoxBoard.cpp"
 				>
 			</File>
@@ -306,6 +310,10 @@
 			</File>
 			<File
 				RelativePath=".\hoxAIPluginMgr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\hoxAsyncSocket.h"
 				>
 			</File>
 			<File

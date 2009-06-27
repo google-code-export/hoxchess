@@ -212,7 +212,6 @@ hoxPlayer::OnRequest_FromTable( hoxRequest_APtr apRequest )
         return;
     }
 
-    apRequest->sender = this;
     this->AddRequestToConnection( apRequest );
 }
 
