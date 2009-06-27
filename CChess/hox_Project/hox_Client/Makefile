@@ -38,6 +38,7 @@ MAIN_SRC := \
 	hoxPlayer.cpp \
 	hoxPlayerMgr.cpp \
 	hoxReferee.cpp \
+	hoxAsyncSocket.cpp \
 	hoxSocketConnection.cpp \
 	hoxTable.cpp \
 	hoxTableMgr.cpp \

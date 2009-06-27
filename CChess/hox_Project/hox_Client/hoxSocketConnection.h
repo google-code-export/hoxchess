@@ -31,13 +31,13 @@
 #include <asio.hpp>
 #include "hoxConnection.h"
 #include "hoxTypes.h"
+#include "hoxAsyncSocket.h"
 #include <deque>
 #include <boost/bind.hpp>
 
 using asio::ip::tcp;
 
 /* Forward declarations. */
-class hoxSocketAgent;
 class hoxSocketWriter;
 
 /* Typedef(s) */
@@ -64,7 +64,7 @@ protected:
                                      wxString&       sError );
     virtual hoxResult Connect( wxString& sError );
 
-    virtual hoxSocketAgent* CreateSocketAgent( asio::io_service&       io_service,
+    virtual hoxAsyncSocket* CreateSocketAgent( asio::io_service&       io_service,
                                                tcp::resolver::iterator endpoint_iterator,
                                                wxEvtHandler*           evtHandler );
     // ----
@@ -95,67 +95,8 @@ protected:
 
 private:
     asio::io_service        m_io_service;
-    hoxSocketAgent*         m_pSocketAgent;
+    hoxAsyncSocket*         m_pSocketAgent;
     asio::thread*           m_io_service_thread;
-};
-
-// ----------------------------------------------------------------------------
-// hoxSocketAgent
-// ----------------------------------------------------------------------------
-
-class hoxSocketAgent
-{
-    typedef std::deque<std::string> MessageQueue;
-
-protected:
-    enum ConnectState
-    {
-        CONNECT_STATE_INIT,
-        CONNECT_STATE_CONNECTING,
-        CONNECT_STATE_CONNECTED,
-        CONNECT_STATE_CLOSED
-    };
-
-public:
-    hoxSocketAgent( asio::io_service&       io_service,
-                    tcp::resolver::iterator endpoint_iterator,
-                    wxEvtHandler*           evtHandler );
-    virtual ~hoxSocketAgent() {}
-
-    void write( const std::string& msg );
-    void close();
-
-protected:
-    virtual void handleConnect( const asio::error_code& error,
-                                tcp::resolver::iterator endpoint_iterator );
-    virtual void handleIncomingData( const asio::error_code& error );
-    virtual void consumeIncomingData();
-
-    // ----
-    void closeSocket();
-    void postEvent( const hoxResult      result,
-                    const std::string&   sEvent,
-                    const hoxRequestType type = hoxREQUEST_PLAYER_DATA );
-
-private:
-    void _doWrite( const std::string msg );
-    void _handleWrite( const asio::error_code& error );
-
-protected:
-    asio::io_service&    _io_service; // A reference only!
-    tcp::socket          m_socket;
-    asio::deadline_timer m_timer;
- 
-    int                  out_tries_; // FIXME: Concurrency problem!
-    std::string          out_msg_;   // FIXME: Concurrency problem!
-    MessageQueue         m_writeQueue;
-
-    std::string          m_sCurrentEvent;
-                /* The incoming event (being accumulated so far). */
-
-    asio::streambuf      m_inBuffer; // The buffer of incoming data.
-    ConnectState         m_connectState;
-    wxEvtHandler*        m_evtHandler;
 };
 
 // ----------------------------------------------------------------------------

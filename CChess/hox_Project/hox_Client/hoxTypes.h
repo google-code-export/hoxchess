@@ -281,15 +281,11 @@ public:
     hoxResult        code;
     wxString         content;
     wxMemoryBuffer   data;  // TODO: This eventually should replace 'content'
-    wxEvtHandler*    sender;
 
-    hoxResponse() : type( hoxREQUEST_UNKNOWN )
-                  , code( hoxRC_UNKNOWN )
-                  , sender( NULL ) {}
-    hoxResponse(hoxRequestType t, wxEvtHandler* s = NULL) 
+    hoxResponse( hoxRequestType t = hoxREQUEST_UNKNOWN,
+                 hoxResult      c = hoxRC_UNKNOWN ) 
                   : type( t )
-                  , code( hoxRC_UNKNOWN )
-                  , sender( s ) {}
+                  , code( c ) {}
 };
 typedef std::auto_ptr<hoxResponse>     hoxResponse_APtr;
 typedef boost::shared_ptr<hoxResponse> hoxResponse_SPtr;
