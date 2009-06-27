@@ -140,7 +140,7 @@ hoxSocketAgent::consumeIncomingData()
         }
     }
 
-    // Read incomgin data (AGAIN!).
+    // Read incoming data (AGAIN!).
     asio::async_read_until( m_socket, m_inBuffer, "\n\n",
                             boost::bind(&hoxSocketAgent::handleIncomingData, this,
                                         asio::placeholders::error));
@@ -168,9 +168,9 @@ hoxSocketAgent::_doWrite( const std::string msg )
         return;
     }
 
-    bool write_in_progress = !m_writeQueue.empty();
+    const bool write_in_progress = !m_writeQueue.empty();
     m_writeQueue.push_back(msg);
-    if (!write_in_progress)
+    if ( !write_in_progress )
     {
         asio::async_write( m_socket,
                            asio::buffer( m_writeQueue.front().data(),
@@ -191,7 +191,7 @@ hoxSocketAgent::_handleWrite( const asio::error_code& error )
     }
 
     m_writeQueue.pop_front();
-    if (!m_writeQueue.empty())
+    if ( !m_writeQueue.empty() )
     {
         asio::async_write( m_socket,
                            asio::buffer( m_writeQueue.front().data(),
@@ -219,7 +219,7 @@ hoxSocketAgent::postEvent( const hoxResult      result,
         apResponse->data.AppendByte( *it );
     }
  
-    /* Notify the Player. */
+    /* Notify the event-handler. */
     wxCommandEvent event( hoxEVT_CONNECTION_RESPONSE, type );
     apResponse->code = result;
     event.SetEventObject( apResponse.release() );  // Caller will de-allocate.
