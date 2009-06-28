@@ -189,7 +189,7 @@ hoxCheckUpdatesUI::OnCheckUpdatesResponse( wxCommandEvent& event )
         if      ( it->os == "O" ) osName = "OSX";
         else if ( it->os == "L" ) osName = "Linux";
         else if ( it->os == "S" ) osName = "Windows";
-        sMsg += it->version + "-" + osName + " [" + it->url + "]" + "\n\n";
+        sMsg +=  wxString::Format("%s-%s [%s]\n\n", it->version.c_str(), osName.c_str(), it->url.c_str());
     }
 
     wxString sCaption = wxString::Format("Check for Updates - Downloaded %d bytes", nSize );

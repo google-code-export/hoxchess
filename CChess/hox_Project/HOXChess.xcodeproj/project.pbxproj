@@ -111,6 +111,8 @@
 		AF864C460FC327E10034C83B /* libAI_XQWLight.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = AF864C440FC327DD0034C83B /* libAI_XQWLight.dylib */; };
 		AF864C560FC328E10034C83B /* move.wav in Copy Files (sounds) */ = {isa = PBXBuildFile; fileRef = AF864C540FC328DC0034C83B /* move.wav */; };
 		AF864C610FC329960034C83B /* BOOK.DAT in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = AF864B6E0FC321730034C83B /* BOOK.DAT */; };
+		AFCBA7EE0FF7FF1700787308 /* hoxAsyncSocket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFCBA7EA0FF7FF1700787308 /* hoxAsyncSocket.cpp */; };
+		AFCBA7EF0FF7FF1700787308 /* hoxCheckUpdatesUI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFCBA7EC0FF7FF1700787308 /* hoxCheckUpdatesUI.cpp */; };
 		AFCFE2D10FCEE2D3000760F2 /* badvisor.png in Copy Files (pieces\xiangqiboard_45x45) */ = {isa = PBXBuildFile; fileRef = AFCFE2C20FCEE2D3000760F2 /* badvisor.png */; };
 		AFCFE2D20FCEE2D3000760F2 /* bcannon.png in Copy Files (pieces\xiangqiboard_45x45) */ = {isa = PBXBuildFile; fileRef = AFCFE2C30FCEE2D3000760F2 /* bcannon.png */; };
 		AFCFE2D30FCEE2D3000760F2 /* bchariot.png in Copy Files (pieces\xiangqiboard_45x45) */ = {isa = PBXBuildFile; fileRef = AFCFE2C40FCEE2D3000760F2 /* bchariot.png */; };
@@ -468,6 +470,10 @@
 		AF864B8E0FC321B50034C83B /* rpawn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = rpawn.png; path = resource/pieces/iXiangQi_55x55/rpawn.png; sourceTree = "<group>"; };
 		AF864C440FC327DD0034C83B /* libAI_XQWLight.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libAI_XQWLight.dylib; path = plugins/libAI_XQWLight.dylib; sourceTree = "<group>"; };
 		AF864C540FC328DC0034C83B /* move.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; name = move.wav; path = resource/sounds/move.wav; sourceTree = "<group>"; };
+		AFCBA7EA0FF7FF1700787308 /* hoxAsyncSocket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxAsyncSocket.cpp; path = hox_Client/hoxAsyncSocket.cpp; sourceTree = "<group>"; };
+		AFCBA7EB0FF7FF1700787308 /* hoxAsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxAsyncSocket.h; path = hox_Client/hoxAsyncSocket.h; sourceTree = "<group>"; };
+		AFCBA7EC0FF7FF1700787308 /* hoxCheckUpdatesUI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxCheckUpdatesUI.cpp; path = hox_Client/hoxCheckUpdatesUI.cpp; sourceTree = "<group>"; };
+		AFCBA7ED0FF7FF1700787308 /* hoxCheckUpdatesUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxCheckUpdatesUI.h; path = hox_Client/hoxCheckUpdatesUI.h; sourceTree = "<group>"; };
 		AFCFE2C20FCEE2D3000760F2 /* badvisor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = badvisor.png; sourceTree = "<group>"; };
 		AFCFE2C30FCEE2D3000760F2 /* bcannon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bcannon.png; sourceTree = "<group>"; };
 		AFCFE2C40FCEE2D3000760F2 /* bchariot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bchariot.png; sourceTree = "<group>"; };
@@ -521,6 +527,10 @@
 		20286C2AFDCF999611CA2CEA /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				AFCBA7EA0FF7FF1700787308 /* hoxAsyncSocket.cpp */,
+				AFCBA7EB0FF7FF1700787308 /* hoxAsyncSocket.h */,
+				AFCBA7EC0FF7FF1700787308 /* hoxCheckUpdatesUI.cpp */,
+				AFCBA7ED0FF7FF1700787308 /* hoxCheckUpdatesUI.h */,
 				AF4838F60FA27BAD00F734C4 /* hoxAIPlayer.cpp */,
 				AF4838F70FA27BAD00F734C4 /* hoxAIPlayer.h */,
 				AF4838F80FA27BAD00F734C4 /* hoxAIPluginMgr.cpp */,
@@ -903,6 +913,8 @@
 				AF4839520FA27BAD00F734C4 /* MyApp.cpp in Sources */,
 				AF4839530FA27BAD00F734C4 /* MyChild.cpp in Sources */,
 				AF4839540FA27BAD00F734C4 /* MyFrame.cpp in Sources */,
+				AFCBA7EE0FF7FF1700787308 /* hoxAsyncSocket.cpp in Sources */,
+				AFCBA7EF0FF7FF1700787308 /* hoxCheckUpdatesUI.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
