@@ -27,7 +27,6 @@
 
 #include "hoxAsyncSocket.h"
 #include "hoxPlayer.h" // TODO: required for hoxEVT_CONNECTION_RESPONSE
-#include "hoxUtil.h"
 
 // ----------------------------------------------------------------------------
 //
@@ -91,26 +90,17 @@ hoxAsyncSocket::handleConnect( const asio::error_code& error,
         wxLogDebug("%s: *WARN* Fail to establish connection.", __FUNCTION__);
         this->postEvent( hoxRC_CLOSED, "Fail to establish connection", hoxREQUEST_LOGIN );
         m_socket.close();
-        //_io_service.stop(); // FORCE to stop!
     }
 }
 
 void
 hoxAsyncSocket::handleIncomingData( const asio::error_code& error )
 {
-    if ( error )
+    if ( checkAndCloseSocketIfError(error) ) // error detected?
     {
-        closeSocket();
-        this->postEvent( hoxRC_CLOSED, "Connection closed while reading" );
         return;
     }
 
-    this->consumeIncomingData();
-}
-
-void
-hoxAsyncSocket::consumeIncomingData()
-{
     std::istream response_stream( &m_inBuffer );
     wxUint8      b;
     bool         bSawOne = false; // just saw one '\n'?
@@ -199,6 +189,31 @@ hoxAsyncSocket::_handleWrite( const asio::error_code& error )
     }
 }
 
+bool
+hoxAsyncSocket::checkAndCloseSocketIfError( const asio::error_code& error )
+{
+    std::string sErrorMsg;
+
+    if ( error == asio::error::eof)
+    {
+        // Socket must have been closed. No need to do it again.
+        sErrorMsg = "Connection closed (EOF)";
+    }
+    else if ( error )
+    {
+        closeSocket();
+        sErrorMsg = "Connection closed due to error";
+    }
+
+    if ( !sErrorMsg.empty() )
+    {
+        this->postEvent( hoxRC_CLOSED, sErrorMsg );
+        return true;  // Error found.
+    }
+
+    return false;  // No error.
+}
+
 void
 hoxAsyncSocket::closeSocket()
 {
@@ -223,6 +238,65 @@ hoxAsyncSocket::postEvent( const hoxResult      result,
     wxPostEvent( m_evtHandler, event ); /* TODO: 2.9.0 wxWidgets says
                                          * we should use wxQueueEvent instead
                                          */
+}
+
+// ----------------------------------------------------------------------------
+//
+//     hoxHttpSocket
+//
+// ----------------------------------------------------------------------------
+
+void
+hoxHttpSocket::handleConnect( const asio::error_code& error,
+                              tcp::resolver::iterator endpoint_iter)
+{
+    if ( !error )
+    {
+        m_connectState = CONNECT_STATE_CONNECTED;
+        wxLogDebug("%s: Connection established.", __FUNCTION__);
+        asio::async_read_until( m_socket, m_inBuffer, "\r\n",
+                                boost::bind(&hoxHttpSocket::handleIncomingData, this,
+                                            asio::placeholders::error));
+    }
+    else if ( endpoint_iter != tcp::resolver::iterator() )
+    {
+        m_socket.close();
+        tcp::endpoint endpoint = *endpoint_iter;
+        m_socket.async_connect( endpoint,
+                                boost::bind(&hoxHttpSocket::handleConnect, this,
+                                            asio::placeholders::error, ++endpoint_iter));
+    }
+    else  // Failed.
+    {
+        m_connectState = CONNECT_STATE_CLOSED;
+        wxLogDebug("%s: *WARN* Fail to establish connection.", __FUNCTION__);
+        this->postEvent( hoxRC_CLOSED, "Fail to establish connection", hoxREQUEST_LOGIN );
+        m_socket.close();
+    }
+}
+
+void
+hoxHttpSocket::handleIncomingData( const asio::error_code& error )
+{
+    if ( checkAndCloseSocketIfError(error) ) // error detected?
+    {
+        return;
+    }
+
+    // Continue reading remaining data until EOF.
+    asio::async_read( m_socket, m_inBuffer,
+                      asio::transfer_at_least(1),
+                      boost::bind(&hoxHttpSocket::handleIncomingData, this,
+                                  asio::placeholders::error));
+}
+
+std::string
+hoxHttpSocket::getResponse()
+{
+    std::istream is(&m_inBuffer);
+    std::stringstream buffer;
+    buffer << is.rdbuf();
+    return buffer.str();
 }
 
 /************************* END OF FILE ***************************************/

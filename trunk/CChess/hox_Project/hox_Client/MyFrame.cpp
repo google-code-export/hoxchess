@@ -25,6 +25,7 @@
 // Description:     The main Frame of the App.
 /////////////////////////////////////////////////////////////////////////////
 
+#include "hoxCheckUpdatesUI.h"
 #include "MyFrame.h"
 #include "MyChild.h"
 #include "MyApp.h"    // To access wxGetApp()
@@ -58,6 +59,7 @@ IMPLEMENT_DYNAMIC_CLASS(MyFrame, wxMDIParentFrame)
 
 BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
     EVT_MENU(MDI_ABOUT,          MyFrame::OnAbout)
+    EVT_MENU(MDI_CHECK_UPDATES,  MyFrame::OnCheckUpdates)
     EVT_MENU(MDI_NEW_TABLE,      MyFrame::OnNewTable)
     EVT_MENU(MDI_CLOSE_TABLE,    MyFrame::OnCloseTable)
     EVT_UPDATE_UI(MDI_CLOSE_TABLE, MyFrame::OnUpdateCloseTable)
@@ -103,6 +105,7 @@ MyFrame::MyFrame( wxWindow*        parent,
                   const long       style )
        : wxMDIParentFrame( parent, id, title, pos, size, style )
        , m_bShowWelcomeChecked( false )
+       , m_checkUpdatesDlg( NULL )
 {
     m_log = new hoxLog(this, _("Log Window"), false);
 
@@ -219,6 +222,23 @@ MyFrame::OnAbout( wxCommandEvent& event )
     info.AddTranslator( "Huy Phan - Vietnamese" );
 
     wxAboutBox(info);
+}
+
+void 
+MyFrame::OnCheckUpdates( wxCommandEvent& event )
+{
+    if ( m_checkUpdatesDlg != NULL ) 
+    {
+        m_checkUpdatesDlg->Destroy(); // NOTE: ... see wxWidgets' documentation.
+        m_checkUpdatesDlg = NULL;
+    }
+
+    m_checkUpdatesDlg = new hoxCheckUpdatesUI(
+            _("Progress dialog"),
+            _("Wait until checking is completed or press [Cancel]"),
+            30,    // maximum time waiting (in seconds)
+            this); // parent
+    m_checkUpdatesDlg->runCheck();
 }
 
 void 
@@ -549,6 +569,8 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
 
     /* Help menu. */
     wxMenu* help_menu = new wxMenu;
+    help_menu->Append(MDI_CHECK_UPDATES, _("&Check for Updates..."));
+    help_menu->AppendSeparator();
     Add_Menu_Item( help_menu,
                    MDI_ABOUT, _("&About HOXChess...\tF1"), wxEmptyString,
                    help_xpm );

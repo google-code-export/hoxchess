@@ -86,7 +86,6 @@ protected:
     virtual void handleConnect( const asio::error_code& error,
                                 tcp::resolver::iterator endpoint_iter );
     virtual void handleIncomingData( const asio::error_code& error );
-    virtual void consumeIncomingData();
 };
 
 // ----------------------------------------------------------------------------
