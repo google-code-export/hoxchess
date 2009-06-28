@@ -383,25 +383,17 @@ hoxChesscapeSocket::handleConnect( const asio::error_code& error,
         wxLogDebug("%s: *WARN* Fail to connect to server.", __FUNCTION__);
         this->postEvent( hoxRC_CLOSED, "Fail to connect to server", hoxREQUEST_LOGIN );
         m_socket.close();
-        //_io_service.stop(); // FORCE to stop!
     }
 }
 
 void
 hoxChesscapeSocket::handleIncomingData( const asio::error_code& error )
 {
-    if ( error )
+    if ( checkAndCloseSocketIfError(error) ) // error detected?
     {
-        closeSocket();
         return;
     }
 
-    this->consumeIncomingData();
-}
-
-void
-hoxChesscapeSocket::consumeIncomingData()
-{
     std::istream response_stream( &m_inBuffer );
     wxUint8      b;
 

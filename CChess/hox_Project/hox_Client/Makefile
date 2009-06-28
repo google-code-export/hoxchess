@@ -54,6 +54,7 @@ MAIN_SRC := \
 	hoxSavedTable.cpp \
 	hoxAIPluginMgr.cpp \
 	hoxWelcomeUI.cpp \
+	hoxCheckUpdatesUI.cpp \
 	hoxLog.cpp \
 	MyApp.cpp \
 	MyChild.cpp \

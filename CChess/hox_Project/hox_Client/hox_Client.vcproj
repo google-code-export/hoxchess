@@ -191,6 +191,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hoxCheckUpdatesUI.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\hoxChesscapeConnection.cpp"
 				>
 			</File>
@@ -318,6 +322,10 @@
 			</File>
 			<File
 				RelativePath=".\hoxBoard.h"
+				>
+			</File>
+			<File
+				RelativePath=".\hoxCheckUpdatesUI.h"
 				>
 			</File>
 			<File

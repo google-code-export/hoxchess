@@ -56,16 +56,16 @@ public:
                     wxEvtHandler*           evtHandler );
     virtual ~hoxAsyncSocket() {}
 
+    virtual void handleIncomingData( const asio::error_code& error );
+
     void write( const std::string& msg );
     void close();
 
 protected:
     virtual void handleConnect( const asio::error_code& error,
                                 tcp::resolver::iterator endpoint_iter );
-    virtual void handleIncomingData( const asio::error_code& error );
-    virtual void consumeIncomingData();
-
     // ----
+    bool checkAndCloseSocketIfError( const asio::error_code& error );
     void closeSocket();
     void postEvent( const hoxResult      result,
                     const std::string&   sEvent,
@@ -92,6 +92,27 @@ protected:
     asio::streambuf      m_inBuffer; // The buffer of incoming data.
     ConnectState         m_connectState;
     wxEvtHandler*        m_evtHandler;
+};
+
+// ----------------------------------------------------------------------------
+// hoxHttpSocket
+// ----------------------------------------------------------------------------
+
+class hoxHttpSocket : public hoxAsyncSocket
+{
+public:
+    hoxHttpSocket( asio::io_service&       io_service,
+                   tcp::resolver::iterator endpoint_iter,
+                   wxEvtHandler*           evtHandler )
+            : hoxAsyncSocket( io_service, endpoint_iter, evtHandler ) {}
+    virtual ~hoxHttpSocket() {}
+
+    std::string getResponse();
+
+protected:
+    virtual void handleConnect( const asio::error_code& error,
+                                tcp::resolver::iterator endpoint_iter );
+    virtual void handleIncomingData( const asio::error_code& error );
 };
 
 #endif /* __INCLUDED_HOX_ASYNC_SOCKET_H__ */

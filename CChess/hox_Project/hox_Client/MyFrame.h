@@ -39,12 +39,14 @@ class hoxSite;
 class hoxSitesUI;
 class hoxPlayersUI;
 class hoxLog;
+class hoxCheckUpdatesUI;
 
 /* Menu items IDs */
 enum
 {
     MDI_QUIT = wxID_EXIT,
     MDI_ABOUT = wxID_ABOUT,
+    MDI_OPTIONS = wxID_PREFERENCES, // App's general options
 
     MDI_NEW_TABLE = hoxUI_ID_RANGE_FRAME,
     MDI_PRACTICE, // New Table to practice with the local computer
@@ -52,9 +54,9 @@ enum
     MDI_OPEN_SAVED_TABLE,
     MDI_CLOSE_TABLE,
 
-    MDI_CONNECT_SERVER, // Connect to server
-    MDI_DISCONNECT_SERVER, // Disconnect from server
-    MDI_LIST_TABLES,     // Get list of tables.
+    MDI_CONNECT_SERVER,
+    MDI_DISCONNECT_SERVER,
+    MDI_LIST_TABLES,
 
     MDI_SHOW_SERVERS_WINDOW,
     MDI_SHOW_LOG_WINDOW,
@@ -63,7 +65,7 @@ enum
     MDI_CHILD_QUIT,
 
     MDI_SOUND,   // toggle sound
-    MDI_OPTIONS = wxID_PREFERENCES, // App's general options
+    MDI_CHECK_UPDATES,
 
     // Windows' IDs.
     ID_WINDOW_SITES
@@ -98,6 +100,7 @@ public:
     void OnSize(wxSizeEvent& event);
     void OnServersSashDrag(wxSashEvent& event);
     void OnAbout(wxCommandEvent& event);
+    void OnCheckUpdates(wxCommandEvent& event);
     void OnNewTable(wxCommandEvent& event);
     void OnCloseTable(wxCommandEvent& event);
 	void OnUpdateNewTable(wxUpdateUIEvent& event);
@@ -201,6 +204,7 @@ private:
     MyChildList         m_children;
 
     bool                m_bShowWelcomeChecked;
+    hoxCheckUpdatesUI*  m_checkUpdatesDlg; // Check for Updates
 
     DECLARE_DYNAMIC_CLASS(MyFrame)
     DECLARE_EVENT_TABLE()

@@ -32,8 +32,6 @@
 #include "hoxConnection.h"
 #include "hoxTypes.h"
 #include "hoxAsyncSocket.h"
-#include <deque>
-#include <boost/bind.hpp>
 
 using asio::ip::tcp;
 
