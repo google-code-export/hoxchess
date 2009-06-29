@@ -54,6 +54,8 @@ public:
     wxCoord BorderY() const { return m_borderY; }
     wxCoord CellS()   const { return m_cellS; }
 
+    virtual wxSize GetBestSize( const wxSize proposedSize );
+
 protected:
     void DrawGameOverText( wxDC& dc );
 
@@ -80,6 +82,8 @@ public:
     virtual void OnBgColor( wxColor color );
     virtual void OnFgColor( wxColor color );
 
+    virtual wxSize GetBestSize( const wxSize proposedSize );
+
 private:
     void _DrawWorkSpace( wxDC& dc, const wxSize totalSize );
     void _DrawBoard( wxDC& dc, const wxSize totalSize );
@@ -99,6 +103,8 @@ public:
     virtual void OnToggleViewSide();
     virtual void OnPaint( wxDC& dc );
     virtual void OnResize( const wxSize totalSize );
+
+    virtual wxSize GetBestSize( const wxSize proposedSize );
 
 private:
     void _DrawBoardImage( wxDC& dc );
@@ -237,11 +243,6 @@ public:
         { m_nBestHeightAdjustment = adjustHeight; }
 
 protected:
-    /**
-     * The the best size of the WHOLE board.
-     */
-    wxSize GetBestBoardSize( const int proposedHeight ) const;
-
     virtual wxSize DoGetBestSize() const;
 
 private:
