@@ -913,41 +913,15 @@ hoxCoreBoard::ToggleViewSide()
 }
 
 wxSize 
-hoxCoreBoard::GetBestBoardSize( const int proposedHeight ) const
-{
-    const wxSize totalSize( proposedHeight, proposedHeight );
-
-    /////////////////////
-    m_background->OnResize( totalSize );   // *** Recaculated!!!
-    const wxCoord borderX = m_background->BorderX();
-    const wxCoord borderY = m_background->BorderY();
-    const wxCoord cellS = m_background->CellS();
-    /////////////////////
-
-    // --- Calculate the new "effective" board's size.
-    wxCoord boardW = cellS * NUM_HORIZON_CELL;
-    wxCoord boardH = cellS * NUM_VERTICAL_CELL;
-
-    int wholeBoardX = boardW + 2*borderX;
-    int wholeBoardY = boardH + 2*borderY;
-
-    wxSize bestSize( wholeBoardX, wholeBoardY );
-
-    //wxLogDebug("%s: (%d x %d) --> (%d x %d)", __FUNCTION__,
-    //    totalSize.GetWidth(), totalSize.GetHeight(),
-    //    bestSize.GetWidth(), bestSize.GetHeight());
-    return bestSize;
-}
-
-wxSize 
 hoxCoreBoard::DoGetBestSize() const
 {
     const wxSize availableSize = GetParent()->GetClientSize();    
 
-    int proposedHeight = availableSize.GetHeight()
+    const int proposedHeight = availableSize.GetHeight()
         - m_nBestHeightAdjustment /* TODO: The two players' info + The command bar */;
 
-    wxSize bestSize = this->GetBestBoardSize( proposedHeight );
+    const wxSize proposedSize( availableSize.GetWidth(), proposedHeight );
+    const wxSize bestSize = m_background->GetBestSize( proposedSize );
 
     //wxLogDebug("%s: (%d) --> (%d x %d)", __FUNCTION__,
     //    proposedHeight,
@@ -1014,6 +988,12 @@ hoxCoreBackground::DrawGameOverText( wxDC& dc )
                  m_borderY + 4*m_cellS );
 }
 
+wxSize
+hoxCoreBackground::GetBestSize( const wxSize proposedSize )
+{
+    // TODO: just ignore the proposed Size for now!
+    return m_totalSize;
+}
 
 /*****************************************************************************
  *
@@ -1066,6 +1046,23 @@ void
 hoxCustomBackground::OnFgColor( wxColor color )
 {
     m_foregroundColor = color;
+}
+
+wxSize
+hoxCustomBackground::GetBestSize( const wxSize proposedSize )
+{
+    const wxSize totalSize( proposedSize.GetWidth(), proposedSize.GetHeight() );
+
+    // *** Recaculated!!!
+    this->OnResize( totalSize );
+
+    // Calculate the new "effective" board's size.
+    const wxCoord boardW = m_cellS * NUM_HORIZON_CELL;
+    const wxCoord boardH = m_cellS * NUM_VERTICAL_CELL;
+
+    const wxSize bestSize( boardW + 2*m_borderX,
+                           boardH + 2*m_borderY );
+    return bestSize;
 }
 
 void 
@@ -1249,6 +1246,13 @@ void
 hoxImageBackground::OnResize( const wxSize totalSize )
 {
     m_totalSize = totalSize;
+}
+
+wxSize
+hoxImageBackground::GetBestSize( const wxSize proposedSize )
+{
+    // TODO: just ignore the proposed Size for now!
+    return wxSize( m_bitmap.GetWidth(), m_bitmap.GetHeight() );
 }
 
 void 
