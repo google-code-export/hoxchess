@@ -85,7 +85,6 @@ hoxCoreBoard::hoxCoreBoard( wxWindow*        parent,
         , m_bViewInverted( false )  // Normal view: RED is at bottom of the screen
         , m_referee( referee )
         , m_owner( NULL )
-        , m_localColor( hoxCOLOR_NONE )
         , m_dragMode( DRAG_MODE_NONE )
         , m_draggedPiece( NULL )
         , m_dragImage( NULL )
@@ -521,14 +520,11 @@ hoxCoreBoard::_CanPieceMoveNext( hoxPiece* piece ) const
         return false;
     }
 
-    if ( m_isGameOver )
+    if (   m_isGameOver
+        || _IsBoardInReviewMode() )
+    {
         return false;
-
-    if ( _IsBoardInReviewMode() )
-        return false;
-
-    if ( piece->GetColor() != m_localColor )
-        return false;
+    }
 
     return true;
 }
@@ -611,9 +607,7 @@ hoxCoreBoard::_MovePieceTo( hoxPiece*          piece,
 bool
 hoxCoreBoard::DoGameReview_BEGIN()
 {
-    while ( this->DoGameReview_PREV() ) 
-    { }
-
+    while ( this->DoGameReview_PREV() ) { }
     return true;
 }
 
@@ -718,9 +712,7 @@ hoxCoreBoard::DoGameReview_NEXT()
 bool 
 hoxCoreBoard::DoGameReview_END()
 {
-    while ( this->DoGameReview_NEXT() )
-    { }
-
+    while ( this->DoGameReview_NEXT() ) { }
     return true;
 }
 
