@@ -178,6 +178,7 @@ hoxBoard::hoxBoard( wxWindow*        parent,
         , m_referee( referee )
         , m_pTable( pTable )
         , m_status( hoxGAME_STATUS_OPEN )
+        , m_localColor( hoxCOLOR_NONE )
         , m_ownerId( ownerId )
         , m_featureFlags( featureFlags )
         , m_bRated( true )
@@ -240,15 +241,14 @@ hoxBoard::~hoxBoard()
 
 void 
 hoxBoard::OnBoardMove( const hoxMove& move,
-					   hoxGameStatus  status )
+                       hoxGameStatus  status )
 {
-    _OnValidMove( move );
+    this->OnValidMove( move );
 
     /* Inform the Table of the new move. */
 
 	const hoxTimeInfo playerTime = ( move.piece.color == hoxCOLOR_RED
-		                            ? m_redTime
-			    				    : m_blackTime );
+                                    ? m_redTime : m_blackTime );
     m_pTable->OnMove_FromBoard( move, status, playerTime );
 }
 
@@ -269,8 +269,11 @@ hoxBoard::OnBoardAskMovePermission( const hoxPieceInfo& pieceInfo )
         return false;
     }
 
-    /* Check for the "next" Color. */
-    if ( pieceInfo.color != m_referee->GetNextColor() )
+    /* Check for the "next" Color.
+     * Also, only the physical player can move the Piece.
+     */
+    if (   pieceInfo.color != m_referee->GetNextColor()
+        || pieceInfo.color != m_localColor )
     {
         return false;
     }
@@ -356,13 +359,9 @@ hoxBoard::OnPlayerJoin( wxCommandEvent &event )
     /* Update the LOCAL - color on the core Board so that it knows
      * who is allowed to make a Move using the mouse.
      */
-
-    hoxPlayerType playerType = apPlayerInfo->type;
-    if ( playerType == hoxPLAYER_TYPE_LOCAL )
+    if ( apPlayerInfo->type == hoxPLAYER_TYPE_LOCAL )
     {
-        wxLogDebug("%s: Update the core Board's local-color to [%s].", 
-            __FUNCTION__, hoxUtil::ColorToString(playerColor).c_str());
-        m_coreBoard->SetLocalColor( playerColor );
+        m_localColor = playerColor;
     }
 
     _UpdateStatus(); // Update the game-status.
@@ -435,7 +434,7 @@ hoxBoard::OnNewMove( const wxString& moveStr,
     if ( ! m_coreBoard->DoMove( move ) )  // failed?
         return;
 
-    _OnValidMove( move, bSetupMode );
+    this->OnValidMove( move, bSetupMode );
 }
 
 void 
@@ -577,7 +576,7 @@ hoxBoard::OnButtonOptions( wxCommandEvent &event )
         optionDlgFlags |= hoxOptionDialog::hoxOPTION_READONLY_FLAG;
     }
 
-    hoxOptionDialog optionDlg( this, wxID_ANY, "Table Options",
+    hoxOptionDialog optionDlg( this, wxID_ANY, _("Table Options"),
                                m_pTable, optionDlgFlags );
     optionDlg.ShowModal();
 
@@ -1092,8 +1091,8 @@ hoxBoard::_PostToWallOutput( const wxString& who,
 }
 
 void 
-hoxBoard::_OnValidMove( const hoxMove& move,
-					    bool           bSetupMode /* = false */ )
+hoxBoard::OnValidMove( const hoxMove& move,
+				    bool           bSetupMode /* = false */ )
 {
     /* For the 1st move of BLACK, change the game-status to 'in-progress'. 
      */
@@ -1246,6 +1245,31 @@ BEGIN_EVENT_TABLE(hoxPracticeBoard, hoxBoard)
     EVT_COMMAND_SCROLL(ID_AI_LEVEL, hoxPracticeBoard::OnAISliderUpdate)
 END_EVENT_TABLE()
 
+bool
+hoxPracticeBoard::OnBoardAskMovePermission( const hoxPieceInfo& pieceInfo )
+{
+    /* Check for Game-Status. */
+    if (    m_status != hoxGAME_STATUS_READY 
+         && m_status != hoxGAME_STATUS_IN_PROGRESS )
+    {
+        return false;
+    }
+
+    /* Check for the "next" Color. */
+    if ( pieceInfo.color != m_referee->GetNextColor() )
+    {
+        return false;
+    }
+
+    if (  !m_playWithSelfCheckBox->IsChecked()
+        && pieceInfo.color != m_localColor )
+    {
+        return false;
+    }
+
+    return true;  // OK. The Piece can be moved.
+}
+
 void
 hoxPracticeBoard::CreateAndLayoutWallPanel()
 {
@@ -1270,13 +1294,33 @@ hoxPracticeBoard::CreateAndLayoutWallPanel()
                                        wxDefaultPosition, wxDefaultSize,
                                        wxSL_AUTOTICKS | wxSL_LABELS);
     aiSizer->Add( aiSlider, wxSizerFlags(0).Expand().Border(wxALL,5) );
+    aiSizer->AddSpacer( 10 );
+    m_playWithSelfCheckBox = new wxCheckBox(this, wxID_ANY, _("&Play with yourself"));
+    m_playWithSelfCheckBox->SetValue( false );
+    aiSizer->Add( m_playWithSelfCheckBox, wxSizerFlags(0).Expand().Border(wxALL,5) );
 
     /* Arrange the Wall. */
 
     m_wallSizer->Add( m_playerListBox, wxSizerFlags(1).Expand() );
     m_wallSizer->Add( m_systemOutput,  wxSizerFlags(1).Expand() );
     m_wallSizer->Add( m_wallOutput,    wxSizerFlags(1).Expand() );
-    m_wallSizer->Add( aiSizer,         wxSizerFlags(2).Expand().Border(wxALL,5) );
+    m_wallSizer->Add( aiSizer,         wxSizerFlags(3).Expand().Border(wxALL,5) );
+}
+
+void 
+hoxPracticeBoard::OnBoardMove( const hoxMove& move,
+                               hoxGameStatus  status )
+{
+    this->OnValidMove( move );
+
+    /* If not in Play-with-self mode, inform the Table of the new move. */
+
+    if ( ! m_playWithSelfCheckBox->IsChecked() )
+    {
+        const hoxTimeInfo playerTime = ( move.piece.color == hoxCOLOR_RED
+                                        ? m_redTime : m_blackTime );
+        m_pTable->OnMove_FromBoard( move, status, playerTime );
+    }
 }
 
 void

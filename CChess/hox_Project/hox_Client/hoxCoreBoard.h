@@ -187,13 +187,6 @@ public:
     void SetBoardOwner( BoardOwner* owner ) { m_owner = owner; }
 
     /**
-     * Set the color (player-role) of the "local" player.
-     * Basically, this color decides if (or which color) the physical 
-     * player can use the machine's mouse the move the Pieces.
-     */
-    void SetLocalColor( hoxColor color ) { m_localColor = color; }
-
-    /**
      * This API is called by Table.
      * Usually, the Move is coming an external source (e.g., over the network).
      *
@@ -332,9 +325,6 @@ private:
 
     hoxIReferee_SPtr m_referee; // The Referee of the game.
     BoardOwner*      m_owner;   // This Board's owner.
-
-    hoxColor         m_localColor;
-            /* The color (player-role) of the "local" player. */
 
     /* Variables used when a piece is dragged by the mouse. */
     int             m_dragMode;

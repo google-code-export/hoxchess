@@ -198,6 +198,12 @@ public:
 protected:
     virtual void CreateAndLayoutWallPanel();
 
+    /**
+     * A helper to do various task whenever a valid Move has been made.
+     */
+    void OnValidMove( const hoxMove& move,
+		              bool           bSetupMode = false );
+
 private:
     void _SetRedInfo( const wxString& playerId,
                       const int       nScore = 0 );
@@ -240,12 +246,6 @@ private:
                             const wxString& sMessage,
                             bool            bPublic = true );
 
-    /**
-     * A helper to do various task whenever a valid Move has been made.
-     */
-    void _OnValidMove( const hoxMove& move,
-		               bool           bSetupMode = false );
-
     void _UpdateStatus();
 
     void _SyncInfoWithTable();
@@ -265,6 +265,7 @@ protected:
     hoxTable_SPtr     m_pTable;     // The Table to which this Board belongs.
 
     hoxGameStatus     m_status;     // The game's status.
+    hoxColor          m_localColor; // The color of the "local" player.
 
     /* Players */
 
@@ -278,7 +279,6 @@ protected:
     wxString          m_blackId;
 
     /* Features */
-
     unsigned int      m_featureFlags;
 
     /* Rated/Non-Rated Game option. */
@@ -366,12 +366,16 @@ public:
 
 protected:
     /* Override the parent' s API */
+    virtual bool OnBoardAskMovePermission( const hoxPieceInfo& pieceInfo );
     virtual void CreateAndLayoutWallPanel();
+    virtual void OnBoardMove( const hoxMove& move,
+		                      hoxGameStatus  status );
 
     void OnAISliderUpdate( wxScrollEvent& event );
 
 private:
-    int   m_nAILevel;
+    int           m_nAILevel;
+    wxCheckBox*   m_playWithSelfCheckBox;
 
     DECLARE_EVENT_TABLE()
 };
