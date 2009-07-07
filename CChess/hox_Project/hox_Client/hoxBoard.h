@@ -37,16 +37,6 @@
 #include "hoxPlayersUI.h"
 #include <wx/sound.h>
 
-wxDECLARE_EVENT(hoxEVT_BOARD_PLAYER_JOIN, wxCommandEvent);
-wxDECLARE_EVENT(hoxEVT_BOARD_PLAYER_LEAVE, wxCommandEvent);
-wxDECLARE_EVENT(hoxEVT_BOARD_PLAYER_SCORE, wxCommandEvent);
-wxDECLARE_EVENT(hoxEVT_BOARD_SYSTEM_OUTPUT, wxCommandEvent);
-wxDECLARE_EVENT(hoxEVT_BOARD_WALL_OUTPUT, wxCommandEvent);
-wxDECLARE_EVENT(hoxEVT_BOARD_DRAW_REQUEST, wxCommandEvent);
-wxDECLARE_EVENT(hoxEVT_BOARD_GAME_OVER, wxCommandEvent);
-wxDECLARE_EVENT(hoxEVT_BOARD_GAME_RESET, wxCommandEvent);
-wxDECLARE_EVENT(hoxEVT_BOARD_TABLE_UPDATE, wxCommandEvent);
-
 /** 
  * A full-featured Board acting as the Table's UI.
  * It has the following features:
@@ -143,19 +133,23 @@ public:
      * My custom event handler.
      *********************************/
 
-    void OnPlayerJoin( wxCommandEvent &event );
-    void OnPlayerLeave( wxCommandEvent &event );
-    void OnPlayerScore( wxCommandEvent &event );
-    void OnSystemOutput( wxCommandEvent &event );
-    void OnWallOutput( wxCommandEvent &event );
-
+    void OnPlayerJoin( const hoxPlayerInfo playerInfo,
+                       const hoxColor      playerColor );
+    void OnPlayerLeave( const wxString& playerId );
+    void OnPlayerScore( const wxString& playerId,
+                        const int       nScore );
+    void OnSystemOutput( const wxString& sMessage );
+    void OnWallOutput( const wxString& sMessage,
+                       const wxString& sSenderId,
+                       const bool      bPublic );
 	void OnNewMove( const wxString& moveStr,
 	                const bool      bSetupMode );
-
-	void OnDrawRequest( wxCommandEvent &event );
-	void OnGameOver( wxCommandEvent &event );
-    void OnGameReset( wxCommandEvent &event );
-    void OnTableUpdate( wxCommandEvent &event );
+	void OnDrawRequest( const wxString& playerId,
+                        const bool      bPopupRequest );
+	void OnGameOver( const hoxGameStatus gameStatus,
+                     const wxString&     sReason );
+    void OnGameReset();
+    void OnTableUpdate();
 
     void OnWallInputEnter( wxCommandEvent &event );
 
@@ -251,7 +245,7 @@ private:
     void _SyncInfoWithTable();
     void _OnTimerUpdated();
 
-    wxString _GetGameOverMessage( const int gameStatus ) const;
+    wxString _GetGameOverMessage( const hoxGameStatus gameStatus ) const;
 
     /**
      * Check if the Owner is currently seated 

@@ -60,28 +60,7 @@ enum
 };
 
 
-/* Define my custom events */
-wxDEFINE_EVENT( hoxEVT_BOARD_PLAYER_JOIN, wxCommandEvent );
-wxDEFINE_EVENT( hoxEVT_BOARD_PLAYER_LEAVE, wxCommandEvent );
-wxDEFINE_EVENT( hoxEVT_BOARD_PLAYER_SCORE, wxCommandEvent );
-wxDEFINE_EVENT( hoxEVT_BOARD_SYSTEM_OUTPUT, wxCommandEvent );
-wxDEFINE_EVENT( hoxEVT_BOARD_WALL_OUTPUT, wxCommandEvent );
-wxDEFINE_EVENT( hoxEVT_BOARD_DRAW_REQUEST, wxCommandEvent );
-wxDEFINE_EVENT( hoxEVT_BOARD_GAME_OVER, wxCommandEvent );
-wxDEFINE_EVENT( hoxEVT_BOARD_GAME_RESET, wxCommandEvent );
-wxDEFINE_EVENT( hoxEVT_BOARD_TABLE_UPDATE, wxCommandEvent );
-
 BEGIN_EVENT_TABLE(hoxBoard, wxPanel)
-    EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_JOIN, hoxBoard::OnPlayerJoin)
-    EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_LEAVE, hoxBoard::OnPlayerLeave)
-    EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_PLAYER_SCORE, hoxBoard::OnPlayerScore)
-    EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_SYSTEM_OUTPUT, hoxBoard::OnSystemOutput)
-    EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_WALL_OUTPUT, hoxBoard::OnWallOutput)
-	EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_DRAW_REQUEST, hoxBoard::OnDrawRequest)
-	EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_GAME_OVER, hoxBoard::OnGameOver)
-    EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_GAME_RESET, hoxBoard::OnGameReset)
-    EVT_COMMAND(wxID_ANY, hoxEVT_BOARD_TABLE_UPDATE, hoxBoard::OnTableUpdate)
-
     EVT_TEXT_ENTER(ID_BOARD_WALL_INPUT, hoxBoard::OnWallInputEnter)
     EVT_BUTTON(ID_BOARD_INPUT_BUTTON, hoxBoard::OnWallInputEnter)
     EVT_BUTTON(ID_HISTORY_BEGIN, hoxBoard::OnButtonHistory_BEGIN)
@@ -309,31 +288,24 @@ hoxBoard::OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
 }
 
 void 
-hoxBoard::OnPlayerJoin( wxCommandEvent &event )
+hoxBoard::OnPlayerJoin( const hoxPlayerInfo playerInfo,
+                        const hoxColor      playerColor )
 {
-    hoxPlayerInfo_APtr apPlayerInfo( wxDynamicCast(event.GetEventObject(), hoxPlayerInfo) );
-    wxCHECK_RET(apPlayerInfo.get(), "Player cannot be NULL.");
+    const wxString playerId = playerInfo.id;
+    const int      nScore   = playerInfo.score;
 
-    const wxString playerId    = apPlayerInfo->id;
-    const int      nScore      = apPlayerInfo->score;
-    const int      nPlayerRole = event.GetInt();
-    hoxColor       playerColor = hoxCOLOR_UNKNOWN;
-
-    if ( nPlayerRole == hoxCOLOR_RED )
+    if ( playerColor == hoxCOLOR_RED )
     {
-        playerColor = hoxCOLOR_RED;
         _SetRedInfo( playerId, nScore );
         if ( playerId == m_blackId ) _SetBlackInfo( "" );
     } 
-    else if ( nPlayerRole == hoxCOLOR_BLACK )
+    else if ( playerColor == hoxCOLOR_BLACK )
     {
-        playerColor = hoxCOLOR_BLACK;
         _SetBlackInfo( playerId, nScore );
         if ( playerId == m_redId ) _SetRedInfo( "" );
     }
     else
     {
-        playerColor = hoxCOLOR_NONE;
         if ( playerId == m_redId )   _SetRedInfo( "" );
         if ( playerId == m_blackId ) _SetBlackInfo( "" );
     }
@@ -359,7 +331,7 @@ hoxBoard::OnPlayerJoin( wxCommandEvent &event )
     /* Update the LOCAL - color on the core Board so that it knows
      * who is allowed to make a Move using the mouse.
      */
-    if ( apPlayerInfo->type == hoxPLAYER_TYPE_LOCAL )
+    if ( playerInfo.type == hoxPLAYER_TYPE_LOCAL )
     {
         m_localColor = playerColor;
     }
@@ -368,13 +340,8 @@ hoxBoard::OnPlayerJoin( wxCommandEvent &event )
 }
 
 void 
-hoxBoard::OnPlayerLeave( wxCommandEvent &event )
+hoxBoard::OnPlayerLeave( const wxString& playerId )
 {
-    hoxPlayerInfo_APtr apPlayerInfo( wxDynamicCast(event.GetEventObject(), hoxPlayerInfo) );
-    wxCHECK_RET(apPlayerInfo.get(), "Player cannot be NULL.");
-
-    const wxString playerId = apPlayerInfo->id;
-
     if      ( playerId == m_redId   ) _SetRedInfo( "" );
     else if ( playerId == m_blackId ) _SetBlackInfo( "" );
 
@@ -389,11 +356,9 @@ hoxBoard::OnPlayerLeave( wxCommandEvent &event )
 }
 
 void 
-hoxBoard::OnPlayerScore( wxCommandEvent &event )
+hoxBoard::OnPlayerScore( const wxString& playerId,
+                         const int       nScore )
 {
-    const wxString playerId = event.GetString();
-    const int      nScore   = event.GetInt();
-
     if      ( playerId == m_redId )   _SetRedInfo( playerId, nScore );
     else if ( playerId == m_blackId ) _SetBlackInfo( playerId, nScore );
 
@@ -401,21 +366,17 @@ hoxBoard::OnPlayerScore( wxCommandEvent &event )
 }
 
 void 
-hoxBoard::OnSystemOutput( wxCommandEvent &event )
+hoxBoard::OnSystemOutput( const wxString& sMessage )
 {
-    const wxString sMessage = event.GetString();
     _PostToSystemOutput( sMessage );
 }
 
 void 
-hoxBoard::OnWallOutput( wxCommandEvent &event )
+hoxBoard::OnWallOutput( const wxString& sMessage,
+                        const wxString& sSenderId,
+                        const bool      bPublic )
 {
-    const wxString eventString = event.GetString();
-    const bool bPublic = (event.GetInt() > 0);
-    const wxString who = eventString.BeforeFirst(' ');
-    const wxString msg = eventString.AfterFirst(' ');
-
-    _PostToWallOutput( who, msg, bPublic ); 
+    _PostToWallOutput( sSenderId, sMessage, bPublic ); 
 }
 
 void 
@@ -438,11 +399,9 @@ hoxBoard::OnNewMove( const wxString& moveStr,
 }
 
 void 
-hoxBoard::OnDrawRequest( wxCommandEvent &event )
+hoxBoard::OnDrawRequest( const wxString& playerId,
+                         const bool      bPopupRequest )
 {
-    const wxString playerId = event.GetString();
-	const int bPopupRequest = event.GetInt(); // NOTE: force to boolean!
-
     const wxString boardMessage = playerId + " is offering a DRAW."; 
     this->OnBoardMsg( boardMessage );
 
@@ -468,21 +427,19 @@ hoxBoard::OnDrawRequest( wxCommandEvent &event )
 }
 
 void 
-hoxBoard::OnGameOver( wxCommandEvent &event )
+hoxBoard::OnGameOver( const hoxGameStatus gameStatus,
+                      const wxString&     sReason )
 {
-	const int gameStatus = event.GetInt();
-	const wxString sReason = event.GetString();
-
     wxString boardMessage = _GetGameOverMessage( gameStatus );
     if ( !sReason.empty() ) boardMessage += " " + sReason;
 
-	m_status = (hoxGameStatus) gameStatus; // TODO: Force it!!!
+	m_status = gameStatus;
 	this->OnBoardMsg( boardMessage );
 	m_coreBoard->SetGameOver( true );
 }
 
 void 
-hoxBoard::OnGameReset( wxCommandEvent &event )
+hoxBoard::OnGameReset()
 {
     m_coreBoard->ResetBoard();
     _SyncInfoWithTable();
@@ -496,7 +453,7 @@ hoxBoard::OnGameReset( wxCommandEvent &event )
 }
 
 void 
-hoxBoard::OnTableUpdate( wxCommandEvent &event )
+hoxBoard::OnTableUpdate()
 {
     /* Sync Info (Rated/Non-Rated + Timers) with Table's. */
     _SyncInfoWithTable();
@@ -510,9 +467,7 @@ hoxBoard::OnTableUpdate( wxCommandEvent &event )
         "Game-Type changed to " + hoxUtil::GameTypeToString( gameType ); 
 	this->OnBoardMsg( boardMessage );
 
-	/* Display a notification message regarding 
-     * the new Timer.
-     */
+	/* Display a notification message regarding the new Timer. */
     boardMessage =
         "Timer changed to " + hoxUtil::TimeInfoToString( m_initialTime ); 
 	this->OnBoardMsg( boardMessage );
@@ -1196,7 +1151,7 @@ hoxBoard::_OnTimerUpdated()
 }
 
 wxString
-hoxBoard::_GetGameOverMessage( const int gameStatus ) const
+hoxBoard::_GetGameOverMessage( const hoxGameStatus gameStatus ) const
 {
 	wxString boardMessage; 
 

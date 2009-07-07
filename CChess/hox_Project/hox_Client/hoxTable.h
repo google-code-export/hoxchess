@@ -316,10 +316,6 @@ private:
      */
     void _CloseBoard();
 
-    void _PostBoard_PlayerEvent( wxEventType commandType, 
-                                 hoxPlayer*  player,
-                                 int         extraCode = wxID_ANY ) const;
-
     /**
      * Post a message to the Wall (or Chat) Area.
      *
@@ -332,22 +328,8 @@ private:
                                   const wxString& sSenderId = wxEmptyString,
                                   bool            bPublic = true ) const;
 
-    void _PostBoard_SystemMsgEvent( const wxString& sMessage ) const;
-
     void _SendBoard_MoveEvent( const wxString& moveStr,
 		                       bool            bSetupMode = false );
-
-    void _PostBoard_DrawRequestEvent( hoxPlayer* fromPlayer,
-                                      bool       bPopupRequest ) const;
-
-    void _PostBoard_GameOverEvent( const hoxGameStatus gameStatus,
-                                   const wxString& sReason ) const;
-
-    void _PostBoard_GameResetEvent() const;
-
-    void _PostBoard_ScoreEvent( const wxString& playerId,
-                                const int       nScore ) const;
-    void _PostBoard_UpdateEvent( hoxPlayer* player ) const;
 
     void       _AddPlayer( hoxPlayer* player, hoxColor role );
     void       _RemovePlayer( hoxPlayer* player );
