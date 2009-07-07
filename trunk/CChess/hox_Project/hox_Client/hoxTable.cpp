@@ -87,7 +87,11 @@ hoxTable::AssignPlayerAs( hoxPlayer* player,
     _AddPlayer( player, requestColor );
 
     /* Inform the Board. */
-    _PostBoard_PlayerEvent( hoxEVT_BOARD_PLAYER_JOIN, player, requestColor );
+    if ( m_board != NULL )
+    {
+        const hoxPlayerInfo_APtr apPlayerInfo = player->GetPlayerInfo();
+        m_board->OnPlayerJoin( *apPlayerInfo, requestColor );
+    }
 
     return hoxRC_OK;
 }
@@ -327,17 +331,23 @@ hoxTable::OnMessage_FromNetwork( const wxString&  sSenderId,
 void 
 hoxTable::OnSystemMsg_FromNetwork( const wxString&  message )
 {
-    _PostBoard_SystemMsgEvent( message );
+	if ( m_board != NULL )
+    {
+        m_board->OnSystemOutput( message );
+    }
 }
 
 void 
 hoxTable::OnLeave_FromNetwork( hoxPlayer* leavePlayer )
 {
-    /* Update our player-list */
-    _RemovePlayer( leavePlayer );
+    wxCHECK_RET(leavePlayer, "Leave Player cannot be NULL");
 
-    /* Inform the Board. */
-    _PostBoard_PlayerEvent( hoxEVT_BOARD_PLAYER_LEAVE, leavePlayer );
+    _RemovePlayer( leavePlayer ); /* Update our player-list */
+
+    if ( m_board != NULL )
+    {
+        m_board->OnPlayerLeave( leavePlayer->GetId() );
+    }
 }
 
 void 
@@ -347,41 +357,43 @@ hoxTable::OnDrawRequest_FromNetwork( hoxPlayer* fromPlayer )
      * If this player is the Board's owner, then popup the request.
      */
     hoxPlayer* toPlayer = ( fromPlayer == m_redPlayer
-                           ? m_blackPlayer
-                           : m_redPlayer );
+                           ? m_blackPlayer : m_redPlayer );
     wxCHECK_RET(toPlayer, "There is no TO-player for Draw-request");
 
-    bool bPopupRequest = ( toPlayer->GetType() == hoxPLAYER_TYPE_LOCAL );
+    const bool bPopupRequest = ( toPlayer->GetType() == hoxPLAYER_TYPE_LOCAL );
 
     /* Inform the Board about this request. */
-	_PostBoard_DrawRequestEvent( fromPlayer, bPopupRequest );
+	if ( m_board != NULL )
+    {
+        m_board->OnDrawRequest( fromPlayer->GetId(), bPopupRequest );
+    }
 }
 
 void 
 hoxTable::OnGameOver_FromNetwork( const hoxGameStatus gameStatus,
                                   const wxString& sReason /* = "" */ )
 {
-	_PostBoard_GameOverEvent( gameStatus, sReason );
+	if ( m_board != NULL )
+    {
+        m_board->OnGameOver( gameStatus, sReason );
+    }
 }
 
 void 
 hoxTable::OnGameReset_FromNetwork()
 {
-    wxLogDebug("%s: ENTER.", __FUNCTION__);
-
     _ResetGame();
 
-    /* Inform the Board about the status. */
-	_PostBoard_GameResetEvent();
+	if ( m_board != NULL )
+    {
+        m_board->OnGameReset();
+    }
 }
 
 void 
 hoxTable::OnLeave_FromPlayer( hoxPlayer* player )
 {
-    wxLogDebug("%s: ENTER.", __FUNCTION__);
-
-    /* Update our player-list */
-    _RemovePlayer( player );
+    _RemovePlayer( player ); /* Update our player-list */
 }
 
 void
@@ -395,14 +407,20 @@ hoxTable::OnUpdate_FromPlayer( hoxPlayer*         player,
     m_redTime     = m_initialTime;
     m_blackTime   = m_initialTime;
 
-    _PostBoard_UpdateEvent( player );
+    if ( m_board != NULL )
+    {
+        m_board->OnTableUpdate();
+    }
 }
 
 void
 hoxTable::OnScore_FromNetwork( const wxString& playerId,
                                const int       nScore )
 {
-    _PostBoard_ScoreEvent( playerId, nScore );
+	if ( m_board != NULL )
+    {
+        m_board->OnPlayerScore( playerId, nScore );
+    }
 }
 
 void 
@@ -491,45 +509,13 @@ hoxTable::PostPlayer_MoveEvent( hoxPlayer*         player,
 }
 
 void 
-hoxTable::_PostBoard_PlayerEvent( wxEventType commandType,
-                                  hoxPlayer*  player,
-                                  int         extraCode /* = wxID_ANY */ ) const
-{
-	if ( m_board == NULL ) return;
-
-    wxCommandEvent event( commandType );
-    hoxPlayerInfo_APtr apPlayerInfo( player->GetPlayerInfo() );
-    event.SetEventObject( apPlayerInfo.release() );
-    event.SetInt( extraCode );
-    wxPostEvent( m_board , event );
-}
-
-void 
 hoxTable::_PostBoard_MessageEvent( const wxString& sMessage,
                                    const wxString& sSenderId /* = wxEmptyString */,
                                    bool            bPublic /* = true */ ) const
 {
 	if ( m_board == NULL ) return;
 
-    const wxString eventString =
-        wxString::Format("%s %s", sSenderId.c_str(), sMessage.c_str());
-
-    /* Post the message on the Wall-Output of the Board. */
-    wxCommandEvent event( hoxEVT_BOARD_WALL_OUTPUT );
-    event.SetString( eventString );
-    event.SetInt( bPublic ? 1 : 0 );
-    wxPostEvent( m_board, event );
-}
-
-void
-hoxTable::_PostBoard_SystemMsgEvent( const wxString& sMessage ) const
-{
-	if ( m_board == NULL ) return;
-
-    /* Post the message on the System-Output of the "local" Board. */
-    wxCommandEvent event( hoxEVT_BOARD_SYSTEM_OUTPUT );
-    event.SetString( sMessage );
-    wxPostEvent( m_board, event );
+    m_board->OnWallOutput( sMessage, sSenderId, bPublic );
 }
 
 void 
@@ -539,60 +525,6 @@ hoxTable::_SendBoard_MoveEvent( const wxString& moveStr,
 	if ( m_board == NULL ) return;
 
     m_board->OnNewMove( moveStr, bSetupMode );
-}
-
-void 
-hoxTable::_PostBoard_DrawRequestEvent( hoxPlayer* fromPlayer,
-                                       bool       bPopupRequest) const
-{
-	if ( m_board == NULL ) return;
-
-    wxCommandEvent event( hoxEVT_BOARD_DRAW_REQUEST );
-    event.SetString( fromPlayer->GetId() );
-    event.SetInt( (int) bPopupRequest );
-    wxPostEvent( m_board, event );
-}
-
-void 
-hoxTable::_PostBoard_GameOverEvent( const hoxGameStatus gameStatus,
-                                    const wxString& sReason ) const
-{
-	if ( m_board == NULL ) return;
-
-    wxCommandEvent event( hoxEVT_BOARD_GAME_OVER );
-    event.SetInt( (int) gameStatus );
-    event.SetString( sReason );
-    wxPostEvent( m_board, event );
-}
-
-void 
-hoxTable::_PostBoard_GameResetEvent() const
-{
-	if ( m_board == NULL ) return;
-
-    wxCommandEvent event( hoxEVT_BOARD_GAME_RESET );
-    wxPostEvent( m_board, event );
-}
-
-void 
-hoxTable::_PostBoard_ScoreEvent( const wxString& playerId,
-                                 const int       nScore ) const
-{
-	if ( m_board == NULL ) return;
-
-    wxCommandEvent event( hoxEVT_BOARD_PLAYER_SCORE );
-    event.SetString( playerId );
-    event.SetInt( nScore );
-    wxPostEvent( m_board, event );
-}
-
-void
-hoxTable::_PostBoard_UpdateEvent( hoxPlayer* player ) const
-{
-	if ( m_board == NULL ) return;
-
-    wxCommandEvent event( hoxEVT_BOARD_TABLE_UPDATE );
-    wxPostEvent( m_board, event );
 }
 
 void 
@@ -630,7 +562,7 @@ hoxTable::_AddPlayer( hoxPlayer* player,
 void 
 hoxTable::_RemovePlayer( hoxPlayer* player )
 {
-    wxCHECK_RET(player != NULL, "Play cannot be NULL.");
+    wxCHECK_RET(player != NULL, "Player cannot be NULL");
     wxLogDebug("%s: ENTER. [%s]", __FUNCTION__, player->GetId().c_str());
 
     m_players.erase( player );
