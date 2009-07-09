@@ -27,6 +27,7 @@
 
 #include "hoxCheckUpdatesUI.h"
 #include "hoxPlayer.h"   // just for hoxEVT_CONNECTION_RESPONSE
+#include <wx/hyperlink.h>
 
 class VersionInfo
 {
@@ -176,24 +177,63 @@ hoxCheckUpdatesUI::OnCheckUpdatesResponse( wxCommandEvent& event )
         startIndex = endIndex;
     }
 
-    wxString sMsg;
-    sMsg = wxString::Format("This application is running under %s.\n"
-                            "Your version: %s-%s\n\n",
-                            wxPlatformInfo::Get().GetOperatingSystemIdName().c_str(),
-                            HOX_APP_NAME, HOX_VERSION);
-    sMsg += "--- Latest versions available on GoogleCode: ---\n";
+    const wxOperatingSystemId osID = wxPlatformInfo::Get().GetOperatingSystemId();
+    VersionInfo latestVer;
+
     for ( VersionInfoList::const_iterator it = versions.begin();
                                           it != versions.end(); ++it )
     {
-        wxString osName = "?";
-        if      ( it->os == "O" ) osName = "OSX";
-        else if ( it->os == "L" ) osName = "Linux";
-        else if ( it->os == "S" ) osName = "Windows";
-        sMsg +=  wxString::Format("%s-%s [%s]\n\n", it->version.c_str(), osName.c_str(), it->url.c_str());
+        if (it->os == "O" && (osID & wxOS_MAC))     { latestVer = *it; break; }
+        if (it->os == "L" && (osID & wxOS_UNIX))    { latestVer = *it; break; }
+        if (it->os == "S" && (osID & wxOS_WINDOWS)) { latestVer = *it; break; }
     }
 
-    wxString sCaption = wxString::Format("Check for Updates - Downloaded %d bytes", nSize );
-    ::wxMessageBox( sMsg, sCaption, wxOK|wxICON_INFORMATION );
+    hoxVersionUI versionDlg( NULL, HOX_APP_NAME,
+                             latestVer.version, latestVer.url );
+    versionDlg.ShowModal();
 }
+
+/******************************************************************************
+ *
+ *                hoxVersionUI
+ *
+ *****************************************************************************/
+
+hoxVersionUI::hoxVersionUI( wxWindow*       parent, 
+                            const wxString& title,
+                            const wxString& latestVersion,
+                            const wxString& latestUrl )
+        : wxDialog( parent, wxID_ANY, title )
+{
+	/* Create a layout. */
+    wxBoxSizer* topSizer = new wxBoxSizer( wxVERTICAL );
+
+	/* Current version. */
+
+    wxBoxSizer* currentSizer = new wxBoxSizer( wxVERTICAL );
+    wxString sMsg = wxString::Format(_("Your version: %s"), HOX_VERSION);
+
+    currentSizer->Add( new wxStaticText(this, wxID_ANY, sMsg) );
+    currentSizer->AddSpacer( 10 );
+
+    wxString sLatest;
+    sLatest.Printf(_("Latest version available on GoogleCode: %s"), latestVersion.c_str());
+    currentSizer->Add( new wxHyperlinkCtrl(this, wxID_ANY, sLatest, latestUrl ) );
+
+    topSizer->Add( currentSizer, 
+		wxSizerFlags().Border(wxALL, 10).Align(wxALIGN_LEFT).Expand());
+
+    /* Buttons */
+
+    wxStdDialogButtonSizer* buttonSizer = new wxStdDialogButtonSizer;
+    buttonSizer->AddButton( new wxButton(this, wxID_OK) );
+    buttonSizer->Realize();
+    topSizer->Add( buttonSizer,
+		           wxSizerFlags().Border(wxALL, 10).Align(wxALIGN_CENTER));
+
+    SetSizer( topSizer );      // use the sizer for layout
+	topSizer->SetSizeHints( this ); // set size hints to honour minimum size
+}
+
 
 /************************* END OF FILE ***************************************/

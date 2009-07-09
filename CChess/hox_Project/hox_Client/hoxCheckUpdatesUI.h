@@ -68,4 +68,17 @@ private:
     DECLARE_EVENT_TABLE()
 };
 
+// ----------------------------------------------------------------------------
+// The Dialog to display the current Version and the new available version.
+// ----------------------------------------------------------------------------
+
+class hoxVersionUI : public wxDialog
+{
+public:
+    hoxVersionUI( wxWindow*       parent, 
+                  const wxString& title,
+                  const wxString& latestVersion,
+                  const wxString& latestUrl );
+};
+
 #endif /* __INCLUDED_HOX_CHECK_UPDATES_UI_H__ */
