@@ -15,17 +15,20 @@ CXXFLAGS = -fPIC -Wall -I../common
 # The main source
 MAIN_SRC := \
 	AI_Folium.cpp \
-	engine_data.cpp \
+	bitmap_data.cpp \
+	engine.cpp \
 	folHOXEngine.cpp \
 	generator.cpp \
-	history_data.cpp \
-	xq.cpp \
-	bitmap_data.cpp \
- 	folEngine.cpp \
-	folSearch.cpp \
 	hash.cpp \
-	move.cpp \
-	xq_data.cpp
+	history_data.cpp \
+	move_helper.cpp \
+	search.cpp \
+	xq.cpp \
+	xq_data.cpp \
+	xq_helper.cpp \
+	xq_position_data.cpp \
+	utility/str.cpp \
+	utility/time.cpp \
 
 # Define our sources and object files
 SOURCES := \
