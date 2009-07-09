@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../common"
+				AdditionalIncludeDirectories="../common;../../lib/boost_1_38_0"
 				PreprocessorDefinitions="WIN32;EXPORTING"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -113,7 +113,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="../common"
+				AdditionalIncludeDirectories="../common;../../lib/boost_1_38_0"
 				PreprocessorDefinitions="WIN32;EXPORTING"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
