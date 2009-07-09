@@ -189,7 +189,7 @@ hoxCheckUpdatesUI::OnCheckUpdatesResponse( wxCommandEvent& event )
     }
 
     hoxVersionUI versionDlg( NULL, HOX_APP_NAME,
-                             latestVer.version, latestVer.url );
+                             wxString(latestVer.version.c_str()), wxString(latestVer.url.c_str()) );
     versionDlg.ShowModal();
 }
 

@@ -22,7 +22,7 @@ namespace folium
         tz->tz_minuteswest = 0;
         tz->tz_dsttime = 0;
         gettimeofday(tv,tz);
-        return return double(tv->tv_sec) + double(tv->tv_usec) * 1E-6;;
+        return double(tv->tv_sec) + double(tv->tv_usec) * 1E-6;;
 #endif
     }
 }
