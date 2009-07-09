@@ -28,7 +28,7 @@ namespace folium
 
         uint piece(uint)const;
 
-        uint player()const;
+        uint32 player()const;
 
         bool do_move(uint, uint);
         void undo_move(uint, uint, uint);

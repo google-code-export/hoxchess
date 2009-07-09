@@ -37,7 +37,7 @@ namespace folium
 
         static uint prev_1(uint info);
         static uint prev_2(uint info);
-        static uint next_1(uint info);
+        static uint32 next_1(uint info);
         static uint next_2(uint info);
     private:
         uint16 m_lines[20];

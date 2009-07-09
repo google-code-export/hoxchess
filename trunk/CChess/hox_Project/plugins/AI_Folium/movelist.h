@@ -16,8 +16,8 @@ namespace folium
         MoveList();
         uint size()const;
         void clear();
-        uint32& operator[](uint index);
-        const uint32& operator[](uint index)const;
+        uint32& operator[](uint32 index);
+        const uint32& operator[](uint32 index)const;
         void push(uint src, uint dst);
         void push(uint32 move);
     };
