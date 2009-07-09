@@ -31,8 +31,6 @@
 #include <string>
 #include <memory>   // auto_ptr
 
-class folEngine;   // Forward declaration.
-
 class folHOXEngine
 {
 public:
@@ -51,7 +49,7 @@ private:
     std::string _folium2hox( unsigned int move ) const;
 
 private:
-    folEngine*       _engine;
+	folium::Engine*       _engine;
         /* NOTE: I cannot use std::auto_ptr<...> here because
          *       it generates a compiler warning due to incomplete type.
          */
