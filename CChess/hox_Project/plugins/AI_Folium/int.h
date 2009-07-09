@@ -1,16 +1,21 @@
 #ifndef INT_H
 #define INT_H
 
-typedef char sint8;
-typedef unsigned char uint8;
-typedef short sint16;
-typedef unsigned short uint16;
-typedef int sint32;
-typedef unsigned int uint32;
-typedef long long sint64;
-typedef unsigned long long uint64;
+#include <boost/cstdint.hpp>
 
-typedef int sint;
-typedef unsigned int uint;
+namespace folium
+{
+    typedef boost::int8_t sint8;
+    typedef boost::uint8_t uint8;
+    typedef boost::int16_t sint16;
+    typedef boost::uint16_t uint16;
+    typedef boost::int32_t sint32;
+    typedef boost::uint32_t uint32;
+    typedef boost::int64_t sint64;
+    typedef boost::uint64_t uint64;
+
+    typedef boost::int_fast32_t sint;
+    typedef boost::uint_fast32_t uint;
+}//namespace folium
 
 #endif //INT_H

@@ -25,8 +25,9 @@
 // Description:     This is 'folium' Engine to interface with HOXChess.
 /////////////////////////////////////////////////////////////////////////////
 
+#include "utility/time.h"
+#include "engine.h"
 #include "folHOXEngine.h"
-#include "folEngine.h"
 #include <sstream>     // ostringstream
 
 
@@ -63,20 +64,20 @@ folHOXEngine::InitGame( const std::string& fen )
         fenStartPosition += " - - 0 1";
     }
 
-	/* TODO:
-	 *    Wangmao, I think we should hide this '21' magic number.
-	 *    For a normal developer (who is not familiar with Xiangqi AI),
-	 *    we have no idea what this 'hash' value is.
-	 */
     delete _engine;
-	_engine = new folEngine(XQ(fenStartPosition), 21);
+	_engine = new folium::Engine();
+	_engine->load(fenStartPosition);
 }
 
 std::string
 folHOXEngine::GenerateMove()
 {
-	std::set<unsigned int> ban;
-	unsigned int move = _engine->search( _searchDepth, ban );
+	std::set<folium::uint> ban;
+	_engine->m_stop = false;
+	_engine->m_depth = std::max(_searchDepth, 5);
+	_engine->m_mintime = folium::now_time() + 1000;
+	_engine->m_maxtime = folium::now_time() + 3000;
+	unsigned int move = _engine->search( ban );
 	std::string sNextMove;
 	if (move)
 	{

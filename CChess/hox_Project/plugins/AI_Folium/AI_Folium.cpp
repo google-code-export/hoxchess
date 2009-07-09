@@ -26,6 +26,7 @@
 #include <AIEngineLib.h>
 #include <DefaultDelete.h>
 #include <memory>
+#include "engine.h"
 #include "folHOXEngine.h"
 
 class AIEngineImpl : public DefaultDelete<AIEngineLib>
