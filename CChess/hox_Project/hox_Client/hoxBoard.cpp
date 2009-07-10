@@ -97,7 +97,7 @@ public:
         : wxTextCtrl( parent, id, value,
                       wxDefaultPosition, wxDefaultSize,
                       wxTE_PROCESS_ENTER | wxSUNKEN_BORDER
-                        | wxTE_RICH /* needed for Windows */ )
+                        | wxTE_RICH2 /* Windows only */ )
         , m_bFirstEnter( true )
     {
         const wxTextAttr defaultStyle = GetDefaultStyle();
@@ -904,12 +904,12 @@ hoxBoard::CreateAndLayoutWallPanel()
     m_systemOutput = new wxTextCtrl( this, wxID_ANY, _T(""),
                                      wxDefaultPosition, wxDefaultSize,
                                      wxTE_MULTILINE | wxRAISED_BORDER | wxTE_READONLY 
-                                     | wxHSCROLL | wxTE_RICH /* needed for Windows */ );
+                                     | wxHSCROLL | wxTE_RICH2 /* Windows only */ );
 
     m_wallOutput = new wxTextCtrl( this, wxID_ANY, _T(""),
                                    wxDefaultPosition, wxDefaultSize,
                                    wxTE_MULTILINE | wxRAISED_BORDER | wxTE_READONLY 
-                                   | wxHSCROLL | wxTE_RICH /* needed for Windows */ );
+                                   | wxHSCROLL | wxTE_RICH2 /* Windows only */ );
 
     wxBoxSizer* inputSizer  = new wxBoxSizer( wxHORIZONTAL );
     m_wallInput  = new hoxInputTextCtrl( this, ID_BOARD_WALL_INPUT );
@@ -1034,15 +1034,34 @@ hoxBoard::_PostToWallOutput( const wxString& who,
         m_wallOutput->AppendText( wxString::Format("[%s] ", who.c_str()) );
     }
     m_wallOutput->SetDefaultStyle( wxTextAttr( bPublic ? *wxBLUE : *wxRED) );
-    m_wallOutput->AppendText( wxString::Format("%s\n", sMessage.c_str()) );
+    const wxString displayMsg = wxString::Format("%s\n", sMessage.c_str());
 
     /* NOTE:
      *    Make sure that the last line is at the bottom of the wxTextCtrl
      *    so that new messages are visiable to the Player.
      *    This technique was learned from the following site:
      *        http://wiki.wxwidgets.org/WxTextCtrl#Scrolling
+     *
+     * HACK: Under Windows (using wxTE_RICH2) we have trouble ensuring that the last
+     * entered line is really at the bottom of the screen. We jump through some
+     * hoops to get this working.
      */
-    m_wallOutput->ScrollLines(1);
+ 
+    // Count number of newlines (i.e lines)
+    int lines = 0;
+    for ( wxString::const_iterator it = displayMsg.begin();
+                                   it != displayMsg.end(); ++it )
+    {
+        const wchar_t ch = *it;
+        if( ch == '\n' ) ++lines;
+    }
+
+    m_wallOutput->Freeze();                 // Freeze the window to prevent scrollbar jumping
+    m_wallOutput->AppendText( displayMsg ); // Add the text
+    m_wallOutput->ScrollLines( lines + 1 ); // Scroll down correct number of lines + one (the extra line is important for some cases!)
+    m_wallOutput->ShowPosition( m_wallOutput->GetLastPosition() ); // Ensure the last line is shown at the very bottom of the window
+    m_wallOutput->Thaw();                   // Allow the window to redraw
+
 }
 
 void 
@@ -1236,12 +1255,12 @@ hoxPracticeBoard::CreateAndLayoutWallPanel()
     m_systemOutput = new wxTextCtrl( this, wxID_ANY, _T(""),
                                      wxDefaultPosition, wxDefaultSize,
                                      wxTE_MULTILINE | wxRAISED_BORDER | wxTE_READONLY 
-                                     | wxHSCROLL | wxTE_RICH /* needed for Windows */ );
+                                     | wxHSCROLL | wxTE_RICH2 /* Windows only */ );
 
     m_wallOutput = new wxTextCtrl( this, wxID_ANY, _T(""),
                                    wxDefaultPosition, wxDefaultSize,
                                    wxTE_MULTILINE | wxRAISED_BORDER | wxTE_READONLY 
-                                   | wxHSCROLL | wxTE_RICH /* needed for Windows */ );
+                                   | wxHSCROLL | wxTE_RICH2 /* Windows only */ );
     // AI Controls.
     wxStaticBoxSizer* aiSizer = new wxStaticBoxSizer( wxVERTICAL, this, _("Difficulty level") );
     wxSlider* aiSlider = new wxSlider( this, ID_AI_LEVEL,
