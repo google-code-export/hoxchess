@@ -483,7 +483,7 @@ hoxCoreBoard::_MovePieceToPoint( hoxPiece*      piece,
 
     if ( ! m_referee->ValidateMove( move, gameStatus ) )
     {
-        _PrintDebug( "Move is not valid!!!" );
+        _PrintDebug( _("Move is not valid.") );
         this->Refresh();
         return;
     }
@@ -543,7 +543,7 @@ hoxCoreBoard::DoMove( hoxMove& move )
     hoxGameStatus gameStatus = hoxGAME_STATUS_UNKNOWN;
     if ( ! m_referee->ValidateMove( move, gameStatus ) )
     {
-        _PrintDebug( wxString::Format("%s: Move is not valid!!!", __FUNCTION__) );
+        _PrintDebug( wxString::Format("%s: Move is not valid.", __FUNCTION__) );
         return false;
     }
 
