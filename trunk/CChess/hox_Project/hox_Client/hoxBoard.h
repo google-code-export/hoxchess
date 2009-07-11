@@ -37,6 +37,9 @@
 #include "hoxPlayersUI.h"
 #include <wx/sound.h>
 
+/* Forward declarations. */
+class hoxWallOutput;
+
 /** 
  * A full-featured Board acting as the Table's UI.
  * It has the following features:
@@ -309,8 +312,8 @@ protected:
 
     hoxPlayersUI*     m_playerListBox;
 
-    wxTextCtrl*       m_systemOutput;
-    wxTextCtrl*       m_wallOutput;
+    hoxWallOutput*    m_systemOutput;
+    hoxWallOutput*    m_wallOutput;
     wxTextCtrl*       m_wallInput;
 
     /* UI-Layout variables. */

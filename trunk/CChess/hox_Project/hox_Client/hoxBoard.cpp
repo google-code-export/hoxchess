@@ -86,6 +86,111 @@ BEGIN_EVENT_TABLE(hoxBoard, wxPanel)
 END_EVENT_TABLE()
 
 // ----------------------------------------------------------------------------
+// hoxWallOutput
+// ----------------------------------------------------------------------------
+
+class hoxWallOutput : public wxPanel
+{
+public:
+    hoxWallOutput( wxWindow *parent, wxWindowID id,
+                   const wxString& sCaption  )
+        : wxPanel( parent, id )
+        , m_sCaption( sCaption )
+        , m_wall( NULL )
+    {
+        m_wall = new wxTextCtrl( this, wxID_ANY, _T(""),
+                                  wxDefaultPosition, wxDefaultSize,
+                                  wxTE_MULTILINE | wxRAISED_BORDER | wxTE_READONLY 
+                                    | wxTE_RICH2 /* Windows only */ );
+        _CreateUI();
+    }
+
+    void _CreateUI();
+
+    void AppendMessage( const wxString& who,
+                        const wxString& sMessage,
+                        bool            bPublic = true );
+
+protected:
+    void OnClearButton( wxCommandEvent& event );
+
+private:
+    const wxString   m_sCaption;
+    wxTextCtrl*      m_wall;
+
+    DECLARE_EVENT_TABLE()
+};
+
+BEGIN_EVENT_TABLE(hoxWallOutput, wxPanel)
+    EVT_BUTTON(wxID_ANY, hoxWallOutput::OnClearButton)
+END_EVENT_TABLE()
+
+void
+hoxWallOutput::_CreateUI()
+{
+    wxBoxSizer* mainSizer = new wxBoxSizer( wxVERTICAL );
+    this->SetSizer( mainSizer );    
+
+    wxBoxSizer* headerSizer = new wxBoxSizer( wxHORIZONTAL );
+    headerSizer->Add( new wxStaticText( this, wxID_ANY, m_sCaption ),
+                      wxSizerFlags().Align(wxALIGN_CENTER_VERTICAL) );
+    headerSizer->AddStretchSpacer();
+    headerSizer->Add( new wxBitmapButton( this, wxID_ANY,
+                                          hoxUtil::LoadImage("edit-clear.png")) );
+
+    mainSizer->Add( headerSizer,
+        wxSizerFlags().Expand().Border(wxTOP,1).Border(wxRIGHT|wxLEFT,2) );
+    mainSizer->Add( m_wall, wxSizerFlags(1).Expand().Border(wxALL,2) );
+}
+
+void 
+hoxWallOutput::AppendMessage( const wxString& who,
+                              const wxString& sMessage,
+                              bool            bPublic /* = true */ )
+{
+    if ( !who.empty() )
+    {
+        m_wall->SetDefaultStyle( wxTextAttr(*wxBLACK) );
+        m_wall->AppendText( wxString::Format("[%s] ", who.c_str()) );
+    }
+    m_wall->SetDefaultStyle( wxTextAttr( bPublic ? *wxBLUE : *wxRED) );
+    const wxString displayMsg = wxString::Format("%s\n", sMessage.c_str());
+
+    /* NOTE:
+     *    Make sure that the last line is at the bottom of the wxTextCtrl
+     *    so that new messages are visiable to the Player.
+     *    This technique was learned from the following site:
+     *        http://wiki.wxwidgets.org/WxTextCtrl#Scrolling
+     *
+     * HACK: Under Windows (using wxTE_RICH2) we have trouble ensuring that the last
+     * entered line is really at the bottom of the screen. We jump through some
+     * hoops to get this working.
+     */
+ 
+    // Count number of newlines (i.e lines)
+    int lines = 0;
+    for ( wxString::const_iterator it = displayMsg.begin();
+                                   it != displayMsg.end(); ++it )
+    {
+        const wchar_t ch = *it;
+        if( ch == '\n' ) ++lines;
+    }
+
+    m_wall->Freeze();                 // Freeze the window to prevent scrollbar jumping
+    m_wall->AppendText( displayMsg ); // Add the text
+    m_wall->ScrollLines( lines + 1 ); // Scroll down correct number of lines + one (the extra line is important for some cases!)
+    m_wall->ShowPosition( m_wall->GetLastPosition() ); // Ensure the last line is shown at the very bottom of the window
+    m_wall->Thaw();                   // Allow the window to redraw
+
+}
+
+void
+hoxWallOutput::OnClearButton( wxCommandEvent& event )
+{
+    m_wall->Clear();
+}
+
+// ----------------------------------------------------------------------------
 // hoxInputTextCtrl
 // ----------------------------------------------------------------------------
 
@@ -93,7 +198,7 @@ class hoxInputTextCtrl : public wxTextCtrl
 {
 public:
     hoxInputTextCtrl(wxWindow *parent, wxWindowID id,
-                     const wxString &value = wxEmptyString )
+                     const wxString& value = wxEmptyString )
         : wxTextCtrl( parent, id, value,
                       wxDefaultPosition, wxDefaultSize,
                       wxTE_PROCESS_ENTER | wxSUNKEN_BORDER
@@ -234,7 +339,7 @@ hoxBoard::OnBoardMove( const hoxMove& move,
 void 
 hoxBoard::OnBoardMsg( const wxString& message )
 {
-    const wxString who = "** Board **";  // NOTE: This Board's name.
+    const wxString who = "***";  // NOTE: This Board's name.
     _PostToWallOutput( who, message ); 
 }
 
@@ -673,9 +778,7 @@ hoxBoard::ShowUI()
 
     /* Set the background color. */
     const wxColour bgPanelColor = wxTheColourDatabase->Find("SKY BLUE");
-    if ( bgPanelColor.Ok() ) {
-        this->SetBackgroundColour(bgPanelColor);
-    }
+    if ( bgPanelColor.Ok() ) this->SetBackgroundColour(bgPanelColor);
 
     /* NOTE: Force Timer Updated event!!! */
     _OnTimerUpdated();
@@ -729,6 +832,7 @@ hoxBoard::_CreateBoardUI()
     m_mainSizer->Add( m_wallSizer,  wxSizerFlags(1).Expand() );
 
     this->SetSizer( m_mainSizer );
+    m_mainSizer->SetSizeHints( this ); // Set size hints to honor minimum size
 }
 
 void
@@ -901,15 +1005,8 @@ hoxBoard::CreateAndLayoutWallPanel()
     m_playerListBox = new hoxPlayersUI( this, hoxPlayersUI::UI_TYPE_TABLE );
     m_playerListBox->SetOwner( this );
 
-    m_systemOutput = new wxTextCtrl( this, wxID_ANY, _T(""),
-                                     wxDefaultPosition, wxDefaultSize,
-                                     wxTE_MULTILINE | wxRAISED_BORDER | wxTE_READONLY 
-                                     | wxHSCROLL | wxTE_RICH2 /* Windows only */ );
-
-    m_wallOutput = new wxTextCtrl( this, wxID_ANY, _T(""),
-                                   wxDefaultPosition, wxDefaultSize,
-                                   wxTE_MULTILINE | wxRAISED_BORDER | wxTE_READONLY 
-                                   | wxHSCROLL | wxTE_RICH2 /* Windows only */ );
+    m_systemOutput = new hoxWallOutput( this, wxID_ANY, _("Activities:") );
+    m_wallOutput   = new hoxWallOutput( this, wxID_ANY, _("Messages:") );
 
     wxBoxSizer* inputSizer  = new wxBoxSizer( wxHORIZONTAL );
     m_wallInput  = new hoxInputTextCtrl( this, ID_BOARD_WALL_INPUT );
@@ -1011,16 +1108,7 @@ hoxBoard::_RemovePlayerFromList( const wxString& playerId )
 void 
 hoxBoard::_PostToSystemOutput( const wxString& sMessage )
 {
-    m_systemOutput->SetDefaultStyle( wxTextAttr(*wxBLUE) );
-    m_systemOutput->AppendText( wxString::Format("*%s\n", sMessage.c_str()) );
-
-    /* NOTE:
-     *    Make sure that the last line is at the bottom of the wxTextCtrl
-     *    so that new messages are visiable to the Player.
-     *    This technique was learned from the following site:
-     *        http://wiki.wxwidgets.org/WxTextCtrl#Scrolling
-     */
-    m_systemOutput->ScrollLines(1);
+    m_systemOutput->AppendMessage( "" /* who */, sMessage );
 }
 
 void 
@@ -1028,40 +1116,7 @@ hoxBoard::_PostToWallOutput( const wxString& who,
                              const wxString& sMessage,
                              bool            bPublic /* = true */ )
 {
-    if ( !who.empty() )
-    {
-        m_wallOutput->SetDefaultStyle( wxTextAttr(*wxBLACK) );
-        m_wallOutput->AppendText( wxString::Format("[%s] ", who.c_str()) );
-    }
-    m_wallOutput->SetDefaultStyle( wxTextAttr( bPublic ? *wxBLUE : *wxRED) );
-    const wxString displayMsg = wxString::Format("%s\n", sMessage.c_str());
-
-    /* NOTE:
-     *    Make sure that the last line is at the bottom of the wxTextCtrl
-     *    so that new messages are visiable to the Player.
-     *    This technique was learned from the following site:
-     *        http://wiki.wxwidgets.org/WxTextCtrl#Scrolling
-     *
-     * HACK: Under Windows (using wxTE_RICH2) we have trouble ensuring that the last
-     * entered line is really at the bottom of the screen. We jump through some
-     * hoops to get this working.
-     */
- 
-    // Count number of newlines (i.e lines)
-    int lines = 0;
-    for ( wxString::const_iterator it = displayMsg.begin();
-                                   it != displayMsg.end(); ++it )
-    {
-        const wchar_t ch = *it;
-        if( ch == '\n' ) ++lines;
-    }
-
-    m_wallOutput->Freeze();                 // Freeze the window to prevent scrollbar jumping
-    m_wallOutput->AppendText( displayMsg ); // Add the text
-    m_wallOutput->ScrollLines( lines + 1 ); // Scroll down correct number of lines + one (the extra line is important for some cases!)
-    m_wallOutput->ShowPosition( m_wallOutput->GetLastPosition() ); // Ensure the last line is shown at the very bottom of the window
-    m_wallOutput->Thaw();                   // Allow the window to redraw
-
+    m_wallOutput->AppendMessage( who, sMessage, bPublic );
 }
 
 void 
@@ -1252,26 +1307,20 @@ hoxPracticeBoard::CreateAndLayoutWallPanel()
     m_playerListBox = new hoxPlayersUI( this, hoxPlayersUI::UI_TYPE_TABLE );
     m_playerListBox->SetOwner( this );
 
-    m_systemOutput = new wxTextCtrl( this, wxID_ANY, _T(""),
-                                     wxDefaultPosition, wxDefaultSize,
-                                     wxTE_MULTILINE | wxRAISED_BORDER | wxTE_READONLY 
-                                     | wxHSCROLL | wxTE_RICH2 /* Windows only */ );
+    m_systemOutput = new hoxWallOutput( this, wxID_ANY, _("Activities:") );
+    m_wallOutput   = new hoxWallOutput( this, wxID_ANY, _("Messages:") );
 
-    m_wallOutput = new wxTextCtrl( this, wxID_ANY, _T(""),
-                                   wxDefaultPosition, wxDefaultSize,
-                                   wxTE_MULTILINE | wxRAISED_BORDER | wxTE_READONLY 
-                                   | wxHSCROLL | wxTE_RICH2 /* Windows only */ );
     // AI Controls.
     wxStaticBoxSizer* aiSizer = new wxStaticBoxSizer( wxVERTICAL, this, _("Difficulty level") );
     wxSlider* aiSlider = new wxSlider( this, ID_AI_LEVEL,
                                        m_nAILevel /*value*/, 1 /*min*/, 10 /*max*/,
                                        wxDefaultPosition, wxDefaultSize,
                                        wxSL_AUTOTICKS | wxSL_LABELS);
-    aiSizer->Add( aiSlider, wxSizerFlags(0).Expand().Border(wxALL,5) );
+    aiSizer->Add( aiSlider, wxSizerFlags().Expand().Border(wxALL,5) );
     aiSizer->AddSpacer( 10 );
     m_playWithSelfCheckBox = new wxCheckBox(this, wxID_ANY, _("&Play with yourself"));
     m_playWithSelfCheckBox->SetValue( false );
-    aiSizer->Add( m_playWithSelfCheckBox, wxSizerFlags(0).Expand().Border(wxALL,5) );
+    aiSizer->Add( m_playWithSelfCheckBox, wxSizerFlags().Expand().Border(wxALL,5) );
 
     /* Arrange the Wall. */
 
