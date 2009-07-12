@@ -36,13 +36,13 @@
 class hoxIReferee
 {
 public:
-    hoxIReferee( const wxString& sSavedFile = "" ) {}
+    hoxIReferee() {}
     virtual ~hoxIReferee() {}
 
     /**
      * Reset the game that this referee is residing over.
      */
-    virtual void ResetGame( const wxString& sSavedFile = "" ) = 0;
+    virtual void ResetGame() = 0;
 
     /**
      * Validate and record a given Move.
