@@ -129,6 +129,10 @@
 		AFCFE2DE0FCEE2D3000760F2 /* rking.png in Copy Files (pieces\xiangqiboard_45x45) */ = {isa = PBXBuildFile; fileRef = AFCFE2CF0FCEE2D3000760F2 /* rking.png */; };
 		AFCFE2DF0FCEE2D3000760F2 /* rpawn.png in Copy Files (pieces\xiangqiboard_45x45) */ = {isa = PBXBuildFile; fileRef = AFCFE2D00FCEE2D3000760F2 /* rpawn.png */; };
 		AFD3DA690FED44BD00A0D159 /* hoxchess.icns in Resources */ = {isa = PBXBuildFile; fileRef = AFD3DA680FED44BD00A0D159 /* hoxchess.icns */; };
+		AFF0F7D2100A3CE0001AB6AB /* preferences-system.png in Resources */ = {isa = PBXBuildFile; fileRef = AFF0F7D0100A3CE0001AB6AB /* preferences-system.png */; };
+		AFF0F7D3100A3CE0001AB6AB /* edit-clear.png in Resources */ = {isa = PBXBuildFile; fileRef = AFF0F7D1100A3CE0001AB6AB /* edit-clear.png */; };
+		AFF0F7D4100A3DA8001AB6AB /* preferences-system.png in Copy Files (images) */ = {isa = PBXBuildFile; fileRef = AFF0F7D0100A3CE0001AB6AB /* preferences-system.png */; };
+		AFF0F7D5100A3DB3001AB6AB /* edit-clear.png in Copy Files (images) */ = {isa = PBXBuildFile; fileRef = AFF0F7D1100A3CE0001AB6AB /* edit-clear.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -212,6 +216,8 @@
 			dstPath = images;
 			dstSubfolderSpec = 12;
 			files = (
+				AFF0F7D5100A3DB3001AB6AB /* edit-clear.png in Copy Files (images) */,
+				AFF0F7D4100A3DA8001AB6AB /* preferences-system.png in Copy Files (images) */,
 				AF864A340FC3090D0034C83B /* down.png in Copy Files (images) */,
 				AF864A350FC3090D0034C83B /* go-home.png in Copy Files (images) */,
 				AF864A360FC3090D0034C83B /* go-jump.png in Copy Files (images) */,
@@ -490,6 +496,8 @@
 		AFCFE2CF0FCEE2D3000760F2 /* rking.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rking.png; sourceTree = "<group>"; };
 		AFCFE2D00FCEE2D3000760F2 /* rpawn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rpawn.png; sourceTree = "<group>"; };
 		AFD3DA680FED44BD00A0D159 /* hoxchess.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = hoxchess.icns; path = resource/icons/hoxchess.icns; sourceTree = "<group>"; };
+		AFF0F7D0100A3CE0001AB6AB /* preferences-system.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "preferences-system.png"; path = "resource/images/preferences-system.png"; sourceTree = "<group>"; };
+		AFF0F7D1100A3CE0001AB6AB /* edit-clear.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "edit-clear.png"; path = "resource/images/edit-clear.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -712,6 +720,8 @@
 		AF864A730FC30D0B0034C83B /* images */ = {
 			isa = PBXGroup;
 			children = (
+				AFF0F7D0100A3CE0001AB6AB /* preferences-system.png */,
+				AFF0F7D1100A3CE0001AB6AB /* edit-clear.png */,
 				AF864A290FC3090D0034C83B /* down.png */,
 				AF864A2A0FC3090D0034C83B /* go-home.png */,
 				AF864A2B0FC3090D0034C83B /* go-jump.png */,
@@ -873,6 +883,8 @@
 				8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */,
 				1DDD57E40DA1CFC700B32029 /* main.xib in Resources */,
 				AFD3DA690FED44BD00A0D159 /* hoxchess.icns in Resources */,
+				AFF0F7D2100A3CE0001AB6AB /* preferences-system.png in Resources */,
+				AFF0F7D3100A3CE0001AB6AB /* edit-clear.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
