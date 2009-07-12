@@ -41,14 +41,14 @@ namespace BoardInfoAPI
 class hoxReferee : public hoxIReferee
 {
 public:
-    hoxReferee( const wxString& sSavedFile = "" );
+    hoxReferee();
     virtual ~hoxReferee();
 
     /*********************************
      * Override base class virtuals
      *********************************/
 
-    virtual void ResetGame( const wxString& sSavedFile = "" );
+    virtual void ResetGame();
     virtual bool ValidateMove( hoxMove&       move,
                                hoxGameStatus& status );
     virtual void GetGameState( hoxGameState& gameState ) const;

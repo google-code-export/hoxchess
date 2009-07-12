@@ -527,45 +527,46 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
     /* File menu. */
     wxMenu* file_menu = new wxMenu;
     Add_Menu_Item( file_menu,
-                   MDI_CONNECT_SERVER, _("Connect Server...\tCtrl-L"), _("Connect to remote server"),
+                   MDI_CONNECT_SERVER, _("Connect Server...\tCtrl-L"), wxEmptyString,
                    connect_xpm );
-    file_menu->Append(MDI_DISCONNECT_SERVER, _("&Disconnect Server\tCtrl-D"), _("Disconnect from remote server"));
+    file_menu->Append(MDI_DISCONNECT_SERVER, _("&Disconnect Server\tCtrl-D"));
     file_menu->AppendSeparator();
-    file_menu->Append(MDI_LIST_TABLES, _("List &Tables\tCtrl-T"), _("Get the list of tables"));
-    file_menu->Append(MDI_NEW_TABLE, _("&New Table\tCtrl-N"), _("Create New Table"));
+    file_menu->Append(MDI_LIST_TABLES, _("List &Tables\tCtrl-T"));
+    file_menu->Append(MDI_NEW_TABLE, _("&New Table\tCtrl-N"));
     if ( hasTable )
     {
-        file_menu->Append(MDI_CLOSE_TABLE, _("&Close Table\tCtrl-C"), _("Close Table"));
+        file_menu->Append(MDI_CLOSE_TABLE, _("&Close Table\tCtrl-C"));
     }
     file_menu->AppendSeparator();
-    file_menu->Append(MDI_PRACTICE, _("&Practice with Computer\tCtrl-P"),
-                                    _("Practice with your local Computer"));
+    file_menu->Append(MDI_PRACTICE, _("&Practice with Computer\tCtrl-P"));
     if ( hasTable )
     {
         Add_Menu_Item( file_menu,
-                       MDI_SAVE_TABLE, _("&Save Table..."), _("Save the current table"),
+                       MDI_SAVE_TABLE, _("&Save Table..."), wxEmptyString,
                        save_xpm );
     }
-    file_menu->Append(MDI_OPEN_SAVED_TABLE, _("Open Saved Table..."), _("Open a saved table"));
+    file_menu->Append(MDI_OPEN_SAVED_TABLE, _("Open Saved Table..."));
     file_menu->AppendSeparator();
-    file_menu->Append(MDI_QUIT, _("&Exit\tAlt-X"), _("Quit the program"));
+    file_menu->Append(MDI_QUIT, _("&Exit\tAlt-X"));
 
     /* View menu. */
     wxMenu* view_menu = new wxMenu;
     view_menu->AppendCheckItem(MDI_SHOW_SERVERS_WINDOW, _("Site&s View\tCtrl-S"));
     if ( hasTable )
     {
-        view_menu->Append(MDI_TOGGLE, _("Toggle Table &View\tCtrl-V"), _("Toggle Table View"));
+        view_menu->Append(MDI_TOGGLE, _("Toggle Table &View\tCtrl-V"));
     }
     view_menu->AppendSeparator();
-    view_menu->AppendCheckItem(MDI_SHOW_LOG_WINDOW, _("Lo&g Window\tCtrl-G"), _("Log Window"));
+    view_menu->AppendCheckItem(MDI_SHOW_LOG_WINDOW, _("Lo&g Window\tCtrl-G"));
 
     /* Tools menu. */
     wxMenu* tools_menu = file_menu;   // Use File menu instead on Mac
 #ifndef __WXMAC__
     tools_menu = new wxMenu;
 #endif
-    tools_menu->Append(MDI_OPTIONS, _("&Options...\tCtrl-O"), _("Set options"));
+    Add_Menu_Item( tools_menu,
+                   MDI_OPTIONS, _("&Options...\tCtrl-O"), wxEmptyString,
+                   hoxUtil::LoadImage("preferences-system.png") );
 
     /* Help menu. */
     wxMenu* help_menu = new wxMenu;

@@ -28,7 +28,6 @@
 #include "hoxReferee.h"
 #include <list>
 #include <algorithm>  // std::find
-#include "hoxSavedTable.h"
 
 //************************************************************
 //                          BLACK
@@ -229,7 +228,6 @@ namespace BoardInfoAPI
     {
     public:
         Board( hoxColor nextColor = hoxCOLOR_NONE );
-		Board( const wxString& fileName );
         virtual ~Board();
 
         // ------------ Main Public API -------
@@ -257,7 +255,6 @@ namespace BoardInfoAPI
     private:
 		void		 _InitializePieceCells();
         void         _CreateNewGame();
-		bool 		 _OpenSavedGame( const wxString& fileName );
         void         _AddNewPiece(Piece* piece);
 
         void         _SetPiece( Piece* piece );
@@ -321,20 +318,6 @@ Board::Board( hoxColor nextColor /* = hoxCOLOR_NONE */ )
 {
 	_InitializePieceCells();
 	_CreateNewGame();  // Initialize Board.
-}
-
-
-Board::Board( const wxString &fileName)
-        : m_nextColor( hoxCOLOR_RED )
-        , m_gameStatus( hoxGAME_STATUS_READY )
-{
-	_InitializePieceCells();
-    _CreateNewGame();
-	if ( ! _OpenSavedGame( fileName ) )
-    {
-        ::wxMessageBox( "Fail to load game from the specified file: " + fileName,
-                        _("Load Saved Game"), wxOK | wxICON_STOP );
-    }
 }
 
 Board::~Board()
@@ -414,44 +397,6 @@ Board::_CreateNewGame()
         _AddNewPiece( new PawnPiece(   color, hoxPosition(i, 6) ) );
     }
 
-}
-
-bool
-Board::_OpenSavedGame( const wxString& fileName )
-{
-	hoxSavedTable    saveTable( fileName );
-  
-    /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-     * NOTE: We do not need piece-list and the 'next' color.
-     *       The 'past' Moves are enough to re-create the last game.
-     * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-
-    hoxStringList    pastMoves;
-    hoxPieceInfoList pieceInfoList; // Not really needed!
-    hoxColor         nextColor;     // Not really needed!
-
-	if ( ! saveTable.LoadGameState( pastMoves, pieceInfoList, nextColor ) )
-    {
-        wxLogWarning("%s: Fail to load game from the specified file [%s].",
-            __FUNCTION__, fileName.c_str() );
-        return false;
-    }
-
-    /* Replay the 'past' Moves. */
-    for ( hoxStringList::const_iterator it = pastMoves.begin();
-                                        it != pastMoves.end(); ++it )
-    {
-        hoxMove move = this->StringToMove( *it );
-        if ( ! move.IsValid() ) return false;
-
-        hoxGameStatus gameStatus = hoxGAME_STATUS_UNKNOWN;
-        if ( ! this->ValidateMove( move, gameStatus ) )
-        {
-            return false;
-        }
-    }
-
-    return true; // success
 }
 
 void 
@@ -1534,10 +1479,10 @@ BoardInfoAPI::PositionList_Clear( PositionList& positions )
 // hoxReferee
 //-----------------------------------------------------------------------------
 
-hoxReferee::hoxReferee( const wxString& sSavedFile /* = "" */ )
+hoxReferee::hoxReferee()
             : m_board( NULL )
 {
-    this->ResetGame( sSavedFile );
+    this->ResetGame();
 }
 
 hoxReferee::~hoxReferee()
@@ -1546,18 +1491,10 @@ hoxReferee::~hoxReferee()
 }
 
 void
-hoxReferee::ResetGame( const wxString& sSavedFile /* = "" */ )
+hoxReferee::ResetGame()
 {
     delete m_board;   // Delete the old Board, if exists.
-
-    if ( sSavedFile.empty() )
-    {
-        m_board = new Board( hoxCOLOR_RED /* next-color */);
-    }
-    else
-    {
-        m_board = new Board( sSavedFile);
-    }
+    m_board = new Board( hoxCOLOR_RED /* next-color */);
 }
 
 bool 
