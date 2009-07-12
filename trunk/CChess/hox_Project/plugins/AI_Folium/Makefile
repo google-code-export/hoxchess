@@ -9,7 +9,7 @@ LIBRARY = AI_Folium
 # Common flags
 CXX         = g++
 
-CXXFLAGS = -fPIC -Wall -I../common
+CXXFLAGS = -fPIC -Wall -I../common -I../../lib/boost_1_38_0
 #DEBUGFLAGS  = -g
 
 # The main source
