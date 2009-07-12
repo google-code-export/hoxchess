@@ -128,19 +128,26 @@ END_EVENT_TABLE()
 void
 hoxWallOutput::_CreateUI()
 {
+    /* Reference: Color constants from:
+     *       http://www.colorschemer.com/online.html
+     */
+
     wxBoxSizer* mainSizer = new wxBoxSizer( wxVERTICAL );
     this->SetSizer( mainSizer );    
 
     wxBoxSizer* headerSizer = new wxBoxSizer( wxHORIZONTAL );
-    headerSizer->Add( new wxStaticText( this, wxID_ANY, m_sCaption ),
-                      wxSizerFlags().Align(wxALIGN_CENTER_VERTICAL) );
-    headerSizer->AddStretchSpacer();
+    wxStaticText* captionText = new wxStaticText( this, wxID_ANY, m_sCaption );
+    captionText->SetBackgroundColour( wxColor(87,87,87) ) ;
+    captionText->SetForegroundColour( wxColor(*wxWHITE) ) ;
+    headerSizer->Add( captionText,
+        wxSizerFlags(1).Expand().Align(wxALIGN_CENTER_VERTICAL) );
     headerSizer->Add( new wxBitmapButton( this, wxID_ANY,
-                                          hoxUtil::LoadImage("edit-clear.png")) );
+                                hoxUtil::LoadImage("edit-clear.png")) );
 
     mainSizer->Add( headerSizer,
-        wxSizerFlags().Expand().Border(wxTOP,1).Border(wxRIGHT|wxLEFT,2) );
-    mainSizer->Add( m_wall, wxSizerFlags(1).Expand().Border(wxALL,2) );
+        wxSizerFlags().Border(wxTOP|wxLEFT|wxRIGHT,1) );
+    mainSizer->Add( m_wall,
+        wxSizerFlags(1).Expand().Border(wxRIGHT|wxLEFT|wxBOTTOM,1) );
 }
 
 void 
@@ -1005,8 +1012,8 @@ hoxBoard::CreateAndLayoutWallPanel()
     m_playerListBox = new hoxPlayersUI( this, hoxPlayersUI::UI_TYPE_TABLE );
     m_playerListBox->SetOwner( this );
 
-    m_systemOutput = new hoxWallOutput( this, wxID_ANY, _("Activities:") );
-    m_wallOutput   = new hoxWallOutput( this, wxID_ANY, _("Messages:") );
+    m_systemOutput = new hoxWallOutput( this, wxID_ANY, _("Activities") );
+    m_wallOutput   = new hoxWallOutput( this, wxID_ANY, _("Messages") );
 
     wxBoxSizer* inputSizer  = new wxBoxSizer( wxHORIZONTAL );
     m_wallInput  = new hoxInputTextCtrl( this, ID_BOARD_WALL_INPUT );
@@ -1307,8 +1314,8 @@ hoxPracticeBoard::CreateAndLayoutWallPanel()
     m_playerListBox = new hoxPlayersUI( this, hoxPlayersUI::UI_TYPE_TABLE );
     m_playerListBox->SetOwner( this );
 
-    m_systemOutput = new hoxWallOutput( this, wxID_ANY, _("Activities:") );
-    m_wallOutput   = new hoxWallOutput( this, wxID_ANY, _("Messages:") );
+    m_systemOutput = new hoxWallOutput( this, wxID_ANY, _("Activities") );
+    m_wallOutput   = new hoxWallOutput( this, wxID_ANY, _("Messages") );
 
     // AI Controls.
     wxStaticBoxSizer* aiSizer = new wxStaticBoxSizer( wxVERTICAL, this, _("Difficulty level") );
