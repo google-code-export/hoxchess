@@ -39,6 +39,7 @@
 
 /* Forward declarations. */
 class hoxWallOutput;
+class hoxAISettings;
 
 /** 
  * A full-featured Board acting as the Table's UI.
@@ -356,7 +357,7 @@ public:
                       unsigned int     featureFlags = hoxBOARD_FEATURE_ALL )
         : hoxBoard( parent, piecesPath, referee, pTable, ownerId,
                     sBgImage, bgColor, fgColor, pos, size, featureFlags )
-        , m_nAILevel( 5 )
+        , m_aiSettings( NULL )
         { /* empty */ }
 
     virtual ~hoxPracticeBoard() {}
@@ -371,8 +372,7 @@ protected:
     void OnAISliderUpdate( wxScrollEvent& event );
 
 private:
-    int           m_nAILevel;
-    wxCheckBox*   m_playWithSelfCheckBox;
+    hoxAISettings*    m_aiSettings;
 
     DECLARE_EVENT_TABLE()
 };

@@ -54,9 +54,7 @@ enum
     ID_ACTION_OPTIONS,
     ID_ACTION_RESIGN,
 	ID_ACTION_DRAW,
-	ID_ACTION_RESET,
-
-    ID_AI_LEVEL
+	ID_ACTION_RESET
 };
 
 
@@ -105,14 +103,15 @@ public:
         _CreateUI();
     }
 
-    void _CreateUI();
-
     void AppendMessage( const wxString& who,
                         const wxString& sMessage,
                         bool            bPublic = true );
 
 protected:
     void OnClearButton( wxCommandEvent& event );
+
+private:
+    void _CreateUI();
 
 private:
     const wxString   m_sCaption;
@@ -195,6 +194,87 @@ void
 hoxWallOutput::OnClearButton( wxCommandEvent& event )
 {
     m_wall->Clear();
+}
+
+// ----------------------------------------------------------------------------
+// hoxAISettings
+// ----------------------------------------------------------------------------
+
+class hoxAISettings : public wxPanel
+{
+public:
+    hoxAISettings( wxWindow *parent, wxWindowID id,
+                   const wxString& sCaption,
+                   const int nAILevel = 5 )
+        : wxPanel( parent, id )
+        , m_sCaption( sCaption )
+        , m_nAILevel( nAILevel )
+        , m_playWithSelfCtrl( NULL )
+    {
+        _CreateUI();
+    }
+
+    bool IsPlayWithSelf() const
+    {
+        return ( m_playWithSelfCtrl && m_playWithSelfCtrl->IsChecked() );
+    }
+
+protected:
+    void OnAISliderUpdate( wxScrollEvent& event );
+
+private:
+    void _CreateUI();
+
+private:
+    const wxString m_sCaption;
+    int            m_nAILevel;
+    wxCheckBox*    m_playWithSelfCtrl;
+
+    DECLARE_EVENT_TABLE()
+};
+
+BEGIN_EVENT_TABLE(hoxAISettings, wxPanel)
+    EVT_COMMAND_SCROLL(wxID_ANY, hoxAISettings::OnAISliderUpdate)
+END_EVENT_TABLE()
+
+void
+hoxAISettings::_CreateUI()
+{
+    wxBoxSizer* mainSizer = new wxBoxSizer( wxVERTICAL );
+    this->SetSizer( mainSizer );    
+
+    // Header.
+    wxBoxSizer* headerSizer = new wxBoxSizer( wxHORIZONTAL );
+    wxStaticText* captionText = new wxStaticText( this, wxID_ANY, m_sCaption,
+                                                  wxDefaultPosition, wxSize(-1,18) );
+    captionText->SetBackgroundColour( wxColor(87,87,87) ) ;
+    captionText->SetForegroundColour( wxColor(*wxWHITE) ) ;
+    headerSizer->Add( captionText,
+        wxSizerFlags(1).Expand().Align(wxALIGN_CENTER_VERTICAL) );
+    mainSizer->Add( headerSizer, wxSizerFlags().Border(wxALL,1) );
+
+    // AI settings. 
+    wxStaticBoxSizer* aiSizer = new wxStaticBoxSizer( wxVERTICAL, this, _("Difficulty level") );
+    wxSlider* aiSlider = new wxSlider( this, wxID_ANY,
+                                       m_nAILevel /*value*/, 1 /*min*/, 10 /*max*/,
+                                       wxDefaultPosition, wxDefaultSize,
+                                       wxSL_AUTOTICKS | wxSL_LABELS);
+    aiSizer->Add( aiSlider, wxSizerFlags().Expand().Border(wxALL,5) );
+    mainSizer->Add( aiSizer, wxSizerFlags(1).Expand().Border(wxALL,1) );
+
+    m_playWithSelfCtrl = new wxCheckBox(this, wxID_ANY, _("&Play with yourself"));
+    m_playWithSelfCtrl->SetValue( false );
+
+    mainSizer->Add( m_playWithSelfCtrl, wxSizerFlags(1).Expand().Border(wxALL,5) );
+    mainSizer->AddStretchSpacer();
+}
+
+void
+hoxAISettings::OnAISliderUpdate( wxScrollEvent& event )
+{
+    if ( m_nAILevel == event.GetInt() ) return;
+    m_nAILevel = event.GetInt();
+    event.Skip(); // Let the search for the event handler continue.
 }
 
 // ----------------------------------------------------------------------------
@@ -1278,7 +1358,7 @@ hoxBoard::_IsOwnerSeated() const
 // ----------------------------------------------------------------------------
 
 BEGIN_EVENT_TABLE(hoxPracticeBoard, hoxBoard)
-    EVT_COMMAND_SCROLL(ID_AI_LEVEL, hoxPracticeBoard::OnAISliderUpdate)
+    EVT_COMMAND_SCROLL(wxID_ANY, hoxPracticeBoard::OnAISliderUpdate)
 END_EVENT_TABLE()
 
 bool
@@ -1297,7 +1377,7 @@ hoxPracticeBoard::OnBoardAskMovePermission( const hoxPieceInfo& pieceInfo )
         return false;
     }
 
-    if (  !m_playWithSelfCheckBox->IsChecked()
+    if (  !m_aiSettings->IsPlayWithSelf()
         && pieceInfo.color != m_localColor )
     {
         return false;
@@ -1316,25 +1396,14 @@ hoxPracticeBoard::CreateAndLayoutWallPanel()
 
     m_systemOutput = new hoxWallOutput( this, wxID_ANY, _("Activities") );
     m_wallOutput   = new hoxWallOutput( this, wxID_ANY, _("Messages") );
-
-    // AI Controls.
-    wxStaticBoxSizer* aiSizer = new wxStaticBoxSizer( wxVERTICAL, this, _("Difficulty level") );
-    wxSlider* aiSlider = new wxSlider( this, ID_AI_LEVEL,
-                                       m_nAILevel /*value*/, 1 /*min*/, 10 /*max*/,
-                                       wxDefaultPosition, wxDefaultSize,
-                                       wxSL_AUTOTICKS | wxSL_LABELS);
-    aiSizer->Add( aiSlider, wxSizerFlags().Expand().Border(wxALL,5) );
-    aiSizer->AddSpacer( 10 );
-    m_playWithSelfCheckBox = new wxCheckBox(this, wxID_ANY, _("&Play with yourself"));
-    m_playWithSelfCheckBox->SetValue( false );
-    aiSizer->Add( m_playWithSelfCheckBox, wxSizerFlags().Expand().Border(wxALL,5) );
+    m_aiSettings   = new hoxAISettings( this, wxID_ANY, _("AI Settings"), 5 /* AI Level */ );
 
     /* Arrange the Wall. */
 
     m_wallSizer->Add( m_playerListBox, wxSizerFlags(1).Expand() );
     m_wallSizer->Add( m_systemOutput,  wxSizerFlags(1).Expand() );
     m_wallSizer->Add( m_wallOutput,    wxSizerFlags(1).Expand() );
-    m_wallSizer->Add( aiSizer,         wxSizerFlags(3).Expand().Border(wxALL,5) );
+    m_wallSizer->Add( m_aiSettings,    wxSizerFlags(3).Expand() );
 }
 
 void 
@@ -1345,7 +1414,7 @@ hoxPracticeBoard::OnBoardMove( const hoxMove& move,
 
     /* If not in Play-with-self mode, inform the Table of the new move. */
 
-    if ( ! m_playWithSelfCheckBox->IsChecked() )
+    if ( ! m_aiSettings->IsPlayWithSelf() )
     {
         const hoxTimeInfo playerTime = ( move.piece.color == hoxCOLOR_RED
                                         ? m_redTime : m_blackTime );
@@ -1356,15 +1425,13 @@ hoxPracticeBoard::OnBoardMove( const hoxMove& move,
 void
 hoxPracticeBoard::OnAISliderUpdate( wxScrollEvent& event )
 {
-    if ( m_nAILevel == event.GetInt() ) return;
-
-    m_nAILevel = event.GetInt();
-    wxLogDebug("%s: AI Level updated to [%d].", __FUNCTION__, m_nAILevel);
+    const int nAILevel = event.GetInt();
+    wxLogDebug("%s: AI Level updated to [%d].", __FUNCTION__, nAILevel);
 
     hoxPracticeTable* practiceTable( wxDynamicCast(m_pTable.get(), hoxPracticeTable) );
     if ( practiceTable )
     {
-        practiceTable->OnAILevelUpdate( m_nAILevel );
+        practiceTable->OnAILevelUpdate( nAILevel );
     }
 }
 
