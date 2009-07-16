@@ -110,6 +110,12 @@ public:
         return hoxAI_RC_OK;
     }
 
+    std::string getInfo()
+    {
+        return "Noah Roberts\n"
+               "xiangqi-engine.sourceforge.net";
+    }
+
 private:
     Move _translateStringToMove( const std::string& sMove )
     {

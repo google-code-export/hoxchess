@@ -1,5 +1,6 @@
 /*************************************************************************/
 /* HaQiKi D 0.4 plugin for HOXChess. Written by H.G. Muller.             */
+/*        http://home.hccnet.nl/h.g.muller/XQhaqikid.html                */
 /*************************************************************************/
 
 #include <stdio.h>

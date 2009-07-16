@@ -62,6 +62,7 @@ public:
      *******************************/
 
     void SetEngineAPI( AIEngineLib*  engineAPI ) { m_engineAPI = engineAPI; }
+    wxString GetInfo() const;
 
 protected:
     AIEngineLib*  m_engineAPI;

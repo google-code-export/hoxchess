@@ -137,8 +137,8 @@ public:
      * My custom event handler.
      *********************************/
 
-    void OnPlayerJoin( const hoxPlayerInfo playerInfo,
-                       const hoxColor      playerColor );
+    virtual void OnPlayerJoin( const hoxPlayerInfo playerInfo,
+                               const hoxColor      playerColor );
     void OnPlayerLeave( const wxString& playerId );
     void OnPlayerScore( const wxString& playerId,
                         const int       nScore );
@@ -368,7 +368,9 @@ protected:
     virtual void CreateAndLayoutWallPanel();
     virtual void OnBoardMove( const hoxMove& move,
 		                      hoxGameStatus  status );
-
+    virtual void OnPlayerJoin( const hoxPlayerInfo playerInfo,
+                               const hoxColor      playerColor );
+    /* My own API */
     void OnAISliderUpdate( wxScrollEvent& event );
 
 private:

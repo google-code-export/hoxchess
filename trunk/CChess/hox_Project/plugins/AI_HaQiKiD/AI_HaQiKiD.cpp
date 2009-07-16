@@ -110,6 +110,12 @@ public:
         return hoxAI_RC_OK;
     }
 
+    std::string getInfo()
+    {
+        return "H.G. Muller\n"
+               "home.hccnet.nl/h.g.muller/XQhaqikid.html";
+    }
+
 private:
     std::string _hoxToMove( const std::string& sIn );
     std::string _moveToHox( const std::string& sIn );

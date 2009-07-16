@@ -209,9 +209,15 @@ public:
         : wxPanel( parent, id )
         , m_sCaption( sCaption )
         , m_nAILevel( nAILevel )
+        , m_aiInfoText( NULL )
         , m_playWithSelfCtrl( NULL )
     {
         _CreateUI();
+    }
+
+    void SetAIInfo( const wxString& sAIInfo )
+    {
+        if ( m_aiInfoText ) m_aiInfoText->SetLabel( sAIInfo );
     }
 
     bool IsPlayWithSelf() const
@@ -228,6 +234,7 @@ private:
 private:
     const wxString m_sCaption;
     int            m_nAILevel;
+    wxStaticText*  m_aiInfoText; 
     wxCheckBox*    m_playWithSelfCtrl;
 
     DECLARE_EVENT_TABLE()
@@ -254,14 +261,27 @@ hoxAISettings::_CreateUI()
     mainSizer->Add( headerSizer, wxSizerFlags().Border(wxALL,1) );
 
     // AI settings. 
-    wxStaticBoxSizer* aiSizer = new wxStaticBoxSizer( wxVERTICAL, this, _("Difficulty level") );
+    wxStaticBoxSizer* aiSizer = new wxStaticBoxSizer( wxVERTICAL, this, "" );
+    aiSizer->Add( new wxStaticText( this, wxID_ANY, _("Difficulty level:") ),
+                  wxSizerFlags().Border(wxALL,5) );
     wxSlider* aiSlider = new wxSlider( this, wxID_ANY,
                                        m_nAILevel /*value*/, 1 /*min*/, 10 /*max*/,
                                        wxDefaultPosition, wxDefaultSize,
                                        wxSL_AUTOTICKS | wxSL_LABELS);
     aiSizer->Add( aiSlider, wxSizerFlags().Expand().Border(wxALL,5) );
+
+    // AI info.
+    wxBoxSizer* infoSizer = new wxBoxSizer( wxHORIZONTAL );
+    infoSizer->Add( new wxStaticText( this, wxID_ANY, _("Author:") ) );
+    infoSizer->AddSpacer(5);
+    m_aiInfoText = new wxStaticText( this, wxID_ANY, "" );
+    infoSizer->Add( m_aiInfoText );
+    aiSizer->AddSpacer(10);
+    aiSizer->Add( infoSizer, wxSizerFlags().Expand().Border(wxALL,5) );
+
     mainSizer->Add( aiSizer, wxSizerFlags(1).Expand().Border(wxALL,1) );
 
+    // ---
     m_playWithSelfCtrl = new wxCheckBox(this, wxID_ANY, _("&Play with yourself"));
     m_playWithSelfCtrl->SetValue( false );
 
@@ -1419,6 +1439,24 @@ hoxPracticeBoard::OnBoardMove( const hoxMove& move,
         const hoxTimeInfo playerTime = ( move.piece.color == hoxCOLOR_RED
                                         ? m_redTime : m_blackTime );
         m_pTable->OnMove_FromBoard( move, status, playerTime );
+    }
+}
+
+void 
+hoxPracticeBoard::OnPlayerJoin( const hoxPlayerInfo playerInfo,
+                                const hoxColor      playerColor )
+{
+    this->hoxBoard::OnPlayerJoin( playerInfo, playerColor );
+
+    if ( playerInfo.type == hoxPLAYER_TYPE_AI )
+    {
+        wxString sInfo;
+        hoxPracticeTable* practiceTable( wxDynamicCast(m_pTable.get(), hoxPracticeTable) );
+        if ( practiceTable )
+        {
+            sInfo = practiceTable->GetAIInfo();
+            m_aiSettings->SetAIInfo( sInfo );
+        }
     }
 }
 

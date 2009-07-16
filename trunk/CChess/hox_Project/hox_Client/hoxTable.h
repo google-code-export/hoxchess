@@ -35,6 +35,7 @@
 
 /* Forward declarations */
 class hoxPlayer;
+class hoxAIPlayer;
 class hoxLocalPlayer;
 class hoxBoard;
 class hoxSite;
@@ -390,9 +391,10 @@ public:
 
     /* Practice-table specific API. */
     void OnAILevelUpdate( const int nAILevel );
+    wxString GetAIInfo() const;
 
 private:
-    hoxPlayer* _GetAIPlayer() const;
+    hoxAIPlayer* _GetAIPlayer() const;
 
 private:
     DECLARE_DYNAMIC_CLASS(hoxPracticeTable)
