@@ -93,6 +93,12 @@ public:
         return hoxAI_RC_OK;
     }
 
+    std::string getInfo()
+    {
+        return "Wangmao Lin\n"
+               "folium.googlecode.com";
+    }
+
 private:
     std::string    m_name;
 

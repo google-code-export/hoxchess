@@ -84,6 +84,12 @@ public:
         return hoxAI_RC_OK;
     }
 
+    std::string getInfo()
+    {
+        return "H.G. Muller\n"
+               "home.hccnet.nl/h.g.muller/XQmaxqi.html";
+    }
+
 private:
     std::string m_name;
 

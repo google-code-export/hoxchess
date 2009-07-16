@@ -92,6 +92,17 @@ hoxAIPlayer::OnConnectionResponse( wxCommandEvent& event )
     }
 }
 
+wxString
+hoxAIPlayer::GetInfo() const
+{
+    wxString sInfo;
+    if ( m_engineAPI )
+    {
+        const std::string stdInfo = m_engineAPI->getInfo();
+        sInfo = hoxUtil::std2wx( stdInfo );
+    }
+    return sInfo;
+}
 
 // ----------------------------------------------------------------------------
 // hoxAIEngine

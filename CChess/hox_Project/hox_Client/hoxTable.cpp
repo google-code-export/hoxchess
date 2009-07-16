@@ -30,6 +30,7 @@
 #include "hoxPlayer.h"
 #include "hoxBoard.h"
 #include "hoxSite.h"
+#include "hoxAIPlayer.h"
 #include "hoxUtil.h"
 #include <algorithm>
 
@@ -673,17 +674,28 @@ hoxPracticeTable::OnAILevelUpdate( const int nAILevel )
     aiPlayer->OnRequest_FromTable( apRequest );
 }
 
-hoxPlayer*
+wxString
+hoxPracticeTable::GetAIInfo() const
+{
+    hoxAIPlayer* aiPlayer = _GetAIPlayer();
+    if ( aiPlayer )
+    {
+        return aiPlayer->GetInfo();
+    }
+    return "";
+}
+
+hoxAIPlayer*
 hoxPracticeTable::_GetAIPlayer() const
 {
-    hoxPlayer* aiPlayer = NULL;
+    hoxAIPlayer* aiPlayer = NULL;
     if ( m_redPlayer && m_redPlayer->GetType() == hoxPLAYER_TYPE_AI )
     {
-        aiPlayer = m_redPlayer;
+        aiPlayer = wxDynamicCast(m_redPlayer, hoxAIPlayer);
     }
     else if ( m_blackPlayer && m_blackPlayer->GetType() == hoxPLAYER_TYPE_AI )
     {
-        aiPlayer = m_blackPlayer;
+        aiPlayer = wxDynamicCast(m_blackPlayer, hoxAIPlayer);
     }
 
     return aiPlayer;

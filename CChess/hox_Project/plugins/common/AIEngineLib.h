@@ -83,6 +83,8 @@ public:
     virtual int         setDifficultyLevel( int nAILevel ) = 0;
     // ------------
 
+    virtual std::string getInfo() { return ""; }
+
     void operator delete(void* p)
         {
             if (p)

@@ -96,6 +96,12 @@ public:
         return hoxAI_RC_OK;
     }
 
+    std::string getInfo()
+    {
+        return "Morning Yellow\n"
+               "www.elephantbase.net";
+    }
+
 private:
     bool _convertFENtoBoard( const std::string& fen,
                              unsigned char      board[10][9],

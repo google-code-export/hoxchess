@@ -387,10 +387,6 @@ hoxLocalSite::OnLocalRequest_PRACTICE( const wxString& sSavedFile /* = "" */ )
     result = m_player->JoinTableAs( pTable, hoxCOLOR_RED );
     wxASSERT( result == hoxRC_OK );
 
-    hoxAIPlayer* pAIPlayer = new hoxAIPlayer( sAIId, hoxPLAYER_TYPE_AI, 1500 );
-    result = pAIPlayer->JoinTableAs( pTable, hoxCOLOR_BLACK );
-    wxASSERT( result == hoxRC_OK );
-
     /* Load the saved game from disk, if requested. */
 
     std::string            fen; // Forsyth-Edwards Notation (FEN)
@@ -445,7 +441,10 @@ hoxLocalSite::OnLocalRequest_PRACTICE( const wxString& sSavedFile /* = "" */ )
         return;
     }
 
+    hoxAIPlayer* pAIPlayer = new hoxAIPlayer( sAIId, hoxPLAYER_TYPE_AI, 1500 );
     pAIPlayer->SetEngineAPI( apAIEngineLib.release() ); // Caller will de-allocate.
+    result = pAIPlayer->JoinTableAs( pTable, hoxCOLOR_BLACK );
+    wxASSERT( result == hoxRC_OK );
     pAIPlayer->Start();
 
     /* Request a Move from AI if the "next" turn is BLACK. */
