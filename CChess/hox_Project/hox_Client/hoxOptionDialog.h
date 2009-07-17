@@ -25,8 +25,8 @@
 // Description:     The dialog to change the Options of a Table.
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INCLUDED_HOX_OPTION_DIALOG_H_
-#define __INCLUDED_HOX_OPTION_DIALOG_H_
+#ifndef __INCLUDED_HOX_OPTION_DIALOG_H__
+#define __INCLUDED_HOX_OPTION_DIALOG_H__
 
 #include "hoxTypes.h"
 
@@ -48,12 +48,6 @@ public:
                 /* Read-Only options */
     };
 
-    enum CommandId
-    {
-	    COMMAND_ID_CANCEL,
-        COMMAND_ID_SAVE
-    };
-
     hoxOptionDialog( wxWindow*           parent, 
                      wxWindowID          id, 
                      const wxString&     title,
@@ -62,7 +56,6 @@ public:
 
     void OnButtonSave(wxCommandEvent& event);
 
-    CommandId      GetSelectedCommand()  const { return m_selectedCommand; }
     bool           IsRatedGame() const { return m_bRatedGame; }
 	hoxTimeInfo    GetNewTimeInfo() const { return m_newTimeInfo; }
 
@@ -73,8 +66,6 @@ private:
     wxTextCtrl*         m_textCtrlTime_Move;
     wxTextCtrl*         m_textCtrlTime_Free;
 
-    CommandId           m_selectedCommand; // Save / Cancel ?
-    
     const hoxTable_SPtr m_pTable;
     bool                m_bRatedGame;  // Rated/Non-Rated Game.
     hoxTimeInfo         m_newTimeInfo;
@@ -82,4 +73,4 @@ private:
     DECLARE_EVENT_TABLE()
 };
 
-#endif /* __INCLUDED_HOX_OPTION_DIALOG_H_ */
+#endif /* __INCLUDED_HOX_OPTION_DIALOG_H__ */

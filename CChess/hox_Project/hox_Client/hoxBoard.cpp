@@ -205,7 +205,7 @@ class hoxAISettings : public wxPanel
 public:
     hoxAISettings( wxWindow *parent, wxWindowID id,
                    const wxString& sCaption,
-                   const int nAILevel = 5 )
+                   const int nAILevel )
         : wxPanel( parent, id )
         , m_sCaption( sCaption )
         , m_nAILevel( nAILevel )
@@ -363,8 +363,7 @@ hoxBoard::hoxBoard( wxWindow*        parent,
                     const wxPoint&   pos  /* = wxDefaultPosition */, 
                     const wxSize&    size /* = wxDefaultSize */,
                     unsigned int     featureFlags /* = hoxBOARD_FEATURE_ALL */ )
-        : wxPanel( parent, wxID_ANY, pos, size,
-                   wxFULL_REPAINT_ON_RESIZE )
+        : wxPanel( parent, wxID_ANY, pos, size, wxFULL_REPAINT_ON_RESIZE )
         , m_coreBoard( NULL )
         , m_referee( referee )
         , m_pTable( pTable )
@@ -375,6 +374,10 @@ hoxBoard::hoxBoard( wxWindow*        parent,
         , m_bRated( true )
 		, m_timer( NULL )
         , m_bUICreated( false )
+        , m_playerListBox( NULL )
+        , m_systemOutput( NULL )
+        , m_wallOutput( NULL )
+        , m_wallInput( NULL )
         , m_bSoundEnabled( true )
 {
     wxLogDebug("%s: ENTER.", __FUNCTION__);
@@ -745,24 +748,12 @@ hoxBoard::OnButtonOptions( wxCommandEvent &event )
 
     hoxOptionDialog optionDlg( this, wxID_ANY, _("Table Options"),
                                m_pTable, optionDlgFlags );
-    optionDlg.ShowModal();
-
-    hoxOptionDialog::CommandId selectedCommand = optionDlg.GetSelectedCommand();
-
-    switch( selectedCommand )
+    const int nCommandId = optionDlg.ShowModal();
+    if ( nCommandId == wxID_OK )
     {
-        case hoxOptionDialog::COMMAND_ID_SAVE:
-        {
-            const bool        bRatedGame  = optionDlg.IsRatedGame();
-            const hoxTimeInfo newTimeInfo = optionDlg.GetNewTimeInfo();
-            
-            m_pTable->OnOptionsCommand_FromBoard( bRatedGame, 
-                                                  newTimeInfo );
-            break;
-        }
-        default:
-            // No command is selected. Fine.
-            break;
+        const bool        bRatedGame  = optionDlg.IsRatedGame();
+        const hoxTimeInfo newTimeInfo = optionDlg.GetNewTimeInfo();
+        m_pTable->OnOptionsCommand_FromBoard( bRatedGame, newTimeInfo );
     }
 }
 
@@ -899,9 +890,8 @@ hoxBoard::_SetRedInfo( const wxString& playerId,
 
     m_redId = playerId;
 
-    wxString info;
-    if ( m_redId.empty() ) info = "*";
-    else                   info.Printf("%s (%d)", m_redId.c_str(), nScore);
+    wxString info = "*";
+    if ( ! m_redId.empty() ) info.Printf("%s (%d)", m_redId.c_str(), nScore);
     m_redInfo->SetLabel( info );
 }
 
@@ -913,9 +903,8 @@ hoxBoard::_SetBlackInfo( const wxString& playerId,
 
     m_blackId = playerId;
 
-    wxString info;
-    if ( m_blackId.empty() ) info = "*";
-    else                     info.Printf("%s (%d)", m_blackId.c_str(), nScore);
+    wxString info = "*";
+    if ( ! m_blackId.empty() ) info.Printf("%s (%d)", m_blackId.c_str(), nScore);
     m_blackInfo->SetLabel( info );
 }
 
@@ -1223,7 +1212,9 @@ hoxBoard::_PostToWallOutput( const wxString& who,
                              const wxString& sMessage,
                              bool            bPublic /* = true */ )
 {
-    m_wallOutput->AppendMessage( who, sMessage, bPublic );
+    hoxWallOutput* outputUI  = ( m_wallOutput ? m_wallOutput
+                                              : m_systemOutput );
+    outputUI->AppendMessage( who, sMessage, bPublic );
 }
 
 void 
@@ -1415,14 +1406,12 @@ hoxPracticeBoard::CreateAndLayoutWallPanel()
     m_playerListBox->SetOwner( this );
 
     m_systemOutput = new hoxWallOutput( this, wxID_ANY, _("Activities") );
-    m_wallOutput   = new hoxWallOutput( this, wxID_ANY, _("Messages") );
     m_aiSettings   = new hoxAISettings( this, wxID_ANY, _("AI Settings"), 5 /* AI Level */ );
 
     /* Arrange the Wall. */
 
     m_wallSizer->Add( m_playerListBox, wxSizerFlags(1).Expand() );
     m_wallSizer->Add( m_systemOutput,  wxSizerFlags(1).Expand() );
-    m_wallSizer->Add( m_wallOutput,    wxSizerFlags(1).Expand() );
     m_wallSizer->Add( m_aiSettings,    wxSizerFlags(3).Expand() );
 }
 
