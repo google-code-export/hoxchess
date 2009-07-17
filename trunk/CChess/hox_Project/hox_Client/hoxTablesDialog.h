@@ -28,10 +28,8 @@
 #ifndef __INCLUDED_HOX_TABLES_DIALOG_H__
 #define __INCLUDED_HOX_TABLES_DIALOG_H__
 
-#include <wx/wx.h>
-#include <wx/listctrl.h>
 #include "hoxTypes.h"
-
+#include <wx/listctrl.h>
 
 // ----------------------------------------------------------------------------
 // The Tables-Dialog class
@@ -42,8 +40,7 @@ class hoxTablesDialog : public wxDialog
 public:
     enum CommandId
     {
-        COMMAND_ID_UNKNOWN = -1,
-        COMMAND_ID_JOIN,
+        COMMAND_ID_JOIN = (wxID_HIGHEST + 1),
         COMMAND_ID_NEW,
 		COMMAND_ID_REFRESH
     };
@@ -57,24 +54,19 @@ public:
     void OnButtonJoin(wxCommandEvent& event);
     void OnButtonNew(wxCommandEvent& event);
 	void OnButtonRefresh(wxCommandEvent& event);
-	void OnButtonClose(wxCommandEvent& event);
 
 	void OnClose(wxCloseEvent& event);
     void OnListItemDClick(wxListEvent& event);
 
-    CommandId GetSelectedCommand() const { return m_selectedCommand; }
     wxString GetSelectedId() const { return m_selectId; }
 
 private:
 	bool _GetDefaultLayout( wxPoint& position, wxSize& size );
-	bool _SaveDefaultLayout( const wxPoint& position, const wxSize& size );
+	void _SaveDefaultLayout( const wxPoint& position, const wxSize& size );
 
 private:
 	wxListCtrl*   m_listCtrlTables;
-
-    CommandId     m_selectedCommand;
     wxString      m_selectId;
-
     unsigned int  m_actionFlags;
 
     DECLARE_EVENT_TABLE()

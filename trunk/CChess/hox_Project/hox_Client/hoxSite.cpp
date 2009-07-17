@@ -637,22 +637,17 @@ hoxRemoteSite::JoinLocalPlayerToTable( const hoxNetworkTableInfo& tableInfo )
 void
 hoxRemoteSite::DisplayListOfTables( const hoxNetworkTableInfoList& tableList )
 {
-    /* Show tables. */
     MyFrame* frame = wxGetApp().GetFrame();
 	const unsigned int actionFlags = this->GetCurrentActionFlags();
     
     hoxTablesDialog tablesDlg( frame, wxID_ANY, _("List of Tables"), tableList, actionFlags );
-    tablesDlg.ShowModal();
-    
-    hoxTablesDialog::CommandId selectedCommand = tablesDlg.GetSelectedCommand();
-    const wxString selectedId = tablesDlg.GetSelectedId();
+    const int nCommandId = tablesDlg.ShowModal();
 
-    /* Find out which command the use wants to execute... */
-
-    switch( selectedCommand )
+    switch( nCommandId )
     {
         case hoxTablesDialog::COMMAND_ID_JOIN:
         {
+            const wxString selectedId = tablesDlg.GetSelectedId();
             this->OnLocalRequest_JOIN( selectedId );
             break;
         }

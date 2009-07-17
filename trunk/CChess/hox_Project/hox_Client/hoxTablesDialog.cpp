@@ -48,7 +48,6 @@ BEGIN_EVENT_TABLE(hoxTablesDialog, wxDialog)
     EVT_BUTTON(ID_JOIN_TABLE, hoxTablesDialog::OnButtonJoin)
     EVT_BUTTON(ID_NEW_TABLE, hoxTablesDialog::OnButtonNew)
 	EVT_BUTTON(ID_REFRESH_LIST, hoxTablesDialog::OnButtonRefresh)
-	EVT_BUTTON(ID_CLOSE_DIALOG, hoxTablesDialog::OnButtonClose)
 	
 	EVT_CLOSE(hoxTablesDialog::OnClose)
     EVT_LIST_ITEM_ACTIVATED(wxID_ANY, hoxTablesDialog::OnListItemDClick)
@@ -75,19 +74,15 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*                      parent,
 								  unsigned int                   actionFlags )
         : wxDialog( parent, id, title, wxDefaultPosition, wxDefaultSize, 
 		            wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER )
-        , m_selectedCommand( COMMAND_ID_UNKNOWN )
         , m_actionFlags( actionFlags )
 {
     wxBoxSizer* topSizer = new wxBoxSizer( wxVERTICAL );
 
 	/* Create a List-Control to display the table-list. */
 
-	m_listCtrlTables = new wxListCtrl(
-		this,
-		wxID_ANY,
-		wxDefaultPosition,
-		wxDefaultSize,
-		wxLC_REPORT | wxLC_SINGLE_SEL);
+	m_listCtrlTables = new wxListCtrl( this, wxID_ANY,
+		                               wxDefaultPosition, wxDefaultSize,
+		                               wxLC_REPORT | wxLC_SINGLE_SEL);
 
     wxString columns[] =
     {
@@ -101,8 +96,7 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*                      parent,
 		"Black Player"
     };
 
-	long     colIndex = 0;
-
+	long colIndex = 0;
 	for ( colIndex = 0; colIndex < WXSIZEOF( columns ); ++colIndex )
 	{
 		m_listCtrlTables->InsertColumn( colIndex, columns[colIndex] );
@@ -118,8 +112,7 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*                      parent,
 												++it )
 	{
 		groupInfo = ( it->group == hoxGAME_GROUP_PUBLIC
-			         ? "Public" 
-					 : "Private" );
+			         ? "Public" : "Private" );
 
         if ( it->redId.empty() ) redInfo = "*";
         else  redInfo = it->redId + " (" << it->redScore << ")";
@@ -166,9 +159,8 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*                      parent,
 	/* Sort the list. */
     m_listCtrlTables->SortItems( CompareTablesCallBack, 0 /* sortData */ );
 
-    topSizer->Add( 
-		m_listCtrlTables,
-		wxSizerFlags(1).Expand().Border(wxALL, 10));
+    topSizer->Add( m_listCtrlTables,
+		           wxSizerFlags(1).Expand().Border(wxALL, 10));
 
     /* Buttons... */
 
@@ -183,24 +175,13 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*                      parent,
 
     wxBoxSizer* buttonSizer = new wxBoxSizer( wxHORIZONTAL );
 
-    buttonSizer->Add( buttonRefresh,
-		              wxSizerFlags().Align(wxALIGN_CENTER));
-
-    buttonSizer->Add( buttonNew,
-		              wxSizerFlags().Align(wxALIGN_CENTER));
-
+    buttonSizer->Add( buttonRefresh, wxSizerFlags().Align(wxALIGN_CENTER));
+    buttonSizer->Add( buttonNew, wxSizerFlags().Align(wxALIGN_CENTER));
     buttonSizer->AddSpacer(30);
+    buttonSizer->Add( buttonJoin, wxSizerFlags().Align(wxALIGN_CENTER));
+    buttonSizer->Add( buttonClose, wxSizerFlags().Align(wxALIGN_CENTER));
 
-    buttonSizer->Add( buttonJoin,
-		              wxSizerFlags().Align(wxALIGN_CENTER));
-
-    buttonSizer->Add( buttonClose,
-		              wxSizerFlags().Align(wxALIGN_CENTER));
-
-    topSizer->Add(
-		buttonSizer, 
-		wxSizerFlags().Align(wxALIGN_CENTER));
-
+    topSizer->Add( buttonSizer, wxSizerFlags().Align(wxALIGN_CENTER));
     SetSizer( topSizer );      // use the sizer for layout
 
 	/* Use the last Position and Size, if available. */
@@ -218,11 +199,9 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*                      parent,
 void 
 hoxTablesDialog::OnButtonJoin( wxCommandEvent& event )
 {
-    const char* FNAME = __FUNCTION__;
-
     if ( (m_actionFlags & hoxSITE_ACTION_JOIN) == 0 )
     {
-        wxLogDebug("%s: JOIN action is disabled. Ignore command.", FNAME);
+        wxLogDebug("%s: JOIN action is disabled. Ignore command.", __FUNCTION__);
         return;
     }
 
@@ -237,42 +216,28 @@ hoxTablesDialog::OnButtonJoin( wxCommandEvent& event )
 		return;
 	}
 
-	long selectedId = m_listCtrlTables->GetItemData( selectedIndex );
+	const long selectedId = m_listCtrlTables->GetItemData( selectedIndex );
 	m_selectId.Printf("%ld", selectedId);
 
-    m_selectedCommand = COMMAND_ID_JOIN;
-    wxLogDebug("%s: Table-Id [%s] is selected to JOIN.", FNAME, m_selectId.c_str());
-    Close();
+    EndDialog( COMMAND_ID_JOIN );
 }
 
 void 
 hoxTablesDialog::OnButtonNew( wxCommandEvent& event )
 {
-    m_selectedCommand = COMMAND_ID_NEW;
-    Close();
+    EndDialog( COMMAND_ID_NEW );
 }
 
 void 
 hoxTablesDialog::OnButtonRefresh( wxCommandEvent& event )
 {
-    m_selectedCommand = COMMAND_ID_REFRESH;
-    Close();
-}
-
-void 
-hoxTablesDialog::OnButtonClose( wxCommandEvent& event )
-{
-    Close();
-	event.Skip(); // Let the search for the event handler should continue.
+    EndDialog( COMMAND_ID_REFRESH );
 }
 
 void 
 hoxTablesDialog::OnClose( wxCloseEvent& event )
 {
-	wxPoint position = this->GetPosition(); 
-	wxSize  size     = this->GetSize();
-
-	_SaveDefaultLayout( position, size );
+	_SaveDefaultLayout( this->GetPosition(), this->GetSize() );
 	event.Skip(); // Let the search for the event handler should continue.
 }
 
@@ -280,7 +245,6 @@ void
 hoxTablesDialog::OnListItemDClick( wxListEvent& event )
 {
     wxCommandEvent DUMMY_event;
-    
     this->OnButtonJoin( DUMMY_event );
 }
 
@@ -309,11 +273,10 @@ hoxTablesDialog::_GetDefaultLayout( wxPoint& position,
 	return true;   // found old layout?
 }
 
-bool 
+void
 hoxTablesDialog::_SaveDefaultLayout( const wxPoint& position, 
 									 const wxSize&  size )
 {
-	// Write the current layout to Configuration.
 	wxConfig* config = wxGetApp().GetConfig();
 
 	config->Write("/Layout/TablesDialog/position/x", position.x);
@@ -321,8 +284,6 @@ hoxTablesDialog::_SaveDefaultLayout( const wxPoint& position,
 
 	config->Write("/Layout/TablesDialog/size/x", size.x);
 	config->Write("/Layout/TablesDialog/size/y", size.y);
-
-	return true;
 }
 
 /************************* END OF FILE ***************************************/
