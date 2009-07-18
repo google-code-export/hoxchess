@@ -37,6 +37,7 @@
 
 /* Forward declarations. */
 class hoxProgressDialog;
+class hoxTablesDialog;
 
 /**
  * The Site's Actions that are enabled at a given time.
@@ -271,6 +272,13 @@ public:
 
     virtual void OnLocalRequest_JOIN( const wxString& sTableId );
     virtual void OnLocalRequest_NEW();
+
+private:
+    /* This pointer exists solely for the purpose of handling the case
+     * in which the Site is deleted while the list-of-tables dialog
+     * is being displayed.
+     */
+    hoxTablesDialog*    m_pTablesDlg;
 };
 
 /**

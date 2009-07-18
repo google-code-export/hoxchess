@@ -477,6 +477,7 @@ hoxLocalSite::GetBoardFeatureFlags() const
 hoxRemoteSite::hoxRemoteSite(const hoxServerAddress& address,
                              hoxSiteType             type /*= hoxSITE_TYPE_REMOTE*/)
         : hoxSite( type, address )
+        , m_pTablesDlg( NULL )
 {
     wxLogDebug("%s: ENTER.", __FUNCTION__);
 }
@@ -484,6 +485,10 @@ hoxRemoteSite::hoxRemoteSite(const hoxServerAddress& address,
 hoxRemoteSite::~hoxRemoteSite()
 {
     wxLogDebug("%s: ENTER.", __FUNCTION__);
+    if ( m_pTablesDlg )
+    {
+        m_pTablesDlg->OnSiteDeleted();
+    }
 }
 
 hoxLocalPlayer* 
@@ -640,14 +645,25 @@ hoxRemoteSite::DisplayListOfTables( const hoxNetworkTableInfoList& tableList )
     MyFrame* frame = wxGetApp().GetFrame();
 	const unsigned int actionFlags = this->GetCurrentActionFlags();
     
-    hoxTablesDialog tablesDlg( frame, wxID_ANY, _("List of Tables"), tableList, actionFlags );
-    const int nCommandId = tablesDlg.ShowModal();
+    hoxTablesDialog* pTablesDlg = new hoxTablesDialog( frame, wxID_ANY, _("List of Tables"),
+                                                       tableList, actionFlags );
+    m_pTablesDlg = pTablesDlg;  // Register for site-deleted-event callback.
+    const int nCommandId = pTablesDlg->ShowModal();
+    if ( nCommandId == hoxTablesDialog::COMMAND_ID_SITE_DELETED )
+    {
+        // The Site was destroyed while the dialog is displayed.
+        // and DO NOT access 'm_pTablesDlg'.
+        return;
+    }
+    
+    m_pTablesDlg = NULL; // Un-register callback...
+    const wxString selectedId = pTablesDlg->GetSelectedId();
+    pTablesDlg->Destroy();
 
     switch( nCommandId )
     {
         case hoxTablesDialog::COMMAND_ID_JOIN:
         {
-            const wxString selectedId = tablesDlg.GetSelectedId();
             this->OnLocalRequest_JOIN( selectedId );
             break;
         }

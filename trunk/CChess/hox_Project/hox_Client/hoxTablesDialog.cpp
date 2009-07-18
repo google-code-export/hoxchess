@@ -235,6 +235,12 @@ hoxTablesDialog::OnButtonRefresh( wxCommandEvent& event )
 }
 
 void 
+hoxTablesDialog::OnSiteDeleted()
+{
+    EndDialog( COMMAND_ID_SITE_DELETED );
+}
+
+void 
 hoxTablesDialog::OnClose( wxCloseEvent& event )
 {
 	_SaveDefaultLayout( this->GetPosition(), this->GetSize() );
