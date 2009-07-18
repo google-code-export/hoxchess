@@ -42,7 +42,8 @@ public:
     {
         COMMAND_ID_JOIN = (wxID_HIGHEST + 1),
         COMMAND_ID_NEW,
-		COMMAND_ID_REFRESH
+		COMMAND_ID_REFRESH,
+        COMMAND_ID_SITE_DELETED
     };
 
     hoxTablesDialog( wxWindow*                      parent, 
@@ -54,6 +55,10 @@ public:
     void OnButtonJoin(wxCommandEvent& event);
     void OnButtonNew(wxCommandEvent& event);
 	void OnButtonRefresh(wxCommandEvent& event);
+
+    // Special callback to handle the case in which
+    // the parent Site has been deleted/closed.
+    void OnSiteDeleted();
 
 	void OnClose(wxCloseEvent& event);
     void OnListItemDClick(wxListEvent& event);
