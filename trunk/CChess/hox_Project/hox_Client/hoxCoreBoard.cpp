@@ -321,7 +321,8 @@ hoxCoreBoard::_DrawAllPieces( wxDC& dc )
 }
 
 void
-hoxCoreBoard::_DrawAndHighlightPiece( hoxPiece* piece )
+hoxCoreBoard::_DrawAndHighlightPiece( hoxPiece*  piece,
+                                      const bool bRefresh /* = true */ )
 {
     // Un-highlight the "old" piece.
     if ( m_latestPiece != NULL )
@@ -331,13 +332,16 @@ hoxCoreBoard::_DrawAndHighlightPiece( hoxPiece* piece )
         /* Re-draw the "old" piece to undo the highlight.
          * TODO: Is there a better way?
          */
-        _ErasePiece( m_latestPiece );
-        _DrawPiece( m_latestPiece );
+        if ( bRefresh )
+        {
+            _ErasePiece( m_latestPiece );
+            _DrawPiece( m_latestPiece );
+        }
     }
 
     piece->SetLatest( true );
     m_latestPiece = piece;
-    _DrawPiece( piece );
+    if ( bRefresh ) _DrawPiece( piece );
 }
 
 /**
@@ -536,10 +540,9 @@ hoxCoreBoard::_IsBoardInReviewMode() const
 }
 
 bool 
-hoxCoreBoard::DoMove( hoxMove& move )
+hoxCoreBoard::DoMove( hoxMove&   move,
+                      const bool bRefresh /* = true */ )
 {
-    /* Validate the Move */
-
     hoxGameStatus gameStatus = hoxGAME_STATUS_UNKNOWN;
     if ( ! m_referee->ValidateMove( move, gameStatus ) )
     {
@@ -552,8 +555,7 @@ hoxCoreBoard::DoMove( hoxMove& move )
         SetGameOver( true );
     }
 
-    /* Keep track the list of all Moves. */
-    _RecordMove( move );
+    _RecordMove( move ); // Keep track the list of all Moves.
 
     /* Do not update the Pieces on Board if we are in the review mode. */
     if ( _IsBoardInReviewMode() )
@@ -566,7 +568,7 @@ hoxCoreBoard::DoMove( hoxMove& move )
     hoxPiece* piece = _FindPieceAt( move.piece.position );
     wxCHECK_MSG( piece != NULL, false, "Piece is not found." );
 
-    if ( ! _MovePieceTo( piece, move.newPosition ) )
+    if ( ! _MovePieceTo( piece, move.newPosition, true, bRefresh ) )
     {
         _PrintDebug( wxString::Format("%s: Piece could not be moved.", __FUNCTION__) );
         return false;
@@ -582,24 +584,21 @@ hoxCoreBoard::DoMove( hoxMove& move )
 bool 
 hoxCoreBoard::_MovePieceTo( hoxPiece*          piece, 
                             const hoxPosition& newPosition,
-                            bool               hightlight /* = true */)
+                            bool               hightlight /* = true */,
+                            const bool         bRefresh /* = true */ )
 {
-    // Sanity check.
     if ( ! newPosition.IsValid() )
         return false;
 
-    // Erase the captured piece, if any.
-    _FindAndCapturePieceAt( newPosition );
+    _FindAndCapturePieceAt( newPosition, bRefresh );
 
-    // Clear the old image if it was visible.
-    if ( piece->IsShown() )
+    if ( bRefresh && piece->IsShown() )
         _ErasePiece( piece );
 
-    // Simply set the position without validation.
-    piece->SetPosition( newPosition );
+    piece->SetPosition( newPosition ); // ... without validation.
 
-    if ( hightlight ) _DrawAndHighlightPiece( piece );
-    else              _DrawPiece( piece );
+    if ( hightlight )   _DrawAndHighlightPiece( piece, bRefresh );
+    else if( bRefresh ) _DrawPiece( piece );
 
     return true;
 }
@@ -607,12 +606,13 @@ hoxCoreBoard::_MovePieceTo( hoxPiece*          piece,
 bool
 hoxCoreBoard::DoGameReview_BEGIN()
 {
-    while ( this->DoGameReview_PREV() ) { }
+    while ( this->DoGameReview_PREV(false /* bRefresh */) ) { }
+    this->Refresh();
     return true;
 }
 
 bool 
-hoxCoreBoard::DoGameReview_PREV()
+hoxCoreBoard::DoGameReview_PREV( const bool bRefresh /* = true */ )
 {
     if ( m_historyMoves.empty() )
     {
@@ -641,7 +641,7 @@ hoxCoreBoard::DoGameReview_PREV()
     wxCHECK_MSG(piece, false, "No piece found at NEW position.");
 
     piece->SetLatest( false );
-    if ( ! _MovePieceTo( piece, move.piece.position, false /* no highlight */ ) )
+    if ( ! _MovePieceTo( piece, move.piece.position, false /* no highlight */, bRefresh ) )
     {
         wxLogDebug("%s: Failed to move Piece back to the ORIGINAL position.", __FUNCTION__);
         return false;
@@ -656,7 +656,7 @@ hoxCoreBoard::DoGameReview_PREV()
         wxCHECK_MSG(capturedPiece != NULL, false, "Unable to get the captured Piece.");
         wxCHECK_MSG(!capturedPiece->IsActive(), false, "Piece is already Active.");
         capturedPiece->SetActive( true );
-        _DrawPiece( capturedPiece );
+        if ( bRefresh ) _DrawPiece( capturedPiece );
     }
 
     /* Highlight the Piece (if any) of the "next-PREV" Move. */
@@ -667,14 +667,14 @@ hoxCoreBoard::DoGameReview_PREV()
         const hoxMove prevMove = m_historyMoves[m_historyIndex];
         hoxPiece* prevPiece = _FindPieceAt( prevMove.newPosition );
         wxCHECK_MSG(prevPiece, false, "No next-PREV Piece found.");
-        _DrawAndHighlightPiece( prevPiece );
+        _DrawAndHighlightPiece( prevPiece, bRefresh );
     }
 
     return true;
 }
 
 bool 
-hoxCoreBoard::DoGameReview_NEXT()
+hoxCoreBoard::DoGameReview_NEXT( const bool bRefresh /* = true */ )
 {
     if ( m_historyMoves.empty() )
     {
@@ -704,7 +704,7 @@ hoxCoreBoard::DoGameReview_NEXT()
     hoxPiece* piece = _FindPieceAt( move.piece.position );
     wxCHECK_MSG(piece, false, "No Piece found at the ORIGINAL position.");
 
-    _MovePieceTo( piece, move.newPosition );
+    _MovePieceTo( piece, move.newPosition, true /* hightlight */, bRefresh );
 
 	return true;
 }
@@ -712,7 +712,8 @@ hoxCoreBoard::DoGameReview_NEXT()
 bool 
 hoxCoreBoard::DoGameReview_END()
 {
-    while ( this->DoGameReview_NEXT() ) { }
+    while ( this->DoGameReview_NEXT(false /* bRefresh */) ) { }
+    this->Refresh();
     return true;
 }
 
@@ -869,15 +870,15 @@ hoxCoreBoard::_FindPieceAt( const hoxPosition& position,
 }
 
 hoxPiece* 
-hoxCoreBoard::_FindAndCapturePieceAt( const hoxPosition& position )
+hoxCoreBoard::_FindAndCapturePieceAt( const hoxPosition& position,
+                                      const bool         bRefresh /* = true */ )
 {
     hoxPiece* capturedPiece = _FindPieceAt( position );
-
     if ( capturedPiece == NULL )
         return NULL;
 
     capturedPiece->SetActive(false);
-    _ErasePiece( capturedPiece );
+    if ( bRefresh ) _ErasePiece( capturedPiece );
 
     /* NOTE: To support GAME-REVIEW feature, use the following trick:
      *     + Make sure the "recent" captured Piece is near the top of

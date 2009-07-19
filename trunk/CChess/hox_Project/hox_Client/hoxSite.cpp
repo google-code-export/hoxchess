@@ -412,7 +412,7 @@ hoxLocalSite::OnLocalRequest_PRACTICE( const wxString& sSavedFile /* = "" */ )
             return;
         }
 
-        pTable->OnPastMoves_FromNetwork( pastMoves );
+        pTable->OnPastMoves( pastMoves );
 
         hoxGameState gameState;
         pReferee->GetGameState( gameState );

@@ -192,15 +192,16 @@ public:
      *
      * @note This move will trigger referee-validation.
      */
-    bool DoMove( hoxMove& move );
+    bool DoMove( hoxMove&   move,
+                 const bool bRefresh = true );
 
     /*********************************
      * Game-reviewing API.
      *********************************/
 
     bool DoGameReview_BEGIN();
-    bool DoGameReview_PREV();  // Previous move.
-    bool DoGameReview_NEXT();
+    bool DoGameReview_PREV( const bool bRefresh = true );
+    bool DoGameReview_NEXT( const bool bRefresh = true );
     bool DoGameReview_END();
 
     /*********************************
@@ -248,7 +249,8 @@ private:
      */
     bool _MovePieceTo( hoxPiece*          piece, 
                        const hoxPosition& newPosition,
-                       bool               hightlight = true );
+                       bool               hightlight = true,
+                       const bool         bRefresh = true );
 
     /**
      * Find a Piece a given position.
@@ -266,7 +268,8 @@ private:
      *
      * @return The captured Piece if found. Otherwise, return NULL.
      */
-    hoxPiece* _FindAndCapturePieceAt( const hoxPosition& position );
+    hoxPiece* _FindAndCapturePieceAt( const hoxPosition& position,
+                                      const bool         bRefresh = true );
 
     /**
      * This API is called when a piece is physically moved by the local player
@@ -287,7 +290,8 @@ private:
     bool _IsBoardInReviewMode() const;
 
     void   _DrawAllPieces( wxDC& dc );
-    void   _DrawAndHighlightPiece( hoxPiece* piece );
+    void   _DrawAndHighlightPiece( hoxPiece*  piece,
+                                   const bool bRefresh = true );
     void   _DrawPiece( const hoxPiece* piece );
     void   _DrawPieceWithDC( wxDC& dc, const hoxPiece* piece );
     wxRect _GetPieceRect( const hoxPiece* piece ) const;
