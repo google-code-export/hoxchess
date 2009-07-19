@@ -475,7 +475,7 @@ hoxMyPlayer::_HandleEvent_MOVE( const wxString& sContent )
         return;
     }
 
-    pTable->OnMove_FromNetwork( sMove );
+    pTable->OnNewMove( sMove );
 }
 
 void
@@ -592,7 +592,7 @@ hoxMyPlayer::_HandleEvent_I_MOVES( const wxString& sContent )
     hoxStringList moves;
     _ParseMovesString( sMoves, moves );
 
-    pTable->OnPastMoves_FromNetwork( moves );
+    pTable->OnPastMoves( moves );
 }
 
 void

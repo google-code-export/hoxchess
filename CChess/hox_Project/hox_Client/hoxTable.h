@@ -181,20 +181,18 @@ public:
     void OnPrivateMessageRequest_FromBoard( const wxString& sPlayerId );
 
     /**
-     * Callback function from the NETWORK Player to let this Table know about
-     * the newly-received "remote" Moves.
+     * Callback function to handle a new Move.
      *
-     * @param moveStr The string containing the Move.
+     * @param sMove The string containing the Move.
      */
-    void OnMove_FromNetwork( const wxString&  moveStr );
+    void OnNewMove( const wxString& sMove );
 
     /**
-     * Callback function from the NETWORK Player to let this Table know about
-     * the "past/history" Moves.
+     * Callback function to handle the "past/history" Moves.
      *
      * @param moves The list of past Moves.
      */
-    void OnPastMoves_FromNetwork( const hoxStringList& moves );
+    void OnPastMoves( const hoxStringList& moves );
 
     /**
      * Callback function from the NETWORK Player to let this Table know about
@@ -328,9 +326,6 @@ private:
     void _PostBoard_MessageEvent( const wxString& sMessage,
                                   const wxString& sSenderId = wxEmptyString,
                                   bool            bPublic = true ) const;
-
-    void _SendBoard_MoveEvent( const wxString& moveStr,
-		                       bool            bSetupMode = false );
 
     void       _AddPlayer( hoxPlayer* player, hoxColor role );
     void       _RemovePlayer( hoxPlayer* player );

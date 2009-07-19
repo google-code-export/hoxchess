@@ -595,13 +595,12 @@ hoxBoard::OnWallOutput( const wxString& sMessage,
 }
 
 void 
-hoxBoard::OnNewMove( const wxString& moveStr,
-	                 const bool      bSetupMode )
+hoxBoard::OnNewMove( const wxString& sMove )
 {
-    hoxMove move = m_referee->StringToMove( moveStr );
+    hoxMove move = m_referee->StringToMove( sMove );
     if ( ! move.IsValid() )
     {
-        wxLogError("%s: Failed to parse Move-string [%s].", __FUNCTION__, moveStr.c_str());
+        wxLogError("%s: Failed to parse Move-string [%s].", __FUNCTION__, sMove.c_str());
         return;
     }
 
@@ -610,7 +609,30 @@ hoxBoard::OnNewMove( const wxString& moveStr,
     if ( ! m_coreBoard->DoMove( move ) )  // failed?
         return;
 
-    this->OnValidMove( move, bSetupMode );
+    this->OnValidMove( move );
+}
+
+void
+hoxBoard::OnPastMoves( const hoxStringList& moves )
+{
+    for ( hoxStringList::const_iterator it = moves.begin();
+                                        it != moves.end(); ++it )
+    {
+        hoxMove move = m_referee->StringToMove( *it );
+        if ( ! move.IsValid() )
+        {
+            wxLogError("%s: Failed to parse Move-string [%s].", __FUNCTION__, it->c_str());
+            return;
+        }
+
+	    /* Ask the core Board to realize the Move */
+        if ( ! m_coreBoard->DoMove( move, false /* bRefresh */ ) ) // failed?
+            return;
+
+        this->OnValidMove( move, true /* bSetupMode */ );
+    }
+
+    m_coreBoard->Refresh(); // Now, refresh the Board UI.
 }
 
 void 
@@ -1219,7 +1241,7 @@ hoxBoard::_PostToWallOutput( const wxString& who,
 
 void 
 hoxBoard::OnValidMove( const hoxMove& move,
-				    bool           bSetupMode /* = false */ )
+                       bool           bSetupMode /* = false */ )
 {
     /* For the 1st move of BLACK, change the game-status to 'in-progress'. 
      */

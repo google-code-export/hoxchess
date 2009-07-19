@@ -146,8 +146,8 @@ public:
     void OnWallOutput( const wxString& sMessage,
                        const wxString& sSenderId,
                        const bool      bPublic );
-	void OnNewMove( const wxString& moveStr,
-	                const bool      bSetupMode );
+	void OnNewMove( const wxString& sMove );
+    void OnPastMoves( const hoxStringList& moves );
 	void OnDrawRequest( const wxString& playerId,
                         const bool      bPopupRequest );
 	void OnGameOver( const hoxGameStatus gameStatus,

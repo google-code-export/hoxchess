@@ -306,18 +306,20 @@ hoxTable::OnPrivateMessageRequest_FromBoard( const wxString& sPlayerId )
 }
 
 void 
-hoxTable::OnMove_FromNetwork( const wxString&  moveStr )
+hoxTable::OnNewMove( const wxString& sMove )
 {
-	_SendBoard_MoveEvent( moveStr );
+    if ( m_board != NULL )
+    {
+        m_board->OnNewMove( sMove );
+    }
 }
 
 void
-hoxTable::OnPastMoves_FromNetwork( const hoxStringList& moves )
+hoxTable::OnPastMoves( const hoxStringList& moves )
 {
-    for ( hoxStringList::const_iterator it = moves.begin();
-                                        it != moves.end(); ++it )
+    if ( m_board != NULL )
     {
-        _SendBoard_MoveEvent( (*it), true /* in SETUP-MODE */ );
+        m_board->OnPastMoves( moves );
     }
 }
 
@@ -493,7 +495,7 @@ hoxTable::_CloseBoard()
 
 void 
 hoxTable::PostPlayer_MoveEvent( hoxPlayer*         player,
-                                const wxString&    moveStr,
+                                const wxString&    sMove,
 							    hoxGameStatus      status /* = hoxGAME_STATUS_IN_PROGRESS */,
 							    const hoxTimeInfo& playerTime /* = hoxTimeInfo() */ ) const
 {
@@ -502,7 +504,7 @@ hoxTable::PostPlayer_MoveEvent( hoxPlayer*         player,
 	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_MOVE ) );
 	apRequest->parameters["tid"] = m_id;
 	apRequest->parameters["pid"] = player->GetId();
-	apRequest->parameters["move"] = moveStr;
+	apRequest->parameters["move"] = sMove;
 	apRequest->parameters["status"] = statusStr;
 	apRequest->parameters["game_time"] = wxString::Format("%d", playerTime.nGame);
 
@@ -517,15 +519,6 @@ hoxTable::_PostBoard_MessageEvent( const wxString& sMessage,
 	if ( m_board == NULL ) return;
 
     m_board->OnWallOutput( sMessage, sSenderId, bPublic );
-}
-
-void 
-hoxTable::_SendBoard_MoveEvent( const wxString& moveStr,
-							    bool            bSetupMode /* = false */ )
-{
-	if ( m_board == NULL ) return;
-
-    m_board->OnNewMove( moveStr, bSetupMode );
 }
 
 void 

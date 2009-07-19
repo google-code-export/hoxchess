@@ -962,8 +962,7 @@ hoxChesscapePlayer::_HandleTableCmd_PastMoves( hoxTable_SPtr   pTable,
         moves.push_back( moveStr );
 	}
 
-	/* Inform our table... */
-    pTable->OnPastMoves_FromNetwork( moves );
+    pTable->OnPastMoves( moves );
 }
 
 void 
@@ -1001,7 +1000,7 @@ hoxChesscapePlayer::_HandleTableCmd_Move( hoxTable_SPtr   pTable,
 	 */
 
 	wxLogDebug("%s: Inform table of Move = [%s][%s].", __FUNCTION__, moveStr.c_str(), moveParam.c_str());
-	pTable->OnMove_FromNetwork( moveStr );
+	pTable->OnNewMove( moveStr );
 }
 
 void 
