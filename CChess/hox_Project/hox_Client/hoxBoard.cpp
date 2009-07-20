@@ -282,7 +282,7 @@ hoxAISettings::_CreateUI()
     mainSizer->Add( aiSizer, wxSizerFlags(1).Expand().Border(wxALL,1) );
 
     // ---
-    m_playWithSelfCtrl = new wxCheckBox(this, wxID_ANY, _("&Play with yourself"));
+    m_playWithSelfCtrl = new wxCheckBox(this, wxID_ANY, _("Play with yourself"));
     m_playWithSelfCtrl->SetValue( false );
 
     mainSizer->Add( m_playWithSelfCtrl, wxSizerFlags(1).Expand().Border(wxALL,5) );
