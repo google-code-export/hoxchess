@@ -218,7 +218,7 @@ MyFrame::OnAbout( wxCommandEvent& event )
         "  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        \n"
         "  GNU General Public License for more details.                         \n"
     );
-    info.AddTranslator( "Kathleen Mak - Chinese (Simplified)" );
+    info.AddTranslator( "Wangmao Lin, Kathleen Mak - Chinese (Simplified)" );
     info.AddTranslator( "Huy Phan - Vietnamese" );
 
     wxAboutBox(info);
