@@ -1,10 +1,15 @@
-####################################################################
+###############################################################################
 # The 'Makefile' of HOXChess.
 #
 # Reference: 
 #     http://wiki.wxwidgets.org/Makefile
 #
-####################################################################
+# Note:
+#   This Makefile depends on the external command-line call "wx-config".
+#   Make sure the environment variable $PATH is set correctly so that
+#   the *right* version of "wx-config" can be used.
+#
+###############################################################################
 
 # The name of the App.
 PROGRAM = hoxchess
@@ -13,13 +18,13 @@ PROGRAM = hoxchess
 CXX         = g++
 
 # RELEASE build
-WX_CXXFLAGS = $(shell /opt/wxGTK-2.9.0/bin/wx-config --cxxflags --debug=no)
-WX_LDLIBS   = $(shell /opt/wxGTK-2.9.0/bin/wx-config --libs --debug=no)
+WX_CXXFLAGS = $(shell wx-config --cxxflags --debug=no)
+WX_LDLIBS   = $(shell wx-config --libs --debug=no)
 DEBUGFLAGS  =
 
 # DEBUG build
-#WX_CXXFLAGS = $(shell /opt/wxGTK-2.9.0/bin/wx-config --cxxflags --debug=yes)
-#WX_LDLIBS   = $(shell /opt/wxGTK-2.9.0/bin/wx-config --libs --debug=yes)
+#WX_CXXFLAGS = $(shell wx-config --cxxflags --debug=yes)
+#WX_LDLIBS   = $(shell wx-config --libs --debug=yes)
 #DEBUGFLAGS  = -g
 
 CXXFLAGS = $(WX_CXXFLAGS) -I../lib/boost_1_38_0 -I../lib/asio-1.4.1/include
