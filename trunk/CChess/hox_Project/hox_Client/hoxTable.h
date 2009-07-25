@@ -236,6 +236,7 @@ public:
      * the GameOver event.
      *
      * @param gameStatus The game's status.
+     * @param sReason The reason that the game is over.
      */
     void OnGameOver_FromNetwork( const hoxGameStatus gameStatus,
                                  const wxString& sReason = "" );
