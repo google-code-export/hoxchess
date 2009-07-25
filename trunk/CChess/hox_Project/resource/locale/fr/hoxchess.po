@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: 0.7.5.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-07-23 09:12-0800\n"
-"PO-Revision-Date: 2009-07-23 10:20-0800\n"
+"PO-Revision-Date: 2009-07-24 18:17-0800\n"
 "Last-Translator: Huy Phan <huyphan@playxiangqi.com>\n"
 "Language-Team: PlayXiangqi <huyphan@playxiangqi.com>\n"
 "MIME-Version: 1.0\n"
@@ -205,7 +205,7 @@ msgstr ""
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionDialog.cpp:56
 msgid "&Rated Game"
-msgstr ""
+msgstr "Jouer avec ses points"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionDialog.cpp:69
 msgid "&Timers"
@@ -253,11 +253,11 @@ msgstr "Activer les sons"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:159
 msgid "Show &Welcome Dialog at startup"
-msgstr ""
+msgstr "Afficher le message de bienvenue au commencement"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:163
 msgid "Show List of &Tables at login"
-msgstr ""
+msgstr "Afficher la liste des tables au commencement"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:167
 msgid "Language"
@@ -330,7 +330,7 @@ msgstr "Points"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxPlayersUI.cpp:272
 msgid "&Info"
-msgstr ""
+msgstr "&Info"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxPlayersUI.cpp:272
 msgid "Info of Player"
@@ -338,7 +338,7 @@ msgstr ""
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxPlayersUI.cpp:273
 msgid "&Invite"
-msgstr ""
+msgstr "&Inviter"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxPlayersUI.cpp:273
 msgid "Invite Player"
@@ -346,7 +346,7 @@ msgstr ""
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxPlayersUI.cpp:274
 msgid "&Message..."
-msgstr ""
+msgstr "&Message..."
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:225
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:237
@@ -427,7 +427,7 @@ msgstr "Jeu avec l'ordinateur (&P)"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxWelcomeUI.cpp:147
 msgid "&Login Remote Server"
-msgstr "Connexion d'un serveur distant (&L)"
+msgstr "Connexion a un serveur distant (&L)"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxWelcomeUI.cpp:152
 msgid "Change &Options..."
@@ -530,7 +530,7 @@ msgstr "Fermer Tableau"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:514
 msgid "Toggle Sounds"
-msgstr ""
+msgstr "Sons des mouvements"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:518
 msgid "Quit the program"
@@ -586,7 +586,7 @@ msgstr "Voir de &Sites\tCtrl-S"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:557
 msgid "Toggle Table &View\tCtrl-V"
-msgstr ""
+msgstr "Changer les prise de vue\tCtrl-V"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:560
 msgid "Lo&g Window\tCtrl-G"
@@ -655,7 +655,7 @@ msgstr ""
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLoginUI.h:52
 msgid "Login to a remote server"
-msgstr "Connexion d'un serveur distant"
+msgstr "Connexion a un serveur distant"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.h:215
 msgid "My Computer"
