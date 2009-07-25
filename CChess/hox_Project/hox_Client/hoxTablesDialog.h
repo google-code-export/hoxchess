@@ -55,17 +55,18 @@ public:
     void OnButtonJoin(wxCommandEvent& event);
     void OnButtonNew(wxCommandEvent& event);
 	void OnButtonRefresh(wxCommandEvent& event);
+    void OnButtonClose(wxCommandEvent& event);
 
     // Special callback to handle the case in which
     // the parent Site has been deleted/closed.
     void OnSiteDeleted();
 
-	void OnClose(wxCloseEvent& event);
     void OnListItemDClick(wxListEvent& event);
 
     wxString GetSelectedId() const { return m_selectId; }
 
 private:
+    void _OnDialogClosed( int rc );
 	bool _GetDefaultLayout( wxPoint& position, wxSize& size );
 	void _SaveDefaultLayout( const wxPoint& position, const wxSize& size );
 

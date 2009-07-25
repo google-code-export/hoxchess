@@ -47,9 +47,9 @@ enum
 BEGIN_EVENT_TABLE(hoxTablesDialog, wxDialog)
     EVT_BUTTON(ID_JOIN_TABLE, hoxTablesDialog::OnButtonJoin)
     EVT_BUTTON(ID_NEW_TABLE, hoxTablesDialog::OnButtonNew)
-	EVT_BUTTON(ID_REFRESH_LIST, hoxTablesDialog::OnButtonRefresh)
-	
-	EVT_CLOSE(hoxTablesDialog::OnClose)
+    EVT_BUTTON(ID_REFRESH_LIST, hoxTablesDialog::OnButtonRefresh)
+    EVT_BUTTON(ID_CLOSE_DIALOG, hoxTablesDialog::OnButtonClose)
+
     EVT_LIST_ITEM_ACTIVATED(wxID_ANY, hoxTablesDialog::OnListItemDClick)
 END_EVENT_TABLE()
 
@@ -219,39 +219,51 @@ hoxTablesDialog::OnButtonJoin( wxCommandEvent& event )
 	const long selectedId = m_listCtrlTables->GetItemData( selectedIndex );
 	m_selectId.Printf("%ld", selectedId);
 
-    EndDialog( COMMAND_ID_JOIN );
+    _OnDialogClosed( COMMAND_ID_JOIN );
 }
 
 void 
 hoxTablesDialog::OnButtonNew( wxCommandEvent& event )
 {
-    EndDialog( COMMAND_ID_NEW );
+    _OnDialogClosed( COMMAND_ID_NEW );
 }
 
 void 
 hoxTablesDialog::OnButtonRefresh( wxCommandEvent& event )
 {
-    EndDialog( COMMAND_ID_REFRESH );
+    _OnDialogClosed( COMMAND_ID_REFRESH );
+}
+
+void 
+hoxTablesDialog::OnButtonClose( wxCommandEvent& event )
+{
+    /* NOTE: This handler must be explicitly defined so that
+     *       we could save the (size,location) of the dialog.
+     *       Relying solely on wxID_CANCEL is not enough
+     *       (to trigger the 'Close' handler).
+     */
+
+    _SaveDefaultLayout( this->GetPosition(), this->GetSize() );
+    event.Skip(); // Let the search for the event handler should continue.
 }
 
 void 
 hoxTablesDialog::OnSiteDeleted()
 {
-    EndDialog( COMMAND_ID_SITE_DELETED );
-}
-
-void 
-hoxTablesDialog::OnClose( wxCloseEvent& event )
-{
-	_SaveDefaultLayout( this->GetPosition(), this->GetSize() );
-	event.Skip(); // Let the search for the event handler should continue.
+    _OnDialogClosed( COMMAND_ID_SITE_DELETED );
 }
 
 void
 hoxTablesDialog::OnListItemDClick( wxListEvent& event )
 {
-    wxCommandEvent DUMMY_event;
-    this->OnButtonJoin( DUMMY_event );
+    this->OnButtonJoin( wxCommandEvent() );
+}
+
+void
+hoxTablesDialog::_OnDialogClosed( int rc )
+{
+    _SaveDefaultLayout( this->GetPosition(), this->GetSize() );
+    EndDialog( rc );
 }
 
 bool 
@@ -280,8 +292,8 @@ hoxTablesDialog::_GetDefaultLayout( wxPoint& position,
 }
 
 void
-hoxTablesDialog::_SaveDefaultLayout( const wxPoint& position, 
-									 const wxSize&  size )
+hoxTablesDialog::_SaveDefaultLayout( const wxPoint& position,
+                                     const wxSize&  size )
 {
 	wxConfig* config = wxGetApp().GetConfig();
 
