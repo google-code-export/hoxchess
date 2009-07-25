@@ -256,7 +256,8 @@ hoxTablesDialog::OnSiteDeleted()
 void
 hoxTablesDialog::OnListItemDClick( wxListEvent& event )
 {
-    this->OnButtonJoin( wxCommandEvent() );
+    wxCommandEvent DUMMY_event;
+    this->OnButtonJoin( DUMMY_event );
 }
 
 void
