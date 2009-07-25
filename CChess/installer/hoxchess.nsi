@@ -1,7 +1,7 @@
 ; -------------------------------------------------------------------------
 ; Purpose: The Windows Installer for HOXChess.
 ; Author:  Huy Phan
-; Update:  Jun 07, 2009
+; Update:  Jul 25, 2009
 ;
 ; Reference: http://nsis.sourceforge.net/Docs/Modern%20UI%202/Readme.html
 ; -------------------------------------------------------------------------
@@ -15,7 +15,7 @@
 ; Build environment
 
   !define PRODUCT_NAME          "HOXChess"
-  !define PRODUCT_VERSION       "0.7.5.0"
+  !define PRODUCT_VERSION       "0.8.0.0"
   !define PRODUCT_PUBLISHER     "PlayXiangqi.com"
   !define PRODUCT_WEB_SITE      "http://www.playxiangqi.com"
   !define PRODUCT_CONFIG_REGKEY "Software\HOXChess"
