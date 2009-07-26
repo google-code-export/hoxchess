@@ -2,7 +2,22 @@
 
 _All releases can be found from_ [http://code.google.com/p/hoxchess/downloads/list this Downloads page]
 
-==== Jun 20, 2009 ====
+ * *Jul 25, 2009*
+  * Released version *0.8.0.0* with binary packages for Windows, Mac OS X, and Linux
+  * The _new features_ are:
+   * Add *Play with youself* (or _Human vs. Human_) feature
+   * Support *Difficulty Level* when playing against AI
+   * Add *Author*-name and Web site of the AI's author on the Practice table
+   * Add the basic *Check for Updates* feature
+   * AI *Folium*: synced up the source code with http://folium.googlecode.com
+   * Add the *Clear* button in both the _Activities_ and _Messages_ dialogs
+   * Improved localization in Chinese, French, and Vietnamese with help from native speakers
+  * Some fixes are:
+   * Mac OS X: Optimize the Move-handling code to speed up image drawing.
+   * Allow to open the Practice table from everywhere
+   * Fix the message-being-cut-off issue when _username_ contains a space
+   * Fixed the _blank-Chat-window_ issue when  the window is full
+   * Fix the crash when a _List-of-tables_ is displayed while the Site is closed
 
  * *Jun 20, 2009*
   * Released version *0.7.6.0* just for *Mac OS X* to fix the wrong _Company Name_ in the last submission to [http://www.apple.com/downloads/ Apple - Downloads]
