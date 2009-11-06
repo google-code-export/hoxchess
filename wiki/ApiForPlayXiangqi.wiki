@@ -217,10 +217,9 @@ op=MOVE&pid=myid&tid=1&move=6665&game_time=1499
     * Response
       * To Player - _None_
       * To Others:
-      * To Others:
-        * op=MOVE&code=0&content=tableid;playerid;move;status
+        * op=MOVE&code=0&content=tableid;playerid;move
 {{{
-op=MOVE&code=0&content=1;myid;6665;in_progress
+op=MOVE&code=0&content=1;myid;6665
 }}}
 
   * *RESIGN* - Resign the game at a Table
@@ -321,7 +320,7 @@ op=POLL&pid=p1&sid=841215
 op=POLL&code=0&content=
 
 + With events (multiple events returned at the same time):
-op=MOVE&code=0&content=1;AI_xqwlight;1022;in_progress
+op=MOVE&code=0&content=1;AI_xqwlight;1022
 op=LEAVE&code=0&more=1&content=1;AI_xqwlight
 op=LEAVE&code=0&content=1;p1
 }}}
@@ -342,11 +341,11 @@ op=JOIN&color=None&joined=0&pid=myid&tid=1
 op=JOIN&color=Red&joined=1&pid=myid&tid=1
 ... op=E_JOIN&code=0&content=1;myid;1398;Red
 
-op=MOVE&game_time=1500&move=6947&pid=myid&status=in_progress&tid=1
-... op=MOVE&code=0&content=1;AI_xqwlight;7062;in_progress
+op=MOVE&game_time=1500&move=6947&pid=myid&tid=1
+... op=MOVE&code=0&content=1;AI_xqwlight;7062
 
-op=MOVE&game_time=1499&move=6665&pid=myid&status=in_progress&tid=1
-... op=MOVE&code=0&content=1;AI_xqwlight;2324;in_progress
+op=MOVE&game_time=1499&move=6665&pid=myid&tid=1
+... op=MOVE&code=0&content=1;AI_xqwlight;2324
 
 op=MSG&msg=Bye, now&pid=myid&tid=1
 op=MSG&msg=let us draw this game&pid=myid&tid=1
