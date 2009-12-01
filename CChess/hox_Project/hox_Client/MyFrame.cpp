@@ -535,7 +535,7 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
     file_menu->Append(MDI_NEW_TABLE, _("&New Table\tCtrl-N"));
     if ( hasTable )
     {
-        file_menu->Append(MDI_CLOSE_TABLE, _("&Close Table\tCtrl-C"));
+        file_menu->Append(MDI_CLOSE_TABLE, _("&Close Table\tCtrl-W"));
     }
     file_menu->AppendSeparator();
     file_menu->Append(MDI_PRACTICE, _("&Practice with Computer\tCtrl-P"));
@@ -554,7 +554,7 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
     view_menu->AppendCheckItem(MDI_SHOW_SERVERS_WINDOW, _("Site&s View\tCtrl-S"));
     if ( hasTable )
     {
-        view_menu->Append(MDI_TOGGLE, _("Toggle Table &View\tCtrl-V"));
+        view_menu->Append(MDI_TOGGLE, _("Toggle Table &View\tCtrl-R"));
     }
     view_menu->AppendSeparator();
     view_menu->AppendCheckItem(MDI_SHOW_LOG_WINDOW, _("Lo&g Window\tCtrl-G"));
@@ -614,7 +614,7 @@ MyFrame::OnContextMenu( wxContextMenuEvent& event )
 
     if ( selectedTable.get() != NULL )
     {
-        menu.Append(MDI_CLOSE_TABLE, _("&Close Table\tCtrl-C"), 
+        menu.Append(MDI_CLOSE_TABLE, _("&Close Table\tCtrl-W"), 
 			                         _("Close Table"));
     }
     else if ( selectedSite != NULL )
