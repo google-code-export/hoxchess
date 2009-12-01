@@ -12,8 +12,8 @@ Credits/Acknowledgements/Thanks:
 The Piece images were downloaded from the following sites:
 
 (1) ./resource/pieces/1
-  From: http://ajaxchess.pragmaticlogic.com
-  Creators: Kevin H Le
+  From: http://xiangqiboard.blogspot.com
+  Creators: Ralph Glass
 
 (2) ./resource/pieces/xqwizard_1_57x57
     ./resource/pieces/xqwizard_2_57x57
