@@ -47,6 +47,12 @@ The process is very similar to Linux:
   $ sudo make install
 }}}
 
+To build under *Snow Leopard (10.6.2)* , use the older gcc-4.0 (instead of the system default gcc-4.2) as follows:
+{{{
+  $ ../configure CC=gcc-4.0 CXX=g++-4.0 LD=g++-4.0 --prefix=/opt/wxWidgets-2.9.0 --with-osx_carbon \
+     --with-macosx-version-min=10.5 --disable-compat28 --without-libtiff --disable-shared
+}}}
+
 = Instructions under Windows =
 
 The procedure is much easier under Windows (XP or Vista). Simply open the _solution_ file *.../build/msw/wx_vc9.sln* using the free Visual C++ 2008 Express edition, and build
