@@ -53,6 +53,8 @@ To build under *Snow Leopard (10.6.2)* , use the older gcc-4.0 (instead of the s
      --with-macosx-version-min=10.5 --disable-compat28 --without-libtiff --disable-shared
 }}}
 
+More more information, see: [http://wiki.wxwidgets.org/Development:_wxMac Development: wxMac]
+
 = Instructions under Windows =
 
 The procedure is much easier under Windows (XP or Vista). Simply open the _solution_ file *.../build/msw/wx_vc9.sln* using the free Visual C++ 2008 Express edition, and build
