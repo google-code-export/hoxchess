@@ -770,6 +770,7 @@ hoxBoard::OnButtonOptions( wxCommandEvent &event )
 
     hoxOptionDialog optionDlg( this, wxID_ANY, _("Table Options"),
                                m_pTable, optionDlgFlags );
+    optionDlg.Center();
     const int nCommandId = optionDlg.ShowModal();
     if ( nCommandId == wxID_OK )
     {
