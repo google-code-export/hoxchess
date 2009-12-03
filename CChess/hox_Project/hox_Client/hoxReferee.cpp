@@ -716,16 +716,21 @@ Board::_IsKingFaceKing() const
     if ( ! blackKing->HasSameColumnAs( *redKing ) ) // not the same column.
         return false;  // Not facing
 
+    const int redKingX   = redKing->GetPosition().x;
+    const int blackKingY = blackKing->GetPosition().y;
+    const int redKingY   = redKing->GetPosition().y;
+    
     // If they are in the same column, check if there is any piece in between.
     for ( PieceList::const_iterator it = m_pieces.begin(); 
-                                    it != m_pieces.end(); 
-                                  ++it )
+                                    it != m_pieces.end(); ++it )
     {
-        if ( (*it) == blackKing || (*it) == redKing )
-            continue;
+        const hoxPosition position = (*it)->GetPosition();
 
-        if ( (*it)->HasSameColumnAs( *redKing ) )  // in between Kings?
+        if (   position.x == redKingX
+            && position.y > blackKingY && position.y < redKingY )
+        {
             return false;  // Not facing
+        }
     }
 
     return true;  // Facing
