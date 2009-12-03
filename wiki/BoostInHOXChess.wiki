@@ -17,12 +17,13 @@ This page describes how Boost libraries are installed to be used in HOXChess
 
   * Read: http://www.boost.org/doc/libs/1_38_0/tools/bcp/bcp.html
   * Under _C:\Tmp\boost_1_38_0_
-    * .\dist\bin\bcp.exe shared_ptr enable_shared_from_this tokenizer algorithm date_time functional intrusive_ptr format c:\tmp
+    * .\dist\bin\bcp.exe shared_ptr enable_shared_from_this tokenizer algorithm date_time functional intrusive_ptr format weak_ptr c:\tmp
     * The above commands will copy all dependent files to c:\tmp\...
     * *Notes*: Here are the new headers added to support *Asio* library 
       * _date_time_
       * _functional_
       * _intrusive_ptr_
+      * _weak_ptr_
 
 == UPGRADE boost to 1.36.0 HOWTO ==
 
