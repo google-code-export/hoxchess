@@ -376,7 +376,7 @@ hoxUtil::PieceToString( const hoxPieceType type )
 {
     switch( type )
     {
-		case hoxCOLOR_UNKNOWN:  return "UNKNOWN";
+		case hoxPIECE_INVALID:  return "INVALID";
 
 		case hoxPIECE_KING:		return "KING";     // King (or General)
 		case hoxPIECE_ADVISOR:	return "ADVISOR";  // Advisor (or Guard, or Mandarin)
