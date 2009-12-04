@@ -33,7 +33,7 @@ $(LIBRARY): $(OBJECTS)
 	$(CXX) -dynamiclib -Wl,-install_name,$(LIBRARY).dylib -o $(LIBRARY).dylib $(OBJECTS)
 
 clean:
-	rm -vrf lib$(LIBRARY).dylib *.o
+	rm -vrf $(LIBRARY).dylib *.o
 
 ############## END OF FILE ###############################################
 
