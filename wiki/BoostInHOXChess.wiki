@@ -5,6 +5,9 @@
 
 This page describes how Boost libraries are installed to be used in HOXChess
 
+== UPGRADE boost to 1.41.0 HOWTO =
+See the same procedure as that of 1.38.0 below.
+
 == UPGRADE boost to 1.38.0 HOWTO ==
 
   * Download the SOURCE: *boost_1_38_0.tar.bz2*
