@@ -895,7 +895,7 @@
 					"-D_FILE_OFFSET_BITS=64",
 					"-D__WXDEBUG__",
 					"-D__WXOSX_CARBON__",
-					"-I./lib/boost_1_38_0",
+					"-I./lib/boost_1_41_0",
 					"-I./lib/asio-1.4.1/include",
 				);
 				OTHER_LDFLAGS = (
@@ -976,7 +976,7 @@
 					"-I/opt/wxWidgets-2.9.0/include/wx-2.9",
 					"-D_FILE_OFFSET_BITS=64",
 					"-D__WXOSX_CARBON__",
-					"-I./lib/boost_1_38_0",
+					"-I./lib/boost_1_41_0",
 					"-I./lib/asio-1.4.1/include",
 				);
 				OTHER_LDFLAGS = (
