@@ -14,9 +14,9 @@
 		AF0932A10FCDA7C200E6D8F8 /* hoxchess.png in Copy Files (boards) */ = {isa = PBXBuildFile; fileRef = AF09329F0FCDA7C200E6D8F8 /* hoxchess.png */; };
 		AF0CD9E90FC3D8180042A414 /* hoxchess.mo in Copy Files (locale\vi_VN) */ = {isa = PBXBuildFile; fileRef = AF0CD9E20FC3D7B10042A414 /* hoxchess.mo */; };
 		AF0CD9EB0FC3D8470042A414 /* hoxchess.mo in Copy Files (locale\zh_CN) */ = {isa = PBXBuildFile; fileRef = AF0CD9E40FC3D7BD0042A414 /* hoxchess.mo */; };
-		AF0CDA6B0FC3E0E00042A414 /* libAI_HaQiKiD.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = AF0CDA690FC3E0CC0042A414 /* libAI_HaQiKiD.dylib */; };
-		AF0CDA7A0FC3E3080042A414 /* libAI_Folium.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = AF0CDA790FC3E3080042A414 /* libAI_Folium.dylib */; };
-		AF0CDA7C0FC3E3110042A414 /* libAI_TSITO.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = AF0CDA7B0FC3E3110042A414 /* libAI_TSITO.dylib */; };
+		AF0CDA6B0FC3E0E00042A414 /* AI_HaQiKiD.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = AF0CDA690FC3E0CC0042A414 /* AI_HaQiKiD.dylib */; };
+		AF0CDA7A0FC3E3080042A414 /* AI_Folium.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = AF0CDA790FC3E3080042A414 /* AI_Folium.dylib */; };
+		AF0CDA7C0FC3E3110042A414 /* AI_TSITO.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = AF0CDA7B0FC3E3110042A414 /* AI_TSITO.dylib */; };
 		AF3847E50FDB70D700733695 /* badvisor.png in Copy Files(pieces\alfaerie_50x50) */ = {isa = PBXBuildFile; fileRef = AF3847D60FDB70D700733695 /* badvisor.png */; };
 		AF3847E60FDB70D700733695 /* bcannon.png in Copy Files(pieces\alfaerie_50x50) */ = {isa = PBXBuildFile; fileRef = AF3847D70FDB70D700733695 /* bcannon.png */; };
 		AF3847E70FDB70D700733695 /* bchariot.png in Copy Files(pieces\alfaerie_50x50) */ = {isa = PBXBuildFile; fileRef = AF3847D80FDB70D700733695 /* bchariot.png */; };
@@ -108,7 +108,7 @@
 		AF864BAA0FC321BE0034C83B /* rhorse.png in Copy Files (pieces\iXiangQi_55x55) */ = {isa = PBXBuildFile; fileRef = AF864B8C0FC321B50034C83B /* rhorse.png */; };
 		AF864BAB0FC321BE0034C83B /* rking.png in Copy Files (pieces\iXiangQi_55x55) */ = {isa = PBXBuildFile; fileRef = AF864B8D0FC321B50034C83B /* rking.png */; };
 		AF864BAC0FC321BE0034C83B /* rpawn.png in Copy Files (pieces\iXiangQi_55x55) */ = {isa = PBXBuildFile; fileRef = AF864B8E0FC321B50034C83B /* rpawn.png */; };
-		AF864C460FC327E10034C83B /* libAI_XQWLight.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = AF864C440FC327DD0034C83B /* libAI_XQWLight.dylib */; };
+		AF864C460FC327E10034C83B /* AI_XQWLight.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = AF864C440FC327DD0034C83B /* AI_XQWLight.dylib */; };
 		AF864C560FC328E10034C83B /* move.wav in Copy Files (sounds) */ = {isa = PBXBuildFile; fileRef = AF864C540FC328DC0034C83B /* move.wav */; };
 		AF864C610FC329960034C83B /* BOOK.DAT in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = AF864B6E0FC321730034C83B /* BOOK.DAT */; };
 		AFCBA7EE0FF7FF1700787308 /* hoxAsyncSocket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFCBA7EA0FF7FF1700787308 /* hoxAsyncSocket.cpp */; };
@@ -274,11 +274,11 @@
 			dstPath = plugins;
 			dstSubfolderSpec = 12;
 			files = (
-				AF0CDA7C0FC3E3110042A414 /* libAI_TSITO.dylib in Copy Files (plugins) */,
-				AF0CDA7A0FC3E3080042A414 /* libAI_Folium.dylib in Copy Files (plugins) */,
-				AF0CDA6B0FC3E0E00042A414 /* libAI_HaQiKiD.dylib in Copy Files (plugins) */,
+				AF0CDA7C0FC3E3110042A414 /* AI_TSITO.dylib in Copy Files (plugins) */,
+				AF0CDA7A0FC3E3080042A414 /* AI_Folium.dylib in Copy Files (plugins) */,
+				AF0CDA6B0FC3E0E00042A414 /* AI_HaQiKiD.dylib in Copy Files (plugins) */,
 				AF864C610FC329960034C83B /* BOOK.DAT in Copy Files (plugins) */,
-				AF864C460FC327E10034C83B /* libAI_XQWLight.dylib in Copy Files (plugins) */,
+				AF864C460FC327E10034C83B /* AI_XQWLight.dylib in Copy Files (plugins) */,
 			);
 			name = "Copy Files (plugins)";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -306,9 +306,9 @@
 		AF09329F0FCDA7C200E6D8F8 /* hoxchess.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = hoxchess.png; path = resource/boards/hoxchess.png; sourceTree = "<group>"; };
 		AF0CD9E20FC3D7B10042A414 /* hoxchess.mo */ = {isa = PBXFileReference; lastKnownFileType = file; name = hoxchess.mo; path = resource/locale/vi_VN/hoxchess.mo; sourceTree = "<group>"; };
 		AF0CD9E40FC3D7BD0042A414 /* hoxchess.mo */ = {isa = PBXFileReference; lastKnownFileType = file; name = hoxchess.mo; path = resource/locale/zh_CN/hoxchess.mo; sourceTree = "<group>"; };
-		AF0CDA690FC3E0CC0042A414 /* libAI_HaQiKiD.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libAI_HaQiKiD.dylib; path = plugins/libAI_HaQiKiD.dylib; sourceTree = "<group>"; };
-		AF0CDA790FC3E3080042A414 /* libAI_Folium.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libAI_Folium.dylib; path = plugins/libAI_Folium.dylib; sourceTree = "<group>"; };
-		AF0CDA7B0FC3E3110042A414 /* libAI_TSITO.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libAI_TSITO.dylib; path = plugins/libAI_TSITO.dylib; sourceTree = "<group>"; };
+		AF0CDA690FC3E0CC0042A414 /* AI_HaQiKiD.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = AI_HaQiKiD.dylib; path = plugins/AI_HaQiKiD.dylib; sourceTree = "<group>"; };
+		AF0CDA790FC3E3080042A414 /* AI_Folium.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = AI_Folium.dylib; path = plugins/AI_Folium.dylib; sourceTree = "<group>"; };
+		AF0CDA7B0FC3E3110042A414 /* AI_TSITO.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = AI_TSITO.dylib; path = plugins/AI_TSITO.dylib; sourceTree = "<group>"; };
 		AF3847D60FDB70D700733695 /* badvisor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = badvisor.png; path = resource/pieces/alfaerie_50x50/badvisor.png; sourceTree = "<group>"; };
 		AF3847D70FDB70D700733695 /* bcannon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = bcannon.png; path = resource/pieces/alfaerie_50x50/bcannon.png; sourceTree = "<group>"; };
 		AF3847D80FDB70D700733695 /* bchariot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = bchariot.png; path = resource/pieces/alfaerie_50x50/bchariot.png; sourceTree = "<group>"; };
@@ -434,7 +434,7 @@
 		AF864B8C0FC321B50034C83B /* rhorse.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = rhorse.png; path = resource/pieces/iXiangQi_55x55/rhorse.png; sourceTree = "<group>"; };
 		AF864B8D0FC321B50034C83B /* rking.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = rking.png; path = resource/pieces/iXiangQi_55x55/rking.png; sourceTree = "<group>"; };
 		AF864B8E0FC321B50034C83B /* rpawn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = rpawn.png; path = resource/pieces/iXiangQi_55x55/rpawn.png; sourceTree = "<group>"; };
-		AF864C440FC327DD0034C83B /* libAI_XQWLight.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libAI_XQWLight.dylib; path = plugins/libAI_XQWLight.dylib; sourceTree = "<group>"; };
+		AF864C440FC327DD0034C83B /* AI_XQWLight.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = AI_XQWLight.dylib; path = plugins/AI_XQWLight.dylib; sourceTree = "<group>"; };
 		AF864C540FC328DC0034C83B /* move.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; name = move.wav; path = resource/sounds/move.wav; sourceTree = "<group>"; };
 		AFCBA7EA0FF7FF1700787308 /* hoxAsyncSocket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxAsyncSocket.cpp; path = hox_Client/hoxAsyncSocket.cpp; sourceTree = "<group>"; };
 		AFCBA7EB0FF7FF1700787308 /* hoxAsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxAsyncSocket.h; path = hox_Client/hoxAsyncSocket.h; sourceTree = "<group>"; };
@@ -738,11 +738,11 @@
 		AF965A020FC3BDC700370E48 /* plugins */ = {
 			isa = PBXGroup;
 			children = (
-				AF0CDA7B0FC3E3110042A414 /* libAI_TSITO.dylib */,
-				AF0CDA790FC3E3080042A414 /* libAI_Folium.dylib */,
-				AF0CDA690FC3E0CC0042A414 /* libAI_HaQiKiD.dylib */,
+				AF0CDA7B0FC3E3110042A414 /* AI_TSITO.dylib */,
+				AF0CDA790FC3E3080042A414 /* AI_Folium.dylib */,
+				AF0CDA690FC3E0CC0042A414 /* AI_HaQiKiD.dylib */,
 				AF864B6E0FC321730034C83B /* BOOK.DAT */,
-				AF864C440FC327DD0034C83B /* libAI_XQWLight.dylib */,
+				AF864C440FC327DD0034C83B /* AI_XQWLight.dylib */,
 			);
 			name = plugins;
 			sourceTree = "<group>";
@@ -876,7 +876,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				CURRENT_PROJECT_VERSION = 0.7.1.0;
+				CURRENT_PROJECT_VERSION = 1.0.0;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO;
@@ -884,6 +884,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_VERSION = 4.0;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = Info.plist;
@@ -961,11 +962,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CURRENT_PROJECT_VERSION = 1.0.0;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_INCREASE_PRECOMPILED_HEADER_SHARING = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_VERSION = 4.0;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = Info.plist;

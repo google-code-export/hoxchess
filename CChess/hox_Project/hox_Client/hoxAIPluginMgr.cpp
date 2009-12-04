@@ -227,7 +227,7 @@ hoxAIPluginMgr::GetNamesOfAllAIPlugins() const
 bool
 hoxAIPluginMgr::_loadAvailableAIPlugins()
 {
-    wxString sPluginsDir = hoxUtil::GetPath(hoxRT_AI_PLUGIN);
+    const wxString sPluginsDir = hoxUtil::GetPath(hoxRT_AI_PLUGIN);
     wxLogDebug("%s: Get Plugins from [%s].", __FUNCTION__, sPluginsDir.c_str());
     wxDir dir(sPluginsDir);
 	if ( !dir.IsOpened() )
@@ -250,7 +250,7 @@ hoxAIPluginMgr::_loadAvailableAIPlugins()
     {
         pAIPlugin.reset( new hoxAIPlugin() );
         pAIPlugin->m_name = filename.BeforeFirst('.');
-        pAIPlugin->m_path = sPluginsDir + "/" + filename;
+        pAIPlugin->m_path = sPluginsDir + filename;
 
         wxLogDebug("%s: AI-name = [%s], AI-path = [%s].", __FUNCTION__,
             pAIPlugin->m_name.c_str(), pAIPlugin->m_path.c_str());

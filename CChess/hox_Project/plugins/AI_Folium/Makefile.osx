@@ -7,9 +7,9 @@
 LIBRARY = AI_Folium
 
 # Common flags
-CXX         = g++
+CXX         = g++-4.0
 
-CXXFLAGS = -fPIC -Wall -I../common -I../../lib/boost_1_38_0
+CXXFLAGS = -fPIC -Wall -I../common -I../../lib/boost_1_41_0
 #DEBUGFLAGS  = -g
 
 # The main source
@@ -40,13 +40,13 @@ OBJECTS := $(SOURCES:.cpp=.o)
 	$(CXX) $(CXXFLAGS) $(DEBUGFLAGS) -c -o $@ $<
 
 all: $(LIBRARY)
-	cp -v libAI_Folium.dylib ../
+	cp -v AI_Folium.dylib ../
 
 $(LIBRARY): $(OBJECTS)
-	$(CXX) -dynamiclib -Wl,-install_name,lib$(LIBRARY).dylib -o lib$(LIBRARY).dylib $(OBJECTS)
+	$(CXX) -dynamiclib -Wl,-install_name,$(LIBRARY).dylib -o $(LIBRARY).dylib $(OBJECTS)
 
 clean:
-	rm -vrf lib$(LIBRARY).* *.o
+	rm -vrf $(LIBRARY).dylib *.o utility/*.o
 
 ############## END OF FILE ###############################################
 
