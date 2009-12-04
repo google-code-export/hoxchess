@@ -7,7 +7,7 @@
 LIBRARY = AI_XQWLight
 
 # Common flags
-CXX         = g++
+CXX         = g++-4.0
 
 CXXFLAGS = -fPIC -Wall -I../common
 DEBUGFLAGS  = -g
@@ -27,13 +27,13 @@ OBJECTS := $(SOURCES:.cpp=.o)
 	$(CXX) $(CXXFLAGS) $(DEBUGFLAGS) -c -o $@ $<
 
 all: $(LIBRARY)
-	cp -v libAI_XQWLight.dylib ../
+	cp -v AI_XQWLight.dylib ../
 
 $(LIBRARY): $(OBJECTS)
-	$(CXX) -dynamiclib -Wl,-install_name,lib$(LIBRARY).dylib -o lib$(LIBRARY).dylib $(OBJECTS)
+	$(CXX) -dynamiclib -Wl,-install_name,$(LIBRARY).dylib -o $(LIBRARY).dylib $(OBJECTS)
 
 clean:
-	rm -vrf lib$(LIBRARY).* *.o
+	rm -vrf $(LIBRARY).dylib *.o
 
 ############## END OF FILE ###############################################
 

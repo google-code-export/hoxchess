@@ -9,7 +9,7 @@ LIBRARY = AI_Folium
 # Common flags
 CXX         = g++
 
-CXXFLAGS = -fPIC -Wall -I../common -I../../lib/boost_1_38_0
+CXXFLAGS = -fPIC -Wall -I../common -I../../lib/boost_1_41_0
 #DEBUGFLAGS  = -g
 
 # The main source
@@ -46,7 +46,7 @@ $(LIBRARY): $(OBJECTS)
 	$(CXX) -shared -Wl,-soname,lib$(LIBRARY).so.1 -o lib$(LIBRARY).so.1.0 $(OBJECTS)
 
 clean:
-	rm -vrf lib$(LIBRARY).* *.o
+	rm -vrf lib$(LIBRARY).* *.o utility/*.o
 
 ############## END OF FILE ###############################################
 
