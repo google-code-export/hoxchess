@@ -20,6 +20,7 @@
 class OptionsObserver
 {
  public:
+  virtual ~OptionsObserver() {}
   virtual void optionChanged(std::string which)
     { std::cerr << "optionChanged() is a subclass responsibility!!\n"; }
 };

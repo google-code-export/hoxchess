@@ -432,7 +432,7 @@ void InitMaterial()
         /* devaluate superfluous defenders */
         defenders = 2*nA + 2*nE;
         attackers = 8*nR + 4*nH + 2*nC + 3*nP;
-        if(defenders > attackers ,0)
+        if(defenders > attackers)
             materialTable[i] += 6*(defenders - attackers);
     }
 }
@@ -762,7 +762,7 @@ int Search(int origAlpha, int beta, int lastPly, int PV, int depth)
     for(piece = stm + 15; piece >= stm; piece--) { // loop over our pieces
         if((from = pos[piece]) == 0xFF) continue;  // is captured
         dir = firstDirTab[ firstDir[piece]+from ];
-        while(step = steps[dir]) { // loop over directions
+        while( (step = steps[dir]) ) { // loop over directions
             to = from + step;
             do{ // scan along ray (ends after one iteration for leapers)
 
@@ -893,7 +893,7 @@ if(depth<=0) {
                     mustSort--;
                 }
             }
-xxx:
+
             // NEXT MOVE
             victim =          board[  to=moveStack[curMove].u.to];
             promo  = piece  = board[from=moveStack[curMove].u.from];

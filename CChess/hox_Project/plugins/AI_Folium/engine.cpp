@@ -417,7 +417,7 @@ namespace folium
 
             if (best_value > MATEVALUE || best_value < -MATEVALUE)
                 break;
-            ml.erase(remove(ml.begin(), ml.end(), 0), ml.end());
+            ml.erase(remove(ml.begin(), ml.end(), (uint)0), ml.end());
         }
         return best_move;
     }

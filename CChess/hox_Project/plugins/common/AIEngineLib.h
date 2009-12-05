@@ -71,14 +71,16 @@ typedef std::list<std::string> MoveList;
 class AIEngineLib
 {
 public:
+    virtual ~AIEngineLib() {}
+
     virtual void        destroy() = 0;
     virtual void        initEngine( int nAILevel = 0 ) = 0;
 
     // ------------
     // ............................................. fen - Forsyth-Edwards Notation (FEN)
-	virtual int         initGame( const std::string& fen,
+    virtual int         initGame( const std::string& fen,
                                   const MoveList&    moves ) = 0;
-	virtual std::string generateMove() = 0;
+    virtual std::string generateMove() = 0;
     virtual void        onHumanMove( const std::string& sMove ) = 0;
     virtual int         setDifficultyLevel( int nAILevel ) = 0;
     // ------------
