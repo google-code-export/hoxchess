@@ -58,7 +58,7 @@ typedef unsigned int       DWORD;
 
 // *** Additional variables ***
 static int          s_search_depth = 7; // Search Depth
-static unsigned int s_search_time = 1;  // In seconds (search-time)
+static int          s_search_time = 1;  // In seconds (search-time)
 static const char*  s_opening_book = "../plugins/BOOK.DAT";
 
 ///////          END of  HPHAN's changes                      /////////////
@@ -1678,7 +1678,7 @@ static void SearchMain(void) {
     //if (clock() - t > CLOCKS_PER_SEC) {
     float elapse = ((float) clock() - t) / CLOCKS_PER_SEC;
     printf("%s: Search depth DONE = [%d]. elapse=[%.02f]\n", __FUNCTION__, i, elapse);
-    if ( clock() - t > (CLOCKS_PER_SEC * s_search_time) ) {
+    if ( (int)elapse > s_search_time ) {
       break;
     }
     printf("%s: Search depth START = [%d].\n", __FUNCTION__, i+1);
@@ -1744,7 +1744,7 @@ XQWLight::on_human_move( const std::string& sMove )
 void
 XQWLight::set_search_time( int nSeconds )
 {
-    s_search_time = (unsigned int) nSeconds;
+    s_search_time = nSeconds;
 }
 
 unsigned int
