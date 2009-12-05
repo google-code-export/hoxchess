@@ -43,9 +43,9 @@ namespace folium
     {
         if (_m1_map.empty())
         {
-            for (int i = 0; i < (sizeof(_origin_1) / sizeof(_origin_1[0])); ++i)
+            for (unsigned int i = 0; i < (sizeof(_origin_1) / sizeof(_origin_1[0])); ++i)
             _m1_map[_origin_1[i]] = _target_1[i];
-            for (int i = 0; i < (sizeof(_origin_2) / sizeof(_origin_2[0])); ++i)
+            for (unsigned int i = 0; i < (sizeof(_origin_2) / sizeof(_origin_2[0])); ++i)
                 _m2_map[_origin_2[i]] = _target_2[i];
         }
         assert(mirror < 4);

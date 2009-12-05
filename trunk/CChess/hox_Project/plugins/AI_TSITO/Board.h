@@ -31,6 +31,7 @@ class Board;
 class BoardObserver
 {
  public:
+  virtual ~BoardObserver() {}
   virtual void boardChanged(Board *board, int changeType) {}
 };
 

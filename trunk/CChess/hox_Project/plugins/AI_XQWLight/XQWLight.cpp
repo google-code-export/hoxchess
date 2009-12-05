@@ -57,9 +57,9 @@ typedef unsigned int       DWORD;
 #endif
 
 // *** Additional variables ***
-static int         s_search_depth = 7; // Search Depth
-static int         s_search_time = 1;  // In seconds (search-time)
-static const char* s_opening_book = "../plugins/BOOK.DAT";
+static int          s_search_depth = 7; // Search Depth
+static unsigned int s_search_time = 1;  // In seconds (search-time)
+static const char*  s_opening_book = "../plugins/BOOK.DAT";
 
 ///////          END of  HPHAN's changes                      /////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -1189,7 +1189,7 @@ static void LoadBook(void) {
     fp_in.read ((char*)Search.BookTable, Search.nBookSize * sizeof(BookItem));
     fp_in.close();   // close the streams
     
-    printf("%s: Success opening book Size = [%d (of %u)].\n",
+    printf("%s: Success opening book Size = [%d (of %zu)].\n",
         __FUNCTION__, Search.nBookSize, sizeof(BookItem));
 }
 
@@ -1744,7 +1744,7 @@ XQWLight::on_human_move( const std::string& sMove )
 void
 XQWLight::set_search_time( int nSeconds )
 {
-    s_search_time = nSeconds;
+    s_search_time = (unsigned int) nSeconds;
 }
 
 unsigned int
