@@ -183,8 +183,6 @@ hoxAIPluginMgr::CreateDefaultAIEngineLib()
             pPlugin->Unload();
         }
     }
-    
-    m_lastPluginName = m_defaultPluginName;
 
     // --- Load the new plugin.
     
@@ -206,6 +204,8 @@ hoxAIPluginMgr::CreateDefaultAIEngineLib()
         wxLogWarning("%s: The AI Engine [%s] could not be loaded.", __FUNCTION__, sName.c_str());
         return apEngine;
     }
+
+    m_lastPluginName = sName;
 
     return pPlugin->CreateAIEngineLib();
 }
@@ -265,13 +265,16 @@ hoxAIPlugin_SPtr
 hoxAIPluginMgr::_loadPlugin( const wxString& sName )
 {
     hoxAIPlugin_SPtr pPlugin;
+    
+    hoxAIPluginMap::iterator found_it = m_aiPlugins.find( sName );
 
-    pPlugin = m_aiPlugins[sName];
-    if ( ! pPlugin )
+    if ( found_it == m_aiPlugins.end() )
     {
         wxLogDebug("%s: *INFO* The AI Plugin [%s] is not found.", __FUNCTION__, sName.c_str());
         return pPlugin;
     }
+
+    pPlugin = found_it->second;
 
     if ( ! pPlugin->Load() )
     {
