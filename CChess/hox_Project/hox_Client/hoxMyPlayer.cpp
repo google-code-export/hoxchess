@@ -428,7 +428,9 @@ hoxMyPlayer::_HandleEvent_MSG( const wxString&      sTableId,
 {
     _ContentTokenizer tkz( sContent );
     const wxString senderId = tkz.GetNextToken();
-    const wxString message  = tkz.GetNextToken();
+    wxString message  = tkz.GetNextToken();
+
+    message = hoxUtil::UnescapeURL(message);
 
     /* NOTE: For now, just assume that if no 'table' was specified,
      *       then this is a "private" message.

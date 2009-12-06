@@ -591,4 +591,73 @@ hoxUtil::hoxGameStateToFEN( const hoxGameState& gameState )
     return fen;
 }
 
+wxString 
+hoxUtil::EscapeURL( const wxString& value )
+{
+    wxString sResult;
+
+    //  + Percent    ("%") => "%25"
+    //  + Ampersand  ("&") => "%26"
+    //  + Semi-colon (";") => "%3B" 
+
+    wxUniChar uni_ch;
+    for (wxString::const_iterator it = value.begin(); it != value.end(); ++it)
+    {
+        uni_ch = *it;
+        switch ( uni_ch.GetValue() )
+        {
+            case '%': sResult << "%25"; break;
+            case '&': sResult << "%26"; break;
+            case ';': sResult << "%3B"; break;
+            default:  sResult << uni_ch; break;
+        }
+    }
+
+    return sResult;
+}
+
+wxString 
+hoxUtil::UnescapeURL( const wxString& value )
+{
+    wxString sResult;
+
+    //  + "%25" => Percent    ("%")
+    //  + "%26" => Ampersand  ("&")
+    //  + "%3B" => Semi-colon (";")
+
+    wxUniChar uni_ch;
+    wxString  token;
+    for (wxString::const_iterator it = value.begin(); it != value.end(); ++it)
+    {
+        uni_ch = *it;
+        if ( uni_ch.GetValue() != '%' )
+        {
+            sResult << uni_ch;
+            continue;
+        }
+        token = uni_ch; // Reset.
+        
+        if ( ++it == value.end() )
+        {
+            sResult << token;
+            break;
+        }
+        token << *it;
+
+        if ( ++it == value.end() )
+        {
+            sResult << token;
+            break;
+        }
+        token << *it;
+        
+        if      ( token == "%25" ) { sResult << '%';   }
+        else if ( token == "%26" ) { sResult << '&';   }
+        else if ( token == "%3B" ) { sResult << ';';   }
+        else                       { sResult << token; }
+    }
+
+    return sResult;
+}
+
 /************************* END OF FILE ***************************************/

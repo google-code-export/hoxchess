@@ -171,6 +171,21 @@ namespace hoxUtil
      */
     const std::string hoxGameStateToFEN( const hoxGameState& gameState );
 
+    /**
+     * A helper to escape invalid characters:
+     *  + Percent    ("%") => "%25"
+     *  + Ampersand  ("&") => "%26"
+     *  + Semi-colon (";") => "%3B" 
+     */
+    wxString EscapeURL( const wxString& value );
+    
+    /**
+     * A helper to unescape invalid characters:
+     *  + "%25" => Percent    ("%")
+     *  + "%26" => Ampersand  ("&")
+     *  + "%3B" => Semi-colon (";")
+     */
+    wxString UnescapeURL( const wxString& value );
 }
 
 #endif /* __INCLUDED_HOX_UTIL_H__ */

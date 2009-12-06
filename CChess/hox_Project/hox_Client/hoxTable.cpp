@@ -136,7 +136,7 @@ hoxTable::OnMessage_FromBoard( const wxString& message )
 	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_MSG ) );
 	apRequest->parameters["tid"] = m_id;
 	apRequest->parameters["pid"] = m_boardPlayer->GetId();
-	apRequest->parameters["msg"] = message;
+	apRequest->parameters["msg"] = hoxUtil::EscapeURL(message);
     
     m_boardPlayer->OnRequest_FromTable( apRequest );
 }
