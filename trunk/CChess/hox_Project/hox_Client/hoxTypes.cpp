@@ -97,13 +97,11 @@ hoxRequestQueue::hoxRequestQueue()
 
 hoxRequestQueue::~hoxRequestQueue()
 {
-    const char* FNAME = __FUNCTION__;
-
     while ( ! m_list.empty() )
     {
         hoxRequest_APtr apRequest( m_list.front() );
         m_list.pop_front();
-        wxLogDebug("%s: Deleting request [%s]...", FNAME, 
+        wxLogDebug("%s: Deleting request [%s]...", __FUNCTION__, 
             hoxUtil::RequestTypeToString(apRequest->type).c_str());
     }
 }

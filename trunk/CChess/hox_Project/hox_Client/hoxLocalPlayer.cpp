@@ -198,7 +198,7 @@ hoxLocalPlayer::SendPrivateMessage( const wxString& sOtherId )
     hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_MSG ) );
 	apRequest->parameters["pid"] = this->GetId();  // Sender
     apRequest->parameters["oid"] = sOtherId;   // Receiver
-    apRequest->parameters["msg"] = message;
+    apRequest->parameters["msg"] = hoxUtil::EscapeURL(message);
 
     this->AddRequestToConnection( apRequest );
     return hoxRC_OK;

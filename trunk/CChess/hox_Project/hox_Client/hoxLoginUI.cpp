@@ -413,7 +413,7 @@ hoxLoginUI::_GenerateGuestUserName() const
 
     const int randNum = hoxUtil::GenerateRandomNumber( MAX_GUEST_ID );
     wxString sGuestId;
-    sGuestId << hoxGUEST_PREFIX << "hox" << randNum;
+    sGuestId << hoxGUEST_PREFIX << "hx" << randNum;
 
     return sGuestId;
 }
