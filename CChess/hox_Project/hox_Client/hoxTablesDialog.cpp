@@ -84,14 +84,12 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*                      parent,
 		                               wxDefaultPosition, wxDefaultSize,
 		                               wxLC_REPORT | wxLC_SINGLE_SEL);
 
-    wxString columns[] =
+    const wxString columns[] =
     {
         "Table",
         "Group",
-        "Timer", // Game Time
-		"Move",  // Move Time
-		"Free",  // Free Time (or Increment Time)
 		"Type",
+        "Timer", // (Game | Move | Free)
 		"Red Player",
 		"Black Player"
     };
@@ -121,17 +119,20 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*                      parent,
         else  blackInfo = it->blackId + " (" << it->blackScore << ")";
 
 		colIndex = 0;
-		itemIndex = m_listCtrlTables->InsertItem(itemIndex, wxString::Format("#%s", it->id.c_str()) );
+		itemIndex = m_listCtrlTables->InsertItem(itemIndex, it->id);
 		m_listCtrlTables->SetItemData( itemIndex, ::atoi( it->id.c_str() ) );
 
 		m_listCtrlTables->SetItem(itemIndex, ++colIndex, groupInfo);
-		m_listCtrlTables->SetItem(itemIndex, ++colIndex, hoxUtil::FormatTime(it->initialTime.nGame));
-		m_listCtrlTables->SetItem(itemIndex, ++colIndex, hoxUtil::FormatTime(it->initialTime.nMove));
-		m_listCtrlTables->SetItem(itemIndex, ++colIndex, hoxUtil::FormatTime(it->initialTime.nFree));
 		m_listCtrlTables->SetItem(itemIndex, ++colIndex, hoxUtil::GameTypeToString(it->gameType));
+
+        m_listCtrlTables->SetItem(itemIndex, ++colIndex,
+              hoxUtil::FormatTime(it->initialTime.nGame) + " | " 
+            + hoxUtil::FormatTime(it->initialTime.nMove) + " | " 
+            + hoxUtil::FormatTime(it->initialTime.nFree));
+
 		m_listCtrlTables->SetItem(itemIndex, ++colIndex, redInfo );
 		m_listCtrlTables->SetItem(itemIndex, ++colIndex, blackInfo );
-		
+
 		++itemIndex;
 	}
 
