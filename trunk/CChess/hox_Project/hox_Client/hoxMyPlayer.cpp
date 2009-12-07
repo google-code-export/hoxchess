@@ -200,14 +200,25 @@ hoxResult
 hoxMyPlayer::_ParseCommand( const wxMemoryBuffer& data,
                             hoxCommand&           command ) const
 {
-    /* TODO: Force to convert the buffer to a string. */
+    /* NOTE: Force to convert the buffer to a string. */
     const size_t nDataLen = data.GetDataLen();
-    const wxString sCommand = wxString::FromUTF8( (const char*) data.GetData(),
-                                                   nDataLen );
+    wxString sCommand = wxString::FromUTF8( (const char*) data.GetData(), nDataLen );
     if ( nDataLen > 0 && sCommand.empty() ) // failed?
     {
         wxLogWarning("%s: Fail to convert [%d] bytes of data to string.", __FUNCTION__, nDataLen);
         return hoxRC_ERR;
+    }
+
+    /* Locate the first token "op=..." and chop off whatever before the token */
+    const size_t op_loc = sCommand.find("op=");
+    if ( op_loc == wxNOT_FOUND )
+    {
+        wxLogDebug("%s: *WARN* Invalid command [%s] : 'op=' token not found.", __FUNCTION__, sCommand.c_str());
+        return hoxRC_ERR; 
+    }
+    else if ( op_loc > 0 )
+    {
+        sCommand = sCommand.substr(op_loc);
     }
 
     wxStringTokenizer tkz( sCommand, "&" );
