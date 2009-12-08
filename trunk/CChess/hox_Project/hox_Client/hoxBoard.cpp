@@ -537,7 +537,7 @@ hoxBoard::OnPlayerJoin( const hoxPlayerInfo playerInfo,
         && (   (playerColor == hoxCOLOR_RED && m_coreBoard->IsViewInverted())
              ||(playerColor == hoxCOLOR_BLACK && !m_coreBoard->IsViewInverted()) ) )
     {
-        this->ToggleViewSide();
+        _ReverseView();
     }
 
     const bool bNewlyJoined = _AddPlayerToList( playerId, nScore );
@@ -752,7 +752,7 @@ hoxBoard::OnButtonHistory_END( wxCommandEvent &event )
 void 
 hoxBoard::OnButtonReverse( wxCommandEvent &event )
 {
-    this->ToggleViewSide();
+    _ReverseView();
 }
 
 void 
@@ -1162,12 +1162,12 @@ hoxBoard::CreateAndLayoutWallPanel()
 }
 
 void 
-hoxBoard::ToggleViewSide()
+hoxBoard::_ReverseView()
 {
     if ( ! m_bUICreated ) return;
 
     /* Invert the "core" board. */
-    const bool bViewInverted = m_coreBoard->ToggleViewSide();
+    const bool bViewInverted = m_coreBoard->ReverseView();
 
     /* Detach the sizers */
 

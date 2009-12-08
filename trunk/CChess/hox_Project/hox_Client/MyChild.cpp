@@ -36,7 +36,6 @@
 // duplicate event handlers here.
 BEGIN_EVENT_TABLE(MyChild, wxMDIChildFrame)
     EVT_MENU(MDI_CHILD_QUIT, MyChild::OnQuit)
-    EVT_MENU(MDI_TOGGLE, MyChild::OnToggleView)
     EVT_CLOSE(MyChild::OnClose)
 END_EVENT_TABLE()
 
@@ -67,12 +66,6 @@ void
 MyChild::OnQuit( wxCommandEvent& event )
 {
     Close(true);
-}
-
-void 
-MyChild::OnToggleView( wxCommandEvent& event )
-{
-    if ( m_pTable ) m_pTable->ToggleViewSide();
 }
 
 void 

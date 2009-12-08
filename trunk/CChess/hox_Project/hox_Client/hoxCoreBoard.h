@@ -47,7 +47,7 @@ public:
     virtual void OnBgColor( wxColor color ) {}
     virtual void OnFgColor( wxColor color ) {}
 
-    virtual void OnToggleViewSide() { m_bViewInverted = !m_bViewInverted; }
+    virtual void OnReverseView() { m_bViewInverted = !m_bViewInverted; }
     void SetGameOver( bool isGameOver ) { m_isGameOver = isGameOver; }
 
     wxCoord BorderX() const { return m_borderX; }
@@ -100,7 +100,7 @@ public:
     hoxImageBackground( const wxString& sImage );
     virtual ~hoxImageBackground() {}
 
-    virtual void OnToggleViewSide();
+    virtual void OnReverseView();
     virtual void OnPaint( wxDC& dc );
     virtual void OnResize( const wxSize totalSize );
 
@@ -220,12 +220,12 @@ public:
      ******************************************/
 
     /**
-     * Toggle view side: Red/Black is at the bottom.
+     * Reverse view: Red/Black is at the bottom.
      *
      * @return true if the Board's view is inverted after the action
      *              has been carried out.
      */
-    bool ToggleViewSide();
+    bool ReverseView();
 
     bool IsViewInverted() const { return m_bViewInverted; }
     void SetGameOver( bool isGameOver = true );

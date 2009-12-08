@@ -450,13 +450,6 @@ hoxTable::PostBoardMessage( const wxString&  message )
     _PostBoard_MessageEvent( message );
 }
 
-void 
-hoxTable::ToggleViewSide()
-{
-	wxCHECK_RET(m_board, "The Board is not yet set.");
-    m_board->ToggleViewSide();
-}
-
 bool
 hoxTable::HasPlayer( const wxString& sPlayerId ) const
 {

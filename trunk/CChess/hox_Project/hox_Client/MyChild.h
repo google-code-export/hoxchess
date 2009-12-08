@@ -47,7 +47,6 @@ public:
 			 const wxSize&     size = wxDefaultSize);
     ~MyChild() {}
 
-    void OnToggleView(wxCommandEvent& event);
     void OnQuit(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);
 

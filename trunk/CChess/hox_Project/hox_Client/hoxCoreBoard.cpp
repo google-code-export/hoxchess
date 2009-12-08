@@ -891,12 +891,12 @@ hoxCoreBoard::_FindAndCapturePieceAt( const hoxPosition& position,
 }
 
 bool
-hoxCoreBoard::ToggleViewSide()
+hoxCoreBoard::ReverseView()
 {
     m_bViewInverted = !m_bViewInverted;
 
     wxClientDC dc(this);
-    m_background->OnToggleViewSide();
+    m_background->OnReverseView();
     m_background->OnPaint( dc );
 
     _DrawAllPieces( dc );
@@ -1219,9 +1219,9 @@ hoxImageBackground::hoxImageBackground( const wxString& sImage )
 }
 
 void
-hoxImageBackground::OnToggleViewSide()
+hoxImageBackground::OnReverseView()
 {
-    hoxCoreBackground::OnToggleViewSide();
+    hoxCoreBackground::OnReverseView();
     wxImage image = m_bitmap.ConvertToImage();
     m_bitmap = wxBitmap(image.Rotate90().Rotate90());
 }
