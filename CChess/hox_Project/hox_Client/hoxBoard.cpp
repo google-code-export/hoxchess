@@ -778,7 +778,7 @@ hoxBoard::OnButtonOptions( wxCommandEvent &event )
         optionDlgFlags |= hoxOptionDialog::hoxOPTION_READONLY_FLAG;
     }
 
-    hoxOptionDialog optionDlg( this, wxID_ANY, _("Table Options"),
+    hoxOptionDialog optionDlg( this, wxID_ANY, _("Table settings"),
                                m_pTable, optionDlgFlags );
     optionDlg.Center();
     const int nCommandId = optionDlg.ShowModal();
