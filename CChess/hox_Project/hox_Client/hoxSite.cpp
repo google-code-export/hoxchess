@@ -345,7 +345,7 @@ hoxLocalSite::OnLocalRequest_PRACTICE( const wxString& sSavedFile /* = "" */ )
     AIEngineLib_APtr apAIEngineLib = hoxAIPluginMgr::GetInstance()->CreateDefaultAIEngineLib();
     if ( apAIEngineLib.get() == NULL )
     {
-        ::wxMessageBox( _("No AI Plugin found."), _("Create Pratice Table"), wxOK|wxICON_STOP );
+        ::wxMessageBox( _("No AI Plugin found."), _("Create Practice Table"), wxOK|wxICON_STOP );
         return;
     }
 
@@ -431,13 +431,13 @@ hoxLocalSite::OnLocalRequest_PRACTICE( const wxString& sSavedFile /* = "" */ )
     if ( nRet == hoxAI_RC_NOT_SUPPORTED && !sSavedFile.empty() )
     {
         ::wxMessageBox( "The AI Plugin does not support the 'resume game' feature.",
-            _("Create Pratice Table"), wxOK|wxICON_STOP );
+            _("Create Practice Table"), wxOK|wxICON_STOP );
         return;
     }
     if ( nRet != hoxAI_RC_OK )
     {
         ::wxMessageBox( "The AI Plugin could not initialize the game.",
-            _("Create Pratice Table"), wxOK|wxICON_STOP );
+            _("Create Practice Table"), wxOK|wxICON_STOP );
         return;
     }
 

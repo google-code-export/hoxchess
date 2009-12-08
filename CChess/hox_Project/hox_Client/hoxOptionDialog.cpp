@@ -113,10 +113,10 @@ hoxOptionDialog::hoxOptionDialog( wxWindow*           parent,
 	/* Disable certain buttons based on the input Option Flags. */
 	buttonSave->Enable( (optionFlags & hoxOPTION_READONLY_FLAG) == 0 );
 
-    buttonSizer->Add( buttonSave,
+    buttonSizer->Add( buttonCancel,
                       wxSizerFlags().Proportion(0).Align(wxALIGN_CENTER));
     buttonSizer->AddSpacer(20);
-    buttonSizer->Add( buttonCancel,
+    buttonSizer->Add( buttonSave,
                       wxSizerFlags().Proportion(0).Align(wxALIGN_CENTER));
 
     topSizer->Add( buttonSizer,

@@ -58,9 +58,9 @@ END_EVENT_TABLE()
 //-----------------------------------------------------------------------------
 
 int wxCALLBACK
-CompareTablesCallBack( long item1, 
-                       long item2, 
-                       long sortData /* not used */)
+_CompareTablesCallBack( long item1, 
+                        long item2, 
+                        long sortData /* not used */)
 {
     if (item1 < item2)  return -1;
     if (item1 > item2)  return 1;
@@ -83,34 +83,25 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*                      parent,
 	m_listCtrlTables = new wxListCtrl( this, wxID_ANY,
 		                               wxDefaultPosition, wxDefaultSize,
 		                               wxLC_REPORT | wxLC_SINGLE_SEL);
+    long colIndex = 0;
+    m_listCtrlTables->InsertColumn( colIndex++, _("Table") );
+    m_listCtrlTables->InsertColumn( colIndex++, _("Group") );
+    m_listCtrlTables->InsertColumn( colIndex++, _("Type") );
+    m_listCtrlTables->InsertColumn( colIndex++, _("Timer") );
+    m_listCtrlTables->InsertColumn( colIndex++, _("Red Player") );
+    m_listCtrlTables->InsertColumn( colIndex++, _("Black Player") );
 
-    const wxString columns[] =
+    const int nColums = m_listCtrlTables->GetColumnCount();
+
+    long     itemIndex = 0;
+    wxString groupInfo;
+    wxString redInfo;
+    wxString blackInfo;
+
+    for ( hoxNetworkTableInfoList::const_iterator it = tableList.begin(); 
+											      it != tableList.end(); ++it )
     {
-        "Table",
-        "Group",
-		"Type",
-        "Timer", // (Game | Move | Free)
-		"Red Player",
-		"Black Player"
-    };
-
-	long colIndex = 0;
-	for ( colIndex = 0; colIndex < WXSIZEOF( columns ); ++colIndex )
-	{
-		m_listCtrlTables->InsertColumn( colIndex, columns[colIndex] );
-	}
-
-	long     itemIndex = 0;
-	wxString groupInfo;
-	wxString redInfo;
-	wxString blackInfo;
-
-	for ( hoxNetworkTableInfoList::const_iterator it = tableList.begin(); 
-												  it != tableList.end(); 
-												++it )
-	{
-		groupInfo = ( it->group == hoxGAME_GROUP_PUBLIC
-			         ? "Public" : "Private" );
+	    groupInfo = ( it->group == hoxGAME_GROUP_PUBLIC ? "Public" : "Private" );
 
         if ( it->redId.empty() ) redInfo = "*";
         else  redInfo = it->redId + " (" << it->redScore << ")";
@@ -118,37 +109,37 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*                      parent,
         if ( it->blackId.empty() ) blackInfo = "*";
         else  blackInfo = it->blackId + " (" << it->blackScore << ")";
 
-		colIndex = 0;
-		itemIndex = m_listCtrlTables->InsertItem(itemIndex, it->id);
-		m_listCtrlTables->SetItemData( itemIndex, ::atoi( it->id.c_str() ) );
+	    colIndex = 0;
+	    itemIndex = m_listCtrlTables->InsertItem(itemIndex, it->id);
+	    m_listCtrlTables->SetItemData( itemIndex, ::atoi( it->id.c_str() ) );
 
-		m_listCtrlTables->SetItem(itemIndex, ++colIndex, groupInfo);
-		m_listCtrlTables->SetItem(itemIndex, ++colIndex, hoxUtil::GameTypeToString(it->gameType));
+	    m_listCtrlTables->SetItem(itemIndex, ++colIndex, groupInfo);
+	    m_listCtrlTables->SetItem(itemIndex, ++colIndex, hoxUtil::GameTypeToString(it->gameType));
 
         m_listCtrlTables->SetItem(itemIndex, ++colIndex,
               hoxUtil::FormatTime(it->initialTime.nGame) + " | " 
             + hoxUtil::FormatTime(it->initialTime.nMove) + " | " 
             + hoxUtil::FormatTime(it->initialTime.nFree));
 
-		m_listCtrlTables->SetItem(itemIndex, ++colIndex, redInfo );
-		m_listCtrlTables->SetItem(itemIndex, ++colIndex, blackInfo );
+	    m_listCtrlTables->SetItem(itemIndex, ++colIndex, redInfo );
+	    m_listCtrlTables->SetItem(itemIndex, ++colIndex, blackInfo );
 
-		++itemIndex;
-	}
+	    ++itemIndex;
+    }
 
 	/* Set the columns' width. */
 
-	for ( colIndex = 0; colIndex < WXSIZEOF( columns ); ++colIndex )
-	{
-		m_listCtrlTables->SetColumnWidth( colIndex, wxLIST_AUTOSIZE_USEHEADER );
-	}
-	if ( m_listCtrlTables->GetItemCount() > 0 )
-	{
-		for ( colIndex = 2; colIndex < WXSIZEOF( columns ); ++colIndex )
-		{
-			m_listCtrlTables->SetColumnWidth( colIndex, wxLIST_AUTOSIZE );
-		}
-	}
+    for ( colIndex = 0; colIndex < nColums; ++colIndex )
+    {
+        m_listCtrlTables->SetColumnWidth( colIndex, wxLIST_AUTOSIZE_USEHEADER );
+    }
+    if ( m_listCtrlTables->GetItemCount() > 0 )
+    {
+        for ( colIndex = 2; colIndex < nColums; ++colIndex )
+        {
+            m_listCtrlTables->SetColumnWidth( colIndex, wxLIST_AUTOSIZE );
+        }
+    }
 
     /* Select the 1st table, if any. */
 
@@ -158,21 +149,20 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*                      parent,
     }
 
 	/* Sort the list. */
-    m_listCtrlTables->SortItems( CompareTablesCallBack, 0 /* sortData */ );
+    m_listCtrlTables->SortItems( _CompareTablesCallBack, 0 /* sortData */ );
 
     topSizer->Add( m_listCtrlTables,
 		           wxSizerFlags(1).Expand().Border(wxALL, 10));
 
     /* Buttons... */
-
 	wxButton* buttonRefresh = new wxButton(this, ID_REFRESH_LIST, _("&Refresh"));
 	wxButton* buttonNew     = new wxButton(this, ID_NEW_TABLE,    _("&New Table"));
 	wxButton* buttonJoin    = new wxButton(this, ID_JOIN_TABLE,   _("&Join Table"));
 	wxButton* buttonClose   = new wxButton(this, ID_CLOSE_DIALOG, _("&Close"));
 
-	/* Disable certain buttons based on the input Action Flags. */
-	buttonNew->Enable(  (m_actionFlags & hoxSITE_ACTION_NEW)  != 0 );
-	buttonJoin->Enable( (m_actionFlags & hoxSITE_ACTION_JOIN) != 0 );
+    /* Disable certain buttons based on the input Action Flags. */
+    buttonNew->Enable(  (m_actionFlags & hoxSITE_ACTION_NEW)  != 0 );
+    buttonJoin->Enable( (m_actionFlags & hoxSITE_ACTION_JOIN) != 0 );
 
     wxBoxSizer* buttonSizer = new wxBoxSizer( wxHORIZONTAL );
 
@@ -185,16 +175,14 @@ hoxTablesDialog::hoxTablesDialog( wxWindow*                      parent,
     topSizer->Add( buttonSizer, wxSizerFlags().Align(wxALIGN_CENTER));
     SetSizer( topSizer );      // use the sizer for layout
 
-	/* Use the last Position and Size, if available. */
-
-	wxPoint lastPosition; 
-	wxSize  lastSize;
-
-	if ( _GetDefaultLayout( lastPosition, lastSize ) )
-	{
-		this->SetPosition( lastPosition );
-		this->SetSize( lastSize );
-	}
+    /* Use the last Position and Size, if available. */
+    wxPoint lastPosition; 
+    wxSize  lastSize;
+    if ( _GetDefaultLayout( lastPosition, lastSize ) )
+    {
+        this->SetPosition( lastPosition );
+        this->SetSize( lastSize );
+    }
 }
 
 void 

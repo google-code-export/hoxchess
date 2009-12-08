@@ -610,8 +610,7 @@ MyFrame::OnContextMenu( wxContextMenuEvent& event )
 
     if ( selectedTable.get() != NULL )
     {
-        menu.Append(MDI_CLOSE_TABLE, _("&Close Table\tCtrl-W"), 
-			                         _("Close Table"));
+        menu.Append(MDI_CLOSE_TABLE, _("&Close Table\tCtrl-W"));
     }
     else if ( selectedSite != NULL )
     {
@@ -619,39 +618,32 @@ MyFrame::OnContextMenu( wxContextMenuEvent& event )
 
 		if ( (actionFlags & hoxSITE_ACTION_CONNECT) != 0 )
 		{
-			menu.Append(MDI_CONNECT_SERVER, _("Connect Server...\tCtrl-L"), 
-				                            _("Connect to remote server"));
+			menu.Append(MDI_CONNECT_SERVER, _("Connect Server...\tCtrl-L"));
 		}
 		if ( (actionFlags & hoxSITE_ACTION_DISCONNECT) != 0 )
 		{
-            menu.Append(MDI_DISCONNECT_SERVER, _("&Disconnect Server\tCtrl-D"), 
-                                               _("Disconnect from remote server"));
+            menu.Append(MDI_DISCONNECT_SERVER, _("&Disconnect Server\tCtrl-D"));
 		}
 		if ( (actionFlags & hoxSITE_ACTION_LIST) != 0 )
 		{
-            menu.Append(MDI_LIST_TABLES, _("List &Tables\tCtrl-T"), 
-                                         _("Get the list of tables"));
+            menu.Append(MDI_LIST_TABLES, _("List &Tables\tCtrl-T"));
 		}
 		if ( (actionFlags & hoxSITE_ACTION_NEW) != 0 )
 		{
-			menu.Append(MDI_NEW_TABLE, _("&New Table\tCtrl-N"), 
-				                       _("Create New Table"));
+			menu.Append(MDI_NEW_TABLE, _("&New Table\tCtrl-N"));
 		}
 		if ( (actionFlags & hoxSITE_ACTION_PRACTICE) != 0 )
 		{
-			menu.Append(MDI_PRACTICE, _("&Practice with Computer\tCtrl-P"),
-                                      _("Practice with your local Computer"));
+			menu.Append(MDI_PRACTICE, _("&Practice with Computer\tCtrl-P"));
 		}
 		if ( (actionFlags & hoxSITE_ACTION_OPEN) != 0 )
 		{
-            menu.Append(MDI_OPEN_SAVED_TABLE, _("Open Saved Table..."), 
-                                              _("Open a saved table"));
+            menu.Append(MDI_OPEN_SAVED_TABLE, _("Open Saved Table..."));
 		}
     }
 	else
 	{
-		menu.Append(MDI_CONNECT_SERVER, _("Connect Server...\tCtrl-L"), 
-			                            _("Connect to remote server"));
+		menu.Append(MDI_CONNECT_SERVER, _("Connect Server...\tCtrl-L"));
 	}
 
     PopupMenu(&menu, point.x, point.y);
