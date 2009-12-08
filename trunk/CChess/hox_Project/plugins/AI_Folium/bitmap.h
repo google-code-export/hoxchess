@@ -168,7 +168,7 @@ namespace folium
     inline bool Bitmap::distance_is_1(uint src, uint dst)const
     {
         register uint m = mask(src, dst);
-        return m&(m-1) == 0;
+        return (m&(m-1)) == 0;
     }
 
     inline Bitmap::Bitmap()
