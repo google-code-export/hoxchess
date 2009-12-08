@@ -44,7 +44,7 @@ namespace folium
         uint nonempty_left_2(uint)const;
         uint nonempty_right_2(uint)const;
         uint distance(uint, uint)const;
-        uint distance_is_0(uint, uint)const;
+        bool distance_is_0(uint, uint)const;
         uint distance_is_1(uint, uint)const;
     private:
         void clear();
@@ -133,7 +133,7 @@ namespace folium
     {
         return m_bitmap.distance(src, dst);
     }
-    inline uint XQ::distance_is_0(uint src, uint dst)const
+    inline bool XQ::distance_is_0(uint src, uint dst)const
     {
         return m_bitmap.distance_is_0(src, dst);
     }
