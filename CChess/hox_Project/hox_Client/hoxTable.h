@@ -286,8 +286,6 @@ public:
      */
     void PostBoardMessage( const wxString&  message );
 
-    void ToggleViewSide();
-
     hoxSite* GetSite() const { return m_site; }
 
     bool     HasPlayer( const wxString& sPlayerId ) const;

@@ -552,10 +552,6 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
     /* View menu. */
     wxMenu* view_menu = new wxMenu;
     view_menu->AppendCheckItem(MDI_SHOW_SERVERS_WINDOW, _("Site&s View\tCtrl-S"));
-    if ( hasTable )
-    {
-        view_menu->Append(MDI_TOGGLE, _("Toggle Table &View\tCtrl-R"));
-    }
     view_menu->AppendSeparator();
     view_menu->AppendCheckItem(MDI_SHOW_LOG_WINDOW, _("Lo&g Window\tCtrl-G"));
 

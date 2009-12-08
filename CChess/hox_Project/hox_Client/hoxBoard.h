@@ -184,7 +184,6 @@ public:
      * My MAIN public API
      *********************************/
 
-    void ToggleViewSide();
     void EnableSound( bool bEnabled ) { m_bSoundEnabled = bEnabled; }
     void SetBackgroundImage( const wxString& sImage );
     void SetBgColor( wxColor color ); // Set Board's Background Color
@@ -211,6 +210,8 @@ private:
     void _CreateBoardUI();
     void _CreateBoardPanel();
     void _LayoutBoardPanel( bool bViewInverted );
+
+    void _ReverseView();
 
     /**
      * Add a Player's Id to the Player-List GUI.

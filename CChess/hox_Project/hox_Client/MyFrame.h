@@ -61,7 +61,6 @@ enum
     MDI_SHOW_SERVERS_WINDOW,
     MDI_SHOW_LOG_WINDOW,
 
-    MDI_TOGGLE,   // toggle view
     MDI_CHILD_QUIT,
 
     MDI_SOUND,   // toggle sound

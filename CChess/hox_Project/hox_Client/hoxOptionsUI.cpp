@@ -143,7 +143,7 @@ void hoxOptionsUI::Init()
 void hoxOptionsUI::CreateControls()
 {    
 ////@begin hoxOptionsUI content construction
-    hoxOptionsUI* itemPropertySheetDialog1 = this;
+    //hoxOptionsUI* itemPropertySheetDialog1 = this;
 
     wxPanel* itemPanel2 = new wxPanel( GetBookCtrl(), ID_OPTIONS_MAIN, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
     wxBoxSizer* itemBoxSizer3 = new wxBoxSizer(wxVERTICAL);
