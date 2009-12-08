@@ -155,20 +155,21 @@ public:
     void OnGameReset();
     void OnTableUpdate();
 
-    void OnWallInputEnter( wxCommandEvent &event );
+    void OnWallInputEnter( wxCommandEvent& event );
 
-    void OnButtonHistory_BEGIN( wxCommandEvent &event );
-    void OnButtonHistory_PREV( wxCommandEvent &event );
-    void OnButtonHistory_NEXT( wxCommandEvent &event );
-    void OnButtonHistory_END( wxCommandEvent &event );
+    void OnButtonHistory_BEGIN( wxCommandEvent& event );
+    void OnButtonHistory_PREV( wxCommandEvent& event );
+    void OnButtonHistory_NEXT( wxCommandEvent& event );
+    void OnButtonHistory_END( wxCommandEvent& event );
 
-    void OnButtonOptions( wxCommandEvent &event );
-	void OnButtonResign( wxCommandEvent &event );
-    void OnButtonDraw( wxCommandEvent &event );
-    void OnButtonReset( wxCommandEvent &event );
-    void OnButtonRed( wxCommandEvent &event );
-    void OnButtonBlack( wxCommandEvent &event );
-	void OnButtonNone( wxCommandEvent &event );
+    void OnButtonReverse( wxCommandEvent& event );
+    void OnButtonOptions( wxCommandEvent& event );
+    void OnButtonResign( wxCommandEvent& event );
+    void OnButtonDraw( wxCommandEvent& event );
+    void OnButtonReset( wxCommandEvent& event );
+    void OnButtonRed( wxCommandEvent& event );
+    void OnButtonBlack( wxCommandEvent& event );
+    void OnButtonNone( wxCommandEvent& event );
 
     void OnUpdateUI_ActionRed( wxUpdateUIEvent& event );
     void OnUpdateUI_ActionBlack( wxUpdateUIEvent& event );

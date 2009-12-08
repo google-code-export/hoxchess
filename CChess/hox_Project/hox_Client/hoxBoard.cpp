@@ -51,6 +51,7 @@ enum
     ID_ACTION_BLACK,  // Play as BLACK
     ID_ACTION_NONE,   // Play as NONE (i.e., Unsit/Standup)
 
+    ID_ACTION_REVERSE,
     ID_ACTION_OPTIONS,
     ID_ACTION_RESIGN,
 	ID_ACTION_DRAW,
@@ -65,6 +66,7 @@ BEGIN_EVENT_TABLE(hoxBoard, wxPanel)
     EVT_BUTTON(ID_HISTORY_PREV, hoxBoard::OnButtonHistory_PREV)
     EVT_BUTTON(ID_HISTORY_NEXT, hoxBoard::OnButtonHistory_NEXT)
     EVT_BUTTON(ID_HISTORY_END, hoxBoard::OnButtonHistory_END)
+    EVT_BUTTON(ID_ACTION_REVERSE, hoxBoard::OnButtonReverse)
     EVT_BUTTON(ID_ACTION_OPTIONS, hoxBoard::OnButtonOptions)
     EVT_BUTTON(ID_ACTION_RESIGN, hoxBoard::OnButtonResign)
 	EVT_BUTTON(ID_ACTION_DRAW, hoxBoard::OnButtonDraw)
@@ -140,8 +142,10 @@ hoxWallOutput::_CreateUI()
     captionText->SetForegroundColour( wxColor(*wxWHITE) ) ;
     headerSizer->Add( captionText,
         wxSizerFlags(1).Expand().Align(wxALIGN_CENTER_VERTICAL) );
-    headerSizer->Add( new wxBitmapButton( this, wxID_ANY,
-                                hoxUtil::LoadImage("edit-clear.png")) );
+    wxBitmapButton* clearButton = new wxBitmapButton( this, wxID_ANY,
+                                        hoxUtil::LoadImage("edit-clear.png"));
+    clearButton->SetToolTip( _("Clear All") );
+    headerSizer->Add( clearButton );
 
     mainSizer->Add( headerSizer,
         wxSizerFlags().Border(wxTOP|wxLEFT|wxRIGHT,1) );
@@ -746,6 +750,12 @@ hoxBoard::OnButtonHistory_END( wxCommandEvent &event )
 }
 
 void 
+hoxBoard::OnButtonReverse( wxCommandEvent &event )
+{
+    this->ToggleViewSide();
+}
+
+void 
 hoxBoard::OnButtonOptions( wxCommandEvent &event )
 {
     unsigned int optionDlgFlags = 0;
@@ -1055,28 +1065,37 @@ hoxBoard::_CreateBoardPanel()
      *********************************/
 
     m_actionSizer = new wxBoxSizer( wxHORIZONTAL );
+    wxBitmapButton* aButton = NULL;
 
-    m_actionSizer->Add( 
-        new wxButton( this, ID_ACTION_OPTIONS, _("Options"), 
-                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
-        wxSizerFlags().Left().FixedMinSize() );
-    m_actionSizer->AddSpacer( 20 );  // Add some spaces in between.
+    aButton = new wxBitmapButton( this, ID_ACTION_REVERSE,
+                                  hoxUtil::LoadImage("reverse.png"));
+    aButton->SetToolTip( _("Reverse view") );
+    m_actionSizer->Add( aButton, wxSizerFlags().Center() );
+
+    aButton = new wxBitmapButton( this, ID_ACTION_OPTIONS,
+                                  hoxUtil::LoadImage("settings.png"));
+    aButton->SetToolTip( _("Table settings") );
+    m_actionSizer->Add( aButton, wxSizerFlags().Center() );
+
+    aButton = new wxBitmapButton( this, ID_ACTION_RESET,
+                                  hoxUtil::LoadImage("reset.png"));
+    aButton->SetToolTip( _("Reset table") );
+    m_actionSizer->Add( aButton, wxSizerFlags().Center() );
+
+    m_actionSizer->AddSpacer( 40 );  // Add some spaces in between.
+
     m_actionSizer->Add( 
         new wxButton( this, ID_ACTION_RESIGN, _("Resign"), 
                       wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
-        wxSizerFlags().Left().FixedMinSize() );
+        wxSizerFlags().Left().FixedMinSize().Center() );
     m_actionSizer->Add( 
         new wxButton( this, ID_ACTION_DRAW, _("Draw"), 
                       wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
-        wxSizerFlags().Left().FixedMinSize() );
-    m_actionSizer->Add( 
-        new wxButton( this, ID_ACTION_RESET, _("Reset"), 
-                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
-        wxSizerFlags().Left().FixedMinSize() );
+        wxSizerFlags().Left().FixedMinSize().Center() );
     m_actionSizer->Add( 
         new wxButton( this, ID_ACTION_NONE, _("Unsit"), 
                       wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
-        wxSizerFlags().Left().FixedMinSize() );
+        wxSizerFlags().Left().FixedMinSize().Center() );
 
     /*********************************
      * Arrange Command's buttons (History + Action).
