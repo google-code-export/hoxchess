@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-12-07 21:03-0800\n"
-"PO-Revision-Date: 2009-12-07 21:10-0800\n"
+"POT-Creation-Date: 2009-12-08 09:59-0800\n"
+"PO-Revision-Date: 2009-12-08 10:37-0800\n"
 "Last-Translator: Huy Phan <huyphan@playxiangqi.com>\n"
 "Language-Team: PlayXiangqi <huyphan@playxiangqi.com>\n"
 "MIME-Version: 1.0\n"
@@ -24,11 +24,11 @@ msgstr ""
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxAIPluginMgr.cpp:194
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:369
 msgid "There is no AI Engine available."
-msgstr ""
+msgstr "Il n'ya pas de AI disponibles."
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxAIPluginMgr.cpp:195
 msgid "AI Creation"
-msgstr ""
+msgstr "AI Création"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:147
 msgid "Clear All"
@@ -52,7 +52,7 @@ msgstr "[Tapez votre message ici]"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:692
 msgid "Game Reset"
-msgstr ""
+msgstr "Game Reset"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:781
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1077
@@ -113,49 +113,49 @@ msgstr "La dernière version disponible sur GoogleCode: %s"
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxChesscapePlayer.cpp:941
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxMyPlayer.cpp:634
 msgid "Invitation from Player"
-msgstr ""
+msgstr "Invitation du Player"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxChesscapePlayer.cpp:1108
 #, c-format
 msgid "A Message from Player [%s]"
-msgstr ""
+msgstr "Un Message du Player [%s]"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxChesscapePlayer.cpp:1176
 msgid "Player Information"
-msgstr ""
+msgstr "Information du Player"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxCoreBoard.cpp:490
 msgid "Move is not valid."
-msgstr ""
+msgstr "Move n'est pas valide."
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxCoreBoard.cpp:979
 msgid "Game Over"
-msgstr ""
+msgstr "Game Over"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLocalPlayer.cpp:191
 #, c-format
 msgid "Enter your message for [%s]:"
-msgstr ""
+msgstr "Entrez votre message pour [% s]:"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLocalPlayer.cpp:193
 msgid "Send a private message"
-msgstr ""
+msgstr "Envoyer un message privé"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLoginUI.cpp:211
 msgid "PlayXiangqi"
-msgstr ""
+msgstr "PlayXiangqi"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLoginUI.cpp:215
 msgid "www.playxiangqi.com"
-msgstr ""
+msgstr "www.playxiangqi.com"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLoginUI.cpp:218
 msgid "Chesscape"
-msgstr ""
+msgstr "Chesscape"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLoginUI.cpp:222
 msgid "www.chesscape.com"
-msgstr ""
+msgstr "www.chesscape.com"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLoginUI.cpp:225
 msgid "Server &Address"
@@ -191,21 +191,21 @@ msgstr "Annuler"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxMyPlayer.cpp:466
 msgid "Message from Player"
-msgstr ""
+msgstr "Message du Player"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxMyPlayer.cpp:467
 #, c-format
 msgid "A private message from [%s]"
-msgstr ""
+msgstr "Un message privé à partir de [%s]"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxMyPlayer.cpp:624
 #, c-format
 msgid "*INVITE from [%s (%d)] to Table [%s]"
-msgstr ""
+msgstr "*Inviter à partir de [%s (%d)] à la table [%s]"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxMyPlayer.cpp:662
 msgid "Information of Player"
-msgstr ""
+msgstr "L'information d'un joueur"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionDialog.cpp:56
 msgid "&Rated Game"
@@ -294,7 +294,7 @@ msgstr "Pièces"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:220
 msgid "Preview"
-msgstr ""
+msgstr "Preview"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:233
 msgid "Artificial Intelligence"
@@ -306,27 +306,27 @@ msgstr "AI courante:"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:245
 msgid "AI"
-msgstr ""
+msgstr "AI"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:336
 msgid "(Custom)"
-msgstr ""
+msgstr "(Personnalisée)"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:352
 msgid "There is no Piece-Set available."
-msgstr ""
+msgstr "Chess-pièce ne sont pas disponibles"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:353
 msgid "Piece-Set Selection"
-msgstr ""
+msgstr "Pieces sélection"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:370
 msgid "AI Selection"
-msgstr ""
+msgstr "AI sélection"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxPlayersUI.cpp:123
 msgid "Id"
-msgstr ""
+msgstr "Id"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxPlayersUI.cpp:124
 msgid "Rating"
@@ -336,17 +336,9 @@ msgstr "Points"
 msgid "&Info"
 msgstr "&Info"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxPlayersUI.cpp:272
-msgid "Info of Player"
-msgstr ""
-
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxPlayersUI.cpp:273
 msgid "&Invite"
 msgstr "&Inviter"
-
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxPlayersUI.cpp:273
-msgid "Invite Player"
-msgstr ""
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxPlayersUI.cpp:274
 msgid "&Message..."
@@ -355,25 +347,25 @@ msgstr "&Message..."
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:225
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:237
 msgid "Progress dialog"
-msgstr ""
+msgstr "De dialogue de progression"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:226
 msgid "Wait until connection is established or press [Cancel]"
-msgstr ""
+msgstr "Attendez que la connexion réseau est établie ou appuyez sur [Annuler]"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:348
 msgid "No AI Plugin found."
-msgstr ""
+msgstr "AI est introuvable."
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:348
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:434
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:440
-msgid "Create Pratice Table"
-msgstr ""
+msgid "Create Practice Table"
+msgstr "Créer Pratique Tableau"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:522
 msgid "Login failure"
-msgstr ""
+msgstr "Login Erreur"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:648
 msgid "List of Tables"
@@ -381,28 +373,52 @@ msgstr "Liste des Tableaux"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:1018
 msgid "LOCAL_USER"
-msgstr ""
+msgstr "Vous"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:168
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:87
+msgid "Table"
+msgstr "Tableau"
+
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:88
+msgid "Group"
+msgstr "Groupe"
+
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:89
+msgid "Type"
+msgstr "Type"
+
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:90
+msgid "Timer"
+msgstr "Temporisateurs"
+
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:91
+msgid "Red Player"
+msgstr "Joueur Rouge"
+
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:92
+msgid "Black Player"
+msgstr "Joueur Noir"
+
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:158
 msgid "&Refresh"
 msgstr "&Actualiser"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:169
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:159
 msgid "&New Table"
 msgstr "&Nouveau Tableau"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:170
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:160
 msgid "&Join Table"
 msgstr "&Rejoignez Table"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:171
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:161
 msgid "&Close"
 msgstr "Fermer (&C)"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxUtil.cpp:55
 #, c-format
 msgid "Unknown piece-type: %d"
-msgstr ""
+msgstr "Piece est inconnu: %d"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxWelcomeUI.cpp:134
 msgid ""
@@ -420,6 +436,19 @@ msgid ""
 "Contact: <a href=\"mailto:huyphan@playxiangqi.com\">huyphan@playxiangqi.com</a>\n"
 "</p>"
 msgstr ""
+"<b>HOXChess</b> - <i>An open source d'un programme Xiangqi</i>\n"
+"\n"
+"<p>\n"
+"Pour commencer, s'il vous plaît sélectionnez l'une des actions sur la droite.\n"
+"</p>\n"
+"<p>\n"
+"Visiter <a href=\"http://hoxchess.googlecode.com\">HOXChess on GoogleCode</a> pour les dernières nouvelles et de soutien.\n"
+"</p>\n"
+"<p>\n"
+"Copyright 2007-2009 Huy Phan, <a href=\"http://www.playxiangqi.com\">PlayXiangqi.com</a>\n"
+"<br />\n"
+"Contact: <a href=\"mailto:huyphan@playxiangqi.com\">huyphan@playxiangqi.com</a>\n"
+"</p>"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxWelcomeUI.cpp:137
 msgid "Show this dialog next time"
@@ -443,50 +472,50 @@ msgstr "Fermer (&C)"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:47
 msgid "(Use Default Language)"
-msgstr ""
+msgstr "(Utilisez la langue par défaut)"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:50
 msgid "English"
-msgstr ""
+msgstr "English"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:51
 msgid "Chinese (Simplified)"
-msgstr ""
+msgstr "Chinese (Simplified)"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:52
 msgid "French"
-msgstr ""
+msgstr "French"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:53
 msgid "Vietnamese"
-msgstr ""
+msgstr "Vietnamese"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:142
 msgid "This language is not supported by the system."
-msgstr ""
+msgstr "Cette langue n'est pas pris en charge par le système."
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:154
 #, c-format
 msgid "Fail to find/load the [%s] catalog."
-msgstr ""
+msgstr "Ne parviennent pas à trouver le langage [%s]."
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:186
 msgid "Select your language"
-msgstr ""
+msgstr "Choisissez votre langue"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:187
 msgid "Language selection"
-msgstr ""
+msgstr "Sélection de la langue"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:211
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:229
 msgid "Unknown"
-msgstr ""
+msgstr "Inconnu"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:258
 #, c-format
 msgid "Unknown language setting [%s]."
-msgstr ""
+msgstr "Langue inconnue [% s]."
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:110
 msgid "Log Window"
@@ -498,18 +527,20 @@ msgid ""
 "An open source Xiangqi (Chinese Chess) desktop application.          \n"
 "Powered by %s, under %s      "
 msgstr ""
+"Une application Open Source Xiangqi (Chinese Chess).\n"
+"Powered by %s, sous %s"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:238
 msgid "Wait until checking is completed or press [Cancel]"
-msgstr ""
+msgstr "Attendez jusqu'à ce que la vérification est terminée ou appuyez sur [Annuler]"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:415
 msgid "Please choose a file to save"
-msgstr ""
+msgstr "S'il vous plaît choisir un fichier à enregistrer"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:434
 msgid "Please choose a file to open"
-msgstr ""
+msgstr "S'il vous plaît choisir un fichier à ouvrir"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:499
 msgid "Connect Server"
@@ -528,7 +559,6 @@ msgid "Open Table"
 msgstr "Ouvrir une nouvelle tableau"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:509
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:614
 msgid "Close Table"
 msgstr "Fermer Tableau"
 
@@ -541,23 +571,23 @@ msgid "Quit the program"
 msgstr "Quitter ce programme"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:530
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:622
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:653
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:621
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:646
 msgid "Connect Server...\tCtrl-L"
 msgstr "Connexion Serveur...\tCtrl-L"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:532
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:627
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:625
 msgid "&Disconnect Server\tCtrl-D"
 msgstr "&Déconnecter Serveur\tCtrl-D"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:534
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:632
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:629
 msgid "List &Tables\tCtrl-T"
 msgstr "Liste &Tableaux\tCtrl-T"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:535
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:637
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:633
 msgid "&New Table\tCtrl-N"
 msgstr "&Nouveau Tableau\tCtrl-N"
 
@@ -567,7 +597,7 @@ msgid "&Close Table\tCtrl-W"
 msgstr "Fermer Tableau\tCtrl-W"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:541
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:642
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:637
 msgid "&Practice with Computer\tCtrl-P"
 msgstr "Jeu avec l'ordinateur\tCtrl-P"
 
@@ -576,7 +606,7 @@ msgid "&Save Table..."
 msgstr "Sauvegarder le jeu..."
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:548
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:647
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:641
 msgid "Open Saved Table..."
 msgstr "Ouvert Sauvé Tableau..."
 
@@ -620,38 +650,13 @@ msgstr "&Outils"
 msgid "&Help"
 msgstr "&Aide"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:623
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:654
-msgid "Connect to remote server"
-msgstr "Connexion au serveur distant"
-
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:628
-msgid "Disconnect from remote server"
-msgstr "Déconnecter du serveur"
-
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:633
-msgid "Get the list of tables"
-msgstr "Obtenez la liste des tableaux"
-
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:638
-msgid "Create New Table"
-msgstr "Créez une nouvelle tableau"
-
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:643
-msgid "Practice with your local Computer"
-msgstr "Jeu avec l'ordinateur"
-
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:648
-msgid "Open a saved table"
-msgstr "Ouvert un sauvé tableau"
-
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:715
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:707
 msgid "You must restart the program for this change to take effect"
-msgstr ""
+msgstr "Vous devez redémarrer le programme pour que cette modification prendra effet"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:716
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:708
 msgid "Required Action"
-msgstr ""
+msgstr "Action requise"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLoginUI.h:52
 msgid "Login to a remote server"
@@ -669,6 +674,16 @@ msgstr "Mon ordinateur"
 msgid "Getting Started"
 msgstr "Obtention commencée"
 
+#~ msgid "Connect to remote server"
+#~ msgstr "Connexion au serveur distant"
+#~ msgid "Disconnect from remote server"
+#~ msgstr "Déconnecter du serveur"
+#~ msgid "Get the list of tables"
+#~ msgstr "Obtenez la liste des tableaux"
+#~ msgid "Practice with your local Computer"
+#~ msgstr "Jeu avec l'ordinateur"
+#~ msgid "Open a saved table"
+#~ msgstr "Ouvert un sauvé tableau"
 #~ msgid "Reset"
 #~ msgstr "Réinitialiser"
 #~ msgid "Toggle Table &View\tCtrl-V"

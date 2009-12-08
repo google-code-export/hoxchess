@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.7.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-12-07 20:47-0800\n"
-"PO-Revision-Date: 2009-12-07 20:53-0800\n"
+"POT-Creation-Date: 2009-12-08 10:39-0800\n"
+"PO-Revision-Date: 2009-12-08 10:40-0800\n"
 "Last-Translator: Huy Phan <huyphan@playxiangqi.com>\n"
 "Language-Team: PlayXiangqi <huyphan@playxiangqi.com>\n"
 "MIME-Version: 1.0\n"
@@ -24,11 +24,11 @@ msgstr ""
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxAIPluginMgr.cpp:194
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:369
 msgid "There is no AI Engine available."
-msgstr ""
+msgstr "Không tìm được AI"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxAIPluginMgr.cpp:195
 msgid "AI Creation"
-msgstr ""
+msgstr "Tạo AI"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:147
 msgid "Clear All"
@@ -113,7 +113,7 @@ msgstr "Phiên bản mới nhất hiện có trên GoogleCode: %s"
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxChesscapePlayer.cpp:941
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxMyPlayer.cpp:634
 msgid "Invitation from Player"
-msgstr ""
+msgstr "Lời mời từ người chơi"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxChesscapePlayer.cpp:1108
 #, c-format
@@ -122,7 +122,7 @@ msgstr "Tin nhắn từ [%s]"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxChesscapePlayer.cpp:1176
 msgid "Player Information"
-msgstr ""
+msgstr "Thông tin người chơi"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxCoreBoard.cpp:490
 msgid "Move is not valid."
@@ -143,19 +143,19 @@ msgstr "Gửi một tin nhắn cá nhân"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLoginUI.cpp:211
 msgid "PlayXiangqi"
-msgstr ""
+msgstr "PlayXiangqi"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLoginUI.cpp:215
 msgid "www.playxiangqi.com"
-msgstr ""
+msgstr "www.playxiangqi.com"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLoginUI.cpp:218
 msgid "Chesscape"
-msgstr ""
+msgstr "Chesscape"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLoginUI.cpp:222
 msgid "www.chesscape.com"
-msgstr ""
+msgstr "www.chesscape.com"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLoginUI.cpp:225
 msgid "Server &Address"
@@ -191,21 +191,21 @@ msgstr "Hủy bỏ"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxMyPlayer.cpp:466
 msgid "Message from Player"
-msgstr ""
+msgstr "Tin nhắn từ người chơi"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxMyPlayer.cpp:467
 #, c-format
 msgid "A private message from [%s]"
-msgstr ""
+msgstr "Tin nhắn riêng từ [%s]"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxMyPlayer.cpp:624
 #, c-format
 msgid "*INVITE from [%s (%d)] to Table [%s]"
-msgstr ""
+msgstr "*Mời chơi từ [%s (%d)] tới Bàn [%s]"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxMyPlayer.cpp:662
 msgid "Information of Player"
-msgstr ""
+msgstr "Thông tin người chơi"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionDialog.cpp:56
 msgid "&Rated Game"
@@ -265,7 +265,7 @@ msgstr "Hiện Những &Bàn Đang Có lúc vào"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:167
 msgid "Language"
-msgstr "Thay đỏi ngôn ngũ"
+msgstr "Ngôn ngữ"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:170
 msgid "Current Language:"
@@ -278,7 +278,7 @@ msgstr "Chính"
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:185
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:227
 msgid "Board"
-msgstr "Bàn Cò"
+msgstr "Bàn Cơ`"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:199
 msgid "Background:"
@@ -290,7 +290,7 @@ msgstr "Nền sáng:"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:213
 msgid "Pieces"
-msgstr "Con Cò"
+msgstr "Con Cơ`"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:220
 msgid "Preview"
@@ -314,15 +314,15 @@ msgstr "(Tùy chỉnh)"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:352
 msgid "There is no Piece-Set available."
-msgstr ""
+msgstr "Không có con  cơ`"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:353
 msgid "Piece-Set Selection"
-msgstr ""
+msgstr "Con cơ` Lựa chọn"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:370
 msgid "AI Selection"
-msgstr ""
+msgstr "AI Lựa chọn"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxPlayersUI.cpp:123
 msgid "Id"
@@ -336,26 +336,18 @@ msgstr "Số điểm"
 msgid "&Info"
 msgstr "Tin Tức"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxPlayersUI.cpp:272
-msgid "Info of Player"
-msgstr "Tin Tu'c"
-
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxPlayersUI.cpp:273
 msgid "&Invite"
 msgstr "&Mời chơi"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxPlayersUI.cpp:273
-msgid "Invite Player"
-msgstr "Mòi Nguòi"
-
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxPlayersUI.cpp:274
 msgid "&Message..."
-msgstr "&Tin nhắn"
+msgstr "&Tin nhắn..."
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:225
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:237
 msgid "Progress dialog"
-msgstr ""
+msgstr "Tiến trình hội thoại"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:226
 msgid "Wait until connection is established or press [Cancel]"
@@ -363,13 +355,13 @@ msgstr "Chờ đợi cho đến khi kết nối được thiết lập hoặc nh
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:348
 msgid "No AI Plugin found."
-msgstr ""
+msgstr "Không tìm được AI"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:348
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:434
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:440
-msgid "Create Pratice Table"
-msgstr ""
+msgid "Create Practice Table"
+msgstr "Chơi với máy"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:522
 msgid "Login failure"
@@ -381,28 +373,52 @@ msgstr "Những bàn đang có"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:1018
 msgid "LOCAL_USER"
-msgstr ""
+msgstr "Bạn"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:168
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:87
+msgid "Table"
+msgstr "Bàn"
+
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:88
+msgid "Group"
+msgstr "Nhóm"
+
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:89
+msgid "Type"
+msgstr "Loại"
+
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:90
+msgid "Timer"
+msgstr "Giơ`"
+
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:91
+msgid "Red Player"
+msgstr "Người Đỏ"
+
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:92
+msgid "Black Player"
+msgstr "Người Đen"
+
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:158
 msgid "&Refresh"
 msgstr "Lấy lại (&R)"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:169
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:159
 msgid "&New Table"
 msgstr "&Tạo Bàn Mới"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:170
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:160
 msgid "&Join Table"
 msgstr "Nhập bàn (&J)"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:171
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxTablesDialog.cpp:161
 msgid "&Close"
 msgstr "Đóng lại"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxUtil.cpp:55
 #, c-format
 msgid "Unknown piece-type: %d"
-msgstr ""
+msgstr "Không biết về con cơ`: %d"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxWelcomeUI.cpp:134
 msgid ""
@@ -456,7 +472,7 @@ msgstr "&Đóng lại"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:47
 msgid "(Use Default Language)"
-msgstr ""
+msgstr "(Dùng Ngôn ngữ mặc định)"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:50
 msgid "English"
@@ -464,11 +480,11 @@ msgstr "Tiếng Anh"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:51
 msgid "Chinese (Simplified)"
-msgstr ""
+msgstr "Chinese (Simplified)"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:52
 msgid "French"
-msgstr ""
+msgstr "French"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:53
 msgid "Vietnamese"
@@ -481,7 +497,7 @@ msgstr "Ngôn ngữ này không có trong máy này"
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:154
 #, c-format
 msgid "Fail to find/load the [%s] catalog."
-msgstr ""
+msgstr "Không tìm thấy [%s] ngôn ngữ."
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:186
 msgid "Select your language"
@@ -494,12 +510,12 @@ msgstr "Ngôn ngữ chọn lựa"
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:211
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:229
 msgid "Unknown"
-msgstr ""
+msgstr "Không biết"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyApp.cpp:258
 #, c-format
 msgid "Unknown language setting [%s]."
-msgstr ""
+msgstr "Không biết cài đặt ngôn ngữ [% s]."
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:110
 msgid "Log Window"
@@ -511,6 +527,8 @@ msgid ""
 "An open source Xiangqi (Chinese Chess) desktop application.          \n"
 "Powered by %s, under %s      "
 msgstr ""
+"Một chương trình mã nguồn mở để chơi Cờ Tướng.          \n"
+"Xây dựng trên %s, dưới %s"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:238
 msgid "Wait until checking is completed or press [Cancel]"
@@ -541,7 +559,6 @@ msgid "Open Table"
 msgstr "Mở bàn mới"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:509
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:614
 msgid "Close Table"
 msgstr "Đóng bàn"
 
@@ -554,25 +571,25 @@ msgid "Quit the program"
 msgstr "Rời khỏi chương trình"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:530
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:622
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:653
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:621
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:646
 msgid "Connect Server...\tCtrl-L"
 msgstr "Nhập vào máy chủ...\tCtrl-L"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:532
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:627
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:625
 msgid "&Disconnect Server\tCtrl-D"
 msgstr "Ngắt kết nối máy chủ\tCtrl-D"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:534
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:632
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:629
 msgid "List &Tables\tCtrl-T"
 msgstr "Chọn Bàn\tCtrl-T"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:535
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:637
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:633
 msgid "&New Table\tCtrl-N"
-msgstr "Bàng mới\tCtrl-N"
+msgstr "Bàn mới\tCtrl-N"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:538
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:613
@@ -580,7 +597,7 @@ msgid "&Close Table\tCtrl-W"
 msgstr "Đóng bàn\tCtrl-W"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:541
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:642
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:637
 msgid "&Practice with Computer\tCtrl-P"
 msgstr "Chơi với máy\tCtrl-P"
 
@@ -589,7 +606,7 @@ msgid "&Save Table..."
 msgstr "&Lưu bàn lại..."
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:548
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:647
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:641
 msgid "Open Saved Table..."
 msgstr "Mở bàn cũ..."
 
@@ -633,36 +650,11 @@ msgstr "CôngCụ"
 msgid "&Help"
 msgstr "TrợGiúp"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:623
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:654
-msgid "Connect to remote server"
-msgstr "Nhập vào máy chủ"
-
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:628
-msgid "Disconnect from remote server"
-msgstr "Thoát khỏi mạng"
-
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:633
-msgid "Get the list of tables"
-msgstr "Lấy những bàn đang có"
-
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:638
-msgid "Create New Table"
-msgstr ""
-
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:643
-msgid "Practice with your local Computer"
-msgstr "Chơi với máy"
-
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:648
-msgid "Open a saved table"
-msgstr "Mở tài liệu cũ"
-
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:715
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:707
 msgid "You must restart the program for this change to take effect"
 msgstr "Bạn phải đóng và mỏ chương trình này lại"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:716
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:708
 msgid "Required Action"
 msgstr "Việc cần làm"
 
@@ -682,6 +674,20 @@ msgstr "Máy của tôi"
 msgid "Getting Started"
 msgstr "Mõ đầu"
 
+#~ msgid "Info of Player"
+#~ msgstr "Tin Tu'c"
+#~ msgid "Invite Player"
+#~ msgstr "Mòi Nguòi"
+#~ msgid "Connect to remote server"
+#~ msgstr "Nhập vào máy chủ"
+#~ msgid "Disconnect from remote server"
+#~ msgstr "Thoát khỏi mạng"
+#~ msgid "Get the list of tables"
+#~ msgstr "Lấy những bàn đang có"
+#~ msgid "Practice with your local Computer"
+#~ msgstr "Chơi với máy"
+#~ msgid "Open a saved table"
+#~ msgstr "Mở tài liệu cũ"
 #~ msgid "Table Options"
 #~ msgstr "Lựa Chọn"
 #~ msgid "Reset"

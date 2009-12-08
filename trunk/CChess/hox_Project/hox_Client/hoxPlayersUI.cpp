@@ -269,9 +269,9 @@ hoxPlayersUI::OnContextMenu( wxContextMenuEvent& event )
 
     wxMenu menu;
 
-    menu.Append( hoxPLAYERS_UI_ID_INFO, _("&Info"), _("Info of Player") );
-    menu.Append( hoxPLAYERS_UI_ID_INVITE, _("&Invite"), _("Invite Player") );
-    menu.Append( hoxPLAYERS_UI_ID_MSG, _("&Message..."), _("Send a private message") );
+    menu.Append( hoxPLAYERS_UI_ID_INFO, _("&Info") );
+    menu.Append( hoxPLAYERS_UI_ID_INVITE, _("&Invite") );
+    menu.Append( hoxPLAYERS_UI_ID_MSG, _("&Message...") );
 
     PopupMenu(&menu, point.x, point.y);
 }
