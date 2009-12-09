@@ -213,6 +213,10 @@ public:
     void OnIdle( wxIdleEvent& event );
     void OnSize( wxSizeEvent& event );
     void OnMouseEvent( wxMouseEvent& event );
+
+    void _DrawHighlight( wxDC& dc, const wxRect rect );
+    void _EraseHighlight( wxDC& dc, const wxRect rect, const hoxPosition position );
+
     void OnMouseCaptureLost( wxMouseCaptureLostEvent& event );
 
     /******************************************
@@ -335,6 +339,8 @@ private:
     hoxPiece*       m_draggedPiece;
     wxPoint         m_dragStartPos;
     wxDragImage*    m_dragImage;
+    wxRect          m_dragHighlightRect;
+    hoxPosition     m_dragHighlightPos;
 
     hoxPiece*       m_latestPiece; // piece that last moved.
 

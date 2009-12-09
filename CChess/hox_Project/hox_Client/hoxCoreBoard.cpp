@@ -370,11 +370,7 @@ hoxCoreBoard::_DrawPieceWithDC( wxDC&           dc,
     /* Highlight the piece if it is the latest piece that moves. */
     if ( piece->IsLatest() )
     {
-        const int delta = 0;  // TODO: Hard-coded value.
-        dc.SetPen( *wxCYAN );
-        dc.SetBrush( *wxTRANSPARENT_BRUSH );
-        dc.DrawRectangle( pos.x + delta, pos.y + delta,
-                          bitmap.GetWidth() - 2*delta, bitmap.GetHeight() - 2*delta );
+        _DrawHighlight( dc, wxRect(pos, bitmap.GetSize()) );
     }
 }
 
@@ -399,18 +395,15 @@ hoxPosition
 hoxCoreBoard::_PointToPosition( const hoxPiece* piece, 
                                 const wxPoint&  p ) const
 {
-    /////////////////////
     const wxCoord borderX = m_background->BorderX();
     const wxCoord borderY = m_background->BorderY();
     const wxCoord cellS = m_background->CellS();
-    /////////////////////
 
     const wxBitmap& bitmap = piece->GetBitmap();
     hoxPosition pos;
 
     // We will work on the center.
     wxPoint point(p.x + bitmap.GetWidth()/2, p.y + bitmap.GetHeight()/2);
-
 
     /* Get the 4 surrounding positions.
     *
@@ -461,13 +454,6 @@ hoxCoreBoard::_PointToPosition( const hoxPiece* piece,
         pos.y = (p4.y - borderY) / cellS;
     }
 
-    // Convert to the 'real' position since we can be in the *inverted* view.
-    if ( m_bViewInverted )
-    {
-        pos.x = 8 - pos.x;
-        pos.y = 9 - pos.y;
-    }
-
     return pos;
 }
 
@@ -475,7 +461,12 @@ void
 hoxCoreBoard::_MovePieceToPoint( hoxPiece*      piece, 
                                  const wxPoint& point )
 {
-    const hoxPosition newPos = _PointToPosition(piece, point);
+    hoxPosition newPos = _PointToPosition(piece, point);
+    if ( newPos.IsValid() && m_bViewInverted )
+    {
+        newPos.x = 8 - newPos.x;
+        newPos.y = 9 - newPos.y;
+    }
 
     hoxMove           move;   // Make a new Move
     hoxGameStatus     gameStatus = hoxGAME_STATUS_UNKNOWN;
@@ -723,25 +714,21 @@ hoxCoreBoard::OnMouseEvent( wxMouseEvent& event )
     if ( event.LeftDown() )
     {
         hoxPiece* piece = _FindPiece(event.GetPosition());
-        if ( piece != NULL )
+        if (   piece == NULL 
+            || _CanPieceMoveNext( piece ) == false )
         {
-            // Is it this Color's Turn to move?
-            if ( ! _CanPieceMoveNext( piece ) )
-                return;
-
-            // We tentatively start dragging, but wait for
-            // mouse movement before dragging properly.
-
-            m_dragMode     = DRAG_MODE_START;
-            m_dragStartPos = event.GetPosition();
-            m_draggedPiece = piece;
+            return;
         }
+        // We tentatively start dragging, but wait for
+        // mouse movement before dragging properly.
+        m_dragMode     = DRAG_MODE_START;
+        m_dragStartPos = event.GetPosition();
+        m_draggedPiece = piece;
     }
     else if (event.Dragging() && m_dragMode == DRAG_MODE_START)
     {
         // We will start dragging if we've moved beyond a couple of pixels
-
-        int tolerance = 2;  // NOTE: Hard-coded value.
+        const int tolerance = 2;  // NOTE: Hard-coded value.
         int dx = abs(event.GetPosition().x - m_dragStartPos.x);
         int dy = abs(event.GetPosition().y - m_dragStartPos.y);
         if (dx <= tolerance && dy <= tolerance) {
@@ -750,7 +737,6 @@ hoxCoreBoard::OnMouseEvent( wxMouseEvent& event )
 
         // Start the drag.
         m_dragMode = DRAG_MODE_DRAGGING;
-
         delete m_dragImage;
 
         // Erase the dragged shape from the board
@@ -782,12 +768,44 @@ hoxCoreBoard::OnMouseEvent( wxMouseEvent& event )
     }
     else if (event.Dragging() && m_dragMode == DRAG_MODE_DRAGGING)
     {
+#ifndef __WXMAC__
+        m_dragImage->Hide();
+#endif
+        const wxPoint newPoint = _GetPieceLocation(m_draggedPiece)
+                                + event.GetPosition() - m_dragStartPos;
+        const hoxPosition newPos = _PointToPosition(m_draggedPiece, newPoint);
+        const wxBitmap& bitmap = m_draggedPiece->GetBitmap();
+        if ( ! bitmap.Ok() ) return;
+        // *************************************************
+        const wxCoord borderX = m_background->BorderX();
+        const wxCoord borderY = m_background->BorderY();
+        const wxCoord cellS   = m_background->CellS();
+        // Determine the piece's top-left point.
+        const int posX = borderX + newPos.x * cellS - bitmap.GetWidth()/2;
+        const int posY = borderY + newPos.y * cellS - bitmap.GetHeight()/2;
+        const wxRect rect( wxPoint(posX, posY), bitmap.GetSize() );
+        // ************************************************
+        if ( rect != m_dragHighlightRect )
+        {
+            wxClientDC dc(this);
+            _EraseHighlight(dc, m_dragHighlightRect, m_dragHighlightPos);
+            _DrawHighlight(dc, rect );
+            m_dragHighlightRect = rect;
+            m_dragHighlightPos = (m_bViewInverted ? hoxPosition(8 - newPos.x, 9 - newPos.y)
+                                                  : newPos);
+#ifdef __WXGTK__
+            _DrawAllPieces(dc);
+#endif
+        }
+        //////////////////////
         m_dragImage->Move(event.GetPosition());
+#ifndef __WXMAC__
+        m_dragImage->Show();
+#endif
     }
     else if (event.LeftUp() && m_dragMode != DRAG_MODE_NONE)
     {
         // Finish dragging
-
         m_dragMode = DRAG_MODE_NONE;
 
         if (!m_draggedPiece || !m_dragImage) {
@@ -801,11 +819,44 @@ hoxCoreBoard::OnMouseEvent( wxMouseEvent& event )
         m_dragImage = NULL;
 
         // Move the dragged piece to its new location.
-        wxPoint newPoint = _GetPieceLocation(m_draggedPiece) 
+        const wxPoint newPoint = _GetPieceLocation(m_draggedPiece) 
                          + event.GetPosition() - m_dragStartPos;
         m_draggedPiece->SetShow(true);
         _MovePieceToPoint( m_draggedPiece, newPoint );
         m_draggedPiece = NULL;
+        m_dragHighlightRect = wxRect();
+    }
+}
+
+void
+hoxCoreBoard::_DrawHighlight( wxDC& dc,
+                              const wxRect rect )
+{
+    const int delta = 0;  // TODO: Hard-coded value.
+    dc.SetPen( *wxCYAN );
+    dc.SetBrush( *wxTRANSPARENT_BRUSH );
+    dc.DrawRectangle( rect.x + delta, rect.y + delta,
+                      rect.width - 2*delta, rect.height - 2*delta );
+}
+
+void
+hoxCoreBoard::_EraseHighlight( wxDC& dc,
+                               const wxRect rect,
+                               const hoxPosition position )
+{
+#ifdef __WXMAC__
+    // Extra code added to remove the 'highlight'.
+    dc.SetBrush( *wxTRANSPARENT_BRUSH );
+    dc.DrawRectangle( rect );
+#endif
+    dc.SetClippingRegion( rect );
+    m_background->OnPaint(dc);
+    dc.DestroyClippingRegion();
+
+    hoxPiece* existPiece = _FindPieceAt( position );
+    if ( existPiece && existPiece != m_draggedPiece )
+    {
+        _DrawPieceWithDC(dc, existPiece);
     }
 }
 
