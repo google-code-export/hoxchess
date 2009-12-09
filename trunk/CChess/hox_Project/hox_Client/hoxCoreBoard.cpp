@@ -753,8 +753,7 @@ hoxCoreBoard::OnMouseEvent( wxMouseEvent& event )
         // coordinates relative to the capture window (client coordinates)
 
         // Initiate the Drag.
-        if ( m_dragImage->BeginDrag( beginDragHotSpot, this, 
-                                     false /* only within this window */))
+        if ( m_dragImage->BeginDrag( beginDragHotSpot, this ) )
         {
             m_dragImage->Move(event.GetPosition());
             m_dragImage->Show();
@@ -775,16 +774,8 @@ hoxCoreBoard::OnMouseEvent( wxMouseEvent& event )
                                 + event.GetPosition() - m_dragStartPos;
         const hoxPosition newPos = _PointToPosition(m_draggedPiece, newPoint);
         const wxBitmap& bitmap = m_draggedPiece->GetBitmap();
-        if ( ! bitmap.Ok() ) return;
-        // *************************************************
-        const wxCoord borderX = m_background->BorderX();
-        const wxCoord borderY = m_background->BorderY();
-        const wxCoord cellS   = m_background->CellS();
-        // Determine the piece's top-left point.
-        const int posX = borderX + newPos.x * cellS - bitmap.GetWidth()/2;
-        const int posY = borderY + newPos.y * cellS - bitmap.GetHeight()/2;
-        const wxRect rect( wxPoint(posX, posY), bitmap.GetSize() );
-        // ************************************************
+        const wxPoint newOrigin = _PositionToPieceOrigin(newPos, bitmap.GetSize());
+        const wxRect rect( newOrigin, bitmap.GetSize() );
         if ( rect != m_dragHighlightRect )
         {
             wxClientDC dc(this);
@@ -797,7 +788,6 @@ hoxCoreBoard::OnMouseEvent( wxMouseEvent& event )
             _DrawAllPieces(dc);
 #endif
         }
-        //////////////////////
         m_dragImage->Move(event.GetPosition());
 #ifndef __WXMAC__
         m_dragImage->Show();
@@ -866,16 +856,24 @@ hoxCoreBoard::OnMouseCaptureLost( wxMouseCaptureLostEvent& event )
     wxLogWarning("**** Receive MOUSE_CAPTURE_LOST event ****");
 }
 
-//
-// Return the top-left Point of a piece.
-//
 wxPoint 
-hoxCoreBoard::_GetPieceLocation( const hoxPiece* piece ) const
+hoxCoreBoard::_PositionToPieceOrigin( const hoxPosition position,
+                                      const wxSize bitmapSize ) const
 {
     const wxCoord borderX = m_background->BorderX();
     const wxCoord borderY = m_background->BorderY();
-    const wxCoord cellS = m_background->CellS();
+    const wxCoord cellS   = m_background->CellS();
 
+    // Determine the piece's top-left point.
+    const int posX = borderX + position.x * cellS - bitmapSize.GetWidth()/2;
+    const int posY = borderY + position.y * cellS - bitmapSize.GetHeight()/2;
+
+    return wxPoint(posX,posY);
+}
+
+wxPoint 
+hoxCoreBoard::_GetPieceLocation( const hoxPiece* piece ) const
+{
     hoxPosition pos = piece->GetPosition();
     if (m_bViewInverted)
     {
@@ -883,12 +881,8 @@ hoxCoreBoard::_GetPieceLocation( const hoxPiece* piece ) const
         pos.y = 9 - pos.y;
     }
 
-    // Determine the piece's top-left point.
     const wxBitmap& bitmap = piece->GetBitmap();
-    const int posX = borderX + pos.x * cellS - bitmap.GetWidth()/2;
-    const int posY = borderY + pos.y * cellS - bitmap.GetHeight()/2;
-
-    return wxPoint( posX, posY );
+    return _PositionToPieceOrigin( pos, bitmap.GetSize() );
 }
 
 hoxPiece* 
@@ -901,10 +895,8 @@ hoxCoreBoard::_FindPieceAt( const hoxPosition& position,
                                        it != m_pieces.end(); ++it )
     {
         piece = *it;
-
         if ( !includeInactive && !piece->IsActive() )
             continue;
-
         if ( piece->GetPosition() == position ) 
             return piece;
     }

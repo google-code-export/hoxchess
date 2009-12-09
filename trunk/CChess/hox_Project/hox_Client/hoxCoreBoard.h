@@ -305,6 +305,8 @@ private:
     void      _ClearPieces();
     void      _ReloadAllPieceBitmaps();
     hoxPiece* _FindPiece( const wxPoint& point ) const;
+    wxPoint   _PositionToPieceOrigin( const hoxPosition position,
+                                      const wxSize bitmapSize ) const;
     wxPoint   _GetPieceLocation( const hoxPiece* piece ) const;
     bool      _PieceHitTest( const hoxPiece* piece, const wxPoint& pt ) const;
     hoxPosition _PointToPosition( const hoxPiece* piece, const wxPoint& p ) const;
