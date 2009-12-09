@@ -821,29 +821,21 @@ hoxCoreBoard::OnMouseCaptureLost( wxMouseCaptureLostEvent& event )
 wxPoint 
 hoxCoreBoard::_GetPieceLocation( const hoxPiece* piece ) const
 {
-    /////////////////////
     const wxCoord borderX = m_background->BorderX();
     const wxCoord borderY = m_background->BorderY();
     const wxCoord cellS = m_background->CellS();
-    /////////////////////
 
     hoxPosition pos = piece->GetPosition();
-
-    // Convert to the 'real' position since we can be in the *inverted* view.
     if (m_bViewInverted)
     {
         pos.x = 8 - pos.x;
         pos.y = 9 - pos.y;
     }
 
-    // Determine the center of the piece.
-    int posX = borderX + pos.x * cellS;
-    int posY = borderY + pos.y * cellS;
-
-    // Return the top-left point of the piece.
+    // Determine the piece's top-left point.
     const wxBitmap& bitmap = piece->GetBitmap();
-    posX -= bitmap.GetWidth()/2;
-    posY -= bitmap.GetHeight()/2;
+    const int posX = borderX + pos.x * cellS - bitmap.GetWidth()/2;
+    const int posY = borderY + pos.y * cellS - bitmap.GetHeight()/2;
 
     return wxPoint( posX, posY );
 }
@@ -1053,9 +1045,7 @@ hoxCustomBackground::GetBestSize( const wxSize proposedSize )
     const wxCoord boardW = m_cellS * NUM_HORIZON_CELL;
     const wxCoord boardH = m_cellS * NUM_VERTICAL_CELL;
 
-    const wxSize bestSize( boardW + 2*m_borderX,
-                           boardH + 2*m_borderY );
-    return bestSize;
+    return wxSize( boardW + 2*m_borderX, boardH + 2*m_borderY );
 }
 
 void 
