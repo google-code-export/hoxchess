@@ -213,10 +213,6 @@ public:
     void OnIdle( wxIdleEvent& event );
     void OnSize( wxSizeEvent& event );
     void OnMouseEvent( wxMouseEvent& event );
-
-    void _DrawHighlight( wxDC& dc, const wxRect rect );
-    void _EraseHighlight( wxDC& dc, const wxRect rect, const hoxPosition position );
-
     void OnMouseCaptureLost( wxMouseCaptureLostEvent& event );
 
     /******************************************
@@ -244,34 +240,14 @@ protected:
     virtual wxSize DoGetBestSize() const;
 
 private:
-    /**
-     * Move a Piece to a new Position.
-     *
-     * @note No Referee-validation is involved.
-     *
-     * @param hightlight - If true, then the Piece will be highlighted.
-     */
     bool _MovePieceTo( hoxPiece*          piece, 
                        const hoxPosition& newPosition,
                        bool               hightlight = true,
                        const bool         bRefresh = true );
 
-    /**
-     * Find a Piece a given position.
-     *
-     * @param includeInactive - If true, then inactive pieces are also included
-     *                          in the search (useful in REVIEW mode).
-     *
-     * @return NULL if no Piece was found.
-     */
     hoxPiece* _FindPieceAt( const hoxPosition& position,
                             bool               includeInactive = false ) const;
 
-    /**
-     * Attempt to find a Piece a given position. If found, then "capture" it.
-     *
-     * @return The captured Piece if found. Otherwise, return NULL.
-     */
     hoxPiece* _FindAndCapturePieceAt( const hoxPosition& position,
                                       const bool         bRefresh = true );
 
@@ -283,14 +259,8 @@ private:
      */
     void _MovePieceToPoint(hoxPiece* piece, const wxPoint& point);
 
-    /**
-     * Check if a given piece has the right to move 'next'.
-     */
     bool _CanPieceMoveNext( hoxPiece* piece ) const;
 
-    /**
-     * Check if this Board is in GAME-REVIEW mode.
-     */
     bool _IsBoardInReviewMode() const;
 
     void   _DrawAllPieces( wxDC& dc );
@@ -310,6 +280,9 @@ private:
     wxPoint   _GetPieceLocation( const hoxPiece* piece ) const;
     bool      _PieceHitTest( const hoxPiece* piece, const wxPoint& pt ) const;
     hoxPosition _PointToPosition( const hoxPiece* piece, const wxPoint& p ) const;
+
+    void _DrawHighlight( wxDC& dc, const wxRect rect );
+    void _EraseHighlight( wxDC& dc, const wxRect rect, const hoxPosition position );
 
     void      _RecordMove( const hoxMove& move );
 
