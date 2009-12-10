@@ -85,6 +85,7 @@ hoxCoreBoard::hoxCoreBoard( wxWindow*        parent,
         , m_bViewInverted( false )  // Normal view: RED is at bottom of the screen
         , m_referee( referee )
         , m_owner( NULL )
+        , m_moveMode( hoxMOVE_MODE_DRAG_N_DROP )
         , m_dragMode( DRAG_MODE_NONE )
         , m_draggedPiece( NULL )
         , m_dragImage( NULL )
@@ -711,12 +712,77 @@ hoxCoreBoard::DoGameReview_END()
 void 
 hoxCoreBoard::OnMouseEvent( wxMouseEvent& event )
 {
+    if ( m_moveMode == hoxMOVE_MODE_DRAG_N_DROP ) {
+        _OnMouseEvent_DragNDrop(event);
+    } else {
+        _OnMouseEvent_ClickNClick(event);
+    }
+}
+
+void 
+hoxCoreBoard::_OnMouseEvent_ClickNClick( wxMouseEvent& event )
+{
+    wxClientDC dc(this);
+
+    if ( event.LeftDown() && m_dragMode == DRAG_MODE_NONE )
+    {
+        hoxPiece* piece = _FindPiece(event.GetPosition());
+        if ( !piece || !_CanPieceMoveNext( piece ) ) {
+            return;
+        }
+        m_dragMode     = DRAG_MODE_START;
+        m_dragStartPos = event.GetPosition();
+        m_draggedPiece = piece;
+        // Highlight the "from" piece.
+        const wxPoint newPoint = _GetPieceLocation(m_draggedPiece)
+                                + event.GetPosition() - m_dragStartPos;
+        const hoxPosition newPos = _PointToPosition(m_draggedPiece, newPoint);
+        const wxSize pieceSize = m_draggedPiece->GetBitmap().GetSize();
+        const wxPoint newOrigin = _PositionToPieceOrigin(newPos, pieceSize);
+        const wxRect rect( newOrigin, pieceSize );
+        _DrawHighlight(dc, rect );
+    }
+    else if ( event.LeftDown() && m_dragMode == DRAG_MODE_START )
+    {
+        m_dragMode = DRAG_MODE_NONE;
+        const wxPoint newPoint = _GetPieceLocation(m_draggedPiece) 
+                         + event.GetPosition() - m_dragStartPos;
+        _MovePieceToPoint( m_draggedPiece, newPoint );
+        m_draggedPiece = NULL;
+        m_dragHighlightRect = wxRect();
+    }
+    else if ( event.Moving() && m_dragMode == DRAG_MODE_START )
+    {
+        const wxPoint newPoint = _GetPieceLocation(m_draggedPiece)
+                                + event.GetPosition() - m_dragStartPos;
+        const hoxPosition newPos = _PointToPosition(m_draggedPiece, newPoint);
+        const wxSize pieceSize = m_draggedPiece->GetBitmap().GetSize();
+        const wxPoint newOrigin = _PositionToPieceOrigin(newPos, pieceSize);
+        const wxRect rect( newOrigin, pieceSize );
+        if ( rect != m_dragHighlightRect )
+        {
+            if ( m_dragHighlightPos != m_draggedPiece->GetPosition() )
+            {
+                _EraseHighlight(dc, m_dragHighlightRect, m_dragHighlightPos);
+            }
+            _DrawHighlight(dc, rect );
+            m_dragHighlightRect = rect;
+            m_dragHighlightPos = (m_bViewInverted ? hoxPosition(8 - newPos.x, 9 - newPos.y)
+                                                  : newPos);
+#ifdef __WXGTK__
+            _DrawAllPieces(dc);
+#endif
+        }
+    }
+}
+
+void 
+hoxCoreBoard::_OnMouseEvent_DragNDrop( wxMouseEvent& event )
+{
     if ( event.LeftDown() )
     {
         hoxPiece* piece = _FindPiece(event.GetPosition());
-        if (   piece == NULL 
-            || _CanPieceMoveNext( piece ) == false )
-        {
+        if ( !piece || !_CanPieceMoveNext( piece ) ) {
             return;
         }
         // We tentatively start dragging, but wait for
@@ -844,7 +910,9 @@ hoxCoreBoard::_EraseHighlight( wxDC& dc,
     dc.DestroyClippingRegion();
 
     hoxPiece* existPiece = _FindPieceAt( position );
-    if ( existPiece && existPiece != m_draggedPiece )
+    if (   existPiece
+        && (    m_moveMode == hoxMOVE_MODE_CLICK_N_CLICK
+             || existPiece != m_draggedPiece) )
     {
         _DrawPieceWithDC(dc, existPiece);
     }

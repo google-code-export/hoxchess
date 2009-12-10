@@ -284,6 +284,9 @@ private:
     void _DrawHighlight( wxDC& dc, const wxRect rect );
     void _EraseHighlight( wxDC& dc, const wxRect rect, const hoxPosition position );
 
+    void _OnMouseEvent_ClickNClick( wxMouseEvent& event );
+    void _OnMouseEvent_DragNDrop( wxMouseEvent& event );
+
     void      _RecordMove( const hoxMove& move );
 
     /**
@@ -310,6 +313,7 @@ private:
     BoardOwner*      m_owner;   // This Board's owner.
 
     /* Variables used when a piece is dragged by the mouse. */
+    hoxMoveMode     m_moveMode;
     int             m_dragMode;
     hoxPiece*       m_draggedPiece;
     wxPoint         m_dragStartPos;
