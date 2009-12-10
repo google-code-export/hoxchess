@@ -232,6 +232,15 @@ enum hoxGameType
 };
 
 /**
+ * Move modes.
+ */
+enum hoxMoveMode
+{
+    hoxMOVE_MODE_DRAG_N_DROP,
+    hoxMOVE_MODE_CLICK_N_CLICK,
+};
+
+/**
  * Network constants.
  */
 enum hoxNetworkContant
