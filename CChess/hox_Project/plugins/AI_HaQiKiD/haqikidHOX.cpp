@@ -45,6 +45,7 @@ int MaxMoves  = 40;     /* moves per session; 0 = entire game       */
 int TimeInc   = 0;      /* extra time per move in msec              */
 int TimeLeft;
 int MovesLeft;
+//int Ticks, tlim;
 int Randomize;
 int GamePtr;
 int Ticks, tlim, tlim2;
@@ -793,7 +794,7 @@ int Search(int origAlpha, int beta, int lastPly, int PV, int depth)
                 }
 
                 to += step;
-            } while(!((victim-EMPTY) | (dir<75)));     // end if leaper or capt
+            } while(!(victim-EMPTY | dir<75));     // end if leaper or capt
             dir++;                                 // try new direction
         }
     }
@@ -825,13 +826,10 @@ if(depth<=0) {
 }
 
     // ITERATIVE DEEPENING LOOP
-    for(iterDep = depth>=1000?1:hashMove?depth:PV?2-(depth&1):depth>2?1:depth;
-        iterDep <= depth;
-        iterDep += 2 - ( (depth>=1000) | !PV ) )
-    {
+    for(iterDep = depth>=1000?1:hashMove?depth:PV?2-(depth&1):depth>2?1:depth; iterDep <= depth; iterDep+=2-(depth>=1000|!PV)) {
         bestScore = startScore;
         alpha = origAlpha;
-        firstMove = (depth>=1000) | (lastPly?2:0);
+        firstMove = depth>=1000|lastPly?2:0;
 
         // LOOP OVER MOVES
         for(curMove=capts; curMove<lastMove; curMove++) {
@@ -1014,7 +1012,7 @@ if(depth<=0) {
                     alpha = score;
                 }
             }
-            if(depth>=1000 && (int)GetTickCount()-Ticks > tlim2
+            if(depth>=1000 && GetTickCount()-Ticks > tlim2
                            && bestScore > prevScore-7) break;
             // next move
             firstMove = 0;
@@ -1028,7 +1026,7 @@ if(depth<=0) {
                 'a'+moveStack[bestMove].u.to%20, '0'+moveStack[bestMove].u.to/20,
                 curEval, evalCor,p1,p2,p3,p4,materialIndex
                 ); fflush(stdout);
-            if((int)GetTickCount()-Ticks > tlim || iterDep >= MaxDepth ||
+            if(GetTickCount()-Ticks > tlim || iterDep >= MaxDepth ||
                 iterDep >= 2*(INF-bestScore)-1 || iterDep >= 2*(bestScore+INF)) {
                 // in root, stop deepening if time (or depth) used up
                 gameMove = moveStack[bestMove]; // return best move
@@ -1178,8 +1176,8 @@ void OnOpponentMove(const char *line)
     int m;
 
     /* command not recognized, assume input move */
-    m = (line[0]<'a') | (line[0]>'i') | (line[1]<'0') | (line[1]>'9') |
-        (line[2]<'a') | (line[2]>'i') | (line[3]<'0') | (line[3]>'9');
+    m = line[0]<'a' | line[0]>'i' | line[1]<'0' | line[1]>'9' |
+        line[2]<'a' | line[2]>'i' | line[3]<'0' | line[3]>'9';
     {const char *c=line;  gameMove.u.from=c[0]-'a'+20*(c[1]-'0');
                     gameMove.u.to  =c[2]-'a'+20*(c[3]-'0');}
     if (m)
@@ -1196,7 +1194,7 @@ const char *GenerateNextMove()
     /* determine time to sepend on next move */
     Ticks = GetTickCount();
     m = MovesLeft<=0 ? 40 : MovesLeft;
-    tlim = (int) 0.5*(TimeLeft+(m-1)*TimeInc)/(m+7);
+    tlim = 0.5*(TimeLeft+(m-1)*TimeInc)/(m+7);
     if(10*tlim > TimeLeft) tlim = TimeLeft/10;
     tlim2 = 2*tlim;
 
