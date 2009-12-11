@@ -383,6 +383,7 @@ MyApp::_LoadAppOptions()
     m_options["sound"] = m_config->Read("/Options/sound", "1");
     m_options["welcome"] = m_config->Read("/Options/welcome", "1");
     m_options["showTables"] = m_config->Read("/Options/showTables", "1");
+    m_options["moveMode"] = m_config->Read("/Options/moveMode", "0");
     m_options["defaultAI"] = m_config->Read("/Options/defaultAI", "");
     m_options["optionsPage"] = m_config->Read("/Options/optionsPage", "0");
 
@@ -406,6 +407,7 @@ MyApp::_SaveAppOptions()
     m_config->Write("/Options/sound", m_options["sound"]);
     m_config->Write("/Options/welcome", m_options["welcome"]);
     m_config->Write("/Options/showTables", m_options["showTables"]);
+    m_config->Write("/Options/moveMode", m_options["moveMode"]);
     m_config->Write("/Options/defaultAI", m_options["defaultAI"]);
     m_config->Write("/Options/optionsPage", m_options["optionsPage"]);
     m_config->Write("/Board/Image/path", m_options["/Board/Image/path"]);

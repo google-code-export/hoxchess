@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-12-08 09:59-0800\n"
-"PO-Revision-Date: 2009-12-08 10:37-0800\n"
+"POT-Creation-Date: 2009-12-10 19:30-0800\n"
+"PO-Revision-Date: 2009-12-10 19:31-0800\n"
 "Last-Translator: Huy Phan <huyphan@playxiangqi.com>\n"
 "Language-Team: PlayXiangqi <huyphan@playxiangqi.com>\n"
 "MIME-Version: 1.0\n"
@@ -22,7 +22,7 @@ msgstr ""
 "X-Poedit-SearchPath-0: C:\\Users\\HPhan\\Documents\\CChess\\hox_Project\\hox_Client\n"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxAIPluginMgr.cpp:194
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:369
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:379
 msgid "There is no AI Engine available."
 msgstr "Il n'ya pas de AI disponibles."
 
@@ -88,7 +88,7 @@ msgid "Unsit"
 msgstr "Quitter le siège"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1146
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1450
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1456
 msgid "Activities"
 msgstr "Activités"
 
@@ -96,7 +96,7 @@ msgstr "Activités"
 msgid "Messages"
 msgstr "Messages"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1451
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1457
 msgid "AI Settings"
 msgstr "AI Paramètres"
 
@@ -124,11 +124,11 @@ msgstr "Un Message du Player [%s]"
 msgid "Player Information"
 msgstr "Information du Player"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxCoreBoard.cpp:490
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxCoreBoard.cpp:488
 msgid "Move is not valid."
 msgstr "Move n'est pas valide."
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxCoreBoard.cpp:979
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxCoreBoard.cpp:1088
 msgid "Game Over"
 msgstr "Game Over"
 
@@ -247,80 +247,92 @@ msgstr "&Enregistrer Options"
 msgid "&Cancel"
 msgstr "&Annuler"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:152
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:154
 msgid "General"
 msgstr "Général"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:155
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:157
 msgid "Enable &Sounds"
 msgstr "Activer les sons"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:159
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:161
 msgid "Show &Welcome Dialog at startup"
 msgstr "Afficher le message de bienvenue au commencement"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:163
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:165
 msgid "Show List of &Tables at login"
 msgstr "Afficher la liste des tables au commencement"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:167
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:170
+msgid "&Drag and Drop"
+msgstr "&Drag and Drop"
+
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:171
+msgid "&Click and Click"
+msgstr "&Click et Click"
+
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:172
+msgid "Move Mode"
+msgstr "Mode Déplacer"
+
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:176
 msgid "Language"
 msgstr "Langue"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:170
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:179
 msgid "Current Language:"
 msgstr "Langue courante:"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:177
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:186
 msgid "Main"
 msgstr "Principal"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:185
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:227
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:194
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:236
 msgid "Board"
 msgstr "Échiquier"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:199
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:208
 msgid "Background:"
 msgstr "Arrière-plan:"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:207
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:216
 msgid "Foreground:"
 msgstr "Premier-plan:"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:213
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:222
 msgid "Pieces"
 msgstr "Pièces"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:220
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:229
 msgid "Preview"
 msgstr "Preview"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:233
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:242
 msgid "Artificial Intelligence"
 msgstr "Intelligence Artificielle"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:238
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:247
 msgid "Default Engine:"
 msgstr "AI courante:"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:245
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:254
 msgid "AI"
 msgstr "AI"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:336
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:346
 msgid "(Custom)"
 msgstr "(Personnalisée)"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:352
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:362
 msgid "There is no Piece-Set available."
 msgstr "Chess-pièce ne sont pas disponibles"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:353
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:363
 msgid "Piece-Set Selection"
 msgstr "Pieces sélection"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:370
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.cpp:380
 msgid "AI Selection"
 msgstr "AI sélection"
 
@@ -353,25 +365,25 @@ msgstr "De dialogue de progression"
 msgid "Wait until connection is established or press [Cancel]"
 msgstr "Attendez que la connexion réseau est établie ou appuyez sur [Annuler]"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:348
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:349
 msgid "No AI Plugin found."
 msgstr "AI est introuvable."
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:348
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:434
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:440
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:349
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:435
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:441
 msgid "Create Practice Table"
 msgstr "Créer Pratique Tableau"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:522
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:523
 msgid "Login failure"
 msgstr "Login Erreur"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:648
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:649
 msgid "List of Tables"
 msgstr "Liste des Tableaux"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:1018
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:1019
 msgid "LOCAL_USER"
 msgstr "Vous"
 
@@ -650,11 +662,11 @@ msgstr "&Outils"
 msgid "&Help"
 msgstr "&Aide"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:707
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:709
 msgid "You must restart the program for this change to take effect"
 msgstr "Vous devez redémarrer le programme pour que cette modification prendra effet"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:708
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:710
 msgid "Required Action"
 msgstr "Action requise"
 
@@ -662,7 +674,7 @@ msgstr "Action requise"
 msgid "Login to a remote server"
 msgstr "Connexion a un serveur distant"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.h:58
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionsUI.h:59
 msgid "Options"
 msgstr "Options"
 

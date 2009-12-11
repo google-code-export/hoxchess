@@ -134,6 +134,12 @@ hoxCoreBoard::SetFgColor( wxColor color )
 }
 
 void
+hoxCoreBoard::SetMoveMode( const hoxMoveMode moveMode )
+{
+    m_moveMode = moveMode;
+}
+
+void
 hoxCoreBoard::Repaint()
 {
     wxClientDC dc(this);
