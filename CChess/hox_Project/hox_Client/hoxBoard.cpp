@@ -1209,6 +1209,12 @@ hoxBoard::SetPiecesPath( const wxString& piecesPath )
 }
 
 void
+hoxBoard::SetMoveMode( const hoxMoveMode moveMode )
+{
+    m_coreBoard->SetMoveMode( moveMode );
+}
+
+void
 hoxBoard::Repaint()
 {
     m_coreBoard->Repaint();

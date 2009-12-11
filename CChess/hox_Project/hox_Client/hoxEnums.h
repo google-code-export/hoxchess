@@ -236,8 +236,11 @@ enum hoxGameType
  */
 enum hoxMoveMode
 {
-    hoxMOVE_MODE_DRAG_N_DROP,
-    hoxMOVE_MODE_CLICK_N_CLICK,
+   /*
+    * !!! Do not change the values the following !!!
+    */
+    hoxMOVE_MODE_DRAG_N_DROP   = 0,
+    hoxMOVE_MODE_CLICK_N_CLICK = 1
 };
 
 /**

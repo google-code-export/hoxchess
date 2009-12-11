@@ -676,6 +676,7 @@ MyFrame::OnOptions( wxCommandEvent& event )
     dlg.m_bSound       = (wxGetApp().GetOption("sound") == "1");
     dlg.m_bWelcome     = (wxGetApp().GetOption("welcome") == "1");
     dlg.m_bTables      = (wxGetApp().GetOption("showTables") == "1");
+    dlg.m_nModeMode    = ::atoi(wxGetApp().GetOption("moveMode").c_str());
     dlg.m_language     = wxGetApp().GetCurrentLanguage();
     dlg.m_sBoardImage  = wxGetApp().GetOption("/Board/Image/path");
     dlg.m_sBgColor     = wxGetApp().GetOption("/Board/Color/background");
@@ -700,6 +701,7 @@ MyFrame::OnOptions( wxCommandEvent& event )
 
     wxGetApp().SetOption( "welcome", dlg.m_bWelcome ? "1" : "0" );
     wxGetApp().SetOption( "showTables", dlg.m_bTables ? "1" : "0" );
+    wxGetApp().SetOption( "moveMode", wxString::Format("%d", dlg.m_nModeMode) );
 
     if ( dlg.m_language != wxGetApp().GetCurrentLanguage() )
     {
@@ -731,6 +733,7 @@ MyFrame::OnOptions( wxCommandEvent& event )
             pBoardUI->SetBgColor( wxColor(dlg.m_sBgColor) );
             pBoardUI->SetFgColor( wxColor(dlg.m_sFgColor) );
             pBoardUI->SetPiecesPath( dlg.m_sPiece );
+            pBoardUI->SetMoveMode( (hoxMoveMode) dlg.m_nModeMode );
             pBoardUI->Repaint();
         }
     }

@@ -288,6 +288,7 @@ hoxSite::CreateNewTableWithGUI( const hoxNetworkTableInfo& tableInfo,
     }
     pBoard->ShowUI();
     pBoard->EnableSound( wxGetApp().GetOption("sound") == "1" );
+    pBoard->SetMoveMode( (hoxMoveMode) ::atoi(wxGetApp().GetOption("moveMode").c_str()) );
 
     pTable->SetBoard( pBoard );
     childFrame->SetTable( pTable );

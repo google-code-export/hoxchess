@@ -189,6 +189,7 @@ public:
     void SetBgColor( wxColor color ); // Set Board's Background Color
     void SetFgColor( wxColor color ); // Set Board's Foreground Color
     void SetPiecesPath( const wxString& piecesPath );
+    void SetMoveMode( const hoxMoveMode moveMode ); 
     void Repaint(); // Paint again using the current settings.
 
     void ShowUI();

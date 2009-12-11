@@ -42,6 +42,7 @@ class wxColourPickerCtrl;
 #define ID_CHECKBOX_SOUND 10003
 #define ID_CHECKBOX_WELCOME 10004
 #define ID_CHECKBOX_LIST_ON_LOGIN 10001
+#define ID_RADIOBOX_MOVE_MODE 10017
 #define ID_STATIC_TEXT_LANG 10005
 #define ID_CHOICE_LANGUAGE 10006
 #define ID_OPTIONS_BOARD 10007
@@ -140,6 +141,7 @@ public:
 
 ////@begin hoxOptionsUI member variables
     wxCheckBox* m_checkBoxSound;
+    wxRadioBox* m_radioMoveMode;
     wxChoice* m_choiceLanguage;
     wxListBox* m_boardImageList;
     wxColourPickerCtrl* m_colorPickerBackground;
@@ -151,6 +153,7 @@ public:
     bool m_bSound;
     bool m_bWelcome;
     bool m_bTables;
+    int m_nModeMode;
 ////@end hoxOptionsUI member variables
 
 private:
