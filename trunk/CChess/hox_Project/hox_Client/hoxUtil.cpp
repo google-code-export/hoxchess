@@ -29,10 +29,7 @@
 #include "hoxReferee.h"
 #include <wx/tokenzr.h>
 #include <wx/textfile.h>
-
-#ifdef __WXMAC__
-    #include <wx/stdpaths.h>
-#endif
+#include <wx/stdpaths.h>
 
 using namespace hoxUtil;
 
@@ -84,7 +81,7 @@ hoxUtil::GetPath( const hoxResourceType rType )
     wxLogDebug("%s: wxStandardPaths::Get().GetDataDir() = [%s].", __FUNCTION__, base.c_str());
     prefix = "";
 #else
-    base = "..";
+    base = ::wxPathOnly(wxStandardPaths::Get().GetExecutablePath()) + "/..";
     prefix = "/resource";
 #endif
 
