@@ -87,7 +87,6 @@ public:
                                 const hoxColor  requestColor) {}
 
     virtual void JoinLocalPlayerToTable(const hoxNetworkTableInfo& tableInfo) {}
-    virtual void DisplayListOfTables(const hoxNetworkTableInfoList& tableList) {}
 
     virtual void OnResponse_LOGIN( const hoxResponse_APtr& response ) {}
 
@@ -122,6 +121,8 @@ public:
                                    const int             nPlayerScore,
                                    const hoxPlayerStatus playerStatus = hoxPLAYER_STATUS_UNKNOWN );
     virtual void OnPlayerLoggedOut( const wxString& sPlayerId );
+
+    virtual void OnListOfTablesReceived(const hoxNetworkTableInfoList& tableList) {}
 
     /**
      * Update the score of an ONLINE Player.
@@ -253,7 +254,6 @@ public:
                                 const hoxColor  requestColor);
 
 	virtual void JoinLocalPlayerToTable(const hoxNetworkTableInfo& tableInfo);
-    virtual void DisplayListOfTables(const hoxNetworkTableInfoList& tableList);
 
 	virtual void OnShutdownReadyFromLocalPlayer();
 
@@ -262,6 +262,8 @@ public:
 	virtual unsigned int GetCurrentActionFlags() const;
 
     virtual void OnResponse_LOGIN( const hoxResponse_APtr& response );
+
+    virtual void OnListOfTablesReceived(const hoxNetworkTableInfoList& tableList);
 
     /*************************************************
      * Implement hoxPlayersUI::UIOwner 's interface.
@@ -272,6 +274,9 @@ public:
 
     virtual void OnLocalRequest_JOIN( const wxString& sTableId );
     virtual void OnLocalRequest_NEW();
+
+protected:
+    virtual void DisplayListOfTables(const hoxNetworkTableInfoList& tableList);
 
 private:
     /* This pointer exists solely for the purpose of handling the case
@@ -296,6 +301,8 @@ public:
 
     virtual void OnLocalRequest_JOIN( const wxString& sTableId );
     virtual void OnLocalRequest_NEW();
+
+    virtual void OnListOfTablesReceived(const hoxNetworkTableInfoList& tableList);
 
 protected:
     virtual unsigned int GetBoardFeatureFlags() const;

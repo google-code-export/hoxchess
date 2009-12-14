@@ -94,7 +94,7 @@ hoxChesscapePlayer::QueryForNetworkTables()
 		tableList.push_back( (*it) );
 	}
 	
-    m_site->DisplayListOfTables( tableList );
+    m_site->OnListOfTablesReceived( tableList );
     return hoxRC_OK;
 }
 
@@ -149,7 +149,7 @@ hoxChesscapePlayer::OnRequest_FromTable( hoxRequest_APtr apRequest )
         case hoxREQUEST_RESIGN:
         {
             const wxString tableId = apRequest->parameters["tid"];
-	        hoxTable_SPtr pTable = this->GetSite()->FindTable( tableId );
+	        hoxTable_SPtr pTable = m_site->FindTable( tableId );
             wxCHECK_RET(pTable.get() != NULL, "Table not found");
 
             const hoxColor myRole = pTable->GetPlayerRole( this->GetId() );
@@ -164,7 +164,7 @@ hoxChesscapePlayer::OnRequest_FromTable( hoxRequest_APtr apRequest )
 	        /* Send the current color (role) along with the new timers.
 	         */
             const wxString tableId = apRequest->parameters["tid"];
-	        hoxTable_SPtr pTable = this->GetSite()->FindTable( tableId );
+	        hoxTable_SPtr pTable = m_site->FindTable( tableId );
             wxCHECK_RET(pTable.get() != NULL, "Table not found");
 
             hoxColor myRole = pTable->GetPlayerRole( this->GetId() );
@@ -1148,7 +1148,7 @@ hoxChesscapePlayer::_HandleCmd_UpdateStatus( const wxString& cmdStr )
 	{
         m_playerStatus = playerStatus;
 	}
-    this->GetSite()->UpdateStatusOfOnlinePlayer( sPlayerId, playerStatus );
+    m_site->UpdateStatusOfOnlinePlayer( sPlayerId, playerStatus );
 }
 
 void 

@@ -525,6 +525,45 @@ hoxRemoteSite::OnResponse_LOGIN( const hoxResponse_APtr& response )
 }
 
 void
+hoxRemoteSite::OnListOfTablesReceived( const hoxNetworkTableInfoList& tableList )
+{
+    /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     * NOTE: Implement a temporary ("better-than-none") solution that show
+     *       the player-status in the Player-List window.
+     * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
+
+    std::set<wxString> observers;
+    for ( hoxPlayerInfoMap::const_iterator it = m_onlinePlayers.begin();
+                                           it != m_onlinePlayers.end(); ++it )
+    {
+        observers.insert(it->first);
+    }
+
+    for ( hoxNetworkTableInfoList::const_iterator it = tableList.begin(); 
+                                                  it != tableList.end(); ++it )
+    {
+        if ( ! it->redId.empty() )
+        {
+            m_playersUI->UpdateStatus( it->redId, hoxPLAYER_STATUS_PLAYING );
+            observers.erase(it->redId);
+        }
+        if ( ! it->blackId.empty() )
+        {
+            m_playersUI->UpdateStatus( it->blackId, hoxPLAYER_STATUS_PLAYING );
+            observers.erase(it->blackId);
+        }
+    }
+
+    for ( std::set<wxString>::const_iterator it = observers.begin();
+                                             it != observers.end(); ++it )
+    {
+        m_playersUI->UpdateStatus( *it, hoxPLAYER_STATUS_OBSERVING );
+    }
+
+    this->DisplayListOfTables(tableList);
+}
+
+void
 hoxRemoteSite::OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
                                  const wxString&         sPlayerId )
 {
@@ -934,6 +973,12 @@ hoxChesscapeSite::OnLocalRequest_NEW()
     }
 
     this->hoxRemoteSite::OnLocalRequest_NEW();
+}
+
+void
+hoxChesscapeSite::OnListOfTablesReceived( const hoxNetworkTableInfoList& tableList )
+{
+    this->DisplayListOfTables(tableList);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -311,13 +311,11 @@ hoxMyPlayer::_HandleEvent_LIST( const wxString& sContent )
 
 	while ( tkz.HasMoreTokens() )
 	{
-        const wxString token = tkz.GetNextToken();
-
-        _ParseNetworkTable(token, tableInfo);
+        _ParseNetworkTable(tkz.GetNextToken(), tableInfo);
 		tableList.push_back( tableInfo );
     }
 
-    m_site->DisplayListOfTables( tableList );
+    m_site->OnListOfTablesReceived( tableList );
 }
 
 void
