@@ -135,8 +135,6 @@ private:
     wxLanguage          m_language;
     wxLocale            m_locale;   // The locale we will be using.
 
-    friend class MyFrame;
-
     DECLARE_EVENT_TABLE()
 };
 
