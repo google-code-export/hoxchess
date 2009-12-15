@@ -119,6 +119,7 @@
 		AFD3DA690FED44BD00A0D159 /* hoxchess.icns in Resources */ = {isa = PBXBuildFile; fileRef = AFD3DA680FED44BD00A0D159 /* hoxchess.icns */; };
 		AFF0F7D4100A3DA8001AB6AB /* preferences-system.png in Copy Files (images) */ = {isa = PBXBuildFile; fileRef = AFF0F7D0100A3CE0001AB6AB /* preferences-system.png */; };
 		AFF0F7D5100A3DB3001AB6AB /* edit-clear.png in Copy Files (images) */ = {isa = PBXBuildFile; fileRef = AFF0F7D1100A3CE0001AB6AB /* edit-clear.png */; };
+		AFF4273910D826B2009C3D41 /* hoxChatPanel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFF4273810D826B2009C3D41 /* hoxChatPanel.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -450,6 +451,8 @@
 		AFD3DA680FED44BD00A0D159 /* hoxchess.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = hoxchess.icns; path = resource/icons/hoxchess.icns; sourceTree = "<group>"; };
 		AFF0F7D0100A3CE0001AB6AB /* preferences-system.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "preferences-system.png"; path = "resource/images/preferences-system.png"; sourceTree = "<group>"; };
 		AFF0F7D1100A3CE0001AB6AB /* edit-clear.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "edit-clear.png"; path = "resource/images/edit-clear.png"; sourceTree = "<group>"; };
+		AFF4273710D826B2009C3D41 /* hoxChatPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxChatPanel.h; path = hox_Client/hoxChatPanel.h; sourceTree = "<group>"; };
+		AFF4273810D826B2009C3D41 /* hoxChatPanel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxChatPanel.cpp; path = hox_Client/hoxChatPanel.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -487,6 +490,8 @@
 		20286C2AFDCF999611CA2CEA /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				AFF4273710D826B2009C3D41 /* hoxChatPanel.h */,
+				AFF4273810D826B2009C3D41 /* hoxChatPanel.cpp */,
 				AFCBA7EA0FF7FF1700787308 /* hoxAsyncSocket.cpp */,
 				AFCBA7EB0FF7FF1700787308 /* hoxAsyncSocket.h */,
 				AFCBA7EC0FF7FF1700787308 /* hoxCheckUpdatesUI.cpp */,
@@ -855,6 +860,7 @@
 				AF4839540FA27BAD00F734C4 /* MyFrame.cpp in Sources */,
 				AFCBA7EE0FF7FF1700787308 /* hoxAsyncSocket.cpp in Sources */,
 				AFCBA7EF0FF7FF1700787308 /* hoxCheckUpdatesUI.cpp in Sources */,
+				AFF4273910D826B2009C3D41 /* hoxChatPanel.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
