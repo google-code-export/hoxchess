@@ -1097,16 +1097,19 @@ hoxChesscapePlayer::_HandleMsg( const wxString& cmdStr,
 	const wxString message = cmdStr.AfterFirst(' ').BeforeFirst(0x10);
 
     hoxTable_SPtr pTable = _GetMyTable();
-    if ( pTable )
+    if ( ! bPublic )
     {
-        pTable->OnMessage_FromNetwork( whoSent, message, bPublic );
+        this->OnPrivateMessageReceived( whoSent, message );
+    }
+    else if ( pTable )
+    {
+        pTable->OnMessage_FromNetwork( whoSent, message );
     }
     else
     {
-        ::wxMessageBox(
-            message,
-            wxString::Format(_("A Message from Player [%s]"), whoSent.c_str()),
-            wxOK | wxICON_INFORMATION );
+        ::wxMessageBox( message,
+            wxString::Format(_("Message from Player [%s]"), whoSent.c_str()),
+            wxOK|wxICON_INFORMATION );
     }
 }
 

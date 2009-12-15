@@ -35,10 +35,10 @@
 #include "hoxTypes.h"
 #include "hoxCoreBoard.h"
 #include "hoxPlayersUI.h"
+#include "hoxChatPanel.h"
 #include <wx/sound.h>
 
 /* Forward declarations. */
-class hoxWallOutput;
 class hoxAISettings;
 
 /** 
@@ -317,8 +317,7 @@ protected:
     hoxPlayersUI*     m_playerListBox;
 
     hoxWallOutput*    m_systemOutput;
-    hoxWallOutput*    m_wallOutput;
-    wxTextCtrl*       m_wallInput;
+    hoxChatPanel*     m_chatPanel;
 
     /* UI-Layout variables. */
 
