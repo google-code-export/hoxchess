@@ -583,7 +583,7 @@ hoxRemoteSite::OnPlayersUIEvent( hoxPlayersUI::EventType eventType,
         }
         case hoxPlayersUI::EVENT_TYPE_MSG:
         {
-            m_player->SendPrivateMessage( sPlayerId );
+            m_player->CreatePrivateChatWith( sPlayerId );
             break;
         }
         default:

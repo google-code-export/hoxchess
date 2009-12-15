@@ -31,6 +31,8 @@
 #include "hoxPlayer.h"
 #include "hoxTypes.h"
 
+class hoxChatWindow;
+
 /**
  * The LOCAL player.
  */
@@ -68,13 +70,21 @@ public:
 
     virtual hoxResult QueryPlayerInfo( const wxString& sInfoId );
     virtual hoxResult InvitePlayer( const wxString& sInviteeId );
-    virtual hoxResult SendPrivateMessage( const wxString& sOtherId );
+    virtual hoxResult SendPrivateMessage( const wxString& sOtherId,
+                                          const wxString& message );
+
+    virtual void CreatePrivateChatWith( const wxString& sOtherId );
+    virtual void OnPrivateMessageReceived( const wxString& senderId,
+                                           const wxString& message );
+    virtual void OnPrivateChatWindowClosed();
 
 private:
 	bool            m_bRequestingLogout;
 			/* Whether this Player is LOGOUT-ing from the server.
              * This state is needed to avoid sending LOGOUT twice.
              */
+
+    hoxChatWindow*  m_chatWindow;
 
     DECLARE_DYNAMIC_CLASS(hoxLocalPlayer)
 	DECLARE_EVENT_TABLE()

@@ -358,7 +358,8 @@ enum hoxRequestType
 enum hoxUI_ID_Range
 {
     hoxUI_ID_RANGE_FRAME = wxID_HIGHEST + 100,
-	hoxUI_ID_RANGE_BOARD = wxID_HIGHEST + 200
+	hoxUI_ID_RANGE_BOARD = wxID_HIGHEST + 200,
+    hoxUI_ID_RANGE_CHAT  = wxID_HIGHEST + 300
 };
 
 

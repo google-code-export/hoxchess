@@ -129,9 +129,6 @@ hoxTable::OnMessage_FromBoard( const wxString& message )
 {
     wxCHECK_RET(m_boardPlayer, "The Board Player cannot be NULL.");
 
-    /* Post the message on the Wall-Output of the "local" Board. */
-    _PostBoard_MessageEvent( message, m_boardPlayer->GetId() );
-
     /* Inform the Board's Onwer. */
 	hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_MSG ) );
 	apRequest->parameters["tid"] = m_id;
@@ -302,7 +299,7 @@ void
 hoxTable::OnPrivateMessageRequest_FromBoard( const wxString& sPlayerId )
 {
     wxCHECK_RET(m_boardPlayer, "The Board Player cannot be NULL.");
-    m_boardPlayer->SendPrivateMessage( sPlayerId );
+    m_boardPlayer->CreatePrivateChatWith( sPlayerId );
 }
 
 void 

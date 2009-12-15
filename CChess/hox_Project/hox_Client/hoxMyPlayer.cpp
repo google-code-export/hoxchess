@@ -454,17 +454,19 @@ hoxMyPlayer::_HandleEvent_MSG( const wxString&      sTableId,
         pReceiveTable = this->GetActiveTable();
     }
 
-    if ( pReceiveTable )
+    if ( ! bPublic )
     {
-        pReceiveTable->OnMessage_FromNetwork( senderId, message, bPublic );
+        this->OnPrivateMessageReceived( senderId, message );
+    }
+    else if ( pReceiveTable )
+    {
+        pReceiveTable->OnMessage_FromNetwork( senderId, message );
     }
     else
     {
-        const wxString sCaption =
-            (   bPublic ? _("Message from Player")
-                        : wxString::Format( _("A private message from [%s]"),
-                                            senderId.c_str()) );
-        ::wxMessageBox( message, sCaption, wxOK|wxICON_INFORMATION );
+        ::wxMessageBox( message,
+            wxString::Format(_("Message from Player [%s]"), senderId.c_str()),
+            wxOK|wxICON_INFORMATION );
     }
 }
 

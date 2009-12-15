@@ -29,6 +29,8 @@
 #include "hoxConnection.h"
 #include "hoxUtil.h"
 #include "hoxTable.h"
+#include "hoxChatPanel.h"
+#include "MyApp.h"
 
 IMPLEMENT_DYNAMIC_CLASS(hoxLocalPlayer, hoxPlayer)
 
@@ -45,6 +47,7 @@ hoxLocalPlayer::hoxLocalPlayer( const wxString& name,
                                 int             score )
             : hoxPlayer( name, type, score )
             , m_bRequestingLogout( false )
+            , m_chatWindow( NULL )
 { 
     wxLogDebug("%s: ENTER.", __FUNCTION__);
 }
@@ -181,20 +184,9 @@ hoxLocalPlayer::InvitePlayer( const wxString& sInviteeId )
 }
 
 hoxResult
-hoxLocalPlayer::SendPrivateMessage( const wxString& sOtherId )
+hoxLocalPlayer::SendPrivateMessage( const wxString& sOtherId,
+                                    const wxString& message )
 {
-    wxString message; // The message to be sent.
-
-    /* Ask for the message. */
-    ::wxTextEntryDialog dialog(
-        NULL, /* parent */
-        wxString::Format( _("Enter your message for [%s]:"),
-                          sOtherId.c_str()),
-        _("Send a private message") );
-    if ( dialog.ShowModal() != wxID_OK ) return hoxRC_OK;
-    message = dialog.GetValue();
-
-    /* Send the mesage. */
     hoxRequest_APtr apRequest( new hoxRequest( hoxREQUEST_MSG ) );
 	apRequest->parameters["pid"] = this->GetId();  // Sender
     apRequest->parameters["oid"] = sOtherId;   // Receiver
@@ -202,6 +194,35 @@ hoxLocalPlayer::SendPrivateMessage( const wxString& sOtherId )
 
     this->AddRequestToConnection( apRequest );
     return hoxRC_OK;
+}
+
+void
+hoxLocalPlayer::CreatePrivateChatWith( const wxString& sOtherId )
+{
+    if ( m_chatWindow == NULL )
+    {
+        const wxString sTitle = wxString::Format(_("Private Chat (%s)"), sOtherId.c_str());
+        m_chatWindow = new hoxChatWindow( wxGetApp().GetFrame(), sTitle,
+                                          this, sOtherId );
+    }
+    m_chatWindow->Show();
+}
+
+void
+hoxLocalPlayer::OnPrivateMessageReceived( const wxString& senderId,
+                                          const wxString& message )
+{
+    if ( m_chatWindow == NULL )
+    {
+        this->CreatePrivateChatWith( senderId );
+    }
+    m_chatWindow->OnMessageFrom( senderId, message );
+}
+
+void
+hoxLocalPlayer::OnPrivateChatWindowClosed()
+{
+    m_chatWindow = NULL;
 }
 
 /************************* END OF FILE ***************************************/
