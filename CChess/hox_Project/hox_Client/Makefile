@@ -27,7 +27,8 @@ DEBUGFLAGS  =
 #WX_LDLIBS   = $(shell wx-config --libs --debug=yes)
 #DEBUGFLAGS  = -g
 
-CXXFLAGS = $(WX_CXXFLAGS) -I../lib/boost_1_41_0 -I../lib/asio-1.4.1/include
+#CXXFLAGS = $(WX_CXXFLAGS) -I../lib/boost_1_41_0 -I../lib/asio-1.4.1/include
+CXXFLAGS = $(WX_CXXFLAGS)
 LDFLAGS     = -pthread
 
 # The main source
