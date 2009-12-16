@@ -199,11 +199,15 @@ hoxWallOutput::AppendMessage( const wxString& who,
 {
     if ( !who.empty() )
     {
-        m_wall->SetDefaultStyle( wxTextAttr(*wxBLACK) );
-        m_wall->AppendText( wxString::Format("[%s] ", who.c_str()) );
+        wxTextAttr newStyle( bPrivate ? *wxBLUE : *wxBLACK );
+        newStyle.SetFontWeight( wxFONTWEIGHT_BOLD );
+        m_wall->SetDefaultStyle( newStyle );
+        m_wall->AppendText( who + ": " );
+        newStyle.SetFontWeight( wxFONTWEIGHT_NORMAL );
+        m_wall->SetDefaultStyle( newStyle );
     }
-    m_wall->SetDefaultStyle( wxTextAttr( bPrivate ? *wxRED : *wxBLUE ) );
-    const wxString displayMsg = wxString::Format("%s\n", sMessage.c_str());
+    m_wall->SetDefaultStyle( wxTextAttr(*wxBLACK) );
+    const wxString displayMsg = sMessage + "\n";
 
     /* NOTE:
      *    Make sure that the last line is at the bottom of the wxTextCtrl
@@ -216,7 +220,7 @@ hoxWallOutput::AppendMessage( const wxString& who,
      * hoops to get this working.
      */
  
-    // Count number of newlines (i.e lines)
+    // Count number of lines.
     int lines = 0;
     for ( wxString::const_iterator it = displayMsg.begin();
                                    it != displayMsg.end(); ++it )

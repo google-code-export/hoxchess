@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-12-10 19:30-0800\n"
-"PO-Revision-Date: 2009-12-10 19:31-0800\n"
+"POT-Creation-Date: 2009-12-16 07:57-0800\n"
+"PO-Revision-Date: 2009-12-16 07:58-0800\n"
 "Last-Translator: Huy Phan <huyphan@playxiangqi.com>\n"
 "Language-Team: PlayXiangqi <huyphan@playxiangqi.com>\n"
 "MIME-Version: 1.0\n"
@@ -30,75 +30,76 @@ msgstr "Il n'ya pas de AI disponibles."
 msgid "AI Creation"
 msgstr "AI Création"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:147
-msgid "Clear All"
-msgstr "Effacer tout"
-
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:269
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:151
 msgid "Difficulty level:"
 msgstr "Niveau de difficulté:"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:279
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:161
 msgid "Author:"
 msgstr "Auteur:"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:289
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:171
 msgid "Play with yourself"
 msgstr "Jeu avec vous-même"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:321
-msgid "[Type your message here]"
-msgstr "[Tapez votre message ici]"
-
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:692
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:522
 msgid "Game Reset"
 msgstr "Game Reset"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:781
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1077
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:607
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:903
 msgid "Table settings"
 msgstr "Tableau des paramètres"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:974
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:800
 msgid "Play RED"
 msgstr "Jouer ROUGE"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:976
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:802
 msgid "Play BLACK"
 msgstr "Jouer NOIR"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1072
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:898
 msgid "Reverse view"
 msgstr "Reverse vue"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1082
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:908
 msgid "Reset table"
 msgstr "Réinitialiser le tableau"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1088
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:914
 msgid "Resign"
 msgstr "Abandonner"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1092
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:918
 msgid "Draw"
 msgstr "Match nul"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1096
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:922
 msgid "Unsit"
 msgstr "Quitter le siège"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1146
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1456
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:972
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1276
 msgid "Activities"
 msgstr "Activités"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1147
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:973
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxChatPanel.cpp:118
 msgid "Messages"
 msgstr "Messages"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1457
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1277
 msgid "AI Settings"
 msgstr "AI Paramètres"
+
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxChatPanel.cpp:186
+msgid "Clear All"
+msgstr "Effacer tout"
+
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxChatPanel.cpp:264
+msgid "[Type your message here]"
+msgstr "[Tapez votre message ici]"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxCheckUpdatesUI.cpp:214
 #, c-format
@@ -115,12 +116,13 @@ msgstr "La dernière version disponible sur GoogleCode: %s"
 msgid "Invitation from Player"
 msgstr "Invitation du Player"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxChesscapePlayer.cpp:1108
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxChesscapePlayer.cpp:1111
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxMyPlayer.cpp:468
 #, c-format
-msgid "A Message from Player [%s]"
+msgid "Message from Player [%s]"
 msgstr "Un Message du Player [%s]"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxChesscapePlayer.cpp:1176
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxChesscapePlayer.cpp:1179
 msgid "Player Information"
 msgstr "Information du Player"
 
@@ -132,14 +134,10 @@ msgstr "Move n'est pas valide."
 msgid "Game Over"
 msgstr "Game Over"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLocalPlayer.cpp:191
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLocalPlayer.cpp:204
 #, c-format
-msgid "Enter your message for [%s]:"
-msgstr "Entrez votre message pour [% s]:"
-
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLocalPlayer.cpp:193
-msgid "Send a private message"
-msgstr "Envoyer un message privé"
+msgid "Private Chat (%s)"
+msgstr "Chat privé (%s)"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLoginUI.cpp:211
 msgid "PlayXiangqi"
@@ -188,15 +186,6 @@ msgstr "&Connexion"
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLoginUI.cpp:278
 msgid "Cancel"
 msgstr "Annuler"
-
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxMyPlayer.cpp:466
-msgid "Message from Player"
-msgstr "Message du Player"
-
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxMyPlayer.cpp:467
-#, c-format
-msgid "A private message from [%s]"
-msgstr "Un message privé à partir de [%s]"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxMyPlayer.cpp:624
 #, c-format
@@ -357,7 +346,6 @@ msgid "&Message..."
 msgstr "&Message..."
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:225
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:237
 msgid "Progress dialog"
 msgstr "De dialogue de progression"
 
@@ -379,11 +367,11 @@ msgstr "Créer Pratique Tableau"
 msgid "Login failure"
 msgstr "Login Erreur"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:649
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:688
 msgid "List of Tables"
 msgstr "Liste des Tableaux"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:1019
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:1064
 msgid "LOCAL_USER"
 msgstr "Vous"
 
@@ -427,7 +415,7 @@ msgstr "&Rejoignez Table"
 msgid "&Close"
 msgstr "Fermer (&C)"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxUtil.cpp:55
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxUtil.cpp:52
 #, c-format
 msgid "Unknown piece-type: %d"
 msgstr "Piece est inconnu: %d"
@@ -678,7 +666,7 @@ msgstr "Connexion a un serveur distant"
 msgid "Options"
 msgstr "Options"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.h:215
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.h:216
 msgid "My Computer"
 msgstr "Mon ordinateur"
 
@@ -686,6 +674,14 @@ msgstr "Mon ordinateur"
 msgid "Getting Started"
 msgstr "Obtention commencée"
 
+#~ msgid "Enter your message for [%s]:"
+#~ msgstr "Entrez votre message pour [% s]:"
+#~ msgid "Send a private message"
+#~ msgstr "Envoyer un message privé"
+#~ msgid "Message from Player"
+#~ msgstr "Message du Player"
+#~ msgid "A private message from [%s]"
+#~ msgstr "Un message privé à partir de [%s]"
 #~ msgid "Connect to remote server"
 #~ msgstr "Connexion au serveur distant"
 #~ msgid "Disconnect from remote server"
