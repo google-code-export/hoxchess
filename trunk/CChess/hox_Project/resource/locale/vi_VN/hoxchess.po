@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.7.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-12-10 19:16-0800\n"
-"PO-Revision-Date: 2009-12-10 19:20-0800\n"
+"POT-Creation-Date: 2009-12-16 07:48-0800\n"
+"PO-Revision-Date: 2009-12-16 07:51-0800\n"
 "Last-Translator: Huy Phan <huyphan@playxiangqi.com>\n"
 "Language-Team: PlayXiangqi <huyphan@playxiangqi.com>\n"
 "MIME-Version: 1.0\n"
@@ -30,75 +30,76 @@ msgstr "Không tìm được AI"
 msgid "AI Creation"
 msgstr "Tạo AI"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:147
-msgid "Clear All"
-msgstr "Xoá Tất cả"
-
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:269
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:151
 msgid "Difficulty level:"
 msgstr "Mức độ khó khăn :"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:279
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:161
 msgid "Author:"
 msgstr "Tác giả:"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:289
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:171
 msgid "Play with yourself"
 msgstr "Chơi với chính mình"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:321
-msgid "[Type your message here]"
-msgstr "[Nhập thông điệp của bạn ở đây]"
-
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:692
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:522
 msgid "Game Reset"
 msgstr "Thiết lập lại bàn"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:781
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1077
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:607
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:903
 msgid "Table settings"
 msgstr "Cài đặt bàn"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:974
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:800
 msgid "Play RED"
 msgstr "Chơi ĐỎ"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:976
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:802
 msgid "Play BLACK"
 msgstr "Chơi ĐEN"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1072
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:898
 msgid "Reverse view"
 msgstr "Đổi cách nhìn"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1082
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:908
 msgid "Reset table"
 msgstr "Thiết lập lại bàn"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1088
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:914
 msgid "Resign"
 msgstr "Thua"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1092
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:918
 msgid "Draw"
 msgstr "Huề"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1096
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:922
 msgid "Unsit"
 msgstr "Không Ngồi"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1146
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1456
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:972
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1276
 msgid "Activities"
 msgstr "Hoạt động"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1147
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:973
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxChatPanel.cpp:118
 msgid "Messages"
 msgstr "Tin nhắn"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1457
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1277
 msgid "AI Settings"
 msgstr "AI Cài đặt"
+
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxChatPanel.cpp:186
+msgid "Clear All"
+msgstr "Xoá Tất cả"
+
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxChatPanel.cpp:264
+msgid "[Type your message here]"
+msgstr "[Nhập thông điệp của bạn ở đây]"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxCheckUpdatesUI.cpp:214
 #, c-format
@@ -115,12 +116,13 @@ msgstr "Phiên bản mới nhất hiện có trên GoogleCode: %s"
 msgid "Invitation from Player"
 msgstr "Lời mời từ người chơi"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxChesscapePlayer.cpp:1108
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxChesscapePlayer.cpp:1111
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxMyPlayer.cpp:468
 #, c-format
-msgid "A Message from Player [%s]"
+msgid "Message from Player [%s]"
 msgstr "Tin nhắn từ [%s]"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxChesscapePlayer.cpp:1176
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxChesscapePlayer.cpp:1179
 msgid "Player Information"
 msgstr "Thông tin người chơi"
 
@@ -132,14 +134,10 @@ msgstr "Nước đi không hợp lệ."
 msgid "Game Over"
 msgstr "Bàn đã xong"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLocalPlayer.cpp:191
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLocalPlayer.cpp:204
 #, c-format
-msgid "Enter your message for [%s]:"
-msgstr "Nhập vào thông điệp của bạn cho [%s]"
-
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLocalPlayer.cpp:193
-msgid "Send a private message"
-msgstr "Gửi một tin nhắn cá nhân"
+msgid "Private Chat (%s)"
+msgstr "Tin nhắn riêng (%s)"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLoginUI.cpp:211
 msgid "PlayXiangqi"
@@ -188,15 +186,6 @@ msgstr "&Nhập"
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxLoginUI.cpp:278
 msgid "Cancel"
 msgstr "Hủy bỏ"
-
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxMyPlayer.cpp:466
-msgid "Message from Player"
-msgstr "Tin nhắn từ người chơi"
-
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxMyPlayer.cpp:467
-#, c-format
-msgid "A private message from [%s]"
-msgstr "Tin nhắn riêng từ [%s]"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxMyPlayer.cpp:624
 #, c-format
@@ -357,7 +346,6 @@ msgid "&Message..."
 msgstr "&Tin nhắn..."
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:225
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/MyFrame.cpp:237
 msgid "Progress dialog"
 msgstr "Tiến trình hội thoại"
 
@@ -379,11 +367,11 @@ msgstr "Chơi với máy"
 msgid "Login failure"
 msgstr "Đăng nhập thất bại"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:649
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:688
 msgid "List of Tables"
 msgstr "Những bàn đang có"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:1019
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.cpp:1064
 msgid "LOCAL_USER"
 msgstr "Bạn"
 
@@ -427,7 +415,7 @@ msgstr "Nhập bàn (&J)"
 msgid "&Close"
 msgstr "Đóng lại"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxUtil.cpp:55
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxUtil.cpp:52
 #, c-format
 msgid "Unknown piece-type: %d"
 msgstr "Không biết về con cơ`: %d"
@@ -678,7 +666,7 @@ msgstr "Nhập vào máy chủ"
 msgid "Options"
 msgstr "Lựa Chọn"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.h:215
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxSite.h:216
 msgid "My Computer"
 msgstr "Máy của tôi"
 
@@ -686,6 +674,14 @@ msgstr "Máy của tôi"
 msgid "Getting Started"
 msgstr "Mõ đầu"
 
+#~ msgid "Enter your message for [%s]:"
+#~ msgstr "Nhập vào thông điệp của bạn cho [%s]"
+#~ msgid "Send a private message"
+#~ msgstr "Gửi một tin nhắn cá nhân"
+#~ msgid "Message from Player"
+#~ msgstr "Tin nhắn từ người chơi"
+#~ msgid "A private message from [%s]"
+#~ msgstr "Tin nhắn riêng từ [%s]"
 #~ msgid "Info of Player"
 #~ msgstr "Tin Tu'c"
 #~ msgid "Invite Player"
