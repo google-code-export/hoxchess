@@ -117,6 +117,8 @@
 		AFCBA7EE0FF7FF1700787308 /* hoxAsyncSocket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFCBA7EA0FF7FF1700787308 /* hoxAsyncSocket.cpp */; };
 		AFCBA7EF0FF7FF1700787308 /* hoxCheckUpdatesUI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFCBA7EC0FF7FF1700787308 /* hoxCheckUpdatesUI.cpp */; };
 		AFD3DA690FED44BD00A0D159 /* hoxchess.icns in Resources */ = {isa = PBXBuildFile; fileRef = AFD3DA680FED44BD00A0D159 /* hoxchess.icns */; };
+		AFE40BBD10DAA3F20000941B /* button_close.png in Resources */ = {isa = PBXBuildFile; fileRef = AFE40BBC10DAA3F20000941B /* button_close.png */; };
+		AFE40BBE10DAA41D0000941B /* button_close.png in Copy Files (images) */ = {isa = PBXBuildFile; fileRef = AFE40BBC10DAA3F20000941B /* button_close.png */; };
 		AFF0F7D4100A3DA8001AB6AB /* preferences-system.png in Copy Files (images) */ = {isa = PBXBuildFile; fileRef = AFF0F7D0100A3CE0001AB6AB /* preferences-system.png */; };
 		AFF0F7D5100A3DB3001AB6AB /* edit-clear.png in Copy Files (images) */ = {isa = PBXBuildFile; fileRef = AFF0F7D1100A3CE0001AB6AB /* edit-clear.png */; };
 		AFF4273910D826B2009C3D41 /* hoxChatPanel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFF4273810D826B2009C3D41 /* hoxChatPanel.cpp */; };
@@ -219,6 +221,7 @@
 				AF864A3C0FC3090D0034C83B /* speaker_mute.png in Copy Files (images) */,
 				AF864A3D0FC3090D0034C83B /* system-users.png in Copy Files (images) */,
 				AF864A3E0FC3090D0034C83B /* up.png in Copy Files (images) */,
+				AFE40BBE10DAA41D0000941B /* button_close.png in Copy Files (images) */,
 			);
 			name = "Copy Files (images)";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -449,6 +452,7 @@
 		AFCBA7EC0FF7FF1700787308 /* hoxCheckUpdatesUI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxCheckUpdatesUI.cpp; path = hox_Client/hoxCheckUpdatesUI.cpp; sourceTree = "<group>"; };
 		AFCBA7ED0FF7FF1700787308 /* hoxCheckUpdatesUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxCheckUpdatesUI.h; path = hox_Client/hoxCheckUpdatesUI.h; sourceTree = "<group>"; };
 		AFD3DA680FED44BD00A0D159 /* hoxchess.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = hoxchess.icns; path = resource/icons/hoxchess.icns; sourceTree = "<group>"; };
+		AFE40BBC10DAA3F20000941B /* button_close.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = button_close.png; path = resource/images/button_close.png; sourceTree = "<group>"; };
 		AFF0F7D0100A3CE0001AB6AB /* preferences-system.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "preferences-system.png"; path = "resource/images/preferences-system.png"; sourceTree = "<group>"; };
 		AFF0F7D1100A3CE0001AB6AB /* edit-clear.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "edit-clear.png"; path = "resource/images/edit-clear.png"; sourceTree = "<group>"; };
 		AFF4273710D826B2009C3D41 /* hoxChatPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxChatPanel.h; path = hox_Client/hoxChatPanel.h; sourceTree = "<group>"; };
@@ -693,6 +697,7 @@
 				AF864A310FC3090D0034C83B /* speaker_mute.png */,
 				AF864A320FC3090D0034C83B /* system-users.png */,
 				AF864A330FC3090D0034C83B /* up.png */,
+				AFE40BBC10DAA3F20000941B /* button_close.png */,
 			);
 			name = images;
 			sourceTree = "<group>";
@@ -818,6 +823,7 @@
 				8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */,
 				1DDD57E40DA1CFC700B32029 /* main.xib in Resources */,
 				AFD3DA690FED44BD00A0D159 /* hoxchess.icns in Resources */,
+				AFE40BBD10DAA3F20000941B /* button_close.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
