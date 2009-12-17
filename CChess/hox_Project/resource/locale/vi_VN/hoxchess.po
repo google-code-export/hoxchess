@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.7.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-12-16 07:48-0800\n"
-"PO-Revision-Date: 2009-12-16 07:51-0800\n"
+"POT-Creation-Date: 2009-12-17 14:56-0800\n"
+"PO-Revision-Date: 2009-12-17 14:57-0800\n"
 "Last-Translator: Huy Phan <huyphan@playxiangqi.com>\n"
 "Language-Team: PlayXiangqi <huyphan@playxiangqi.com>\n"
 "MIME-Version: 1.0\n"
@@ -30,66 +30,67 @@ msgstr "Không tìm được AI"
 msgid "AI Creation"
 msgstr "Tạo AI"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:151
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:152
 msgid "Difficulty level:"
 msgstr "Mức độ khó khăn :"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:161
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:162
 msgid "Author:"
 msgstr "Tác giả:"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:171
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:172
 msgid "Play with yourself"
 msgstr "Chơi với chính mình"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:522
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:523
 msgid "Game Reset"
 msgstr "Thiết lập lại bàn"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:607
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:903
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:904
 msgid "Table settings"
 msgstr "Cài đặt bàn"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:800
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:791
 msgid "Play RED"
 msgstr "Chơi ĐỎ"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:802
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:793
 msgid "Play BLACK"
 msgstr "Chơi ĐEN"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:898
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:797
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:801
+msgid "Leave"
+msgstr "Không Ngồi"
+
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:899
 msgid "Reverse view"
 msgstr "Đổi cách nhìn"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:908
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:909
 msgid "Reset table"
 msgstr "Thiết lập lại bàn"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:914
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:915
 msgid "Resign"
 msgstr "Thua"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:918
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:919
 msgid "Draw"
 msgstr "Huề"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:922
-msgid "Unsit"
-msgstr "Không Ngồi"
-
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:972
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1276
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:969
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1306
 msgid "Activities"
 msgstr "Hoạt động"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:973
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:970
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxChatPanel.cpp:118
 msgid "Messages"
 msgstr "Tin nhắn"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1277
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1307
 msgid "AI Settings"
 msgstr "AI Cài đặt"
 
@@ -229,7 +230,7 @@ msgstr ""
 "(giây)"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionDialog.cpp:110
-msgid "&Save Options"
+msgid "&Save Settings"
 msgstr "Lưu lại"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionDialog.cpp:111
@@ -674,6 +675,8 @@ msgstr "Máy của tôi"
 msgid "Getting Started"
 msgstr "Mõ đầu"
 
+#~ msgid "Unsit"
+#~ msgstr "Không Ngồi"
 #~ msgid "Enter your message for [%s]:"
 #~ msgstr "Nhập vào thông điệp của bạn cho [%s]"
 #~ msgid "Send a private message"

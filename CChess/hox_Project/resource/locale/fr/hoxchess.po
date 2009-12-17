@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-12-16 07:57-0800\n"
-"PO-Revision-Date: 2009-12-16 07:58-0800\n"
+"POT-Creation-Date: 2009-12-17 15:02-0800\n"
+"PO-Revision-Date: 2009-12-17 15:05-0800\n"
 "Last-Translator: Huy Phan <huyphan@playxiangqi.com>\n"
 "Language-Team: PlayXiangqi <huyphan@playxiangqi.com>\n"
 "MIME-Version: 1.0\n"
@@ -30,66 +30,67 @@ msgstr "Il n'ya pas de AI disponibles."
 msgid "AI Creation"
 msgstr "AI Création"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:151
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:152
 msgid "Difficulty level:"
 msgstr "Niveau de difficulté:"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:161
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:162
 msgid "Author:"
 msgstr "Auteur:"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:171
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:172
 msgid "Play with yourself"
 msgstr "Jeu avec vous-même"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:522
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:523
 msgid "Game Reset"
 msgstr "Game Reset"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:607
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:903
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:904
 msgid "Table settings"
 msgstr "Tableau des paramètres"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:800
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:791
 msgid "Play RED"
 msgstr "Jouer ROUGE"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:802
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:793
 msgid "Play BLACK"
 msgstr "Jouer NOIR"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:898
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:797
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:801
+msgid "Leave"
+msgstr "Laisser"
+
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:899
 msgid "Reverse view"
 msgstr "Reverse vue"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:908
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:909
 msgid "Reset table"
 msgstr "Réinitialiser le tableau"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:914
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:915
 msgid "Resign"
 msgstr "Abandonner"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:918
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:919
 msgid "Draw"
 msgstr "Match nul"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:922
-msgid "Unsit"
-msgstr "Quitter le siège"
-
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:972
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1276
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:969
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1306
 msgid "Activities"
 msgstr "Activités"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:973
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:970
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxChatPanel.cpp:118
 msgid "Messages"
 msgstr "Messages"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1277
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1307
 msgid "AI Settings"
 msgstr "AI Paramètres"
 
@@ -229,7 +230,7 @@ msgstr ""
 "(secondes)"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionDialog.cpp:110
-msgid "&Save Options"
+msgid "&Save Settings"
 msgstr "&Enregistrer Options"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionDialog.cpp:111
@@ -674,6 +675,8 @@ msgstr "Mon ordinateur"
 msgid "Getting Started"
 msgstr "Obtention commencée"
 
+#~ msgid "Unsit"
+#~ msgstr "Quitter le siège"
 #~ msgid "Enter your message for [%s]:"
 #~ msgstr "Entrez votre message pour [% s]:"
 #~ msgid "Send a private message"
