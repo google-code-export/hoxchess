@@ -107,7 +107,7 @@ hoxOptionDialog::hoxOptionDialog( wxWindow*           parent,
     /* Buttons */
 
     wxBoxSizer* buttonSizer = new wxBoxSizer( wxHORIZONTAL );
-	wxButton* buttonSave   = new wxButton(this, wxID_OK, _("&Save Options"));
+	wxButton* buttonSave   = new wxButton(this, wxID_OK, _("&Save Settings"));
     wxButton* buttonCancel = new wxButton(this, wxID_CANCEL, _("&Cancel"));
 
 	/* Disable certain buttons based on the input Option Flags. */

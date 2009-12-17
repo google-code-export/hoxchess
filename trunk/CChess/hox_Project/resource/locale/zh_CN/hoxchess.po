@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-12-16 07:52-0800\n"
-"PO-Revision-Date: 2009-12-16 07:56-0800\n"
+"POT-Creation-Date: 2009-12-17 14:59-0800\n"
+"PO-Revision-Date: 2009-12-17 15:01-0800\n"
 "Last-Translator: Huy Phan <huyphan@playxiangqi.com>\n"
 "Language-Team: PlayXiangqi <huyphan@playxiangqi.com>\n"
 "MIME-Version: 1.0\n"
@@ -30,66 +30,67 @@ msgstr "没有任何人工智能引擎。"
 msgid "AI Creation"
 msgstr "人工智能创作"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:151
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:152
 msgid "Difficulty level:"
 msgstr "难易程度："
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:161
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:162
 msgid "Author:"
 msgstr "作者:"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:171
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:172
 msgid "Play with yourself"
 msgstr "自己玩"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:522
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:523
 msgid "Game Reset"
 msgstr "游戏重新设置"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:607
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:903
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:904
 msgid "Table settings"
 msgstr "设置"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:800
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:791
 msgid "Play RED"
 msgstr "选择红色"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:802
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:793
 msgid "Play BLACK"
 msgstr "选择黑色"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:898
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:797
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:801
+msgid "Leave"
+msgstr "站起来"
+
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:899
 msgid "Reverse view"
 msgstr "切换桌子"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:908
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:909
 msgid "Reset table"
 msgstr "游戏重新设置"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:914
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:915
 msgid "Resign"
 msgstr "认输"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:918
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:919
 msgid "Draw"
 msgstr "提和"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:922
-msgid "Unsit"
-msgstr "站起来"
-
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:972
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1276
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:969
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1306
 msgid "Activities"
 msgstr "活动"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:973
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:970
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxChatPanel.cpp:118
 msgid "Messages"
 msgstr "谈话"
 
-#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1277
+#: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxBoard.cpp:1307
 msgid "AI Settings"
 msgstr "人工智能"
 
@@ -229,8 +230,8 @@ msgstr ""
 "(秒)"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionDialog.cpp:110
-msgid "&Save Options"
-msgstr "\t保存选项(&S)"
+msgid "&Save Settings"
+msgstr "保存选项(&S)"
 
 #: C:\Users\HPhan\Documents\CChess\hox_Project\hox_Client/hoxOptionDialog.cpp:111
 msgid "&Cancel"
@@ -674,6 +675,8 @@ msgstr "我的电脑"
 msgid "Getting Started"
 msgstr "使用入门"
 
+#~ msgid "Unsit"
+#~ msgstr "站起来"
 #~ msgid "Enter your message for [%s]:"
 #~ msgstr "请输入您的消息发送给[%s]："
 #~ msgid "Send a private message"
