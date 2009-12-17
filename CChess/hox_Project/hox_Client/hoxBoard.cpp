@@ -46,7 +46,8 @@ enum
 
     ID_ACTION_RED,    // Play as RED
     ID_ACTION_BLACK,  // Play as BLACK
-    ID_ACTION_NONE,   // Play as NONE (i.e., Unsit/Standup)
+    ID_ACTION_LEAVE_RED,   // Unsit/Standup from the RED seat
+    ID_ACTION_LEAVE_BLACK, // Unsit/Standup from the BLACK seat
 
     ID_ACTION_REVERSE,
     ID_ACTION_OPTIONS,
@@ -70,11 +71,11 @@ BEGIN_EVENT_TABLE(hoxBoard, wxPanel)
     EVT_BUTTON(ID_ACTION_RESET, hoxBoard::OnButtonReset)
     EVT_BUTTON(ID_ACTION_RED, hoxBoard::OnButtonRed)
     EVT_BUTTON(ID_ACTION_BLACK, hoxBoard::OnButtonBlack)
-	EVT_BUTTON(ID_ACTION_NONE, hoxBoard::OnButtonNone)
+    EVT_BUTTON(ID_ACTION_LEAVE_RED, hoxBoard::OnButtonNone)
+    EVT_BUTTON(ID_ACTION_LEAVE_BLACK, hoxBoard::OnButtonNone)
 
     EVT_UPDATE_UI(ID_ACTION_RED, hoxBoard::OnUpdateUI_ActionRed)
     EVT_UPDATE_UI(ID_ACTION_BLACK, hoxBoard::OnUpdateUI_ActionBlack)
-    EVT_UPDATE_UI(ID_ACTION_NONE, hoxBoard::OnUpdateUI_ActionNone)
     EVT_UPDATE_UI(ID_ACTION_RESIGN, hoxBoard::OnUpdateUI_ActionResign)
     EVT_UPDATE_UI(ID_ACTION_DRAW, hoxBoard::OnUpdateUI_ActionDraw)
     EVT_UPDATE_UI(ID_ACTION_RESET, hoxBoard::OnUpdateUI_ActionReset)
@@ -236,9 +237,6 @@ hoxBoard::hoxBoard( wxWindow*        parent,
     const wxString soundFile( hoxUtil::GetPath(hoxRT_SOUND) + "move.wav" );
     m_soundMove.Create( soundFile );
     wxASSERT_MSG(m_soundMove.IsOk(), "Failed to load sound file " + soundFile);
-
-    /* Finally, show the UI. */
-    // ShowUI();
 }
 
 hoxBoard::~hoxBoard()
@@ -386,6 +384,7 @@ hoxBoard::OnPlayerJoin( const hoxPlayerInfo playerInfo,
     }
 
     _UpdateStatus(); // Update the game-status.
+    _UpdateActionButtons();
 }
 
 void 
@@ -402,6 +401,7 @@ hoxBoard::OnPlayerLeave( const wxString& playerId )
     }
 
     _UpdateStatus(); // Update the game-status.
+    _UpdateActionButtons();
 }
 
 void 
@@ -507,6 +507,7 @@ hoxBoard::OnGameOver( const hoxGameStatus gameStatus,
 	m_status = gameStatus;
 	this->OnBoardMsg( boardMessage );
 	m_coreBoard->SetGameOver( true );
+    _UpdateActionButtons();
 }
 
 void 
@@ -517,10 +518,9 @@ hoxBoard::OnGameReset()
 
     m_status = hoxGAME_STATUS_OPEN;
 	_UpdateStatus();
+    _UpdateActionButtons();
 
-	/* Display the "reset" message. */
-    const wxString boardMessage = _("Game Reset"); 
-	this->OnBoardMsg( boardMessage );
+	this->OnBoardMsg( _("Game Reset") );
 }
 
 void 
@@ -671,15 +671,6 @@ hoxBoard::OnUpdateUI_ActionBlack( wxUpdateUIEvent& event )
 }
 
 void
-hoxBoard::OnUpdateUI_ActionNone( wxUpdateUIEvent& event )
-{
-	bool bMenuEnabled = ( m_status != hoxGAME_STATUS_IN_PROGRESS
-                        && _IsOwnerSeated()
-                        && (m_featureFlags & hoxBOARD_FEATURE_UNSIT) );
-    event.Enable( bMenuEnabled );
-}
-
-void
 hoxBoard::OnUpdateUI_ActionResign( wxUpdateUIEvent& event )
 {
 	bool bMenuEnabled = ( m_status == hoxGAME_STATUS_IN_PROGRESS
@@ -800,7 +791,15 @@ hoxBoard::_CreateBoardPanel()
     m_btnPlayRed = new wxButton( this, ID_ACTION_RED, _("Play RED"), 
                                  wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT );
     m_btnPlayBlack = new wxButton( this, ID_ACTION_BLACK, _("Play BLACK"), 
-                                   wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT );
+                                   wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT );    
+    m_btnLeaveRed = new wxBitmapButton( this, ID_ACTION_LEAVE_RED,
+                                        hoxUtil::LoadImage("button_close.png"));
+    m_btnLeaveRed->SetToolTip( _("Leave") );
+    m_btnLeaveRed->Show(false);
+    m_btnLeaveBlack = new wxBitmapButton( this, ID_ACTION_LEAVE_BLACK,
+                                          hoxUtil::LoadImage("button_close.png"));
+    m_btnLeaveBlack->SetToolTip( _("Leave") );
+    m_btnLeaveBlack->Show(false);
 
     // Player-Info.
     m_blackInfo = new wxStaticText( this, wxID_ANY, "*", 
@@ -841,7 +840,8 @@ hoxBoard::_CreateBoardPanel()
 
     // BLACK side.
     m_blackSizer->Add( m_btnPlayBlack,
-        wxSizerFlags(1).Expand().Border(wxRIGHT|wxLEFT|wxTOP,1) );
+        wxSizerFlags().Expand().Border(wxRIGHT|wxLEFT|wxTOP,1) );
+    m_blackSizer->Add( m_btnLeaveBlack, wxSizerFlags() );
     m_blackSizer->Add( m_blackInfo,
         wxSizerFlags(1).Expand().Border(wxRIGHT|wxLEFT|wxTOP,1) );
     m_blackSizer->Add( m_blackGameTime,
@@ -853,7 +853,8 @@ hoxBoard::_CreateBoardPanel()
 
     // RED side.
     m_redSizer->Add( m_btnPlayRed,
-        wxSizerFlags(1).Expand().Border(wxRIGHT|wxLEFT|wxTOP,1) );
+        wxSizerFlags().Expand().Border(wxRIGHT|wxLEFT|wxTOP,1) );
+    m_redSizer->Add( m_btnLeaveRed, wxSizerFlags() );
     m_redSizer->Add( m_redInfo,
         wxSizerFlags(1).Expand().Border(wxRIGHT|wxLEFT|wxTOP,1) );
     m_redSizer->Add( m_redGameTime,
@@ -918,10 +919,6 @@ hoxBoard::_CreateBoardPanel()
         new wxButton( this, ID_ACTION_DRAW, _("Draw"), 
                       wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
         wxSizerFlags().Left().FixedMinSize().Center() );
-    m_actionSizer->Add( 
-        new wxButton( this, ID_ACTION_NONE, _("Unsit"), 
-                      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT ),
-        wxSizerFlags().Left().FixedMinSize().Center() );
 
     /*********************************
      * Arrange Command's buttons (History + Action).
@@ -947,7 +944,7 @@ hoxBoard::_LayoutBoardPanel( bool bViewInverted )
 
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     // HACK: Adjust the "core" Board's height!!!
-    const int bestHeightAdjust = (m_btnPlayRed->GetSize().GetHeight()+2) * 3;
+    const int bestHeightAdjust = (m_btnLeaveRed->GetSize().GetHeight()+2) * 3;
     m_coreBoard->SetBestHeightAdjustment( bestHeightAdjust );
     wxLogDebug("%s: ADJUST Core Board's Height: (%d)", __FUNCTION__, bestHeightAdjust);
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1098,6 +1095,7 @@ hoxBoard::OnValidMove( const hoxMove& move,
         /* NOTE: The above action is enough to trigger the timer which will
          *       update the timer-related UI.
          */
+        _UpdateActionButtons();
     }
     /* If the game is in progress, reset the Move-time after each Move.
      */
@@ -1153,6 +1151,38 @@ hoxBoard::_UpdateStatus()
         {
             m_status = hoxGAME_STATUS_OPEN;
         }
+    }
+}
+
+void
+hoxBoard::_UpdateActionButtons()
+{
+    bool bShowLeaveRed   = false;
+    bool bShowLeaveBlack = false;
+
+	if (  m_status != hoxGAME_STATUS_IN_PROGRESS
+       && (m_featureFlags & hoxBOARD_FEATURE_UNSIT) )
+    {    
+        if ( m_ownerId == m_redId )
+        {
+            bShowLeaveRed = true;
+        }
+        if ( m_ownerId == m_blackId )
+        {
+            bShowLeaveBlack = true;
+        }
+    }
+    
+    // Do the update if needed.
+    if ( bShowLeaveRed != m_btnLeaveRed->IsShown() )
+    {
+        m_btnLeaveRed->Show( bShowLeaveRed );
+        m_redSizer->Layout(); // Force the layout update.
+    }
+    if ( bShowLeaveBlack != m_btnLeaveBlack->IsShown() )
+    {
+        m_btnLeaveBlack->Show( bShowLeaveBlack );
+        m_blackSizer->Layout(); // Force the layout update.
     }
 }
 

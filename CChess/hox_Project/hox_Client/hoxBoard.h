@@ -173,7 +173,6 @@ public:
 
     void OnUpdateUI_ActionRed( wxUpdateUIEvent& event );
     void OnUpdateUI_ActionBlack( wxUpdateUIEvent& event );
-    void OnUpdateUI_ActionNone( wxUpdateUIEvent& event );
     void OnUpdateUI_ActionResign( wxUpdateUIEvent& event );
     void OnUpdateUI_ActionDraw( wxUpdateUIEvent& event );
     void OnUpdateUI_ActionReset( wxUpdateUIEvent& event );
@@ -248,6 +247,7 @@ private:
                             bool            bPublic = true );
 
     void _UpdateStatus();
+    void _UpdateActionButtons();
 
     void _SyncInfoWithTable();
     void _OnTimerUpdated();
@@ -302,6 +302,8 @@ protected:
 
     wxButton*         m_btnPlayRed;
     wxButton*         m_btnPlayBlack;
+    wxBitmapButton*   m_btnLeaveRed;
+    wxBitmapButton*   m_btnLeaveBlack;
 
     wxStaticText*     m_blackInfo;      // Black's info UI.
     wxStaticText*     m_redInfo;        // Red's info UI.
