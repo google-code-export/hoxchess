@@ -12,9 +12,9 @@ The page's content is based entirely on my experience working on the project.
 Starting from version _0.7.5.0_ (released on Jun 09, 2009), the project can be built under Windows, Linux, and Mac OS X thanks to the cross platform portability of [http://www.wxwidgets.org wxWidgets].
 
   * [http://www.wxwidgets.org/ wxWidgets] 2.9.0 (the not-yet-released *branch* version)
-    * I tested the 2.9.0 branch on Jun 06, 2009
+    * I tested the 2.9.0 branch on Nov 30, 2009
     * For Ubuntu, we need the *wxGTK* port.
-  * [http://www.boost.org Boost C++ 1_38_0 Libraries] Headers only. Already included in the source code 
+  * [http://www.boost.org Boost C++ 1_41_0 Libraries] Headers only. Already included in the source code 
   * [http://www.think-async.com/Asio/WebHome Asio 1.4.1 C++ Library] Headers only. Already included in the source code 
   * Operating Systems
     * Under Windows
@@ -22,8 +22,8 @@ Starting from version _0.7.5.0_ (released on Jun 09, 2009), the project can be b
       * Visual C++ 2008 Express Edition
     * Under Linux
       * Any Linux distribution that supports _g++_ and _make_ packages. I have tried on the following:
-        * [http://www.centos.org/ CentOS] 4.7 and 5.3, or
-        * [http://www.ubuntu.com/ Ubuntu] 9.04
+        * [http://www.centos.org/ CentOS] 4.7 and 5.4, or
+        * [http://www.ubuntu.com/ Ubuntu] 9.10
     * Under Mac OS X using *Xcode*
 
 = Detailed Instructions under Windows =
@@ -33,6 +33,11 @@ Starting from version _0.7.5.0_ (released on Jun 09, 2009), the project can be b
 
 = Detailed Instructions under Linux =
   * Follow [wxWidgetsInHOXChess the instructions here] to build *wxGTK* libraries
+  * You will need to install two packages: *libboost-dev* and *libasio-dev*
+    * Or you can use the packages already included in HOXChess 's source code:
+{{{
+  $ CPLUS_INCLUDE_PATH=../lib/boost_1_41_0:../lib/asio-1.4.1/include  make
+}}}
   * Build AI Engine Plugins and the main _hoxchess_ executable as follows:
 {{{
   $ cd .../hox_Project/plugins/
@@ -42,13 +47,7 @@ Starting from version _0.7.5.0_ (released on Jun 09, 2009), the project can be b
   $ ./hoxchess
 }}}
 
-= Detailed Instructions under Eclipse in Linux =
-  * For [http://www.eclipse.org/cdt/ Eclipse C++ (CDT)], the project files (_.project_ and _.cproject_) have been included under _/hox_Project_ folder in the .zip archive since version _0.1.0.0_
-  * If you ever need to create a new project yourself, here is the summary of the steps:
-    * Add all the source code (.h and .cpp) files to the your new project.
-    * Adjust the Eclipse' s C++ compiler's setting (such as _--cppflags_ and _--libs_) based on the output of wxWidgets' s *wx-config* program.
-
-= Detailed Instructions under Xcode in Mac OS X 10.5 =
+= Detailed Instructions under Xcode in Mac OS X 10.6 =
   * Follow [wxWidgetsInHOXChess the instructions here] to build *wxMac* libraries
 {{{
   $ make build-release
