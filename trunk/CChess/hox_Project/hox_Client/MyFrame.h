@@ -38,7 +38,6 @@ class MyChild;
 class hoxSite;
 class hoxSitesUI;
 class hoxPlayersUI;
-class hoxLog;
 class hoxCheckUpdatesUI;
 
 /* Menu items IDs */
@@ -59,8 +58,6 @@ enum
     MDI_LIST_TABLES,
 
     MDI_SHOW_SERVERS_WINDOW,
-    MDI_SHOW_LOG_WINDOW,
-
     MDI_CHILD_QUIT,
 
     MDI_SOUND,   // toggle sound
@@ -112,9 +109,6 @@ public:
 
     void OnShowServersWindow(wxCommandEvent& event);
     void OnUpdateServersWindow(wxUpdateUIEvent& event);
-
-    void OnShowLogWindow(wxCommandEvent& event);
-    void OnUpdateShowLogWindow(wxUpdateUIEvent& event);
 
     void OnPractice(wxCommandEvent& event);
     void OnUpdatePractice(wxUpdateUIEvent& event);
@@ -195,9 +189,6 @@ private:
     wxSashLayoutWindow* m_sitesWindow;
     wxSplitterWindow*   m_sitesSplitter;
     hoxSitesUI*         m_sitesUI;
-
-    // Logging.
-    hoxLog*             m_log;
 
     typedef std::list<MyChild*> MyChildList;
     MyChildList         m_children;

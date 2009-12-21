@@ -36,7 +36,6 @@
 #include "hoxPlayersUI.h"
 #include "hoxOptionsUI.h"
 #include "hoxBoard.h"
-#include "hoxLog.h"
 #include "hoxSavedTable.h"
 #include "hoxAIPluginMgr.h"
 #include "hoxWelcomeUI.h"
@@ -73,8 +72,6 @@ BEGIN_EVENT_TABLE(MyFrame, wxMDIParentFrame)
 
     EVT_MENU(MDI_SHOW_SERVERS_WINDOW,      MyFrame::OnShowServersWindow)
     EVT_UPDATE_UI(MDI_SHOW_SERVERS_WINDOW, MyFrame::OnUpdateServersWindow)
-    EVT_MENU(MDI_SHOW_LOG_WINDOW,          MyFrame::OnShowLogWindow)
-    EVT_UPDATE_UI(MDI_SHOW_LOG_WINDOW,     MyFrame::OnUpdateShowLogWindow)
 
     EVT_MENU(MDI_PRACTICE,              MyFrame::OnPractice)
     EVT_UPDATE_UI(MDI_PRACTICE,         MyFrame::OnUpdatePractice)
@@ -107,8 +104,6 @@ MyFrame::MyFrame( wxWindow*        parent,
        , m_bShowWelcomeChecked( false )
        , m_checkUpdatesDlg( NULL )
 {
-    m_log = new hoxLog(this, _("Log Window"), false);
-
     SetIcon( wxICON(hoxchess) );
 
     _CreateSitesUI();
@@ -364,18 +359,6 @@ MyFrame::OnUpdateServersWindow( wxUpdateUIEvent& event )
 }
 
 void 
-MyFrame::OnShowLogWindow( wxCommandEvent& event )
-{
-    m_log->Show( event.IsChecked() );
-}
-
-void
-MyFrame::OnUpdateShowLogWindow( wxUpdateUIEvent& event )
-{
-    event.Check( m_log->IsShown() );
-}
-
-void 
 MyFrame::OnPractice( wxCommandEvent& event )
 {
     hoxSite* localSite = hoxSiteManager::GetInstance()->GetLocalSite();
@@ -552,8 +535,6 @@ MyFrame::Create_Menu_Bar(bool hasTable /* = false */)
     /* View menu. */
     wxMenu* view_menu = new wxMenu;
     view_menu->AppendCheckItem(MDI_SHOW_SERVERS_WINDOW, _("Site&s View\tCtrl-S"));
-    view_menu->AppendSeparator();
-    view_menu->AppendCheckItem(MDI_SHOW_LOG_WINDOW, _("Lo&g Window\tCtrl-G"));
 
     /* Tools menu. */
     wxMenu* tools_menu = file_menu;   // Use File menu instead on Mac
