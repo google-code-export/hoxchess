@@ -40,7 +40,6 @@
 		AF48393B0FA27BAD00F734C4 /* hoxConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4839000FA27BAD00F734C4 /* hoxConnection.cpp */; };
 		AF48393C0FA27BAD00F734C4 /* hoxCoreBoard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4839020FA27BAD00F734C4 /* hoxCoreBoard.cpp */; };
 		AF48393D0FA27BAD00F734C4 /* hoxLocalPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4839060FA27BAD00F734C4 /* hoxLocalPlayer.cpp */; };
-		AF48393E0FA27BAD00F734C4 /* hoxLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF4839080FA27BAD00F734C4 /* hoxLog.cpp */; };
 		AF48393F0FA27BAD00F734C4 /* hoxLoginUI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF48390A0FA27BAD00F734C4 /* hoxLoginUI.cpp */; };
 		AF4839400FA27BAD00F734C4 /* hoxMyPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF48390C0FA27BAD00F734C4 /* hoxMyPlayer.cpp */; };
 		AF4839410FA27BAD00F734C4 /* hoxOptionDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF48390E0FA27BAD00F734C4 /* hoxOptionDialog.cpp */; };
@@ -350,8 +349,6 @@
 		AF4839050FA27BAD00F734C4 /* hoxIReferee.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxIReferee.h; path = hox_Client/hoxIReferee.h; sourceTree = "<group>"; };
 		AF4839060FA27BAD00F734C4 /* hoxLocalPlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxLocalPlayer.cpp; path = hox_Client/hoxLocalPlayer.cpp; sourceTree = "<group>"; };
 		AF4839070FA27BAD00F734C4 /* hoxLocalPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxLocalPlayer.h; path = hox_Client/hoxLocalPlayer.h; sourceTree = "<group>"; };
-		AF4839080FA27BAD00F734C4 /* hoxLog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxLog.cpp; path = hox_Client/hoxLog.cpp; sourceTree = "<group>"; };
-		AF4839090FA27BAD00F734C4 /* hoxLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxLog.h; path = hox_Client/hoxLog.h; sourceTree = "<group>"; };
 		AF48390A0FA27BAD00F734C4 /* hoxLoginUI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxLoginUI.cpp; path = hox_Client/hoxLoginUI.cpp; sourceTree = "<group>"; };
 		AF48390B0FA27BAD00F734C4 /* hoxLoginUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hoxLoginUI.h; path = hox_Client/hoxLoginUI.h; sourceTree = "<group>"; };
 		AF48390C0FA27BAD00F734C4 /* hoxMyPlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hoxMyPlayer.cpp; path = hox_Client/hoxMyPlayer.cpp; sourceTree = "<group>"; };
@@ -518,8 +515,6 @@
 				AF4839050FA27BAD00F734C4 /* hoxIReferee.h */,
 				AF4839060FA27BAD00F734C4 /* hoxLocalPlayer.cpp */,
 				AF4839070FA27BAD00F734C4 /* hoxLocalPlayer.h */,
-				AF4839080FA27BAD00F734C4 /* hoxLog.cpp */,
-				AF4839090FA27BAD00F734C4 /* hoxLog.h */,
 				AF48390A0FA27BAD00F734C4 /* hoxLoginUI.cpp */,
 				AF48390B0FA27BAD00F734C4 /* hoxLoginUI.h */,
 				AF48390C0FA27BAD00F734C4 /* hoxMyPlayer.cpp */,
@@ -842,7 +837,6 @@
 				AF48393B0FA27BAD00F734C4 /* hoxConnection.cpp in Sources */,
 				AF48393C0FA27BAD00F734C4 /* hoxCoreBoard.cpp in Sources */,
 				AF48393D0FA27BAD00F734C4 /* hoxLocalPlayer.cpp in Sources */,
-				AF48393E0FA27BAD00F734C4 /* hoxLog.cpp in Sources */,
 				AF48393F0FA27BAD00F734C4 /* hoxLoginUI.cpp in Sources */,
 				AF4839400FA27BAD00F734C4 /* hoxMyPlayer.cpp in Sources */,
 				AF4839410FA27BAD00F734C4 /* hoxOptionDialog.cpp in Sources */,
