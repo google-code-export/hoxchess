@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		1DDD57E40DA1CFC700B32029 /* main.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD57E20DA1CFC700B32029 /* main.xib */; };
-		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
 		8D0C4E920486CD37000505A6 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20286C33FDCF999611CA2CEA /* Carbon.framework */; };
 		AF0932A00FCDA7C200E6D8F8 /* hoxchess.ini in Copy Files (boards) */ = {isa = PBXBuildFile; fileRef = AF09329E0FCDA7C200E6D8F8 /* hoxchess.ini */; };
 		AF0932A10FCDA7C200E6D8F8 /* hoxchess.png in Copy Files (boards) */ = {isa = PBXBuildFile; fileRef = AF09329F0FCDA7C200E6D8F8 /* hoxchess.png */; };
@@ -304,7 +303,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		0867D6ABFE840B52C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1DDD57E30DA1CFC700B32029 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/main.xib; sourceTree = "<group>"; };
 		20286C33FDCF999611CA2CEA /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
 		508344B209E5C41E0093A071 /* HOXChess.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HOXChess.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -567,7 +565,6 @@
 			children = (
 				AFD3DA680FED44BD00A0D159 /* hoxchess.icns */,
 				8D0C4E960486CD37000505A6 /* Info.plist */,
-				0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */,
 				1DDD57E20DA1CFC700B32029 /* main.xib */,
 			);
 			name = Resources;
@@ -815,7 +812,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */,
 				1DDD57E40DA1CFC700B32029 /* main.xib in Resources */,
 				AFD3DA690FED44BD00A0D159 /* hoxchess.icns in Resources */,
 				AFE40BBD10DAA3F20000941B /* button_close.png in Resources */,
@@ -867,14 +863,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				0867D6ABFE840B52C02AAC07 /* English */,
-			);
-			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
 		1DDD57E20DA1CFC700B32029 /* main.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
