@@ -62,7 +62,6 @@ MAIN_SRC := \
 	hoxWelcomeUI.cpp \
 	hoxCheckUpdatesUI.cpp \
 	hoxChatPanel.cpp \
-	hoxLog.cpp \
 	MyApp.cpp \
 	MyChild.cpp \
 	MyFrame.cpp
