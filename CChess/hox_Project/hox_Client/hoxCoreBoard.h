@@ -316,8 +316,9 @@ private:
     /* Variables used when a piece is dragged by the mouse. */
     hoxMoveMode     m_moveMode;
     int             m_dragMode;
-    hoxPiece*       m_draggedPiece;
+    hoxPiece*       m_dragPiece;
     wxPoint         m_dragStartPos;
+    wxRect          m_dragStartRect;
     wxDragImage*    m_dragImage;
     wxRect          m_dragHighlightRect;
     hoxPosition     m_dragHighlightPos;
