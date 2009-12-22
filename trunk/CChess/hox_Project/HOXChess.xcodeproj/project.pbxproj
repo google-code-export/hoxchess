@@ -65,6 +65,21 @@
 		AF53F97D10CDEA7300248CC0 /* settings.png in Copy Files (images) */ = {isa = PBXBuildFile; fileRef = AF53F96410CDEA3E00248CC0 /* settings.png */; };
 		AF65FAAF0FCB76B2000BB384 /* ixiangqi.ini in Copy Files (boards) */ = {isa = PBXBuildFile; fileRef = AF65FAAE0FCB76B2000BB384 /* ixiangqi.ini */; };
 		AF65FAB10FCB76B8000BB384 /* qianhong.ini in Copy Files (boards) */ = {isa = PBXBuildFile; fileRef = AF65FAB00FCB76B8000BB384 /* qianhong.ini */; };
+		AF6CC6FE10E12FB3004FE6AA /* badvisor.png in Copy Files(pieces\EurasiaChess) */ = {isa = PBXBuildFile; fileRef = AF6CC6E010E12F68004FE6AA /* badvisor.png */; };
+		AF6CC6FF10E12FB3004FE6AA /* bcannon.png in Copy Files(pieces\EurasiaChess) */ = {isa = PBXBuildFile; fileRef = AF6CC6E110E12F68004FE6AA /* bcannon.png */; };
+		AF6CC70010E12FB3004FE6AA /* bchariot.png in Copy Files(pieces\EurasiaChess) */ = {isa = PBXBuildFile; fileRef = AF6CC6E210E12F68004FE6AA /* bchariot.png */; };
+		AF6CC70110E12FB3004FE6AA /* belephant.png in Copy Files(pieces\EurasiaChess) */ = {isa = PBXBuildFile; fileRef = AF6CC6E310E12F68004FE6AA /* belephant.png */; };
+		AF6CC70210E12FB3004FE6AA /* bhorse.png in Copy Files(pieces\EurasiaChess) */ = {isa = PBXBuildFile; fileRef = AF6CC6E410E12F68004FE6AA /* bhorse.png */; };
+		AF6CC70310E12FB3004FE6AA /* bking.png in Copy Files(pieces\EurasiaChess) */ = {isa = PBXBuildFile; fileRef = AF6CC6E510E12F68004FE6AA /* bking.png */; };
+		AF6CC70410E12FB3004FE6AA /* bpawn.png in Copy Files(pieces\EurasiaChess) */ = {isa = PBXBuildFile; fileRef = AF6CC6E610E12F68004FE6AA /* bpawn.png */; };
+		AF6CC70510E12FB3004FE6AA /* CREDITS.txt in Copy Files(pieces\EurasiaChess) */ = {isa = PBXBuildFile; fileRef = AF6CC6E710E12F68004FE6AA /* CREDITS.txt */; };
+		AF6CC70610E12FB3004FE6AA /* radvisor.png in Copy Files(pieces\EurasiaChess) */ = {isa = PBXBuildFile; fileRef = AF6CC6E810E12F68004FE6AA /* radvisor.png */; };
+		AF6CC70710E12FB3004FE6AA /* rcannon.png in Copy Files(pieces\EurasiaChess) */ = {isa = PBXBuildFile; fileRef = AF6CC6E910E12F68004FE6AA /* rcannon.png */; };
+		AF6CC70810E12FB3004FE6AA /* rchariot.png in Copy Files(pieces\EurasiaChess) */ = {isa = PBXBuildFile; fileRef = AF6CC6EA10E12F68004FE6AA /* rchariot.png */; };
+		AF6CC70910E12FB3004FE6AA /* relephant.png in Copy Files(pieces\EurasiaChess) */ = {isa = PBXBuildFile; fileRef = AF6CC6EB10E12F68004FE6AA /* relephant.png */; };
+		AF6CC70A10E12FB3004FE6AA /* rhorse.png in Copy Files(pieces\EurasiaChess) */ = {isa = PBXBuildFile; fileRef = AF6CC6EC10E12F68004FE6AA /* rhorse.png */; };
+		AF6CC70B10E12FB3004FE6AA /* rking.png in Copy Files(pieces\EurasiaChess) */ = {isa = PBXBuildFile; fileRef = AF6CC6ED10E12F68004FE6AA /* rking.png */; };
+		AF6CC70C10E12FB3004FE6AA /* rpawn.png in Copy Files(pieces\EurasiaChess) */ = {isa = PBXBuildFile; fileRef = AF6CC6EE10E12F68004FE6AA /* rpawn.png */; };
 		AF790B4A0FC9BD91005729B0 /* ixiangqi.png in Copy Files (boards) */ = {isa = PBXBuildFile; fileRef = AF790B440FC9BD39005729B0 /* ixiangqi.png */; };
 		AF790B4B0FC9BD91005729B0 /* qianhong.png in Copy Files (boards) */ = {isa = PBXBuildFile; fileRef = AF790B450FC9BD39005729B0 /* qianhong.png */; };
 		AF85AFDF0FD422D80068A033 /* hoxchess.mo in Copy Files (locale\fr) */ = {isa = PBXBuildFile; fileRef = AF85AFDE0FD422D80068A033 /* hoxchess.mo */; };
@@ -115,7 +130,6 @@
 		AFCBA7EE0FF7FF1700787308 /* hoxAsyncSocket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFCBA7EA0FF7FF1700787308 /* hoxAsyncSocket.cpp */; };
 		AFCBA7EF0FF7FF1700787308 /* hoxCheckUpdatesUI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFCBA7EC0FF7FF1700787308 /* hoxCheckUpdatesUI.cpp */; };
 		AFD3DA690FED44BD00A0D159 /* hoxchess.icns in Resources */ = {isa = PBXBuildFile; fileRef = AFD3DA680FED44BD00A0D159 /* hoxchess.icns */; };
-		AFE40BBD10DAA3F20000941B /* button_close.png in Resources */ = {isa = PBXBuildFile; fileRef = AFE40BBC10DAA3F20000941B /* button_close.png */; };
 		AFE40BBE10DAA41D0000941B /* button_close.png in Copy Files (images) */ = {isa = PBXBuildFile; fileRef = AFE40BBC10DAA3F20000941B /* button_close.png */; };
 		AFF0F7D4100A3DA8001AB6AB /* preferences-system.png in Copy Files (images) */ = {isa = PBXBuildFile; fileRef = AFF0F7D0100A3CE0001AB6AB /* preferences-system.png */; };
 		AFF0F7D5100A3DB3001AB6AB /* edit-clear.png in Copy Files (images) */ = {isa = PBXBuildFile; fileRef = AFF0F7D1100A3CE0001AB6AB /* edit-clear.png */; };
@@ -143,6 +157,31 @@
 				AF0CD9EB0FC3D8470042A414 /* hoxchess.mo in Copy Files (locale\zh_CN) */,
 			);
 			name = "Copy Files (locale\\zh_CN)";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AF214BFC10E12BA300E830FB /* Copy Files(pieces\EurasiaChess) */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = pieces/EurasiaChess;
+			dstSubfolderSpec = 12;
+			files = (
+				AF6CC6FE10E12FB3004FE6AA /* badvisor.png in Copy Files(pieces\EurasiaChess) */,
+				AF6CC6FF10E12FB3004FE6AA /* bcannon.png in Copy Files(pieces\EurasiaChess) */,
+				AF6CC70010E12FB3004FE6AA /* bchariot.png in Copy Files(pieces\EurasiaChess) */,
+				AF6CC70110E12FB3004FE6AA /* belephant.png in Copy Files(pieces\EurasiaChess) */,
+				AF6CC70210E12FB3004FE6AA /* bhorse.png in Copy Files(pieces\EurasiaChess) */,
+				AF6CC70310E12FB3004FE6AA /* bking.png in Copy Files(pieces\EurasiaChess) */,
+				AF6CC70410E12FB3004FE6AA /* bpawn.png in Copy Files(pieces\EurasiaChess) */,
+				AF6CC70510E12FB3004FE6AA /* CREDITS.txt in Copy Files(pieces\EurasiaChess) */,
+				AF6CC70610E12FB3004FE6AA /* radvisor.png in Copy Files(pieces\EurasiaChess) */,
+				AF6CC70710E12FB3004FE6AA /* rcannon.png in Copy Files(pieces\EurasiaChess) */,
+				AF6CC70810E12FB3004FE6AA /* rchariot.png in Copy Files(pieces\EurasiaChess) */,
+				AF6CC70910E12FB3004FE6AA /* relephant.png in Copy Files(pieces\EurasiaChess) */,
+				AF6CC70A10E12FB3004FE6AA /* rhorse.png in Copy Files(pieces\EurasiaChess) */,
+				AF6CC70B10E12FB3004FE6AA /* rking.png in Copy Files(pieces\EurasiaChess) */,
+				AF6CC70C10E12FB3004FE6AA /* rpawn.png in Copy Files(pieces\EurasiaChess) */,
+			);
+			name = "Copy Files(pieces\\EurasiaChess)";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		AF3848030FDB710000733695 /* Copy Files(pieces\alfaerie_50x50) */ = {
@@ -395,6 +434,21 @@
 		AF53F96410CDEA3E00248CC0 /* settings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = settings.png; path = resource/images/settings.png; sourceTree = "<group>"; };
 		AF65FAAE0FCB76B2000BB384 /* ixiangqi.ini */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ixiangqi.ini; path = resource/boards/ixiangqi.ini; sourceTree = "<group>"; };
 		AF65FAB00FCB76B8000BB384 /* qianhong.ini */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = qianhong.ini; path = resource/boards/qianhong.ini; sourceTree = "<group>"; };
+		AF6CC6E010E12F68004FE6AA /* badvisor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = badvisor.png; sourceTree = "<group>"; };
+		AF6CC6E110E12F68004FE6AA /* bcannon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bcannon.png; sourceTree = "<group>"; };
+		AF6CC6E210E12F68004FE6AA /* bchariot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bchariot.png; sourceTree = "<group>"; };
+		AF6CC6E310E12F68004FE6AA /* belephant.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = belephant.png; sourceTree = "<group>"; };
+		AF6CC6E410E12F68004FE6AA /* bhorse.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bhorse.png; sourceTree = "<group>"; };
+		AF6CC6E510E12F68004FE6AA /* bking.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bking.png; sourceTree = "<group>"; };
+		AF6CC6E610E12F68004FE6AA /* bpawn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bpawn.png; sourceTree = "<group>"; };
+		AF6CC6E710E12F68004FE6AA /* CREDITS.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CREDITS.txt; sourceTree = "<group>"; };
+		AF6CC6E810E12F68004FE6AA /* radvisor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = radvisor.png; sourceTree = "<group>"; };
+		AF6CC6E910E12F68004FE6AA /* rcannon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rcannon.png; sourceTree = "<group>"; };
+		AF6CC6EA10E12F68004FE6AA /* rchariot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rchariot.png; sourceTree = "<group>"; };
+		AF6CC6EB10E12F68004FE6AA /* relephant.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = relephant.png; sourceTree = "<group>"; };
+		AF6CC6EC10E12F68004FE6AA /* rhorse.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rhorse.png; sourceTree = "<group>"; };
+		AF6CC6ED10E12F68004FE6AA /* rking.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rking.png; sourceTree = "<group>"; };
+		AF6CC6EE10E12F68004FE6AA /* rpawn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rpawn.png; sourceTree = "<group>"; };
 		AF790B440FC9BD39005729B0 /* ixiangqi.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ixiangqi.png; path = resource/boards/ixiangqi.png; sourceTree = "<group>"; };
 		AF790B450FC9BD39005729B0 /* qianhong.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = qianhong.png; path = resource/boards/qianhong.png; sourceTree = "<group>"; };
 		AF85AFDE0FD422D80068A033 /* hoxchess.mo */ = {isa = PBXFileReference; lastKnownFileType = file; name = hoxchess.mo; path = resource/locale/fr/hoxchess.mo; sourceTree = "<group>"; };
@@ -604,6 +658,29 @@
 			name = zh_CN;
 			sourceTree = "<group>";
 		};
+		AF214BD410E12B3E00E830FB /* EurasiaChess */ = {
+			isa = PBXGroup;
+			children = (
+				AF6CC6E010E12F68004FE6AA /* badvisor.png */,
+				AF6CC6E110E12F68004FE6AA /* bcannon.png */,
+				AF6CC6E210E12F68004FE6AA /* bchariot.png */,
+				AF6CC6E310E12F68004FE6AA /* belephant.png */,
+				AF6CC6E410E12F68004FE6AA /* bhorse.png */,
+				AF6CC6E510E12F68004FE6AA /* bking.png */,
+				AF6CC6E610E12F68004FE6AA /* bpawn.png */,
+				AF6CC6E710E12F68004FE6AA /* CREDITS.txt */,
+				AF6CC6E810E12F68004FE6AA /* radvisor.png */,
+				AF6CC6E910E12F68004FE6AA /* rcannon.png */,
+				AF6CC6EA10E12F68004FE6AA /* rchariot.png */,
+				AF6CC6EB10E12F68004FE6AA /* relephant.png */,
+				AF6CC6EC10E12F68004FE6AA /* rhorse.png */,
+				AF6CC6ED10E12F68004FE6AA /* rking.png */,
+				AF6CC6EE10E12F68004FE6AA /* rpawn.png */,
+			);
+			name = EurasiaChess;
+			path = resource/pieces/EurasiaChess;
+			sourceTree = "<group>";
+		};
 		AF3847D40FDB70B700733695 /* alfaerie_50x50 */ = {
 			isa = PBXGroup;
 			children = (
@@ -713,6 +790,7 @@
 				AF3847D40FDB70B700733695 /* alfaerie_50x50 */,
 				AF965A010FC3BD9200370E48 /* iXiangQi_55x55 */,
 				AF864A4A0FC309BD0034C83B /* 1 */,
+				AF214BD410E12B3E00E830FB /* EurasiaChess */,
 			);
 			name = pieces;
 			sourceTree = "<group>";
@@ -779,6 +857,7 @@
 				AF790B490FC9BD82005729B0 /* Copy Files (boards) */,
 				AF85AFED0FD423320068A033 /* Copy Files (locale\fr) */,
 				AF3848030FDB710000733695 /* Copy Files(pieces\alfaerie_50x50) */,
+				AF214BFC10E12BA300E830FB /* Copy Files(pieces\EurasiaChess) */,
 			);
 			buildRules = (
 			);
@@ -814,7 +893,6 @@
 			files = (
 				1DDD57E40DA1CFC700B32029 /* main.xib in Resources */,
 				AFD3DA690FED44BD00A0D159 /* hoxchess.icns in Resources */,
-				AFE40BBD10DAA3F20000941B /* button_close.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
