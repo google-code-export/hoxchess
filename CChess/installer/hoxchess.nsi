@@ -1,9 +1,9 @@
 ; -------------------------------------------------------------------------
 ; Purpose: The Windows Installer for HOXChess.
 ; Author:  Huy Phan
-; Update:  Jul 25, 2009
+; Update:  Dec 22, 2009
 ;
-; Reference: http://nsis.sourceforge.net/Docs/Modern%20UI%202/Readme.html
+; Reference: http://www.scratchpaper.com/
 ; -------------------------------------------------------------------------
 
 ;--------------------------------
@@ -15,7 +15,7 @@
 ; Build environment
 
   !define PRODUCT_NAME          "HOXChess"
-  !define PRODUCT_VERSION       "0.8.0.0"
+  !define PRODUCT_VERSION       "1.0.0"
   !define PRODUCT_PUBLISHER     "PlayXiangqi.com"
   !define PRODUCT_WEB_SITE      "http://www.playxiangqi.com"
   !define PRODUCT_CONFIG_REGKEY "Software\HOXChess"
@@ -139,18 +139,16 @@ Section "HOXChess" SecMain
   File "resource\pieces\1\*.*"
   SetOutPath "$INSTDIR\resource\pieces\chessvariants_42x42"
   File "resource\pieces\chessvariants_42x42\*.*"
-  SetOutPath "$INSTDIR\resource\pieces\wikipedia_60x60"
-  File "resource\pieces\wikipedia_60x60\*.*"
   SetOutPath "$INSTDIR\resource\pieces\xqwizard_1_57x57"
   File "resource\pieces\xqwizard_1_57x57\*.*"
   SetOutPath "$INSTDIR\resource\pieces\xqwizard_2_57x57"
   File "resource\pieces\xqwizard_2_57x57\*.*"
   SetOutPath "$INSTDIR\resource\pieces\iXiangQi_55x55"
   File "resource\pieces\iXiangQi_55x55\*.*"
-  SetOutPath "$INSTDIR\resource\pieces\xiangqiboard_45x45"
-  File "resource\pieces\xiangqiboard_45x45\*.*"
   SetOutPath "$INSTDIR\resource\pieces\alfaerie_50x50"
   File "resource\pieces\alfaerie_50x50\*.*"
+  SetOutPath "$INSTDIR\resource\pieces\EurasiaChess"
+  File "resource\pieces\EurasiaChess\*.*"
 
   SetOutPath "$INSTDIR\resource\images"
   File "resource\images\*.png"
@@ -172,7 +170,7 @@ Section "HOXChess" SecMain
   WriteRegStr HKCU "${PRODUCT_CONFIG_REGKEY}\Options" "defaultAI" "AI_XQWLight"
 
   ; Set the default piece set.
-  WriteRegStr HKCU "${PRODUCT_CONFIG_REGKEY}\Board\Piece" "path" "xiangqiboard_45x45"
+  WriteRegStr HKCU "${PRODUCT_CONFIG_REGKEY}\Board\Piece" "path" "1"
 SectionEnd
 
 ; Microsoft Visual C++ 2008 Redistributable Package (x86)
@@ -269,12 +267,11 @@ Section Uninstall
   RMDir /r "$INSTDIR\resource\boards"
   RMDir /r "$INSTDIR\resource\pieces\1"
   RMDir /r "$INSTDIR\resource\pieces\chessvariants_42x42"
-  RMDir /r "$INSTDIR\resource\pieces\wikipedia_60x60"
   RMDir /r "$INSTDIR\resource\pieces\xqwizard_1_57x57"
   RMDir /r "$INSTDIR\resource\pieces\xqwizard_2_57x57"
   RMDir /r "$INSTDIR\resource\pieces\iXiangQi_55x55"
-  RMDir /r "$INSTDIR\resource\pieces\xiangqiboard_45x45"
   RMDir /r "$INSTDIR\resource\pieces\alfaerie_50x50"
+  RMDir /r "$INSTDIR\resource\pieces\EurasiaChess"
   RMDir "$INSTDIR\resource\pieces"
   RMDir /r "$INSTDIR\resource\images"
   RMDir /r "$INSTDIR\resource\sounds"
