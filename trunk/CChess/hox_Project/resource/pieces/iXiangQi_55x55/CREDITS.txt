@@ -1,6 +1,5 @@
 Downloaded and extracted from iXiangqi at:
 http://328113.googlepages.com/ixiangqi
 
-NOTE:  I left out the [chessboard.png] image file due to its size (345 KB).
-       HOXChess currently draws the Board image itself.
-       It does not yet support displaying a custom image as it is.
++ Description: A Chinese chess program for Mac OS X
++ Author: 'nanshanweng' at 328113@gmail.com
