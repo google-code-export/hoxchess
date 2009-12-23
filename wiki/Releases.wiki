@@ -9,7 +9,7 @@ _All releases can be found from_ [http://code.google.com/p/hoxchess/downloads/li
     * Implement the 'highlight' of a next position when moving a Piece
     * Implement a Popup Private Chat window
     * Enable Copy/Paste option with the Chat window
-    * Add a new Piece set from [http://www.eurasia-chess.com Eurasia-Chess]
+    * Add a new 3D Piece set from [http://www.eurasia-chess.com Eurasia-Chess]
   * Some fixes are:
     * Fix the King-facing-King bug in the Referee
     * Fix the crash if an AI Plugin 's name is invalid
