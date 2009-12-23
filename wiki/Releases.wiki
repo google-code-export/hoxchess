@@ -2,6 +2,26 @@
 
 _All releases can be found from_ [http://code.google.com/p/hoxchess/downloads/list this Downloads page]
 
+ * *Dec 23, 2009*
+  * Released version *1.0.0* with binary packages for Windows, Mac OS X, and Linux
+  * The _new features_ are:
+    * Implement a new Click-N-Click move mod
+    * Implement the 'highlight' of a next position when moving a Piece
+    * Implement a Popup Private Chat window
+    * Enable Copy/Paste option with the Chat window
+    * Add a new Piece set from [http://www.eurasia-chess.com Eurasia-Chess]
+  * Some fixes are:
+    * Fix the King-facing-King bug in the Referee
+    * Fix the crash if an AI Plugin 's name is invalid
+  * The Linux binary package has been tested on the following distributions:
+    * *CentOS 5.4* (32-bit)
+    * *Ubuntu/Kubuntu 9.10* (32-bit and 64-bit)
+    * *Fedora 12* (32-bit)
+    * *openSUSE 11.2* (32-bit)
+    * *Debian 5.0.3* (32-bit)
+    * *Mandriva 2010.0*
+    * *Gentoo 2008.0* (32-bit)
+
  * *Jul 25, 2009*
   * Released version *0.8.0.0* with binary packages for Windows, Mac OS X, and Linux
   * The _new features_ are:
