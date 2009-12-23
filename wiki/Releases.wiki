@@ -5,7 +5,7 @@ _All releases can be found from_ [http://code.google.com/p/hoxchess/downloads/li
  * *Dec 23, 2009*
   * Released version *1.0.0* with binary packages for Windows, Mac OS X, and Linux
   * The _new features_ are:
-    * Implement a new Click-N-Click move mod
+    * Implement a new Click-N-Click move mode
     * Implement the 'highlight' of a next position when moving a Piece
     * Implement a Popup Private Chat window
     * Enable Copy/Paste option with the Chat window
