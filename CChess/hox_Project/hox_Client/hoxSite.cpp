@@ -832,12 +832,13 @@ hoxRemoteSite::OnLocalRequest_JOIN( const wxString& sTableId )
 {
     wxCHECK_RET( m_player != NULL, "Player is NULL" );
 
-    wxLogDebug("%s: Ask the server to allow me to JOIN table = [%s]",
-        __FUNCTION__, sTableId.c_str());
-
-    if ( hoxRC_OK != m_player->JoinNetworkTable( sTableId ) )
+    const hoxColor myRole = m_player->GetRoleInTable( sTableId );
+    if ( myRole == hoxCOLOR_UNKNOWN ) // not yet joined?
     {
-        wxLogError("%s: Failed to JOIN a network table [%s].", __FUNCTION__, sTableId.c_str());
+        if ( hoxRC_OK != m_player->JoinNetworkTable( sTableId ) )
+        {
+            wxLogError("%s: Failed to JOIN table [%s].", __FUNCTION__, sTableId.c_str());
+        }
     }
 }
 
@@ -846,11 +847,9 @@ hoxRemoteSite::OnLocalRequest_NEW()
 {
     wxCHECK_RET( m_player != NULL, "Player is NULL" );
 
-    wxLogDebug("%s: Ask the server to open a new table.", __FUNCTION__);
-
     if ( hoxRC_OK != m_player->OpenNewNetworkTable() )
     {
-        wxLogError("%s: Failed to open a NEW network table.", __FUNCTION__);
+        wxLogError("%s: Failed to open a NEW table.", __FUNCTION__);
     }
 }
 
@@ -932,7 +931,8 @@ hoxChesscapeSite::OnLocalRequest_JOIN( const wxString& sTableId )
         return;   // *** Exit immediately!
     }
 
-    if ( myRole == hoxCOLOR_NONE )  // observing?
+    if (   sTableId != sObservedTableId
+        && myRole == hoxCOLOR_NONE ) // observing?
     {
         wxLogDebug("%s: Close the observed Table [%s] before joining another...",
             __FUNCTION__, sObservedTableId.c_str());
