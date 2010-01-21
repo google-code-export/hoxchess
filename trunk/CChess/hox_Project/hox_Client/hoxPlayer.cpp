@@ -84,10 +84,24 @@ hoxPlayer::GetFrontRole( wxString& sTableId ) const
     hoxColor      myRole = hoxCOLOR_UNKNOWN;
     hoxTable_SPtr pTable = this->GetFrontTable();
 
-    if ( pTable.get() != NULL )
+    if ( pTable )
     {
         myRole = pTable->GetPlayerRole( this->GetId() );
         sTableId = pTable->GetId();
+    }
+
+    return myRole;
+}
+
+hoxColor
+hoxPlayer::GetRoleInTable( const wxString& sTableId ) const
+{
+    hoxColor myRole = hoxCOLOR_UNKNOWN;
+
+    hoxTable_SPtr pTable = this->FindTable( sTableId );
+    if ( pTable )
+    {
+        myRole = pTable->GetPlayerRole( this->GetId() );
     }
 
     return myRole;

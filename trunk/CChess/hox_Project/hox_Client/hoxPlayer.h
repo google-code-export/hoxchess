@@ -99,6 +99,14 @@ public:
     hoxColor GetFrontRole( wxString& sTableId ) const;
 
     /**
+     * Get the role of this Player in a given Table.
+     *
+     * @param sTableId [IN] The input Table-Id.
+     * @return hoxCOLOR_UNKNOWN if the Player is not in the Table.
+     */
+     hoxColor GetRoleInTable( const wxString& sTableId ) const;
+
+    /**
      * Find a Table by a Table-Id.
      *
      * @return An 'empty' pointer if such a Table was not found.
