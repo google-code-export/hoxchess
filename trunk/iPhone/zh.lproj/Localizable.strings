@@ -13,7 +13,7 @@
 "No" = "否";
 "You" = "您";
 "Other" = "其他";
-"Required" = "必要";
+"Required" = "必填";
 "Default" = "默认";
 
 /* HOME menu keys. */
@@ -29,7 +29,7 @@
 "Draw" = "平局";
 "Close Table" = "退出棋桌";
 "Reset Table" = "棋桌重置";
-"Undo Move" = "撤消步";
+"Undo Move" = "悔棋";
 "Resume game?" = "是否继续上次游戏？";
 "New game?" = "是否开始新游戏?";
 
@@ -48,9 +48,9 @@
 
 /* AI Levels */
 "Easy" = "简单";
-"Normal" = "正常";
+"Normal" = "普通";
 "Hard" = "困难";
-"Master" = "主人";
+"Master" = "职业";
 
 /* Game status messages. */
 "Game Over" = "游戏结束";
@@ -84,8 +84,8 @@
 "Tables" = "游戏棋桌";
 "Messages" = "聊天消息";
 "Table #%@" = "棋桌 #%@";
-"Replay" = "重播";
-"[AI Disabled]" = "[AI的残疾人]";
+"Replay" = "重放";
+"[AI Disabled]" = "[AI关闭]";
 
 /* !!!!!!!!!!!!! Unused (obsolete) keys. !!!!!!!!!!!!!!!!!! */
 //"General" = "一般设置";
