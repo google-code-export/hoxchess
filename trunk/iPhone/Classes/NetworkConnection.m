@@ -148,6 +148,12 @@
     [self _flushOutgoingData:outStr];
 }
 
+- (void) send_PLAYER_INFO:(NSString*)oid
+{
+    NSString* outStr = [NSString stringWithFormat:@"op=PLAYER_INFO&pid=%@&oid=%@\n", _username, oid];
+    [self _flushOutgoingData:outStr];
+}
+
 - (void) _openIOStreams
 {
     const NSString* urlStr = HC_SERVER_IP;

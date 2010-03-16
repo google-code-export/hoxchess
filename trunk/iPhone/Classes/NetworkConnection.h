@@ -77,5 +77,6 @@ typedef enum ConnectionEventEnum_
 - (void) send_DRAW:(NSString*)tableId;
 - (void) send_RESET:(NSString*)tableId;
 - (void) send_MSG:(NSString*)tableId msg:(NSString*)msg;
+- (void) send_PLAYER_INFO:(NSString*)oid;
 
 @end

@@ -58,7 +58,6 @@
 		AF5F8C67113A32DF00693FFD /* BoardView.xib in Resources */ = {isa = PBXBuildFile; fileRef = AF5F8C66113A32DF00693FFD /* BoardView.xib */; };
 		AF5F8C6D113A349100693FFD /* AIBoardView.xib in Resources */ = {isa = PBXBuildFile; fileRef = AF5F8C6C113A349100693FFD /* AIBoardView.xib */; };
 		AF5F8D8B113A45C800693FFD /* NetworkBoardView.xib in Resources */ = {isa = PBXBuildFile; fileRef = AF5F8D8A113A45C800693FFD /* NetworkBoardView.xib */; };
-		AF5F8D91113A47B800693FFD /* playxiangqi_320x460.png in Resources */ = {isa = PBXBuildFile; fileRef = AF5F8D90113A47B800693FFD /* playxiangqi_320x460.png */; };
 		AF5F8DF2113A4C2900693FFD /* identity.png in Resources */ = {isa = PBXBuildFile; fileRef = AF5F8DF1113A4C2900693FFD /* identity.png */; };
 		AF5F8DFA113A4E5300693FFD /* search.png in Resources */ = {isa = PBXBuildFile; fileRef = AF5F8DF9113A4E5300693FFD /* search.png */; };
 		AF6B21EB1131C65200A2AA3A /* SKELETON.png in Resources */ = {isa = PBXBuildFile; fileRef = AF6B21E71131C65200A2AA3A /* SKELETON.png */; };
@@ -86,6 +85,7 @@
 		AFBA3CF61134460B00F8F4ED /* change-role.png in Resources */ = {isa = PBXBuildFile; fileRef = AFBA3CF51134460B00F8F4ED /* change-role.png */; };
 		AFC901A011386FCF00CAB0DD /* AI-avatar.png in Resources */ = {isa = PBXBuildFile; fileRef = AFC9019F11386FCF00CAB0DD /* AI-avatar.png */; };
 		AFC901A71138708300CAB0DD /* AI-level.png in Resources */ = {isa = PBXBuildFile; fileRef = AFC901A61138708300CAB0DD /* AI-level.png */; };
+		AFCC5E7A115000B10060E446 /* logo_32px.png in Resources */ = {isa = PBXBuildFile; fileRef = AFCC5E79115000B10060E446 /* logo_32px.png */; };
 		AFE26C28114A10C700DD4DBD /* board_320x355.png in Resources */ = {isa = PBXBuildFile; fileRef = AFE26C27114A10C700DD4DBD /* board_320x355.png */; };
 		AFE46CC9113B08E000208548 /* BoardViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = AFE46CC8113B08E000208548 /* BoardViewController.m */; };
 		AFF0CF2C10879DC800C81662 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = AFF0CF2B10879DC800C81662 /* Default.png */; };
@@ -168,7 +168,6 @@
 		AF5F8C66113A32DF00693FFD /* BoardView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = BoardView.xib; path = NIB_Files/BoardView.xib; sourceTree = "<group>"; };
 		AF5F8C6C113A349100693FFD /* AIBoardView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = AIBoardView.xib; path = NIB_Files/AIBoardView.xib; sourceTree = "<group>"; };
 		AF5F8D8A113A45C800693FFD /* NetworkBoardView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = NetworkBoardView.xib; path = NIB_Files/NetworkBoardView.xib; sourceTree = "<group>"; };
-		AF5F8D90113A47B800693FFD /* playxiangqi_320x460.png */ = {isa = PBXFileReference; comments = "Obtained from http://scienceclass.ning.com"; lastKnownFileType = image.png; path = playxiangqi_320x460.png; sourceTree = "<group>"; };
 		AF5F8DF1113A4C2900693FFD /* identity.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = identity.png; sourceTree = "<group>"; };
 		AF5F8DF9113A4E5300693FFD /* search.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = search.png; sourceTree = "<group>"; };
 		AF6B21E71131C65200A2AA3A /* SKELETON.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SKELETON.png; sourceTree = "<group>"; };
@@ -204,6 +203,7 @@
 		AFBA3CF51134460B00F8F4ED /* change-role.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "change-role.png"; sourceTree = "<group>"; };
 		AFC9019F11386FCF00CAB0DD /* AI-avatar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AI-avatar.png"; sourceTree = "<group>"; };
 		AFC901A61138708300CAB0DD /* AI-level.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AI-level.png"; sourceTree = "<group>"; };
+		AFCC5E79115000B10060E446 /* logo_32px.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = logo_32px.png; sourceTree = "<group>"; };
 		AFE26C27114A10C700DD4DBD /* board_320x355.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = board_320x355.png; sourceTree = "<group>"; };
 		AFE387D6113C2A68007B94CC /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AFE46CC7113B08E000208548 /* BoardViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoardViewController.h; sourceTree = "<group>"; };
@@ -405,10 +405,10 @@
 		AFA63FE3106FABD700D7B220 /* images */ = {
 			isa = PBXGroup;
 			children = (
+				AFCC5E79115000B10060E446 /* logo_32px.png */,
 				AFF0CF2B10879DC800C81662 /* Default.png */,
 				AF5F8DF9113A4E5300693FFD /* search.png */,
 				AF5F8DF1113A4C2900693FFD /* identity.png */,
-				AF5F8D90113A47B800693FFD /* playxiangqi_320x460.png */,
 				AF3B8A7D1138849B002F1FCB /* board_22px.png */,
 				AFC901A61138708300CAB0DD /* AI-level.png */,
 				AFC9019F11386FCF00CAB0DD /* AI-avatar.png */,
@@ -558,7 +558,6 @@
 				AF5F8C67113A32DF00693FFD /* BoardView.xib in Resources */,
 				AF5F8C6D113A349100693FFD /* AIBoardView.xib in Resources */,
 				AF5F8D8B113A45C800693FFD /* NetworkBoardView.xib in Resources */,
-				AF5F8D91113A47B800693FFD /* playxiangqi_320x460.png in Resources */,
 				AF5F8DF2113A4C2900693FFD /* identity.png in Resources */,
 				AF5F8DFA113A4E5300693FFD /* search.png in Resources */,
 				AF81950411456EA100CF465B /* Western.png in Resources */,
@@ -570,6 +569,7 @@
 				AFE26C28114A10C700DD4DBD /* board_320x355.png in Resources */,
 				AF3E210B114B1F7B00A5F9FD /* about.html in Resources */,
 				AF495D20114EE62D00CF8A92 /* MainMenu.xib in Resources */,
+				AFCC5E7A115000B10060E446 /* logo_32px.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
