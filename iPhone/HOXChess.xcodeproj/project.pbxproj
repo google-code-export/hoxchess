@@ -587,7 +587,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "TIMESTAMP=`date +%Y%m%d%H%M.%S%Z`\n## attach the build version info\nBUILD_SOURCE_VERSION=\"${TIMESTAMP}\"\n\n>./Classes/Version.h\ncat >./Classes/Version.h<<EOF\n#ifndef BUILD_VERSION\n#define BUILD_INFO \"${BUILD_SOURCE_VERSION}\"\n#endif\n";
+			shellScript = "TIMESTAMP=`date +%Y%m%d%H%M.%S%Z`\nSVNVERSION=`svnversion .`\nBUILD_SOURCE_VERSION=\"${TIMESTAMP}r${SVNVERSION}\"\n\n>./Classes/Version.h\ncat >./Classes/Version.h<<EOF\n#ifndef BUILD_VERSION\n#define BUILD_INFO \"${BUILD_SOURCE_VERSION}\"\n#endif\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
