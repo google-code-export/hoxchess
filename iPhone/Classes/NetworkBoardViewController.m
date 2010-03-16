@@ -50,6 +50,7 @@
 - (void) _handleNetworkEvent_DRAW:(NSString*)event;
 - (void) _handleNetworkEvent_INVITE:(NSString*)event toTable:(NSString*)tableId;
 - (void) _handleNetworkEvent_E_SCORE:(NSString*)event;
+- (void) _handleNetworkEvent_PLAYER_INFO:(NSString*)event;
 
 - (NSString*) _generateGuestUserName;
 - (int) _generateRandomNumber:(unsigned int)max_value;
@@ -90,9 +91,6 @@
     NSLog(@"%s: ENTER.", __FUNCTION__);
     [super viewDidLoad];
 
-    _userInfoLabel.text = NSLocalizedString(@"Not connected to network", @"");
-    _joinTablePromptLabel.text = nil;
-    _joinTablePromptButton.hidden = YES;
     _actionButton.enabled = NO;
     _messagesButton.enabled = NO;
 
@@ -319,6 +317,112 @@
 }
 
 #pragma mark -
+#pragma mark Table view methods
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 3;
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    switch (section) {
+        case 0: return NSLocalizedString(@"Server", @"");
+        case 1: return NSLocalizedString(@"Account", @"");
+    }
+    return nil;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    switch (section) {
+        case 0: return 1;
+        case 1: return 3;
+        case 2: return 1;
+    }
+    return 0;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    UITableViewCell* cell = nil;
+    
+    switch (indexPath.section)
+    {
+        case 0: // ----- Server
+        {
+            cell = _serverCell;
+            cell.textLabel.text = @"www.PlayXiangqi.com";
+            break;
+        }
+        case 1: // ----- User
+        {
+            switch (indexPath.row)
+            {
+                case 0:
+                {
+                    static NSString* cellId = @"UserCell";
+                    cell = [tableView dequeueReusableCellWithIdentifier:cellId];
+                    if (!cell) {
+                        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:cellId] autorelease];
+                        cell.textLabel.text = NSLocalizedString(@"Id", @"");
+                    }
+                    cell.detailTextLabel.text = _username;
+                    break;
+                }
+                case 1:
+                {
+                    static NSString* cellId = @"RatingCell";
+                    cell = [tableView dequeueReusableCellWithIdentifier:cellId];
+                    if (!cell) {
+                        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:cellId] autorelease];
+                        cell.textLabel.text = NSLocalizedString(@"Rating", @"");                    }
+                    cell.detailTextLabel.text = _rating;
+                    break;
+                }
+                case 2:
+                {
+                    static NSString* cellId = @"StatisticsCell";
+                    cell = [tableView dequeueReusableCellWithIdentifier:cellId];
+                    if (!cell) {
+                        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:cellId] autorelease];
+                        cell.textLabel.text = NSLocalizedString(@"Statistics", @"");
+                    }
+                    _infoCell = cell;
+                    break;
+                }
+            }
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            break;
+        }
+        case 2: // ----- Search
+        {
+            if (_loginAuthenticated) {
+                cell = _searchCell;
+                cell.textLabel.text = NSLocalizedString(@"Select a Table to join", @"");
+            } else {
+                cell = _loginCell;
+                cell.textLabel.text = NSLocalizedString(@"Not connected to network", @"");
+            }
+            break;
+        }
+    }
+    
+    return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath 
+{    
+    switch (indexPath.section)
+    {
+        case 2: // ----- Search
+        {
+            [self searchPressed:nil];
+            break;
+        }
+    }
+}
+
+#pragma mark -
 #pragma mark Delegate callback functions
 
 - (void) handleLoginRequest:(NSString *)button username:(NSString*)name password:(NSString*)passwd
@@ -474,6 +578,7 @@
 - (void) _animateEmptyBoard
 {
     self._tableId = nil;
+    _myColor = HC_COLOR_UNKNOWN;
     _actionButton.enabled = NO;
 
     [UIView beginAnimations:nil context:NULL];
@@ -493,9 +598,7 @@
 - (void) _onMyRatingUpdated:(NSString*)newRating
 {
     self._rating = newRating;
-    _userInfoLabel.text = [NSString stringWithFormat:@"%@ (%@)", _username, _rating];
-    _joinTablePromptLabel.text = NSLocalizedString(@"Select a Table to join", @"");
-    _joinTablePromptButton.hidden = NO;
+    [_mainView reloadData];
 }
 
 #pragma mark -
@@ -552,6 +655,8 @@
                     [self _handleNetworkEvent_INVITE:content toTable:tableId];
                 } else if ([op isEqualToString:@"E_SCORE"]) {
                     [self _handleNetworkEvent_E_SCORE:content];
+                } else if ([op isEqualToString:@"PLAYER_INFO"]) {
+                    [self _handleNetworkEvent_PLAYER_INFO:content];
                 }
             }
 
@@ -632,6 +737,9 @@
         [[NSUserDefaults standardUserDefaults] setObject:_username forKey:@"network_username"];
         [[NSUserDefaults standardUserDefaults] setObject:_password forKey:@"network_password"];
     }
+    
+    // Retrieve my statistics.
+    [_connection send_PLAYER_INFO:_username];
 }
 
 - (void) _handleNetworkEvent_LIST:(NSString*)event
@@ -733,6 +841,9 @@
     if ( [_tableId isEqualToString:tableId] ) {
         _isGameOver = YES;
         [_board onGameOver];
+        if (_myColor == HC_COLOR_RED || _myColor == HC_COLOR_BLACK) {
+            [_connection send_PLAYER_INFO:_username];
+        }
     }
 }
 
@@ -874,6 +985,23 @@
         [_board setRedLabel:playerInfo];
     } else if ([_blackId isEqualToString:pid]) {
         [_board setBlackLabel:playerInfo];
+    }
+}
+
+- (void) _handleNetworkEvent_PLAYER_INFO:(NSString*)event
+{
+    NSArray* components = [event componentsSeparatedByString:@";"];
+    NSString* pid = [components objectAtIndex:0];
+    NSString* rating = [components objectAtIndex:1];
+    NSString* wins = [components objectAtIndex:2];
+    NSString* draws = [components objectAtIndex:3];
+    NSString* losses = [components objectAtIndex:4];
+
+    NSLog(@"%s: PLAYER_INFO of [%@] = [W%@ D%@ L%@].", __FUNCTION__, pid, rating, wins, draws, losses);
+
+    if ([_username isEqualToString:pid]) {
+        _infoCell.detailTextLabel.text = [NSString stringWithFormat:@"W%@  D%@  L%@", wins, draws, losses];
+        [_mainView reloadData];
     }
 }
 

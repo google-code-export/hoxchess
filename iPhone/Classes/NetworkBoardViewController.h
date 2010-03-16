@@ -24,18 +24,20 @@
 #import "MessageListViewController.h"
 #import "NetworkConnection.h"
 
-@interface NetworkBoardViewController : UIViewController <BoardOwner, LoginDelegate,
-    TableListDelegate, MessageListDelegate, NetworkHandler, UIActionSheetDelegate>
+@interface NetworkBoardViewController : UIViewController<UITableViewDelegate, UITableViewDataSource,
+    BoardOwner, LoginDelegate, TableListDelegate, MessageListDelegate,
+    NetworkHandler, UIActionSheetDelegate>
 {
     IBOutlet UIToolbar*               _toolbar;
     IBOutlet UIActivityIndicatorView* _activity;
     IBOutlet UIBarButtonItem*         _actionButton;
     IBOutlet UIBarButtonItem*         _messagesButton;
 
-    IBOutlet UIImageView*             _userInfoImage;
-    IBOutlet UILabel*                 _userInfoLabel;
-    IBOutlet UILabel*                 _joinTablePromptLabel;
-    IBOutlet UIButton*                _joinTablePromptButton;
+    IBOutlet UITableView*             _mainView;
+    IBOutlet UITableViewCell*         _serverCell;
+    IBOutlet UITableViewCell*         _loginCell;
+    IBOutlet UITableViewCell*         _searchCell;
+    UITableViewCell*                  _infoCell;
 
     BoardViewController* _board;
     Game*                _game;
