@@ -364,7 +364,7 @@
                     cell = [tableView dequeueReusableCellWithIdentifier:cellId];
                     if (!cell) {
                         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:cellId] autorelease];
-                        cell.textLabel.text = NSLocalizedString(@"Id", @"");
+                        cell.textLabel.text = NSLocalizedString(@"Username", @"");
                     }
                     cell.detailTextLabel.text = _username;
                     break;
