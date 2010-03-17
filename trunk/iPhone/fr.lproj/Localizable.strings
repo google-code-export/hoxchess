@@ -66,6 +66,8 @@
 "Guest" = "Invité";
 "Login" = "Connexion";
 "Need to register? Join now" = "Besoin de vous enregistrer? Rejoignez-nous";
+"Rating" = "Points";
+"Statistics" = "Registre";
 
 /* Network Settings */
 "Server" = "Serveur";

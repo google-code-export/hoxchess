@@ -66,6 +66,8 @@
 "Guest" = "客人";
 "Login" = "注册";
 "Need to register? Join now" = "注册? 立即注册";
+"Rating" = "分数";
+"Statistics" = "统计";
 
 /* Network Settings */
 "Server" = "服务器";
