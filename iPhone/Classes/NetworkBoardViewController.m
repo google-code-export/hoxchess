@@ -280,7 +280,7 @@
             if (_isGameOver) {
                 state = @"ended";
             } else {
-                state = ([_game getMoveCount] == 0 ? @"ready" : @"play");
+                state = ([_game getMoveCount] < 2 ? @"ready" : @"play");
             }
         } else {
             state = @"view";
@@ -873,14 +873,28 @@
         NSLog(@"%s: E_JOIN:[%@ as %@] from table:[%@] ignored.", __FUNCTION__, playerInfo, color, tableId);
         return;
     }
-    if ([color isEqualToString:@"Red"]) {
+    if ([color isEqualToString:@"Red"])
+    {
         self._redId = pid;
         [_board setRedLabel:playerInfo];
-    } else if ([color isEqualToString:@"Black"]) {
+        if ([pid isEqualToString:_blackId]) {
+            self._blackId = nil;
+            [_board setBlackLabel:@"*"];
+        }
+        if ([_username isEqualToString:pid]) _myColor = HC_COLOR_RED;
+    }
+    else if ([color isEqualToString:@"Black"])
+    {
         self._blackId = pid;
         [_board setBlackLabel:playerInfo];
-    } else if ([color isEqualToString:@"None"]) {
-        NSLog(@"%s: Player: [%@] joined as an observer.", __FUNCTION__, playerInfo);
+        if ([pid isEqualToString:_redId]) {
+            self._redId = nil;
+            [_board setRedLabel:@"*"];
+        }
+        if ([_username isEqualToString:pid]) _myColor = HC_COLOR_BLACK;
+    }
+    else if ([color isEqualToString:@"None"])
+    {
         if ([pid isEqualToString:_redId]) {
             self._redId = nil;
             [_board setRedLabel:@"*"];
@@ -888,6 +902,14 @@
             self._blackId = nil;
             [_board setBlackLabel:@"*"];
         }
+        if ([_username isEqualToString:pid]) _myColor = HC_COLOR_NONE;
+    }
+
+    // Reverse the View if necessary.
+    if (   (_myColor == HC_COLOR_BLACK && _game.blackAtTopSide)
+        || (_myColor != HC_COLOR_BLACK && !_game.blackAtTopSide) )
+    {
+        [_board reverseBoardView];
     }
 }
 

@@ -51,7 +51,7 @@
              destructiveButtonTitle:NSLocalizedString(@"Resign", @"")
                   otherButtonTitles:NSLocalizedString(@"Draw", @""), nil];
     }
-    else if ([state isEqualToString:@"ended"]) {
+    else if ([state isEqualToString:@"ended"] || [state isEqualToString:@"ready"]) {
         closeIndex = 0;
         resetIndex = 1;
         cancelIndex = 2;
@@ -60,7 +60,7 @@
              destructiveButtonTitle:NSLocalizedString(@"Close Table", @"")
                   otherButtonTitles:NSLocalizedString(@"Reset Table", @""), nil];
     }
-    else if ([state isEqualToString:@"view"] || [state isEqualToString:@"ready"]) {
+    else if ([state isEqualToString:@"view"]) {
         closeIndex = 0;
         cancelIndex = 1;
         self = [super initWithTitle:title delegate:delegate
