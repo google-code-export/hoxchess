@@ -82,10 +82,11 @@
                 boardFrame = CGRectMake(0, 0, 315, 350);
                 break;
             }
-            case 2:  // PlayXiangqi background.
+            case 2:  // The custom-drawn background.
             {
-                backgroundColor = GetCGPatternNamed(@"PlayXiangqi.png");
-                cellOffset = CGPointMake(2.5, 2);
+                backgroundColor = GetCGPatternNamed(@"board_320x355.png");
+                lineColor = kLightRedColor;
+                boardPosition = CGPointMake(2.5, 29);
                 boardFrame = CGRectMake(0, 0, 320, 355);
                 break;
             }
@@ -103,11 +104,10 @@
                 cellOffset = CGPointMake(2.7, 1.5);
                 break;
             }
-            default: // The custom-drawn background.
+            default: // PlayXiangqi background.
             {
-                backgroundColor = GetCGPatternNamed(@"board_320x355.png");
-                lineColor = kLightRedColor;
-                boardPosition = CGPointMake(2.5, 29);
+                backgroundColor = GetCGPatternNamed(@"PlayXiangqi.png");
+                cellOffset = CGPointMake(2.5, 2);
                 boardFrame = CGRectMake(0, 0, 320, 355);
                 break;
             }
@@ -436,8 +436,8 @@
         case 0: _pieceFolder = @"pieces/xqwizard"; break;
         case 1: _pieceFolder = @"pieces/alfaerie"; break;
         case 2: _pieceFolder = @"pieces/wikipedia"; break;
-        case 3: _pieceFolder = @"pieces/HOXChess"; break;
-        default: _pieceFolder = @"pieces/iXiangQi"; _pieceScale = 35; break;
+        case 3: _pieceFolder = @"pieces/Adventure"; break;
+        default: _pieceFolder = @"pieces/HOXChess"; break;
     }
 
     // Chariot      

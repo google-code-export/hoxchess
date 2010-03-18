@@ -43,8 +43,8 @@ enum ViewTagEnum
                                         NSLocalizedString(@"Default", @""),
                                         NSLocalizedString(@"Western", @""),
                                         @"Wikipedia",
-                                        @"HOXChess",
-                                        @"iXiangQi",
+                                        @"Adventure",
+                                        @"White",
                                         nil];
     _pieceType = [[NSUserDefaults standardUserDefaults] integerForKey:@"piece_type"];
     if (_pieceType >= [_pieceChoices count]) { _pieceType = 0; }
@@ -246,8 +246,8 @@ enum ViewTagEnum
             {
                 case 1:  // - Board
                 {
-                    NSArray* boards = [NSArray arrayWithObjects:@"board_60px", @"Western_60px",
-                                        @"PlayXiangqi_60px", @"SKELETON_60px", @"WOOD_60px", nil];
+                    NSArray* boards = [NSArray arrayWithObjects:@"PlayXiangqi_60px", @"Western_60px",
+                                        @"board_60px", @"SKELETON_60px", @"WOOD_60px", nil];
                     NSMutableArray* imageNames = [[NSMutableArray alloc] initWithCapacity:[boards count]];
                     for (NSString* name in boards)
                     {
@@ -257,9 +257,9 @@ enum ViewTagEnum
                         [imageNames addObject:path];
                     }
                     NSArray* subTitles = [NSArray arrayWithObjects:
-                                          @"", @"http://www.playxiangqi.com",
-                                          @"http://www.playxiangqi.com",
-                                          @"http://www.xqbase.com", @"http://www.xqbase.com",
+                                          @"", @"",
+                                          @"nevochess.googlecode.com",
+                                          @"www.xqbase.com", @"www.xqbase.com",
                                           nil];
                     SingleSelectionController* controller =
                         [[SingleSelectionController alloc] initWithChoices:_boardChoices
@@ -278,8 +278,8 @@ enum ViewTagEnum
                 {
                     NSArray* piecePaths = [NSArray arrayWithObjects:@"pieces/xqwizard",
                                            @"pieces/alfaerie",
-                                           @"pieces/wikipedia", @"pieces/HOXChess",
-                                           @"pieces/iXiangQi", nil];
+                                           @"pieces/wikipedia", @"pieces/Adventure",
+                                           @"pieces/HOXChess", nil];
                     NSMutableArray* imageNames = [[NSMutableArray alloc] initWithCapacity:[piecePaths count]];
                     for (NSString* subPath in piecePaths)
                     {
@@ -290,10 +290,10 @@ enum ViewTagEnum
                     }
                     NSArray* subTitles = [NSArray arrayWithObjects:
                                           @"",
-                                          @"Alfaerie graphics \nhttp://www.chessvariants.com",
-                                          @"http://wikipedia.org/wiki/Xiangqi",
-                                          @"http://wikipedia.org/wiki/Xiangqi",
-                                          @"'nanshanweng' \nhttp://sites.google.com/site/328113",
+                                          @"Alfaerie graphics \nwww.chessvariants.com",
+                                          @"wikipedia.org/wiki/Xiangqi",
+                                          @"Ian Taylor",
+                                          @"wikipedia.org/wiki/Xiangqi",
                                           nil];
                     SingleSelectionController* controller =
                     [[SingleSelectionController alloc] initWithChoices:_pieceChoices
@@ -318,8 +318,8 @@ enum ViewTagEnum
                 case 0:  // - AI-Type
                 {
                     NSArray* subTitles = [NSArray arrayWithObjects:
-                                          @" Morning Yellow \n http://www.xqbase.com",
-                                          @" H.G. Muller \n http://home.hccnet.nl/h.g.muller",
+                                          @" Morning Yellow \n www.xqbase.com",
+                                          @" H.G. Muller \n home.hccnet.nl/h.g.muller",
                                           nil];
                     SingleSelectionController* controller =
                         [[SingleSelectionController alloc] initWithChoices:_aiTypeChoices

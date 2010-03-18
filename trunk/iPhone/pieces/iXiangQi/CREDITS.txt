@@ -1,5 +1,0 @@
-Downloaded and extracted from iXiangqi at:
-http://328113.googlepages.com/ixiangqi
-
-+ Description: A Chinese chess program for Mac OS X
-+ Author: 'nanshanweng' at 328113@gmail.com
