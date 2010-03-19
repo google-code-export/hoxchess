@@ -54,11 +54,11 @@
 
 /* Game status messages. */
 "Game Over" = "Partie Terminée";
-"You win,congratulations!" = "You win,congratulations!";
-"Computer wins. Don't give up, please try again!" = "Computer wins. Don't give up, please try again!";
-"You lose. You may try again!" = "You lose. You may try again!";
-"Sorry,we are in draw!" = "Sorry,we are in draw!";
-"Sorry,we made too many moves, please restart again!" = "Sorry,we made too many moves, please restart again!";
+"You won. Congratulations!" = "You won. Congratulations!";
+"Computer won. Don't give up. Please try again!" = "Computer won. Don't give up. Please try again!";
+"You lost. You may try again!" = "You lost. You may try again!";
+"Sorry, we are in draw!" = "Sorry, we are in draw!";
+"Sorry, we made too many moves. Please restart again!" = "Sorry, we made too many moves. Please restart again!";
 
 /* Network-Login view */
 "Username" = "Identifiant";

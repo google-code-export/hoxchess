@@ -35,7 +35,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #define HC_SETTINGS_VERSION      1     /* The Settings version               */
-#define HC_AI_DIFFICULTY_DEFAULT 1     /* Valid range [0, 3]                 */
+#define HC_AI_DIFFICULTY_DEFAULT 0     /* Valid range [0, 3]                 */
 #define HC_MAX_MOVES_PER_GAME    200   /* Maximum number of moves per game   */
 
 #define HC_SOUND_PATH            @"sounds"

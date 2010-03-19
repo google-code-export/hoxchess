@@ -54,11 +54,11 @@
 
 /* Game status messages. */
 "Game Over" = "游戏结束";
-"You win,congratulations!" = "祝贺您，您赢了！";
-"Computer wins. Don't give up, please try again!" = "机器AI获胜。不要放弃，请再试一次！";
-"You lose. You may try again!" = "您输了，您可以再试一次！";
-"Sorry,we are in draw!" = "很抱歉,当前和局！";
-"Sorry,we made too many moves, please restart again!" = "很抱歉，超过最多允许着法，请重新开始了！";
+"You won. Congratulations!" = "祝贺您，您赢了！";
+"Computer won. Don't give up. Please try again!" = "机器AI获胜。不要放弃，请再试一次！";
+"You lost. You may try again!" = "您输了，您可以再试一次！";
+"Sorry, we are in draw!" = "很抱歉,当前和局！";
+"Sorry, we made too many moves. Please restart again!" = "很抱歉，超过最多允许着法，请重新开始了！";
 
 /* Network-Login view */
 "Username" = "用户名";
