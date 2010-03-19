@@ -690,12 +690,12 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CODE_SIGN_ENTITLEMENTS = Entitlements.plist;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Huy Phan";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "A4E3469C-D000-4D77-9AE2-E22669D69113";
 				SDKROOT = iphoneos3.0;
 			};
 			name = "Distribution (AdHoc)";
@@ -722,7 +722,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "96F0C00B-DAF1-45AA-9E04-19D1720C6C5A";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "0A47D93A-E632-456E-A3A3-E0F929EB86D9";
 				SDKROOT = iphoneos3.0;
 			};
 			name = "Distribution (AppStore)";
