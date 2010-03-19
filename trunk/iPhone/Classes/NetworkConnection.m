@@ -84,7 +84,8 @@
 
 - (void) send_LOGIN
 {
-    NSString* outStr = [NSString stringWithFormat:@"op=LOGIN&pid=%@&password=%@\n", _username, _password];
+    NSString* outStr = [NSString stringWithFormat:@"op=LOGIN&version=%@-%@&pid=%@&password=%@\n",
+                        HC_APP_INAME, HC_APP_IVERSION, _username, _password];
     [self _flushOutgoingData:outStr];
 }
 

@@ -19,10 +19,14 @@
 
 /*
  *  Enums.h
- *  Created by Huy Phan on 9/27/09.
+ *  Created by Huy Phan on 9/27/2009.
  *
  *  Containing the common constants that are used throughout the project.
  */
+
+
+#define HC_APP_INAME             @"IOXChess" /* The internal app-name        */
+#define HC_APP_IVERSION          @"1.0"      /* The internal app-version     */
 
 ///////////////////////////////////////////////////////////////////////////////
 //
