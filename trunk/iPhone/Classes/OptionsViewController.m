@@ -41,8 +41,8 @@ enum ViewTagEnum
     // --- Piece Type.
     _pieceChoices = [[NSArray alloc] initWithObjects:
                                         NSLocalizedString(@"Default", @""),
-                                        NSLocalizedString(@"Western", @""),
-                                        @"Wikipedia",
+                                        NSLocalizedString(@"Wood", @""),
+                                        @"Western",
                                         @"Adventure",
                                         @"White",
                                         nil];
@@ -276,8 +276,8 @@ enum ViewTagEnum
                 }
                 case 2:  // - Piece
                 {
-                    NSArray* piecePaths = [NSArray arrayWithObjects:@"pieces/xqwizard",
-                                           @"pieces/alfaerie",
+                    NSArray* piecePaths = [NSArray arrayWithObjects:@"pieces/alfaerie",
+                                           @"pieces/xqwizard",
                                            @"pieces/wikipedia", @"pieces/Adventure",
                                            @"pieces/HOXChess", nil];
                     NSMutableArray* imageNames = [[NSMutableArray alloc] initWithCapacity:[piecePaths count]];
@@ -289,8 +289,8 @@ enum ViewTagEnum
                         [imageNames addObject:path];
                     }
                     NSArray* subTitles = [NSArray arrayWithObjects:
-                                          @"",
                                           @"Alfaerie graphics \nwww.chessvariants.com",
+                                          @"XQWizard \nxqwizard.sourceforge.net",
                                           @"wikipedia.org/wiki/Xiangqi",
                                           @"Ian Taylor",
                                           @"wikipedia.org/wiki/Xiangqi",

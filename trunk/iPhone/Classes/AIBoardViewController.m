@@ -385,20 +385,20 @@ enum ActionSheetEnum
     if (   (result == HC_GAME_STATUS_RED_WIN && _myColor == HC_COLOR_RED)
         || (result == HC_GAME_STATUS_BLACK_WIN && _myColor == HC_COLOR_BLACK) )
     {
-        msg = NSLocalizedString(@"You win,congratulations!", @"");
+        msg = NSLocalizedString(@"You won. Congratulations!", @"");
     }
     else if (  (result == HC_GAME_STATUS_RED_WIN && _myColor == HC_COLOR_BLACK)
            || (result == HC_GAME_STATUS_BLACK_WIN && _myColor == HC_COLOR_RED) )
     {
-        msg = NSLocalizedString(@"Computer wins. Don't give up, please try again!", @"");
+        msg = NSLocalizedString(@"Computer won. Don't give up. Please try again!", @"");
     }
     else if (result == HC_GAME_STATUS_DRAWN)
     {
-        msg = NSLocalizedString(@"Sorry,we are in draw!", @"");
+        msg = NSLocalizedString(@"Sorry, we are in draw!", @"");
     }
     else if (result == HC_GAME_STATUS_TOO_MANY_MOVES)
     {
-        msg = NSLocalizedString(@"Sorry,we made too many moves, please restart again!", @"");
+        msg = NSLocalizedString(@"Sorry, we made too many moves. Please restart again!", @"");
     }
     else
     {

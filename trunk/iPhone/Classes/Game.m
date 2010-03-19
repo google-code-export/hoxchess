@@ -433,8 +433,8 @@
     _pieceScale = 33; //_grid.spacing.width
     NSInteger pieceType = [[NSUserDefaults standardUserDefaults] integerForKey:@"piece_type"];
     switch (pieceType) {
-        case 0: _pieceFolder = @"pieces/xqwizard"; break;
-        case 1: _pieceFolder = @"pieces/alfaerie"; break;
+        case 0: _pieceFolder = @"pieces/alfaerie"; break;
+        case 1: _pieceFolder = @"pieces/xqwizard"; break;
         case 2: _pieceFolder = @"pieces/wikipedia"; break;
         case 3: _pieceFolder = @"pieces/Adventure"; break;
         default: _pieceFolder = @"pieces/HOXChess"; break;
