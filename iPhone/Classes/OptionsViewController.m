@@ -29,6 +29,18 @@ enum ViewTagEnum
     VIEW_TAG_AI_LEVEL
 };
 
+static NSString* BoardFiles[] = { @"PlayXiangqi_60px",
+                                  @"Western_60px",
+                                  @"board_60px",
+                                  @"SKELETON_60px",
+                                  @"WOOD_60px" };
+
+static NSString* PiecePaths[] = { @"pieces/alfaerie",
+                                  @"pieces/xqwizard",
+                                  @"pieces/wikipedia",
+                                  @"pieces/Adventure",
+                                  @"pieces/HOXChess" };
+
 @implementation OptionsViewController
 
 - (void)viewDidLoad 
@@ -126,13 +138,12 @@ enum ViewTagEnum
     return 0;
 }
 
-- (UIImage*) _getImageNamed:(NSString*)name
+- (UIImage*) _getImageNamed:(NSString*)name inDirectory:(NSString *)subpath;
 {
     NSString* imageName = [[NSBundle mainBundle] pathForResource:name
                                                           ofType:@"png"
-                                                     inDirectory:nil];
-    UIImage* theImage = [UIImage imageWithContentsOfFile:imageName];
-    return theImage;
+                                                     inDirectory:subpath];
+    return [UIImage imageWithContentsOfFile:imageName];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath 
@@ -140,6 +151,7 @@ enum ViewTagEnum
     UITableViewCell* cell = nil;
     UILabel*         theLabel = nil;
     UILabel*         theValue = nil;
+    UIImageView*     theImage = nil;
     UIFont*          defaultFont = [UIFont boldSystemFontOfSize:17.0];
     
     switch (indexPath.section)
@@ -164,6 +176,8 @@ enum ViewTagEnum
                     theLabel.text  = NSLocalizedString(@"Board", @"");
                     theValue = (UILabel *)[cell viewWithTag:2];
                     theValue.text = [_boardChoices objectAtIndex:_boardType];
+                    theImage = (UIImageView *)[cell viewWithTag:3];
+                    theImage.image = [self _getImageNamed:BoardFiles[_boardType] inDirectory:nil];
                     break;
                 }
                 case 2:  // - Piece
@@ -174,6 +188,8 @@ enum ViewTagEnum
                     theLabel.text  = NSLocalizedString(@"Piece", @"");
                     theValue = (UILabel *)[cell viewWithTag:2];
                     theValue.text = [_pieceChoices objectAtIndex:_pieceType];
+                    theImage = (UIImageView *)[cell viewWithTag:3];
+                    theImage.image = [self _getImageNamed:@"rking" inDirectory:PiecePaths[_pieceType]];
                     break;
                 }
             }
@@ -226,7 +242,7 @@ enum ViewTagEnum
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             }
             cell.textLabel.text = NSLocalizedString(@"About", @"");
-            cell.imageView.image = [self _getImageNamed:@"help"];
+            cell.imageView.image = [self _getImageNamed:@"help" inDirectory:nil];
             break;
         }
     }
@@ -246,8 +262,8 @@ enum ViewTagEnum
             {
                 case 1:  // - Board
                 {
-                    NSArray* boards = [NSArray arrayWithObjects:@"PlayXiangqi_60px", @"Western_60px",
-                                        @"board_60px", @"SKELETON_60px", @"WOOD_60px", nil];
+                    NSUInteger nPaths = sizeof(BoardFiles) / sizeof(BoardFiles[0]);
+                    NSArray* boards = [NSArray arrayWithObjects:BoardFiles count:nPaths];
                     NSMutableArray* imageNames = [[NSMutableArray alloc] initWithCapacity:[boards count]];
                     for (NSString* name in boards)
                     {
@@ -276,10 +292,8 @@ enum ViewTagEnum
                 }
                 case 2:  // - Piece
                 {
-                    NSArray* piecePaths = [NSArray arrayWithObjects:@"pieces/alfaerie",
-                                           @"pieces/xqwizard",
-                                           @"pieces/wikipedia", @"pieces/Adventure",
-                                           @"pieces/HOXChess", nil];
+                    NSUInteger nPaths = sizeof(PiecePaths) / sizeof(PiecePaths[0]);
+                    NSArray* piecePaths = [NSArray arrayWithObjects:PiecePaths count:nPaths];
                     NSMutableArray* imageNames = [[NSMutableArray alloc] initWithCapacity:[piecePaths count]];
                     for (NSString* subPath in piecePaths)
                     {
@@ -388,6 +402,8 @@ enum ViewTagEnum
                 _boardType = index;
                 UILabel* theValue = (UILabel *)[_boardCell viewWithTag:2];
                 theValue.text = [_boardChoices objectAtIndex:_boardType];
+                UIImageView* theImage = (UIImageView *)[_boardCell viewWithTag:3];
+                theImage.image = [self _getImageNamed:BoardFiles[_boardType] inDirectory:nil];
                 [[NSUserDefaults standardUserDefaults] setInteger:_boardType forKey:@"board_type"];
             }
             break;
@@ -399,6 +415,8 @@ enum ViewTagEnum
                 _pieceType = index;
                 UILabel* theValue = (UILabel *)[_pieceCell viewWithTag:2];
                 theValue.text = [_pieceChoices objectAtIndex:_pieceType];
+                UIImageView* theImage = (UIImageView *)[_pieceCell viewWithTag:3];
+                theImage.image = [self _getImageNamed:@"rking" inDirectory:PiecePaths[_pieceType]];
                 [[NSUserDefaults standardUserDefaults] setInteger:_pieceType forKey:@"piece_type"];
             }
             break;

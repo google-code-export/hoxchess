@@ -12,9 +12,9 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
+			<integer value="38"/>
 			<integer value="27"/>
 			<integer value="49"/>
-			<integer value="38"/>
 			<integer value="60"/>
 			<integer value="43"/>
 			<integer value="53"/>
@@ -149,16 +149,13 @@
 							<object class="IBUIImageView" id="281166683">
 								<reference key="NSNextResponder" ref="849718150"/>
 								<int key="NSvFlags">256</int>
-								<string key="NSFrame">{{9, 10}, {22, 22}}</string>
+								<string key="NSFrame">{{7.5, 7}, {25, 30}}</string>
 								<reference key="NSSuperview" ref="849718150"/>
 								<bool key="IBUIOpaque">NO</bool>
 								<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
-								<int key="IBUIContentMode">4</int>
+								<int key="IBUIContentMode">1</int>
+								<int key="IBUITag">3</int>
 								<bool key="IBUIUserInteractionEnabled">NO</bool>
-								<object class="NSCustomResource" key="IBUIImage">
-									<string key="NSClassName">NSImage</string>
-									<string key="NSResourceName">board_22px.png</string>
-								</object>
 							</object>
 							<object class="IBUILabel" id="390865899">
 								<reference key="NSNextResponder" ref="849718150"/>
@@ -235,16 +232,13 @@
 							<object class="IBUIImageView" id="1067638311">
 								<reference key="NSNextResponder" ref="470671406"/>
 								<int key="NSvFlags">256</int>
-								<string key="NSFrame">{{9, 10}, {22, 22}}</string>
+								<string key="NSFrame">{{7.5, 8}, {25, 25}}</string>
 								<reference key="NSSuperview" ref="470671406"/>
 								<bool key="IBUIOpaque">NO</bool>
 								<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
-								<int key="IBUIContentMode">4</int>
+								<int key="IBUIContentMode">1</int>
+								<int key="IBUITag">3</int>
 								<bool key="IBUIUserInteractionEnabled">NO</bool>
-								<object class="NSCustomResource" key="IBUIImage">
-									<string key="NSClassName">NSImage</string>
-									<string key="NSResourceName">piece_22px.png</string>
-								</object>
 							</object>
 							<object class="IBUILabel" id="109420866">
 								<reference key="NSNextResponder" ref="470671406"/>
@@ -1205,7 +1199,7 @@
 			<integer value="3000" key="NS.object.0"/>
 		</object>
 		<bool key="IBDocument.PluginDeclaredDependenciesTrackSystemTargetVersion">YES</bool>
-		<string key="IBDocument.LastKnownRelativeProjectPath">NevoChess.xcodeproj</string>
+		<string key="IBDocument.LastKnownRelativeProjectPath">../HOXChess.xcodeproj</string>
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
 		<string key="IBCocoaTouchPluginVersion">3.1</string>
 	</data>
