@@ -67,6 +67,7 @@
 							<double key="NSSize">24</double>
 							<int key="NSfFlags">16</int>
 						</object>
+						<bool key="IBUIShowsTouchWhenHighlighted">YES</bool>
 						<string key="IBUITitleShadowOffset">{1, 0}</string>
 						<string key="IBUINormalTitle"> Practice</string>
 						<object class="NSColor" key="IBUIHighlightedTitleColor" id="746675261">
@@ -97,6 +98,7 @@
 						<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
 						<int key="IBUIContentVerticalAlignment">0</int>
 						<reference key="IBUIFont" ref="78670767"/>
+						<bool key="IBUIShowsTouchWhenHighlighted">YES</bool>
 						<string key="IBUITitleShadowOffset">{1, 0}</string>
 						<string key="IBUINormalTitle"> Play Online</string>
 						<reference key="IBUIHighlightedTitleColor" ref="746675261"/>
@@ -116,6 +118,7 @@
 						<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
 						<int key="IBUIContentVerticalAlignment">0</int>
 						<reference key="IBUIFont" ref="78670767"/>
+						<bool key="IBUIShowsTouchWhenHighlighted">YES</bool>
 						<string key="IBUITitleShadowOffset">{1, 0}</string>
 						<string key="IBUINormalTitle"> Settings</string>
 						<reference key="IBUIHighlightedTitleColor" ref="746675261"/>
