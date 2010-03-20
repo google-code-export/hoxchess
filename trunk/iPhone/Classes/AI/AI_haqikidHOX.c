@@ -54,8 +54,7 @@ int MaxMoves  = 40;      // moves per session; 0 = entire game
 int TimeInc   = 0;       // extra time per move in msec
 int TimeLeft;
 int MovesLeft;
-//int Ticks, tlim;
-int Randomize;
+int Randomize = 1;
 int GamePtr;
 int Ticks, tlim, tlim2;
 

@@ -109,9 +109,9 @@ _HaQiKiDToMove( const char* szMove,
 {
     const char* aiMove = HaQiKiD_GenerateNextMove();
     _HaQiKiDToMove( aiMove, pRow1, pCol1, pRow2, pCol2 );
-#ifdef DEBUG
-    printf("[%s] from r%d c%d to r%d c%d\n", __func__, *pRow1, *pCol1, *pRow2, *pCol2);
-#endif
+//#ifdef DEBUG
+//    printf("[%s] from r%d c%d to r%d c%d\n", __func__, *pRow1, *pCol1, *pRow2, *pCol2);
+//#endif
     return AI_RC_OK;
 }
 
@@ -119,9 +119,9 @@ _HaQiKiDToMove( const char* szMove,
               toRow:(int)row2 toCol:(int)col2
 {
     const char *szMove = _moveToHaQiKiD( row1, col1, row2, col2 );
-#ifdef DEBUG
-    printf("[%s] from r%d c%d to r%d c%d\n", __func__, row1, col1, row2, col2);
-#endif
+//#ifdef DEBUG
+//    printf("[%s] from r%d c%d to r%d c%d\n", __func__, row1, col1, row2, col2);
+//#endif
     HaQiKiD_OnOpponentMove(szMove);
     return AI_RC_OK;
 }
