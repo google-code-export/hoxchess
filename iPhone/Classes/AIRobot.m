@@ -162,7 +162,7 @@
     NSDate* startTime = [NSDate date];
     [_aiEngine generateMove:&row1 fromCol:&col1 toRow:&row2 toCol:&col2];
     NSTimeInterval timeInterval = - [startTime timeIntervalSinceNow]; // in seconds.
-    NSLog(@"%s: AI took [%.02f] seconds.", __FUNCTION__, timeInterval);
+    //NSLog(@"%s: AI took [%.02f] seconds.", __FUNCTION__, timeInterval);
     if (timeInterval < 1.0) {
         [NSThread sleepForTimeInterval:(1.0 - timeInterval)];
     }
