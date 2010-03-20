@@ -114,7 +114,7 @@
     _board.boardOwner = self;
     self._game = _board.game;
 
-    self._tableId = nil;
+    _tableId = nil;
     _myColor = HC_COLOR_UNKNOWN;
 } 
 
@@ -171,6 +171,7 @@
     self._tableListController = nil;
     self._messageListController = nil;
     self._board = nil;
+    self._tableId = nil;
     [super dealloc];
 }
 
