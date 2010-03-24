@@ -179,3 +179,26 @@
 }
 
 @end
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//    Utilities functions
+//
+///////////////////////////////////////////////////////////////////////////////
+
+@implementation Utils
+
++ (UIImage*) imageWithName:(NSString*)name
+{
+    return [Utils imageWithName:name inDirectory:nil];
+}
+
++ (UIImage*) imageWithName:(NSString*)name inDirectory:(NSString *)subpath
+{
+    NSString* imageName = [[NSBundle mainBundle] pathForResource:name
+                                                          ofType:@"png"
+                                                     inDirectory:subpath];
+    return [UIImage imageWithContentsOfFile:imageName];
+}
+
+@end

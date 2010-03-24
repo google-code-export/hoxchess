@@ -20,6 +20,7 @@
 #import "OptionsViewController.h"
 #import "AboutViewController.h"
 #import "AudioHelper.h"
+#import "Types.h"
 
 enum ViewTagEnum
 {
@@ -138,14 +139,6 @@ static NSString* PiecePaths[] = { @"pieces/alfaerie",
     return 0;
 }
 
-- (UIImage*) _getImageNamed:(NSString*)name inDirectory:(NSString *)subpath;
-{
-    NSString* imageName = [[NSBundle mainBundle] pathForResource:name
-                                                          ofType:@"png"
-                                                     inDirectory:subpath];
-    return [UIImage imageWithContentsOfFile:imageName];
-}
-
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath 
 {
     UITableViewCell* cell = nil;
@@ -177,7 +170,7 @@ static NSString* PiecePaths[] = { @"pieces/alfaerie",
                     theValue = (UILabel *)[cell viewWithTag:2];
                     theValue.text = [_boardChoices objectAtIndex:_boardType];
                     theImage = (UIImageView *)[cell viewWithTag:3];
-                    theImage.image = [self _getImageNamed:BoardFiles[_boardType] inDirectory:nil];
+                    theImage.image = [Utils imageWithName:BoardFiles[_boardType]];
                     break;
                 }
                 case 2:  // - Piece
@@ -189,7 +182,7 @@ static NSString* PiecePaths[] = { @"pieces/alfaerie",
                     theValue = (UILabel *)[cell viewWithTag:2];
                     theValue.text = [_pieceChoices objectAtIndex:_pieceType];
                     theImage = (UIImageView *)[cell viewWithTag:3];
-                    theImage.image = [self _getImageNamed:@"rking" inDirectory:PiecePaths[_pieceType]];
+                    theImage.image = [Utils imageWithName:@"rking" inDirectory:PiecePaths[_pieceType]];
                     break;
                 }
             }
@@ -242,7 +235,7 @@ static NSString* PiecePaths[] = { @"pieces/alfaerie",
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             }
             cell.textLabel.text = NSLocalizedString(@"About", @"");
-            cell.imageView.image = [self _getImageNamed:@"help" inDirectory:nil];
+            cell.imageView.image = [Utils imageWithName:@"help"];
             break;
         }
     }
@@ -403,7 +396,7 @@ static NSString* PiecePaths[] = { @"pieces/alfaerie",
                 UILabel* theValue = (UILabel *)[_boardCell viewWithTag:2];
                 theValue.text = [_boardChoices objectAtIndex:_boardType];
                 UIImageView* theImage = (UIImageView *)[_boardCell viewWithTag:3];
-                theImage.image = [self _getImageNamed:BoardFiles[_boardType] inDirectory:nil];
+                theImage.image = [Utils imageWithName:BoardFiles[_boardType]];
                 [[NSUserDefaults standardUserDefaults] setInteger:_boardType forKey:@"board_type"];
             }
             break;
@@ -416,7 +409,7 @@ static NSString* PiecePaths[] = { @"pieces/alfaerie",
                 UILabel* theValue = (UILabel *)[_pieceCell viewWithTag:2];
                 theValue.text = [_pieceChoices objectAtIndex:_pieceType];
                 UIImageView* theImage = (UIImageView *)[_pieceCell viewWithTag:3];
-                theImage.image = [self _getImageNamed:@"rking" inDirectory:PiecePaths[_pieceType]];
+                theImage.image = [Utils imageWithName:@"rking" inDirectory:PiecePaths[_pieceType]];
                 [[NSUserDefaults standardUserDefaults] setInteger:_pieceType forKey:@"piece_type"];
             }
             break;

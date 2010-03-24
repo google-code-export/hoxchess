@@ -12,9 +12,10 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="237"/>
 			<integer value="241"/>
+			<integer value="237"/>
 			<integer value="243"/>
+			<integer value="162"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -38,7 +39,7 @@
 				<string key="IBProxiedObjectIdentifier">IBFirstResponder</string>
 			</object>
 			<object class="IBUIView" id="305440373">
-				<nil key="NSNextResponder"/>
+				<reference key="NSNextResponder"/>
 				<int key="NSvFlags">292</int>
 				<object class="NSMutableArray" key="NSSubviews">
 					<bool key="EncodedWithXMLCoder">YES</bool>
@@ -92,8 +93,11 @@
 								<int key="IBUISystemItemIdentifier">5</int>
 							</object>
 							<object class="IBUIBarButtonItem" id="534058481">
+								<object class="NSCustomResource" key="IBUIImage" id="62284207">
+									<string key="NSClassName">NSImage</string>
+									<string key="NSResourceName">search.png</string>
+								</object>
 								<reference key="IBUIToolbar" ref="959334316"/>
-								<int key="IBUISystemItemIdentifier">12</int>
 							</object>
 							<object class="IBUIBarButtonItem" id="809149571">
 								<reference key="IBUIToolbar" ref="959334316"/>
@@ -101,7 +105,7 @@
 							</object>
 							<object class="IBUIBarButtonItem" id="11843488">
 								<reference key="IBUIToolbar" ref="959334316"/>
-								<int key="IBUISystemItemIdentifier">7</int>
+								<int key="IBUISystemItemIdentifier">9</int>
 							</object>
 							<object class="IBUIBarButtonItem" id="269937105">
 								<reference key="IBUIToolbar" ref="959334316"/>
@@ -115,6 +119,7 @@
 					</object>
 				</object>
 				<string key="NSFrameSize">{320, 460}</string>
+				<reference key="NSSuperview"/>
 				<object class="NSColor" key="IBUIBackgroundColor">
 					<int key="NSColorSpace">10</int>
 					<object class="NSImage" key="NSImage">
@@ -257,10 +262,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAACAgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 				<int key="IBUIAccessoryType">1</int>
 				<reference key="IBUIContentView" ref="37398690"/>
 				<reference key="IBUITextColor" ref="144606861"/>
-				<object class="NSCustomResource" key="IBUIImage">
-					<string key="NSClassName">NSImage</string>
-					<string key="NSResourceName">search.png</string>
-				</object>
+				<reference key="IBUIImage" ref="62284207"/>
 			</object>
 		</object>
 		<object class="IBObjectContainer" key="IBDocument.Objects">
@@ -528,7 +530,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAACAgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 					<bool key="EncodedWithXMLCoder">YES</bool>
 					<string>NetworkBoardViewController</string>
 					<string>UIResponder</string>
-					<string>{{21, -2}, {320, 480}}</string>
+					<string>{{21, 34}, {320, 480}}</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
@@ -579,13 +581,11 @@ AAMAAAABAAEAAAFTAAMAAAAEAAACAgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>actionPressed:</string>
 							<string>homePressed:</string>
-							<string>loginPressed:</string>
 							<string>messagesPressed:</string>
 							<string>searchPressed:</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>id</string>
 							<string>id</string>
 							<string>id</string>
 							<string>id</string>

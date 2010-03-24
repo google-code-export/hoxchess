@@ -73,7 +73,7 @@
 							<object class="IBUIBarButtonItem" id="416755889">
 								<bool key="IBUIEnabled">NO</bool>
 								<reference key="IBUIToolbar" ref="8667692"/>
-								<int key="IBUISystemItemIdentifier">7</int>
+								<int key="IBUISystemItemIdentifier">9</int>
 							</object>
 							<object class="IBUIBarButtonItem" id="494469041">
 								<reference key="IBUIToolbar" ref="8667692"/>
@@ -91,8 +91,11 @@
 								<int key="IBUISystemItemIdentifier">5</int>
 							</object>
 							<object class="IBUIBarButtonItem" id="697663633">
+								<object class="NSCustomResource" key="IBUIImage">
+									<string key="NSClassName">NSImage</string>
+									<string key="NSResourceName">computer.png</string>
+								</object>
 								<reference key="IBUIToolbar" ref="8667692"/>
-								<int key="IBUISystemItemIdentifier">18</int>
 							</object>
 						</object>
 					</object>
@@ -344,7 +347,7 @@
 					<bool key="EncodedWithXMLCoder">YES</bool>
 					<string>AIBoardViewController</string>
 					<string>UIResponder</string>
-					<string>{{15, 57}, {320, 460}}</string>
+					<string>{{17, 54}, {320, 460}}</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
@@ -671,7 +674,7 @@
 			<integer value="3000" key="NS.object.0"/>
 		</object>
 		<bool key="IBDocument.PluginDeclaredDependenciesTrackSystemTargetVersion">YES</bool>
-		<string key="IBDocument.LastKnownRelativeProjectPath">NevoChess.xcodeproj</string>
+		<string key="IBDocument.LastKnownRelativeProjectPath">../HOXChess.xcodeproj</string>
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
 		<string key="IBCocoaTouchPluginVersion">3.1</string>
 	</data>
