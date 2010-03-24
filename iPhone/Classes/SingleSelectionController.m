@@ -112,11 +112,19 @@
 
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
-{    
+{
+    NSString* subTitle = nil;
+    if (_subTitles) {
+        subTitle = [_subTitles objectAtIndex:indexPath.row];
+        if ([subTitle length] == 0) subTitle = nil;
+    }
+
     NSString* cellId = [NSString stringWithFormat:@"%d", indexPath.row];
     UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:cellId];
     if (!cell) {
-        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:cellId] autorelease];
+        cell = [[[UITableViewCell alloc] initWithStyle:(subTitle ? UITableViewCellStyleSubtitle
+                                                                 : UITableViewCellStyleDefault)
+                                       reuseIdentifier:cellId] autorelease];
         cell.detailTextLabel.numberOfLines = 0;
     }
     cell.textLabel.text = [_choices objectAtIndex:indexPath.row];
@@ -129,8 +137,7 @@
         cell.imageView.image = theImage;
     }
 
-    if (_subTitles) {
-        NSString* subTitle = [_subTitles objectAtIndex:indexPath.row];
+    if (subTitle) {
         cell.detailTextLabel.text = subTitle;
     }
 

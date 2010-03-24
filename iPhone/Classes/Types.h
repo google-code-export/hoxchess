@@ -117,7 +117,6 @@ typedef struct Position {
 {
 }
 
-+ (UIImage*) imageWithName:(NSString*)name;
 + (UIImage*) imageWithName:(NSString*)name inDirectory:(NSString *)subpath;
 
 @end
