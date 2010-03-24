@@ -30,11 +30,11 @@ enum ViewTagEnum
     VIEW_TAG_AI_LEVEL
 };
 
-static NSString* BoardFiles[] = { @"PlayXiangqi_60px",
-                                  @"Western_60px",
-                                  @"board_60px",
-                                  @"SKELETON_60px",
-                                  @"WOOD_60px" };
+static NSString* BoardFiles[] = { @"PlayXiangqi_60px.png",
+                                  @"Western_60px.png",
+                                  @"board_60px.png",
+                                  @"SKELETON_60px.png",
+                                  @"WOOD_60px.png" };
 
 static NSString* PiecePaths[] = { @"pieces/alfaerie",
                                   @"pieces/xqwizard",
@@ -170,7 +170,7 @@ static NSString* PiecePaths[] = { @"pieces/alfaerie",
                     theValue = (UILabel *)[cell viewWithTag:2];
                     theValue.text = [_boardChoices objectAtIndex:_boardType];
                     theImage = (UIImageView *)[cell viewWithTag:3];
-                    theImage.image = [Utils imageWithName:BoardFiles[_boardType]];
+                    theImage.image = [UIImage imageNamed:BoardFiles[_boardType]];
                     break;
                 }
                 case 2:  // - Piece
@@ -235,7 +235,7 @@ static NSString* PiecePaths[] = { @"pieces/alfaerie",
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             }
             cell.textLabel.text = NSLocalizedString(@"About", @"");
-            cell.imageView.image = [Utils imageWithName:@"help"];
+            cell.imageView.image = [UIImage imageNamed:@"help.png"];
             break;
         }
     }
@@ -261,7 +261,7 @@ static NSString* PiecePaths[] = { @"pieces/alfaerie",
                     for (NSString* name in boards)
                     {
                         NSString* path = [[NSBundle mainBundle] pathForResource:name
-                                                                         ofType:@"png"
+                                                                         ofType:nil
                                                                     inDirectory:nil];
                         [imageNames addObject:path];
                     }
@@ -290,14 +290,14 @@ static NSString* PiecePaths[] = { @"pieces/alfaerie",
                     NSMutableArray* imageNames = [[NSMutableArray alloc] initWithCapacity:[piecePaths count]];
                     for (NSString* subPath in piecePaths)
                     {
-                        NSString* path = [[NSBundle mainBundle] pathForResource:@"rking"
-                                                                         ofType:@"png"
+                        NSString* path = [[NSBundle mainBundle] pathForResource:@"rking.png"
+                                                                         ofType:nil
                                                                     inDirectory:subPath];
                         [imageNames addObject:path];
                     }
                     NSArray* subTitles = [NSArray arrayWithObjects:
-                                          @"Alfaerie graphics \nwww.chessvariants.com",
-                                          @"XQWizard \nxqwizard.sourceforge.net",
+                                          @"www.chessvariants.com",
+                                          @"xqwizard.sourceforge.net",
                                           @"wikipedia.org/wiki/Xiangqi",
                                           @"Ian Taylor",
                                           @"wikipedia.org/wiki/Xiangqi",
@@ -308,7 +308,7 @@ static NSString* PiecePaths[] = { @"pieces/alfaerie",
                                                              subTitles:subTitles
                                                               delegate:self];
                     [imageNames release];
-                    controller.rowHeight = 75;
+                    controller.rowHeight = 78;
                     subController = controller;
                     controller.title = ((UILabel*)[_pieceCell viewWithTag:1]).text;
                     controller.selectionIndex = _pieceType;
@@ -332,7 +332,7 @@ static NSString* PiecePaths[] = { @"pieces/alfaerie",
                         [[SingleSelectionController alloc] initWithChoices:_aiTypeChoices
                                                                  subTitles:subTitles
                                                                   delegate:self];
-                    controller.rowHeight = 80;
+                    controller.rowHeight = 100;
                     subController = controller;
                     controller.title = ((UILabel*)[_aiTypeCell viewWithTag:1]).text;
                     controller.selectionIndex = _aiType;
@@ -396,7 +396,7 @@ static NSString* PiecePaths[] = { @"pieces/alfaerie",
                 UILabel* theValue = (UILabel *)[_boardCell viewWithTag:2];
                 theValue.text = [_boardChoices objectAtIndex:_boardType];
                 UIImageView* theImage = (UIImageView *)[_boardCell viewWithTag:3];
-                theImage.image = [Utils imageWithName:BoardFiles[_boardType]];
+                theImage.image = [UIImage imageNamed:BoardFiles[_boardType]];
                 [[NSUserDefaults standardUserDefaults] setInteger:_boardType forKey:@"board_type"];
             }
             break;

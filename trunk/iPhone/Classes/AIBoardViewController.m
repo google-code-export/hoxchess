@@ -92,7 +92,7 @@ enum ActionSheetEnum
 
     _aiRobot = [[AIRobot alloc] initWith:self];
     _resumeAIButton = [[UIBarButtonItem alloc]
-                       initWithImage:[Utils imageWithName:@"identity"]
+                       initWithImage:[UIImage imageNamed:@"identity.png"]
                        style:UIBarButtonItemStylePlain
                        target:self action:_suspendAIButton.action];
 
