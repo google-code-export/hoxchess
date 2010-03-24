@@ -12,12 +12,12 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="38"/>
-			<integer value="27"/>
-			<integer value="49"/>
-			<integer value="60"/>
-			<integer value="43"/>
 			<integer value="53"/>
+			<integer value="60"/>
+			<integer value="27"/>
+			<integer value="43"/>
+			<integer value="38"/>
+			<integer value="49"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -385,7 +385,7 @@
 								<bool key="IBUIUserInteractionEnabled">NO</bool>
 								<object class="NSCustomResource" key="IBUIImage">
 									<string key="NSClassName">NSImage</string>
-									<string key="NSResourceName">AI-avatar.png</string>
+									<string key="NSResourceName">computer.png</string>
 								</object>
 							</object>
 							<object class="IBUILabel" id="465381691">

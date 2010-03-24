@@ -92,7 +92,8 @@ enum ActionSheetEnum
 
     _aiRobot = [[AIRobot alloc] initWith:self];
     _resumeAIButton = [[UIBarButtonItem alloc]
-                       initWithBarButtonSystemItem:UIBarButtonSystemItemPlay
+                       initWithImage:[Utils imageWithName:@"identity"]
+                       style:UIBarButtonItemStylePlain
                        target:self action:_suspendAIButton.action];
 
     _myColor == HC_COLOR_RED;

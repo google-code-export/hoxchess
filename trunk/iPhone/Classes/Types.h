@@ -107,3 +107,17 @@ typedef struct Position {
 + (id)allocTimeFromString:(NSString *)timeContent;
 
 @end
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//    Utilities functions
+//
+///////////////////////////////////////////////////////////////////////////////
+@interface Utils : NSObject
+{
+}
+
++ (UIImage*) imageWithName:(NSString*)name;
++ (UIImage*) imageWithName:(NSString*)name inDirectory:(NSString *)subpath;
+
+@end
