@@ -13,7 +13,7 @@
 #define ALPHABETA
 #define NULLMOVE
 #define KILLERS 2   /* set to 0 or 2 */
-#define HASH
+//#define HASH
 #define DEPTHPREF
 #define CHECKEXT
 #define XFUTILITY
@@ -45,8 +45,7 @@ int MaxMoves  = 40;     /* moves per session; 0 = entire game       */
 int TimeInc   = 0;      /* extra time per move in msec              */
 int TimeLeft;
 int MovesLeft;
-//int Ticks, tlim;
-int Randomize;
+int Randomize = 1;
 int GamePtr;
 int Ticks, tlim, tlim2;
 
@@ -581,11 +580,13 @@ int Search(int origAlpha, int beta, int lastPly, int PV, int depth)
     int score, i, j, from, to, step, piece, victim, dir, mustSort, firstMove;
     int bestScore, prevScore = -INF, startScore = -INF, ranKey;
     int saveKeyH = hashKeyH, saveKeyL = hashKeyL;
-    int alphaMoves, evalCor, hashMove, origDep = depth, inCheck = 0, xking = pos[stm], king;
-    struct _hash *hashEntry;
+    int alphaMoves, evalCor, hashMove, inCheck = 0, xking = pos[stm], king;
     int old50 = revMovCnt;
     int savDifEval = difEval;
-    //int oldCnt;
+#ifdef HASH
+    int origDep = depth;
+    struct _hash *hashEntry;
+#endif
 #ifdef CASTLE
     char saveRights = castlingRights;
 #endif
