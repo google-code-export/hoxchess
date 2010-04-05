@@ -284,7 +284,7 @@ MyFrame::OnChildClose( wxCloseEvent& event,
 {
     wxCHECK_RET( pTable, "The table is NULL." );
 
-    _SaveDefaultTableLayout( child->GetSize() );
+    _SaveDefaultTableLayout( child->GetPosition(), child->GetSize() );
 
     pTable->OnClose_FromSystem();
     m_children.remove( child );
@@ -728,31 +728,28 @@ MyFrame::CreateFrameForTable( const wxString& sTableId )
 
     wxASSERT( ! sTableId.empty() );
 
-    /* Generate the Window's title for the new Table. */
     windowTitle.Printf("Table #%s", sTableId.c_str());
 
 	/* Load the default layout. */
-	wxPoint defaultPosition = wxDefaultPosition;
-	wxSize  defaultSize;
+    wxPoint defaultPosition;
+    wxSize  defaultSize;
+	wxPoint framePosition = wxDefaultPosition;
+	wxSize  frameSize = wxSize(666, 586);
+
+    if ( _GetDefaultTableLayout( defaultPosition, defaultSize ) ) // exist?
+	{
+#ifdef __WXMAC__
+        framePosition = defaultPosition;
+#endif
+        frameSize = defaultSize;
+	}
 
 #ifdef WIN32
-	if ( m_children.empty() )
-	{
-		defaultPosition = wxPoint(0, 0);
-	}
+    framePosition = (m_children.empty() ? wxPoint(0, 0) : wxDefaultPosition);
 #endif
 
-	if ( ! _GetDefaultTableLayout( defaultSize ) ) // not exist?
-	{
-		defaultSize = wxSize(666, 586);
-	}
-
-    childFrame = new MyChild( this, 
-	                          windowTitle, 
-	                          defaultPosition, 
-						      defaultSize );
+    childFrame = new MyChild( this, windowTitle, framePosition, frameSize );
     m_children.push_back( childFrame );
-
     return childFrame;
 }
 
@@ -968,26 +965,32 @@ MyFrame::_SaveDefaultSitesLayout( const int sizeX )
 }
 
 bool 
-MyFrame::_GetDefaultTableLayout( wxSize& size )
+MyFrame::_GetDefaultTableLayout( wxPoint& position, wxSize& size )
 {
+    position = wxDefaultPosition;
 	size = wxSize( 0, 0 );
 
 	wxConfig* config = wxGetApp().GetConfig();
 
+	if ( ! config->Read("/Layout/Table/position/x", &position.x) )
+		return false;
+	if ( ! config->Read("/Layout/Table/position/y", &position.y) )
+		return false;
 	if ( ! config->Read("/Layout/Table/size/x", &size.x) )
-		return false;  // not found.
-
+		return false;
 	if ( ! config->Read("/Layout/Table/size/y", &size.y) )
-		return false;  // not found.
+		return false;
 
 	return true;   // found old layout?
 }
 
 bool 
-MyFrame::_SaveDefaultTableLayout( const wxSize& size )
+MyFrame::_SaveDefaultTableLayout( const wxPoint& position, const wxSize& size )
 {
 	wxConfig* config = wxGetApp().GetConfig();
 
+    config->Write("/Layout/Table/position/x", position.x);
+	config->Write("/Layout/Table/position/y", position.y);
 	config->Write("/Layout/Table/size/x", size.x);
 	config->Write("/Layout/Table/size/y", size.y);
 

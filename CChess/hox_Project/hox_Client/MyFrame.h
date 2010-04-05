@@ -170,8 +170,8 @@ private:
 	bool _GetDefaultSitesLayout( int& sizeX );
 	bool _SaveDefaultSitesLayout( const int sizeX );
 
-	bool _GetDefaultTableLayout( wxSize& size );
-	bool _SaveDefaultTableLayout( const wxSize& size );
+	bool _GetDefaultTableLayout( wxPoint& position, wxSize& size );
+	bool _SaveDefaultTableLayout( const wxPoint& position, const wxSize& size );
 
     void _SaveCurrentTableToDisk( const hoxTable_SPtr& pTable,
                                   const wxString&      fileName ) const;
