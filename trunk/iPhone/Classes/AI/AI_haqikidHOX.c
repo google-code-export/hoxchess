@@ -3,7 +3,7 @@
  *  AI Module from HOXChess.
  *
  *  Created by Huy Phan on 9/18/2009.
- *  Copyright 2009 PlayXiangqi. All rights reserved.
+ *  Copyright 2010 PlayXiangqi. All rights reserved.
  *
  */
 

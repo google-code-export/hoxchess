@@ -17,11 +17,13 @@
  *  along with HOXChess.  If not, see <http://www.gnu.org/licenses/>.      *
  ***************************************************************************/
 
-#import <Foundation/Foundation.h>
-
-/**
- * A singleton class that manages sounds in the entire application.
+/*
+ *  SoundManager.h
+ *  Created by Huy Phan on 9/12/2010.
+ *
+ *  A singleton class that manages sounds in the entire application.
  */
+
 @interface SoundManager : NSObject
 {
     BOOL                 enabled_;
