@@ -17,9 +17,20 @@
  *  along with HOXChess.  If not, see <http://www.gnu.org/licenses/>.      *
  ***************************************************************************/
 
+/*
+ *  SoundManager.m
+ *  Created by Huy Phan on 9/12/2010.
+ *
+ *  A singleton class that manages sounds in the entire application.
+ */
+
 #import "SoundManager.h"
 #import "Enums.h"
 #import <AudioToolbox/AudioToolbox.h>
+
+@interface SoundManager (/* Private interface */)
+- (SystemSoundID) createSoundIdFromPath_:(NSString*)soundPath;
+@end
 
 // ----------------------------------------------------------------------------
 // References: 
@@ -31,8 +42,6 @@
 #pragma mark The class (Singleton) instance object for SoundManager
 
 static SoundManager* _sharedAudio = nil;
-
-#pragma mark -
 
 @implementation SoundManager
 
@@ -72,7 +81,7 @@ static SoundManager* _sharedAudio = nil;
 
 @synthesize enabled=enabled_;
 
-- (SystemSoundID) createSoundIdFromPath:(NSString*)soundPath
+- (SystemSoundID) createSoundIdFromPath_:(NSString*)soundPath
 {
     SystemSoundID soundId = 0;
     
@@ -106,7 +115,7 @@ static SoundManager* _sharedAudio = nil;
                 NSLog(@"%s: WARN: Failed to locate the sound file [%@].", __FUNCTION__, sound);
                 continue;
             }
-            SystemSoundID soundId = [self createSoundIdFromPath:path];
+            SystemSoundID soundId = [self createSoundIdFromPath_:path];
             NSNumber* soundObject = [NSNumber numberWithInt:soundId]; 
             [loadedSounds_ setObject:soundObject forKey:sound];
         }
@@ -136,7 +145,7 @@ static SoundManager* _sharedAudio = nil;
 - (void) playSound:(NSString*)sound
 {
     if (enabled_) {
-        NSNumber *soundObject = [loadedSounds_ objectForKey:sound];
+        NSNumber* soundObject = [loadedSounds_ objectForKey:sound];
         AudioServicesPlaySystemSound([soundObject intValue]);
     }
 }

@@ -31,9 +31,6 @@
 
 
 #include <time.h>
-//#include <windows.h>
-//#include "resource.h"
-//#include <sstream>     // ostringstream
 #include <cstring>
 #include <cstdlib>
 
