@@ -19,7 +19,7 @@
 
 #import "OptionsViewController.h"
 #import "AboutViewController.h"
-#import "AudioHelper.h"
+#import "SoundManager.h"
 #import "Types.h"
 
 enum ViewTagEnum
@@ -453,7 +453,7 @@ static NSString* PiecePaths[] = { @"pieces/alfaerie",
 - (IBAction) autoConnectValueChanged:(id)sender
 {    
     [[NSUserDefaults standardUserDefaults] setBool:_soundSwitch.on forKey:@"sound_on"];
-    [AudioHelper sharedInstance].enabled = _soundSwitch.on;
+    [SoundManager sharedInstance].enabled = _soundSwitch.on;
 }
 
 @end

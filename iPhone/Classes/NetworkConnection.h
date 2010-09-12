@@ -38,7 +38,7 @@ typedef enum ConnectionEventEnum_
 - (void) handleNetworkEvent:(ConnectionEventEnum)code event:(NSString*)event;
 @end
 
-@interface NetworkConnection : NSObject
+@interface NetworkConnection : NSObject <NSStreamDelegate>
 {
     ConnectionStateEnum _connectionState;
     NSString*           _username;
