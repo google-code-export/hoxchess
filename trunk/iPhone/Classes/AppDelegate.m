@@ -19,7 +19,7 @@
 
 #import "AppDelegate.h"
 #import "Enums.h"
-#import "AudioHelper.h"
+#import "SoundManager.h"
 
 @implementation AppDelegate
 
@@ -42,7 +42,7 @@
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"network_autoConnect"];
     }
 
-    [AudioHelper sharedInstance].enabled = 
+    [SoundManager sharedInstance].enabled = 
         [[NSUserDefaults standardUserDefaults] boolForKey:@"sound_on"];
 
     [window addSubview:[navigationController view]];

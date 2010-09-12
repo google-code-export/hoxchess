@@ -20,7 +20,7 @@
 #import "AIBoardViewController.h"
 #import "Enums.h"
 #import "Types.h"
-#import "AudioHelper.h"
+#import "SoundManager.h"
 
 #define ACTION_BUTTON_INDEX     4
 #define SUSPEND_AI_BUTTON_INDEX 8
@@ -264,7 +264,7 @@ enum ActionSheetEnum
 
     _myColor = (_myColor == HC_COLOR_RED ? HC_COLOR_BLACK : HC_COLOR_RED);
     [_board reverseRole];
-    [[AudioHelper sharedInstance] playSound:@"ChangeRole"];
+    [[SoundManager sharedInstance] playSound:@"ChangeRole"];
 
     if (_myColor == HC_COLOR_BLACK) {
         [self _countDownToAIMove];
@@ -475,13 +475,13 @@ enum ActionSheetEnum
     }
 
     // Temporarily (force to disable) the Sound.
-    const BOOL savedEnabled = [AudioHelper sharedInstance].enabled;
-    [AudioHelper sharedInstance].enabled = NO;
+    const BOOL savedEnabled = [SoundManager sharedInstance].enabled;
+    [SoundManager sharedInstance].enabled = NO;
     [self _loadListOfMoves:moveList];
-    [AudioHelper sharedInstance].enabled = savedEnabled;
+    [SoundManager sharedInstance].enabled = savedEnabled;
 
     [_activity stopAnimating];
-    [[AudioHelper sharedInstance] playSound:@"Undo"];
+    [[SoundManager sharedInstance] playSound:@"Undo"];
 }
 
 - (void) _loadListOfMoves:(NSArray*)moves

@@ -22,7 +22,7 @@
 #import "Grid.h"
 #import "Piece.h"
 #import "Types.h"
-#import "AudioHelper.h"
+#import "SoundManager.h"
 
 enum HistoryIndex // NOTE: Do not change the constants 'values below.
 {
@@ -71,7 +71,13 @@ enum InfoLabelTag
     {
         _gameboard = [[CALayer alloc] init];
         _gameboard.frame = [self _gameBoardFrame];
-        [self.view.layer insertSublayer:_gameboard atIndex:0]; // ... in the back.
+        
+        /* NOTE: I tried [... insertSublayer atIndex:0] but sometimes got a
+         *       black-blank screen with the board got covered by the background.
+         * See http://code.google.com/p/hoxchess/issues/detail?id=17
+         */
+        [self.view.layer addSublayer:_gameboard];
+        [self.view bringSubviewToFront:_game_over_msg];
 
         int boardType = [[NSUserDefaults standardUserDefaults] integerForKey:@"board_type"];
         _game = [[Game alloc] initWithBoard:_gameboard boardType:boardType];
@@ -368,7 +374,7 @@ enum InfoLabelTag
         sound= (moveColor == HC_COLOR_RED ? @"MOVE" : @"MOVE2");
     }
 
-    [[AudioHelper sharedInstance] playSound:sound];
+    [[SoundManager sharedInstance] playSound:sound];
 }
 
 - (void) _updateUIOnNewMove:(MoveAtom*)pMove animated:(BOOL)animated
@@ -543,7 +549,7 @@ enum InfoLabelTag
     MoveAtom* pMove = [_moves objectAtIndex:_nthMove];
     int move = pMove.move;
     int sqSrc = SRC(move);
-    if (animated) [[AudioHelper sharedInstance] playSound:@"Replay"];
+    if (animated) [[SoundManager sharedInstance] playSound:@"Replay"];
     
     // For Move-Replay, just reverse the move order (sqDst->sqSrc)
     // Since it's only a replay, no need to make actual move in
@@ -576,7 +582,7 @@ enum InfoLabelTag
     {
         return;
     }
-    [[AudioHelper sharedInstance] playSound:@"Replay"];
+    [[SoundManager sharedInstance] playSound:@"Replay"];
 
     while ([self _doReplayPREV:NO]) { /* keep going until no more moves */}
     [self _setReplayMode:[self _isInReplay]];
@@ -702,7 +708,7 @@ enum InfoLabelTag
             [self _setHighlightCells:NO];
             _hl_nMoves = [_game generateMoveFrom:from moves:_hl_moves];
             [self _setHighlightCells:YES];
-            [[AudioHelper sharedInstance] playSound:@"CLICK"];
+            [[SoundManager sharedInstance] playSound:@"CLICK"];
             return;
         }
     } else {
@@ -723,7 +729,7 @@ enum InfoLabelTag
             [_boardOwner onLocalMoveMadeFrom:from toPosition:to];
         }
         else {
-            [[AudioHelper sharedInstance] playSound:@"ILLEGAL"];
+            [[SoundManager sharedInstance] playSound:@"ILLEGAL"];
         }
     }
 
