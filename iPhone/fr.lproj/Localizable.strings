@@ -89,11 +89,4 @@
 "Replay" = "Replay";
 "[AI Disabled]" = "[AI Handicapées]";
 
-/* !!!!!!!!!!!!! Unused (obsolete) keys. !!!!!!!!!!!!!!!!!! */
-//"General" = "General";
-//"Time (mins)" = "Time (mins)";
-//"Reset" = "Reset";
-//"Move" = "Move";
-/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
-
 /* ------------------ END OF FILE ------------------------------------------- */
