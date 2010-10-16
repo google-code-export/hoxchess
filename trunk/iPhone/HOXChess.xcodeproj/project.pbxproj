@@ -163,6 +163,8 @@
 		AF5F8D8A113A45C800693FFD /* NetworkBoardView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = NetworkBoardView.xib; path = NIB_Files/NetworkBoardView.xib; sourceTree = "<group>"; };
 		AF5F8DF1113A4C2900693FFD /* identity.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = identity.png; sourceTree = "<group>"; };
 		AF5F8DF9113A4E5300693FFD /* search.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = search.png; sourceTree = "<group>"; };
+		AF68AB76126A5CC600999368 /* vi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = vi; path = vi.lproj/Localizable.strings; sourceTree = "<group>"; };
+		AF68AB86126A5CE000999368 /* vi */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = vi; path = vi.lproj/about.html; sourceTree = "<group>"; };
 		AF6B21E71131C65200A2AA3A /* SKELETON.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SKELETON.png; sourceTree = "<group>"; };
 		AF6B21E81131C65200A2AA3A /* SKELETON_60px.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = SKELETON_60px.png; sourceTree = "<group>"; };
 		AF6B21E91131C65200A2AA3A /* WOOD.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = WOOD.png; sourceTree = "<group>"; };
@@ -497,6 +499,7 @@
 				zh,
 				fr_FR,
 				fr,
+				vi,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* CustomTemplate */;
 			projectDirPath = "";
@@ -626,6 +629,7 @@
 				AF3E2106114B1F5300A5F9FD /* English */,
 				AF3E21DE114B2A6F00A5F9FD /* zh */,
 				AF3E21DF114B2A7400A5F9FD /* fr */,
+				AF68AB86126A5CE000999368 /* vi */,
 			);
 			name = about.html;
 			sourceTree = "<group>";
@@ -636,6 +640,7 @@
 				AFB08A13106A663E00038488 /* English */,
 				AFB08A15106A665300038488 /* zh */,
 				AFE387D6113C2A68007B94CC /* fr */,
+				AF68AB76126A5CC600999368 /* vi */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
