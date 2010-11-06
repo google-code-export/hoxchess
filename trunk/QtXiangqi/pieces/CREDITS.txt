@@ -1,0 +1,9 @@
+These images were downloaded from the following site:
+------------------------------------------------------
++ http://xiangqiboard.blogspot.com/
++ Creators: Ralph Glass, Erpelweg 2, 86356 Neusaess, ralph.glass@t-online.de
+
+ Since only the BLACK .svg pieces are provided, I use Inkscape to create the new RED .svg pieces based on the BLACK ones.  After that, I used GIMP to scale the images from 71x71 to 45x45.
+ (All done inside my miniMac OS X 10.5.7)
+ * http://www.inkscape.org/
+ * http://www.gimp.org/macintosh/
