@@ -1,0 +1,30 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/hoxchess.png</file>
+        <file>images/save.png</file>
+        <file>images/paste.png</file>
+        <file>images/exit.png</file>
+        <file>pieces/rpawn.png</file>
+        <file>pieces/rking.png</file>
+        <file>pieces/rhorse.png</file>
+        <file>pieces/relephant.png</file>
+        <file>pieces/rchariot.png</file>
+        <file>pieces/rcannon.png</file>
+        <file>pieces/radvisor.png</file>
+        <file>pieces/bpawn.png</file>
+        <file>pieces/bking.png</file>
+        <file>pieces/bhorse.png</file>
+        <file>pieces/belephant.png</file>
+        <file>pieces/bchariot.png</file>
+        <file>pieces/bcannon.png</file>
+        <file>pieces/badvisor.png</file>
+        <file>pieces/highlight_50x50.png</file>
+        <file>pieces/animate_55x55.png</file>
+        <file>AI/BOOK.DAT</file>
+        <file>images/go_previous.png</file>
+        <file>images/go_next.png</file>
+        <file>images/go_last.png</file>
+        <file>images/go_first.png</file>
+        <file>images/reset.png</file>
+    </qresource>
+</RCC>
