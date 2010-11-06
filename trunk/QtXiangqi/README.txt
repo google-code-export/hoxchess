@@ -5,7 +5,7 @@ How to compile:
 
 Notes to run under Mac OS X:
 ----------------------------
-After fully built, to run the binary under Mac OS X, we need to manuall add the
+After fully built, to run the binary under Mac OS X, we need to manually add the
 following files/directories in the 'QtXiangqi' bundle:
 
 + QtXiangqi | Contents | Resources
