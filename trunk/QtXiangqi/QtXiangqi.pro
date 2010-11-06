@@ -24,4 +24,5 @@ HEADERS += mainwindow.h \
 FORMS += mainwindow.ui \
     tableui.ui
 RESOURCES += board.qrc
-OTHER_FILES += 
+OTHER_FILES += \ 
+    README.txt
