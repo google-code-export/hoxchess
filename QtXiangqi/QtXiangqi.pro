@@ -3,6 +3,9 @@
 # -------------------------------------------------
 TARGET = QtXiangqi
 TEMPLATE = app
+INCLUDEPATH += /opt/local/include
+INCLUDEPATH += ./lib/asio-1.4.1/include
+LIBS += /opt/local/lib/libboost_thread-mt.a
 SOURCES += main.cpp \
     mainwindow.cpp \
     piece.cpp \
@@ -11,7 +14,10 @@ SOURCES += main.cpp \
     Referee/XQWLight_Referee.cpp \
     AI/AI_XQWLight.cpp \
     AI/XQWLight.cpp \
-    tableui.cpp
+    tableui.cpp \
+    network/hoxAsyncSocket.cpp \
+    network/hoxSocketConnection.cpp \
+    logindialog.cpp
 HEADERS += mainwindow.h \
     piece.h \
     board.h \
@@ -20,9 +26,13 @@ HEADERS += mainwindow.h \
     Referee/Referee.h \
     AI/AIEngine.h \
     AI/AI_XQWLight.h \
+    network/hoxAsyncSocket.h \
+    network/hoxSocketConnection.h \
+    logindialog.h \
     tableui.h
 FORMS += mainwindow.ui \
-    tableui.ui
+    tableui.ui \
+    logindialog.ui
 RESOURCES += board.qrc
 OTHER_FILES += \ 
     README.txt

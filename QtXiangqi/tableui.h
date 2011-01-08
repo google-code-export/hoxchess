@@ -1,11 +1,7 @@
 #ifndef TABLEUI_H
 #define TABLEUI_H
 
-#include <QWidget>
-
-namespace Ui {
-    class TableUI;
-}
+#include "ui_tableui.h"
 
 class Board;
 
@@ -19,8 +15,8 @@ protected:
     void changeEvent(QEvent *e);
 
 private:
-    Ui::TableUI *ui;
-    Board       *_board;
+    Ui::TableUI ui_;
+    Board       *board_;
 
 private slots:
     void on_replayEndButton_clicked();

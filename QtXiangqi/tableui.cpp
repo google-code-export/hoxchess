@@ -1,21 +1,18 @@
 #include "tableui.h"
-#include "ui_tableui.h"
 #include "board.h"
 
 TableUI::TableUI(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::TableUI)
+    QWidget(parent)
 {
-    ui->setupUi(this);
+    ui_.setupUi(this);
 
-    QVBoxLayout *verticalLayout = ui->verticalLayout;
-    _board = new Board(this);
-    verticalLayout->insertWidget(0, _board);
+    QVBoxLayout *verticalLayout = ui_.verticalLayout;
+    board_ = new Board(this);
+    verticalLayout->insertWidget(0, board_);
 }
 
 TableUI::~TableUI()
 {
-    delete ui;
 }
 
 void TableUI::changeEvent(QEvent *e)
@@ -23,7 +20,7 @@ void TableUI::changeEvent(QEvent *e)
     QWidget::changeEvent(e);
     switch (e->type()) {
     case QEvent::LanguageChange:
-        ui->retranslateUi(this);
+        ui_.retranslateUi(this);
         break;
     default:
         break;
@@ -32,25 +29,25 @@ void TableUI::changeEvent(QEvent *e)
 
 void TableUI::on_replayPrevButton_clicked()
 {
-    _board->doReplay_PREVIOUS();
+    board_->doReplay_PREVIOUS();
 }
 
 void TableUI::on_replayNextButton_clicked()
 {
-    _board->doReplay_NEXT();
+    board_->doReplay_NEXT();
 }
 
 void TableUI::on_replayBeginButton_clicked()
 {
-    _board->doReplay_BEGIN();
+    board_->doReplay_BEGIN();
 }
 
 void TableUI::on_replayEndButton_clicked()
 {
-    _board->doReplay_END();
+    board_->doReplay_END();
 }
 
 void TableUI::on_resetButton_clicked()
 {
-    _board->resetBoard();
+    board_->resetBoard();
 }
