@@ -1,14 +1,17 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
 #include "tableui.h"
+#include "logindialog.h"
 #include "piece.h"
 #include <QtGui>
+#include <QtDebug>
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+// ********************************************************
+MainWindow::MainWindow(QWidget *parent)
+        : QMainWindow(parent)
+        , onlineConnection_(NULL)
+        , handler_(NULL)
 {
-    ui->setupUi(this);
+    ui_.setupUi(this);
 
     createActions();
     createMenus();
@@ -18,19 +21,35 @@ MainWindow::MainWindow(QWidget *parent) :
     readSettings();
 
     //setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    setWindowTitle(tr("Qt Xiangqi (main)"));
+    setWindowTitle(tr("QtXiangqi (main)"));
 
     setUnifiedTitleAndToolBarOnMac(true);
 }
 
 MainWindow::~MainWindow()
 {
-    delete ui;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     writeSettings();
+
+    // -----
+    // Send a LOGOUT request and close the online connection.
+    if (onlineConnection_) {
+        onlineConnection_->send_LOGOUT();
+
+        onlineConnection_->stop();
+        delete onlineConnection_;
+        onlineConnection_ = NULL;
+    }
+
+    if (handler_) {
+        delete handler_;
+        handler_ = NULL;
+    }
+    // ------
+
     event->accept();
 }
 
@@ -39,7 +58,7 @@ void MainWindow::changeEvent(QEvent *e)
     QMainWindow::changeEvent(e);
     switch (e->type()) {
     case QEvent::LanguageChange:
-        ui->retranslateUi(this);
+        ui_.retranslateUi(this);
         break;
     default:
         break;
@@ -94,7 +113,7 @@ void MainWindow::createMenus()
 
 void MainWindow::createToolBars()
 {
-    QToolBar *mainToolBar = ui->mainToolBar;
+    QToolBar *mainToolBar = ui_.mainToolBar;
     mainToolBar->addAction(exitAct);
 
     fileToolBar = addToolBar(tr("File"));
@@ -113,9 +132,13 @@ void MainWindow::setupWidgets()
     QWidget *sitesWindow = new QWidget;
     QVBoxLayout *siteLayout = new QVBoxLayout(sitesWindow);
     siteLayout->addWidget(new QPushButton(tr("Practice"), sitesWindow));
-    siteLayout->addWidget(new QPushButton(tr("Online"), sitesWindow));
-    sitesWindow->setMinimumSize(200, 400);
-    sitesWindow->setMaximumSize(200, 400);
+
+    QPushButton* button = new QPushButton(tr("Online"), sitesWindow);
+    connect(button, SIGNAL(clicked()), this, SLOT(onlineClicked()));
+    siteLayout->addWidget(button);
+
+    sitesWindow->setMinimumSize(120, 400);
+    sitesWindow->setMaximumSize(120, 400);
 
     /* -------------------- Central frame. */
     TableUI *tableUI = new TableUI(this);
@@ -150,9 +173,41 @@ void MainWindow::restartGame()
 {
 }
 
+void MainWindow::onlineClicked()
+{
+    LoginDialog loginDialog(this);
+    loginDialog.setWindowTitle(tr("Login"));
+    const int dialogCode = loginDialog.exec();
+    if (dialogCode == QDialog::Rejected) {
+        return;
+    }
+
+    const std::string sUsername = loginDialog.getUsername().toStdString();
+    const std::string sPassword = loginDialog.getPassword().toStdString();
+
+    // -----------
+    using namespace hox::network;
+    const ServerAddress serverAddress("games.playxiangqi.com", "80");
+    handler_ = new NetworkDataHandler;
+    onlineConnection_ = new hoxSocketConnection( serverAddress, handler_ );
+    onlineConnection_->start();
+
+    onlineConnection_->send_LOGIN(sUsername, sPassword);
+}
+
 void MainWindow::about()
 {
-   QMessageBox::about(this, tr("About Application"),
+    QMessageBox::about(this, tr("About Application"),
             tr("This is an Qt based <b>Xiangqi</b> application written as a modern GUI "
                "applications using Qt, with a menu bar, toolbars, and a status bar."));
+}
+
+
+// ********************************************************
+
+void
+NetworkDataHandler::onNewPayload(const hox::network::DataPayload& payload)
+{
+    qDebug() << "Payload: " << payload.type()
+            << ", data=[" << payload.data().c_str() << "]";
 }

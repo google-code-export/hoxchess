@@ -5,10 +5,12 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 
-namespace Ui {
-    class MainWindow;
-}
+#include "ui_mainwindow.h"
+#include "network/hoxSocketConnection.h"
 
+class NetworkDataHandler;
+
+// ********************************************************
 class MainWindow : public QMainWindow {
     Q_OBJECT
 public:
@@ -22,6 +24,7 @@ private slots:
     void restartGame();
     void about();
     bool save();
+    void onlineClicked();
 
 protected:
     void changeEvent(QEvent *e);
@@ -35,7 +38,7 @@ private:
     void writeSettings();
 
 private:
-    Ui::MainWindow *ui;
+    Ui::MainWindow ui_;
 
     QAction *saveAct;
     QAction *exitAct;
@@ -51,6 +54,17 @@ private:
 
     QGraphicsScene *scene;
     QGraphicsView *view;
+
+    hox::network::hoxSocketConnection* onlineConnection_;
+    NetworkDataHandler*                handler_;
+};
+
+// ********************************************************
+class NetworkDataHandler : public hox::network::DataHandler
+{
+public:
+    NetworkDataHandler() {}
+    virtual void onNewPayload(const hox::network::DataPayload& payload);
 };
 
 #endif // MAINWINDOW_H
