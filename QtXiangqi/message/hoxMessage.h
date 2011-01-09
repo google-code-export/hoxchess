@@ -83,8 +83,8 @@ public:
 
     static void
     parse_inCommand_LOGIN( const std::string& sInput,
-                           std::string&       playerId,
-                           int&               nScore );
+                           std::string&       pid,
+                           int&               nRating );
 
     static void
     parse_inCommand_I_PLAYERS( const std::string& sInput,
@@ -118,6 +118,11 @@ public:
     parse_inCommand_DRAW( const std::string& sInput,
                           std::string&       tableId,
                           std::string&       playerId );
+
+private:
+    static void
+    parse_one_table( const std::string& sInput,
+                     TableInfo&         tableInfo );
 
 };
 

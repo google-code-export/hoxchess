@@ -37,11 +37,11 @@ namespace hox {
 namespace network {
 
 // ----------------------------------------------------------------------------
-// hoxSocketWriter
+// SocketWriter
 // ----------------------------------------------------------------------------
 
-hoxSocketWriter::hoxSocketWriter( DataHandler* dataHandler,
-                                  const ServerAddress& serverAddress )
+SocketWriter::SocketWriter( DataHandler* dataHandler,
+                            const ServerAddress& serverAddress )
         : m_dataHandler( dataHandler )
         , m_serverAddress( serverAddress )
         , m_shutdownRequested( false )
@@ -51,30 +51,26 @@ hoxSocketWriter::hoxSocketWriter( DataHandler* dataHandler,
 {
 }
 
-hoxSocketWriter::~hoxSocketWriter()
+void
+SocketWriter::start()
 {
+    m_thread = boost::thread(&SocketWriter::entry, this);
 }
 
 void
-hoxSocketWriter::start()
-{
-    m_thread = boost::thread(&hoxSocketWriter::entry, this);
-}
-
-void
-hoxSocketWriter::join()
+SocketWriter::join()
 {
     m_thread.join();
 }
 
 bool
-hoxSocketWriter::isRunning()
+SocketWriter::isRunning()
 {
     return m_thread.joinable();
 }
 
 bool
-hoxSocketWriter::addRequest( Request_SPtr request )
+SocketWriter::addRequest( Request_SPtr request )
 {
     if ( m_shutdownRequested )
     {
@@ -93,7 +89,7 @@ hoxSocketWriter::addRequest( Request_SPtr request )
 }
 
 Request_SPtr
-hoxSocketWriter::_getRequest()
+SocketWriter::_getRequest()
 {
     Request_SPtr request = m_requests.front();
     m_requests.pop_front();
@@ -134,7 +130,7 @@ hoxSocketWriter::_getRequest()
 }
 
 void
-hoxSocketWriter::entry()
+SocketWriter::entry()
 {
     Result      result = hoxRC_OK;
     std::string sError;
@@ -178,8 +174,8 @@ hoxSocketWriter::entry()
 }
 
 Result
-hoxSocketWriter::_handleRequest( Request_SPtr request,
-                                 std::string& sError )
+SocketWriter::_handleRequest( Request_SPtr request,
+                              std::string& sError )
 {
     Result result = hoxRC_OK;
 
@@ -204,7 +200,7 @@ hoxSocketWriter::_handleRequest( Request_SPtr request,
 }
 
 Result
-hoxSocketWriter::_connect( std::string& sError )
+SocketWriter::_connect( std::string& sError )
 {
     try
     {
@@ -233,7 +229,7 @@ hoxSocketWriter::_connect( std::string& sError )
 }
 
 void
-hoxSocketWriter::_closeSocket()
+SocketWriter::_closeSocket()
 {
     if ( m_io_service_thread )
     {
@@ -254,7 +250,7 @@ hoxSocketWriter::_closeSocket()
 }
 
 Result
-hoxSocketWriter::_writeLine( const std::string& sData )
+SocketWriter::_writeLine( const std::string& sData )
 {
     if ( ! m_pSocket )
     {
@@ -269,8 +265,8 @@ hoxSocketWriter::_writeLine( const std::string& sData )
 }
 
 void
-hoxSocketWriter::_postEventToHandler( const Result       result,
-                                      const std::string& sEvent )
+SocketWriter::_postEventToHandler( const Result       result,
+                                   const std::string& sEvent )
 {
     wxLogDebug("%s: *INFO* Request [%s] return error-code = [%d].",
         __FUNCTION__, sEvent.c_str(), result);
@@ -288,24 +284,24 @@ hoxSocketWriter::_postEventToHandler( const Result       result,
 }
 
 //-----------------------------------------------------------------------------
-// hoxSocketConnection
+// SocketConnection
 //-----------------------------------------------------------------------------
 
-hoxSocketConnection::hoxSocketConnection( const ServerAddress& serverAddress,
-                                          DataHandler*         dataHandler )
+SocketConnection::SocketConnection( const ServerAddress& serverAddress,
+                                    DataHandler*         dataHandler )
         : m_dataHandler( dataHandler )
         , m_serverAddress( serverAddress )
 {
     wxLogDebug("%s: ENTER.", __FUNCTION__);
 }
 
-hoxSocketConnection::~hoxSocketConnection()
+SocketConnection::~SocketConnection()
 {
     wxLogDebug("%s: ENTER.", __FUNCTION__);
 }
 
 void
-hoxSocketConnection::start()
+SocketConnection::start()
 {
     wxLogDebug("%s: ENTER.", __FUNCTION__);
 
@@ -319,13 +315,13 @@ hoxSocketConnection::start()
     }
 
     wxLogDebug("%s: Create the Writer Thread...", __FUNCTION__);
-    m_writer.reset( new hoxSocketWriter( m_dataHandler,
-                                         m_serverAddress ) );
+    m_writer.reset( new SocketWriter( m_dataHandler,
+                                      m_serverAddress ) );
     m_writer->start();
 }
 
 void
-hoxSocketConnection::stop()
+SocketConnection::stop()
 {
     if ( m_writer )
     {
@@ -336,7 +332,7 @@ hoxSocketConnection::stop()
 }
 
 bool
-hoxSocketConnection::addRequest( Request_SPtr request )
+SocketConnection::addRequest( Request_SPtr request )
 {
     if ( !m_writer)
     {
@@ -347,14 +343,14 @@ hoxSocketConnection::addRequest( Request_SPtr request )
 }
 
 bool
-hoxSocketConnection::isConnected() const
+SocketConnection::isConnected() const
 { 
     return ( m_writer && m_writer->isConnected() );
 }
 
 void
-hoxSocketConnection::send_LOGIN( const std::string& pid,
-                                 const std::string& password )
+SocketConnection::send_LOGIN( const std::string& pid,
+                              const std::string& password )
 {
     pid_ = pid;   // Needed when LOGOUT.
     password_ = password;
@@ -366,28 +362,24 @@ hoxSocketConnection::send_LOGIN( const std::string& pid,
 }
 
 void
-hoxSocketConnection::send_LOGOUT()
+SocketConnection::send_LOGOUT()
 {
-    const std::string sCmd = std::string("op=LOGOUT");
+    const std::string sCmd("op=LOGOUT");
     _sendRequest(sCmd, REQUEST_LOGOUT);
-               /* NOTE: Special flag to shutdown the connection
-                * as well.
+               /* NOTE: Special flag to shutdown the connection.
                 */
 }
 
 void
-hoxSocketConnection::send_LIST()
+SocketConnection::send_LIST()
 {
-    const std::string sCmd = std::string("op=LIST");
-    _sendRequest(sCmd, REQUEST_LOGOUT);
-               /* NOTE: Special flag to shutdown the connection
-                * as well.
-                */
+    const std::string sCmd("op=LIST");
+    _sendRequest(sCmd);
 }
 
 void
-hoxSocketConnection::_sendRequest( const std::string& sCmd,
-                                   RequestType        type /* = REQUEST_COMMAND */ )
+SocketConnection::_sendRequest( const std::string& sCmd,
+                                RequestType        type /* = REQUEST_COMMAND */ )
 {
     Request_SPtr request(new Request(type));
     request->m_data = sCmd + "&pid=" + pid_;

@@ -4,13 +4,11 @@
 #include "tableui.h"
 #include "logindialog.h"
 #include "piece.h"
-#include "message/hoxMessage.h"
 
 // ********************************************************
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent)
-        , onlineConnection_(NULL)
-        , handler_(NULL)
+        , connection_(NULL)
 {
     ui_.setupUi(this);
 
@@ -35,21 +33,14 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     writeSettings();
 
-    // -----
     // Send a LOGOUT request and close the online connection.
-    if (onlineConnection_) {
-        onlineConnection_->send_LOGOUT();
+    if (connection_) {
+        connection_->send_LOGOUT();
 
-        onlineConnection_->stop();
-        delete onlineConnection_;
-        onlineConnection_ = NULL;
+        connection_->stop();
+        delete connection_;
+        connection_ = NULL;
     }
-
-    if (handler_) {
-        delete handler_;
-        handler_ = NULL;
-    }
-    // ------
 
     event->accept();
 }
@@ -169,11 +160,8 @@ void MainWindow::writeSettings()
     settings.setValue("size", size());
 
     // Save the network login information.
-    if (onlineConnection_)
-    {
-        settings.setValue("pid", QString::fromStdString(onlineConnection_->getPid()));
-        settings.setValue("password", QString::fromStdString(onlineConnection_->getPassword()));
-    }
+    settings.setValue("pid", QString::fromStdString(pid_));
+    settings.setValue("password", QString::fromStdString(password_));
 }
 
 bool MainWindow::save()
@@ -197,17 +185,15 @@ void MainWindow::onlineClicked()
         return;
     }
 
-    const std::string sPid = loginDialog.getPid().toStdString();
-    const std::string sPassword = loginDialog.getPassword().toStdString();
+    pid_ = loginDialog.getPid().toStdString();
+    password_ = loginDialog.getPassword().toStdString();
 
     // -----------
-    using namespace hox::network;
-    const ServerAddress serverAddress("games.playxiangqi.com", "80");
-    handler_ = new NetworkDataHandler;
-    onlineConnection_ = new hoxSocketConnection( serverAddress, handler_ );
-    onlineConnection_->start();
+    const hox::network::ServerAddress serverAddress("games.playxiangqi.com", "80");
+    connection_ = new hox::network::SocketConnection( serverAddress, this );
+    connection_->start();
 
-    onlineConnection_->send_LOGIN(sPid, sPassword);
+    connection_->send_LOGIN(pid_, password_);
 }
 
 void MainWindow::about()
@@ -217,15 +203,60 @@ void MainWindow::about()
                "applications using Qt, with a menu bar, toolbars, and a status bar."));
 }
 
-
-// ********************************************************
+// --------------------------------------------------------
+//
+//     Network messages handlers
+//
+// --------------------------------------------------------
 
 void
-NetworkDataHandler::onNewPayload(const hox::network::DataPayload& payload)
+MainWindow::onNewPayload(const hox::network::DataPayload& payload)
 {
-    qDebug() << "Payload: " << payload.type()
-            << ", data=[" << payload.data().c_str() << "]";
+    if (payload.type() == hox::network::TYPE_ERROR) {
+        qWarning("%s: Received an ERROR payload: [%s].", __FUNCTION__, payload.data().c_str());
+        return;
+    }
+
     hox::Message message;
     hox::Message::string_to_message(payload.data(), message);
-    qDebug() << "Incoming message: [" << QString::fromStdString(message.toString()) << "]";
+
+    const std::string op = message.m_type;
+    const std::string content = message.m_parameters["content"];
+
+    if      (op == "LOGIN")       handleMessage_LOGIN_(content);
+    else if (op == "LIST")        handleMessage_LIST_(content);
+    else {
+        qDebug("%s: Unhandled payload: { %d %s }", __FUNCTION__, payload.type(), payload.data().c_str());
+    }
+}
+
+void
+MainWindow::handleMessage_LOGIN_(const std::string& content)
+{
+    std::string pid;
+    int nRating = 0;
+    hox::Message::parse_inCommand_LOGIN(content, pid, nRating);
+
+    if ( pid_ != pid ) { // not my Id?
+        return; // Other users' login. Ignore for now.
+    }
+    qDebug("%s: I logged in as [%s %d].", __FUNCTION__, pid.c_str(), nRating);
+    const QString playerInfo = QString::fromStdString(pid)
+                               % "(" % QString::number(nRating) % ")";
+    setWindowTitle( tr("QtXiangqi: ") % playerInfo);
+
+    connection_->send_LIST(); // Get the latest tables.
+}
+
+void
+MainWindow::handleMessage_LIST_(const std::string& content)
+{
+    const hox::Tokenizer tok(content, hox::Separator("\n"));
+    hox::Tokenizer::iterator it = tok.begin();
+
+    int count = 0;
+    for (hox::Tokenizer::iterator it = tok.begin(); it != tok.end(); ++it)
+    {
+        qDebug("%s: Table #%d: [%s].", __FUNCTION__, ++count, (*it).c_str());
+    }
 }
