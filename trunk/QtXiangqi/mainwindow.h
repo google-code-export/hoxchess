@@ -7,15 +7,21 @@
 
 #include "ui_mainwindow.h"
 #include "network/hoxSocketConnection.h"
+#include "message/hoxMessage.h"
 
 class NetworkDataHandler;
 
 // ********************************************************
-class MainWindow : public QMainWindow {
+class MainWindow : public QMainWindow,
+                   public hox::network::DataHandler
+{
     Q_OBJECT
 public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
+
+   /** Override API from hox::network::DataHandler */
+   virtual void onNewPayload(const hox::network::DataPayload& payload);
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -37,6 +43,10 @@ private:
     void readSettings();
     void writeSettings();
 
+    // Network message handlers.
+    void handleMessage_LOGIN_(const std::string& content);
+    void handleMessage_LIST_(const std::string& content);
+
 private:
     Ui::MainWindow ui_;
 
@@ -55,16 +65,9 @@ private:
     QGraphicsScene *scene;
     QGraphicsView *view;
 
-    hox::network::hoxSocketConnection* onlineConnection_;
-    NetworkDataHandler*                handler_;
-};
-
-// ********************************************************
-class NetworkDataHandler : public hox::network::DataHandler
-{
-public:
-    NetworkDataHandler() {}
-    virtual void onNewPayload(const hox::network::DataPayload& payload);
+    hox::network::SocketConnection*  connection_;
+    std::string                      pid_;       // My player-Id (PID).
+    std::string                      password_;  // My password.
 };
 
 #endif // MAINWINDOW_H

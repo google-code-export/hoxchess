@@ -100,25 +100,13 @@ Message::string_to_message( const std::string& sInput,
 
 /* static */ void
 Message::parse_inCommand_LOGIN( const std::string& sInput,
-                                std::string&       playerId,
-                                int&               nScore )
+                                std::string&       pid,
+                                int&               nRating )
 {
-    playerId = "";
-    nScore   = 0;
-
     Tokenizer tok( sInput, Separator(";") );
-
-    int i = 0;
-    for ( Tokenizer::iterator it = tok.begin(); it != tok.end(); ++it )
-    {
-        const std::string token = (*it);
-        switch ( i++ )
-        {
-            case 0: playerId = token;  break;
-            case 1: nScore = ::atoi( token.c_str() ); break;
-            default: /* Ignore the rest. */ break;
-        }
-    }
+    Tokenizer::iterator it = tok.begin();
+    pid = *it++;
+    nRating = ::atoi( (*it++).c_str() );
 }
 
 /* static */ void
@@ -273,6 +261,17 @@ Message::parse_inCommand_DRAW( const std::string& sInput,
 			default: /* Ignore the rest. */ break;
 		}
 	}
+}
+
+/* static */ void
+Message::parse_one_table( const std::string& sInput,
+                          TableInfo&         tableInfo )
+{
+   tableInfo.clear();
+
+    Separator sep(";");
+    Tokenizer tok(sInput, sep);
+    // FIXME: Not yet complete.
 }
 
 } // namespace hox

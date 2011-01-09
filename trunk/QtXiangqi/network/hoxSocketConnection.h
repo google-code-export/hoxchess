@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2007-2009 Huy Phan  <huyphan@playxiangqi.com>                *
+ *  Copyright 2010-2011 Huy Phan  <huyphan@playxiangqi.com>                *
  *                                                                         * 
  *  This file is part of HOXChess.                                         *
  *                                                                         *
@@ -29,8 +29,6 @@
 
 #include <string>
 #include <asio.hpp>
-//#include "hoxConnection.h"
-//#include "hoxTypes.h"
 #include "hoxAsyncSocket.h"
 
 #include <boost/thread.hpp>
@@ -47,14 +45,6 @@ enum Result
     hoxRC_CLOSED    // Something (socket,...) has been closed.
 };
 
-struct ServerAddress
-{
-    std::string m_host;
-    std::string m_port;
-    ServerAddress(const std::string& host, const std::string& port)
-        : m_host(host), m_port(port) {}
-};
-
 enum RequestType
 {
     REQUEST_LOGOUT,
@@ -68,29 +58,36 @@ struct Request
     std::string m_data;
     Request(RequestType type) : m_type(type) {}
 };
-//typedef std::auto_ptr<Request> Request_APtr;
 typedef boost::shared_ptr<Request> Request_SPtr;
 
 namespace hox {
-    namespace network {
+namespace network {
+
+struct ServerAddress
+{
+    std::string m_host;
+    std::string m_port;
+    ServerAddress(const std::string& host, const std::string& port)
+        : m_host(host), m_port(port) {}
+};
 
 /* Forward declarations. */
-class hoxSocketWriter;
+class SocketWriter;
 
 /* Typedef(s) */
-typedef boost::shared_ptr<hoxSocketWriter> hoxSocketWriter_SPtr;
+typedef boost::shared_ptr<SocketWriter> SocketWriter_SPtr;
 typedef std::list<Request_SPtr> hoxRequestQueue;
 
 // ----------------------------------------------------------------------------
-// hoxSocketWriter
+// SocketWriter
 // ----------------------------------------------------------------------------
 
-class hoxSocketWriter
+class SocketWriter
 {
 public:
-    hoxSocketWriter( DataHandler*         dataHandler,
-                     const ServerAddress& serverAddress );
-    virtual ~hoxSocketWriter();
+    SocketWriter( DataHandler*         dataHandler,
+                  const ServerAddress& serverAddress );
+    virtual ~SocketWriter() {}
 
     bool addRequest( Request_SPtr request );
     bool isConnected() const { return m_bConnected; }
@@ -140,18 +137,18 @@ private:
 
 
 // ----------------------------------------------------------------------------
-// hoxSocketConnection
+// SocketConnection
 // ----------------------------------------------------------------------------
 
 /**
  * A Connection based on a network Socket.
  */
-class hoxSocketConnection
+class SocketConnection
 {
 public:
-    hoxSocketConnection( const ServerAddress&  serverAddress,
-                         DataHandler*          dataHandler );
-    virtual ~hoxSocketConnection();
+    SocketConnection( const ServerAddress&  serverAddress,
+                      DataHandler*          dataHandler );
+    virtual ~SocketConnection();
 
     std::string getPid() const { return pid_; }
     std::string getPassword() const { return password_; }
@@ -172,16 +169,16 @@ private:
                        RequestType        type = REQUEST_COMMAND );
 
 private:
-    DataHandler*           m_dataHandler;
-    const ServerAddress    m_serverAddress;
+    DataHandler*         m_dataHandler;
+    const ServerAddress  m_serverAddress;
 
-    hoxSocketWriter_SPtr   m_writer;
+    SocketWriter_SPtr    m_writer;
                 /* The Writer Thread.
                  * This Thread also creates and manages the Reader Thread.
                  */
 
-    std::string pid_;       // My player-Id (pid).
-    std::string password_;  // My password.
+    std::string          pid_;      // My player-Id (pid).
+    std::string          password_; // My password.
 };
 
 

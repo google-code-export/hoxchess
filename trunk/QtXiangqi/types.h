@@ -49,10 +49,46 @@ public:
     TimeInfo( int g = 0, int m = 0, int f = 0 )
         : nGame( g ), nMove( m ), nFree( f ) {}
 
-    void Clear() { nGame = nMove = nFree = 0; }
+    void clear() { nGame = nMove = nFree = 0; }
 
-    bool IsEmpty() const
+    bool empty() const
         { return (nGame == 0) && (nMove == 0) && (nFree == 0); }
+};
+
+/**
+ * Table-info.
+ */
+class TableInfo
+{
+public:
+    std::string   id;           // table-Id.
+    std::string   redId;        // RED player's Id.
+    std::string   blackId;      // BLACK player's Id.
+    std::string   redRating;    // RED player's Rating.
+    std::string   blackRating;  // BLACK player's Rating.
+    TimeInfo      initialTime;  // The initial allowed Game-Time.
+    TimeInfo      blackTime;
+    TimeInfo      redTime;
+    bool          rated;
+
+    TableInfo( const std::string& tableId = "" )
+            : rated( true )
+        { id = tableId; }
+
+    bool valid() const { return !id.empty(); }
+
+    void clear()
+    {
+        id = "";
+        redId = "";
+        blackId = "";
+        redRating = "";
+        blackRating = "";
+        initialTime.clear();
+        blackTime.clear();
+        redTime.clear();
+        rated = true;
+    }
 };
 
 } // namespace hox
