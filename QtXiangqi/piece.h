@@ -16,7 +16,7 @@ public:
     ColorEnum color() const { return _color; }
 
     void setPosition(int row, int col) { _row = row; _col = col; }
-    Position position() const { return Position(_row, _col); }
+    hox::Position position() const { return hox::Position(_row, _col); }
     int row() const { return _row; }
     int col() const { return _col; }
     void resetToInitialPosition();

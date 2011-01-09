@@ -1,13 +1,18 @@
 #include "logindialog.h"
 
-LoginDialog::LoginDialog(QWidget *parent) :
+LoginDialog::LoginDialog(QWidget* parent,
+                         const QString& defaultPid,
+                         const QString& defaultPassword) :
     QDialog(parent)
 {
     ui_.setupUi(this);
-}
+    setWindowTitle(tr("Login"));
 
-LoginDialog::~LoginDialog()
-{
+    pid_ = defaultPid;
+    password_ = defaultPassword;
+
+    ui_.pidEdit->setText(pid_);
+    ui_.passwordEdit->setText(password_);
 }
 
 void LoginDialog::changeEvent(QEvent *e)
@@ -22,9 +27,9 @@ void LoginDialog::changeEvent(QEvent *e)
     }
 }
 
-void LoginDialog::on_usernameEdit_editingFinished()
+void LoginDialog::on_pidEdit_editingFinished()
 {
-    username_ = ui_.usernameEdit->text();
+    pid_ = ui_.pidEdit->text();
 }
 
 void LoginDialog::on_passwordEdit_editingFinished()

@@ -153,6 +153,9 @@ public:
                          DataHandler*          dataHandler );
     virtual ~hoxSocketConnection();
 
+    std::string getPid() const { return pid_; }
+    std::string getPassword() const { return password_; }
+
     // **** Override the parent's API ****
     virtual void start();
     virtual void stop();
@@ -162,6 +165,7 @@ public:
     // *** Client requests.
     void send_LOGIN(const std::string& pid, const std::string& password);
     void send_LOGOUT();
+    void send_LIST();
 
 private:
     void _sendRequest( const std::string& sCmd,
@@ -176,8 +180,8 @@ private:
                  * This Thread also creates and manages the Reader Thread.
                  */
 
-    std::string m_pid;       // My player-Id (pid).
-    std::string m_password;  // My password.
+    std::string pid_;       // My player-Id (pid).
+    std::string password_;  // My password.
 };
 
 

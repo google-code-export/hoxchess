@@ -17,7 +17,9 @@ SOURCES += main.cpp \
     tableui.cpp \
     network/hoxAsyncSocket.cpp \
     network/hoxSocketConnection.cpp \
-    logindialog.cpp
+    logindialog.cpp \
+    message/hoxMessage.cpp \
+    common/hoxUtil.cpp
 HEADERS += mainwindow.h \
     piece.h \
     board.h \
@@ -29,7 +31,9 @@ HEADERS += mainwindow.h \
     network/hoxAsyncSocket.h \
     network/hoxSocketConnection.h \
     logindialog.h \
-    tableui.h
+    tableui.h \
+    message/hoxMessage.h \
+    common/hoxUtil.h
 FORMS += mainwindow.ui \
     tableui.ui \
     logindialog.ui

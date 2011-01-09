@@ -3,9 +3,9 @@
 
 #include <QtGui>
 #include "enums.h"
+#include "types.h"
 
 class Piece;
-class Position;
 class Referee;
 class AIEngine;
 class ReplayMove;
@@ -36,12 +36,12 @@ private slots:
     void _askAIToGenerateMove();
 
 private:
-    void _onNewMove(Position from, Position to, bool setupMode = false);
+    void _onNewMove(hox::Position from, hox::Position to, bool setupMode = false);
     void _updateUIOnNewMove(ReplayMove* pMove, bool animated);
     void _playSoundAfterMove(const ReplayMove *pMove);
-    void _onLocalMoveMadeFrom(const Position from, const Position to);    
+    void _onLocalMoveMadeFrom(const hox::Position from, const hox::Position to);
 
-    void _setPiecePosition(Piece* piece, Position newPosition);
+    void _setPiecePosition(Piece* piece, hox::Position newPosition);
     void _animateLatestMove(ReplayMove* pMove);
     void _clearAllHighlight();
     void _clearAllAnimation();
@@ -55,14 +55,14 @@ private:
 
     void _setupPieces();
     void _createPiece(PieceEnum type, ColorEnum color, int row, int column);
-    Position _pointToPosition(const QPoint& p) const;
-    QPoint _positionToPieceOrigin(const Position position) const;
+    hox::Position _pointToPosition(const QPoint& p) const;
+    QPoint _positionToPieceOrigin(const hox::Position position) const;
 
-    Piece* _findPieceAt(const Position& position, bool  includeInactive = false) const;
+    Piece* _findPieceAt(const hox::Position& position, bool  includeInactive = false) const;
     Piece* _getKingOfColor(ColorEnum color) const;
     void _drawPiece(Piece* piece);
 
-    bool _isMoveLegalFrom(Position from, Position to) const;
+    bool _isMoveLegalFrom(hox::Position from, hox::Position to) const;
 
     bool _isInReplay() const;
 

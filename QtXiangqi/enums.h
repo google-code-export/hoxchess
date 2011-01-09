@@ -46,10 +46,13 @@ enum GameStatusEnum
 {
     HC_GAME_STATUS_UNKNOWN = -1,
 
-    HC_GAME_STATUS_IN_PROGRESS,
+    HC_GAME_STATUS_OPEN = 0,       // Open but not enough Player.
+    HC_GAME_STATUS_READY,          // Enough (2) players, waiting for 1st Move.
+    HC_GAME_STATUS_IN_PROGRESS,    // At least 1 Move has been made.
     HC_GAME_STATUS_RED_WIN,        // Game Over. Red won.
     HC_GAME_STATUS_BLACK_WIN,      // Game Over. Black won.
     HC_GAME_STATUS_DRAWN,          // Game Over. Drawn.
+
     HC_GAME_STATUS_TOO_MANY_MOVES  // Game Over. Too many moves.
 };
 
