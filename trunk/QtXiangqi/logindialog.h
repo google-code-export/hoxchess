@@ -8,22 +8,23 @@ class LoginDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit LoginDialog(QWidget *parent = 0);
-    ~LoginDialog();
+    explicit LoginDialog(QWidget* parent,
+                         const QString& defaultPid,
+                         const QString& defaultPassword);
 
-    QString getUsername() const { return username_; }
+    QString getPid() const { return pid_; }
     QString getPassword() const { return password_; }
 
 protected:
     void changeEvent(QEvent *e);
 
 private slots:
-    void on_usernameEdit_editingFinished();
+    void on_pidEdit_editingFinished();
     void on_passwordEdit_editingFinished();
 
 private:
     Ui::LoginDialog ui_;
-    QString         username_;
+    QString         pid_;
     QString         password_;
 };
 

@@ -356,20 +356,29 @@ void
 hoxSocketConnection::send_LOGIN( const std::string& pid,
                                  const std::string& password )
 {
-    m_pid = pid;   // Needed when LOGOUT.
-    m_password = password;
+    pid_ = pid;   // Needed when LOGOUT.
+    password_ = password;
 
     const std::string sCmd = std::string("op=LOGIN")
                              + "&version=" + HC_APP_INAME + "-" + HC_APP_IVERSION
-                             + "&pid=" + m_pid + "&password=" + password;
+                             + "&password=" + password;
     _sendRequest(sCmd);
 }
 
 void
 hoxSocketConnection::send_LOGOUT()
 {
-    const std::string sCmd = std::string("op=LOGOUT")
-                             + "&pid=" + m_pid;
+    const std::string sCmd = std::string("op=LOGOUT");
+    _sendRequest(sCmd, REQUEST_LOGOUT);
+               /* NOTE: Special flag to shutdown the connection
+                * as well.
+                */
+}
+
+void
+hoxSocketConnection::send_LIST()
+{
+    const std::string sCmd = std::string("op=LIST");
     _sendRequest(sCmd, REQUEST_LOGOUT);
                /* NOTE: Special flag to shutdown the connection
                 * as well.
@@ -381,7 +390,7 @@ hoxSocketConnection::_sendRequest( const std::string& sCmd,
                                    RequestType        type /* = REQUEST_COMMAND */ )
 {
     Request_SPtr request(new Request(type));
-    request->m_data = sCmd;
+    request->m_data = sCmd + "&pid=" + pid_;
     m_writer->addRequest(request);
 }
 

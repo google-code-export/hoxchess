@@ -146,7 +146,7 @@ void Board::mouseMoveEvent(QMouseEvent *event)
 {
     if (!_dragPiece) return;
     const QPoint newPoint = event->pos() - _dragHotSpot;
-    const Position newPosition = _pointToPosition(newPoint);
+    const hox::Position newPosition = _pointToPosition(newPoint);
     if (newPosition.isValid()) {
         const QPoint newOrigin = _positionToPieceOrigin(newPosition);
         _dragHighlight->move(newOrigin);
@@ -161,11 +161,11 @@ void Board::mouseReleaseEvent(QMouseEvent *event)
 {
      if (!_dragPiece) return;
      const QPoint newPoint = event->pos() - _dragHotSpot;
-     Position newPosition = _pointToPosition(newPoint);
+     hox::Position newPosition = _pointToPosition(newPoint);
      if (   newPosition.isValid()
          && _isMoveLegalFrom(_dragPiece->position(), newPosition))
      {
-         const Position from = _dragPiece->position();
+         const hox::Position from = _dragPiece->position();
          _onNewMove(from, newPosition);
          _onLocalMoveMadeFrom(from, newPosition);
      } else {
@@ -176,7 +176,7 @@ void Board::mouseReleaseEvent(QMouseEvent *event)
      _dragHighlight->hide();
 }
 
-void Board::_onNewMove(Position from, Position to, bool setupMode /* = false */)
+void Board::_onNewMove(hox::Position from, hox::Position to, bool setupMode /* = false */)
 {
     int sqSrc = TOSQUARE(from.row, from.col);
     int sqDst = TOSQUARE(to.row, to.col);
@@ -211,7 +211,7 @@ void Board::_onNewMove(Position from, Position to, bool setupMode /* = false */)
 void Board::_updateUIOnNewMove(ReplayMove* pMove, bool animated)
 {
     int sqDst = DST(pMove->move);
-    Position to( ROW(sqDst), COLUMN(sqDst) );
+    hox::Position to( ROW(sqDst), COLUMN(sqDst) );
 
     _setPiecePosition(pMove->srcPiece, to);
 
@@ -291,7 +291,7 @@ bool Board::_doReplayPREV(bool animated)
     // the underlying game logic.
 
     _clearAllAnimation();
-    Position oldPosition( ROW(sqSrc), COLUMN(sqSrc) );
+    hox::Position oldPosition( ROW(sqSrc), COLUMN(sqSrc) );
 
     _setPiecePosition(pMove->srcPiece, oldPosition);
     if (pMove->capturedPiece) {
@@ -349,8 +349,8 @@ bool Board::_doReplayNEXT(bool animated)
         qDebug("%s: Process pending move [%d]...", __FUNCTION__, move);
         int sqSrc = SRC(move);
         int sqDst = DST(move);
-        Position from( ROW(sqSrc), COLUMN(sqSrc));
-        Position to( ROW(sqDst), COLUMN(sqDst));
+        hox::Position from( ROW(sqSrc), COLUMN(sqSrc));
+        hox::Position to( ROW(sqDst), COLUMN(sqDst));
         pMove->srcPiece = _findPieceAt(from);
         pMove->capturedPiece = _findPieceAt(to);
         if (_referee->isChecked()) {
@@ -397,7 +397,7 @@ void Board::doReplay_END()
     _setReplayMode( _isInReplay() );
 }
 
-void Board::_setPiecePosition(Piece* piece, Position newPosition)
+void Board::_setPiecePosition(Piece* piece, hox::Position newPosition)
 {
     piece->setPosition(newPosition.row, newPosition.col);
 
@@ -476,7 +476,7 @@ void Board::_setInfoLabel(const QString& infoText)
     _infoLabel->show();
 }
 
-void Board::_onLocalMoveMadeFrom(const Position from, const Position to)
+void Board::_onLocalMoveMadeFrom(const hox::Position from, const hox::Position to)
 {
     if (_referee->gameStatus() == HC_GAME_STATUS_IN_PROGRESS)
     {
@@ -525,8 +525,8 @@ void Board::_handleAIMoveGenerated()
     int move = _aiWatcher.result();
     int sqSrc = SRC(move);
     int sqDst = DST(move);
-    Position from(ROW(sqSrc), COLUMN(sqSrc));
-    Position to(ROW(sqDst), COLUMN(sqDst));
+    hox::Position from(ROW(sqSrc), COLUMN(sqSrc));
+    hox::Position to(ROW(sqDst), COLUMN(sqDst));
     //qDebug() << "(" << from.row << "," << from.col << " -> (" << to.row << "," << to.col << ")";
     _onNewMove(from, to);
 }
@@ -586,9 +586,9 @@ void Board::_createPiece(PieceEnum type, ColorEnum color, int row, int column)
     _pieces.push_back(piece);
 }
 
-Position Board::_pointToPosition(const QPoint& p) const
+hox::Position Board::_pointToPosition(const QPoint& p) const
 {
-    Position position;
+    hox::Position position;
 
     // We will work on the center.
     QPoint point(p.x() + pieceS/2, p.y() + pieceS/2);
@@ -636,14 +636,14 @@ Position Board::_pointToPosition(const QPoint& p) const
     return position;
 }
 
-QPoint Board::_positionToPieceOrigin(const Position position) const
+QPoint Board::_positionToPieceOrigin(const hox::Position position) const
 {
     // Determine the piece's top-left point.
     return QPoint(borderX + position.col*cellS - pieceS/2,
                   borderY + position.row*cellS - pieceS/2);
 }
 
-Piece* Board::_findPieceAt(const Position& position, bool includeInactive) const
+Piece* Board::_findPieceAt(const hox::Position& position, bool includeInactive) const
 {
     foreach (Piece* piece, _pieces) {
         if ( !includeInactive && piece->isHidden() ) continue;
@@ -676,7 +676,7 @@ void Board::_drawPiece(Piece* piece)
     }
 }
 
-bool Board::_isMoveLegalFrom(Position from, Position to) const
+bool Board::_isMoveLegalFrom(hox::Position from, hox::Position to) const
 {
     int sqSrc = TOSQUARE(from.row, from.col);
     int sqDst = TOSQUARE(to.row, to.col);

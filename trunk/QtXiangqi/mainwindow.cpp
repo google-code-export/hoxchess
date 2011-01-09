@@ -1,9 +1,10 @@
+#include <QtGui>
+#include <QtDebug>
 #include "mainwindow.h"
 #include "tableui.h"
 #include "logindialog.h"
 #include "piece.h"
-#include <QtGui>
-#include <QtDebug>
+#include "message/hoxMessage.h"
 
 // ********************************************************
 MainWindow::MainWindow(QWidget *parent)
@@ -150,7 +151,9 @@ void MainWindow::setupWidgets()
 
 void MainWindow::readSettings()
 {
-    QSettings settings("PlayXiangqi", "QtXiangqi");
+    QSettings settings;
+
+    // Restore the main window 's position and size.
     QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
     QSize size = settings.value("size", QSize(400, 400)).toSize();
     resize(size);
@@ -159,9 +162,18 @@ void MainWindow::readSettings()
 
 void MainWindow::writeSettings()
 {
-    QSettings settings("PlayXiangqi", "QtXiangqi");
+    QSettings settings;
+
+    // Save the main window 's position and size.
     settings.setValue("pos", pos());
     settings.setValue("size", size());
+
+    // Save the network login information.
+    if (onlineConnection_)
+    {
+        settings.setValue("pid", QString::fromStdString(onlineConnection_->getPid()));
+        settings.setValue("password", QString::fromStdString(onlineConnection_->getPassword()));
+    }
 }
 
 bool MainWindow::save()
@@ -175,14 +187,17 @@ void MainWindow::restartGame()
 
 void MainWindow::onlineClicked()
 {
-    LoginDialog loginDialog(this);
-    loginDialog.setWindowTitle(tr("Login"));
+    QSettings settings;
+    const QString defaultPid = settings.value("pid").toString();
+    const QString defaultPassword = settings.value("password").toString();
+
+    LoginDialog loginDialog(this, defaultPid, defaultPassword);
     const int dialogCode = loginDialog.exec();
     if (dialogCode == QDialog::Rejected) {
         return;
     }
 
-    const std::string sUsername = loginDialog.getUsername().toStdString();
+    const std::string sPid = loginDialog.getPid().toStdString();
     const std::string sPassword = loginDialog.getPassword().toStdString();
 
     // -----------
@@ -192,7 +207,7 @@ void MainWindow::onlineClicked()
     onlineConnection_ = new hoxSocketConnection( serverAddress, handler_ );
     onlineConnection_->start();
 
-    onlineConnection_->send_LOGIN(sUsername, sPassword);
+    onlineConnection_->send_LOGIN(sPid, sPassword);
 }
 
 void MainWindow::about()
@@ -210,4 +225,7 @@ NetworkDataHandler::onNewPayload(const hox::network::DataPayload& payload)
 {
     qDebug() << "Payload: " << payload.type()
             << ", data=[" << payload.data().c_str() << "]";
+    hox::Message message;
+    hox::Message::string_to_message(payload.data(), message);
+    qDebug() << "Incoming message: [" << QString::fromStdString(message.toString()) << "]";
 }
