@@ -91,6 +91,10 @@ public:
                                StringList&     players );
 
     static void
+    parse_inCommand_LIST( const std::string& sInput,
+                          TableList&         tables );
+
+    static void
     parse_inCommand_E_JOIN( const std::string& sInput,
                             std::string&       tableId,
                             std::string&       playerId,

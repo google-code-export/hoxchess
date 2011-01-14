@@ -5,6 +5,7 @@
 #include <list>
 #include <vector>
 #include <boost/tokenizer.hpp>
+#include <boost/shared_ptr.hpp>
 
 namespace hox {
 
@@ -90,6 +91,8 @@ public:
         rated = true;
     }
 };
+typedef boost::shared_ptr<TableInfo> TableInfo_SPtr;
+typedef std::list<TableInfo_SPtr> TableList;
 
 } // namespace hox
 
