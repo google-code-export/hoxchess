@@ -132,6 +132,21 @@ Message::parse_inCommand_I_PLAYERS( const std::string& sInput,
 }
 
 /* static */ void
+Message::parse_inCommand_LIST( const std::string& sInput,
+                               TableList&         tables )
+{
+    tables.clear();
+
+    Tokenizer tok( sInput, Separator("\n") );
+    for ( Tokenizer::iterator it = tok.begin(); it != tok.end(); ++it )
+    {
+        TableInfo_SPtr pTableInfo( new TableInfo );
+        Message::parse_one_table( *it, *pTableInfo );
+        tables.push_back( pTableInfo );
+    }
+}
+
+/* static */ void
 Message::parse_inCommand_E_JOIN( const std::string& sInput,
                                  std::string&       tableId,
                                  std::string&       playerId,
@@ -141,8 +156,7 @@ Message::parse_inCommand_E_JOIN( const std::string& sInput,
     nPlayerScore = 0;
     color        = HC_COLOR_NONE; // Default = observer.
 
-    Separator sep(";");
-    Tokenizer tok(sInput, sep);
+    Tokenizer tok(sInput, Separator(";"));
 
     int i = 0;
     for ( Tokenizer::iterator it = tok.begin(); it != tok.end(); ++it )
@@ -165,8 +179,7 @@ Message::parse_inCommand_INVITE( const std::string& sInput,
 {
     inviterId = "";
 
-    Separator sep(";");
-    Tokenizer tok(sInput, sep);
+    Tokenizer tok(sInput, Separator(";"));
 
     int i = 0;
     for ( Tokenizer::const_iterator it = tok.begin(); it != tok.end(); ++it )
@@ -194,8 +207,7 @@ Message::parse_inCommand_MOVE( const std::string& sInput,
     sMove      = "";
     gameStatus = HC_GAME_STATUS_UNKNOWN;
 
-    Separator sep(";");
-    Tokenizer tok(sInput, sep);
+    Tokenizer tok(sInput, Separator(";"));
 
     int i = 0;
     for ( Tokenizer::iterator it = tok.begin(); it != tok.end(); ++it )
@@ -222,8 +234,7 @@ Message::parse_inCommand_E_END( const std::string& sInput,
     gameStatus = HC_GAME_STATUS_UNKNOWN;
     sReason    = "";
 
-    Separator sep(";");
-    Tokenizer tok(sInput, sep);
+    Tokenizer tok(sInput, Separator(";"));
 
     int i = 0;
     for ( Tokenizer::iterator it = tok.begin(); it != tok.end(); ++it )
@@ -247,8 +258,7 @@ Message::parse_inCommand_DRAW( const std::string& sInput,
     tableId    = "";
     playerId   = "";
 
-    Separator sep(";");
-    Tokenizer tok(sInput, sep);
+    Tokenizer tok(sInput, Separator(";"));
 
     int i = 0;
     for ( Tokenizer::iterator it = tok.begin(); it != tok.end(); ++it )
@@ -269,9 +279,20 @@ Message::parse_one_table( const std::string& sInput,
 {
    tableInfo.clear();
 
-    Separator sep(";");
+    Separator sep(";", "" /* kept_delims */, boost::keep_empty_tokens);
     Tokenizer tok(sInput, sep);
-    // FIXME: Not yet complete.
+    Tokenizer::iterator it = tok.begin();
+
+    tableInfo.id = *it++;
+    it++; // Skip this PUBLIC/PRIVATE field.
+    tableInfo.rated = ( (*it++) == "0" );
+    tableInfo.initialTime = hox::util::stringToTimeInfo(*it++);
+    tableInfo.redTime = hox::util::stringToTimeInfo(*it++);
+    tableInfo.blackTime = hox::util::stringToTimeInfo(*it++);
+    tableInfo.redId = *it++;
+    tableInfo.redRating = *it++;
+    tableInfo.blackId = *it++;
+    tableInfo.blackRating = *it++;
 }
 
 } // namespace hox

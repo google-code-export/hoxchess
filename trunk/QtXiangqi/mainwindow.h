@@ -32,6 +32,8 @@ private slots:
     bool save();
     void onlineClicked();
 
+    void handleMessage(const QString& sData);
+
 protected:
     void changeEvent(QEvent *e);
 
@@ -46,6 +48,9 @@ private:
     // Network message handlers.
     void handleMessage_LOGIN_(const std::string& content);
     void handleMessage_LIST_(const std::string& content);
+
+signals:
+     void messageReceived(const QString& sData);
 
 private:
     Ui::MainWindow ui_;

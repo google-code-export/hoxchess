@@ -3,6 +3,7 @@
 #include "mainwindow.h"
 #include "tableui.h"
 #include "logindialog.h"
+#include "tablelistui.h"
 #include "piece.h"
 
 // ********************************************************
@@ -175,6 +176,9 @@ void MainWindow::restartGame()
 
 void MainWindow::onlineClicked()
 {
+    connect(this, SIGNAL(messageReceived(const QString&)),
+            this, SLOT(handleMessage(const QString&)));
+
     QSettings settings;
     const QString defaultPid = settings.value("pid").toString();
     const QString defaultPassword = settings.value("password").toString();
@@ -217,8 +221,17 @@ MainWindow::onNewPayload(const hox::network::DataPayload& payload)
         return;
     }
 
+    const QString data = QString::fromStdString(payload.data());
+    emit messageReceived(data);
+}
+
+void
+MainWindow::handleMessage(const QString& sData)
+{
+    const std::string data = sData.toStdString();
+
     hox::Message message;
-    hox::Message::string_to_message(payload.data(), message);
+    hox::Message::string_to_message(data, message);
 
     const std::string op = message.m_type;
     const std::string content = message.m_parameters["content"];
@@ -226,7 +239,7 @@ MainWindow::onNewPayload(const hox::network::DataPayload& payload)
     if      (op == "LOGIN")       handleMessage_LOGIN_(content);
     else if (op == "LIST")        handleMessage_LIST_(content);
     else {
-        qDebug("%s: Unhandled payload: { %d %s }", __FUNCTION__, payload.type(), payload.data().c_str());
+        qDebug("%s: Unhandled payload: { %s }", __FUNCTION__, data.c_str());
     }
 }
 
@@ -251,12 +264,13 @@ MainWindow::handleMessage_LOGIN_(const std::string& content)
 void
 MainWindow::handleMessage_LIST_(const std::string& content)
 {
-    const hox::Tokenizer tok(content, hox::Separator("\n"));
-    hox::Tokenizer::iterator it = tok.begin();
+    hox::TableList tables;
+    hox::Message::parse_inCommand_LIST(content, tables);
 
-    int count = 0;
-    for (hox::Tokenizer::iterator it = tok.begin(); it != tok.end(); ++it)
-    {
-        qDebug("%s: Table #%d: [%s].", __FUNCTION__, ++count, (*it).c_str());
+    TableListUI tablesUI(this);
+    tablesUI.setTables(tables);
+    const int dialogCode = tablesUI.exec();
+    if (dialogCode == QDialog::Rejected) {
+        return;
     }
 }

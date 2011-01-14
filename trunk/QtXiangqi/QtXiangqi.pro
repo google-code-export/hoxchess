@@ -19,7 +19,8 @@ SOURCES += main.cpp \
     network/hoxSocketConnection.cpp \
     logindialog.cpp \
     message/hoxMessage.cpp \
-    common/hoxUtil.cpp
+    common/hoxUtil.cpp \
+    tablelistui.cpp
 HEADERS += mainwindow.h \
     piece.h \
     board.h \
@@ -33,10 +34,12 @@ HEADERS += mainwindow.h \
     logindialog.h \
     tableui.h \
     message/hoxMessage.h \
-    common/hoxUtil.h
+    common/hoxUtil.h \
+    tablelistui.h
 FORMS += mainwindow.ui \
     tableui.ui \
-    logindialog.ui
+    logindialog.ui \
+    tablelistui.ui
 RESOURCES += board.qrc
 OTHER_FILES += \ 
     README.txt
