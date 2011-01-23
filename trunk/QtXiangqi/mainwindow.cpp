@@ -273,4 +273,7 @@ MainWindow::handleMessage_LIST_(const std::string& content)
     if (dialogCode == QDialog::Rejected) {
         return;
     }
+
+    const QString selectedTableId = tablesUI.getSelectedId();
+    qDebug("%s: selected table-Id = [%s].", __FUNCTION__, selectedTableId.toStdString().c_str());
 }
