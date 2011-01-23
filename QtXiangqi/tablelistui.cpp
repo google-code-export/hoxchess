@@ -18,6 +18,9 @@ TableListUI::TableListUI(QWidget *parent) :
     treeView->setAlternatingRowColors(true);
     treeView->setModel(model);
     treeView->setSortingEnabled(true);
+
+    connect(treeView, SIGNAL(clicked(QModelIndex)),
+            this, SLOT(clicked(QModelIndex)));
 }
 
 TableListUI::~TableListUI()
@@ -38,18 +41,24 @@ void TableListUI::changeEvent(QEvent *e)
 
 void TableListUI::setTables(const hox::TableList& tables)
 {
+    // Clear old info.
     tables_ = tables;
+    tableIds_.clear();
+    selectedId_.clear();
 
+    // Set new info.
     QTreeView* treeView = ui_.tablesTreeView;
-    QStandardItemModel *model = (QStandardItemModel*) treeView->model();
+    QStandardItemModel* model = (QStandardItemModel*) treeView->model();
 
     for (hox::TableList::const_iterator it = tables_.begin(); it != tables_.end(); ++it)
     {
-        addTable(model, *(*it));
+        const QString sId = QString::fromStdString((*it)->id);
+        tableIds_.append(sId);
+        addTable_(model, *(*it));
     }
 }
 
-void TableListUI::addTable(QStandardItemModel *model, const hox::TableInfo& table)
+void TableListUI::addTable_(QStandardItemModel *model, const hox::TableInfo& table)
 {
     QString redInfo("*");
     if (!table.redId.empty()) {
@@ -71,13 +80,10 @@ void TableListUI::addTable(QStandardItemModel *model, const hox::TableInfo& tabl
     items.append( new QStandardItem(redInfo) );
     items.append( new QStandardItem(blackInfo) );
     model->appendRow(items);
+}
 
-    /*
-    model->appendRow(0);
-    model->setData(model->index(0, 0), QString("#").append(QString::fromStdString(table.id)));
-    model->setData(model->index(0, 1), table.rated ? tr("Rated") : tr("NotRated"));
-    model->setData(model->index(0, 2), sTimer);
-    model->setData(model->index(0, 3), redInfo);
-    model->setData(model->index(0, 4), blackInfo);
-    */
+void TableListUI::clicked(const QModelIndex &index)
+{
+    selectedId_ = tableIds_[index.row()];
+    qDebug("%s: table-Id = [%s].", __FUNCTION__, selectedId_.toStdString().c_str());
 }
