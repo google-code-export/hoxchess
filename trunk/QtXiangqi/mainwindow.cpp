@@ -9,7 +9,8 @@
 // ********************************************************
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent)
-        , connection_(NULL)
+        , aiBoardController_(0)
+        , connection_(0)
 {
     ui_.setupUi(this);
 
@@ -40,7 +41,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
         connection_->stop();
         delete connection_;
-        connection_ = NULL;
+        connection_ = 0;
     }
 
     event->accept();
@@ -134,7 +135,8 @@ void MainWindow::setupWidgets()
     sitesWindow->setMaximumSize(120, 400);
 
     /* -------------------- Central frame. */
-    TableUI *tableUI = new TableUI(this);
+    aiBoardController_ = new AIBoardController(this);
+    TableUI* tableUI = aiBoardController_->getBoard();
 
     frameLayout->addWidget(sitesWindow);
     frameLayout->addWidget(tableUI);

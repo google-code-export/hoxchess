@@ -20,7 +20,8 @@ SOURCES += main.cpp \
     logindialog.cpp \
     message/hoxMessage.cpp \
     common/hoxUtil.cpp \
-    tablelistui.cpp
+    tablelistui.cpp \
+    aiboardcontroller.cpp
 HEADERS += mainwindow.h \
     piece.h \
     board.h \
@@ -35,7 +36,8 @@ HEADERS += mainwindow.h \
     tableui.h \
     message/hoxMessage.h \
     common/hoxUtil.h \
-    tablelistui.h
+    tablelistui.h \
+    aiboardcontroller.h
 FORMS += mainwindow.ui \
     tableui.ui \
     logindialog.ui \

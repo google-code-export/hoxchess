@@ -1,10 +1,8 @@
-#include <QtGui>
-
 #include "board.h"
 #include "piece.h"
-#include "types.h"
 #include "Referee/Referee.h"
 #include "AI/AI_XQWLight.h"
+#include "tableui.h"   // For BoardOwner 's definition
 
 static const int borderX = 40;
 static const int borderY = 40;
@@ -45,8 +43,9 @@ enum InfoLabelTag
 };
 
 // ----------------------------------------------------------------------------
-Board::Board(QWidget *parent)
+Board::Board(QWidget* parent, BoardOwner* boardOwner)
     : QWidget(parent)
+    , boardOwner_(boardOwner)
     , _dragPiece(0)
     , _latestPiece(0)
     , _checkedKing(0)
@@ -134,8 +133,17 @@ void Board::paintEvent(QPaintEvent *event)
 
 void Board::mousePressEvent(QMouseEvent *event)
 {
-    Piece *piece = static_cast<Piece*>(childAt(event->pos()));
+    Piece* piece = static_cast<Piece*>(childAt(event->pos()));
     if (!piece) return;
+
+    if (    isInReplay_()
+        || _referee->gameStatus() != HC_GAME_STATUS_IN_PROGRESS
+        || !boardOwner_->isMyTurnNext()
+        || !boardOwner_->isGameReady() )
+    {
+        return;
+    }
+
     _playSound("CLICK");
     _dragPiece = piece;
     _dragPiece->raise();
@@ -190,11 +198,11 @@ void Board::_onNewMove(hox::Position from, hox::Position to, bool setupMode /* =
     // Delay update the UI if in Replay mode.
     // NOTE: We do not update pMove.srcPiece (leaving it equal to 0)
     //       to signal that it is NOT yet processed.
-    if (_isInReplay()) {
+    if (isInReplay_()) {
         return;
     }
 
-    // Full update the Move's information.
+    // Fully update the Move's information.
     pMove->srcPiece = _findPieceAt(from);
     pMove->capturedPiece = _findPieceAt(to);
 
@@ -225,7 +233,7 @@ void Board::_updateUIOnNewMove(ReplayMove* pMove, bool animated)
     }
 
     if (   _referee->gameStatus() != HC_GAME_STATUS_IN_PROGRESS
-        && (!_isInReplay() || _nthMove == _moves.size()-1))
+        && (!isInReplay_() || _nthMove == _moves.size()-1))
     {
         _onGameOver();
     }
@@ -239,7 +247,7 @@ void Board::_playSoundAfterMove(const ReplayMove *pMove)
     QString              sound;
 
     if (   result != HC_GAME_STATUS_IN_PROGRESS // NOTE: just for optimization!
-        && (!_isInReplay() || _nthMove == _moves.size()-1))
+        && (!isInReplay_() || _nthMove == _moves.size()-1))
     {
         if (   (result == HC_GAME_STATUS_RED_WIN && ownerColor == HC_COLOR_RED)
             || (result == HC_GAME_STATUS_BLACK_WIN && ownerColor == HC_COLOR_BLACK))
@@ -309,17 +317,17 @@ bool Board::_doReplayPREV(bool animated)
 
 void Board::doReplay_PREVIOUS()
 {
-    if (!_isInReplay()) {
+    if (!isInReplay_()) {
         _clearAllHighlight();
     }
 
     _doReplayPREV(true /* animation */);
-    _setReplayMode( _isInReplay() );
+    _setReplayMode( isInReplay_() );
 }
 
 void Board::doReplay_BEGIN()
 {
-    if (!_isInReplay()) {
+    if (!isInReplay_()) {
         _clearAllHighlight();
     }
 
@@ -329,7 +337,7 @@ void Board::doReplay_BEGIN()
     _playSound("Replay");
 
     while (_doReplayPREV(false /* no animation */)) { /* ... until no more move */ }
-    _setReplayMode( _isInReplay() );
+    _setReplayMode( isInReplay_() );
 }
 
 bool Board::_doReplayNEXT(bool animated)
@@ -381,7 +389,7 @@ bool Board::_doReplayNEXT(bool animated)
 void Board::doReplay_NEXT()
 {
     _doReplayNEXT(true /* animation */);
-    _setReplayMode( _isInReplay() );
+    _setReplayMode( isInReplay_() );
 }
 
 void Board::doReplay_END()
@@ -394,7 +402,7 @@ void Board::doReplay_END()
         _doReplayNEXT(false /* no animation */);
     }
     _doReplayNEXT(true /* animation */);
-    _setReplayMode( _isInReplay() );
+    _setReplayMode( isInReplay_() );
 }
 
 void Board::_setPiecePosition(Piece* piece, hox::Position newPosition)
@@ -516,18 +524,16 @@ int Board::_runAIToGenerateMove()
     int row1 = 0, col1 = 0, row2 = 0, col2 = 0;
     _aiEngine->generateMove(&row1, &col1, &row2, &col2);
     int move = MOVE( TOSQUARE(row1, col1), TOSQUARE(row2, col2) );
-    //qDebug() << "GENERATED: move = " << move;
     return move;
 }
 
 void Board::_handleAIMoveGenerated()
 {
-    int move = _aiWatcher.result();
-    int sqSrc = SRC(move);
-    int sqDst = DST(move);
+    const int move = _aiWatcher.result(); // Retrieve the newly generated move.
+    const int sqSrc = SRC(move);
+    const int sqDst = DST(move);
     hox::Position from(ROW(sqSrc), COLUMN(sqSrc));
     hox::Position to(ROW(sqDst), COLUMN(sqDst));
-    //qDebug() << "(" << from.row << "," << from.col << " -> (" << to.row << "," << to.col << ")";
     _onNewMove(from, to);
 }
 
@@ -683,7 +689,7 @@ bool Board::_isMoveLegalFrom(hox::Position from, hox::Position to) const
     return _referee->isLegalMove( MOVE(sqSrc, sqDst) );
 }
 
-bool Board::_isInReplay() const { return _nthMove != HISTORY_INDEX_END; }
+bool Board::isInReplay_() const { return _nthMove != HISTORY_INDEX_END; }
 
 void Board::_playSound(const QString& soundName)
 {
