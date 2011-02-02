@@ -9,12 +9,13 @@ class Piece;
 class Referee;
 class AIEngine;
 class ReplayMove;
+class BoardOwner;
 
 class Board : public QWidget
 {
     Q_OBJECT
 public:
-    Board(QWidget *parent = 0);
+    Board(QWidget* parent, BoardOwner* boardOwner);
     virtual ~Board();
 
     void doReplay_PREVIOUS();
@@ -58,13 +59,13 @@ private:
     hox::Position _pointToPosition(const QPoint& p) const;
     QPoint _positionToPieceOrigin(const hox::Position position) const;
 
-    Piece* _findPieceAt(const hox::Position& position, bool  includeInactive = false) const;
+    Piece* _findPieceAt(const hox::Position& position, bool includeInactive = false) const;
     Piece* _getKingOfColor(ColorEnum color) const;
     void _drawPiece(Piece* piece);
 
     bool _isMoveLegalFrom(hox::Position from, hox::Position to) const;
 
-    bool _isInReplay() const;
+    bool isInReplay_() const;
 
     void _initAIEngine();
     void _initSoundSystem();
@@ -72,6 +73,8 @@ private:
     void _playSound(const QString& soundName);
 
 private:
+    BoardOwner*         boardOwner_;
+
     Piece*              _dragPiece;
     Piece*              _latestPiece;
     Piece*              _checkedKing;

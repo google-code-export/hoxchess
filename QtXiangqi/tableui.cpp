@@ -1,13 +1,15 @@
 #include "tableui.h"
 #include "board.h"
 
-TableUI::TableUI(QWidget *parent) :
-    QWidget(parent)
+TableUI::TableUI(QWidget* parent, BoardOwner* boardOwner)
+        : QWidget(parent)
+        , board_(0)
+        , boardOwner_(boardOwner)
 {
     ui_.setupUi(this);
 
     QVBoxLayout *verticalLayout = ui_.verticalLayout;
-    board_ = new Board(this);
+    board_ = new Board(this, boardOwner_);
     verticalLayout->insertWidget(0, board_);
 }
 
@@ -15,7 +17,7 @@ TableUI::~TableUI()
 {
 }
 
-void TableUI::changeEvent(QEvent *e)
+void TableUI::changeEvent(QEvent* e)
 {
     QWidget::changeEvent(e);
     switch (e->type()) {

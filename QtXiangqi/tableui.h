@@ -2,21 +2,31 @@
 #define TABLEUI_H
 
 #include "ui_tableui.h"
+#include "enums.h"
+#include "types.h"
 
 class Board;
 
-class TableUI : public QWidget {
+class BoardOwner
+{
+public:
+    virtual bool isMyTurnNext() = 0;
+    virtual bool isGameReady() = 0;
+    virtual void onLocalMoveMadeFrom(hox::Position from, hox::Position to) = 0;
+    virtual ColorEnum ownerColor() = 0;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+class TableUI : public QWidget
+{
     Q_OBJECT
 public:
-    TableUI(QWidget *parent = 0);
+    TableUI(QWidget* parent, BoardOwner* boardOwner = 0);
     ~TableUI();
 
 protected:
-    void changeEvent(QEvent *e);
-
-private:
-    Ui::TableUI ui_;
-    Board       *board_;
+    void changeEvent(QEvent* e);
 
 private slots:
     void on_replayEndButton_clicked();
@@ -25,6 +35,11 @@ private slots:
     void on_replayPrevButton_clicked();
 
     void on_resetButton_clicked();
+
+private:
+    Ui::TableUI ui_;
+    Board*      board_;
+    BoardOwner* boardOwner_;
 };
 
 #endif // TABLEUI_H

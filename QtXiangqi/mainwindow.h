@@ -9,6 +9,8 @@
 #include "network/hoxSocketConnection.h"
 #include "message/hoxMessage.h"
 
+#include "aiboardcontroller.h"
+
 class NetworkDataHandler;
 
 // ********************************************************
@@ -69,6 +71,8 @@ private:
 
     QGraphicsScene *scene;
     QGraphicsView *view;
+
+    AIBoardController*               aiBoardController_;
 
     hox::network::SocketConnection*  connection_;
     std::string                      pid_;       // My player-Id (PID).
