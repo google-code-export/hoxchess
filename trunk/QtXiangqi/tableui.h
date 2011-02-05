@@ -25,6 +25,8 @@ public:
     TableUI(QWidget* parent, BoardOwner* boardOwner = 0);
     ~TableUI();
 
+    void onNewMove(hox::Position from, hox::Position to, bool setupMode = false);
+
 protected:
     void changeEvent(QEvent* e);
 

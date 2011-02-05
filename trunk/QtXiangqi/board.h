@@ -7,7 +7,6 @@
 
 class Piece;
 class Referee;
-class AIEngine;
 class ReplayMove;
 class BoardOwner;
 
@@ -25,6 +24,8 @@ public:
 
     void resetBoard();
 
+    void onNewMove(hox::Position from, hox::Position to, bool setupMode = false);
+
 protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
@@ -32,15 +33,9 @@ protected:
 
     void paintEvent(QPaintEvent *event);
 
-private slots:
-    void _handleAIMoveGenerated();
-    void _askAIToGenerateMove();
-
 private:
-    void _onNewMove(hox::Position from, hox::Position to, bool setupMode = false);
     void _updateUIOnNewMove(ReplayMove* pMove, bool animated);
     void _playSoundAfterMove(const ReplayMove *pMove);
-    void _onLocalMoveMadeFrom(const hox::Position from, const hox::Position to);
 
     void _setPiecePosition(Piece* piece, hox::Position newPosition);
     void _animateLatestMove(ReplayMove* pMove);
@@ -67,9 +62,7 @@ private:
 
     bool isInReplay_() const;
 
-    void _initAIEngine();
     void _initSoundSystem();
-    int _runAIToGenerateMove();
     void _playSound(const QString& soundName);
 
 private:
@@ -90,9 +83,6 @@ private:
 
     QList<ReplayMove*>  _moves;    // MOVE history
     int                 _nthMove;  // The pivot for Move Replay
-
-    AIEngine*           _aiEngine;
-    QFutureWatcher<int> _aiWatcher;
 
     QHash<QString, QSound*> _sounds;
 };
