@@ -17,6 +17,11 @@ TableUI::~TableUI()
 {
 }
 
+void TableUI::onNewMove(hox::Position from, hox::Position to, bool setupMode /* = false */)
+{
+    board_->onNewMove(from, to, setupMode);
+}
+
 void TableUI::changeEvent(QEvent* e)
 {
     QWidget::changeEvent(e);

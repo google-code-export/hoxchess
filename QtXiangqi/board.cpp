@@ -1,7 +1,6 @@
 #include "board.h"
 #include "piece.h"
 #include "Referee/Referee.h"
-#include "AI/AI_XQWLight.h"
 #include "tableui.h"   // For BoardOwner 's definition
 
 static const int borderX = 40;
@@ -55,7 +54,6 @@ Board::Board(QWidget* parent, BoardOwner* boardOwner)
     , _referee(new Referee)
     , _gameOver(false)
     , _nthMove(HISTORY_INDEX_END)
-    , _aiEngine(0)
 {
     setMinimumSize(560, 620);
     setMaximumSize(minimumSize());
@@ -78,10 +76,6 @@ Board::Board(QWidget* parent, BoardOwner* boardOwner)
     _infoLabel->setProperty("tag", INFO_LABEL_TAG_NONE);
 
     _referee->initGame();
-
-    _initAIEngine();
-    connect(&_aiWatcher, SIGNAL(finished()), this, SLOT(_handleAIMoveGenerated()));
-
     _initSoundSystem();
 }
 
@@ -89,15 +83,10 @@ Board::~Board()
 {
     delete _referee;
     while (!_moves.isEmpty()) { delete _moves.takeFirst(); }
-    delete _aiEngine;
 }
 
 void Board::resetBoard()
 {
-    if (AI_RC_OK != _aiEngine->initGame()) {
-        qWarning() << "Fail to reset AI.";
-    }
-
     _clearAllHighlight();
     _clearAllAnimation();
 
@@ -174,8 +163,12 @@ void Board::mouseReleaseEvent(QMouseEvent *event)
          && _isMoveLegalFrom(_dragPiece->position(), newPosition))
      {
          const hox::Position from = _dragPiece->position();
-         _onNewMove(from, newPosition);
-         _onLocalMoveMadeFrom(from, newPosition);
+         onNewMove(from, newPosition);
+
+         if (_referee->gameStatus() == HC_GAME_STATUS_IN_PROGRESS)
+         {
+             boardOwner_->onLocalMoveMadeFrom(from, newPosition);
+         }
      } else {
          _drawPiece(_dragPiece); // Move back to the original position.
      }
@@ -184,7 +177,7 @@ void Board::mouseReleaseEvent(QMouseEvent *event)
      _dragHighlight->hide();
 }
 
-void Board::_onNewMove(hox::Position from, hox::Position to, bool setupMode /* = false */)
+void Board::onNewMove(hox::Position from, hox::Position to, bool setupMode /* = false */)
 {
     int sqSrc = TOSQUARE(from.row, from.col);
     int sqDst = TOSQUARE(to.row, to.col);
@@ -484,28 +477,6 @@ void Board::_setInfoLabel(const QString& infoText)
     _infoLabel->show();
 }
 
-void Board::_onLocalMoveMadeFrom(const hox::Position from, const hox::Position to)
-{
-    if (_referee->gameStatus() == HC_GAME_STATUS_IN_PROGRESS)
-    {
-        _aiEngine->onHumanMove(from.row, from.col, to.row, to.col);
-        QTimer::singleShot(1000, this, SLOT(_askAIToGenerateMove()));
-    }
-}
-
-void Board::_initAIEngine()
-{
-    QDir appDir(QApplication::applicationDirPath());
-    QString bookPath = appDir.absoluteFilePath("../Resources/books/BOOK.DAT");
-    QByteArray utf8Name = bookPath.toUtf8();
-    _aiEngine = new AI_XQWLight(utf8Name.constData());
-
-    if (AI_RC_OK != _aiEngine->initGame()) {
-        qWarning() << "Fail to init AI with open AI Book: [" << bookPath << "]";
-    }
-    _aiEngine->setDifficultyLevel(5);
-}
-
 void Board::_initSoundSystem()
 {
     QList<QString> soundList;
@@ -517,30 +488,6 @@ void Board::_initSoundSystem()
     foreach (QString soundName, soundList) {
         _sounds[soundName] = new QSound(soundPath + soundName + ".WAV");
     }
-}
-
-int Board::_runAIToGenerateMove()
-{
-    int row1 = 0, col1 = 0, row2 = 0, col2 = 0;
-    _aiEngine->generateMove(&row1, &col1, &row2, &col2);
-    int move = MOVE( TOSQUARE(row1, col1), TOSQUARE(row2, col2) );
-    return move;
-}
-
-void Board::_handleAIMoveGenerated()
-{
-    const int move = _aiWatcher.result(); // Retrieve the newly generated move.
-    const int sqSrc = SRC(move);
-    const int sqDst = DST(move);
-    hox::Position from(ROW(sqSrc), COLUMN(sqSrc));
-    hox::Position to(ROW(sqDst), COLUMN(sqDst));
-    _onNewMove(from, to);
-}
-
-void Board::_askAIToGenerateMove()
-{
-    QFuture<int> future = QtConcurrent::run(this, &Board::_runAIToGenerateMove);
-    _aiWatcher.setFuture(future);
 }
 
 void Board::_setupPieces()
