@@ -4,6 +4,8 @@
 
 AIBoardController::AIBoardController(QWidget* parent)
     : QObject()
+    , board_(0)
+    , myColor_(HC_COLOR_RED)
 {
     board_ = new TableUI(parent, this);
     aiEngine_ = createAIEngine_();
@@ -49,7 +51,7 @@ void AIBoardController::onLocalMoveMadeFrom(hox::Position from, hox::Position to
 
 ColorEnum AIBoardController::ownerColor()
 {
-    return HC_COLOR_RED;
+    return myColor_;
 }
 
 // ----------- My own API -----------------------------------------------------

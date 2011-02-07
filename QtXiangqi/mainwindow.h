@@ -2,28 +2,19 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QGraphicsScene>
-#include <QGraphicsView>
 
 #include "ui_mainwindow.h"
-#include "network/hoxSocketConnection.h"
-#include "message/hoxMessage.h"
 
 #include "aiboardcontroller.h"
-
-class NetworkDataHandler;
+#include "networkboardcontroller.h"
 
 // ********************************************************
-class MainWindow : public QMainWindow,
-                   public hox::network::DataHandler
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
 public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
-
-   /** Override API from hox::network::DataHandler */
-   virtual void onNewPayload(const hox::network::DataPayload& payload);
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -33,8 +24,6 @@ private slots:
     void about();
     bool save();
     void onlineClicked();
-
-    void handleMessage(const QString& sData);
 
 protected:
     void changeEvent(QEvent *e);
@@ -46,13 +35,6 @@ private:
     void setupWidgets();
     void readSettings();
     void writeSettings();
-
-    // Network message handlers.
-    void handleMessage_LOGIN_(const std::string& content);
-    void handleMessage_LIST_(const std::string& content);
-
-signals:
-     void messageReceived(const QString& sData);
 
 private:
     Ui::MainWindow ui_;
@@ -69,14 +51,10 @@ private:
     QToolBar *fileToolBar;
     QToolBar *gameToolBar;
 
-    QGraphicsScene *scene;
-    QGraphicsView *view;
+    QHBoxLayout* frameLayout_;
 
-    AIBoardController*               aiBoardController_;
-
-    hox::network::SocketConnection*  connection_;
-    std::string                      pid_;       // My player-Id (PID).
-    std::string                      password_;  // My password.
+    AIBoardController*      aiBoardController_;
+    NetworkBoardController* networkBoardController_;
 };
 
 #endif // MAINWINDOW_H
