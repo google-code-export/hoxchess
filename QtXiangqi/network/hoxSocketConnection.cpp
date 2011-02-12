@@ -19,14 +19,12 @@
 
 /////////////////////////////////////////////////////////////////////////////
 // Name:            hoxSocketConnection.cpp
-// Created:         10/28/2007
+// Created:         12/11/2010
 //
-// Description:     The Socket-Connection Thread to help MY player.
+// Description:     The Socket-Connection Thread.
 /////////////////////////////////////////////////////////////////////////////
 
 #include "hoxSocketConnection.h"
-//#include "hoxPlayer.h"
-//#include "hoxUtil.h"
 
 #define wxLogDebug qDebug
 
@@ -358,14 +356,14 @@ SocketConnection::send_LOGIN( const std::string& pid,
     const std::string sCmd = std::string("op=LOGIN")
                              + "&version=" + HC_APP_INAME + "-" + HC_APP_IVERSION
                              + "&password=" + password;
-    _sendRequest(sCmd);
+    sendRequest_(sCmd);
 }
 
 void
 SocketConnection::send_LOGOUT()
 {
     const std::string sCmd("op=LOGOUT");
-    _sendRequest(sCmd, REQUEST_LOGOUT);
+    sendRequest_(sCmd, REQUEST_LOGOUT);
                /* NOTE: Special flag to shutdown the connection.
                 */
 }
@@ -374,11 +372,20 @@ void
 SocketConnection::send_LIST()
 {
     const std::string sCmd("op=LIST");
-    _sendRequest(sCmd);
+    sendRequest_(sCmd);
+}
+
+void SocketConnection::send_JOIN( const std::string& tid,
+                                  const std::string& joinColor )
+{
+    const std::string sCmd = std::string("op=JOIN")
+                             + "&tid=" + tid
+                             + "&color=" + joinColor;
+    sendRequest_(sCmd);
 }
 
 void
-SocketConnection::_sendRequest( const std::string& sCmd,
+SocketConnection::sendRequest_( const std::string& sCmd,
                                 RequestType        type /* = REQUEST_COMMAND */ )
 {
     Request_SPtr request(new Request(type));

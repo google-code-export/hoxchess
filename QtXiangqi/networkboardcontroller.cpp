@@ -1,4 +1,5 @@
 #include "networkboardcontroller.h"
+#include "shared.h"
 #include "logindialog.h"
 #include "tablelistui.h"
 #include "message/hoxMessage.h"
@@ -32,7 +33,7 @@ NetworkBoardController::NetworkBoardController(QWidget *parent)
     connection_ = new hox::network::SocketConnection( serverAddress, this );
     connection_->start();
 
-    connection_->send_LOGIN(pid_.toStdString(), password_.toStdString());
+    connection_->send_LOGIN(::qStringToUtf8( pid_), ::qStringToUtf8(password_));
 }
 
 NetworkBoardController::~NetworkBoardController()
@@ -110,7 +111,7 @@ void NetworkBoardController::writeSettings_()
 void
 NetworkBoardController::handleMessage(const QString& sData)
 {
-    const std::string data = sData.toStdString();
+    const std::string data = ::qStringToUtf8(sData);
 
     hox::Message message;
     hox::Message::string_to_message(data, message);
@@ -120,6 +121,7 @@ NetworkBoardController::handleMessage(const QString& sData)
 
     if      (op == "LOGIN")       handleMessage_LOGIN_(content);
     else if (op == "LIST")        handleMessage_LIST_(content);
+    else if (op == "I_TABLE")     handleMessage_I_TABLE_(content);
     else
     {
         qDebug("%s: Unhandled payload: { %s }", __FUNCTION__, data.c_str());
@@ -133,7 +135,7 @@ NetworkBoardController::handleMessage_LOGIN_(const std::string& content)
     int nRating = 0;
     hox::Message::parse_inCommand_LOGIN(content, pid, nRating);
 
-    if ( pid_.toStdString() != pid ) // not my Id?
+    if ( ::qStringToUtf8(pid_) != pid ) // not my Id?
     {
         return; // Ignore other users' login.
     }
@@ -150,12 +152,19 @@ NetworkBoardController::handleMessage_LIST_(const std::string& content)
 
     TableListUI tablesUI(board_);
     tablesUI.setTables(tables);
-    const int dialogCode = tablesUI.exec();
-    if (dialogCode == QDialog::Rejected)
+    if (QDialog::Rejected == tablesUI.exec())
     {
         return;
     }
 
     const QString selectedTableId = tablesUI.getSelectedId();
-    qDebug("%s: selected table-Id = [%s].", __FUNCTION__, selectedTableId.toStdString().c_str());
+    qDebug() << __FUNCTION__ << ": selected table-Id = " << selectedTableId;
+    connection_->send_JOIN(::qStringToUtf8(selectedTableId), "None"); // join as an observer.
+}
+
+void
+NetworkBoardController::handleMessage_I_TABLE_(const std::string& content)
+{
+    hox::TableInfo tableInfo;
+    hox::Message::parse_inCommand_I_TABLE(content, tableInfo);
 }

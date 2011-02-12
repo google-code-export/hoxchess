@@ -39,7 +39,8 @@ HEADERS += mainwindow.h \
     common/hoxUtil.h \
     tablelistui.h \
     aiboardcontroller.h \
-    networkboardcontroller.h
+    networkboardcontroller.h \
+    shared.h
 FORMS += mainwindow.ui \
     tableui.ui \
     logindialog.ui \
