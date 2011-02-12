@@ -38,6 +38,7 @@ private:
     // Network message handlers.
     void handleMessage_LOGIN_(const std::string& content);
     void handleMessage_LIST_(const std::string& content);
+    void handleMessage_I_TABLE_(const std::string& content);
 
 private:
     TableUI*            board_;

@@ -19,9 +19,9 @@
 
 /////////////////////////////////////////////////////////////////////////////
 // Name:            hoxSocketConnection.h
-// Created:         10/28/2007
+// Created:         12/11/2010
 //
-// Description:     The Socket-Connection Thread to help MY player.
+// Description:     The Socket-Connection Thread.
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __INCLUDED_HOX_SOCKET_CONNECTION_H__
@@ -29,9 +29,8 @@
 
 #include <string>
 #include <asio.hpp>
-#include "hoxAsyncSocket.h"
-
 #include <boost/thread.hpp>
+#include "hoxAsyncSocket.h"
 
 using asio::ip::tcp;
 
@@ -163,9 +162,10 @@ public:
     void send_LOGIN(const std::string& pid, const std::string& password);
     void send_LOGOUT();
     void send_LIST();
+    void send_JOIN(const std::string& tid, const std::string& joinColor);
 
 private:
-    void _sendRequest( const std::string& sCmd,
+    void sendRequest_( const std::string& sCmd,
                        RequestType        type = REQUEST_COMMAND );
 
 private:

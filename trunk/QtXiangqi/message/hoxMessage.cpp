@@ -147,6 +147,13 @@ Message::parse_inCommand_LIST( const std::string& sInput,
 }
 
 /* static */ void
+Message::parse_inCommand_I_TABLE( const std::string& sInput,
+                                  TableInfo&         tableInfo )
+{
+    Message::parse_one_table( sInput, tableInfo );
+}
+
+/* static */ void
 Message::parse_inCommand_E_JOIN( const std::string& sInput,
                                  std::string&       tableId,
                                  std::string&       playerId,

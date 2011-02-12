@@ -95,6 +95,10 @@ public:
                           TableList&         tables );
 
     static void
+    parse_inCommand_I_TABLE( const std::string& sInput,
+                             TableInfo&         tableInfo );
+
+    static void
     parse_inCommand_E_JOIN( const std::string& sInput,
                             std::string&       tableId,
                             std::string&       playerId,
