@@ -31,6 +31,22 @@ MainWindow::~MainWindow()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     writeSettings();
+
+    // Close AI board.
+    if (aiBoardController_)
+    {
+        delete aiBoardController_;
+        aiBoardController_ = 0;
+    }
+
+    // Close network board.
+    // Send a LOGOUT request and close the online connection.
+    if (networkBoardController_)
+    {
+        delete networkBoardController_;
+        networkBoardController_ = 0;
+    }
+
     event->accept();
 }
 

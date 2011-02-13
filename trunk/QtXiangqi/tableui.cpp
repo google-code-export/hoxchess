@@ -19,7 +19,11 @@ TableUI::~TableUI()
 
 void TableUI::onNewMove(hox::Position from, hox::Position to, bool setupMode /* = false */)
 {
+    qDebug() << __FUNCTION__ << "from: {" << from.row << from.col
+             << "} => {" << to.row << to.col << "}"
+             << "setupMode =" << setupMode;
     board_->onNewMove(from, to, setupMode);
+    qDebug() << __FUNCTION__ << ".... Done";
 }
 
 void TableUI::changeEvent(QEvent* e)

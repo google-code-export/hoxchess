@@ -1,4 +1,5 @@
 #include "tablelistui.h"
+#include "shared.h"
 
 TableListUI::TableListUI(QWidget *parent) :
     QDialog(parent)
@@ -52,7 +53,7 @@ void TableListUI::setTables(const hox::TableList& tables)
 
     for (hox::TableList::const_iterator it = tables_.begin(); it != tables_.end(); ++it)
     {
-        const QString sId = QString::fromStdString((*it)->id);
+        const QString sId = ::utf8ToQString((*it)->id);
         tableIds_.append(sId);
         addTable_(model, *(*it));
     }

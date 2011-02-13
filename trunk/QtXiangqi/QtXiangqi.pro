@@ -22,7 +22,8 @@ SOURCES += main.cpp \
     common/hoxUtil.cpp \
     tablelistui.cpp \
     aiboardcontroller.cpp \
-    networkboardcontroller.cpp
+    networkboardcontroller.cpp \
+    shared.cpp
 HEADERS += mainwindow.h \
     piece.h \
     board.h \

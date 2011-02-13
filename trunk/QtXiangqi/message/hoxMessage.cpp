@@ -154,6 +154,19 @@ Message::parse_inCommand_I_TABLE( const std::string& sInput,
 }
 
 /* static */ void
+Message::parse_inCommand_I_MOVES( const std::string& sInput,
+                                  std::string&       tableId,
+                                  StringVector&      moves )
+{
+    Tokenizer tok(sInput, Separator(";"));
+    Tokenizer::iterator it = tok.begin();
+    tableId = *it++;
+
+    const std::string sMoves = *it++;
+    Message::parse_move_list( sMoves, moves );
+}
+
+/* static */ void
 Message::parse_inCommand_E_JOIN( const std::string& sInput,
                                  std::string&       tableId,
                                  std::string&       playerId,
@@ -206,29 +219,15 @@ Message::parse_inCommand_INVITE( const std::string& sInput,
 Message::parse_inCommand_MOVE( const std::string& sInput,
                                std::string&       tableId,
                                std::string&       playerId,
-                               std::string&       sMove,
+                               std::string&       move,
                                GameStatusEnum&    gameStatus)
 {
-    tableId    = "";
-    playerId   = "";
-    sMove      = "";
-    gameStatus = HC_GAME_STATUS_UNKNOWN;
-
     Tokenizer tok(sInput, Separator(";"));
-
-    int i = 0;
-    for ( Tokenizer::iterator it = tok.begin(); it != tok.end(); ++it )
-    {
-        const std::string token = (*it);
-        switch ( i++ )
-        {
-            case 0: tableId  = token;  break;
-            case 1: playerId = token;  break;
-            case 2: sMove    = token;  break;
-            case 3: gameStatus = util::stringToGameStatus(token);  break;
-            default: /* Ignore the rest. */ break;
-        }
-    }
+    Tokenizer::iterator it = tok.begin();
+    tableId    = *it++;
+    playerId   = *it++;
+    move       = *it++;
+    gameStatus = util::stringToGameStatus(*it++);
 }
 
 /* static */ void
@@ -284,7 +283,7 @@ Message::parse_inCommand_DRAW( const std::string& sInput,
 Message::parse_one_table( const std::string& sInput,
                           TableInfo&         tableInfo )
 {
-   tableInfo.clear();
+    tableInfo.clear();
 
     Separator sep(";", "" /* kept_delims */, boost::keep_empty_tokens);
     Tokenizer tok(sInput, sep);
@@ -300,6 +299,19 @@ Message::parse_one_table( const std::string& sInput,
     tableInfo.redRating = *it++;
     tableInfo.blackId = *it++;
     tableInfo.blackRating = *it++;
+}
+
+/* static */ void
+Message::parse_move_list( const std::string& sInput,
+                          StringVector&      moves )
+{
+    moves.clear();
+
+    Tokenizer tok( sInput, Separator("/") );
+    for ( Tokenizer::iterator it = tok.begin(); it != tok.end(); ++it )
+    {
+        moves.push_back(*it);
+    }
 }
 
 } // namespace hox

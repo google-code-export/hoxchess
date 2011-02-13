@@ -99,6 +99,11 @@ public:
                              TableInfo&         tableInfo );
 
     static void
+    parse_inCommand_I_MOVES( const std::string& sInput,
+                             std::string&       tableId,
+                             StringVector&      moves );
+
+    static void
     parse_inCommand_E_JOIN( const std::string& sInput,
                             std::string&       tableId,
                             std::string&       playerId,
@@ -113,7 +118,7 @@ public:
     parse_inCommand_MOVE( const std::string& sInput,
                           std::string&       tableId,
                           std::string&       playerId,
-                          std::string&       sMove,
+                          std::string&       move,
                           GameStatusEnum&    gameStatus );
 
     static void
@@ -131,7 +136,9 @@ private:
     static void
     parse_one_table( const std::string& sInput,
                      TableInfo&         tableInfo );
-
+    static void
+    parse_move_list( const std::string& sInput,
+                     StringVector&      moves );
 };
 
 } // namespace hox
