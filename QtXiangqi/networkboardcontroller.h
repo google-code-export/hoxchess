@@ -39,6 +39,8 @@ private:
     void handleMessage_LOGIN_(const std::string& content);
     void handleMessage_LIST_(const std::string& content);
     void handleMessage_I_TABLE_(const std::string& content);
+    void handleMessage_I_MOVES_(const std::string& content);
+    void handleMessage_MOVE_(const std::string& content);
 
 private:
     TableUI*            board_;

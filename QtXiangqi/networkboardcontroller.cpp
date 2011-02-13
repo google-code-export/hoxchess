@@ -122,6 +122,8 @@ NetworkBoardController::handleMessage(const QString& sData)
     if      (op == "LOGIN")       handleMessage_LOGIN_(content);
     else if (op == "LIST")        handleMessage_LIST_(content);
     else if (op == "I_TABLE")     handleMessage_I_TABLE_(content);
+    else if (op == "I_MOVES")     handleMessage_I_MOVES_(content);
+    else if (op == "MOVE")        handleMessage_MOVE_(content);
     else
     {
         qDebug("%s: Unhandled payload: { %s }", __FUNCTION__, data.c_str());
@@ -167,4 +169,37 @@ NetworkBoardController::handleMessage_I_TABLE_(const std::string& content)
 {
     hox::TableInfo tableInfo;
     hox::Message::parse_inCommand_I_TABLE(content, tableInfo);
+}
+
+void
+NetworkBoardController::handleMessage_I_MOVES_(const std::string& content)
+{
+    std::string tableId;
+    hox::StringVector moves;
+    hox::Message::parse_inCommand_I_MOVES(content, tableId, moves);
+
+    const unsigned int lastResumedIndex = moves.size() - 1;
+    for (unsigned int i = 0; i < moves.size(); ++i)
+    {
+        const std::string& move = moves[i];
+        const hox::Position from( move[1] - '0', move[0] - '0' );
+        const hox::Position to( move[3] - '0', move[2] - '0' );
+        board_->onNewMove( from, to,
+                           (i < lastResumedIndex) /* setupMode */ );
+    }
+}
+
+void
+NetworkBoardController::handleMessage_MOVE_(const std::string& content)
+{
+    std::string     tableId;
+    std::string     playerId;
+    std::string     move;
+    GameStatusEnum  gameStatus;
+
+    hox::Message::parse_inCommand_MOVE(content, tableId, playerId, move, gameStatus);
+
+    const hox::Position from( move[1] - '0', move[0] - '0' );
+    const hox::Position to( move[3] - '0', move[2] - '0' );
+    board_->onNewMove(from, to);
 }
