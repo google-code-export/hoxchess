@@ -26,6 +26,7 @@ public:
     ~TableUI();
 
     void onNewMove(hox::Position from, hox::Position to, bool setupMode = false);
+    void resetBoard();
 
 protected:
     void changeEvent(QEvent* e);
