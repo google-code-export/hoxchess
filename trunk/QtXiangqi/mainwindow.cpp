@@ -130,9 +130,13 @@ void MainWindow::setupWidgets()
     QVBoxLayout* siteLayout = new QVBoxLayout(sitesWindow);
     siteLayout->addWidget(new QPushButton(tr("Practice"), sitesWindow));
 
-    QPushButton* button = new QPushButton(tr("Online"), sitesWindow);
-    connect(button, SIGNAL(clicked()), this, SLOT(onlineClicked()));
-    siteLayout->addWidget(button);
+    QPushButton* onlineButton = new QPushButton(tr("Online"), sitesWindow);
+    connect(onlineButton, SIGNAL(clicked()), this, SLOT(onlineClicked()));
+    siteLayout->addWidget(onlineButton);
+
+    QPushButton* tablesButton = new QPushButton(tr("View Tables"), sitesWindow);
+    connect(tablesButton, SIGNAL(clicked()), this, SLOT(viewTablesClicked()));
+    siteLayout->addWidget(tablesButton);
 
     sitesWindow->setMinimumSize(120, 400);
     sitesWindow->setMaximumSize(120, 400);
@@ -189,4 +193,11 @@ void MainWindow::onlineClicked()
 
     networkBoardController_ = new NetworkBoardController(this);
     frameLayout_->addWidget( networkBoardController_->getBoard() );
+}
+
+void MainWindow::viewTablesClicked()
+{
+    if ( ! networkBoardController_ ) return;
+
+    networkBoardController_->getTableList();
 }

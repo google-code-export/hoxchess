@@ -25,6 +25,9 @@ public:
     // ---------- hox::network::DataHandler API implementation -----------------
     virtual void onNewPayload(const hox::network::DataPayload& payload);
 
+    // ---------- Other public API --------------------------- -----------------
+    void getTableList();
+
 signals:
     void messageReceived(const QString& sData);
 
