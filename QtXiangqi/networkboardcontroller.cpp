@@ -178,6 +178,7 @@ NetworkBoardController::handleMessage_I_TABLE_(const std::string& content)
 {
     hox::TableInfo tableInfo;
     hox::Message::parse_inCommand_I_TABLE(content, tableInfo);
+    board_->resetBoard();
 }
 
 void

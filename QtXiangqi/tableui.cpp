@@ -26,6 +26,11 @@ void TableUI::onNewMove(hox::Position from, hox::Position to, bool setupMode /* 
     qDebug() << __FUNCTION__ << ".... Done";
 }
 
+void TableUI::resetBoard()
+{
+    board_->resetBoard();
+}
+
 void TableUI::changeEvent(QEvent* e)
 {
     QWidget::changeEvent(e);
