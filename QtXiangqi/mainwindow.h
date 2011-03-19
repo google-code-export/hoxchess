@@ -24,6 +24,7 @@ private slots:
     void about();
     bool save();
     void onlineClicked();
+    void viewTablesClicked();
 
 protected:
     void changeEvent(QEvent *e);

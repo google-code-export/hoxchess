@@ -88,6 +88,14 @@ NetworkBoardController::onNewPayload(const hox::network::DataPayload& payload)
     emit messageReceived(data);
 }
 
+// ---------- Other public API --------------------------- -----------------
+
+void
+NetworkBoardController::getTableList()
+{
+    connection_->send_LIST(); // Get the latest tables.
+}
+
 // ----------- My own API -----------------------------------------------------
 
 void NetworkBoardController::readSettings_()
@@ -112,6 +120,7 @@ void
 NetworkBoardController::handleMessage(const QString& sData)
 {
     const std::string data = ::qStringToUtf8(sData);
+    qDebug() << __FUNCTION__ << "Message:" << sData;
 
     hox::Message message;
     hox::Message::string_to_message(data, message);
