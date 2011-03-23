@@ -67,7 +67,7 @@ enum InfoLabelTag
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     NSLog(@"%s: ENTER.", __FUNCTION__);
-    if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil])
+    if ( (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) )
     {
         _gameboard = [[CALayer alloc] init];
         _gameboard.frame = [self _gameBoardFrame];

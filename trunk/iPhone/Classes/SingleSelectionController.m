@@ -51,7 +51,7 @@
              subTitles:(NSArray*)subTitles
               delegate:(id<SingleSelectionDelegate>)delegate
 {
-    if (self = [super initWithNibName:@"SingleSelectionView" bundle:nil])
+    if ( (self = [super initWithNibName:@"SingleSelectionView" bundle:nil]) )
     {
         self._delegate = delegate;
         _choices = [[NSArray alloc] initWithArray:choices];

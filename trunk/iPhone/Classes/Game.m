@@ -60,7 +60,7 @@
 
 - (id) initWithBoard:(CALayer*)board boardType:(int)boardType
 {
-    if (self = [super init])
+    if ( (self = [super init]) )
     {
         _board = [board retain];
         
@@ -497,6 +497,7 @@
         case HC_PIECE_HORSE:    return @"horse";
         case HC_PIECE_CANNON:   return @"cannon";
         case HC_PIECE_PAWN:     return @"pawn";
+        default:                return nil;
     }
     return nil;
 }

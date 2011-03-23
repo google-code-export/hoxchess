@@ -50,7 +50,7 @@
 
 - (id) initWith:(id)delegate
 {
-    if (self = [super init])
+    if ( (self = [super init]) )
     {
         // Initialize the Game's Engine.
         _aiName = [[NSUserDefaults standardUserDefaults] stringForKey:@"ai_type"];

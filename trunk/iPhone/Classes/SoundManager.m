@@ -96,7 +96,7 @@ static SoundManager* _sharedAudio = nil;
 
 - (id) init
 {
-    if (self = [super init])
+    if ( (self = [super init]) )
     {
         enabled_ = YES;
         loadedSounds_ = [[NSMutableDictionary alloc] init];

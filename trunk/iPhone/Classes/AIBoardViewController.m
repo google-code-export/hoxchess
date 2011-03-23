@@ -70,7 +70,7 @@ enum ActionSheetEnum
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
-    if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil])
+    if ( (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) )
     {
         // Empty.
     }
@@ -96,7 +96,7 @@ enum ActionSheetEnum
                        style:UIBarButtonItemStylePlain
                        target:self action:_suspendAIButton.action];
 
-    _myColor == HC_COLOR_RED;
+    _myColor = HC_COLOR_RED;
     [_board setRedLabel:NSLocalizedString(@"You", @"")];
 
     _aiSuspended = [[NSUserDefaults standardUserDefaults] boolForKey:@"ai_suspended"];

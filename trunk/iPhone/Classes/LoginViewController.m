@@ -32,7 +32,7 @@ enum LoginButtonEnum
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
-    if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
+    if ( (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) ) {
         self.delegate = nil;
         _clickedButton = BUTTON_NONE;
     }
