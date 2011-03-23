@@ -74,7 +74,7 @@ enum CellLabelEnum {
 
 - (id)initWithDelegate:(id<TableListDelegate>)delegate
 {
-    if (self = [self initWithNibName:@"TableListView" bundle:nil]) {
+    if ( (self = [self initWithNibName:@"TableListView" bundle:nil]) ) {
         _tables = [[NSMutableArray alloc] init];
         self._delegate = delegate;
         self.selectedTableId = nil;

@@ -68,7 +68,7 @@ BOOL layerIsGridCell( CALayer* layer ) { return [layer isKindOfClass: [GridCell 
     backgroundColor:(CGColorRef)backgroundColor
 {
     NSParameterAssert(nRows>0 && nColumns>0);
-    if( self = [super init] ) {
+    if ( (self = [super init]) ) {
         _nRows = nRows;
         _nColumns = nColumns;
         _spacing = spacing;
@@ -230,7 +230,7 @@ BOOL layerIsGridCell( CALayer* layer ) { return [layer isKindOfClass: [GridCell 
 - (id) initWithGrid:(Grid*)grid row:(unsigned)row column:(unsigned)col
               frame:(CGRect)frame
 {
-    if (self = [super init]) {
+    if ( (self = [super init]) ) {
         _grid = grid;
         _row = row;
         _column = col;

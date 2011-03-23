@@ -43,7 +43,7 @@
 - (id) init
 {
     NSLog(@"%s: ENTER.", __FUNCTION__);
-    if (self = [super init]) {
+    if ( (self = [super init]) ) {
         _connectionState = HC_CONN_STATE_NONE;
         self._username = nil;
         self._password = nil;

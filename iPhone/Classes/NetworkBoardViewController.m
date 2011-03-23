@@ -79,7 +79,7 @@
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     NSLog(@"%s: ENTER.", __FUNCTION__);
-    if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
+    if ( (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) ) {
         // Empty.
     }
     
@@ -1020,7 +1020,7 @@
     NSString* draws = [components objectAtIndex:3];
     NSString* losses = [components objectAtIndex:4];
 
-    NSLog(@"%s: PLAYER_INFO of [%@] = [W%@ D%@ L%@].", __FUNCTION__, pid, rating, wins, draws, losses);
+    NSLog(@"%s: PLAYER_INFO of [%@ (%@)] = [W%@ D%@ L%@].", __FUNCTION__, pid, rating, wins, draws, losses);
 
     if ([_username isEqualToString:pid]) {
         _infoCell.detailTextLabel.text = [NSString stringWithFormat:@"W%@  D%@  L%@", wins, draws, losses];

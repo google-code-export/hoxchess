@@ -20,7 +20,7 @@
 #import <UIKit/UIKit.h>
 #import "BoardViewController.h"
 #import "Game.h"
-#import "AIRobot.h";
+#import "AIRobot.h"
 
 @interface AIBoardViewController : UIViewController
                             <BoardOwner, AIRobotDelegate, UIActionSheetDelegate>

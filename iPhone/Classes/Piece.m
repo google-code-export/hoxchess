@@ -64,7 +64,7 @@
 - (id) initWithType:(PieceEnum)type color:(ColorEnum)color
           imageName:(NSString*)imageName scale:(CGFloat)scale
 {
-    if (self = [super init])
+    if ( (self = [super init]) )
     {
         _type = type;
         _color = color;

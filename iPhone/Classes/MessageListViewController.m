@@ -25,7 +25,7 @@
 
 - (id)init
 {
-    if (self = [super init]) {
+    if ( (self = [super init]) ) {
         self.time = [NSDate date];
     }
     return self;
@@ -52,7 +52,7 @@
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
-    if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
+    if ( (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) ) {
         self.tableId = nil;
         nNew = 0;
         _messages = [[NSMutableArray alloc] init];

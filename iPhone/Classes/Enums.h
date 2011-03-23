@@ -26,7 +26,7 @@
 
 
 #define HC_APP_INAME             @"IOXChess" /* The internal app-name        */
-#define HC_APP_IVERSION          @"1.1"      /* The internal app-version     */
+#define HC_APP_IVERSION          @"1.2"      /* The internal app-version     */
 
 ///////////////////////////////////////////////////////////////////////////////
 //

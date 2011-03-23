@@ -115,7 +115,7 @@
 
 - (id)initWithMove:(int)mv
 {
-    if (self = [super init]) {
+    if ( (self = [super init]) ) {
         move = mv;
         srcPiece = nil;
         capturedPiece = nil;
@@ -152,7 +152,7 @@
 
 - (id)initWithTime:(TimeInfo*)other
 {
-    if (self = [self init]) {
+    if ( (self = [self init]) ) {
         gameTime = other.gameTime;
         moveTime = other.moveTime;
         freeTime = other.freeTime;
