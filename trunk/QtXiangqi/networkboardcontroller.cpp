@@ -84,7 +84,7 @@ NetworkBoardController::onNewPayload(const hox::network::DataPayload& payload)
         return;
     }
 
-    const QString data = QString::fromStdString(payload.data());
+    const QString data = ::utf8ToQString(payload.data());
     emit messageReceived(data);
 }
 
