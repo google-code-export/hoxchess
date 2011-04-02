@@ -63,11 +63,11 @@ void TableListUI::addTable_(QStandardItemModel *model, const hox::TableInfo& tab
 {
     QString redInfo("*");
     if (!table.redId.empty()) {
-        redInfo.sprintf("%s (%s)", table.redId.c_str(), table.redRating.c_str());
+        redInfo = ::utf8ToQString(table.redId) + " (" + ::utf8ToQString(table.redRating) + ")";
     }
     QString blackInfo("*");
     if (!table.blackId.empty()) {
-        blackInfo.sprintf("%s (%s)", table.blackId.c_str(), table.blackRating.c_str());
+        blackInfo = ::utf8ToQString(table.blackId) + " (" + ::utf8ToQString(table.blackRating) + ")";
     }
 
     QString sTimer;
