@@ -8,7 +8,7 @@ TableUI::TableUI(QWidget* parent, BoardOwner* boardOwner)
 {
     ui_.setupUi(this);
 
-    QVBoxLayout *verticalLayout = ui_.verticalLayout;
+    QVBoxLayout *verticalLayout = ui_.boardVLayout;
     board_ = new Board(this, boardOwner_);
     verticalLayout->insertWidget(0, board_);
 }
