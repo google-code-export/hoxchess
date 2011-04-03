@@ -26,5 +26,8 @@
         <file>images/go_last.png</file>
         <file>images/go_first.png</file>
         <file>images/reset.png</file>
+        <file>images/black_player.png</file>
+        <file>images/red_player.png</file>
+        <file>images/timer.png</file>
     </qresource>
 </RCC>
