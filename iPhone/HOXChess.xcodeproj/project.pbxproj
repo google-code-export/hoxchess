@@ -12,7 +12,6 @@
 		1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
 		288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765FC0DF74451002DB57D /* CoreGraphics.framework */; };
-		28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
 		4B3454761053DC6500362ED5 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B3454751053DC6500362ED5 /* CoreAudio.framework */; };
 		4B3454AC1053E7EC00362ED5 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B3454AB1053E7EC00362ED5 /* AudioToolbox.framework */; };
 		4B3454D81054EAFF00362ED5 /* sounds in Resources */ = {isa = PBXBuildFile; fileRef = 4B3454C61054EAFF00362ED5 /* sounds */; };
@@ -42,7 +41,6 @@
 		AF3529FE11456F0800D7E4D7 /* Western_60px.png in Resources */ = {isa = PBXBuildFile; fileRef = AF3529FD11456F0800D7E4D7 /* Western_60px.png */; };
 		AF3E210B114B1F7B00A5F9FD /* about.html in Resources */ = {isa = PBXBuildFile; fileRef = AF3E210A114B1F7B00A5F9FD /* about.html */; };
 		AF44924B10810C5B00CBB9AE /* go-home.png in Resources */ = {isa = PBXBuildFile; fileRef = AF44924A10810C5B00CBB9AE /* go-home.png */; };
-		AF495D20114EE62D00CF8A92 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = AF495D1F114EE62D00CF8A92 /* MainMenu.xib */; };
 		AF4B70CC112712F80061590B /* AIBoardViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = AF4B70CB112712F80061590B /* AIBoardViewController.m */; };
 		AF4E2AC4111D988C009E2EC8 /* ItemInputView.xib in Resources */ = {isa = PBXBuildFile; fileRef = AF4E2AC3111D988C009E2EC8 /* ItemInputView.xib */; };
 		AF4E2ADC111D99A2009E2EC8 /* ItemInputViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = AF4E2ADB111D99A2009E2EC8 /* ItemInputViewController.m */; };
@@ -90,6 +88,7 @@
 		AFF58765113579BF007E5DF1 /* AIRobot.m in Sources */ = {isa = PBXBuildFile; fileRef = AFF58764113579BF007E5DF1 /* AIRobot.m */; };
 		DE964FCE1082511E00980CF6 /* OptionsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = DE964FCC1082511E00980CF6 /* OptionsView.xib */; };
 		E576B636199E515F00C440A5 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E576B635199E515F00C440A5 /* Default-568h@2x.png */; };
+		E5D0305119C1FFC300310CBF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E5D0305019C1FFC300310CBF /* Main.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -99,7 +98,6 @@
 		1D6058910D05DD3D006BFB54 /* HOXChess.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HOXChess.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		288765FC0DF74451002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
-		28AD733E0D9D9553002E5188 /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = MainWindow.xib; path = NIB_Files/MainWindow.xib; sourceTree = "<group>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		32CA4F630368D1EE00C91783 /* Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Prefix.pch; sourceTree = "<group>"; };
 		4B3454751053DC6500362ED5 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
@@ -146,7 +144,6 @@
 		AF3E21DE114B2A6F00A5F9FD /* zh */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = zh; path = zh.lproj/about.html; sourceTree = "<group>"; };
 		AF3E21DF114B2A7400A5F9FD /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = fr; path = fr.lproj/about.html; sourceTree = "<group>"; };
 		AF44924A10810C5B00CBB9AE /* go-home.png */ = {isa = PBXFileReference; comments = "This icon is downloaded from Tango Desktop Project at http://tango.freedesktop.org"; lastKnownFileType = image.png; path = "go-home.png"; sourceTree = "<group>"; };
-		AF495D1F114EE62D00CF8A92 /* MainMenu.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = MainMenu.xib; path = NIB_Files/MainMenu.xib; sourceTree = "<group>"; };
 		AF4B70CA112712F80061590B /* AIBoardViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AIBoardViewController.h; sourceTree = "<group>"; };
 		AF4B70CB112712F80061590B /* AIBoardViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AIBoardViewController.m; sourceTree = "<group>"; };
 		AF4E2AC3111D988C009E2EC8 /* ItemInputView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = ItemInputView.xib; path = NIB_Files/ItemInputView.xib; sourceTree = "<group>"; };
@@ -213,6 +210,7 @@
 		AFF89D0F106FEF2B00E2136D /* Enums.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Enums.h; sourceTree = "<group>"; };
 		DE964FCC1082511E00980CF6 /* OptionsView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = OptionsView.xib; path = NIB_Files/OptionsView.xib; sourceTree = "<group>"; };
 		E576B635199E515F00C440A5 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		E5D0305019C1FFC300310CBF /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = Main.storyboard; path = NIB_Files/Main.storyboard; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -427,8 +425,7 @@
 		AFDABFE7114BF835008F17D1 /* NIB Files */ = {
 			isa = PBXGroup;
 			children = (
-				28AD733E0D9D9553002E5188 /* MainWindow.xib */,
-				AF495D1F114EE62D00CF8A92 /* MainMenu.xib */,
+				E5D0305019C1FFC300310CBF /* Main.storyboard */,
 				AF9F2B7C106A71D400D919B1 /* AboutView.xib */,
 				DE964FCC1082511E00980CF6 /* OptionsView.xib */,
 				AFB0380E112C5E5D000A9AC1 /* NetworkSettingView.xib */,
@@ -522,13 +519,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */,
 				4B67333210423930009DA9E7 /* pieces in Resources */,
 				4B3454D81054EAFF00362ED5 /* sounds in Resources */,
 				AF8CABE71042F7FC002D6594 /* Entitlements.plist in Resources */,
 				4BE40C1110691A1B006154CC /* books in Resources */,
 				AFB08A14106A663E00038488 /* Localizable.strings in Resources */,
 				AF957A431085897500589D4A /* AboutView.xib in Resources */,
+				E5D0305119C1FFC300310CBF /* Main.storyboard in Resources */,
 				AFA46640106FB2C60006DAFE /* Icon.png in Resources */,
 				AF32D2A4107BA45E000C356A /* go-next.png in Resources */,
 				AF32D2A5107BA45E000C356A /* go-previous.png in Resources */,
@@ -567,7 +564,6 @@
 				AF9F11F911499A9A00B3A9B3 /* go-first.png in Resources */,
 				AFE26C28114A10C700DD4DBD /* board_320x355.png in Resources */,
 				AF3E210B114B1F7B00A5F9FD /* about.html in Resources */,
-				AF495D20114EE62D00CF8A92 /* MainMenu.xib in Resources */,
 				AFCC5E7A115000B10060E446 /* logo_32px.png in Resources */,
 				AFD92970115984B4005A6260 /* computer.png in Resources */,
 			);
