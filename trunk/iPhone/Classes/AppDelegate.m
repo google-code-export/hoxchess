@@ -26,7 +26,8 @@
 @synthesize window;
 @synthesize navigationController;
 
-- (void)applicationDidFinishLaunching:(UIApplication *)application
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     int settingsVersion = [[NSUserDefaults standardUserDefaults] integerForKey:@"settings_version"];
     if (settingsVersion == 0) // Not set?
@@ -44,10 +45,6 @@
 
     [SoundManager sharedInstance].enabled = 
         [[NSUserDefaults standardUserDefaults] boolForKey:@"sound_on"];
-
-    [window addSubview:[navigationController view]];
-    navigationController.navigationBarHidden = YES;
-    [window makeKeyAndVisible];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application

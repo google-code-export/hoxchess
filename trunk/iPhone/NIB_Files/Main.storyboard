@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5056" systemVersion="13E28" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="Rax-Vk-FVR">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
+    </dependencies>
+    <scenes>
+        <!--Main Menu Controller-->
+        <scene sceneID="5gC-sM-dWX">
+            <objects>
+                <viewController id="b2r-cm-dJ8" customClass="MainMenuController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="woM-k8-4sb"/>
+                        <viewControllerLayoutGuide type="bottom" id="FiP-1s-w1K"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="6rN-Mb-Nem">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <imageView opaque="NO" clearsContextBeforeDrawing="NO" userInteractionEnabled="NO" contentMode="scaleAspectFill" image="Default.png" translatesAutoresizingMaskIntoConstraints="NO" id="vb3-gQ-TZh">
+                                <rect key="frame" x="0.0" y="64" width="320" height="504"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </imageView>
+                            <button opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ff5-mM-eEI">
+                                <rect key="frame" x="70" y="214" width="133" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" name="AmericanTypewriter" family="American Typewriter" pointSize="24"/>
+                                <size key="titleShadowOffset" width="1" height="0.0"/>
+                                <state key="normal" title=" Practice" image="start-here.png">
+                                    <color key="titleColor" name="selectedMenuItemTextColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="titleShadowColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <state key="highlighted">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="newGamePressed:" destination="b2r-cm-dJ8" eventType="touchUpInside" id="VqI-i7-j4S"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Yir-Py-Jfg">
+                                <rect key="frame" x="71" y="271" width="168" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" name="AmericanTypewriter" family="American Typewriter" pointSize="24"/>
+                                <size key="titleShadowOffset" width="1" height="0.0"/>
+                                <state key="normal" title=" Play Online" image="applications-internet.png">
+                                    <color key="titleColor" name="selectedMenuItemTextColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="titleShadowColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <state key="highlighted">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="networkGamePressed:" destination="b2r-cm-dJ8" eventType="touchUpInside" id="XdA-bO-s89"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NZH-c3-hWW">
+                                <rect key="frame" x="71" y="328" width="133" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" name="AmericanTypewriter" family="American Typewriter" pointSize="24"/>
+                                <size key="titleShadowOffset" width="1" height="0.0"/>
+                                <state key="normal" title=" Settings" image="preferences-system.png">
+                                    <color key="titleColor" name="selectedMenuItemTextColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="titleShadowColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <state key="highlighted">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="settingPressed:" destination="b2r-cm-dJ8" eventType="touchUpInside" id="qrE-Ek-pmf"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" minimumFontSize="10" preferredMaxLayoutWidth="320" translatesAutoresizingMaskIntoConstraints="NO" id="h8f-rg-WJw" userLabel="versionAndCopyrightLabel">
+                                <rect key="frame" x="0.0" y="518" width="320" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <string key="text">HOXChess 1.2
+Copyright © 2011 PlayXiangqi.com</string>
+                                <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="13"/>
+                                <color key="textColor" name="secondarySelectedControlColor" catalog="System" colorSpace="catalog"/>
+                                <color key="highlightedColor" red="0.59999999999999998" green="0.59999999999999998" blue="0.59999999999999998" alpha="0.63" colorSpace="calibratedRGB"/>
+                                <size key="shadowOffset" width="0.0" height="0.0"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="h8f-rg-WJw" secondAttribute="trailing" id="3yp-mZ-XVf"/>
+                            <constraint firstItem="Yir-Py-Jfg" firstAttribute="leading" secondItem="6rN-Mb-Nem" secondAttribute="leading" constant="71" id="H2y-5R-U0h"/>
+                            <constraint firstItem="Yir-Py-Jfg" firstAttribute="top" secondItem="ff5-mM-eEI" secondAttribute="bottom" constant="25" id="Mb1-gC-Rm9"/>
+                            <constraint firstItem="ff5-mM-eEI" firstAttribute="top" secondItem="woM-k8-4sb" secondAttribute="bottom" constant="150" id="OnF-z3-YdA"/>
+                            <constraint firstItem="vb3-gQ-TZh" firstAttribute="top" secondItem="woM-k8-4sb" secondAttribute="bottom" id="Vea-qp-quq"/>
+                            <constraint firstItem="FiP-1s-w1K" firstAttribute="top" secondItem="h8f-rg-WJw" secondAttribute="bottom" constant="20" id="WZj-da-BTh"/>
+                            <constraint firstItem="NZH-c3-hWW" firstAttribute="top" secondItem="Yir-Py-Jfg" secondAttribute="bottom" constant="25" id="XOB-JF-Bq5"/>
+                            <constraint firstItem="FiP-1s-w1K" firstAttribute="top" secondItem="vb3-gQ-TZh" secondAttribute="bottom" id="ZXZ-AO-rfJ"/>
+                            <constraint firstAttribute="trailing" secondItem="vb3-gQ-TZh" secondAttribute="trailing" id="dEk-SJ-VJP"/>
+                            <constraint firstItem="ff5-mM-eEI" firstAttribute="leading" secondItem="6rN-Mb-Nem" secondAttribute="leading" constant="70" id="jUt-g4-1sS"/>
+                            <constraint firstItem="vb3-gQ-TZh" firstAttribute="leading" secondItem="6rN-Mb-Nem" secondAttribute="leading" id="q9G-gP-Y4D"/>
+                            <constraint firstItem="h8f-rg-WJw" firstAttribute="leading" secondItem="6rN-Mb-Nem" secondAttribute="leading" id="wiQ-6D-BHu"/>
+                            <constraint firstItem="NZH-c3-hWW" firstAttribute="leading" secondItem="6rN-Mb-Nem" secondAttribute="leading" constant="71" id="xWT-Td-E6O"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="jLF-u1-NR1"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="h8G-K8-aY8" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="677" y="130"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="hjl-RK-VgY">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="Rax-Vk-FVR" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="c0j-WK-54i">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="b2r-cm-dJ8" kind="relationship" relationship="rootViewController" id="xxU-rb-IdH"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="JaK-5t-AN7" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="234" y="130"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="Default.png" width="320" height="460"/>
+        <image name="applications-internet.png" width="32" height="32"/>
+        <image name="preferences-system.png" width="32" height="32"/>
+        <image name="start-here.png" width="32" height="32"/>
+    </resources>
+    <simulatedMetricsContainer key="defaultSimulatedMetrics">
+        <simulatedStatusBarMetrics key="statusBar"/>
+        <simulatedOrientationMetrics key="orientation"/>
+        <simulatedScreenMetrics key="destination" type="retina4"/>
+    </simulatedMetricsContainer>
+</document>
