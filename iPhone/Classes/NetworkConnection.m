@@ -264,6 +264,11 @@
             [delegate handleNetworkEvent:HC_CONN_EVENT_ERROR event:nil];
             break;
         }
+        case NSStreamEventNone:
+        {
+            // Do nothing
+            break;
+        }
     }
 }
 

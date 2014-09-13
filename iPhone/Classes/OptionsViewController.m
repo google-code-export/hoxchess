@@ -245,7 +245,7 @@ static NSString* PiecePaths[] = { @"pieces/alfaerie",
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath 
 {
-    UITableViewController* subController = nil;
+    UIViewController* subController = nil;
 
     switch (indexPath.section)
     {
