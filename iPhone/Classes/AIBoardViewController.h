@@ -35,7 +35,6 @@
     UIBarButtonItem*      _resumeAIButton;
     BOOL                  _aiSuspended;
 
-    BoardViewController*  _board;
     Game*                 _game;
     ColorEnum             _myColor;  // The color (role) of the LOCAL player.
 
@@ -47,6 +46,7 @@
 }
 
 @property (nonatomic, retain) NSTimer* _aiTimer;
+@property (nonatomic, retain) BoardViewController* board;
 
 - (IBAction)homePressed:(id)sender;
 - (IBAction)resetPressed:(id)sender;

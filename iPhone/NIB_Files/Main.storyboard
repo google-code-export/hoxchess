@@ -33,7 +33,7 @@
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
-                                    <action selector="newGamePressed:" destination="b2r-cm-dJ8" eventType="touchUpInside" id="VqI-i7-j4S"/>
+                                    <segue destination="FOe-Fs-4PR" kind="push" id="6CD-G2-Kqc"/>
                                 </connections>
                             </button>
                             <button opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Yir-Py-Jfg">
@@ -100,7 +100,92 @@ Copyright © 2011 PlayXiangqi.com</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="h8G-K8-aY8" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="677" y="130"/>
+            <point key="canvasLocation" x="233" y="122"/>
+        </scene>
+        <!--Board View Controller-->
+        <scene sceneID="n7Y-Qy-fhQ">
+            <objects>
+                <viewController id="FOe-Fs-4PR" customClass="AIBoardViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="4qi-0X-62y"/>
+                        <viewControllerLayoutGuide type="bottom" id="o6y-4s-AMN"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="ilg-YQ-UCZ">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="black" translatesAutoresizingMaskIntoConstraints="NO" id="Rld-ca-OBz">
+                                <rect key="frame" x="0.0" y="524" width="320" height="44"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                <items>
+                                    <barButtonItem image="go-home.png" style="plain" id="ksc-6p-0pF" userLabel="homeItem">
+                                        <connections>
+                                            <action selector="homePressed:" destination="FOe-Fs-4PR" id="cEg-XI-zlR"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="pKX-vL-Fvr"/>
+                                    <barButtonItem enabled="NO" style="plain" systemItem="add" id="6cb-8A-WbW" userLabel="addItem">
+                                        <connections>
+                                            <action selector="resetPressed:" destination="FOe-Fs-4PR" id="tU6-KQ-fUS"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="swe-bw-qA4"/>
+                                    <barButtonItem enabled="NO" style="plain" systemItem="action" id="8DQ-Z9-hHr" userLabel="actionItem">
+                                        <connections>
+                                            <action selector="actionPressed:" destination="FOe-Fs-4PR" id="yoE-cT-Big"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="34j-VU-ZWN"/>
+                                    <barButtonItem image="change-role.png" style="plain" id="Nur-BM-Jvo" userLabel="changeRoleItem">
+                                        <connections>
+                                            <action selector="reverseRolePressed:" destination="FOe-Fs-4PR" id="qAz-81-v8u"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="ULQ-Z2-mpC"/>
+                                    <barButtonItem image="computer.png" style="plain" id="1dN-Vg-POL" userLabel="computerItem">
+                                        <connections>
+                                            <action selector="suspendAIPressed:" destination="FOe-Fs-4PR" id="CeA-5B-spD"/>
+                                        </connections>
+                                    </barButtonItem>
+                                </items>
+                            </toolbar>
+                            <activityIndicatorView opaque="NO" clearsContextBeforeDrawing="NO" userInteractionEnabled="NO" contentMode="scaleToFill" fixedFrame="YES" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="5ea-04-p8N">
+                                <rect key="frame" x="141" y="266" width="37" height="37"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </activityIndicatorView>
+                            <containerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aym-6l-XNe">
+                                <rect key="frame" x="0.0" y="64" width="320" height="460"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                                <connections>
+                                    <segue destination="9kS-fw-BTi" kind="embed" identifier="boardview_embed" id="cDu-oD-vWW"/>
+                                </connections>
+                            </containerView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="aym-6l-XNe" secondAttribute="trailing" id="C74-lC-wqG"/>
+                            <constraint firstItem="Rld-ca-OBz" firstAttribute="top" secondItem="aym-6l-XNe" secondAttribute="bottom" id="DUx-zm-K9d"/>
+                            <constraint firstItem="aym-6l-XNe" firstAttribute="top" secondItem="4qi-0X-62y" secondAttribute="bottom" id="MdG-6Q-gZT"/>
+                            <constraint firstItem="Rld-ca-OBz" firstAttribute="leading" secondItem="ilg-YQ-UCZ" secondAttribute="leading" id="hCR-dR-8Je"/>
+                            <constraint firstItem="o6y-4s-AMN" firstAttribute="top" secondItem="Rld-ca-OBz" secondAttribute="bottom" id="ju3-cf-4Zy"/>
+                            <constraint firstItem="aym-6l-XNe" firstAttribute="leading" secondItem="ilg-YQ-UCZ" secondAttribute="leading" id="v1o-EX-3pJ"/>
+                            <constraint firstAttribute="trailing" secondItem="Rld-ca-OBz" secondAttribute="trailing" id="zqU-s6-tZu"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="VXy-gc-qS1"/>
+                    <connections>
+                        <outlet property="_actionButton" destination="8DQ-Z9-hHr" id="wpZ-sO-jEO"/>
+                        <outlet property="_activity" destination="5ea-04-p8N" id="wdG-dM-cwW"/>
+                        <outlet property="_resetButton" destination="6cb-8A-WbW" id="ThN-9d-DPG"/>
+                        <outlet property="_reverseRoleButton" destination="Nur-BM-Jvo" id="1tW-cB-BDL"/>
+                        <outlet property="_suspendAIButton" destination="1dN-Vg-POL" id="MDd-d0-cNs"/>
+                        <outlet property="_toolbar" destination="Rld-ca-OBz" id="6vQ-tw-p8d"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Dqb-pC-QGy" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="685" y="122"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="hjl-RK-VgY">
@@ -118,12 +203,33 @@ Copyright © 2011 PlayXiangqi.com</string>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="JaK-5t-AN7" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="234" y="130"/>
+            <point key="canvasLocation" x="-210" y="122"/>
+        </scene>
+        <!--Board View Controller-->
+        <scene sceneID="Vhu-wf-HCS">
+            <objects>
+                <viewController automaticallyAdjustsScrollViewInsets="NO" id="9kS-fw-BTi" customClass="BoardViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="zBl-be-cLW"/>
+                        <viewControllerLayoutGuide type="bottom" id="1GT-p2-LNr"/>
+                    </layoutGuides>
+                    <view key="view" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="Tzb-gy-xjq">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <toolbarItems/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="s9g-4X-3sB" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
         </scene>
     </scenes>
     <resources>
         <image name="Default.png" width="320" height="460"/>
         <image name="applications-internet.png" width="32" height="32"/>
+        <image name="change-role.png" width="22" height="22"/>
+        <image name="computer.png" width="22" height="22"/>
+        <image name="go-home.png" width="22" height="22"/>
         <image name="preferences-system.png" width="32" height="32"/>
         <image name="start-here.png" width="32" height="32"/>
     </resources>
