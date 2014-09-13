@@ -440,8 +440,9 @@ void InitMaterial()
                             // devaluate superfluous defenders
                             defenders = 2*nA + 2*nE;
                             attackers = 8*nR + 4*nH + 2*nC + 3*nP;
-                            if(defenders > attackers ,0)
-                                materialTable[i] += 6*(defenders - attackers);
+                            // Commented by HPHAN: to fix the warning "Expression result unused".
+                            //if(defenders > attackers ,0)
+                            //    materialTable[i] += 6*(defenders - attackers);
                         }
 }
 
@@ -727,16 +728,16 @@ if(captCode[from-xking+188] & 0x2F) { // orthogonal or adjacent diagonal
         int x=xking, v=deltaVec[from-xking+188];
         while(board[x+=v] == EMPTY);
         if(x == king ||                                   // King facing
-           (board[x]&COLOR) == stm && code[board[x]] == 0xF) // Rook
+           ((board[x]&COLOR) == stm && code[board[x]] == 0xF)) // Rook
         { bestScore = INF; goto NullCut; }
         while(board[x+=v] == EMPTY);
         if((board[x]&COLOR) == stm && code[board[x]] == 0x4F) // Cannon
         { bestScore = INF; goto NullCut; }
     } else { // might be Horse
-        if( (COLOR&board[from+deltaVec[from-xking+51]]) == stm &&
-           code[board[from+deltaVec[from-xking+51]]] == H
-           || (COLOR&board[from+deltaVec[from-xking+42]]) == stm &&
-           code[board[from+deltaVec[from-xking+42]]] == H  )
+        if( ((COLOR&board[from+deltaVec[from-xking+51]]) == stm &&
+           code[board[from+deltaVec[from-xking+51]]] == H)
+           || ((COLOR&board[from+deltaVec[from-xking+42]]) == stm &&
+           code[board[from+deltaVec[from-xking+42]]] == H)  )
         { bestScore = INF; goto NullCut; }
     }
 }
@@ -773,7 +774,7 @@ moveSP += 256;   // reserve space for move list
 for(piece = stm + 15; piece >= stm; piece--) { // loop over our pieces
     if((from = pos[piece]) == 0xFF) continue;  // is captured
     dir = firstDirTab[ firstDir[piece]+from ];
-    while(step = steps[dir]) { // loop over directions
+    while( (step = steps[dir]) ) { // loop over directions
         to = from + step;
         do{ // scan along ray (ends after one iteration for leapers)
             
@@ -805,7 +806,7 @@ for(piece = stm + 15; piece >= stm; piece--) { // loop over our pieces
             }
             
             to += step;
-        } while(!(victim-EMPTY | dir<75));     // end if leaper or capt
+        } while(!(victim-EMPTY | (dir<75)));     // end if leaper or capt
         dir++;                                 // try new direction
     }
 }
@@ -837,10 +838,10 @@ if(depth<=0) {
 }
 
 // ITERATIVE DEEPENING LOOP
-for(iterDep = depth>=1000?1:hashMove?depth:PV?2-(depth&1):depth>2?1:depth; iterDep <= depth; iterDep+=2-(depth>=1000|!PV)) {
+for(iterDep = depth>=1000?1:hashMove?depth:PV?2-(depth&1):depth>2?1:depth; iterDep <= depth; iterDep+=2-((depth>=1000)|!PV)) {
     bestScore = startScore;
     alpha = origAlpha;
-    firstMove = depth>=1000|lastPly?2:0;
+    firstMove = (depth>=1000)|lastPly?2:0;
     
     // LOOP OVER MOVES
     for(curMove=capts; curMove<lastMove; curMove++) {
