@@ -26,7 +26,6 @@
     IBOutlet UIButton* setting;
 }
 
-- (IBAction)newGamePressed:(id)sender;
 - (IBAction)networkGamePressed:(id)sender;
 - (IBAction)settingPressed:(id)sender;
 

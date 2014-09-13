@@ -70,6 +70,7 @@ enum ActionSheetEnum
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
+    NSLog(@"%s: ENTER.", __FUNCTION__);
     if ( (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) )
     {
         // Empty.
@@ -77,13 +78,25 @@ enum ActionSheetEnum
     return self;
 }
 
+- (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    NSLog(@"%s: ENTER.", __FUNCTION__);
+    NSString *segueName = segue.identifier;
+    if ([segueName isEqualToString: @"boardview_embed"]) {
+        NSLog(@"%s: ... Obtain [boardview]", __FUNCTION__);
+        _board = [(BoardViewController *) [segue destinationViewController] retain];
+        _board.boardOwner = self;
+    }
+}
+
 - (void)viewDidLoad
 {
+    NSLog(@"%s: ENTER.", __FUNCTION__);
     [super viewDidLoad];
 
-    _board = [[BoardViewController alloc] initWithNibName:@"BoardView" bundle:nil];
-    _board.boardOwner = self;
-    [self.view addSubview:_board.view];
+    //_board = [[BoardViewController alloc] initWithNibName:@"BoardView" bundle:nil];
+    //_board.boardOwner = self;
+    //[self.view addSubview:_board.view];
     [self.view bringSubviewToFront:_toolbar];
     [self.view bringSubviewToFront:_activity];
 

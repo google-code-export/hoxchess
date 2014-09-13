@@ -64,6 +64,18 @@ enum InfoLabelTag
 @synthesize boardOwner=_boardOwner;
 @synthesize _timer, _replayLastTouched;
 
+
+- (void)awakeFromNib
+{
+    NSLog(@"%s: ENTER.", __FUNCTION__);
+    [super awakeFromNib];
+    
+    if ( [self initWithNibName:@"BoardView" bundle:nil] )
+    {
+        // Additional settings if needed.
+    }
+}
+
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     NSLog(@"%s: ENTER.", __FUNCTION__);
@@ -115,7 +127,7 @@ enum InfoLabelTag
         _replayView.layer.cornerRadius = 9;
         _replayView.layer.backgroundColor = kTranslucentGrayColor; 
 
-        self._replayLastTouched = [[NSDate date] addTimeInterval:-60]; // 1-minute earlier.
+        self._replayLastTouched = [[NSDate date] dateByAddingTimeInterval:-60]; // 1-minute earlier.
         self._timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(_ticked:) userInfo:nil repeats:YES];
     }
 

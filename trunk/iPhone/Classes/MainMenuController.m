@@ -61,13 +61,6 @@
     [super dealloc];
 }
 
-- (IBAction)newGamePressed:(id)sender
-{
-    AIBoardViewController* aiController = [[AIBoardViewController alloc] initWithNibName:@"AIBoardView" bundle:nil];
-    [self.navigationController pushViewController:aiController animated:YES];
-    [aiController release];
-}
-
 - (IBAction)networkGamePressed:(id)sender
 {
     NetworkBoardViewController* networkController = [[NetworkBoardViewController alloc] initWithNibName:@"NetworkBoardView" bundle:nil];
