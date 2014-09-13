@@ -169,7 +169,7 @@
 
 - (void) handleItemInput:(NSString *)button input:(NSString*)input
 {
-    [self dismissModalViewControllerAnimated:YES];
+    [self dismissViewControllerAnimated:YES completion:nil];
     if (button) {
         [delegate handeNewMessageFromList:input];
     }
@@ -191,7 +191,7 @@
         _inputController.delegate = self;
     }
     UINavigationController* navigationController = [[UINavigationController alloc] initWithRootViewController:_inputController];
-    [[self navigationController] presentModalViewController:navigationController animated:YES];
+    [[self navigationController] presentViewController:navigationController animated:YES completion:nil];
     [navigationController release];
 }
 

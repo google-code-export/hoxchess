@@ -1042,7 +1042,7 @@
 
 - (int) _generateRandomNumber:(unsigned int)max_value
 {        
-    const unsigned int _RAND_MAX = (2<<31)-1;
+    const unsigned int _RAND_MAX = (2u << 31) - 1;
     const int randNum =
         1 + (int) ((double)max_value * (arc4random() / (_RAND_MAX + 1.0)));
     

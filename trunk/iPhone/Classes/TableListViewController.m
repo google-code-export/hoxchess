@@ -173,7 +173,7 @@ enum CellLabelEnum {
         idLabel = [[[UILabel alloc] initWithFrame:CGRectMake(0.0, 5.0, 30.0, 30.0)] autorelease];
         idLabel.tag = LABEL_TAG_ID;
         idLabel.font = [UIFont systemFontOfSize:14.0];
-        idLabel.textAlignment = UITextAlignmentCenter;
+        idLabel.textAlignment = NSTextAlignmentCenter;
         idLabel.textColor = [UIColor blueColor];
         //idLabel.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleWidth;
         [cell.contentView addSubview:idLabel];
@@ -181,14 +181,14 @@ enum CellLabelEnum {
         mainLabel = [[[UILabel alloc] initWithFrame:CGRectMake(30.0, 5.0, 250.0, 15.0)] autorelease];
         mainLabel.tag = LABEL_TAG_MAIN;
         mainLabel.font = [UIFont systemFontOfSize:12.0];
-        mainLabel.textAlignment = UITextAlignmentLeft;
+        mainLabel.textAlignment = NSTextAlignmentLeft;
         mainLabel.textColor = [UIColor blackColor];
         [cell.contentView addSubview:mainLabel];
 
         subLabel = [[[UILabel alloc] initWithFrame:CGRectMake(30.0, 25.0, 250.0, 15.0)] autorelease];
         subLabel.tag = LABEL_TAG_SUB;
         subLabel.font = [UIFont systemFontOfSize:10.0];
-        subLabel.textAlignment = UITextAlignmentLeft;
+        subLabel.textAlignment = NSTextAlignmentLeft;
         subLabel.textColor = [UIColor darkGrayColor];
         [cell.contentView addSubview:subLabel];
     } else  {
