@@ -222,6 +222,7 @@ Copyright © 2011 PlayXiangqi.com</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="s9g-4X-3sB" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="1236" y="-141"/>
         </scene>
     </scenes>
     <resources>
