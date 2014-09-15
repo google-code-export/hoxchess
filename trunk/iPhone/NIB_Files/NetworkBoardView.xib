@@ -9,11 +9,8 @@
             <connections>
                 <outlet property="_actionButton" destination="167" id="180"/>
                 <outlet property="_activity" destination="178" id="179"/>
-                <outlet property="_loginCell" destination="241" id="250"/>
                 <outlet property="_mainView" destination="235" id="246"/>
                 <outlet property="_messagesButton" destination="170" id="181"/>
-                <outlet property="_searchCell" destination="243" id="244"/>
-                <outlet property="_serverCell" destination="237" id="238"/>
                 <outlet property="_toolbar" destination="164" id="177"/>
                 <outlet property="view" destination="162" id="245"/>
             </connections>
@@ -75,33 +72,6 @@
             <simulatedStatusBarMetrics key="simulatedStatusBarMetrics" statusBarStyle="lightContent"/>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
         </view>
-        <tableViewCell clearsContextBeforeDrawing="NO" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" id="237">
-            <rect key="frame" x="0.0" y="0.0" width="318" height="44"/>
-            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="237" id="Atv-wu-ONj">
-                <rect key="frame" x="0.0" y="0.0" width="318" height="43"/>
-                <autoresizingMask key="autoresizingMask"/>
-            </tableViewCellContentView>
-            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-        </tableViewCell>
-        <tableViewCell clearsContextBeforeDrawing="NO" contentMode="scaleToFill" selectionStyle="none" accessoryType="disclosureIndicator" indentationWidth="10" id="241">
-            <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
-            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="241" id="GEe-Sb-eGe">
-                <rect key="frame" x="0.0" y="0.0" width="287" height="43"/>
-                <autoresizingMask key="autoresizingMask"/>
-            </tableViewCellContentView>
-            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-        </tableViewCell>
-        <tableViewCell clearsContextBeforeDrawing="NO" contentMode="scaleToFill" selectionStyle="none" accessoryType="disclosureIndicator" indentationWidth="10" id="243">
-            <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
-            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="243" id="0rC-EE-kv1">
-                <rect key="frame" x="0.0" y="0.0" width="287" height="43"/>
-                <autoresizingMask key="autoresizingMask"/>
-            </tableViewCellContentView>
-            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-        </tableViewCell>
     </objects>
     <resources>
         <image name="go-home.png" width="22" height="22"/>

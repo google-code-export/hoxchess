@@ -49,7 +49,7 @@
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
-                                    <action selector="networkGamePressed:" destination="b2r-cm-dJ8" eventType="touchUpInside" id="XdA-bO-s89"/>
+                                    <segue destination="ZBm-am-Lon" kind="push" id="rQ1-ge-jS9"/>
                                 </connections>
                             </button>
                             <button opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NZH-c3-hWW">
@@ -101,6 +101,97 @@ Copyright © 2011 PlayXiangqi.com</string>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="h8G-K8-aY8" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="233" y="122"/>
+        </scene>
+        <!--Network Board View Controller-->
+        <scene sceneID="fsX-x0-XZl">
+            <objects>
+                <viewController id="ZBm-am-Lon" customClass="NetworkBoardViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="VYb-PH-p4p"/>
+                        <viewControllerLayoutGuide type="bottom" id="330-u1-WIt"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="cNM-Z3-ATx">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <tableView opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" bouncesZoom="NO" dataMode="prototypes" style="grouped" rowHeight="44" sectionHeaderHeight="10" sectionFooterHeight="10" translatesAutoresizingMaskIntoConstraints="NO" id="Ggx-Gu-bof">
+                                <rect key="frame" x="0.0" y="64" width="320" height="460"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                                <connections>
+                                    <outlet property="dataSource" destination="ZBm-am-Lon" id="16s-BR-WRE"/>
+                                    <outlet property="delegate" destination="ZBm-am-Lon" id="C25-RZ-jOS"/>
+                                </connections>
+                            </tableView>
+                            <containerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="L6U-qF-AR2">
+                                <rect key="frame" x="0.0" y="64" width="320" height="460"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                                <connections>
+                                    <segue destination="2G1-8a-JkQ" kind="embed" identifier="boardview_embed" id="y7q-wy-cZG"/>
+                                </connections>
+                            </containerView>
+                            <activityIndicatorView opaque="NO" clearsContextBeforeDrawing="NO" userInteractionEnabled="NO" contentMode="scaleToFill" fixedFrame="YES" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="von-6s-s6g">
+                                <rect key="frame" x="141" y="266" width="37" height="37"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </activityIndicatorView>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="black" translatesAutoresizingMaskIntoConstraints="NO" id="0FB-dI-eH4">
+                                <rect key="frame" x="0.0" y="524" width="320" height="44"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                <items>
+                                    <barButtonItem image="go-home.png" style="plain" id="dQQ-lP-ZfB" userLabel="homeItem">
+                                        <connections>
+                                            <action selector="homePressed:" destination="ZBm-am-Lon" id="bP0-Fp-ogz"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="Lrh-Z9-Rme"/>
+                                    <barButtonItem image="search.png" style="plain" id="drM-LY-pRj" userLabel="searchItem">
+                                        <connections>
+                                            <action selector="searchPressed:" destination="ZBm-am-Lon" id="Bbr-eb-vVx"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="ft4-yf-dyJ"/>
+                                    <barButtonItem style="plain" systemItem="action" id="Jqq-aw-RNf" userLabel="actionItem">
+                                        <connections>
+                                            <action selector="actionPressed:" destination="ZBm-am-Lon" id="JZJ-oP-bwz"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="n3G-hM-f9N"/>
+                                    <barButtonItem title="0" style="plain" id="bG3-c9-5tF">
+                                        <connections>
+                                            <action selector="messagesPressed:" destination="ZBm-am-Lon" id="uyo-Mz-v03"/>
+                                        </connections>
+                                    </barButtonItem>
+                                </items>
+                            </toolbar>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="0FB-dI-eH4" secondAttribute="trailing" id="BFa-SP-pe1"/>
+                            <constraint firstItem="L6U-qF-AR2" firstAttribute="leading" secondItem="cNM-Z3-ATx" secondAttribute="leading" id="BHA-ak-UgC"/>
+                            <constraint firstItem="330-u1-WIt" firstAttribute="top" secondItem="0FB-dI-eH4" secondAttribute="bottom" id="BJc-bW-Ufe"/>
+                            <constraint firstAttribute="trailing" secondItem="Ggx-Gu-bof" secondAttribute="trailing" id="FvC-Vq-AZK"/>
+                            <constraint firstItem="0FB-dI-eH4" firstAttribute="top" secondItem="Ggx-Gu-bof" secondAttribute="bottom" id="FwN-my-UGb"/>
+                            <constraint firstItem="L6U-qF-AR2" firstAttribute="top" secondItem="VYb-PH-p4p" secondAttribute="bottom" id="JJi-oa-q4i"/>
+                            <constraint firstItem="0FB-dI-eH4" firstAttribute="top" secondItem="L6U-qF-AR2" secondAttribute="bottom" id="agG-fg-lyQ"/>
+                            <constraint firstItem="Ggx-Gu-bof" firstAttribute="leading" secondItem="cNM-Z3-ATx" secondAttribute="leading" id="eBd-u7-rQe"/>
+                            <constraint firstAttribute="trailing" secondItem="L6U-qF-AR2" secondAttribute="trailing" id="isQ-Mw-MTE"/>
+                            <constraint firstItem="0FB-dI-eH4" firstAttribute="leading" secondItem="cNM-Z3-ATx" secondAttribute="leading" id="tK1-PT-zEd"/>
+                            <constraint firstItem="Ggx-Gu-bof" firstAttribute="top" secondItem="VYb-PH-p4p" secondAttribute="bottom" id="tTP-Js-ZEY"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="K8p-yD-ihA"/>
+                    <connections>
+                        <outlet property="_activity" destination="von-6s-s6g" id="c0m-SA-h7E"/>
+                        <outlet property="_containerView" destination="L6U-qF-AR2" id="bdC-rY-3BO"/>
+                        <outlet property="_mainView" destination="Ggx-Gu-bof" id="KWz-XL-Uwu"/>
+                        <outlet property="_messagesButton" destination="bG3-c9-5tF" id="sQN-ul-MmE"/>
+                        <outlet property="_toolbar" destination="0FB-dI-eH4" id="bKR-jx-QOs"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="MTk-up-WlC" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="737" y="545"/>
         </scene>
         <!--Board View Controller-->
         <scene sceneID="n7Y-Qy-fhQ">
@@ -185,7 +276,7 @@ Copyright © 2011 PlayXiangqi.com</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Dqb-pC-QGy" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="685" y="122"/>
+            <point key="canvasLocation" x="734" y="-141"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="hjl-RK-VgY">
@@ -224,6 +315,25 @@ Copyright © 2011 PlayXiangqi.com</string>
             </objects>
             <point key="canvasLocation" x="1236" y="-141"/>
         </scene>
+        <!--Board View Controller-->
+        <scene sceneID="srX-Q0-Bww">
+            <objects>
+                <viewController automaticallyAdjustsScrollViewInsets="NO" id="2G1-8a-JkQ" customClass="BoardViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="eWq-pk-0rF"/>
+                        <viewControllerLayoutGuide type="bottom" id="fDn-IC-8HR"/>
+                    </layoutGuides>
+                    <view key="view" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="hio-W3-j5w">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <toolbarItems/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="g2r-5B-vcB" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1201" y="599"/>
+        </scene>
     </scenes>
     <resources>
         <image name="Default.png" width="320" height="460"/>
@@ -232,6 +342,7 @@ Copyright © 2011 PlayXiangqi.com</string>
         <image name="computer.png" width="22" height="22"/>
         <image name="go-home.png" width="22" height="22"/>
         <image name="preferences-system.png" width="32" height="32"/>
+        <image name="search.png" width="22" height="22"/>
         <image name="start-here.png" width="32" height="32"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">

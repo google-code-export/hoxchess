@@ -34,9 +34,7 @@
     IBOutlet UIBarButtonItem*         _messagesButton;
 
     IBOutlet UITableView*             _mainView;
-    IBOutlet UITableViewCell*         _serverCell;
-    IBOutlet UITableViewCell*         _loginCell;
-    IBOutlet UITableViewCell*         _searchCell;
+    IBOutlet UIView*                  _containerView;
     UITableViewCell*                  _infoCell;
 
     BoardViewController* _board;

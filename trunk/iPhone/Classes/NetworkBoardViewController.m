@@ -86,6 +86,17 @@
     return self;
 }
 
+- (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    NSLog(@"%s: ENTER.", __FUNCTION__);
+    NSString *segueName = segue.identifier;
+    if ([segueName isEqualToString: @"boardview_embed"]) {
+        NSLog(@"%s: ... Obtain [boardview]", __FUNCTION__);
+        _board = [(BoardViewController *) [segue destinationViewController] retain];
+        _board.boardOwner = self;
+    }
+}
+
 - (void)viewDidLoad
 {
     NSLog(@"%s: ENTER.", __FUNCTION__);
@@ -110,8 +121,7 @@
     _messageListController.delegate = self;
 
     self._connection = nil;
-    _board = [[BoardViewController alloc] initWithNibName:@"BoardView" bundle:nil];
-    _board.boardOwner = self;
+    [self.view bringSubviewToFront:_mainView];
     self._game = _board.game;
 
     _tableId = nil;
@@ -351,8 +361,13 @@
     {
         case 0: // ----- Server
         {
-            cell = _serverCell;
-            cell.textLabel.text = @"www.PlayXiangqi.com";
+            static NSString* cellId = @"ServerCell";
+            cell = [tableView dequeueReusableCellWithIdentifier:cellId];
+            if (!cell) {
+                cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellId] autorelease];
+                cell.textLabel.text = @"www.PlayXiangqi.com";
+                cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            }
             break;
         }
         case 1: // ----- User
@@ -397,11 +412,17 @@
         }
         case 2: // ----- Search
         {
+            static NSString* cellId = @"SearchOrLoginCell";
+            cell = [tableView dequeueReusableCellWithIdentifier:cellId];
+            if (!cell) {
+                cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellId] autorelease];
+                cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+                cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            }
+            
             if (_loginAuthenticated) {
-                cell = _searchCell;
                 cell.textLabel.text = NSLocalizedString(@"Select a Table to join", @"");
             } else {
-                cell = _loginCell;
                 cell.textLabel.text = NSLocalizedString(@"Not connected to network", @"");
             }
             break;
@@ -564,12 +585,11 @@
     [UIView setAnimationTransition:(_board.view.superview ? UIViewAnimationTransitionFlipFromRight
                                                           : UIViewAnimationTransitionCurlDown)
                            forView:self.view cache:YES];
-    if (!_board.view.superview)
-    {
-        [self.view addSubview:_board.view];
-        [self.view bringSubviewToFront:_toolbar];
-        [self.view bringSubviewToFront:_activity];
-    }
+
+    [self.view bringSubviewToFront:_containerView];
+    [self.view bringSubviewToFront:_toolbar];
+    [self.view bringSubviewToFront:_activity];
+
     [UIView commitAnimations];
 
     [_board resetBoard];
@@ -586,7 +606,7 @@
     [UIView setAnimationDuration:HC_TABLE_ANIMATION_DURATION];
     [UIView setAnimationTransition:UIViewAnimationTransitionCurlUp
                            forView:self.view cache:YES];
-    [_board.view removeFromSuperview];
+    [self.view bringSubviewToFront:_mainView];
     [UIView commitAnimations];
 }
 
