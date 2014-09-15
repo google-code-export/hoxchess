@@ -61,13 +61,6 @@
     [super dealloc];
 }
 
-- (IBAction)networkGamePressed:(id)sender
-{
-    NetworkBoardViewController* networkController = [[NetworkBoardViewController alloc] initWithNibName:@"NetworkBoardView" bundle:nil];
-    [self.navigationController pushViewController:networkController animated:YES];
-    [networkController release];
-}
-
 - (IBAction)settingPressed:(id)sender
 {
     OptionsViewController* optionsController = [[OptionsViewController alloc] initWithNibName:@"OptionsView" bundle:nil];
