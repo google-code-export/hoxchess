@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright 2010-2011 Huy Phan <huyphan@playxiangqi.com>                 *
+ *  Copyright 2010-2014 Huy Phan <huyphan@playxiangqi.com>                 *
  *                                                                         * 
  *  This file is part of HOXChess.                                         *
  *                                                                         *
