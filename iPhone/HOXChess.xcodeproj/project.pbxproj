@@ -51,7 +51,6 @@
 		AF559E55112720F900C6236D /* help.png in Resources */ = {isa = PBXBuildFile; fileRef = AF559E54112720F900C6236D /* help.png */; };
 		AF5F8C67113A32DF00693FFD /* BoardView.xib in Resources */ = {isa = PBXBuildFile; fileRef = AF5F8C66113A32DF00693FFD /* BoardView.xib */; };
 		AF5F8C6D113A349100693FFD /* AIBoardView.xib in Resources */ = {isa = PBXBuildFile; fileRef = AF5F8C6C113A349100693FFD /* AIBoardView.xib */; };
-		AF5F8D8B113A45C800693FFD /* NetworkBoardView.xib in Resources */ = {isa = PBXBuildFile; fileRef = AF5F8D8A113A45C800693FFD /* NetworkBoardView.xib */; };
 		AF5F8DF2113A4C2900693FFD /* identity.png in Resources */ = {isa = PBXBuildFile; fileRef = AF5F8DF1113A4C2900693FFD /* identity.png */; };
 		AF5F8DFA113A4E5300693FFD /* search.png in Resources */ = {isa = PBXBuildFile; fileRef = AF5F8DF9113A4E5300693FFD /* search.png */; };
 		AF6B21EB1131C65200A2AA3A /* SKELETON.png in Resources */ = {isa = PBXBuildFile; fileRef = AF6B21E71131C65200A2AA3A /* SKELETON.png */; };
@@ -157,7 +156,6 @@
 		AF559E54112720F900C6236D /* help.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = help.png; sourceTree = "<group>"; };
 		AF5F8C66113A32DF00693FFD /* BoardView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = BoardView.xib; path = NIB_Files/BoardView.xib; sourceTree = "<group>"; };
 		AF5F8C6C113A349100693FFD /* AIBoardView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = AIBoardView.xib; path = NIB_Files/AIBoardView.xib; sourceTree = "<group>"; };
-		AF5F8D8A113A45C800693FFD /* NetworkBoardView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = NetworkBoardView.xib; path = NIB_Files/NetworkBoardView.xib; sourceTree = "<group>"; };
 		AF5F8DF1113A4C2900693FFD /* identity.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = identity.png; sourceTree = "<group>"; };
 		AF5F8DF9113A4E5300693FFD /* search.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = search.png; sourceTree = "<group>"; };
 		AF68AB76126A5CC600999368 /* vi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = vi; path = vi.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -436,7 +434,6 @@
 				AF0F05CC11302A00007F6981 /* SingleSelectionView.xib */,
 				AF5F8C66113A32DF00693FFD /* BoardView.xib */,
 				AF5F8C6C113A349100693FFD /* AIBoardView.xib */,
-				AF5F8D8A113A45C800693FFD /* NetworkBoardView.xib */,
 			);
 			name = "NIB Files";
 			sourceTree = "<group>";
@@ -553,7 +550,6 @@
 				AFC901A71138708300CAB0DD /* AI-level.png in Resources */,
 				AF5F8C67113A32DF00693FFD /* BoardView.xib in Resources */,
 				AF5F8C6D113A349100693FFD /* AIBoardView.xib in Resources */,
-				AF5F8D8B113A45C800693FFD /* NetworkBoardView.xib in Resources */,
 				AF5F8DF2113A4C2900693FFD /* identity.png in Resources */,
 				AF5F8DFA113A4E5300693FFD /* search.png in Resources */,
 				AF81950411456EA100CF465B /* Western.png in Resources */,
