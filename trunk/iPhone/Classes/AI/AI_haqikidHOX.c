@@ -419,7 +419,7 @@ int historyComp(const void *x, const void *y)
 
 void InitMaterial()
 {
-    int nR, nC, nH, nP, nA, nE, density, total, defenders, attackers, i;
+    int nR, nC, nH, nP, nA, nE, density, total, i;
     
     for(nR=0; nR<=2; nR++)
         for(nC=0; nC<=2; nC++)
@@ -438,9 +438,11 @@ void InitMaterial()
                             if(total > 127 || total < -128) exit(0);
                             // Commented by HPHAN: total += 25*nP + 112*(nC+nH) + 225*nR - 50*nA - 35*nE;
                             // devaluate superfluous defenders
-                            defenders = 2*nA + 2*nE;
-                            attackers = 8*nR + 4*nH + 2*nC + 3*nP;
-                            // Commented by HPHAN: to fix the warning "Expression result unused".
+                            
+                            // Commented by HPHAN: to fix the warning "Expression result unused"
+                            //   and "Value stored ... never read
+                            //defenders = 2*nA + 2*nE;
+                            //attackers = 8*nR + 4*nH + 2*nC + 3*nP;
                             //if(defenders > attackers ,0)
                             //    materialTable[i] += 6*(defenders - attackers);
                         }
