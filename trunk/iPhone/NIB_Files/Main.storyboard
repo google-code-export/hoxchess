@@ -72,7 +72,7 @@
                                 <rect key="frame" x="0.0" y="518" width="320" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <string key="text">HOXChess 1.2
-Copyright © 2011 PlayXiangqi.com</string>
+Copyright © 2014 PlayXiangqi.com</string>
                                 <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="13"/>
                                 <color key="textColor" name="secondarySelectedControlColor" catalog="System" colorSpace="catalog"/>
                                 <color key="highlightedColor" red="0.59999999999999998" green="0.59999999999999998" blue="0.59999999999999998" alpha="0.63" colorSpace="calibratedRGB"/>
