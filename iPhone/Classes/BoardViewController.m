@@ -55,7 +55,7 @@ enum InfoLabelTag
 - (void) _setReplayMode:(BOOL)on;
 - (void) _ticked:(NSTimer*)timer;
 - (void) _updateTimer;
-- (NSString*) _allocStringFrom:(int)seconds;
+- (NSString*) _stringFrom:(int)seconds;
 @end
 
 @implementation BoardViewController
@@ -101,13 +101,13 @@ enum InfoLabelTag
         _blackTime = [[TimeInfo alloc] initWithTime:_initialTime];
         _red_time.font = [UIFont fontWithName:@"DBLCDTempBlack" size:14.0];
         _red_move_time.font = [UIFont fontWithName:@"DBLCDTempBlack" size:15.0];
-        _red_time.text = [self _allocStringFrom:_redTime.gameTime];
-        _red_move_time.text = [self _allocStringFrom:_redTime.moveTime];
+        _red_time.text = [self _stringFrom:_redTime.gameTime];
+        _red_move_time.text = [self _stringFrom:_redTime.moveTime];
         
         _black_time.font = [UIFont fontWithName:@"DBLCDTempBlack" size:14.0];
         _black_move_time.font = [UIFont fontWithName:@"DBLCDTempBlack" size:15.0];
-        _black_time.text = [self _allocStringFrom:_blackTime.gameTime];
-        _black_move_time.text = [self _allocStringFrom:_blackTime.moveTime];
+        _black_time.text = [self _stringFrom:_blackTime.gameTime];
+        _black_move_time.text = [self _stringFrom:_blackTime.moveTime];
 
         _red_label.text = @"";
         _black_label.text = @"";
@@ -234,16 +234,16 @@ enum InfoLabelTag
 {
     [_redTime release];
     _redTime = [TimeInfo allocTimeFromString:times];
-    _red_time.text = [self _allocStringFrom:_redTime.gameTime];
-    _red_move_time.text = [self _allocStringFrom:_redTime.moveTime];
+    _red_time.text = [self _stringFrom:_redTime.gameTime];
+    _red_move_time.text = [self _stringFrom:_redTime.moveTime];
 }
 
 - (void) setBlackTime:(NSString*)times
 {
     [_blackTime release];
     _blackTime = [TimeInfo allocTimeFromString:times];
-    _black_time.text = [self _allocStringFrom:_blackTime.gameTime];
-    _black_move_time.text = [self _allocStringFrom:_blackTime.moveTime];
+    _black_time.text = [self _stringFrom:_blackTime.gameTime];
+    _black_move_time.text = [self _stringFrom:_blackTime.moveTime];
 }
 
 - (BOOL) _isInReplay
@@ -344,9 +344,9 @@ enum InfoLabelTag
     _pickedUpPiece = nil;
 }
 
-- (NSString*) _allocStringFrom:(int)seconds
+- (NSString*) _stringFrom:(int)seconds
 {
-    return [[NSString alloc] initWithFormat:@"%d:%02d", (seconds / 60), (seconds % 60)];
+    return [NSString stringWithFormat:@"%d:%02d", (seconds / 60), (seconds % 60)];
 }
 
 - (void) _playSoundAfterMove:(MoveAtom*)pMove
@@ -499,12 +499,12 @@ enum InfoLabelTag
 - (void) _updateTimer
 {
     if (_game.nextColor == HC_COLOR_BLACK) {
-        _black_time.text = [self _allocStringFrom:_blackTime.gameTime];
-        _black_move_time.text = [self _allocStringFrom:_blackTime.moveTime];
+        _black_time.text = [self _stringFrom:_blackTime.gameTime];
+        _black_move_time.text = [self _stringFrom:_blackTime.moveTime];
         [_blackTime decrement];
     } else {
-        _red_time.text = [self _allocStringFrom:_redTime.gameTime];
-        _red_move_time.text = [self _allocStringFrom:_redTime.moveTime];
+        _red_time.text = [self _stringFrom:_redTime.gameTime];
+        _red_move_time.text = [self _stringFrom:_redTime.moveTime];
         [_redTime decrement];
     }
 }
@@ -758,10 +758,10 @@ enum InfoLabelTag
     _redTime = [[TimeInfo alloc] initWithTime:_initialTime];
     [_blackTime release];
     _blackTime = [[TimeInfo alloc] initWithTime:_initialTime];
-    _red_time.text = [self _allocStringFrom:_redTime.gameTime];
-    _red_move_time.text = [self _allocStringFrom:_redTime.moveTime];
-    _black_time.text = [self _allocStringFrom:_blackTime.gameTime];
-    _black_move_time.text = [self _allocStringFrom:_blackTime.moveTime];
+    _red_time.text = [self _stringFrom:_redTime.gameTime];
+    _red_move_time.text = [self _stringFrom:_redTime.moveTime];
+    _black_time.text = [self _stringFrom:_blackTime.gameTime];
+    _black_move_time.text = [self _stringFrom:_blackTime.moveTime];
 
     _game_over_msg.hidden = YES;
     _game_over_msg.tag = INFO_LABEL_TAG_NONE;

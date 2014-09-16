@@ -150,6 +150,7 @@ BOOL layerIsGridCell( CALayer* layer ) { return [layer isKindOfClass: [GridCell 
         cell = [[GridCell alloc] initWithGrid:self row:row column:col frame:frame];
         [_cells replaceObjectAtIndex:index withObject:cell];
         [self addSublayer:cell];
+        [cell release];
         [self setNeedsDisplay];
     }
     return cell;

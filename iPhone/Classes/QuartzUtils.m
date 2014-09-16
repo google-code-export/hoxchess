@@ -217,6 +217,7 @@ CGColorRef GetCGPatternNamed( NSString *name )         // can be resource name o
     if( ! pattern ) {
         pattern = CreatePatternColor( GetCGImageNamed(name) );
         [sMap setObject: (id)pattern forKey: name];
+        CFRelease(pattern);
     }
     return pattern;
 }

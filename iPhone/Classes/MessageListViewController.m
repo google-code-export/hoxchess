@@ -52,11 +52,12 @@
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
-    if ( (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) ) {
+    if ( (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) )
+    {
         self.tableId = nil;
         nNew = 0;
         _messages = [[NSMutableArray alloc] init];
-        self._dateFormatter = [[NSDateFormatter alloc] init];
+        _dateFormatter = [[NSDateFormatter alloc] init];
         [_dateFormatter setDateStyle:NSDateFormatterShortStyle];
         [_dateFormatter setTimeStyle:kCFDateFormatterMediumStyle];
         _inputController = nil;
