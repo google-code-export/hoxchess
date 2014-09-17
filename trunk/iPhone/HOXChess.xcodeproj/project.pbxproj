@@ -677,7 +677,7 @@
 				GCC_PREFIX_HEADER = Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
 				PRODUCT_NAME = HOXChess;
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "eff2d966-01d0-4fdd-8dde-f8e22baf66a8";
 			};
 			name = Release;
 		};
@@ -691,7 +691,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PREBINDING = NO;
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "353cf28f-5d9c-4051-8375-fc2d85e0dd63";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "b287d139-edb2-42c0-b217-2735d9e6f392";
 				SDKROOT = iphoneos;
 			};
 			name = "Distribution (AdHoc)";
@@ -701,13 +701,14 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
 				PRODUCT_NAME = HOXChess;
 				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "b287d139-edb2-42c0-b217-2735d9e6f392";
 			};
 			name = "Distribution (AdHoc)";
 		};
