@@ -174,7 +174,7 @@
     self.contents = (id) image;
     self.contentsGravity = kCAGravityResizeAspect;
     self.minificationFilter = kCAFilterLinear;
-    int width = 0, height = 0;
+    CGFloat width = 0, height = 0;
     if( scale >= 4.0 ) {
         width = scale;  // interpret scale as target dimensions
         height = scale;

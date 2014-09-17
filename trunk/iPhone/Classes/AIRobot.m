@@ -61,7 +61,7 @@
             default: _aiEngine = nil;
         }
         [_aiEngine initGame];
-        _aiLevel = [[NSUserDefaults standardUserDefaults] integerForKey:@"ai_level"];
+        _aiLevel = (int) [[NSUserDefaults standardUserDefaults] integerForKey:@"ai_level"];
         int nDifficulty = 1;
         switch (_aiLevel) {
             case 0: nDifficulty = 1; break;

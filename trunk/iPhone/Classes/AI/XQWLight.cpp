@@ -61,16 +61,16 @@ static int         s_search_time = 1;  // In seconds (search-time)
 ///////////////////////////////////////////////////////////////////////////////
 
 
-const int SQUARE_SIZE = 56;
-const int BOARD_EDGE = 8;
-const int BOARD_WIDTH = BOARD_EDGE + SQUARE_SIZE * 9 + BOARD_EDGE;
-const int BOARD_HEIGHT = BOARD_EDGE + SQUARE_SIZE * 10 + BOARD_EDGE;
+//const int SQUARE_SIZE = 56;
+//const int BOARD_EDGE = 8;
+//const int BOARD_WIDTH = BOARD_EDGE + SQUARE_SIZE * 9 + BOARD_EDGE;
+//const int BOARD_HEIGHT = BOARD_EDGE + SQUARE_SIZE * 10 + BOARD_EDGE;
 
 // 棋盘范围
-const int RANK_TOP = 3;
-const int RANK_BOTTOM = 12;
-const int FILE_LEFT = 3;
-const int FILE_RIGHT = 11;
+//const int RANK_TOP = 3;
+//const int RANK_BOTTOM = 12;
+//const int FILE_LEFT = 3;
+//const int FILE_RIGHT = 11;
 
 // 棋子编号
 const int PIECE_KING = 0;
@@ -1197,7 +1197,7 @@ static void LoadBook(const char *opening_book) {
     }
 
     ifstream::pos_type size = fp_in.tellg();
-    Search.nBookSize = size / sizeof(BookItem);
+    Search.nBookSize = (int) (size / sizeof(BookItem));
     if (Search.nBookSize > BOOK_SIZE) {
       Search.nBookSize = BOOK_SIZE;
     }
@@ -1657,7 +1657,7 @@ static void SearchMain(void) {
   memset(Search.nHistoryTable, 0, 65536 * sizeof(int));       // 清空历史表
   memset(Search.mvKillers, 0, LIMIT_DEPTH * 2 * sizeof(int)); // 清空杀手走法表
   memset(Search.HashTable, 0, HASH_SIZE * sizeof(HashItem));  // 清空置换表
-  t = clock();       // 初始化定时器
+  t = (int) clock();       // 初始化定时器
   pos.nDistance = 0; // 初始步数
 
   // 搜索开局库

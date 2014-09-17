@@ -297,8 +297,8 @@ static void releasePatternImage( void *info )
 CGPatternRef CreateImagePattern( CGImageRef image )
 {
     NSCParameterAssert(image);
-    int width = CGImageGetWidth(image);
-    int height = CGImageGetHeight(image);
+    CGFloat width = CGImageGetWidth(image);
+    CGFloat height = CGImageGetHeight(image);
     static const CGPatternCallbacks callbacks = {0, &drawPatternImage, &releasePatternImage};
     return CGPatternCreate (image,
                             CGRectMake (0, 0, width, height),

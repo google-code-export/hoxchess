@@ -29,7 +29,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    int settingsVersion = [[NSUserDefaults standardUserDefaults] integerForKey:@"settings_version"];
+    NSInteger settingsVersion = [[NSUserDefaults standardUserDefaults] integerForKey:@"settings_version"];
     if (settingsVersion == 0) // Not set?
     {
         // This is the first time this App runs.
@@ -45,6 +45,8 @@
 
     [SoundManager sharedInstance].enabled = 
         [[NSUserDefaults standardUserDefaults] boolForKey:@"sound_on"];
+    
+    return YES;
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application

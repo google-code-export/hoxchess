@@ -110,14 +110,14 @@
 
 // Customize the number of rows in the table view.
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    NSLog(@"%s: ENTER. section = [%d]", __FUNCTION__, section);
+    NSLog(@"%s: ENTER. section = [%ld]", __FUNCTION__, (long)section);
     return [_messages count];
 }
 
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSLog(@"%s: ENTER. indexPath.row = [%d]", __FUNCTION__, indexPath.row);
+    NSLog(@"%s: ENTER. indexPath.row = [%ld]", __FUNCTION__, (long)indexPath.row);
     static NSString *CellIdentifier = @"MessageCell";
     
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
@@ -138,7 +138,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSLog(@"%s: ENTER. indexPath.row = [%d]", __FUNCTION__, indexPath.row);
+    NSLog(@"%s: ENTER. indexPath.row = [%ld]", __FUNCTION__, (long)indexPath.row);
 }
 
 - (void)dealloc

@@ -49,15 +49,15 @@ typedef unsigned int       DWORD;
 ///////////////////////////////////////////////////////////////////////////////
 
 
-const int SQUARE_SIZE = 56;
-const int BOARD_EDGE = 8;
-const int BOARD_WIDTH = BOARD_EDGE + SQUARE_SIZE * 9 + BOARD_EDGE;
-const int BOARD_HEIGHT = BOARD_EDGE + SQUARE_SIZE * 10 + BOARD_EDGE;
+//const int SQUARE_SIZE = 56;
+//const int BOARD_EDGE = 8;
+//const int BOARD_WIDTH = BOARD_EDGE + SQUARE_SIZE * 9 + BOARD_EDGE;
+//const int BOARD_HEIGHT = BOARD_EDGE + SQUARE_SIZE * 10 + BOARD_EDGE;
 
-const int RANK_TOP = 3;
-const int RANK_BOTTOM = 12;
-const int FILE_LEFT = 3;
-const int FILE_RIGHT = 11;
+//const int RANK_TOP = 3;
+//const int RANK_BOTTOM = 12;
+//const int FILE_LEFT = 3;
+//const int FILE_RIGHT = 11;
 
 const int PIECE_KING = 0;
 const int PIECE_ADVISOR = 1;
@@ -71,7 +71,7 @@ const int MAX_GEN_MOVES = 128;
 const int MAX_MOVES = 256;
 const int MATE_VALUE = 10000;
 const int BAN_VALUE = MATE_VALUE - 100;
-const int WIN_VALUE = MATE_VALUE - 200;
+//const int WIN_VALUE = MATE_VALUE - 200;
 const int DRAW_VALUE = 20;
 
 static const char ccInBoard[256] = {
