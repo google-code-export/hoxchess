@@ -405,7 +405,7 @@ unsigned char *PST[] = {
 int GetTickCount() // with thanks to Tord Romstad
 {       struct timeval t;
     gettimeofday(&t, NULL);
-    return t.tv_sec*1000 + t.tv_usec/1000;
+    return (int) (t.tv_sec*1000 + t.tv_usec/1000);
 }
 #endif
 

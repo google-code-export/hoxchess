@@ -24,8 +24,8 @@
 - (void) _openIOStreams;
 - (void) _closeIOStreams;
 - (void) _flushOutgoingData:(NSString*)outStr;
-- (unsigned int) _sendOutgoingData;
-- (unsigned int) _receiveIncomingData;
+- (NSUInteger) _sendOutgoingData;
+- (NSInteger) _receiveIncomingData;
 @end
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -239,7 +239,7 @@
         }
         case NSStreamEventHasSpaceAvailable:
         {
-            unsigned int nBytesSent = [self _sendOutgoingData];
+            NSUInteger nBytesSent = [self _sendOutgoingData];
             // NOTE: if the "gate is open" but we do not have data to write,
             //       then we "mark" this condition so that we can write
             //       data out directly (without being blocked).
@@ -275,9 +275,9 @@
 /**
  * @return the number of bytes written.
  */
-- (unsigned int) _sendOutgoingData
+- (NSUInteger) _sendOutgoingData
 {
-    const int dataLen = [_outData length];
+    const NSUInteger dataLen = [_outData length];
     if (dataLen == 0) {
         //NSLog(@"No more data to send.");
         return 0;
@@ -287,7 +287,7 @@
     
     uint8_t *readBytes = (uint8_t *)[_outData mutableBytes];
     readBytes += _outByteIndex; // instance variable to move pointer
-    unsigned int len = ((dataLen - _outByteIndex >= 1024) ?
+    NSUInteger len = ((dataLen - _outByteIndex >= 1024) ?
                         1024 : (dataLen-_outByteIndex));
     uint8_t buf[len];
     (void)memcpy(buf, readBytes, len);
@@ -304,12 +304,16 @@
 /**
  * @return the number of bytes received.
  */
-- (unsigned int) _receiveIncomingData
+- (NSInteger) _receiveIncomingData
 {
     uint8_t buf[1024];
-    unsigned int len = 0;
+    NSInteger len = 0;
     len = [_inStream read:buf maxLength:sizeof(buf)];
-    if(len == 0) {
+    if(len < 0) {
+        NSLog(@"%s: Operation failed. (len = %ld)", __FUNCTION__, (long)len);
+        return 0;
+    }
+    else if(len == 0) {
         NSLog(@"No input buffer to receive!");
         return 0;
     }
@@ -318,7 +322,7 @@
     
     // Note: Each event is separated by an "\n\n" token.
     //   - Start processing event by event.
-    const int dataLen = [_inData length];
+    const int dataLen = (int) [_inData length];
     uint8_t *inBytes = (uint8_t *)[_inData mutableBytes];
     uint8_t b; // The current byte being examined.
     bool bSawOne = false;  // just saw one '\n'?

@@ -72,7 +72,7 @@ static SoundManager* _sharedAudio = nil;
 
 - (id) copyWithZone:(NSZone *)zone { return self; }
 - (id) retain { return self; }
-- (unsigned) retainCount { return UINT_MAX; /* ... cannot be released */ }
+- (NSUInteger) retainCount { return UINT_MAX; /* ... cannot be released */ }
 - (id) autorelease { return self; }
 
 

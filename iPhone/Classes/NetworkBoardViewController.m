@@ -639,7 +639,7 @@
             //NSLog(@"%s: A new event [%@].", __FUNCTION__, event);
             NSMutableDictionary* newEvent = [self _allocNewEvent:event];
             NSString* op = [newEvent objectForKey:@"op"];
-            int code = [[newEvent objectForKey:@"code"] integerValue];
+            int code = (int) [[newEvent objectForKey:@"code"] integerValue];
             NSString* content = [newEvent objectForKey:@"content"];
             NSString* tableId = [newEvent objectForKey:@"tid"];
 
@@ -815,7 +815,7 @@
     Position from, to;
     NSArray* moves = [movesStr componentsSeparatedByString:@"/"];
 
-    const int moveCount = [moves count];
+    const int moveCount = (int) [moves count];
     const int lastResumedIndex = moveCount - 1;
 
     for (int i = 0; i < moveCount; ++i)

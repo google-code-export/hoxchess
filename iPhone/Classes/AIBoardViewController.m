@@ -328,7 +328,7 @@ enum ActionSheetEnum
 
 - (void) onMoveGeneratedByAI:(NSNumber *)moveInfo
 {
-    int  move = [moveInfo integerValue];
+    int  move = (int) [moveInfo integerValue];
     int sqSrc = SRC(move);
     int sqDst = DST(move);
     Position from, to;
@@ -449,7 +449,7 @@ enum ActionSheetEnum
 - (void) _loadPendingGame:(NSString *)sPendingGame
 {
     NSArray* moves = [sPendingGame componentsSeparatedByString:@","];
-    const int size = [moves count];
+    const int size = (int) [moves count];
     NSMutableArray* moveList = [NSMutableArray arrayWithCapacity:size];
     for (int i = 0; i < size; ++i)
     {
@@ -465,11 +465,11 @@ enum ActionSheetEnum
     NSArray* moves = [NSArray arrayWithArray:[_board getMoves]];
     NSUInteger moveCount = [moves count];
 
-    int myLastMoveIndex = moveCount-1;
+    int myLastMoveIndex = (int) (moveCount-1);
     if (!_aiSuspended) {
         myLastMoveIndex = (_myColor == HC_COLOR_RED
-                           ? ( (moveCount % 2) ? moveCount-1 : moveCount-2 )
-                           : ( (moveCount % 2) ? moveCount-2 : moveCount-1 ));
+                           ? (int) ( (moveCount % 2) ? moveCount-1 : moveCount-2 )
+                           : (int) ( (moveCount % 2) ? moveCount-2 : moveCount-1 ));
     }
 
     // NOTE: We know that at this time AI is not thinking.
@@ -504,7 +504,7 @@ enum ActionSheetEnum
     int sqDst = 0;
     Position from, to;
     
-    const int moveCount = [moves count];
+    const int moveCount = (int) [moves count];
     const int lastResumedIndex = moveCount - 1;
     
     for (int i = 0; i < moveCount; ++i)

@@ -118,7 +118,7 @@
         if ([subTitle length] == 0) subTitle = nil;
     }
 
-    NSString* cellId = [NSString stringWithFormat:@"%d", indexPath.row];
+    NSString* cellId = [NSString stringWithFormat:@"%ld", (long)indexPath.row];
     UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:cellId];
     if (!cell) {
         cell = [[[UITableViewCell alloc] initWithStyle:(subTitle ? UITableViewCellStyleSubtitle
@@ -152,7 +152,7 @@
 
     UITableViewCell* cell = [tableView cellForRowAtIndexPath:indexPath];
     cell.accessoryType = UITableViewCellAccessoryCheckmark;
-    _selectionIndex = indexPath.row;
+    _selectionIndex = (unsigned int) indexPath.row;
 
     [_delegate didSelect:self rowAtIndex:_selectionIndex];
 }

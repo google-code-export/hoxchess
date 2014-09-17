@@ -279,7 +279,7 @@ static NSString* PiecePaths[] = { @"pieces/alfaerie",
                     controller.rowHeight = 78;
                     subController = controller;
                     controller.title = ((UILabel*)[_boardCell viewWithTag:1]).text;
-                    controller.selectionIndex = _boardType;
+                    controller.selectionIndex = (unsigned int)_boardType;
                     controller.tag = VIEW_TAG_BOARD_STYLE;
                     break;
                 }
@@ -311,7 +311,7 @@ static NSString* PiecePaths[] = { @"pieces/alfaerie",
                     controller.rowHeight = 78;
                     subController = controller;
                     controller.title = ((UILabel*)[_pieceCell viewWithTag:1]).text;
-                    controller.selectionIndex = _pieceType;
+                    controller.selectionIndex = (unsigned int)_pieceType;
                     controller.tag = VIEW_TAG_PIECE_STYLE;
                     break;
                 }
@@ -335,7 +335,7 @@ static NSString* PiecePaths[] = { @"pieces/alfaerie",
                     controller.rowHeight = 100;
                     subController = controller;
                     controller.title = ((UILabel*)[_aiTypeCell viewWithTag:1]).text;
-                    controller.selectionIndex = _aiType;
+                    controller.selectionIndex = (unsigned int)_aiType;
                     controller.tag = VIEW_TAG_AI_TYPE;
                     break;
                 }
@@ -346,7 +346,7 @@ static NSString* PiecePaths[] = { @"pieces/alfaerie",
                                                                   delegate:self];
                     subController = controller;
                     controller.title = ((UILabel*)[_aiLevelCell viewWithTag:1]).text;
-                    controller.selectionIndex = _aiLevel;
+                    controller.selectionIndex = (unsigned int)_aiLevel;
                     controller.tag = VIEW_TAG_AI_LEVEL;
                     break;
                 }

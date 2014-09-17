@@ -91,7 +91,7 @@ enum InfoLabelTag
         [self.view.layer addSublayer:_gameboard];
         [self.view bringSubviewToFront:_game_over_msg];
 
-        int boardType = [[NSUserDefaults standardUserDefaults] integerForKey:@"board_type"];
+        int boardType = (int) [[NSUserDefaults standardUserDefaults] integerForKey:@"board_type"];
         _game = [[Game alloc] initWithBoard:_gameboard boardType:boardType];
 
         _boardOwner = nil;
@@ -478,9 +478,9 @@ enum InfoLabelTag
 - (void) _setReplayMode:(BOOL)on
 {
     if (on) {
-        _game_over_msg.text = [NSString stringWithFormat:@"%@ %d/%d",
+        _game_over_msg.text = [NSString stringWithFormat:@"%@ %d/%lu",
                                NSLocalizedString(@"Replay", @""),
-                               _nthMove+1, [_moves count]];
+                               _nthMove+1, (unsigned long)[_moves count]];
         if (_game_over_msg.tag != INFO_LABEL_TAG_REPLAY) {
             _game_over_msg.hidden = NO;
             _game_over_msg.alpha = 0.5;
@@ -555,7 +555,7 @@ enum InfoLabelTag
     }
 
     if (_nthMove == HISTORY_INDEX_END ) { // at the END mark?
-        _nthMove = [_moves count] - 1; // Get the latest move.
+        _nthMove = (int) ([_moves count] - 1); // Get the latest move.
     }
     
     MoveAtom* pMove = [_moves objectAtIndex:_nthMove];
@@ -673,7 +673,7 @@ enum InfoLabelTag
         return;
     }
     
-    const int lastMoveIndex = [_moves count] - 2;
+    const int lastMoveIndex = (int) ([_moves count] - 2);
     while (_nthMove < lastMoveIndex) {
         [self _doReplayNEXT:NO];
     }
