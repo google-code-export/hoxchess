@@ -86,8 +86,8 @@
 		AFF191D7111D118000849AEA /* MessageListView.xib in Resources */ = {isa = PBXBuildFile; fileRef = AFF191D6111D118000849AEA /* MessageListView.xib */; };
 		AFF58765113579BF007E5DF1 /* AIRobot.m in Sources */ = {isa = PBXBuildFile; fileRef = AFF58764113579BF007E5DF1 /* AIRobot.m */; };
 		DE964FCE1082511E00980CF6 /* OptionsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = DE964FCC1082511E00980CF6 /* OptionsView.xib */; };
-		E576B636199E515F00C440A5 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E576B635199E515F00C440A5 /* Default-568h@2x.png */; };
 		E5D0305119C1FFC300310CBF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E5D0305019C1FFC300310CBF /* Main.storyboard */; };
+		E5D6F4F019CA219A008B8CE7 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E5D6F4EF19CA219A008B8CE7 /* Images.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -207,8 +207,8 @@
 		AFF58764113579BF007E5DF1 /* AIRobot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = AIRobot.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		AFF89D0F106FEF2B00E2136D /* Enums.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = Enums.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		DE964FCC1082511E00980CF6 /* OptionsView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = OptionsView.xib; path = NIB_Files/OptionsView.xib; sourceTree = "<group>"; };
-		E576B635199E515F00C440A5 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		E5D0305019C1FFC300310CBF /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = Main.storyboard; path = NIB_Files/Main.storyboard; sourceTree = "<group>"; };
+		E5D6F4EF19CA219A008B8CE7 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = HOXChess/Images.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -250,7 +250,6 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
-				E576B635199E515F00C440A5 /* Default-568h@2x.png */,
 				29B97315FDCFA39411CA2CEA /* Main Sources */,
 				AFDABFEE114BF8F4008F17D1 /* Common Sources */,
 				080E96DDFE201D6D7F000001 /* Classes */,
@@ -276,6 +275,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				E5D6F4EF19CA219A008B8CE7 /* Images.xcassets */,
 				AFA63FE3106FABD700D7B220 /* images */,
 				AF6B21E61131C65200A2AA3A /* boards */,
 				4BE40C0B10691A1B006154CC /* books */,
@@ -541,11 +541,11 @@
 				AF0F05CE11302A00007F6981 /* SingleSelectionView.xib in Resources */,
 				AF6B21EB1131C65200A2AA3A /* SKELETON.png in Resources */,
 				AF6B21EC1131C65200A2AA3A /* SKELETON_60px.png in Resources */,
+				E5D6F4F019CA219A008B8CE7 /* Images.xcassets in Resources */,
 				AF6B21ED1131C65200A2AA3A /* WOOD.png in Resources */,
 				AF6B21EE1131C65200A2AA3A /* WOOD_60px.png in Resources */,
 				AF6B222D1131C92300A2AA3A /* board_60px.png in Resources */,
 				AFBA3CF61134460B00F8F4ED /* change-role.png in Resources */,
-				E576B636199E515F00C440A5 /* Default-568h@2x.png in Resources */,
 				AF6E173711383B5E00590B9E /* volume_on.png in Resources */,
 				AFC901A71138708300CAB0DD /* AI-level.png in Resources */,
 				AF5F8C67113A32DF00693FFD /* BoardView.xib in Resources */,
@@ -652,6 +652,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
@@ -670,6 +672,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
@@ -700,6 +704,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				COPY_PHASE_STRIP = YES;
@@ -731,6 +737,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
